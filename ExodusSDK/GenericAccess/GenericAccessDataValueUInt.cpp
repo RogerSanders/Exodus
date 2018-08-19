@@ -42,7 +42,7 @@ unsigned int GenericAccessDataValueUInt::GetValue() const
 Marshal::Ret<std::wstring> GenericAccessDataValueUInt::GetValueString() const
 {
 	std::wstring result;
-	switch(_displayMode)
+	switch (_displayMode)
 	{
 	case IntDisplayMode::Binary:
 		IntToStringBase2(_dataValue, result, _minChars);
@@ -82,7 +82,7 @@ bool GenericAccessDataValueUInt::SetValueString(const Marshal::In<std::wstring>&
 	//Calculate the default base to use for the specified number based on the specified
 	//display mode
 	unsigned int defaultBase = 10;
-	switch(_displayMode)
+	switch (_displayMode)
 	{
 	case IntDisplayMode::Binary:
 		defaultBase = 2;
@@ -100,7 +100,7 @@ bool GenericAccessDataValueUInt::SetValueString(const Marshal::In<std::wstring>&
 
 	//Attempt to convert the string to an integer
 	unsigned int valueConverted;
-	if(!StringToInt(value, valueConverted, defaultBase))
+	if (!StringToInt(value, valueConverted, defaultBase))
 	{
 		return false;
 	}
@@ -141,7 +141,7 @@ unsigned int GenericAccessDataValueUInt::CalculateDisplayChars(IntDisplayMode di
 	//If the display mode for this integer is set to decimal, shortcut any further
 	//evaluation and return 1, since we default to using the minimum number of display
 	//characters for decimal numbers.
-	if(displayMode == IntDisplayMode::Decimal)
+	if (displayMode == IntDisplayMode::Decimal)
 	{
 		return 1;
 	}
@@ -149,7 +149,7 @@ unsigned int GenericAccessDataValueUInt::CalculateDisplayChars(IntDisplayMode di
 	//Build strings for the max and min values
 	std::wstring minValueString;
 	std::wstring maxValueString;
-	switch(displayMode)
+	switch (displayMode)
 	{
 	case IntDisplayMode::Binary:
 		IntToStringBase2(minValue, minValueString, 0, false);

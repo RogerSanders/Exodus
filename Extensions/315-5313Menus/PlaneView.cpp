@@ -39,7 +39,7 @@ PlaneView::PlaneView(IUIManager& uiManager, PlaneViewPresenter& presenter, IS315
 INT_PTR PlaneView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	WndProcDialogImplementSaveFieldWhenLostFocus(hwnd, msg, wparam, lparam);
-	switch(msg)
+	switch (msg)
 	{
 	case WM_INITDIALOG:
 		return msgWM_INITDIALOG(hwnd, wparam, lparam);
@@ -71,7 +71,7 @@ INT_PTR PlaneView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	//If the current width of the vertical scroll bar is different to the required width,
 	//resize the scroll bar to match the required size.
 	int scrollBarVRequiredWidth = GetSystemMetrics(SM_CXVSCROLL);
-	if(scrollBarVOriginalWidth != scrollBarVRequiredWidth)
+	if (scrollBarVOriginalWidth != scrollBarVRequiredWidth)
 	{
 		SetWindowPos(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_VSCROLL), NULL, 0, 0, scrollBarVRequiredWidth, scrollBarVOriginalHeight, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER | SWP_NOMOVE);
 	}
@@ -85,14 +85,14 @@ INT_PTR PlaneView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	//If the current height of the horizontal scroll bar is different to the required
 	//height, resize the scroll bar to match the required size.
 	int scrollBarHRequiredHeight = GetSystemMetrics(SM_CYHSCROLL);
-	if(scrollBarHOriginalHeight != scrollBarHRequiredHeight)
+	if (scrollBarHOriginalHeight != scrollBarHRequiredHeight)
 	{
 		SetWindowPos(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_HSCROLL), NULL, 0, 0, scrollBarHOriginalWidth, scrollBarHRequiredHeight, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER | SWP_NOMOVE);
 	}
 
 	//If we resized either the horizontal or vertical scrollbars, resize the main dialog
 	//window to match.
-	if((scrollBarVOriginalWidth != scrollBarVRequiredWidth) || (scrollBarHOriginalHeight != scrollBarHRequiredHeight))
+	if ((scrollBarVOriginalWidth != scrollBarVRequiredWidth) || (scrollBarHOriginalHeight != scrollBarHRequiredHeight))
 	{
 		//Calculate the current size of the dialog window
 		RECT mainDialogRect;
@@ -223,10 +223,10 @@ INT_PTR PlaneView::msgWM_SIZE(HWND hwnd, WPARAM wParam, LPARAM lParam)
 //----------------------------------------------------------------------------------------
 INT_PTR PlaneView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	if(HIWORD(wparam) == BN_CLICKED)
+	if (HIWORD(wparam) == BN_CLICKED)
 	{
 		int controlID = (int)LOWORD(wparam);
-		switch(controlID)
+		switch (controlID)
 		{
 		case IDC_S315_5313_PLANEVIEW_LAYERA:
 			_selectedLayer = SELECTEDLAYER_LAYERA;
@@ -300,22 +300,22 @@ INT_PTR PlaneView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			break;
 		}
 	}
-	else if((HIWORD(wparam) == EN_SETFOCUS) && _initializedDialog)
+	else if ((HIWORD(wparam) == EN_SETFOCUS) && _initializedDialog)
 	{
 		_previousText = GetDlgItemString(hwnd, LOWORD(wparam));
 		_currentControlFocus = LOWORD(wparam);
 	}
-	else if((HIWORD(wparam) == EN_KILLFOCUS) && _initializedDialog)
+	else if ((HIWORD(wparam) == EN_KILLFOCUS) && _initializedDialog)
 	{
 		std::wstring newText = GetDlgItemString(hwnd, LOWORD(wparam));
-		if(newText != _previousText)
+		if (newText != _previousText)
 		{
 			int controlID = (int)LOWORD(wparam);
-			switch(controlID)
+			switch (controlID)
 			{
 			case IDC_S315_5313_PLANEVIEW_PLANEWIDTHLAYERA:
 				_layerAScrollPlaneWidth = GetDlgItemBin(hwnd, controlID);
-				if(_layerAScrollPlaneWidth <= 0)
+				if (_layerAScrollPlaneWidth <= 0)
 				{
 					_layerAScrollPlaneWidth = 1;
 				}
@@ -323,7 +323,7 @@ INT_PTR PlaneView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 				break;
 			case IDC_S315_5313_PLANEVIEW_PLANEHEIGHTLAYERA:
 				_layerAScrollPlaneHeight = GetDlgItemBin(hwnd, controlID);
-				if(_layerAScrollPlaneHeight <= 0)
+				if (_layerAScrollPlaneHeight <= 0)
 				{
 					_layerAScrollPlaneHeight = 1;
 				}
@@ -331,7 +331,7 @@ INT_PTR PlaneView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 				break;
 			case IDC_S315_5313_PLANEVIEW_PLANEWIDTHLAYERB:
 				_layerBScrollPlaneWidth = GetDlgItemBin(hwnd, controlID);
-				if(_layerBScrollPlaneWidth <= 0)
+				if (_layerBScrollPlaneWidth <= 0)
 				{
 					_layerBScrollPlaneWidth = 1;
 				}
@@ -339,7 +339,7 @@ INT_PTR PlaneView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 				break;
 			case IDC_S315_5313_PLANEVIEW_PLANEHEIGHTLAYERB:
 				_layerBScrollPlaneHeight = GetDlgItemBin(hwnd, controlID);
-				if(_layerBScrollPlaneHeight <= 0)
+				if (_layerBScrollPlaneHeight <= 0)
 				{
 					_layerBScrollPlaneHeight = 1;
 				}
@@ -347,7 +347,7 @@ INT_PTR PlaneView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 				break;
 			case IDC_S315_5313_PLANEVIEW_PLANEWIDTHWINDOW:
 				_windowScrollPlaneWidth = GetDlgItemBin(hwnd, controlID);
-				if(_windowScrollPlaneWidth <= 0)
+				if (_windowScrollPlaneWidth <= 0)
 				{
 					_windowScrollPlaneWidth = 1;
 				}
@@ -355,7 +355,7 @@ INT_PTR PlaneView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 				break;
 			case IDC_S315_5313_PLANEVIEW_PLANEHEIGHTWINDOW:
 				_windowScrollPlaneHeight = GetDlgItemBin(hwnd, controlID);
-				if(_windowScrollPlaneHeight <= 0)
+				if (_windowScrollPlaneHeight <= 0)
 				{
 					_windowScrollPlaneHeight = 1;
 				}
@@ -363,7 +363,7 @@ INT_PTR PlaneView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 				break;
 			case IDC_S315_5313_PLANEVIEW_PLANEWIDTHSPRITES:
 				_spriteScrollPlaneWidth = GetDlgItemBin(hwnd, controlID);
-				if(_spriteScrollPlaneWidth <= 0)
+				if (_spriteScrollPlaneWidth <= 0)
 				{
 					_spriteScrollPlaneWidth = 1;
 				}
@@ -371,7 +371,7 @@ INT_PTR PlaneView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 				break;
 			case IDC_S315_5313_PLANEVIEW_PLANEHEIGHTSPRITES:
 				_spriteScrollPlaneHeight = GetDlgItemBin(hwnd, controlID);
-				if(_spriteScrollPlaneHeight <= 0)
+				if (_spriteScrollPlaneHeight <= 0)
 				{
 					_spriteScrollPlaneHeight = 1;
 				}
@@ -412,9 +412,9 @@ INT_PTR PlaneView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			}
 		}
 	}
-	else if((HIWORD(wparam) == CBN_SELCHANGE) && _initializedDialog)
+	else if ((HIWORD(wparam) == CBN_SELCHANGE) && _initializedDialog)
 	{
-		switch(LOWORD(wparam))
+		switch (LOWORD(wparam))
 		{
 		case IDC_S315_5313_PLANEVIEW_ZOOM:{
 			int itemIndex = (int)SendMessage(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_ZOOM), CB_GETCURSEL, 0, 0);
@@ -512,7 +512,7 @@ void PlaneView::UpdateScrollbar(HWND scrollWindow, WPARAM wParam)
 
 	//Calculate the new scrollbar position
 	int newScrollPos = currentScrollInfo.nPos;
-	switch(LOWORD(wParam))
+	switch (LOWORD(wParam))
 	{
 	case SB_THUMBTRACK:{
 		newScrollPos = currentScrollInfo.nTrackPos;
@@ -556,7 +556,7 @@ LRESULT CALLBACK PlaneView::WndProcRenderStatic(HWND hwnd, UINT msg, WPARAM wpar
 	PlaneView* state = (PlaneView*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
 	//Process the message
-	switch(msg)
+	switch (msg)
 	{
 	case WM_CREATE:
 		//Set the object pointer
@@ -564,13 +564,13 @@ LRESULT CALLBACK PlaneView::WndProcRenderStatic(HWND hwnd, UINT msg, WPARAM wpar
 		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)(state));
 
 		//Pass this message on to the member window procedure function
-		if(state != 0)
+		if (state != 0)
 		{
 			return state->WndProcRender(hwnd, msg, wparam, lparam);
 		}
 		break;
 	case WM_DESTROY:
-		if(state != 0)
+		if (state != 0)
 		{
 			//Pass this message on to the member window procedure function
 			LRESULT result = state->WndProcRender(hwnd, msg, wparam, lparam);
@@ -585,7 +585,7 @@ LRESULT CALLBACK PlaneView::WndProcRenderStatic(HWND hwnd, UINT msg, WPARAM wpar
 	}
 
 	//Pass this message on to the member window procedure function
-	if(state != 0)
+	if (state != 0)
 	{
 		return state->WndProcRender(hwnd, msg, wparam, lparam);
 	}
@@ -595,7 +595,7 @@ LRESULT CALLBACK PlaneView::WndProcRenderStatic(HWND hwnd, UINT msg, WPARAM wpar
 //----------------------------------------------------------------------------------------
 LRESULT PlaneView::WndProcRender(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
-	switch(msg)
+	switch (msg)
 	{
 	case WM_CREATE:
 		return msgRenderWM_CREATE(hwnd, wparam, lparam);
@@ -628,7 +628,7 @@ LRESULT PlaneView::msgRenderWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 
 	//OpenGL Initialization code
 	_glrc = CreateOpenGLWindow(hwnd);
-	if(_glrc != NULL)
+	if (_glrc != NULL)
 	{
 		UpdateRenderWindowSize(hwnd, windowWidth, windowHeight);
 	}
@@ -645,12 +645,12 @@ LRESULT PlaneView::msgRenderWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 //----------------------------------------------------------------------------------------
 LRESULT PlaneView::msgRenderWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	if(_glrc != NULL)
+	if (_glrc != NULL)
 	{
 		wglDeleteContext(_glrc);
 		_glrc = NULL;
 	}
-	if(_buffer != 0)
+	if (_buffer != 0)
 	{
 		delete[] _buffer;
 		_buffer = 0;
@@ -717,64 +717,64 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	_model.CalculateEffectiveCellScrollSize(hszState, vszState, currentRegisterScrollPlaneWidth, currentRegisterScrollPlaneHeight);
 
 	//Latch new settings for the layer A plane where required
-	if(!_layerAScrollPlaneManual)
+	if (!_layerAScrollPlaneManual)
 	{
 		_layerAScrollPlaneWidth = currentRegisterScrollPlaneWidth;
 		_layerAScrollPlaneHeight = currentRegisterScrollPlaneHeight;
 		UpdateDlgItemBin(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_PLANEWIDTHLAYERA, _layerAScrollPlaneWidth);
 		UpdateDlgItemBin(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_PLANEHEIGHTLAYERA, _layerAScrollPlaneHeight);
 	}
-	if(!_layerAMappingBaseManual)
+	if (!_layerAMappingBaseManual)
 	{
 		_layerAMappingBase = _model.RegGetNameTableBaseScrollA();
 		UpdateDlgItemHex(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_MAPPINGLAYERA, 5, _layerAMappingBase);
 	}
-	if(!_layerAPatternBaseManual)
+	if (!_layerAPatternBaseManual)
 	{
 		_layerAPatternBase = _model.RegGetPatternBaseScrollA();
 		UpdateDlgItemHex(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_PATTERNLAYERA, 5, _layerAPatternBase);
 	}
 
 	//Latch new settings for the layer B plane where required
-	if(!_layerBScrollPlaneManual)
+	if (!_layerBScrollPlaneManual)
 	{
 		_layerBScrollPlaneWidth = currentRegisterScrollPlaneWidth;
 		_layerBScrollPlaneHeight = currentRegisterScrollPlaneHeight;
 		UpdateDlgItemBin(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_PLANEWIDTHLAYERB, _layerBScrollPlaneWidth);
 		UpdateDlgItemBin(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_PLANEHEIGHTLAYERB, _layerBScrollPlaneHeight);
 	}
-	if(!_layerBMappingBaseManual)
+	if (!_layerBMappingBaseManual)
 	{
 		_layerBMappingBase = _model.RegGetNameTableBaseScrollB();
 		UpdateDlgItemHex(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_MAPPINGLAYERB, 5, _layerBMappingBase);
 	}
-	if(!_layerBPatternBaseManual)
+	if (!_layerBPatternBaseManual)
 	{
 		_layerBPatternBase = _model.RegGetPatternBaseScrollB();
 		UpdateDlgItemHex(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_PATTERNLAYERB, 5, _layerBPatternBase);
 	}
 
 	//Latch new settings for the window plane where required
-	if(!_windowScrollPlaneManual)
+	if (!_windowScrollPlaneManual)
 	{
 		_windowScrollPlaneWidth = h40ModeActive? 64: 32;
 		_windowScrollPlaneHeight = 32;
 		UpdateDlgItemBin(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_PLANEWIDTHWINDOW, _windowScrollPlaneWidth);
 		UpdateDlgItemBin(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_PLANEHEIGHTWINDOW, _windowScrollPlaneHeight);
 	}
-	if(!_windowMappingBaseManual)
+	if (!_windowMappingBaseManual)
 	{
 		_windowMappingBase = _model.RegGetNameTableBaseWindow();
 		UpdateDlgItemHex(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_MAPPINGWINDOW, 5, _windowMappingBase);
 	}
-	if(!_windowPatternBaseManual)
+	if (!_windowPatternBaseManual)
 	{
 		_windowPatternBase = _model.RegGetPatternBaseScrollA();
 		UpdateDlgItemHex(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_PATTERNWINDOW, 5, _windowPatternBase);
 	}
 
 	//Latch new settings for the sprite plane where required
-	if(!_spriteScrollPlaneManual)
+	if (!_spriteScrollPlaneManual)
 	{
 		const unsigned int spritePosBitCountH = 9;
 		const unsigned int spritePosBitCountV = (interlaceMode2Active)? 10: 9;
@@ -783,12 +783,12 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		UpdateDlgItemBin(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_PLANEWIDTHSPRITES, _spriteScrollPlaneWidth);
 		UpdateDlgItemBin(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_PLANEHEIGHTSPRITES, _spriteScrollPlaneHeight);
 	}
-	if(!_spriteMappingBaseManual)
+	if (!_spriteMappingBaseManual)
 	{
 		_spriteMappingBase = _model.RegGetNameTableBaseSprite();
 		UpdateDlgItemHex(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_MAPPINGSPRITES, 5, _spriteMappingBase);
 	}
-	if(!_spritePatternBaseManual)
+	if (!_spritePatternBaseManual)
 	{
 		_spritePatternBase = _model.RegGetPatternBaseSprite();
 		UpdateDlgItemHex(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_PATTERNSPRITES, 5, _spritePatternBase);
@@ -814,7 +814,7 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	//Retrieve the current layer size for the target layer
 	unsigned int selectedPlaneWidth = 0;
 	unsigned int selectedPlaneHeight = 0;
-	switch(_selectedLayer)
+	switch (_selectedLayer)
 	{
 	case SELECTEDLAYER_LAYERA:
 		selectedPlaneWidth = _layerAScrollPlaneWidth;
@@ -835,7 +835,7 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	}
 
 	//Apply the latest horizontal scrollbar settings
-	if(currentScrollMaxH != (int)selectedPlaneWidth)
+	if (currentScrollMaxH != (int)selectedPlaneWidth)
 	{
 		SCROLLINFO hscrollInfo;
 		hscrollInfo.cbSize = sizeof(hscrollInfo);
@@ -849,7 +849,7 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 
 	//Apply the latest vertical scrollbar settings
 	unsigned int newScrollPageSizeV = _currentRenderWindowHeight / blockPixelSizeY;
-	if((currentScrollMaxV != (int)selectedPlaneHeight) || (currentScrollPageSizeV != newScrollPageSizeV))
+	if ((currentScrollMaxV != (int)selectedPlaneHeight) || (currentScrollPageSizeV != newScrollPageSizeV))
 	{
 		SCROLLINFO vscrollInfo;
 		vscrollInfo.cbSize = sizeof(vscrollInfo);
@@ -875,16 +875,16 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	_model.LockExternalBuffers();
 	ITimedBufferInt* vramBuffer = _model.GetVRAMBuffer();
 	std::vector<unsigned char> vramDataCopy(IS315_5313::VramSize, 0);
-	if(vramBuffer != 0)
+	if (vramBuffer != 0)
 	{
 		vramBuffer->GetLatestBufferCopy(vramDataCopy);
 	}
 	_model.UnlockExternalBuffers();
 
 	//Fill the plane render buffer
-	for(unsigned int ypos = 0; ypos < _bufferHeight; ++ypos)
+	for (unsigned int ypos = 0; ypos < _bufferHeight; ++ypos)
 	{
-		for(unsigned int xpos = 0; xpos < _bufferWidth; ++xpos)
+		for (unsigned int xpos = 0; xpos < _bufferWidth; ++xpos)
 		{
 			//Calculate the position of the current pixel in the currently selected layer
 			unsigned int layerPixelPosX = renderRegionPixelStartX + xpos;
@@ -894,7 +894,7 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			bool outsideSelectedPlane = true;
 			unsigned int paletteRow;
 			unsigned int paletteIndex;
-			switch(_selectedLayer)
+			switch (_selectedLayer)
 			{
 			case SELECTEDLAYER_LAYERA:
 				GetScrollPlanePaletteInfo(vramDataCopy, _layerAMappingBase, _layerAPatternBase, _layerAScrollPlaneWidth, _layerAScrollPlaneHeight, layerPixelPosX, layerPixelPosY, interlaceMode2Active, paletteRow, paletteIndex);
@@ -924,11 +924,11 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 
 			//If this pixel isn't outside the boundaries of the currently selected plane,
 			//decode the selected palette colour value for this pixel.
-			if(!outsideSelectedPlane)
+			if (!outsideSelectedPlane)
 			{
 				//If the pixel for the selected layer is transparent, select the current
 				//background colour.
-				if(paletteIndex == 0)
+				if (paletteIndex == 0)
 				{
 					paletteRow = paletteRowBackground;
 					paletteIndex = paletteIndexBackground;
@@ -951,7 +951,7 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 
 	//If the sprite plane is currently selected, render each sprite to the buffer.
 	std::vector<ScreenBoundaryPrimitive> screenBoundaryPrimitives;
-	if(_selectedLayer == SELECTEDLAYER_SPRITES)
+	if (_selectedLayer == SELECTEDLAYER_SPRITES)
 	{
 		//Render each sprite to the sprite plane
 		unsigned int maxSpriteCount = (h40ModeActive)? 80: 64;
@@ -965,13 +965,13 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			//Render this sprite to the buffer
 			unsigned int spriteHeightInCells = spriteMapping.height + 1;
 			unsigned int spriteWidthInCells = spriteMapping.width + 1;
-			for(unsigned int ypos = 0; ypos < (spriteHeightInCells * blockPixelSizeY); ++ypos)
+			for (unsigned int ypos = 0; ypos < (spriteHeightInCells * blockPixelSizeY); ++ypos)
 			{
-				for(unsigned int xpos = 0; xpos < (spriteWidthInCells * blockPixelSizeX); ++xpos)
+				for (unsigned int xpos = 0; xpos < (spriteWidthInCells * blockPixelSizeX); ++xpos)
 				{
 					//If this sprite pixel lies outside the visible buffer region, skip
 					//it.
-					if(((spriteMapping.xpos + xpos) < renderRegionPixelStartX) || ((spriteMapping.xpos + xpos) >= renderRegionPixelEndX)
+					if (((spriteMapping.xpos + xpos) < renderRegionPixelStartX) || ((spriteMapping.xpos + xpos) >= renderRegionPixelEndX)
 					|| ((spriteMapping.ypos + ypos) < renderRegionPixelStartY) || ((spriteMapping.ypos + ypos) >= renderRegionPixelEndY))
 					{
 						continue;
@@ -1006,7 +1006,7 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 					unsigned int paletteIndex = patternData.GetDataSegment((patternDataUpperHalf)? 4: 0, 4);
 
 					//If this pixel is transparent, skip it.
-					if(paletteIndex == 0)
+					if (paletteIndex == 0)
 					{
 						continue;
 					}
@@ -1030,7 +1030,7 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			}
 
 			//Calculate the boundaries of this sprite if requested
-			if(_spriteBoundaries)
+			if (_spriteBoundaries)
 			{
 				unsigned int spritePosStartX = spriteMapping.xpos;
 				unsigned int spritePosStartY = spriteMapping.ypos;
@@ -1046,19 +1046,19 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			processedSprites.insert(currentSpriteNo);
 			currentSpriteNo = spriteMapping.link;
 		}
-		while((currentSpriteNo > 0) && (currentSpriteNo < maxSpriteCount) && (processedSprites.find(currentSpriteNo) == processedSprites.end()));
+		while ((currentSpriteNo > 0) && (currentSpriteNo < maxSpriteCount) && (processedSprites.find(currentSpriteNo) == processedSprites.end()));
 	}
 
 	//Calculate the screen boundary region information for the target layer, if requested.
-	if(_displayScreen)
+	if (_displayScreen)
 	{
-		if((_selectedLayer == SELECTEDLAYER_LAYERA) || (_selectedLayer == SELECTEDLAYER_LAYERB))
+		if ((_selectedLayer == SELECTEDLAYER_LAYERA) || (_selectedLayer == SELECTEDLAYER_LAYERB))
 		{
-			for(unsigned int screenRow = 0; screenRow < screenHeightInPixels; ++screenRow)
+			for (unsigned int screenRow = 0; screenRow < screenHeightInPixels; ++screenRow)
 			{
 				unsigned int pixelsPerColumn = _model.CellsPerColumn * blockPixelSizeX;
 				unsigned int screenColumnCount = (screenWidthInCells / _model.CellsPerColumn);
-				for(unsigned int screenColumn = 0; screenColumn < screenColumnCount; ++screenColumn)
+				for (unsigned int screenColumn = 0; screenColumn < screenColumnCount; ++screenColumn)
 				{
 					//Calculate the properties for the selected layer
 					bool inLayerA = (_selectedLayer == SELECTEDLAYER_LAYERA);
@@ -1091,13 +1091,13 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 
 					//Draw the screen boundary line for the left or right of the screen
 					//region, if required.
-					if((layerPixelPosX == layerPosScreenStartX)
+					if ((layerPixelPosX == layerPosScreenStartX)
 					&& (((layerPosScreenStartY < layerPosScreenEndY) && (layerPixelPosY >= layerPosScreenStartY) && (layerPixelPosY < layerPosScreenEndY))
 					|| ((layerPosScreenStartY > layerPosScreenEndY) && ((layerPixelPosY >= layerPosScreenStartY) || (layerPixelPosY < layerPosScreenEndY)))))
 					{
 						screenBoundaryPrimitives.push_back(ScreenBoundaryPrimitive(layerPixelPosX, layerPixelPosX, layerPixelPosY, layerPixelPosY+1));
 					}
-					if((((layerPixelPosX + pixelsPerColumn) % layerScrollPlaneWidthInPixels) == layerPosScreenEndX)
+					if ((((layerPixelPosX + pixelsPerColumn) % layerScrollPlaneWidthInPixels) == layerPosScreenEndX)
 					&& (((layerPosScreenStartY < layerPosScreenEndY) && (layerPixelPosY >= layerPosScreenStartY) && (layerPixelPosY < layerPosScreenEndY))
 					|| ((layerPosScreenStartY > layerPosScreenEndY) && ((layerPixelPosY >= layerPosScreenStartY) || (layerPixelPosY < layerPosScreenEndY)))))
 					{
@@ -1107,7 +1107,7 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 
 					//Draw the screen boundary line for the top or the bottom of the
 					//screen region, if required.
-					if(((layerPixelPosY == layerPosScreenStartY) || (layerPixelPosY == layerPosScreenLastRow))
+					if (((layerPixelPosY == layerPosScreenStartY) || (layerPixelPosY == layerPosScreenLastRow))
 					&& (((layerPosScreenStartX < layerPosScreenEndX) && (layerPixelPosX >= layerPosScreenStartX) && (layerPixelPosX < layerPosScreenEndX))
 					|| ((layerPosScreenStartX > layerPosScreenEndX) && ((layerPixelPosX >= layerPosScreenStartX) || (layerPixelPosX < layerPosScreenEndX)))))
 					{
@@ -1115,7 +1115,7 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 						//split the boundary line, otherwise draw a single line to the end
 						//of the column.
 						unsigned int linePosY = layerPixelPosY + (layerPixelPosY == layerPosScreenLastRow ? 1 : 0);
-						if((layerPixelPosX + pixelsPerColumn) > layerScrollPlaneWidthInPixels)
+						if ((layerPixelPosX + pixelsPerColumn) > layerScrollPlaneWidthInPixels)
 						{
 							screenBoundaryPrimitives.push_back(ScreenBoundaryPrimitive(layerPixelPosX, layerPixelPosX+pixelsPerColumn, linePosY, linePosY));
 							screenBoundaryPrimitives.push_back(ScreenBoundaryPrimitive(0, (layerPixelPosX+pixelsPerColumn) % layerScrollPlaneWidthInPixels, layerPixelPosY, layerPixelPosY));
@@ -1129,7 +1129,7 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 					//Calculate the shaded region within the window for the current row
 					//and column. If the column wraps around to the start of the layer,
 					//split the shaded region, otherwise draw it as a single block.
-					if((layerPixelPosX + pixelsPerColumn) > layerScrollPlaneWidthInPixels)
+					if ((layerPixelPosX + pixelsPerColumn) > layerScrollPlaneWidthInPixels)
 					{
 						screenBoundaryPrimitives.push_back(ScreenBoundaryPrimitive(layerPixelPosX, layerPixelPosX+pixelsPerColumn, layerPixelPosY, layerPixelPosY+1, true));
 						screenBoundaryPrimitives.push_back(ScreenBoundaryPrimitive(0, (layerPixelPosX+pixelsPerColumn) % layerScrollPlaneWidthInPixels, layerPixelPosY, layerPixelPosY+1, true));
@@ -1141,7 +1141,7 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 				}
 			}
 		}
-		else if(_selectedLayer == SELECTEDLAYER_WINDOW)
+		else if (_selectedLayer == SELECTEDLAYER_WINDOW)
 		{
 			//Calculate the screen boundary region for the window layer
 			unsigned int windowPosScreenStartX = 0;
@@ -1154,7 +1154,7 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			screenBoundaryPrimitives.push_back(ScreenBoundaryPrimitive(windowPosScreenStartX, windowPosScreenEndX, windowPosScreenEndY, windowPosScreenEndY));
 			screenBoundaryPrimitives.push_back(ScreenBoundaryPrimitive(windowPosScreenStartX, windowPosScreenEndX, windowPosScreenStartY, windowPosScreenEndY, true));
 		}
-		else if(_selectedLayer == SELECTEDLAYER_SPRITES)
+		else if (_selectedLayer == SELECTEDLAYER_SPRITES)
 		{
 			//Calculate the screen boundary region for the sprite layer
 			unsigned int spritePosScreenStartX = 0x80;
@@ -1173,13 +1173,13 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	//region into account
 	std::vector<ScreenBoundaryPrimitive> validScreenBoundaryLines;
 	std::vector<ScreenBoundaryPrimitive> validScreenBoundaryQuads;
-	for(unsigned int i = 0; i < (unsigned int)screenBoundaryPrimitives.size(); ++i)
+	for (unsigned int i = 0; i < (unsigned int)screenBoundaryPrimitives.size(); ++i)
 	{
 		//Take a copy of this screen boundary primitive
 		ScreenBoundaryPrimitive primitive = screenBoundaryPrimitives[i];
 
 		//If this primitive is entirely outside the visible window region, skip it.
-		if((primitive.pixelPosXBegin >= renderRegionPixelEndX) || (primitive.pixelPosXEnd < renderRegionPixelStartX)
+		if ((primitive.pixelPosXBegin >= renderRegionPixelEndX) || (primitive.pixelPosXEnd < renderRegionPixelStartX)
 		|| (primitive.pixelPosYBegin >= renderRegionPixelEndY) || (primitive.pixelPosYEnd < renderRegionPixelStartY))
 		{
 			continue;
@@ -1200,7 +1200,7 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 
 		//Save the modified primitive to the appropriate list of valid primitive
 		//definitions
-		if(primitive.primitiveIsPolygon)
+		if (primitive.primitiveIsPolygon)
 		{
 			validScreenBoundaryQuads.push_back(primitive);
 		}
@@ -1212,9 +1212,9 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 
 	//Draw the rendered buffer data to the window
 	HDC hdc = GetDC(hwnd);
-	if(hdc != NULL)
+	if (hdc != NULL)
 	{
-		if((_glrc != NULL) && (wglMakeCurrent(hdc, _glrc) != FALSE))
+		if ((_glrc != NULL) && (wglMakeCurrent(hdc, _glrc) != FALSE))
 		{
 			glMatrixMode(GL_MODELVIEW);
 			glLoadIdentity();
@@ -1236,10 +1236,10 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			glDrawPixels(drawImageWidth, drawImageHeight, GL_RGBA, GL_UNSIGNED_BYTE, _buffer);
 
 			//Draw our screen boundary lines
-			for(unsigned int i = 0; i < (unsigned int)validScreenBoundaryLines.size(); ++i)
+			for (unsigned int i = 0; i < (unsigned int)validScreenBoundaryLines.size(); ++i)
 			{
 				//Set the colour for this line
-				if(validScreenBoundaryLines[i].primitiveIsScreenBoundary)
+				if (validScreenBoundaryLines[i].primitiveIsScreenBoundary)
 				{
 					glColor3d(0.0, 1.0, 0.0);
 				}
@@ -1260,7 +1260,7 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glColor4d(0.0, 1.0, 0.0, 0.5);
-			for(unsigned int i = 0; i < (unsigned int)validScreenBoundaryQuads.size(); ++i)
+			for (unsigned int i = 0; i < (unsigned int)validScreenBoundaryQuads.size(); ++i)
 			{
 				glBegin(GL_QUADS);
 					glVertex2f((float)validScreenBoundaryQuads[i].pixelPosXBegin * imageScaleX, (float)validScreenBoundaryQuads[i].pixelPosYBegin * imageScaleY);
@@ -1293,7 +1293,7 @@ LRESULT PlaneView::msgRenderWM_LBUTTONDOWN(HWND hwnd, WPARAM wparam, LPARAM lpar
 LRESULT PlaneView::msgRenderWM_KEYUP(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	ISystemDeviceInterface::KeyCode keyCode;
-	if(_presenter.GetSystemInterface().TranslateKeyCode((unsigned int)wparam, keyCode))
+	if (_presenter.GetSystemInterface().TranslateKeyCode((unsigned int)wparam, keyCode))
 	{
 		_presenter.GetSystemInterface().HandleInputKeyUp(keyCode);
 	}
@@ -1304,7 +1304,7 @@ LRESULT PlaneView::msgRenderWM_KEYUP(HWND hwnd, WPARAM wparam, LPARAM lparam)
 LRESULT PlaneView::msgRenderWM_KEYDOWN(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	ISystemDeviceInterface::KeyCode keyCode;
-	if(_presenter.GetSystemInterface().TranslateKeyCode((unsigned int)wparam, keyCode))
+	if (_presenter.GetSystemInterface().TranslateKeyCode((unsigned int)wparam, keyCode))
 	{
 		_presenter.GetSystemInterface().HandleInputKeyDown(keyCode);
 	}
@@ -1318,9 +1318,9 @@ void PlaneView::UpdateRenderWindowSize(HWND hwnd, int renderWindowWidth, int ren
 	_currentRenderWindowHeight = renderWindowHeight;
 
 	HDC hdc = GetDC(hwnd);
-	if(hdc != NULL)
+	if (hdc != NULL)
 	{
-		if((_glrc != NULL) && (wglMakeCurrent(hdc, _glrc) != FALSE))
+		if ((_glrc != NULL) && (wglMakeCurrent(hdc, _glrc) != FALSE))
 		{
 			glViewport(0, 0, _currentRenderWindowWidth, _currentRenderWindowHeight);
 			glMatrixMode(GL_PROJECTION);
@@ -1378,13 +1378,13 @@ void PlaneView::GetScrollPlaneHScrollData(const std::vector<unsigned char>& vram
 {
 	//Calculate the address of the hscroll data to read for this line
 	unsigned int hscrollDataAddress = hscrollDataBase;
-	if(hscrState)
+	if (hscrState)
 	{
 		const unsigned int hscrollDataPairSize = 4;
 		const unsigned int blockPixelSizeY = 8;
 		hscrollDataAddress += lscrState? (screenRowNumber * hscrollDataPairSize): (((screenRowNumber / blockPixelSizeY) * blockPixelSizeY) * hscrollDataPairSize);
 	}
-	if(!layerA)
+	if (!layerA)
 	{
 		hscrollDataAddress += 2;
 	}

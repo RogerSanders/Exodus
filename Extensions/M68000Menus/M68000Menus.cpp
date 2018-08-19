@@ -13,7 +13,7 @@ M68000Menus::M68000Menus(const std::wstring& implementationName, const std::wstr
 M68000Menus::~M68000Menus()
 {
 	//Delete all menu handlers
-	for(std::map<IDevice*, DebugMenuHandler*>::const_iterator i = _debugMenuHandlers.begin(); i != _debugMenuHandlers.end(); ++i)
+	for (std::map<IDevice*, DebugMenuHandler*>::const_iterator i = _debugMenuHandlers.begin(); i != _debugMenuHandlers.end(); ++i)
 	{
 		i->second->ClearMenuItems();
 		delete i->second;
@@ -27,7 +27,7 @@ bool M68000Menus::RegisterDeviceMenuHandler(IDevice* targetDevice)
 {
 	//Attempt to cast the supplied device to the correct type
 	IM68000* targetDeviceAsIM68000 = dynamic_cast<IM68000*>(targetDevice);
-	if(targetDeviceAsIM68000 == 0)
+	if (targetDeviceAsIM68000 == 0)
 	{
 		return false;
 	}
@@ -51,7 +51,7 @@ void M68000Menus::UnregisterDeviceMenuHandler(IDevice* targetDevice)
 //----------------------------------------------------------------------------------------
 void M68000Menus::AddDeviceMenuItems(DeviceMenu deviceMenu, IMenuSegment& menuSegment, IDevice* targetDevice)
 {
-	if(deviceMenu == IExtension::DeviceMenu::Debug)
+	if (deviceMenu == IExtension::DeviceMenu::Debug)
 	{
 		_debugMenuHandlers[targetDevice]->AddMenuItems(menuSegment);
 	}

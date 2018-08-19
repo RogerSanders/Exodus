@@ -36,7 +36,7 @@ public:
 //	| 1 | 0 | 1 | 1 |  REGISTER | 0 | SIZE  |    MODE   |  REGISTER |
 //	----------------------------------------=========================
 //                              |--<opmode>-|----------<ea>---------|
-		switch(data.GetDataSegment(6, 2))
+		switch (data.GetDataSegment(6, 2))
 		{
 		case 0:	//00
 			_size = BITCOUNT_BYTE;
@@ -54,7 +54,7 @@ public:
 		_source.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), _size, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
 		AddInstructionSize(_source.ExtensionSize());
 
-		if(_size == BITCOUNT_LONG)
+		if (_size == BITCOUNT_LONG)
 		{
 			AddExecuteCycleCount(ExecuteTime(6, 1, 0));
 		}

@@ -12,7 +12,7 @@ GenericAccessGroupCollectionEntry::~GenericAccessGroupCollectionEntry()
 	delete _dataContext;
 
 	//Delete any child content that we've been given ownership of
-	for(std::list<CollectionEntry>::const_iterator i = _entries.begin(); i != _entries.end(); ++i)
+	for (std::list<CollectionEntry>::const_iterator i = _entries.begin(); i != _entries.end(); ++i)
 	{
 		delete i->key;
 		delete i->value;
@@ -78,10 +78,10 @@ GenericAccessGroupCollectionEntry* GenericAccessGroupCollectionEntry::AddCollect
 GenericAccessGroupCollectionEntry* GenericAccessGroupCollectionEntry::RemoveCollectionEntry(const std::wstring& key)
 {
 	//Remove the target entry from the list of children if it is currently present
-	for(std::list<GenericAccessGroupCollectionEntry::CollectionEntry>::iterator i = _entries.begin(); i != _entries.end(); ++i)
+	for (std::list<GenericAccessGroupCollectionEntry::CollectionEntry>::iterator i = _entries.begin(); i != _entries.end(); ++i)
 	{
 		const GenericAccessGroupCollectionEntry::CollectionEntry& entry = *i;
-		if(entry.key->GetValueString() == key)
+		if (entry.key->GetValueString() == key)
 		{
 			SetParentForTargetEntry(entry.value, 0);
 			_entries.erase(i);

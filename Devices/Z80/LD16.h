@@ -34,7 +34,7 @@ public:
 		_source.SetIndexState(GetIndexState(), GetIndexOffset());
 		_target.SetIndexState(GetIndexState(), GetIndexOffset());
 
-		if(data == 0xF9)
+		if (data == 0xF9)
 		{
 			//LD SP,HL		11111001
 			//LD SP,IX		11011101 11111001
@@ -43,7 +43,7 @@ public:
 			_target.SetMode(EffectiveAddress::Mode::SP);
 			AddExecuteCycleCount(6);
 		}
-		else if(data == 0x2A)
+		else if (data == 0x2A)
 		{
 			//LD HL,(nn)	00101010 nnnnnnnn nnnnnnnn
 			//LD IX,(nn)	11011101 00101010 nnnnnnnn nnnnnnnn
@@ -52,7 +52,7 @@ public:
 			_target.SetMode(EffectiveAddress::Mode::HL);
 			AddExecuteCycleCount(16);
 		}
-		else if(data == 0x22)
+		else if (data == 0x22)
 		{
 			//LD (nn),HL	00100010 nnnnnnnn nnnnnnnn
 			//LD (nn),IX	11011101 00100010 nnnnnnnn nnnnnnnn

@@ -27,7 +27,7 @@ void GenericDataViewPresenter::DeleteView(IView* view)
 //----------------------------------------------------------------------------------------
 bool GenericDataViewPresenter::SelectFile(std::wstring& filePath, bool existingFile, const std::wstring& typeSelectionString, const std::wstring& defaultExtension, bool allowScanningIntoArchives) const
 {
-	if(existingFile)
+	if (existingFile)
 	{
 		return _owner.GetGUIInterface().SelectExistingFile(typeSelectionString, defaultExtension, filePath, L"", allowScanningIntoArchives, filePath);
 	}

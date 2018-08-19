@@ -68,7 +68,7 @@ bool GenericAccessDataValueDouble::SetValueDouble(double value)
 bool GenericAccessDataValueDouble::SetValueString(const Marshal::In<std::wstring>& value)
 {
 	double valueConverted;
-	if(!StringToDouble(value, valueConverted))
+	if (!StringToDouble(value, valueConverted))
 	{
 		return false;
 	}

@@ -28,7 +28,7 @@ PaletteView::PaletteView(IUIManager& uiManager, PaletteViewPresenter& presenter,
 //----------------------------------------------------------------------------------------
 LRESULT PaletteView::WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
-	switch(msg)
+	switch (msg)
 	{
 	case WM_CREATE:
 		return msgWM_CREATE(hwnd, wparam, lparam);
@@ -66,14 +66,14 @@ LRESULT PaletteView::msgWM_PAINT(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	static const unsigned int paletteColumns = 16;
 	std::minstd_rand widthExtraPixelDistributionGenerator;
 	std::set<unsigned int> widthExtraPixelFoundEntrySet;
-	for(unsigned int paletteEntry = 0; paletteEntry < (clientWidth % paletteColumns); ++paletteEntry)
+	for (unsigned int paletteEntry = 0; paletteEntry < (clientWidth % paletteColumns); ++paletteEntry)
 	{
 		unsigned int nextEntry;
 		do
 		{
 			nextEntry = (unsigned int)widthExtraPixelDistributionGenerator() % paletteColumns;
 		}
-		while(widthExtraPixelFoundEntrySet.find(nextEntry) != widthExtraPixelFoundEntrySet.end());
+		while (widthExtraPixelFoundEntrySet.find(nextEntry) != widthExtraPixelFoundEntrySet.end());
 		widthExtraPixelFoundEntrySet.insert(nextEntry);
 	}
 
@@ -81,26 +81,26 @@ LRESULT PaletteView::msgWM_PAINT(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	static const unsigned int paletteRows = 4;
 	std::minstd_rand heightExtraPixelDistributionGenerator;
 	std::set<unsigned int> heightExtraPixelFoundEntrySet;
-	for(unsigned int paletteLine = 0; paletteLine < (clientHeight % paletteRows); ++paletteLine)
+	for (unsigned int paletteLine = 0; paletteLine < (clientHeight % paletteRows); ++paletteLine)
 	{
 		unsigned int nextEntry;
 		do
 		{
 			nextEntry = (unsigned int)heightExtraPixelDistributionGenerator() % paletteRows;
 		}
-		while(heightExtraPixelFoundEntrySet.find(nextEntry) != heightExtraPixelFoundEntrySet.end());
+		while (heightExtraPixelFoundEntrySet.find(nextEntry) != heightExtraPixelFoundEntrySet.end());
 		heightExtraPixelFoundEntrySet.insert(nextEntry);
 	}
 
 	//Draw each entry in the palette
 	unsigned int nextCellPosY = 0;
-	for(unsigned int paletteLine = 0; paletteLine < paletteRows; ++paletteLine)
+	for (unsigned int paletteLine = 0; paletteLine < paletteRows; ++paletteLine)
 	{
 		//Calculate the height of this palette row in the window
 		unsigned int cellHeight = (clientHeight / paletteRows) + ((heightExtraPixelFoundEntrySet.find(paletteLine) != heightExtraPixelFoundEntrySet.end())? 1: 0);
 
 		unsigned int nextCellPosX = 0;
-		for(unsigned int paletteEntry = 0; paletteEntry < paletteColumns; ++paletteEntry)
+		for (unsigned int paletteEntry = 0; paletteEntry < paletteColumns; ++paletteEntry)
 		{
 			//Calculate the width of this palette entry in the window
 			unsigned int cellWidth = (clientWidth / paletteColumns) + ((widthExtraPixelFoundEntrySet.find(paletteEntry) != widthExtraPixelFoundEntrySet.end())? 1: 0);
@@ -142,9 +142,9 @@ LRESULT PaletteView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	//Retrieve the latest colour values for the palette
 	unsigned int paletteRows = 4;
 	unsigned int paletteColumns = 16;
-	for(unsigned int paletteLine = 0; paletteLine < paletteRows; ++paletteLine)
+	for (unsigned int paletteLine = 0; paletteLine < paletteRows; ++paletteLine)
 	{
-		for(unsigned int paletteEntry = 0; paletteEntry < paletteColumns; ++paletteEntry)
+		for (unsigned int paletteEntry = 0; paletteEntry < paletteColumns; ++paletteEntry)
 		{
 			IS315_5313::DecodedPaletteColorEntry color = _model.ReadDecodedPaletteColor(paletteLine, paletteEntry);
 			_paletteImage.WritePixelData(paletteEntry, paletteLine, 0, _model.ColorValueTo8BitValue(color.r, false, false));

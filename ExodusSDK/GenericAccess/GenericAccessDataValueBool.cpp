@@ -54,7 +54,7 @@ bool GenericAccessDataValueBool::SetValueBool(bool value)
 bool GenericAccessDataValueBool::SetValueString(const Marshal::In<std::wstring>& value)
 {
 	bool valueConverted;
-	if(!StringToBool(value, valueConverted))
+	if (!StringToBool(value, valueConverted))
 	{
 		return false;
 	}

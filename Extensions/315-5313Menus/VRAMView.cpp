@@ -37,7 +37,7 @@ VRAMView::VRAMView(IUIManager& uiManager, VRAMViewPresenter& presenter, IS315_53
 LRESULT VRAMView::WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	WndProcDialogImplementSaveFieldWhenLostFocus(hwnd, msg, wparam, lparam);
-	switch(msg)
+	switch (msg)
 	{
 	case WM_CREATE:
 		return msgWM_CREATE(hwnd, wparam, lparam);
@@ -154,9 +154,9 @@ LRESULT VRAMView::msgWM_ERASEBKGND(HWND hwnd, WPARAM wParam, LPARAM lParam)
 LRESULT VRAMView::msgWM_BOUNCE(HWND hwnd, WPARAM wParam, LPARAM lParam)
 {
 	BounceMessage* bounceMessage = (BounceMessage*)lParam;
-	if(bounceMessage->hwnd == _hwndScrollViewer)
+	if (bounceMessage->hwnd == _hwndScrollViewer)
 	{
-		if(bounceMessage->uMsg == WM_SIZE)
+		if (bounceMessage->uMsg == WM_SIZE)
 		{
 			_renderWindowAvailableWidth = LOWORD(bounceMessage->lParam);
 			_renderWindowAvailableHeight = HIWORD(bounceMessage->lParam);
@@ -172,7 +172,7 @@ LRESULT VRAMView::msgWM_BOUNCE(HWND hwnd, WPARAM wParam, LPARAM lParam)
 INT_PTR VRAMView::WndProcControlDialog1(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	WndProcDialogImplementSaveFieldWhenLostFocus(hwnd, msg, wparam, lparam);
-	switch(msg)
+	switch (msg)
 	{
 	case WM_INITDIALOG:
 		return msgControlDialog1WM_INITDIALOG(hwnd, wparam, lparam);
@@ -186,7 +186,7 @@ INT_PTR VRAMView::WndProcControlDialog1(HWND hwnd, UINT msg, WPARAM wparam, LPAR
 INT_PTR VRAMView::WndProcControlDialog2(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	WndProcDialogImplementSaveFieldWhenLostFocus(hwnd, msg, wparam, lparam);
-	switch(msg)
+	switch (msg)
 	{
 	case WM_INITDIALOG:
 		return msgControlDialog2WM_INITDIALOG(hwnd, wparam, lparam);
@@ -218,9 +218,9 @@ INT_PTR VRAMView::msgControlDialog1WM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARA
 //----------------------------------------------------------------------------------------
 INT_PTR VRAMView::msgControlDialog1WM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	if(HIWORD(wparam) == BN_CLICKED)
+	if (HIWORD(wparam) == BN_CLICKED)
 	{
-		switch(LOWORD(wparam))
+		switch (LOWORD(wparam))
 		{
 		case IDC_VDP_VRAM_PALETTE1:
 			_selectedPalette = PALETTE_LINE1;
@@ -269,9 +269,9 @@ INT_PTR VRAMView::msgControlDialog2WM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARA
 //----------------------------------------------------------------------------------------
 INT_PTR VRAMView::msgControlDialog2WM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	if(HIWORD(wparam) == BN_CLICKED)
+	if (HIWORD(wparam) == BN_CLICKED)
 	{
-		switch(LOWORD(wparam))
+		switch (LOWORD(wparam))
 		{
 		case IDC_VDP_VRAM_BLOCKAUTO:
 			_blockSize = BLOCKSIZE_AUTO;
@@ -284,18 +284,18 @@ INT_PTR VRAMView::msgControlDialog2WM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM l
 			break;
 		}
 	}
-	else if((HIWORD(wparam) == EN_SETFOCUS) && _initializedDialog)
+	else if ((HIWORD(wparam) == EN_SETFOCUS) && _initializedDialog)
 	{
 		_previousText = GetDlgItemString(hwnd, LOWORD(wparam));
 		_currentControlFocus = LOWORD(wparam);
 	}
-	else if((HIWORD(wparam) == EN_KILLFOCUS) && _initializedDialog)
+	else if ((HIWORD(wparam) == EN_KILLFOCUS) && _initializedDialog)
 	{
 		std::wstring newText = GetDlgItemString(hwnd, LOWORD(wparam));
-		if(newText != _previousText)
+		if (newText != _previousText)
 		{
 			int controlID = (int)LOWORD(wparam);
-			switch(controlID)
+			switch (controlID)
 			{
 			case IDC_VDP_VRAM_MAGINIFICATION:
 				_blockMagnificationFactorSetting = GetDlgItemBin(hwnd, controlID);
@@ -319,7 +319,7 @@ INT_PTR VRAMView::msgControlDialog2WM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM l
 //----------------------------------------------------------------------------------------
 LRESULT VRAMView::WndProcRender(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
-	switch(msg)
+	switch (msg)
 	{
 	case WM_CREATE:
 		return msgRenderWM_CREATE(hwnd, wparam, lparam);
@@ -404,13 +404,13 @@ LRESULT VRAMView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	_model.LockExternalBuffers();
 	ITimedBufferInt* vramBuffer = _model.GetVRAMBuffer();
 	std::vector<unsigned char> vramDataCopy;
-	if(vramBuffer != 0)
+	if (vramBuffer != 0)
 	{
 		vramBuffer->GetLatestBufferCopy(vramDataCopy);
 		obtainedVRAMData = true;
 	}
 	_model.UnlockExternalBuffers();
-	if(!obtainedVRAMData)
+	if (!obtainedVRAMData)
 	{
 		return 0;
 	}
@@ -428,46 +428,46 @@ LRESULT VRAMView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	_vramImage.SetImageFormat(pixelsPerBufferRow, bufferVisiblePixelRowCount, IImage::PIXELFORMAT_RGB, IImage::DATAFORMAT_8BIT);
 
 	//Fill the VRAM render buffer
-	for(unsigned int byteNo = 0; byteNo < vramSize; ++byteNo)
+	for (unsigned int byteNo = 0; byteNo < vramSize; ++byteNo)
 	{
 		unsigned char nextByte = vramDataCopy[byteNo];
-		for(unsigned int pixelNo = 0; pixelNo < pixelsPerByte; ++pixelNo)
+		for (unsigned int pixelNo = 0; pixelNo < pixelsPerByte; ++pixelNo)
 		{
 			//Decode the colour for the selected pixel
 			unsigned int index = (nextByte >> (((pixelsPerByte - 1) - pixelNo) * 4)) & 0x0F;
 			unsigned char r = 0;
 			unsigned char g = 0;
 			unsigned char b = 0;
-			if(_selectedPalette == PALETTE_LOWHIGH)
+			if (_selectedPalette == PALETTE_LOWHIGH)
 			{
 				r = (unsigned char)index * 17;
 				g = (unsigned char)index * 17;
 				b = (unsigned char)index * 17;
-				if(_shadow && !_highlight)
+				if (_shadow && !_highlight)
 				{
 					r /= 2;
 					g /= 2;
 					b /= 2;
 				}
-				else if(_highlight && !_shadow)
+				else if (_highlight && !_shadow)
 				{
 					r = (r / 2) + 0x80;
 					g = (g / 2) + 0x80;
 					b = (b / 2) + 0x80;
 				}
 			}
-			else if(_selectedPalette == PALETTE_HIGHLOW)
+			else if (_selectedPalette == PALETTE_HIGHLOW)
 			{
 				r = 0xFF - ((unsigned char)index * 17);
 				g = 0xFF - ((unsigned char)index * 17);
 				b = 0xFF - ((unsigned char)index * 17);
-				if(_shadow && !_highlight)
+				if (_shadow && !_highlight)
 				{
 					r /= 2;
 					g /= 2;
 					b /= 2;
 				}
-				else if(_highlight && !_shadow)
+				else if (_highlight && !_shadow)
 				{
 					r = (r / 2) + 0x80;
 					g = (g / 2) + 0x80;
@@ -500,7 +500,7 @@ LRESULT VRAMView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			_vramImage.WritePixelData(blockBufferColumnNo, blockBufferRowNo, 2, b);
 
 			//Copy the data into the details popup
-			if(blockNo == _tileNumber)
+			if (blockNo == _tileNumber)
 			{
 				_tileDetails[blockRowNo][blockColumnNo].r = r;
 				_tileDetails[blockRowNo][blockColumnNo].g = g;
@@ -511,10 +511,10 @@ LRESULT VRAMView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			//If we've just output the last pixel at the end of a row within the last
 			//block, pad this scanline in the data buffer out to the end of the line.
 			unsigned int lastBlockNo = ((pixelsInVRAM / (blockPixelSizeX * blockPixelSizeY)) - 1);
-			if((blockNo == lastBlockNo) && (blockColumnNo == (blockPixelSizeX - 1)))
+			if ((blockNo == lastBlockNo) && (blockColumnNo == (blockPixelSizeX - 1)))
 			{
 				unsigned int paddingPixelsAfterLastBlock = ((_blocksPerRenderRow - 1) - (lastBlockNo % _blocksPerRenderRow)) * blockPixelSizeX;
-				for(unsigned int i = 0; i < paddingPixelsAfterLastBlock; ++i)
+				for (unsigned int i = 0; i < paddingPixelsAfterLastBlock; ++i)
 				{
 					_vramImage.WritePixelData(blockBufferColumnNo + 1 + i, blockBufferRowNo, 0, (unsigned char)0);
 					_vramImage.WritePixelData(blockBufferColumnNo + 1 + i, blockBufferRowNo, 1, (unsigned char)0);
@@ -550,7 +550,7 @@ LRESULT VRAMView::msgRenderWM_MOUSEMOVE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 
 	//If the new mouse position is outside the region of the render window which contains
 	//tile content, hide the details popup.
-	if((blockPosX >= _blocksPerRenderRow) || (newTileAddress >= vramSize))
+	if ((blockPosX >= _blocksPerRenderRow) || (newTileAddress >= vramSize))
 	{
 		_detailsVisible = false;
 		ShowWindow(_hwndDetails, SW_HIDE);
@@ -583,25 +583,25 @@ LRESULT VRAMView::msgRenderWM_MOUSEMOVE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 
 	//Snap to the screen boundaries, jumping to the other side if the cursor moves
 	//past the center of the window.
-	if((xposDetails + detailsWidth) > screenRect.right)
+	if ((xposDetails + detailsWidth) > screenRect.right)
 	{
 		xposDetails = screenRect.right - detailsWidth;
-		if(((windowPos.left + xpos) - xposDetails) > (detailsWidth / 2))
+		if (((windowPos.left + xpos) - xposDetails) > (detailsWidth / 2))
 		{
 			xposDetails = (windowPos.left + xpos) - (detailsWidth + 10);
-			if(xposDetails < screenRect.left)
+			if (xposDetails < screenRect.left)
 			{
 				xposDetails = screenRect.left;
 			}
 		}
 	}
-	if((yposDetails + detailsHeight) > screenRect.bottom)
+	if ((yposDetails + detailsHeight) > screenRect.bottom)
 	{
 		yposDetails = screenRect.bottom - detailsHeight;
-		if(((windowPos.top + ypos) - yposDetails) > (detailsHeight / 2))
+		if (((windowPos.top + ypos) - yposDetails) > (detailsHeight / 2))
 		{
 			yposDetails = (windowPos.top + ypos) - (detailsHeight + 10);
-			if(yposDetails < screenRect.top)
+			if (yposDetails < screenRect.top)
 			{
 				yposDetails = screenRect.top;
 			}
@@ -609,14 +609,14 @@ LRESULT VRAMView::msgRenderWM_MOUSEMOVE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	}
 
 	//Prevent the window being trapped by the cursor in the bottom righthand corner
-	if((((windowPos.left + xpos) >= xposDetails) && ((windowPos.left + xpos) < (xposDetails + detailsWidth)))
+	if ((((windowPos.left + xpos) >= xposDetails) && ((windowPos.left + xpos) < (xposDetails + detailsWidth)))
 	&& (((windowPos.top + ypos) >= yposDetails) && ((windowPos.top + ypos) < (yposDetails + detailsHeight))))
 	{
 		xposDetails = (windowPos.left + xpos) - (detailsWidth + 10);
 	}
 
 	//Enable the WM_MOUSELEAVE notification if the details popup isn't currently visible
-	if(!_detailsVisible)
+	if (!_detailsVisible)
 	{
 		TRACKMOUSEEVENT mouseEvent;
 		mouseEvent.cbSize = sizeof(mouseEvent);
@@ -629,7 +629,7 @@ LRESULT VRAMView::msgRenderWM_MOUSEMOVE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	//Position the details popup, and show it if necessary.
 	ShowWindow((_detailsBlock16)? _hwndDetails: _hwndDetails16, SW_HIDE);
 	SetWindowPos((_detailsBlock16)? _hwndDetails16: _hwndDetails, NULL, xposDetails, yposDetails, 0, 0, SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER);
-	if(!_detailsVisible)
+	if (!_detailsVisible)
 	{
 		_detailsVisible = true;
 		ShowWindow((_detailsBlock16)? _hwndDetails16: _hwndDetails, SW_SHOWNA);
@@ -662,9 +662,9 @@ void VRAMView::UpdateRenderWindowSizeIfRequired()
 	unsigned int blocksInVRAM = pixelsInVRAM / (blockPixelSizeX * blockPixelSizeY);
 
 	//Calculate the effective block magnification factor
-	if(_blockMagnificationFactorSetting == 0)
+	if (_blockMagnificationFactorSetting == 0)
 	{
-		if(_blocksPerRenderRowSetting == 0)
+		if (_blocksPerRenderRowSetting == 0)
 		{
 			//Make a rough estimate of the block magnification factor to use. This
 			//estimate is based on pixel area alone, and doesn't take into account
@@ -698,7 +698,7 @@ void VRAMView::UpdateRenderWindowSizeIfRequired()
 	}
 
 	//Calculate the effective number of blocks per row
-	if(_blocksPerRenderRowSetting == 0)
+	if (_blocksPerRenderRowSetting == 0)
 	{
 		_blocksPerRenderRow = _renderWindowAvailableWidth / (blockPixelSizeX * _blockMagnificationFactor);
 		_blocksPerRenderRow = (_blocksPerRenderRow <= 0)? 1: _blocksPerRenderRow;
@@ -720,7 +720,7 @@ void VRAMView::UpdateRenderWindowSizeIfRequired()
 	int renderWindowHeight = rect.bottom;
 
 	//Update the render window size, if required.
-	if((renderWindowWidth != newRenderWindowWidth) || (renderWindowHeight != newRenderWindowHeight))
+	if ((renderWindowWidth != newRenderWindowWidth) || (renderWindowHeight != newRenderWindowHeight))
 	{
 		SetWindowPos(_hwndRender, NULL, 0, 0, newRenderWindowWidth, newRenderWindowHeight, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
 	}
@@ -731,7 +731,7 @@ void VRAMView::UpdateRenderWindowSizeIfRequired()
 //----------------------------------------------------------------------------------------
 INT_PTR VRAMView::WndProcDetails(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
-	switch(msg)
+	switch (msg)
 	{
 	case WM_INITDIALOG:
 		return msgDetailsWM_INITDIALOG(hwnd, wparam, lparam);
@@ -760,18 +760,18 @@ INT_PTR VRAMView::msgDetailsWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	//Update the cell contents
 	unsigned int blockWidth = 8;
 	unsigned int blockHeight = (_detailsBlock16)? 16: 8;
-	for(unsigned int x = 0; x < blockWidth; ++x)
+	for (unsigned int x = 0; x < blockWidth; ++x)
 	{
-		for(unsigned int y = 0; y < blockHeight; ++y)
+		for (unsigned int y = 0; y < blockHeight; ++y)
 		{
 			HWND hwndCell = GetDlgItem(hwnd, IDC_VDP_VRAM_DETAILS_DATA00 + (y * blockWidth) + x);
-			if(hwndCell != NULL)
+			if (hwndCell != NULL)
 			{
 				HDC dc = GetDC(hwndCell);
-				if(dc != NULL)
+				if (dc != NULL)
 				{
 					HBRUSH brush = CreateSolidBrush(RGB(_tileDetails[y][x].r, _tileDetails[y][x].g, _tileDetails[y][x].b));
-					if(brush != NULL)
+					if (brush != NULL)
 					{
 						RECT rect;
 						GetClientRect(hwndCell, &rect);

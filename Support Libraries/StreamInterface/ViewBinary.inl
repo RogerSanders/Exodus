@@ -59,7 +59,7 @@ template<class T> ViewBinary& ViewBinary::operator<<(const T& data)
 template<class T> ViewBinary& ViewBinary::operator>>(std::vector<T>& data)
 {
 	size_t elementCount = data.size();
-	for(size_t i = 0; i < elementCount; ++i)
+	for (size_t i = 0; i < elementCount; ++i)
 	{
 		*this >> data[i];
 	}
@@ -182,7 +182,7 @@ ViewBinary& ViewBinary::operator>>(std::vector<long double>& data)
 template<class T> ViewBinary& ViewBinary::operator<<(const std::vector<T>& data)
 {
 	size_t elementCount = data.size();
-	for(size_t i = 0; i < elementCount; ++i)
+	for (size_t i = 0; i < elementCount; ++i)
 	{
 		*this << data[i];
 	}

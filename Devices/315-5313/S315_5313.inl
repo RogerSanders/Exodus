@@ -910,7 +910,7 @@ void S315_5313::RegSetMAG(const AccessTarget& accessTarget, bool data)
 //----------------------------------------------------------------------------------------
 unsigned int S315_5313::RegGetNameTableBaseScrollA(const AccessTarget& accessTarget, bool mode4Enabled, bool extendedVRAMModeEnabled) const
 {
-	if(mode4Enabled)
+	if (mode4Enabled)
 	{
 		return GetRegisterData(0x02, accessTarget).GetDataSegment(1, 3) << 11;
 	}
@@ -939,7 +939,7 @@ unsigned int S315_5313::RegGetNameTableBaseWindow(const AccessTarget& accessTarg
 	//According to official documentation, if we're in H40 mode, the WD11 bit of the
 	//window name table base address is masked. We emulate that here. This behaviour
 	//has been confirmed through hardware tests.
-	if(h40ModeActive)
+	if (h40ModeActive)
 	{
 		return GetRegisterData(0x03, accessTarget).GetDataSegment(2, (extendedVRAMModeEnabled)? 5: 4) << 12;
 	}
@@ -999,11 +999,11 @@ void S315_5313::RegSetNameTableBaseScrollB(const AccessTarget& accessTarget, uns
 //----------------------------------------------------------------------------------------
 unsigned int S315_5313::RegGetNameTableBaseSprite(const AccessTarget& accessTarget, bool mode4Enabled, bool h40ModeActive, bool extendedVRAMModeEnabled) const
 {
-	if(mode4Enabled)
+	if (mode4Enabled)
 	{
 		return GetRegisterData(0x05, accessTarget).GetDataSegment(1, 6) << 8;
 	}
-	else if(h40ModeActive)
+	else if (h40ModeActive)
 	{
 		//According to official documentation, if we're in H40 mode, the AT9 bit of the
 		//sprite table base address is masked. We emulate that here. Note that the
@@ -1017,7 +1017,7 @@ unsigned int S315_5313::RegGetNameTableBaseSprite(const AccessTarget& accessTarg
 //----------------------------------------------------------------------------------------
 void S315_5313::RegSetNameTableBaseSprite(const AccessTarget& accessTarget, unsigned int data, bool mode4Enabled)
 {
-	if(mode4Enabled)
+	if (mode4Enabled)
 	{
 		SetRegisterData(0x05, accessTarget, Data(8, data >> 7));
 	}
@@ -1038,11 +1038,11 @@ void S315_5313::RegSetNameTableBaseSprite(const AccessTarget& accessTarget, unsi
 //----------------------------------------------------------------------------------------
 unsigned int S315_5313::RegGetPatternBaseSprite(const AccessTarget& accessTarget, bool mode4Enabled, bool extendedVRAMModeEnabled) const
 {
-	if(mode4Enabled)
+	if (mode4Enabled)
 	{
 		return GetRegisterData(0x06, accessTarget).GetDataSegment(2, 1) << 13;
 	}
-	else if(extendedVRAMModeEnabled)
+	else if (extendedVRAMModeEnabled)
 	{
 		return GetRegisterData(0x06, accessTarget).GetDataSegment(5, 1) << 16;
 	}
@@ -1052,7 +1052,7 @@ unsigned int S315_5313::RegGetPatternBaseSprite(const AccessTarget& accessTarget
 //----------------------------------------------------------------------------------------
 void S315_5313::RegSetPatternBaseSprite(const AccessTarget& accessTarget, unsigned int data, bool mode4Enabled)
 {
-	if(mode4Enabled)
+	if (mode4Enabled)
 	{
 		SetRegisterData(0x06, accessTarget, Data(8, data >> 13));
 	}
@@ -1472,7 +1472,7 @@ void S315_5313::RegSet0E57(const AccessTarget& accessTarget, unsigned int data)
 //----------------------------------------------------------------------------------------
 unsigned int S315_5313::RegGetPatternBaseScrollA(const AccessTarget& accessTarget, bool extendedVRAMModeEnabled) const
 {
-	if(extendedVRAMModeEnabled)
+	if (extendedVRAMModeEnabled)
 	{
 		return GetRegisterData(0x0E, accessTarget).GetDataSegment(0, 1) << 16;
 	}
@@ -1500,7 +1500,7 @@ void S315_5313::RegSet0E13(const AccessTarget& accessTarget, unsigned int data)
 //----------------------------------------------------------------------------------------
 unsigned int S315_5313::RegGetPatternBaseScrollB(const AccessTarget& accessTarget, bool extendedVRAMModeEnabled) const
 {
-	if(extendedVRAMModeEnabled)
+	if (extendedVRAMModeEnabled)
 	{
 		return RegGetPatternBaseScrollA(accessTarget, extendedVRAMModeEnabled) & (GetRegisterData(0x0E, accessTarget).GetDataSegment(4, 1) << 16);
 	}
@@ -1512,7 +1512,7 @@ void S315_5313::RegSetPatternBaseScrollB(const AccessTarget& accessTarget, unsig
 {
 	unsigned int newData = data >> 16;
 	SetRegisterData(0x0E, accessTarget, GetRegisterData(0x0E, accessTarget).SetDataSegment(0, 1, newData));
-	if(newData != 0)
+	if (newData != 0)
 	{
 		RegSetPatternBaseScrollA(accessTarget, data);
 	}

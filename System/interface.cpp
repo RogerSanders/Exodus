@@ -24,14 +24,14 @@ extern "C" __declspec(dllexport) bool GetSystemEntry(unsigned int entryNo, ISyst
 	std::wstring commentsText;
 	HMODULE moduleHandle = NULL;
 	BOOL getModuleHandleExReturn = GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCWSTR)GetSystemEntry, &moduleHandle);
-	if(getModuleHandleExReturn != 0)
+	if (getModuleHandleExReturn != 0)
 	{
 		std::wstring modulePath = GetModuleFilePath(moduleHandle);
 		GetModuleVersionInfoString(modulePath, VERSIONINFOPROPERTY_LEGALCOPYRIGHT, copyrightText);
 		GetModuleVersionInfoString(modulePath, VERSIONINFOPROPERTY_COMMENTS, commentsText);
 	}
 
-	switch(entryNo)
+	switch (entryNo)
 	{
 	case 0:
 		entry.SetSystemSettings(GetSystem, DeleteSystem, 1, copyrightText, commentsText);

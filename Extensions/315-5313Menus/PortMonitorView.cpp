@@ -25,7 +25,7 @@ PortMonitorView::PortMonitorView(IUIManager& uiManager, PortMonitorViewPresenter
 LRESULT PortMonitorView::WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	WndProcDialogImplementGiveFocusToChildWindowOnClick(hwnd, msg, wparam, lparam);
-	switch(msg)
+	switch (msg)
 	{
 	case WM_CREATE:
 		return msgWM_CREATE(hwnd, wparam, lparam);
@@ -114,7 +114,7 @@ LRESULT PortMonitorView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	//If the port monitor log hasn't changed since the last refresh, abort any further
 	//processing.
 	unsigned int newLogLastModifiedToken = _model.GetPortMonitorLogLastModifiedToken();
-	if(newLogLastModifiedToken == _logLastModifiedToken)
+	if (newLogLastModifiedToken == _logLastModifiedToken)
 	{
 		return 0;
 	}
@@ -125,7 +125,7 @@ LRESULT PortMonitorView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 
 	//Delete any extra rows from the data grid that are no longer required
 	unsigned int currentRowCount = (unsigned int)SendMessage(_hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::GetRowCount, 0, 0);
-	if((unsigned int)portMonitorList.size() < currentRowCount)
+	if ((unsigned int)portMonitorList.size() < currentRowCount)
 	{
 		unsigned int rowCountToRemove = currentRowCount - (unsigned int)portMonitorList.size();
 		WC_DataGrid::Grid_DeleteRows deleteRowsInfo;
@@ -137,7 +137,7 @@ LRESULT PortMonitorView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	//Update the data grid with the latest entries
 	std::map<unsigned int, std::map<unsigned int, std::wstring>> rowText;
 	unsigned int currentRow = 0;
-	for(std::list<IS315_5313::PortMonitorEntry>::const_iterator i = portMonitorList.begin(); i != portMonitorList.end(); ++i)
+	for (std::list<IS315_5313::PortMonitorEntry>::const_iterator i = portMonitorList.begin(); i != portMonitorList.end(); ++i)
 	{
 		const IS315_5313::PortMonitorEntry& entry = *i;
 		std::map<unsigned int, std::wstring>& columnText = rowText[currentRow++];
@@ -219,7 +219,7 @@ INT_PTR CALLBACK PortMonitorView::WndProcPanelStatic(HWND hwnd, UINT msg, WPARAM
 	PortMonitorView* state = (PortMonitorView*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
 	//Process the message
-	switch(msg)
+	switch (msg)
 	{
 	case WM_INITDIALOG:
 		//Set the object pointer
@@ -227,13 +227,13 @@ INT_PTR CALLBACK PortMonitorView::WndProcPanelStatic(HWND hwnd, UINT msg, WPARAM
 		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)(state));
 
 		//Pass this message on to the member window procedure function
-		if(state != 0)
+		if (state != 0)
 		{
 			return state->WndProcPanel(hwnd, msg, wparam, lparam);
 		}
 		break;
 	case WM_DESTROY:
-		if(state != 0)
+		if (state != 0)
 		{
 			//Pass this message on to the member window procedure function
 			INT_PTR result = state->WndProcPanel(hwnd, msg, wparam, lparam);
@@ -249,7 +249,7 @@ INT_PTR CALLBACK PortMonitorView::WndProcPanelStatic(HWND hwnd, UINT msg, WPARAM
 
 	//Pass this message on to the member window procedure function
 	INT_PTR result = FALSE;
-	if(state != 0)
+	if (state != 0)
 	{
 		result = state->WndProcPanel(hwnd, msg, wparam, lparam);
 	}
@@ -260,7 +260,7 @@ INT_PTR CALLBACK PortMonitorView::WndProcPanelStatic(HWND hwnd, UINT msg, WPARAM
 INT_PTR PortMonitorView::WndProcPanel(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	WndProcDialogImplementSaveFieldWhenLostFocus(hwnd, msg, wparam, lparam);
-	switch(msg)
+	switch (msg)
 	{
 	case WM_INITDIALOG:
 		return msgPanelWM_INITDIALOG(hwnd, wparam, lparam);
@@ -284,7 +284,7 @@ INT_PTR PortMonitorView::msgPanelWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM 
 INT_PTR PortMonitorView::msgPanelWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	_initializedDialog = true;
-	if(_currentControlFocus != IDC_S315_5313_PORTMONITOR_LISTSIZE) UpdateDlgItemBin(hwnd, IDC_S315_5313_PORTMONITOR_LISTSIZE, _model.GetPortMonitorLength());
+	if (_currentControlFocus != IDC_S315_5313_PORTMONITOR_LISTSIZE) UpdateDlgItemBin(hwnd, IDC_S315_5313_PORTMONITOR_LISTSIZE, _model.GetPortMonitorLength());
 	CheckDlgButton(hwnd, IDC_S315_5313_PORTMONITOR_SRREAD, (_model.GetPortMonitorStatusReadEnabled())? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_S315_5313_PORTMONITOR_DPREAD, (_model.GetPortMonitorDataReadEnabled())? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_S315_5313_PORTMONITOR_HVREAD, (_model.GetPortMonitorHVReadEnabled())? BST_CHECKED: BST_UNCHECKED);
@@ -297,17 +297,17 @@ INT_PTR PortMonitorView::msgPanelWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lpara
 //----------------------------------------------------------------------------------------
 INT_PTR PortMonitorView::msgPanelWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	if((HIWORD(wparam) == EN_SETFOCUS) && _initializedDialog)
+	if ((HIWORD(wparam) == EN_SETFOCUS) && _initializedDialog)
 	{
 		_previousText = GetDlgItemString(hwnd, LOWORD(wparam));
 		_currentControlFocus = LOWORD(wparam);
 	}
-	else if((HIWORD(wparam) == EN_KILLFOCUS) && _initializedDialog)
+	else if ((HIWORD(wparam) == EN_KILLFOCUS) && _initializedDialog)
 	{
 		std::wstring newText = GetDlgItemString(hwnd, LOWORD(wparam));
-		if(newText != _previousText)
+		if (newText != _previousText)
 		{
-			switch(LOWORD(wparam))
+			switch (LOWORD(wparam))
 			{
 			case IDC_S315_5313_PORTMONITOR_LISTSIZE:
 				_model.SetPortMonitorLength(GetDlgItemBin(hwnd, LOWORD(wparam)));
@@ -315,9 +315,9 @@ INT_PTR PortMonitorView::msgPanelWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lpa
 			}
 		}
 	}
-	else if(HIWORD(wparam) == BN_CLICKED)
+	else if (HIWORD(wparam) == BN_CLICKED)
 	{
-		switch(LOWORD(wparam))
+		switch (LOWORD(wparam))
 		{
 		case IDC_S315_5313_PORTMONITOR_SRREAD:
 			_model.SetPortMonitorStatusReadEnabled(IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED);

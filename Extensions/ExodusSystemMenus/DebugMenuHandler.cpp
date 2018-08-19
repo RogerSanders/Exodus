@@ -19,7 +19,7 @@ void DebugMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) co
 //----------------------------------------------------------------------------------------
 IViewPresenter* DebugMenuHandler::CreateViewForItem(int menuItemID, const std::wstring& viewName)
 {
-	switch(menuItemID)
+	switch (menuItemID)
 	{
 	case MENUITEM_DEVICECONTROL:
 		return new DeviceControlViewPresenter(GetMenuHandlerName(), viewName, MENUITEM_DEVICECONTROL, _owner, _model);

@@ -51,21 +51,21 @@ _breakOnNextOpcode(false), _breakpointExists(false), _watchpointExists(false)
 Processor::~Processor()
 {
 	//Delete any remaining breakpoint objects
-	for(size_t i = 0; i < _breakpoints.size(); ++i)
+	for (size_t i = 0; i < _breakpoints.size(); ++i)
 	{
 		delete _breakpoints[i];
 	}
 	_breakpoints.clear();
 
 	//Delete any remaining watchpoint objects
-	for(size_t i = 0; i < _watchpoints.size(); ++i)
+	for (size_t i = 0; i < _watchpoints.size(); ++i)
 	{
 		delete _watchpoints[i];
 	}
 	_watchpoints.clear();
 
 	//Delete all disassembly info
-	for(std::set<DisassemblyAddressInfo*>::const_iterator i = _activeDisassemblyAddressInfoSet.begin(); i != _activeDisassemblyAddressInfoSet.end(); ++i)
+	for (std::set<DisassemblyAddressInfo*>::const_iterator i = _activeDisassemblyAddressInfoSet.begin(); i != _activeDisassemblyAddressInfoSet.end(); ++i)
 	{
 		delete *i;
 	}
@@ -99,7 +99,7 @@ bool Processor::Construct(IHierarchicalStorageNode& node)
 {
 	bool result = Device::Construct(node);
 	IHierarchicalStorageAttribute* clockSpeedAttribute = node.GetAttribute(L"ClockSpeed");
-	if(clockSpeedAttribute != 0)
+	if (clockSpeedAttribute != 0)
 	{
 		_clockSpeed = clockSpeedAttribute->ExtractValue<double>();
 	}
@@ -160,7 +160,7 @@ void Processor::ExecuteRollback()
 
 	//Clock speed
 	_clockSpeed = _bclockSpeed;
-	if(!_clockSpeedOverridden)
+	if (!_clockSpeedOverridden)
 	{
 		_reportedClockSpeed = _clockSpeed;
 	}
@@ -170,16 +170,16 @@ void Processor::ExecuteRollback()
 	_traceLog = _btraceLog;
 
 	//Breakpoint and Watchpoint hit counters
-	if(_breakpointExists)
+	if (_breakpointExists)
 	{
-		for(size_t i = 0; i < _breakpoints.size(); ++i)
+		for (size_t i = 0; i < _breakpoints.size(); ++i)
 		{
 			_breakpoints[i]->Rollback();
 		}
 	}
-	if(_watchpointExists)
+	if (_watchpointExists)
 	{
-		for(size_t i = 0; i < _watchpoints.size(); ++i)
+		for (size_t i = 0; i < _watchpoints.size(); ++i)
 		{
 			_watchpoints[i]->Rollback();
 		}
@@ -205,16 +205,16 @@ void Processor::ExecuteCommit()
 	_btraceLog = _traceLog;
 
 	//Breakpoint and Watchpoint hit counters
-	if(_breakpointExists)
+	if (_breakpointExists)
 	{
-		for(size_t i = 0; i < _breakpoints.size(); ++i)
+		for (size_t i = 0; i < _breakpoints.size(); ++i)
 		{
 			_breakpoints[i]->Commit();
 		}
 	}
-	if(_watchpointExists)
+	if (_watchpointExists)
 	{
-		for(size_t i = 0; i < _watchpoints.size(); ++i)
+		for (size_t i = 0; i < _watchpoints.size(); ++i)
 		{
 			_watchpoints[i]->Commit();
 		}
@@ -271,7 +271,7 @@ double Processor::GetClockSpeed() const
 void Processor::SetClockSpeed(double clockSpeed)
 {
 	_clockSpeed = clockSpeed;
-	if(!_clockSpeedOverridden)
+	if (!_clockSpeedOverridden)
 	{
 		_reportedClockSpeed = _clockSpeed;
 	}
@@ -408,22 +408,22 @@ bool Processor::LockBreakpoint(IBreakpoint* breakpoint) const
 	std::unique_lock<std::mutex> lock(_debugMutex);
 	bool foundTargetBreakpoint = false;
 	size_t breakpointNo = 0;
-	while(!foundTargetBreakpoint && (breakpointNo < _breakpoints.size()))
+	while (!foundTargetBreakpoint && (breakpointNo < _breakpoints.size()))
 	{
-		if(_breakpoints[breakpointNo] == breakpoint)
+		if (_breakpoints[breakpointNo] == breakpoint)
 		{
 			foundTargetBreakpoint = true;
 			continue;
 		}
 		++breakpointNo;
 	}
-	if(!foundTargetBreakpoint)
+	if (!foundTargetBreakpoint)
 	{
 		return false;
 	}
 
 	//Wait for a lock to be released on the target breakpoint if it is currently locked
-	while(_lockedBreakpoints.find(breakpoint) != _lockedBreakpoints.end())
+	while (_lockedBreakpoints.find(breakpoint) != _lockedBreakpoints.end())
 	{
 		_breakpointLockReleased.wait(lock);
 	}
@@ -448,22 +448,22 @@ void Processor::DeleteBreakpoint(IBreakpoint* breakpoint)
 	std::unique_lock<std::mutex> lock(_debugMutex);
 	bool foundTargetBreakpoint = false;
 	size_t breakpointNo = 0;
-	while(!foundTargetBreakpoint && (breakpointNo < _breakpoints.size()))
+	while (!foundTargetBreakpoint && (breakpointNo < _breakpoints.size()))
 	{
-		if(_breakpoints[breakpointNo] == breakpoint)
+		if (_breakpoints[breakpointNo] == breakpoint)
 		{
 			foundTargetBreakpoint = true;
 			continue;
 		}
 		++breakpointNo;
 	}
-	if(!foundTargetBreakpoint)
+	if (!foundTargetBreakpoint)
 	{
 		return;
 	}
 
 	//Wait for a lock to be released on the target breakpoint if it is currently locked
-	while(_lockedBreakpoints.find(breakpoint) != _lockedBreakpoints.end())
+	while (_lockedBreakpoints.find(breakpoint) != _lockedBreakpoints.end())
 	{
 		_breakpointLockReleased.wait(lock);
 	}
@@ -472,10 +472,10 @@ void Processor::DeleteBreakpoint(IBreakpoint* breakpoint)
 	_breakpointCollection->ObtainWriteLock();
 	std::list<IGenericAccessGroupCollectionEntry::CollectionEntry> collectionEntries = _breakpointCollection->GetCollectionEntries();
 	std::list<IGenericAccessGroupCollectionEntry::CollectionEntry>::const_iterator collectionEntriesIterator = collectionEntries.begin();
-	while(collectionEntriesIterator != collectionEntries.end())
+	while (collectionEntriesIterator != collectionEntries.end())
 	{
 		const BreakpointDataContext* breakpointDataContext = (const BreakpointDataContext*)collectionEntriesIterator->value->GetDataContext();
-		if(breakpointDataContext->breakpoint == _breakpoints[breakpointNo])
+		if (breakpointDataContext->breakpoint == _breakpoints[breakpointNo])
 		{
 			_breakpointCollection->RemoveCollectionEntry(*collectionEntriesIterator->key);
 			break;
@@ -496,28 +496,28 @@ void Processor::CheckExecutionInternal(unsigned int location) const
 	std::unique_lock<std::mutex> lock(_debugMutex);
 
 	bool breakOnInstruction = false;
-	if(_breakOnNextOpcode)
+	if (_breakOnNextOpcode)
 	{
 		breakOnInstruction = true;
 		_breakOnNextOpcode = false;
 		_bstepOver = _stepOver = false;
 	}
 	Breakpoint* triggerBreakpoint = 0;
-	for(size_t i = 0; i < _breakpoints.size(); ++i)
+	for (size_t i = 0; i < _breakpoints.size(); ++i)
 	{
 		//Evaluate location
 		Breakpoint* breakpoint = _breakpoints[i];
-		if(breakpoint->GetEnabled() && (_lockedBreakpoints.find(breakpoint) == _lockedBreakpoints.end()) && breakpoint->PassesLocationCondition(location))
+		if (breakpoint->GetEnabled() && (_lockedBreakpoints.find(breakpoint) == _lockedBreakpoints.end()) && breakpoint->PassesLocationCondition(location))
 		{
 			//Update hitcounter
-			if(breakpoint->CheckHitCounter())
+			if (breakpoint->CheckHitCounter())
 			{
-				if(breakpoint->GetLogEvent())
+				if (breakpoint->GetLogEvent())
 				{
 					//Log the event
 					GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EventLevel::Debug, breakpoint->GetLogString()));
 				}
-				if(breakpoint->GetBreakEvent())
+				if (breakpoint->GetBreakEvent())
 				{
 					breakOnInstruction = true;
 					triggerBreakpoint = breakpoint;
@@ -526,7 +526,7 @@ void Processor::CheckExecutionInternal(unsigned int location) const
 		}
 	}
 
-	if(breakOnInstruction)
+	if (breakOnInstruction)
 	{
 		TriggerBreakpoint(triggerBreakpoint);
 	}
@@ -535,7 +535,7 @@ void Processor::CheckExecutionInternal(unsigned int location) const
 	//the breakOnNextOpcode flag to ensure that a breakpoint will be triggered when
 	//stepping over a non-branching instruction. If the instruction triggers a branch,
 	//this flag will be cleared when a new entry is pushed to the call stack.
-	if(_stepOver && (_stackLevel <= 0))
+	if (_stepOver && (_stackLevel <= 0))
 	{
 		_breakOnNextOpcode = true;
 	}
@@ -545,7 +545,7 @@ void Processor::CheckExecutionInternal(unsigned int location) const
 void Processor::TriggerBreakpoint(Breakpoint* breakpoint) const
 {
 	//##TODO## Clean up this old code
-//	if(!breakpointTriggered)
+//	if (!breakpointTriggered)
 //	{
 	//std::function<void()> function = std::bind(&Processor::BreakpointCallback, this, breakpoint);
 	//GetDeviceContext()->SetSystemRollback(GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), &function);
@@ -579,7 +579,7 @@ void Processor::BreakpointCallbackRaw(void* params)
 //----------------------------------------------------------------------------------------
 void Processor::BreakpointCallback(Breakpoint* breakpoint) const
 {
-	if(breakpoint != 0)
+	if (breakpoint != 0)
 	{
 		breakpoint->PreIncrementHitCounter();
 	}
@@ -616,22 +616,22 @@ bool Processor::LockWatchpoint(IWatchpoint* watchpoint) const
 	std::unique_lock<std::mutex> lock(_debugMutex);
 	bool foundTargetWatchpoint = false;
 	size_t watchpointNo = 0;
-	while(!foundTargetWatchpoint && (watchpointNo < _watchpoints.size()))
+	while (!foundTargetWatchpoint && (watchpointNo < _watchpoints.size()))
 	{
-		if(_watchpoints[watchpointNo] == watchpoint)
+		if (_watchpoints[watchpointNo] == watchpoint)
 		{
 			foundTargetWatchpoint = true;
 			continue;
 		}
 		++watchpointNo;
 	}
-	if(!foundTargetWatchpoint)
+	if (!foundTargetWatchpoint)
 	{
 		return false;
 	}
 
 	//Wait for a lock to be released on the target watchpoint if it is currently locked
-	while(_lockedWatchpoints.find(watchpoint) != _lockedWatchpoints.end())
+	while (_lockedWatchpoints.find(watchpoint) != _lockedWatchpoints.end())
 	{
 		_watchpointLockReleased.wait(lock);
 	}
@@ -656,22 +656,22 @@ void Processor::DeleteWatchpoint(IWatchpoint* watchpoint)
 	std::unique_lock<std::mutex> lock(_debugMutex);
 	bool foundTargetWatchpoint = false;
 	size_t watchpointNo = 0;
-	while(!foundTargetWatchpoint && (watchpointNo < _watchpoints.size()))
+	while (!foundTargetWatchpoint && (watchpointNo < _watchpoints.size()))
 	{
-		if(_watchpoints[watchpointNo] == watchpoint)
+		if (_watchpoints[watchpointNo] == watchpoint)
 		{
 			foundTargetWatchpoint = true;
 			continue;
 		}
 		++watchpointNo;
 	}
-	if(!foundTargetWatchpoint)
+	if (!foundTargetWatchpoint)
 	{
 		return;
 	}
 
 	//Wait for a lock to be released on the target watchpoint if it is currently locked
-	while(_lockedWatchpoints.find(watchpoint) != _lockedWatchpoints.end())
+	while (_lockedWatchpoints.find(watchpoint) != _lockedWatchpoints.end())
 	{
 		_watchpointLockReleased.wait(lock);
 	}
@@ -689,21 +689,21 @@ void Processor::CheckMemoryReadInternal(unsigned int location, unsigned int data
 
 	bool breakOnInstruction = false;
 	Watchpoint* triggerWatchpoint = 0;
-	for(size_t i = 0; i < _watchpoints.size(); ++i)
+	for (size_t i = 0; i < _watchpoints.size(); ++i)
 	{
 		//Evaluate location
 		Watchpoint* watchpoint = _watchpoints[i];
-		if(watchpoint->GetEnabled() && (_lockedWatchpoints.find(watchpoint) == _lockedWatchpoints.end()) && watchpoint->PassesLocationCondition(location) && watchpoint->GetOnRead() && watchpoint->PassesReadCondition(data))
+		if (watchpoint->GetEnabled() && (_lockedWatchpoints.find(watchpoint) == _lockedWatchpoints.end()) && watchpoint->PassesLocationCondition(location) && watchpoint->GetOnRead() && watchpoint->PassesReadCondition(data))
 		{
 			//Update hitcounter
-			if(watchpoint->CheckHitCounter())
+			if (watchpoint->CheckHitCounter())
 			{
-				if(watchpoint->GetLogEvent())
+				if (watchpoint->GetLogEvent())
 				{
 					//Log the event
 					GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EventLevel::Debug, watchpoint->GetLogString()));
 				}
-				if(watchpoint->GetBreakEvent())
+				if (watchpoint->GetBreakEvent())
 				{
 					breakOnInstruction = true;
 					triggerWatchpoint = watchpoint;
@@ -712,7 +712,7 @@ void Processor::CheckMemoryReadInternal(unsigned int location, unsigned int data
 		}
 	}
 
-	if(breakOnInstruction)
+	if (breakOnInstruction)
 	{
 		TriggerWatchpoint(triggerWatchpoint);
 	}
@@ -725,20 +725,20 @@ void Processor::CheckMemoryWriteInternal(unsigned int location, unsigned int dat
 
 	bool breakOnInstruction = false;
 	Watchpoint* triggerWatchpoint = 0;
-	for(size_t i = 0; i < _watchpoints.size(); ++i)
+	for (size_t i = 0; i < _watchpoints.size(); ++i)
 	{
 		Watchpoint* watchpoint = _watchpoints[i];
-		if(watchpoint->GetEnabled() && (_lockedWatchpoints.find(watchpoint) == _lockedWatchpoints.end()) && watchpoint->PassesLocationCondition(location) && watchpoint->GetOnWrite() && watchpoint->PassesWriteCondition(data))
+		if (watchpoint->GetEnabled() && (_lockedWatchpoints.find(watchpoint) == _lockedWatchpoints.end()) && watchpoint->PassesLocationCondition(location) && watchpoint->GetOnWrite() && watchpoint->PassesWriteCondition(data))
 		{
 			//Update hitcounter
-			if(watchpoint->CheckHitCounter())
+			if (watchpoint->CheckHitCounter())
 			{
-				if(watchpoint->GetLogEvent())
+				if (watchpoint->GetLogEvent())
 				{
 					//Log the event
 					GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EventLevel::Debug, watchpoint->GetLogString()));
 				}
-				if(watchpoint->GetBreakEvent())
+				if (watchpoint->GetBreakEvent())
 				{
 					breakOnInstruction = true;
 					triggerWatchpoint = watchpoint;
@@ -747,7 +747,7 @@ void Processor::CheckMemoryWriteInternal(unsigned int location, unsigned int dat
 		}
 	}
 
-	if(breakOnInstruction)
+	if (breakOnInstruction)
 	{
 		TriggerWatchpoint(triggerWatchpoint);
 	}
@@ -773,7 +773,7 @@ void Processor::WatchpointCallbackRaw(void* params)
 //----------------------------------------------------------------------------------------
 void Processor::WatchpointCallback(Watchpoint* watchpoint) const
 {
-	if(watchpoint != 0)
+	if (watchpoint != 0)
 	{
 		watchpoint->PreIncrementHitCounter();
 	}
@@ -819,7 +819,7 @@ void Processor::ClearCallStack()
 void Processor::PushCallStack(unsigned int sourceAddress, unsigned int targetAddress, unsigned int returnAddress, const std::wstring& entry, bool fixedDisassembly)
 {
 	std::unique_lock<std::mutex> lock(_debugMutex);
-	if(_stepOut || _stepOver)
+	if (_stepOut || _stepOver)
 	{
 		++_stackLevel;
 
@@ -830,17 +830,17 @@ void Processor::PushCallStack(unsigned int sourceAddress, unsigned int targetAdd
 	}
 
 	CallStackEntry stackEntry(sourceAddress, targetAddress, returnAddress, entry);
-	if(_stackDisassemble && !fixedDisassembly)
+	if (_stackDisassemble && !fixedDisassembly)
 	{
 		OpcodeInfo opcodeInfo;
-		if(GetOpcodeInfo(sourceAddress, opcodeInfo))
+		if (GetOpcodeInfo(sourceAddress, opcodeInfo))
 		{
 			stackEntry.disassembly = opcodeInfo.GetOpcodeNameDisassembly() + L'\t' + opcodeInfo.GetOpcodeArgumentsDisassembly();
 		}
 	}
 
 	_callStack.push_front(stackEntry);
-	if(_callStack.size() > 500)
+	if (_callStack.size() > 500)
 	{
 		_callStack.pop_back();
 	}
@@ -861,9 +861,9 @@ void Processor::PopCallStack(unsigned int returnAddress)
 	//effectively becomes a non-returnable branch, which should not recorded on the
 	//stack. When that branch returns, it will appear to do a multiple-level return. This
 	//behaviour accurately reflects the actual execution path the code takes.
-	for(std::list<CallStackEntry>::iterator i = _callStack.begin(); i != _callStack.end(); ++i)
+	for (std::list<CallStackEntry>::iterator i = _callStack.begin(); i != _callStack.end(); ++i)
 	{
-		if(i->returnAddress == returnAddress)
+		if (i->returnAddress == returnAddress)
 		{
 			_callStack.erase(_callStack.begin(), ++i);
 			break;
@@ -871,16 +871,16 @@ void Processor::PopCallStack(unsigned int returnAddress)
 	}
 	++_callStackLastModifiedToken;
 
-	if(_stepOut || _stepOver)
+	if (_stepOut || _stepOver)
 	{
 		--_stackLevel;
 	}
-	if(_stepOut && (_stackLevel < 0))
+	if (_stepOut && (_stackLevel < 0))
 	{
 		_stepOut = false;
 		_breakOnNextOpcode = true;
 	}
-	else if(_stepOver && (_stackLevel <= 0))
+	else if (_stepOver && (_stackLevel <= 0))
 	{
 		_stepOver = false;
 		_breakOnNextOpcode = true;
@@ -952,10 +952,10 @@ void Processor::RecordTraceInternal(unsigned int pc)
 	std::unique_lock<std::mutex> lock(_debugMutex);
 
 	TraceLogEntry traceEntry(pc);
-	if(_traceLogDisassemble)
+	if (_traceLogDisassemble)
 	{
 		OpcodeInfo opcodeInfo;
-		if(GetOpcodeInfo(pc, opcodeInfo))
+		if (GetOpcodeInfo(pc, opcodeInfo))
 		{
 			traceEntry.disassembly = opcodeInfo.GetOpcodeNameDisassembly() + L'\t' + opcodeInfo.GetOpcodeArgumentsDisassembly();
 		}
@@ -963,7 +963,7 @@ void Processor::RecordTraceInternal(unsigned int pc)
 
 	//Add the entry to the running trace log
 	_traceLog.push_front(traceEntry);
-	while(_traceLog.size() > _traceLogLength)
+	while (_traceLog.size() > _traceLogLength)
 	{
 		_traceLog.pop_back();
 	}
@@ -995,7 +995,7 @@ void Processor::SetActiveDisassemblyStartLocation(unsigned int state)
 {
 	std::unique_lock<std::mutex> lock(_debugMutex);
 	_activeDisassemblyUncommittedStartLocation = state;
-	if(_activeDisassemblyEnabled)
+	if (_activeDisassemblyEnabled)
 	{
 		DisableActiveDisassembly();
 		EnableActiveDisassembly(_activeDisassemblyUncommittedStartLocation, _activeDisassemblyUncommittedEndLocation);
@@ -1013,7 +1013,7 @@ void Processor::SetActiveDisassemblyEndLocation(unsigned int state)
 {
 	std::unique_lock<std::mutex> lock(_debugMutex);
 	_activeDisassemblyUncommittedEndLocation = state;
-	if(_activeDisassemblyEnabled)
+	if (_activeDisassemblyEnabled)
 	{
 		DisableActiveDisassembly();
 		EnableActiveDisassembly(_activeDisassemblyUncommittedStartLocation, _activeDisassemblyUncommittedEndLocation);
@@ -1327,7 +1327,7 @@ void Processor::EnableActiveDisassembly(unsigned int startLocation, unsigned int
 	_activeDisassemblyEnabled = false;
 
 	//Validate the new start and end locations for the disassembly
-	if(endLocation <= startLocation)
+	if (endLocation <= startLocation)
 	{
 		return;
 	}
@@ -1341,7 +1341,7 @@ void Processor::EnableActiveDisassembly(unsigned int startLocation, unsigned int
 
 	//Resize the array holding the disassembly address info
 	unsigned int requiredDisassemblyAddressInfoArraySize = _activeDisassemblyEndLocation - _activeDisassemblyStartLocation;
-	if((_activeDisassemblyStartLocation != oldActiveDisassemblyStartLocation) || (_activeDisassemblyEndLocation != oldActiveDisassemblyEndLocation) || ((unsigned int)_activeDisassemblyAddressInfo.size() != requiredDisassemblyAddressInfoArraySize))
+	if ((_activeDisassemblyStartLocation != oldActiveDisassemblyStartLocation) || (_activeDisassemblyEndLocation != oldActiveDisassemblyEndLocation) || ((unsigned int)_activeDisassemblyAddressInfo.size() != requiredDisassemblyAddressInfoArraySize))
 	{
 		//Clear disassemblyAddressInfo and resize it correctly for the new region
 		_activeDisassemblyAddressInfo.clear();
@@ -1350,10 +1350,10 @@ void Processor::EnableActiveDisassembly(unsigned int startLocation, unsigned int
 		//Insert current entries into the resized array, and remove any existing entries
 		//which now fall outsize the active disassembly region.
 		std::set<DisassemblyAddressInfo*> entriesToRemove;
-		for(std::set<DisassemblyAddressInfo*>::const_iterator i = _activeDisassemblyAddressInfoSet.begin(); i != _activeDisassemblyAddressInfoSet.end(); ++i)
+		for (std::set<DisassemblyAddressInfo*>::const_iterator i = _activeDisassemblyAddressInfoSet.begin(); i != _activeDisassemblyAddressInfoSet.end(); ++i)
 		{
 			DisassemblyAddressInfo* entry = *i;
-			if((entry->baseMemoryAddress < _activeDisassemblyStartLocation) || ((entry->baseMemoryAddress + entry->memoryBlockSize) >= _activeDisassemblyEndLocation))
+			if ((entry->baseMemoryAddress < _activeDisassemblyStartLocation) || ((entry->baseMemoryAddress + entry->memoryBlockSize) >= _activeDisassemblyEndLocation))
 			{
 				entriesToRemove.insert(entry);
 			}
@@ -1362,7 +1362,7 @@ void Processor::EnableActiveDisassembly(unsigned int startLocation, unsigned int
 				AddDisassemblyAddressInfoEntryToArray(*i);
 			}
 		}
-		for(std::set<DisassemblyAddressInfo*>::const_iterator i = entriesToRemove.begin(); i != entriesToRemove.end(); ++i)
+		for (std::set<DisassemblyAddressInfo*>::const_iterator i = entriesToRemove.begin(); i != entriesToRemove.end(); ++i)
 		{
 			_activeDisassemblyAddressInfoSet.erase(*i);
 			delete *i;
@@ -1372,29 +1372,29 @@ void Processor::EnableActiveDisassembly(unsigned int startLocation, unsigned int
 		//region, and remove any entries which now extend outside the active disassembly
 		//region.
 		std::set<unsigned int> jumpTableEntriesToRemove;
-		for(DisassemblyJumpTableInfoMap::iterator i = _activeDisassemblyJumpTableInfo.begin(); i != _activeDisassemblyJumpTableInfo.end(); ++i)
+		for (DisassemblyJumpTableInfoMap::iterator i = _activeDisassemblyJumpTableInfo.begin(); i != _activeDisassemblyJumpTableInfo.end(); ++i)
 		{
 			DisassemblyJumpTableInfo& entry = i->second;
-			if((entry.baseMemoryAddress < _activeDisassemblyStartLocation) || ((entry.baseMemoryAddress + entry.entrySize) > _activeDisassemblyEndLocation))
+			if ((entry.baseMemoryAddress < _activeDisassemblyStartLocation) || ((entry.baseMemoryAddress + entry.entrySize) > _activeDisassemblyEndLocation))
 			{
 				jumpTableEntriesToRemove.insert(entry.baseMemoryAddress);
 			}
 			std::set<unsigned int> tableEntriesToRemove;
-			for(std::set<unsigned int>::const_iterator entryIterator = entry.knownEntries.begin(); entryIterator != entry.knownEntries.end(); ++entryIterator)
+			for (std::set<unsigned int>::const_iterator entryIterator = entry.knownEntries.begin(); entryIterator != entry.knownEntries.end(); ++entryIterator)
 			{
 				unsigned int tableEntry = *entryIterator;
-				if((tableEntry + entry.entrySize) > _activeDisassemblyEndLocation)
+				if ((tableEntry + entry.entrySize) > _activeDisassemblyEndLocation)
 				{
 					tableEntriesToRemove.insert(tableEntry);
 				}
 			}
-			for(std::set<unsigned int>::const_iterator entryIterator = tableEntriesToRemove.begin(); entryIterator != tableEntriesToRemove.end(); ++entryIterator)
+			for (std::set<unsigned int>::const_iterator entryIterator = tableEntriesToRemove.begin(); entryIterator != tableEntriesToRemove.end(); ++entryIterator)
 			{
 				unsigned int tableEntry = *entryIterator;
 				entry.knownEntries.erase(tableEntry);
 			}
 		}
-		for(std::set<unsigned int>::const_iterator i = jumpTableEntriesToRemove.begin(); i != jumpTableEntriesToRemove.end(); ++i)
+		for (std::set<unsigned int>::const_iterator i = jumpTableEntriesToRemove.begin(); i != jumpTableEntriesToRemove.end(); ++i)
 		{
 			_activeDisassemblyJumpTableInfo.erase(*i);
 		}
@@ -1402,19 +1402,19 @@ void Processor::EnableActiveDisassembly(unsigned int startLocation, unsigned int
 		//Remove any arrays which now begin outside the active disassembly region, and
 		//truncate any arrays which extend beyond the active disassembly region.
 		std::set<unsigned int> arrayEntriesToRemove;
-		for(DisassemblyArrayInfoMap::iterator i = _activeDisassemblyArrayInfo.begin(); i != _activeDisassemblyArrayInfo.end(); ++i)
+		for (DisassemblyArrayInfoMap::iterator i = _activeDisassemblyArrayInfo.begin(); i != _activeDisassemblyArrayInfo.end(); ++i)
 		{
 			DisassemblyArrayInfo& entry = i->second;
-			if((entry.baseMemoryAddress < _activeDisassemblyStartLocation) || ((entry.baseMemoryAddress + entry.arrayEntrySize) >= _activeDisassemblyEndLocation))
+			if ((entry.baseMemoryAddress < _activeDisassemblyStartLocation) || ((entry.baseMemoryAddress + entry.arrayEntrySize) >= _activeDisassemblyEndLocation))
 			{
 				arrayEntriesToRemove.insert(entry.arrayID);
 			}
-			else if((entry.baseMemoryAddress + (entry.arrayEntryCount * entry.arrayEntrySize)) >= _activeDisassemblyEndLocation)
+			else if ((entry.baseMemoryAddress + (entry.arrayEntryCount * entry.arrayEntrySize)) >= _activeDisassemblyEndLocation)
 			{
 				entry.arrayEntryCount = (_activeDisassemblyEndLocation - entry.baseMemoryAddress) / entry.arrayEntryCount;
 			}
 		}
-		for(std::set<unsigned int>::const_iterator i = arrayEntriesToRemove.begin(); i != arrayEntriesToRemove.end(); ++i)
+		for (std::set<unsigned int>::const_iterator i = arrayEntriesToRemove.begin(); i != arrayEntriesToRemove.end(); ++i)
 		{
 			_activeDisassemblyArrayInfo.erase(*i);
 		}
@@ -1449,7 +1449,7 @@ void Processor::ClearActiveDisassembly()
 void Processor::ClearActiveDisassemblyInternal()
 {
 	//Delete all disassembly info
-	for(std::set<DisassemblyAddressInfo*>::const_iterator i = _activeDisassemblyAddressInfoSet.begin(); i != _activeDisassemblyAddressInfoSet.end(); ++i)
+	for (std::set<DisassemblyAddressInfo*>::const_iterator i = _activeDisassemblyAddressInfoSet.begin(); i != _activeDisassemblyAddressInfoSet.end(); ++i)
 	{
 		delete *i;
 	}
@@ -1460,7 +1460,7 @@ void Processor::ClearActiveDisassemblyInternal()
 
 	//If active disassembly is currently enabled, re-allocate the disassembly array using
 	//the current array size.
-	if(_activeDisassemblyEnabled)
+	if (_activeDisassemblyEnabled)
 	{
 		unsigned int disassemblyAddressInfoArraySize = _activeDisassemblyEndLocation - _activeDisassemblyStartLocation;
 		_activeDisassemblyAddressInfo.resize(disassemblyAddressInfoArraySize);
@@ -1473,14 +1473,14 @@ void Processor::ClearActiveDisassemblyInternal()
 unsigned int Processor::MakeDataArrayAtLocation(unsigned int location, unsigned int dataSize, DisassemblyDataType dataType)
 {
 	//Verify that active disassembly is enabled
-	if(!_activeDisassemblyEnabled)
+	if (!_activeDisassemblyEnabled)
 	{
 		return 0;
 	}
 
 	//Verify that this address falls within the target area
 	std::unique_lock<std::mutex> lock(_debugMutex);
-	if((location < _activeDisassemblyStartLocation) || (location >= _activeDisassemblyEndLocation))
+	if ((location < _activeDisassemblyStartLocation) || (location >= _activeDisassemblyEndLocation))
 	{
 		return 0;
 	}
@@ -1488,10 +1488,10 @@ unsigned int Processor::MakeDataArrayAtLocation(unsigned int location, unsigned 
 	//Try and find existing data references at the same address which define the start of
 	//an array. If one is found, return the existing array ID for that data reference.
 	std::list<DisassemblyAddressInfo*>& addressList = _activeDisassemblyAddressInfo[location - _activeDisassemblyStartLocation];
-	for(std::list<DisassemblyAddressInfo*>::const_iterator i = addressList.begin(); i != addressList.end(); ++i)
+	for (std::list<DisassemblyAddressInfo*>::const_iterator i = addressList.begin(); i != addressList.end(); ++i)
 	{
 		DisassemblyAddressInfo* entry = *i;
-		if((entry->entryType == DisassemblyEntryType::Data) && (entry->baseMemoryAddress == location) && (entry->memoryBlockSize == dataSize) && (entry->dataType == dataType) && entry->arrayStartingHereDefined)
+		if ((entry->entryType == DisassemblyEntryType::Data) && (entry->baseMemoryAddress == location) && (entry->memoryBlockSize == dataSize) && (entry->dataType == dataType) && entry->arrayStartingHereDefined)
 		{
 			return entry->arrayIDStartingHere;
 		}
@@ -1514,14 +1514,14 @@ unsigned int Processor::MakeDataArrayAtLocation(unsigned int location, unsigned 
 void Processor::AddDisassemblyAddressInfoCode(unsigned int location, unsigned int dataSize, const std::wstring& comment)
 {
 	//Verify that active disassembly is enabled
-	if(!_activeDisassemblyEnabled)
+	if (!_activeDisassemblyEnabled)
 	{
 		return;
 	}
 
 	//Verify that this address falls within the target area
 	std::unique_lock<std::mutex> lock(_debugMutex);
-	if((location < _activeDisassemblyStartLocation) || (location >= _activeDisassemblyEndLocation))
+	if ((location < _activeDisassemblyStartLocation) || (location >= _activeDisassemblyEndLocation))
 	{
 		return;
 	}
@@ -1529,18 +1529,18 @@ void Processor::AddDisassemblyAddressInfoCode(unsigned int location, unsigned in
 	//Try and find identical existing references at the same address
 	bool foundExistingCodeReference = false;
 	std::list<DisassemblyAddressInfo*>& addressList = _activeDisassemblyAddressInfo[location - _activeDisassemblyStartLocation];
-	for(std::list<DisassemblyAddressInfo*>::const_iterator i = addressList.begin(); i != addressList.end(); ++i)
+	for (std::list<DisassemblyAddressInfo*>::const_iterator i = addressList.begin(); i != addressList.end(); ++i)
 	{
 		DisassemblyAddressInfo* entry = *i;
-		if((entry->baseMemoryAddress == location) && (entry->memoryBlockSize == dataSize))
+		if ((entry->baseMemoryAddress == location) && (entry->memoryBlockSize == dataSize))
 		{
 			//Check if this entry refers to an opcode
-			if(entry->entryType == DisassemblyEntryType::Code)
+			if (entry->entryType == DisassemblyEntryType::Code)
 			{
 				//Flag if we've found an existing reference to an opcode at this location
 				foundExistingCodeReference = true;
 			}
-			else if(entry->entryType == DisassemblyEntryType::CodeAutoDetect)
+			else if (entry->entryType == DisassemblyEntryType::CodeAutoDetect)
 			{
 				//If we've found a reference to an auto-detected opcode at this location,
 				//change it to a confirmed opcode, and flag that we've found an existing
@@ -1553,7 +1553,7 @@ void Processor::AddDisassemblyAddressInfoCode(unsigned int location, unsigned in
 
 	//If we found an identical existing reference, we don't have anything to do. Abort any
 	//further processing.
-	if(foundExistingCodeReference)
+	if (foundExistingCodeReference)
 	{
 		return;
 	}
@@ -1577,14 +1577,14 @@ void Processor::AddDisassemblyAddressInfoCode(unsigned int location, unsigned in
 void Processor::AddDisassemblyAddressInfoData(unsigned int location, unsigned int dataSize, DisassemblyDataType dataType, unsigned int arrayID, const std::wstring& comment)
 {
 	//Verify that active disassembly is enabled
-	if(!_activeDisassemblyEnabled)
+	if (!_activeDisassemblyEnabled)
 	{
 		return;
 	}
 
 	//Verify that this address falls within the target area
 	std::unique_lock<std::mutex> lock(_debugMutex);
-	if((location < _activeDisassemblyStartLocation) || (location >= _activeDisassemblyEndLocation))
+	if ((location < _activeDisassemblyStartLocation) || (location >= _activeDisassemblyEndLocation))
 	{
 		return;
 	}
@@ -1594,10 +1594,10 @@ void Processor::AddDisassemblyAddressInfoData(unsigned int location, unsigned in
 	DisassemblyAddressInfo* targetEntry = 0;
 	std::list<DisassemblyAddressInfo*>& addressList = _activeDisassemblyAddressInfo[location - _activeDisassemblyStartLocation];
 	std::list<DisassemblyAddressInfo*>::const_iterator addressListIterator = addressList.begin();
-	while(!foundExistingDataReference && (addressListIterator != addressList.end()))
+	while (!foundExistingDataReference && (addressListIterator != addressList.end()))
 	{
 		DisassemblyAddressInfo* entry = *addressListIterator;
-		if((entry->entryType == DisassemblyEntryType::Data) && (entry->baseMemoryAddress == location) && (entry->memoryBlockSize == dataSize) && (entry->dataType == dataType))
+		if ((entry->entryType == DisassemblyEntryType::Data) && (entry->baseMemoryAddress == location) && (entry->memoryBlockSize == dataSize) && (entry->dataType == dataType))
 		{
 			foundExistingDataReference = true;
 			targetEntry = entry;
@@ -1608,7 +1608,7 @@ void Processor::AddDisassemblyAddressInfoData(unsigned int location, unsigned in
 
 	//If we didn't manage to find an identical existing reference, create a new entry for
 	//this data reference.
-	if(!foundExistingDataReference)
+	if (!foundExistingDataReference)
 	{
 		//Create a new DisassemblyAddressInfo object to describe the entry, and insert it
 		//into the set of DisassemblyAddressInfo objects.
@@ -1627,16 +1627,16 @@ void Processor::AddDisassemblyAddressInfoData(unsigned int location, unsigned in
 	}
 
 	//Add this data entry to the target array if an array ID has been specified
-	if(arrayID != 0)
+	if (arrayID != 0)
 	{
 		DisassemblyArrayInfoMap::iterator arrayInfoIterator = _activeDisassemblyArrayInfo.find(arrayID);
-		if(arrayInfoIterator != _activeDisassemblyArrayInfo.end())
+		if (arrayInfoIterator != _activeDisassemblyArrayInfo.end())
 		{
 			//Validate this entry before adding it to the array. A new array entry can
 			//only be pushed back to the end of the array, and it must match the array
 			//entry size.
 			DisassemblyArrayInfo& arrayInfo = arrayInfoIterator->second;
-			if((arrayInfo.arrayEntrySize == dataSize) && (arrayInfo.dataType == dataType) && ((arrayInfo.baseMemoryAddress + (arrayInfo.arrayEntryCount * arrayInfo.arrayEntrySize)) == location))
+			if ((arrayInfo.arrayEntrySize == dataSize) && (arrayInfo.dataType == dataType) && ((arrayInfo.baseMemoryAddress + (arrayInfo.arrayEntryCount * arrayInfo.arrayEntrySize)) == location))
 			{
 				//Add this data entry to the target array
 				++arrayInfo.arrayEntryCount;
@@ -1644,7 +1644,7 @@ void Processor::AddDisassemblyAddressInfoData(unsigned int location, unsigned in
 				targetEntry->arraysMemberOf.insert(arrayID);
 
 				//If this data entry is the first entry in the array, mark it as such.
-				if(arrayInfo.baseMemoryAddress == targetEntry->baseMemoryAddress)
+				if (arrayInfo.baseMemoryAddress == targetEntry->baseMemoryAddress)
 				{
 					targetEntry->arrayIDStartingHere = arrayID;
 					targetEntry->arrayStartingHereDefined = true;
@@ -1658,14 +1658,14 @@ void Processor::AddDisassemblyAddressInfoData(unsigned int location, unsigned in
 void Processor::AddDisassemblyAddressInfoOffset(unsigned int location, unsigned int dataSize, bool offsetToCode, bool relativeOffset, unsigned int relativeOffsetBaseAddress)
 {
 	//Verify that active disassembly is enabled
-	if(!_activeDisassemblyEnabled)
+	if (!_activeDisassemblyEnabled)
 	{
 		return;
 	}
 
 	//Verify that this address falls within the target area
 	std::unique_lock<std::mutex> lock(_debugMutex);
-	if((location < _activeDisassemblyStartLocation) || (location >= _activeDisassemblyEndLocation))
+	if ((location < _activeDisassemblyStartLocation) || (location >= _activeDisassemblyEndLocation))
 	{
 		return;
 	}
@@ -1676,10 +1676,10 @@ void Processor::AddDisassemblyAddressInfoOffset(unsigned int location, unsigned 
 	//Try and find identical existing references at the same address
 	bool foundExistingDataReference = false;
 	std::list<DisassemblyAddressInfo*>& addressList = _activeDisassemblyAddressInfo[location - _activeDisassemblyStartLocation];
-	for(std::list<DisassemblyAddressInfo*>::const_iterator i = addressList.begin(); i != addressList.end(); ++i)
+	for (std::list<DisassemblyAddressInfo*>::const_iterator i = addressList.begin(); i != addressList.end(); ++i)
 	{
 		DisassemblyAddressInfo* entry = *i;
-		if((entry->entryType == entryType) && (entry->baseMemoryAddress == location) && (entry->memoryBlockSize == dataSize))
+		if ((entry->entryType == entryType) && (entry->baseMemoryAddress == location) && (entry->memoryBlockSize == dataSize))
 		{
 			foundExistingDataReference = true;
 		}
@@ -1687,7 +1687,7 @@ void Processor::AddDisassemblyAddressInfoOffset(unsigned int location, unsigned 
 
 	//If we found an identical existing reference, we don't have anything to do. Abort any
 	//further processing.
-	if(foundExistingDataReference)
+	if (foundExistingDataReference)
 	{
 		return;
 	}
@@ -1712,27 +1712,27 @@ void Processor::AddDisassemblyAddressInfoOffset(unsigned int location, unsigned 
 void Processor::AddDisassemblyPossibleBranchTable(unsigned int baseAddress, unsigned int confirmedEntry, unsigned int entrySize)
 {
 	//Verify that active disassembly is enabled
-	if(!_activeDisassemblyEnabled)
+	if (!_activeDisassemblyEnabled)
 	{
 		return;
 	}
 
 	//Verify that this address falls within the target area
 	std::unique_lock<std::mutex> lock(_debugMutex);
-	if((baseAddress < _activeDisassemblyStartLocation) || (baseAddress >= _activeDisassemblyEndLocation))
+	if ((baseAddress < _activeDisassemblyStartLocation) || (baseAddress >= _activeDisassemblyEndLocation))
 	{
 		return;
 	}
 
 	//Record info on this jump table entry
 	std::map<unsigned int, DisassemblyJumpTableInfo>::iterator jumpTableInfoIterator = _activeDisassemblyJumpTableInfo.find(baseAddress);
-	if(jumpTableInfoIterator != _activeDisassemblyJumpTableInfo.end())
+	if (jumpTableInfoIterator != _activeDisassemblyJumpTableInfo.end())
 	{
 		//If a jump table is already known at the indicated base address, and the size of
 		//this entry matches the recorded entry size, add this entry to the list of known
 		//entries in this table.
 		DisassemblyJumpTableInfo& jumpTableInfo = jumpTableInfoIterator->second;
-		if(jumpTableInfo.entrySize == entrySize)
+		if (jumpTableInfo.entrySize == entrySize)
 		{
 			jumpTableInfo.knownEntries.insert(confirmedEntry);
 		}
@@ -1752,35 +1752,35 @@ void Processor::AddDisassemblyPossibleBranchTable(unsigned int baseAddress, unsi
 void Processor::AddDisassemblyAddressInfoEntryToArray(DisassemblyAddressInfo* newEntry)
 {
 	//Verify that the start address of this entry lies within the array bounds
-	if(newEntry->baseMemoryAddress < _activeDisassemblyStartLocation)
+	if (newEntry->baseMemoryAddress < _activeDisassemblyStartLocation)
 	{
 		return;
 	}
 
 	//Add the new reference to the reference list at each address location it occupies,
 	//and set conflict flags where appropriate.
-	for(unsigned int locationOffset = 0; (locationOffset < newEntry->memoryBlockSize) && ((newEntry->baseMemoryAddress + locationOffset) < _activeDisassemblyEndLocation); ++locationOffset)
+	for (unsigned int locationOffset = 0; (locationOffset < newEntry->memoryBlockSize) && ((newEntry->baseMemoryAddress + locationOffset) < _activeDisassemblyEndLocation); ++locationOffset)
 	{
 		//Iterate over each address which falls within the range of this new entry, and
 		//set the conflict flags appropriately if there are any known code clashes.
 		std::list<DisassemblyAddressInfo*>& addressList = _activeDisassemblyAddressInfo[(newEntry->baseMemoryAddress - _activeDisassemblyStartLocation) + locationOffset];
-		for(std::list<DisassemblyAddressInfo*>::const_iterator i = addressList.begin(); i != addressList.end(); ++i)
+		for (std::list<DisassemblyAddressInfo*>::const_iterator i = addressList.begin(); i != addressList.end(); ++i)
 		{
 			DisassemblyAddressInfo* entry = *i;
 
-			if(newEntry->entryType == DisassemblyEntryType::Code)
+			if (newEntry->entryType == DisassemblyEntryType::Code)
 			{
 				//If we've found an existing entry which appears to overlap with the new
 				//code entry at this address, mark the existing entry as conflicted.
-				if(entry->entryType != DisassemblyEntryType::Code)
+				if (entry->entryType != DisassemblyEntryType::Code)
 				{
 					entry->conflictsWithKnownCode = true;
 
 					//Mark any arrays this entry is a member of as conflicted
-					for(std::set<unsigned int>::const_iterator arrayIterator = entry->arraysMemberOf.begin(); arrayIterator != entry->arraysMemberOf.end(); ++arrayIterator)
+					for (std::set<unsigned int>::const_iterator arrayIterator = entry->arraysMemberOf.begin(); arrayIterator != entry->arraysMemberOf.end(); ++arrayIterator)
 					{
 						DisassemblyArrayInfoMap::iterator arrayInfoIterator = _activeDisassemblyArrayInfo.find(*arrayIterator);
-						if(arrayInfoIterator != _activeDisassemblyArrayInfo.end())
+						if (arrayInfoIterator != _activeDisassemblyArrayInfo.end())
 						{
 							arrayInfoIterator->second.conflictsWithKnownCode = true;
 						}
@@ -1789,7 +1789,7 @@ void Processor::AddDisassemblyAddressInfoEntryToArray(DisassemblyAddressInfo* ne
 
 				//If we have an actual known code entry which seems to overlap, mark both
 				//code entries as conflicted.
-				if((entry->entryType == DisassemblyEntryType::Code) && ((entry->baseMemoryAddress != newEntry->baseMemoryAddress) || (entry->memoryBlockSize != newEntry->memoryBlockSize)))
+				if ((entry->entryType == DisassemblyEntryType::Code) && ((entry->baseMemoryAddress != newEntry->baseMemoryAddress) || (entry->memoryBlockSize != newEntry->memoryBlockSize)))
 				{
 					entry->conflictsWithKnownCode = true;
 					newEntry->conflictsWithKnownCode = true;
@@ -1799,7 +1799,7 @@ void Processor::AddDisassemblyAddressInfoEntryToArray(DisassemblyAddressInfo* ne
 			{
 				//If we've found a code entry which overlaps with our new data entry, mark
 				//the data entry as conflicted.
-				if((entry->entryType == DisassemblyEntryType::Code))
+				if ((entry->entryType == DisassemblyEntryType::Code))
 				{
 					newEntry->conflictsWithKnownCode = true;
 				}
@@ -1846,18 +1846,18 @@ bool Processor::PerformActiveDisassemblyAnalysis(unsigned int minAddress, unsign
 	//Load the active disassembly data into our analysis arrays
 	std::map<unsigned int, const DisassemblyAddressInfo*> disassemblyDataSortedRaw;
 	std::map<unsigned int, const DisassemblyAddressInfo*> disassemblyOffsetSortedRaw;
-	for(std::set<DisassemblyAddressInfo*>::const_iterator i = _activeDisassemblyAddressInfoSet.begin(); i != _activeDisassemblyAddressInfoSet.end(); ++i)
+	for (std::set<DisassemblyAddressInfo*>::const_iterator i = _activeDisassemblyAddressInfoSet.begin(); i != _activeDisassemblyAddressInfoSet.end(); ++i)
 	{
 		DisassemblyAddressInfo* entry = *i;
 
 		//Exclude entries which lie outside the analysis region
-		if((entry->baseMemoryAddress < analysis.minAddress) || ((entry->baseMemoryAddress + entry->memoryBlockSize) > analysis.maxAddress))
+		if ((entry->baseMemoryAddress < analysis.minAddress) || ((entry->baseMemoryAddress + entry->memoryBlockSize) > analysis.maxAddress))
 		{
 			continue;
 		}
 
 		//Exclude entries which directly conflict with known code
-		if(entry->conflictsWithKnownCode)
+		if (entry->conflictsWithKnownCode)
 		{
 			continue;
 		}
@@ -1865,48 +1865,48 @@ bool Processor::PerformActiveDisassemblyAnalysis(unsigned int minAddress, unsign
 		//Exclude entries which are only defined as members of arrays that conflict
 		//with known code
 		bool definedInNonConflictedArray = entry->entryDefinedOutsideArray;
-		if(!definedInNonConflictedArray)
+		if (!definedInNonConflictedArray)
 		{
 			std::set<unsigned int>::const_iterator arrayMembershipIterator = entry->arraysMemberOf.begin();
-			while(!definedInNonConflictedArray && (arrayMembershipIterator != entry->arraysMemberOf.end()))
+			while (!definedInNonConflictedArray && (arrayMembershipIterator != entry->arraysMemberOf.end()))
 			{
 				DisassemblyArrayInfoMap::const_iterator arrayInfoIterator = _activeDisassemblyArrayInfo.find(*arrayMembershipIterator);
-				if(arrayInfoIterator != _activeDisassemblyArrayInfo.end())
+				if (arrayInfoIterator != _activeDisassemblyArrayInfo.end())
 				{
 					definedInNonConflictedArray = !arrayInfoIterator->second.conflictsWithKnownCode;
 				}
 				++arrayMembershipIterator;
 			}
 		}
-		if(!definedInNonConflictedArray)
+		if (!definedInNonConflictedArray)
 		{
 			continue;
 		}
 
 		//Add this entry to the appropriate analysis structure
-		switch(entry->entryType)
+		switch (entry->entryType)
 		{
 		case DisassemblyEntryType::Code:
-			if(_activeDisassemblyAnalyzeCode)
+			if (_activeDisassemblyAnalyzeCode)
 			{
 				DisassemblyAddressInfo* copiedEntry = new DisassemblyAddressInfo(*entry);
 				analysis.disassemblyCodeSorted.insert(std::pair<unsigned int, DisassemblyAddressInfo*>(copiedEntry->baseMemoryAddress, copiedEntry));
 			}
 			break;
 		case DisassemblyEntryType::Data:
-			if(_activeDisassemblyAnalyzeData && entry->entryDefinedOutsideArray)
+			if (_activeDisassemblyAnalyzeData && entry->entryDefinedOutsideArray)
 			{
 				disassemblyDataSortedRaw.insert(std::pair<unsigned int, DisassemblyAddressInfo*>(entry->baseMemoryAddress, entry));
 			}
 			break;
 		case DisassemblyEntryType::OffsetCode:
-			if(_activeDisassemblyAnalyzeCodeOffsets)
+			if (_activeDisassemblyAnalyzeCodeOffsets)
 			{
 				disassemblyOffsetSortedRaw.insert(std::pair<unsigned int, DisassemblyAddressInfo*>(entry->baseMemoryAddress, entry));
 			}
 			break;
 		case DisassemblyEntryType::OffsetData:
-			if(_activeDisassemblyAnalyzeDataOffsets)
+			if (_activeDisassemblyAnalyzeDataOffsets)
 			{
 				disassemblyOffsetSortedRaw.insert(std::pair<unsigned int, DisassemblyAddressInfo*>(entry->baseMemoryAddress, entry));
 			}
@@ -1916,7 +1916,7 @@ bool Processor::PerformActiveDisassemblyAnalysis(unsigned int minAddress, unsign
 		}
 
 		//Add this entry to the memory array for the analysis
-		for(unsigned int byteOffset = 0; byteOffset < entry->memoryBlockSize; ++byteOffset)
+		for (unsigned int byteOffset = 0; byteOffset < entry->memoryBlockSize; ++byteOffset)
 		{
 			analysis.disassemblyAddressInfo[(entry->baseMemoryAddress + byteOffset) - analysis.minAddress].push_back(entry);
 		}
@@ -1924,12 +1924,12 @@ bool Processor::PerformActiveDisassemblyAnalysis(unsigned int minAddress, unsign
 
 	//Load the active disassembly array info into our analysis arrays
 	std::map<unsigned int, DisassemblyArrayInfo> disassemblyArraySortedRaw;
-	if(_activeDisassemblyAnalyzePredictedArrays)
+	if (_activeDisassemblyAnalyzePredictedArrays)
 	{
-		for(DisassemblyArrayInfoMap::const_iterator i = _activeDisassemblyArrayInfo.begin(); i != _activeDisassemblyArrayInfo.end(); ++i)
+		for (DisassemblyArrayInfoMap::const_iterator i = _activeDisassemblyArrayInfo.begin(); i != _activeDisassemblyArrayInfo.end(); ++i)
 		{
 			const DisassemblyArrayInfo& entry = i->second;
-			if(!entry.conflictsWithKnownCode && (entry.arrayEntryCount > 1))
+			if (!entry.conflictsWithKnownCode && (entry.arrayEntryCount > 1))
 			{
 				disassemblyArraySortedRaw.insert(std::pair<unsigned int, DisassemblyArrayInfo>(entry.baseMemoryAddress, entry));
 			}
@@ -1946,10 +1946,10 @@ bool Processor::PerformActiveDisassemblyAnalysis(unsigned int minAddress, unsign
 	bool offsetArrayRelativeOffset;
 	unsigned int offsetArrayBaseAddress;
 	std::map<unsigned int, const DisassemblyAddressInfo*> knownOffsetArrayEntries;
-	for(std::map<unsigned int, const DisassemblyAddressInfo*>::const_iterator i = disassemblyOffsetSortedRaw.begin(); i != disassemblyOffsetSortedRaw.end(); ++i)
+	for (std::map<unsigned int, const DisassemblyAddressInfo*>::const_iterator i = disassemblyOffsetSortedRaw.begin(); i != disassemblyOffsetSortedRaw.end(); ++i)
 	{
 		const DisassemblyAddressInfo* currentEntry = i->second;
-		if(_activeDisassemblyDetectOffsets && offsetEntrySaved && ActiveDisassemblyEntrySeemsToBePartOfArray(analysis, currentEntry, offsetArrayFirstKnownEntryLocation, offsetArrayLastKnownEntryLocation, offsetArrayEntrySize, offsetArrayOffsetType, offsetArrayRelativeOffset, offsetArrayBaseAddress))
+		if (_activeDisassemblyDetectOffsets && offsetEntrySaved && ActiveDisassemblyEntrySeemsToBePartOfArray(analysis, currentEntry, offsetArrayFirstKnownEntryLocation, offsetArrayLastKnownEntryLocation, offsetArrayEntrySize, offsetArrayOffsetType, offsetArrayRelativeOffset, offsetArrayBaseAddress))
 		{
 			//Add this entry to the offset array
 			knownOffsetArrayEntries.insert(std::pair<unsigned int, const DisassemblyAddressInfo*>(currentEntry->baseMemoryAddress, currentEntry));
@@ -1959,9 +1959,9 @@ bool Processor::PerformActiveDisassemblyAnalysis(unsigned int minAddress, unsign
 		{
 			//If a previous value has been encountered, save the last value as an array or
 			//offset value as appropriate.
-			if(offsetEntrySaved)
+			if (offsetEntrySaved)
 			{
-				if(offsetArrayFirstKnownEntryLocation != offsetArrayLastKnownEntryLocation)
+				if (offsetArrayFirstKnownEntryLocation != offsetArrayLastKnownEntryLocation)
 				{
 					ActiveDisassemblyGeneratePredictedOffsetArrayEntries(analysis, knownOffsetArrayEntries, offsetArrayFirstKnownEntryLocation, offsetArrayLastKnownEntryLocation, offsetArrayEntrySize, offsetArrayOffsetType, offsetArrayRelativeOffset, offsetArrayBaseAddress);
 				}
@@ -1985,9 +1985,9 @@ bool Processor::PerformActiveDisassemblyAnalysis(unsigned int minAddress, unsign
 			knownOffsetArrayEntries.insert(std::pair<unsigned int, const DisassemblyAddressInfo*>(currentEntry->baseMemoryAddress, currentEntry));
 		}
 	}
-	if(offsetEntrySaved)
+	if (offsetEntrySaved)
 	{
-		if(offsetArrayFirstKnownEntryLocation != offsetArrayLastKnownEntryLocation)
+		if (offsetArrayFirstKnownEntryLocation != offsetArrayLastKnownEntryLocation)
 		{
 			ActiveDisassemblyGeneratePredictedOffsetArrayEntries(analysis, knownOffsetArrayEntries, offsetArrayFirstKnownEntryLocation, offsetArrayLastKnownEntryLocation, offsetArrayEntrySize, offsetArrayOffsetType, offsetArrayRelativeOffset, offsetArrayBaseAddress);
 		}
@@ -2000,12 +2000,12 @@ bool Processor::PerformActiveDisassemblyAnalysis(unsigned int minAddress, unsign
 
 	//Validate our suspected jump table entries, and attempt to predict the boundaries
 	//of the tables.
-	if(_activeDisassemblyAnalyzePredictedJumpTables && _activeDisassemblyDetectJumpTables)
+	if (_activeDisassemblyAnalyzePredictedJumpTables && _activeDisassemblyDetectJumpTables)
 	{
-		for(DisassemblyJumpTableInfoMap::const_iterator i = _activeDisassemblyJumpTableInfo.begin(); i != _activeDisassemblyJumpTableInfo.end(); ++i)
+		for (DisassemblyJumpTableInfoMap::const_iterator i = _activeDisassemblyJumpTableInfo.begin(); i != _activeDisassemblyJumpTableInfo.end(); ++i)
 		{
 			const DisassemblyJumpTableInfo& entry = i->second;
-			if(ActiveDisassemblySuspectedJumpTableSeemsToBeValid(analysis, entry))
+			if (ActiveDisassemblySuspectedJumpTableSeemsToBeValid(analysis, entry))
 			{
 				ActiveDisassemblyGeneratePredictedJumpTableEntries(analysis, entry);
 			}
@@ -2014,19 +2014,19 @@ bool Processor::PerformActiveDisassemblyAnalysis(unsigned int minAddress, unsign
 
 	//Scan from all known opcode locations and identify any other opcodes which can be
 	//determined
-	if(_activeDisassemblyExploreCodePaths)
+	if (_activeDisassemblyExploreCodePaths)
 	{
 		std::set<unsigned int> opcodeLocationsToCheck;
 		std::set<unsigned int> opcodeLocationsChecked;
-		for(std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = analysis.disassemblyCodeSorted.begin(); i != analysis.disassemblyCodeSorted.end(); ++i)
+		for (std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = analysis.disassemblyCodeSorted.begin(); i != analysis.disassemblyCodeSorted.end(); ++i)
 		{
 			opcodeLocationsToCheck.insert(i->first);
 		}
-		for(std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = analysis.predictedCodeEntries.begin(); i != analysis.predictedCodeEntries.end(); ++i)
+		for (std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = analysis.predictedCodeEntries.begin(); i != analysis.predictedCodeEntries.end(); ++i)
 		{
 			opcodeLocationsToCheck.insert(i->first);
 		}
-		while(!opcodeLocationsToCheck.empty())
+		while (!opcodeLocationsToCheck.empty())
 		{
 			//Grab the next opcode location to check from the list, and add it to the list
 			//of checked opcode locations.
@@ -2036,13 +2036,13 @@ bool Processor::PerformActiveDisassemblyAnalysis(unsigned int minAddress, unsign
 
 			//Retrieve the opcode data for the target address
 			OpcodeInfo opcodeInfo;
-			if(!GetOpcodeInfo(targetAddress, opcodeInfo) || !opcodeInfo.GetIsValidOpcode())
+			if (!GetOpcodeInfo(targetAddress, opcodeInfo) || !opcodeInfo.GetIsValidOpcode())
 			{
 				continue;
 			}
 
 			//Ensure this opcode lies within the analysis region
-			if((targetAddress < analysis.minAddress) || ((targetAddress + opcodeInfo.GetOpcodeSize())) >= analysis.maxAddress)
+			if ((targetAddress < analysis.minAddress) || ((targetAddress + opcodeInfo.GetOpcodeSize())) >= analysis.maxAddress)
 			{
 				continue;
 			}
@@ -2050,9 +2050,9 @@ bool Processor::PerformActiveDisassemblyAnalysis(unsigned int minAddress, unsign
 			//Add all unchecked resultant PC locations from this opcode to the list of
 			//opcode locations to check.
 			std::set<unsigned int> resultantPCLocations = opcodeInfo.GetResultantPCLocations();
-			for(std::set<unsigned int>::const_iterator i = resultantPCLocations.begin(); i != resultantPCLocations.end(); ++i)
+			for (std::set<unsigned int>::const_iterator i = resultantPCLocations.begin(); i != resultantPCLocations.end(); ++i)
 			{
-				if(opcodeLocationsChecked.find(*i) == opcodeLocationsChecked.end())
+				if (opcodeLocationsChecked.find(*i) == opcodeLocationsChecked.end())
 				{
 					opcodeLocationsToCheck.insert(*i);
 				}
@@ -2060,14 +2060,14 @@ bool Processor::PerformActiveDisassemblyAnalysis(unsigned int minAddress, unsign
 
 			//If this opcode hasn't already been identified, add a new entry for this
 			//predicted code location.
-			if((analysis.disassemblyCodeSorted.find(targetAddress) == analysis.disassemblyCodeSorted.end()) && (analysis.predictedCodeEntries.find(targetAddress) == analysis.predictedCodeEntries.end()))
+			if ((analysis.disassemblyCodeSorted.find(targetAddress) == analysis.disassemblyCodeSorted.end()) && (analysis.predictedCodeEntries.find(targetAddress) == analysis.predictedCodeEntries.end()))
 			{
 				DisassemblyAddressInfo* newCodeEntry = new DisassemblyAddressInfo();
 				newCodeEntry->entryType = DisassemblyEntryType::CodeAutoDetect;
 				newCodeEntry->baseMemoryAddress = targetAddress;
 				newCodeEntry->memoryBlockSize = opcodeInfo.GetOpcodeSize();
 				newCodeEntry->comment = L"Predicted (Code-scan)";
-				if(opcodeInfo.GetHasUndeterminedResultantPCLocation())
+				if (opcodeInfo.GetHasUndeterminedResultantPCLocation())
 				{
 					newCodeEntry->comment += L" (Uncertain target!)";
 				}
@@ -2078,26 +2078,26 @@ bool Processor::PerformActiveDisassemblyAnalysis(unsigned int minAddress, unsign
 	}
 
 	//Add all predicted entries to the memory array for the analysis
-	for(std::map<unsigned int, DisassemblyAddressInfo*>::iterator i = analysis.predictedCodeEntries.begin(); i != analysis.predictedCodeEntries.end(); ++i)
+	for (std::map<unsigned int, DisassemblyAddressInfo*>::iterator i = analysis.predictedCodeEntries.begin(); i != analysis.predictedCodeEntries.end(); ++i)
 	{
 		DisassemblyAddressInfo* entry = i->second;
-		for(unsigned int byteOffset = 0; byteOffset < entry->memoryBlockSize; ++byteOffset)
+		for (unsigned int byteOffset = 0; byteOffset < entry->memoryBlockSize; ++byteOffset)
 		{
 			analysis.disassemblyAddressInfo[(entry->baseMemoryAddress + byteOffset) - analysis.minAddress].push_back(entry);
 		}
 	}
-	for(std::map<unsigned int, DisassemblyAddressInfo*>::iterator i = analysis.predictedOffsetEntries.begin(); i != analysis.predictedOffsetEntries.end(); ++i)
+	for (std::map<unsigned int, DisassemblyAddressInfo*>::iterator i = analysis.predictedOffsetEntries.begin(); i != analysis.predictedOffsetEntries.end(); ++i)
 	{
 		DisassemblyAddressInfo* entry = i->second;
-		for(unsigned int byteOffset = 0; byteOffset < entry->memoryBlockSize; ++byteOffset)
+		for (unsigned int byteOffset = 0; byteOffset < entry->memoryBlockSize; ++byteOffset)
 		{
 			analysis.disassemblyAddressInfo[(entry->baseMemoryAddress + byteOffset) - analysis.minAddress].push_back(entry);
 		}
 	}
-	for(std::map<unsigned int, DisassemblyAddressInfo*>::iterator i = analysis.predictedDataEntries.begin(); i != analysis.predictedDataEntries.end(); ++i)
+	for (std::map<unsigned int, DisassemblyAddressInfo*>::iterator i = analysis.predictedDataEntries.begin(); i != analysis.predictedDataEntries.end(); ++i)
 	{
 		DisassemblyAddressInfo* entry = i->second;
-		for(unsigned int byteOffset = 0; byteOffset < entry->memoryBlockSize; ++byteOffset)
+		for (unsigned int byteOffset = 0; byteOffset < entry->memoryBlockSize; ++byteOffset)
 		{
 			analysis.disassemblyAddressInfo[(entry->baseMemoryAddress + byteOffset) - analysis.minAddress].push_back(entry);
 		}
@@ -2105,42 +2105,42 @@ bool Processor::PerformActiveDisassemblyAnalysis(unsigned int minAddress, unsign
 
 	//Generate labels for absolute and relative address references within the target
 	//region
-	if(analysis.labelSettings.enableSubstitution)
+	if (analysis.labelSettings.enableSubstitution)
 	{
 		//Generate labels for offset address references
-		for(std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = analysis.disassemblyOffsetSorted.begin(); i != analysis.disassemblyOffsetSorted.end(); ++i)
+		for (std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = analysis.disassemblyOffsetSorted.begin(); i != analysis.disassemblyOffsetSorted.end(); ++i)
 		{
 			const DisassemblyAddressInfo* entry = i->second;
 			ActiveDisassemblyGenerateLabelsForOffset(analysis, entry, false);
 		}
-		for(std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = analysis.predictedOffsetEntries.begin(); i != analysis.predictedOffsetEntries.end(); ++i)
+		for (std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = analysis.predictedOffsetEntries.begin(); i != analysis.predictedOffsetEntries.end(); ++i)
 		{
 			const DisassemblyAddressInfo* entry = i->second;
 			ActiveDisassemblyGenerateLabelsForOffset(analysis, entry, true);
 		}
 
 		//Generate labels for code address references
-		for(std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = analysis.disassemblyCodeSorted.begin(); i != analysis.disassemblyCodeSorted.end(); ++i)
+		for (std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = analysis.disassemblyCodeSorted.begin(); i != analysis.disassemblyCodeSorted.end(); ++i)
 		{
 			const DisassemblyAddressInfo* entry = i->second;
 			OpcodeInfo opcodeInfo;
-			if(GetOpcodeInfo(entry->baseMemoryAddress, opcodeInfo) && opcodeInfo.GetIsValidOpcode())
+			if (GetOpcodeInfo(entry->baseMemoryAddress, opcodeInfo) && opcodeInfo.GetIsValidOpcode())
 			{
 				std::set<unsigned int> labelTargetLocations = opcodeInfo.GetLabelTargetLocations();
-				for(std::set<unsigned int>::const_iterator targetLocationIterator = labelTargetLocations.begin(); targetLocationIterator != labelTargetLocations.end(); ++targetLocationIterator)
+				for (std::set<unsigned int>::const_iterator targetLocationIterator = labelTargetLocations.begin(); targetLocationIterator != labelTargetLocations.end(); ++targetLocationIterator)
 				{
 					ActiveDisassemblyAddLabelForTarget(analysis, *targetLocationIterator, false);
 				}
 			}
 		}
-		for(std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = analysis.predictedCodeEntries.begin(); i != analysis.predictedCodeEntries.end(); ++i)
+		for (std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = analysis.predictedCodeEntries.begin(); i != analysis.predictedCodeEntries.end(); ++i)
 		{
 			const DisassemblyAddressInfo* entry = i->second;
 			OpcodeInfo opcodeInfo;
-			if(GetOpcodeInfo(entry->baseMemoryAddress, opcodeInfo) && opcodeInfo.GetIsValidOpcode())
+			if (GetOpcodeInfo(entry->baseMemoryAddress, opcodeInfo) && opcodeInfo.GetIsValidOpcode())
 			{
 				std::set<unsigned int> labelTargetLocations = opcodeInfo.GetLabelTargetLocations();
-				for(std::set<unsigned int>::const_iterator targetLocationIterator = labelTargetLocations.begin(); targetLocationIterator != labelTargetLocations.end(); ++targetLocationIterator)
+				for (std::set<unsigned int>::const_iterator targetLocationIterator = labelTargetLocations.begin(); targetLocationIterator != labelTargetLocations.end(); ++targetLocationIterator)
 				{
 					ActiveDisassemblyAddLabelForTarget(analysis, *targetLocationIterator, true);
 				}
@@ -2151,9 +2151,9 @@ bool Processor::PerformActiveDisassemblyAnalysis(unsigned int minAddress, unsign
 	//Generate our counts of detected and predicted labels from this analysis operation
 	analysis.labelSettings.observedLabelCount = 0;
 	analysis.labelSettings.detectedLabelCount = 0;
-	for(std::map<unsigned int, LabelEntry>::const_iterator i = analysis.labelSettings.labelTargetsAtLocation.begin(); i != analysis.labelSettings.labelTargetsAtLocation.end(); ++i)
+	for (std::map<unsigned int, LabelEntry>::const_iterator i = analysis.labelSettings.labelTargetsAtLocation.begin(); i != analysis.labelSettings.labelTargetsAtLocation.end(); ++i)
 	{
-		if(i->second.predicted)
+		if (i->second.predicted)
 		{
 			++analysis.labelSettings.detectedLabelCount;
 		}
@@ -2167,7 +2167,7 @@ bool Processor::PerformActiveDisassemblyAnalysis(unsigned int minAddress, unsign
 	//data type and size into arrays.
 	std::set<const DisassemblyAddressInfo*> dataEntriesPrevious;
 	DisassemblyArrayInfo dataArrayEntry;
-	for(std::map<unsigned int, const DisassemblyAddressInfo*>::iterator i = disassemblyDataSortedRaw.begin(); i != disassemblyDataSortedRaw.end(); ++i)
+	for (std::map<unsigned int, const DisassemblyAddressInfo*>::iterator i = disassemblyDataSortedRaw.begin(); i != disassemblyDataSortedRaw.end(); ++i)
 	{
 		const DisassemblyAddressInfo* entry = i->second;
 
@@ -2181,30 +2181,30 @@ bool Processor::PerformActiveDisassemblyAnalysis(unsigned int minAddress, unsign
 		//longer known when the data was used as an offset.
 		std::map<unsigned int, DisassemblyAddressInfo*>::iterator knownOffsetIterator = analysis.disassemblyOffsetSorted.find(entry->baseMemoryAddress);
 		std::map<unsigned int, DisassemblyAddressInfo*>::iterator predictedOffsetIterator = analysis.predictedOffsetEntries.find(entry->baseMemoryAddress);
-		if(knownOffsetIterator != analysis.disassemblyOffsetSorted.end())
+		if (knownOffsetIterator != analysis.disassemblyOffsetSorted.end())
 		{
-			if(knownOffsetIterator->second->comment.empty())
+			if (knownOffsetIterator->second->comment.empty())
 			{
 				knownOffsetIterator->second->comment = entry->comment;
 			}
 			continue;
 		}
-		if(predictedOffsetIterator != analysis.predictedOffsetEntries.end())
+		if (predictedOffsetIterator != analysis.predictedOffsetEntries.end())
 		{
 			predictedOffsetIterator->second->comment = entry->comment + L" (Predicted offset)";
 			continue;
 		}
 
 		//Fold this data entry into an array with the previous entry if appropriate
-		if(!dataEntriesPrevious.empty() && (dataArrayEntry.dataType == entry->dataType) && (dataArrayEntry.arrayEntrySize == entry->memoryBlockSize) && entry->entryDefinedOutsideArray)
+		if (!dataEntriesPrevious.empty() && (dataArrayEntry.dataType == entry->dataType) && (dataArrayEntry.arrayEntrySize == entry->memoryBlockSize) && entry->entryDefinedOutsideArray)
 		{
 			unsigned int dataArrayEntryEnd = dataArrayEntry.baseMemoryAddress + (dataArrayEntry.arrayEntryCount * dataArrayEntry.arrayEntrySize);
-			if(dataArrayEntryEnd == entry->baseMemoryAddress)
+			if (dataArrayEntryEnd == entry->baseMemoryAddress)
 			{
 				//Only combine this entry into an array if there isn't a comment
 				//specified, and if there isn't a label that needs to be placed before
 				//this entry.
-				if(entry->comment.empty() && (analysis.labelSettings.labelTargetsAtLocation.find(entry->baseMemoryAddress) == analysis.labelSettings.labelTargetsAtLocation.end()))
+				if (entry->comment.empty() && (analysis.labelSettings.labelTargetsAtLocation.find(entry->baseMemoryAddress) == analysis.labelSettings.labelTargetsAtLocation.end()))
 				{
 					dataEntriesPrevious.insert(entry);
 					++dataArrayEntry.arrayEntryCount;
@@ -2215,15 +2215,15 @@ bool Processor::PerformActiveDisassemblyAnalysis(unsigned int minAddress, unsign
 		}
 
 		//Save off the previous unsaved array or data entry
-		if(!dataEntriesPrevious.empty())
+		if (!dataEntriesPrevious.empty())
 		{
-			if(dataEntriesPrevious.size() >= analysis.minimumArrayEntryCount)
+			if (dataEntriesPrevious.size() >= analysis.minimumArrayEntryCount)
 			{
 				disassemblyArraySortedRaw.insert(std::pair<unsigned int, DisassemblyArrayInfo>(dataArrayEntry.baseMemoryAddress, dataArrayEntry));
 			}
 			else
 			{
-				for(std::set<const DisassemblyAddressInfo*>::iterator dataEntriesPreviousIterator = dataEntriesPrevious.begin(); dataEntriesPreviousIterator != dataEntriesPrevious.end(); ++dataEntriesPreviousIterator)
+				for (std::set<const DisassemblyAddressInfo*>::iterator dataEntriesPreviousIterator = dataEntriesPrevious.begin(); dataEntriesPreviousIterator != dataEntriesPrevious.end(); ++dataEntriesPreviousIterator)
 				{
 					DisassemblyAddressInfo* copiedEntry = new DisassemblyAddressInfo(*(*dataEntriesPreviousIterator));
 					analysis.disassemblyDataSorted.insert(std::pair<unsigned int, DisassemblyAddressInfo*>(copiedEntry->baseMemoryAddress, copiedEntry));
@@ -2240,15 +2240,15 @@ bool Processor::PerformActiveDisassemblyAnalysis(unsigned int minAddress, unsign
 		dataEntriesPrevious.clear();
 		dataEntriesPrevious.insert(entry);
 	}
-	if(!dataEntriesPrevious.empty())
+	if (!dataEntriesPrevious.empty())
 	{
-		if(dataEntriesPrevious.size() >= analysis.minimumArrayEntryCount)
+		if (dataEntriesPrevious.size() >= analysis.minimumArrayEntryCount)
 		{
 			disassemblyArraySortedRaw.insert(std::pair<unsigned int, DisassemblyArrayInfo>(dataArrayEntry.baseMemoryAddress, dataArrayEntry));
 		}
 		else
 		{
-			for(std::set<const DisassemblyAddressInfo*>::iterator dataEntriesPreviousIterator = dataEntriesPrevious.begin(); dataEntriesPreviousIterator != dataEntriesPrevious.end(); ++dataEntriesPreviousIterator)
+			for (std::set<const DisassemblyAddressInfo*>::iterator dataEntriesPreviousIterator = dataEntriesPrevious.begin(); dataEntriesPreviousIterator != dataEntriesPrevious.end(); ++dataEntriesPreviousIterator)
 			{
 				DisassemblyAddressInfo* copiedEntry = new DisassemblyAddressInfo(*(*dataEntriesPreviousIterator));
 				analysis.disassemblyDataSorted.insert(std::pair<unsigned int, DisassemblyAddressInfo*>(copiedEntry->baseMemoryAddress, copiedEntry));
@@ -2257,17 +2257,17 @@ bool Processor::PerformActiveDisassemblyAnalysis(unsigned int minAddress, unsign
 	}
 
 	//Combine adjacent or overlapping arrays with the same data type and element size
-	if(_activeDisassemblyDetectDataArrays)
+	if (_activeDisassemblyDetectDataArrays)
 	{
 		bool unsavedArrayEntryPresent = false;
 		DisassemblyArrayInfo unsavedArrayEntry;
-		for(std::map<unsigned int, DisassemblyArrayInfo>::const_iterator i = disassemblyArraySortedRaw.begin(); i != disassemblyArraySortedRaw.end(); ++i)
+		for (std::map<unsigned int, DisassemblyArrayInfo>::const_iterator i = disassemblyArraySortedRaw.begin(); i != disassemblyArraySortedRaw.end(); ++i)
 		{
 			//Combine this entry with the unsaved entry if the two arrays directly follow
 			//each other, or they overlap, and they have the same element type, size, and
 			//alignment.
 			const DisassemblyArrayInfo& arrayInfo = i->second;
-			if(unsavedArrayEntryPresent
+			if (unsavedArrayEntryPresent
 			&& (unsavedArrayEntry.dataType == arrayInfo.dataType)
 			&& (unsavedArrayEntry.arrayEntrySize == arrayInfo.arrayEntrySize)
 			&& (arrayInfo.baseMemoryAddress >= unsavedArrayEntry.baseMemoryAddress) && (arrayInfo.baseMemoryAddress <= (unsavedArrayEntry.baseMemoryAddress + (unsavedArrayEntry.arrayEntryCount * unsavedArrayEntry.arrayEntrySize)))
@@ -2276,7 +2276,7 @@ bool Processor::PerformActiveDisassemblyAnalysis(unsigned int minAddress, unsign
 				//Ensure we don't combine arrays where a label needs to be placed between
 				//the two
 				unsigned int unsavedArrayEndLocation = unsavedArrayEntry.baseMemoryAddress + (unsavedArrayEntry.arrayEntryCount * unsavedArrayEntry.arrayEntrySize);
-				if(analysis.labelSettings.labelTargetsAtLocation.find(unsavedArrayEndLocation) == analysis.labelSettings.labelTargetsAtLocation.end())
+				if (analysis.labelSettings.labelTargetsAtLocation.find(unsavedArrayEndLocation) == analysis.labelSettings.labelTargetsAtLocation.end())
 				{
 					unsigned int currentArrayEndLocation = arrayInfo.baseMemoryAddress + (arrayInfo.arrayEntryCount * arrayInfo.arrayEntrySize);
 					unsigned int combinedArrayEndLocation = (unsavedArrayEndLocation >= currentArrayEndLocation)? unsavedArrayEndLocation: currentArrayEndLocation;
@@ -2288,9 +2288,9 @@ bool Processor::PerformActiveDisassemblyAnalysis(unsigned int minAddress, unsign
 			}
 
 			//Commit the current unsaved entry, and make this the new unsaved entry.
-			if(unsavedArrayEntryPresent)
+			if (unsavedArrayEntryPresent)
 			{
-				if(unsavedArrayEntry.arrayEntryCount >= analysis.minimumArrayEntryCount)
+				if (unsavedArrayEntry.arrayEntryCount >= analysis.minimumArrayEntryCount)
 				{
 					analysis.disassemblyArraySorted.insert(std::pair<unsigned int, DisassemblyArrayInfo>(unsavedArrayEntry.baseMemoryAddress, unsavedArrayEntry));
 				}
@@ -2298,34 +2298,34 @@ bool Processor::PerformActiveDisassemblyAnalysis(unsigned int minAddress, unsign
 			unsavedArrayEntry = i->second;
 			unsavedArrayEntryPresent = true;
 		}
-		if(unsavedArrayEntryPresent)
+		if (unsavedArrayEntryPresent)
 		{
 			analysis.disassemblyArraySorted.insert(std::pair<unsigned int, DisassemblyArrayInfo>(unsavedArrayEntry.baseMemoryAddress, unsavedArrayEntry));
 		}
 	}
 
 	//Detect arrays which appear to contain printable text
-	if(_activeDisassemblyDetectTextData)
+	if (_activeDisassemblyDetectTextData)
 	{
-		for(std::map<unsigned int, DisassemblyArrayInfo>::iterator i = analysis.disassemblyArraySorted.begin(); i != analysis.disassemblyArraySorted.end(); ++i)
+		for (std::map<unsigned int, DisassemblyArrayInfo>::iterator i = analysis.disassemblyArraySorted.begin(); i != analysis.disassemblyArraySorted.end(); ++i)
 		{
 			//Check the basic array type and size information first to see if this could
 			//possibly be a character array, and skip it if it could not.
 			DisassemblyArrayInfo& arrayinfo = i->second;
-			if((arrayinfo.dataType != DisassemblyDataType::Integer) || (arrayinfo.arrayEntrySize != 1))
+			if ((arrayinfo.dataType != DisassemblyDataType::Integer) || (arrayinfo.arrayEntrySize != 1))
 			{
 				continue;
 			}
 
 			//Read all values in the array, and add them to a list of values.
 			std::list<Data> dataElements;
-			for(unsigned int arrayEntryNo = 0; arrayEntryNo < arrayinfo.arrayEntryCount; ++arrayEntryNo)
+			for (unsigned int arrayEntryNo = 0; arrayEntryNo < arrayinfo.arrayEntryCount; ++arrayEntryNo)
 			{
 				//Read in this array entry
 				unsigned int byteBitCountForProcessor = GetByteBitCount();
 				Data entryData(arrayinfo.arrayEntrySize * byteBitCountForProcessor, 0);
 				unsigned int arrayEntryLocation = arrayinfo.baseMemoryAddress + (arrayEntryNo * arrayinfo.arrayEntrySize);
-				for(unsigned int arrayEntryByte = 0; arrayEntryByte < arrayinfo.arrayEntrySize; ++arrayEntryByte)
+				for (unsigned int arrayEntryByte = 0; arrayEntryByte < arrayinfo.arrayEntrySize; ++arrayEntryByte)
 				{
 					entryData <<= byteBitCountForProcessor;
 					entryData |= GetMemorySpaceByte(arrayEntryLocation + arrayEntryByte);
@@ -2337,7 +2337,7 @@ bool Processor::PerformActiveDisassemblyAnalysis(unsigned int minAddress, unsign
 
 			//If it's possible this array could be a character array, change the array
 			//datatype to a character array.
-			if(ActiveDisassemblyArraySeemsToBeCharArray(arrayinfo.dataType, arrayinfo.arrayEntrySize, dataElements))
+			if (ActiveDisassemblyArraySeemsToBeCharArray(arrayinfo.dataType, arrayinfo.arrayEntrySize, dataElements))
 			{
 				arrayinfo.dataType = DisassemblyDataType::Character;
 			}
@@ -2358,19 +2358,19 @@ void Processor::ClearActiveDisassemblyAnalysis()
 bool Processor::ActiveDisassemblyEntrySeemsToBePartOfArray(ActiveDisassemblyAnalysisData& analysis, const DisassemblyAddressInfo* currentEntry, unsigned int firstKnownEntryLocation, unsigned int lastKnownEntryLocation, unsigned int entrySize, DisassemblyEntryType offsetType, bool relativeOffset, unsigned int relativeOffsetBaseAddress) const
 {
 	//Check if the current entry is the same size as the last entry
-	if(currentEntry->memoryBlockSize != entrySize)
+	if (currentEntry->memoryBlockSize != entrySize)
 	{
 		return false;
 	}
 
 	//Ensure the offset type matches the last entry
-	if((currentEntry->entryType != offsetType) || (currentEntry->relativeOffset != relativeOffset) || (currentEntry->relativeOffset && (currentEntry->relativeOffsetBaseAddress != relativeOffsetBaseAddress)))
+	if ((currentEntry->entryType != offsetType) || (currentEntry->relativeOffset != relativeOffset) || (currentEntry->relativeOffset && (currentEntry->relativeOffsetBaseAddress != relativeOffsetBaseAddress)))
 	{
 		return false;
 	}
 
 	//Check if the current entry is correctly aligned with the last entry
-	if(((currentEntry->baseMemoryAddress - firstKnownEntryLocation) % entrySize) != 0)
+	if (((currentEntry->baseMemoryAddress - firstKnownEntryLocation) % entrySize) != 0)
 	{
 		return false;
 	}
@@ -2378,7 +2378,7 @@ bool Processor::ActiveDisassemblyEntrySeemsToBePartOfArray(ActiveDisassemblyAnal
 	//Check if the current entry is within the maximum distance from the last entry
 	const unsigned int maxPredictedOffsetArrayEntryStride = analysis.offsetArrayDistanceTolerance;
 	unsigned int maxOffsetArrayDistance = maxPredictedOffsetArrayEntryStride * entrySize;
-	if(currentEntry->baseMemoryAddress > (lastKnownEntryLocation + maxOffsetArrayDistance))
+	if (currentEntry->baseMemoryAddress > (lastKnownEntryLocation + maxOffsetArrayDistance))
 	{
 		return false;
 	}
@@ -2386,19 +2386,19 @@ bool Processor::ActiveDisassemblyEntrySeemsToBePartOfArray(ActiveDisassemblyAnal
 	//Ensure that no instructions have been detected between the last entry and this entry
 	bool foundOverlappingOpcode = false;
 	unsigned int memoryBaseOffset = 0;
-	while(!foundOverlappingOpcode && (memoryBaseOffset < (currentEntry->baseMemoryAddress - lastKnownEntryLocation)))
+	while (!foundOverlappingOpcode && (memoryBaseOffset < (currentEntry->baseMemoryAddress - lastKnownEntryLocation)))
 	{
 		unsigned int entryByteLocation = lastKnownEntryLocation + memoryBaseOffset;
-		for(std::list<DisassemblyAddressInfo*>::const_iterator i = analysis.disassemblyAddressInfo[entryByteLocation - analysis.minAddress].begin(); i != analysis.disassemblyAddressInfo[entryByteLocation - analysis.minAddress].end(); ++i)
+		for (std::list<DisassemblyAddressInfo*>::const_iterator i = analysis.disassemblyAddressInfo[entryByteLocation - analysis.minAddress].begin(); i != analysis.disassemblyAddressInfo[entryByteLocation - analysis.minAddress].end(); ++i)
 		{
-			if((*i)->entryType == DisassemblyEntryType::Code)
+			if ((*i)->entryType == DisassemblyEntryType::Code)
 			{
 				foundOverlappingOpcode = true;
 			}
 		}
 		++memoryBaseOffset;
 	}
-	if(foundOverlappingOpcode)
+	if (foundOverlappingOpcode)
 	{
 		return false;
 	}
@@ -2419,16 +2419,16 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 	//size.
 	unsigned int entryStride = entrySize;
 	const unsigned int minimumKnownOffsetArrayEntriesForStridePrediction = 4;
-	if(knownOffsetArrayEntries.size() >= minimumKnownOffsetArrayEntriesForStridePrediction)
+	if (knownOffsetArrayEntries.size() >= minimumKnownOffsetArrayEntriesForStridePrediction)
 	{
 		//Build a set of stride values between all known entries
 		std::set<unsigned int> strideEntries;
 		bool previousEntryLocationRead = false;
 		unsigned int previousEntryLocation;
-		for(std::map<unsigned int, const DisassemblyAddressInfo*>::const_iterator i = knownOffsetArrayEntries.begin(); i != knownOffsetArrayEntries.end(); ++i)
+		for (std::map<unsigned int, const DisassemblyAddressInfo*>::const_iterator i = knownOffsetArrayEntries.begin(); i != knownOffsetArrayEntries.end(); ++i)
 		{
 			unsigned int currentEntryLocation = i->first;
-			if(previousEntryLocationRead)
+			if (previousEntryLocationRead)
 			{
 				unsigned int currentEntryStride = currentEntryLocation - previousEntryLocation;
 				strideEntries.insert(currentEntryStride);
@@ -2440,12 +2440,12 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 		//Count the occurrence of each valid whole number divisor for each detected stride
 		//value
 		std::map<unsigned int, unsigned int> divisorCount;
-		for(std::set<unsigned int>::const_iterator strideEntryIterator = strideEntries.begin(); strideEntryIterator != strideEntries.end(); ++strideEntryIterator)
+		for (std::set<unsigned int>::const_iterator strideEntryIterator = strideEntries.begin(); strideEntryIterator != strideEntries.end(); ++strideEntryIterator)
 		{
 			unsigned int strideEntry = *strideEntryIterator;
-			for(unsigned int i = strideEntry; i > 0; --i)
+			for (unsigned int i = strideEntry; i > 0; --i)
 			{
-				if((strideEntry % i) == 0)
+				if ((strideEntry % i) == 0)
 				{
 					++divisorCount[i];
 				}
@@ -2460,10 +2460,10 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 		unsigned int commonDivisor;
 		unsigned int strideEntryCount = (unsigned int)strideEntries.size();
 		std::map<unsigned int, unsigned int>::const_reverse_iterator divisorCountIterator = divisorCount.rbegin();
-		while(!foundCommonDivisor && (divisorCountIterator != divisorCount.rend()))
+		while (!foundCommonDivisor && (divisorCountIterator != divisorCount.rend()))
 		{
 			unsigned int divisorCountForEntry = divisorCountIterator->second;
-			if(divisorCountForEntry == strideEntryCount)
+			if (divisorCountForEntry == strideEntryCount)
 			{
 				commonDivisor = divisorCountIterator->first;
 				foundCommonDivisor = true;
@@ -2474,7 +2474,7 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 
 		//If we found a common divisor, assign it as the offset entry stride. We should
 		//always manage to find a common divisor.
-		if(foundCommonDivisor)
+		if (foundCommonDivisor)
 		{
 			entryStride = commonDivisor;
 		}
@@ -2483,13 +2483,13 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 	//Read all detected values in the array, and add them to a set of values.
 	std::set<unsigned int> valuesInArray;
 	unsigned int predictedArrayEntryCount = ((lastKnownEntryLocation - firstKnownEntryLocation) / entryStride) + 1;
-	for(unsigned int i = 0; i < predictedArrayEntryCount; ++i)
+	for (unsigned int i = 0; i < predictedArrayEntryCount; ++i)
 	{
 		//Read in this array entry
 		unsigned int byteBitCountForProcessor = GetByteBitCount();
 		Data entryData(entrySize * byteBitCountForProcessor, 0);
 		unsigned int entryLocation = firstKnownEntryLocation + (i * entryStride);
-		for(unsigned int arrayEntryByte = 0; arrayEntryByte < entrySize; ++arrayEntryByte)
+		for (unsigned int arrayEntryByte = 0; arrayEntryByte < entrySize; ++arrayEntryByte)
 		{
 			entryData <<= byteBitCountForProcessor;
 			entryData |= GetMemorySpaceByte(entryLocation + arrayEntryByte);
@@ -2502,7 +2502,7 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 	//Predict the start location of the array
 	unsigned int firstPredictedEntryLocation = firstKnownEntryLocation;
 	bool predictedArrayStartLocationUsingRelativeBase = false;
-	if(relativeOffset && (relativeOffsetBaseAddress >= analysis.minAddress) && (firstKnownEntryLocation >= relativeOffsetBaseAddress))
+	if (relativeOffset && (relativeOffsetBaseAddress >= analysis.minAddress) && (firstKnownEntryLocation >= relativeOffsetBaseAddress))
 	{
 		//If this array defines a relative offset array, and the base address of the array
 		//is before our first known entry, scan back from the first entry to the base
@@ -2512,10 +2512,10 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 		//address looking for collisions with other items.
 		bool collisionDetected = false;
 		unsigned int currentAddress = firstKnownEntryLocation;
-		while(!collisionDetected && (currentAddress > relativeOffsetBaseAddress) && (currentAddress >= analysis.minAddress))
+		while (!collisionDetected && (currentAddress > relativeOffsetBaseAddress) && (currentAddress >= analysis.minAddress))
 		{
 			--currentAddress;
-			if(!analysis.disassemblyAddressInfo[currentAddress - analysis.minAddress].empty())
+			if (!analysis.disassemblyAddressInfo[currentAddress - analysis.minAddress].empty())
 			{
 				collisionDetected = true;
 			}
@@ -2524,7 +2524,7 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 		//If no collisions were encountered with other items, consider the base address to
 		//be the start address for the array, and add all predicted array items to the
 		//array info.
-		if(!collisionDetected)
+		if (!collisionDetected)
 		{
 			//Set the predicted array start address to the relative offset base address,
 			//and flag that we managed to predict the array start location using the
@@ -2534,13 +2534,13 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 
 			//Load data for each predicted item into the array
 			unsigned int entriesToAdd = (firstKnownEntryLocation - firstPredictedEntryLocation) / entryStride;
-			for(unsigned int i = 0; i < entriesToAdd; ++i)
+			for (unsigned int i = 0; i < entriesToAdd; ++i)
 			{
 				//Read in the next predicted array entry
 				unsigned int byteBitCountForProcessor = GetByteBitCount();
 				Data entryData(entrySize * byteBitCountForProcessor, 0);
 				unsigned int entryLocation = firstPredictedEntryLocation + (i * entryStride);
-				for(unsigned int arrayEntryByte = 0; arrayEntryByte < entrySize; ++arrayEntryByte)
+				for (unsigned int arrayEntryByte = 0; arrayEntryByte < entrySize; ++arrayEntryByte)
 				{
 					entryData <<= byteBitCountForProcessor;
 					entryData |= GetMemorySpaceByte(entryLocation + arrayEntryByte);
@@ -2552,12 +2552,12 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 			}
 		}
 	}
-	if(!predictedArrayStartLocationUsingRelativeBase)
+	if (!predictedArrayStartLocationUsingRelativeBase)
 	{
 		//If we didn't manage to predict the start of the array using a relative offset
 		//base address, use a content-based search method.
 		bool previousItemAddToArrayFailed = false;
-		while(!previousItemAddToArrayFailed)
+		while (!previousItemAddToArrayFailed)
 		{
 			//Calculate the minimum and maximum allowable values for the next item to be
 			//considered an entry in the array
@@ -2570,7 +2570,7 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 			unsigned int allowedMinValueForNextEntry = (lowestArrayEntryValue <= allowedMaxDifferenceForNextEntry)? 0: lowestArrayEntryValue - allowedMaxDifferenceForNextEntry;
 
 			//Verify that at least one more previous entry could exist in the memory space
-			if(firstPredictedEntryLocation < entryStride)
+			if (firstPredictedEntryLocation < entryStride)
 			{
 				previousItemAddToArrayFailed = true;
 				continue;
@@ -2578,7 +2578,7 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 
 			//Validate the next possible entry location
 			unsigned int entryLocation = firstPredictedEntryLocation - entryStride;
-			if(entryLocation < analysis.minAddress)
+			if (entryLocation < analysis.minAddress)
 			{
 				previousItemAddToArrayFailed = true;
 				continue;
@@ -2587,14 +2587,14 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 			//Read in the next possible array entry
 			unsigned int byteBitCountForProcessor = GetByteBitCount();
 			Data entryData(entrySize * byteBitCountForProcessor, 0);
-			for(unsigned int arrayEntryByte = 0; arrayEntryByte < entrySize; ++arrayEntryByte)
+			for (unsigned int arrayEntryByte = 0; arrayEntryByte < entrySize; ++arrayEntryByte)
 			{
 				entryData <<= byteBitCountForProcessor;
 				entryData |= GetMemorySpaceByte(entryLocation + arrayEntryByte);
 			}
 
 			//Validate the next possible array entry data
-			if((entryData.GetData() < allowedMinValueForNextEntry) || (entryData.GetData() > allowedMaxValueForNextEntry))
+			if ((entryData.GetData() < allowedMinValueForNextEntry) || (entryData.GetData() > allowedMaxValueForNextEntry))
 			{
 				previousItemAddToArrayFailed = true;
 				continue;
@@ -2603,15 +2603,15 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 			//Ensure this item doesn't collide with a previously known item
 			bool collisionDetected = false;
 			unsigned int currentAddress = entryLocation;
-			while(!collisionDetected && (currentAddress < (entryLocation + entrySize)) && (currentAddress < analysis.maxAddress))
+			while (!collisionDetected && (currentAddress < (entryLocation + entrySize)) && (currentAddress < analysis.maxAddress))
 			{
-				if(!analysis.disassemblyAddressInfo[currentAddress - analysis.minAddress].empty())
+				if (!analysis.disassemblyAddressInfo[currentAddress - analysis.minAddress].empty())
 				{
 					collisionDetected = true;
 				}
 				++currentAddress;
 			}
-			if(collisionDetected)
+			if (collisionDetected)
 			{
 				previousItemAddToArrayFailed = true;
 				continue;
@@ -2627,7 +2627,7 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 	//Predict the end location of the array
 	unsigned int lastPredictedEntryLocation = firstPredictedEntryLocation + (predictedArrayEntryCount * entryStride);
 	bool nextItemAddToArrayFailed = false;
-	while(!nextItemAddToArrayFailed)
+	while (!nextItemAddToArrayFailed)
 	{
 		//Calculate the minimum and maximum allowable values for the next item to be
 		//considered an entry in the array
@@ -2641,7 +2641,7 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 
 		//Validate the next possible entry location
 		unsigned int entryLocation = firstPredictedEntryLocation + (predictedArrayEntryCount * entryStride);
-		if((entryLocation + entrySize) > analysis.maxAddress)
+		if ((entryLocation + entrySize) > analysis.maxAddress)
 		{
 			nextItemAddToArrayFailed = true;
 			continue;
@@ -2650,14 +2650,14 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 		//Read in the next possible array entry
 		unsigned int byteBitCountForProcessor = GetByteBitCount();
 		Data entryData(entrySize * byteBitCountForProcessor, 0);
-		for(unsigned int arrayEntryByte = 0; arrayEntryByte < entrySize; ++arrayEntryByte)
+		for (unsigned int arrayEntryByte = 0; arrayEntryByte < entrySize; ++arrayEntryByte)
 		{
 			entryData <<= byteBitCountForProcessor;
 			entryData |= GetMemorySpaceByte(entryLocation + arrayEntryByte);
 		}
 
 		//Validate the next possible array entry data
-		if((entryData.GetData() < allowedMinValueForNextEntry) || (entryData.GetData() > allowedMaxValueForNextEntry))
+		if ((entryData.GetData() < allowedMinValueForNextEntry) || (entryData.GetData() > allowedMaxValueForNextEntry))
 		{
 			nextItemAddToArrayFailed = true;
 			continue;
@@ -2666,15 +2666,15 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 		//Ensure this item doesn't collide with a previously known item
 		bool collisionDetected = false;
 		unsigned int currentAddress = entryLocation;
-		while(!collisionDetected && (currentAddress < (entryLocation + entrySize)) && (currentAddress < analysis.maxAddress))
+		while (!collisionDetected && (currentAddress < (entryLocation + entrySize)) && (currentAddress < analysis.maxAddress))
 		{
-			if(!analysis.disassemblyAddressInfo[currentAddress - analysis.minAddress].empty())
+			if (!analysis.disassemblyAddressInfo[currentAddress - analysis.minAddress].empty())
 			{
 				collisionDetected = true;
 			}
 			++currentAddress;
 		}
-		if(collisionDetected)
+		if (collisionDetected)
 		{
 			nextItemAddToArrayFailed = true;
 			continue;
@@ -2682,7 +2682,7 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 
 		//If this is a relative offset array, ensure this item doesn't collide with any
 		//predicted or known targets of this array itself.
-		if(relativeOffset && ((entryLocation + entrySize) > (relativeOffsetBaseAddress + lowestArrayEntryValue)))
+		if (relativeOffset && ((entryLocation + entrySize) > (relativeOffsetBaseAddress + lowestArrayEntryValue)))
 		{
 			nextItemAddToArrayFailed = true;
 			continue;
@@ -2691,7 +2691,7 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 		//If this is a relative offset array, ensure this item doesn't collide with the
 		//offset array itself.
 		unsigned int entryTarget = relativeOffsetBaseAddress + entryData.GetData();
-		if(relativeOffset && ((entryTarget >= firstPredictedEntryLocation) && (entryTarget < (lastPredictedEntryLocation + entrySize))))
+		if (relativeOffset && ((entryTarget >= firstPredictedEntryLocation) && (entryTarget < (lastPredictedEntryLocation + entrySize))))
 		{
 			nextItemAddToArrayFailed = true;
 			continue;
@@ -2717,13 +2717,13 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 
 	//Now that we've predicted the beginning and end locations of this array, generate
 	//entries for each item in the array.
-	for(unsigned int i = 0; i < predictedArrayEntryCount; ++i)
+	for (unsigned int i = 0; i < predictedArrayEntryCount; ++i)
 	{
 		//If this offset array entry is already known, add it to the known offset list,
 		//and advance to the next entry.
 		unsigned int entryLocation = firstPredictedEntryLocation + (i * entryStride);
 		std::map<unsigned int, const DisassemblyAddressInfo*>::const_iterator knownOffsetsIterator = knownOffsetArrayEntries.find(entryLocation);
-		if(knownOffsetsIterator != knownOffsetArrayEntries.end())
+		if (knownOffsetsIterator != knownOffsetArrayEntries.end())
 		{
 			DisassemblyAddressInfo* copiedEntry = new DisassemblyAddressInfo(*knownOffsetsIterator->second);
 			analysis.disassemblyOffsetSorted.insert(std::pair<unsigned int, DisassemblyAddressInfo*>(copiedEntry->baseMemoryAddress, copiedEntry));
@@ -2743,13 +2743,13 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 
 		//If this predicted entry is an offset to code, insert a predicted code entry at
 		//the target address.
-		if(newEntry->entryType == DisassemblyEntryType::OffsetCode)
+		if (newEntry->entryType == DisassemblyEntryType::OffsetCode)
 		{
 			//Read in the offset data
 			unsigned int byteBitCountForProcessor = GetByteBitCount();
 			Data entryData(entrySize * byteBitCountForProcessor, 0);
 			unsigned int entryLocation = newEntry->baseMemoryAddress;
-			for(unsigned int arrayEntryByte = 0; arrayEntryByte < entrySize; ++arrayEntryByte)
+			for (unsigned int arrayEntryByte = 0; arrayEntryByte < entrySize; ++arrayEntryByte)
 			{
 				entryData <<= byteBitCountForProcessor;
 				entryData |= GetMemorySpaceByte(entryLocation + arrayEntryByte);
@@ -2757,7 +2757,7 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 
 			//Build the target address
 			unsigned int targetAddress = entryData.SignExtend(GetPCWidth()).GetData();
-			if(newEntry->relativeOffset)
+			if (newEntry->relativeOffset)
 			{
 				targetAddress += newEntry->relativeOffsetBaseAddress;
 			}
@@ -2770,7 +2770,7 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 			//offset array entry to be invalid, since we know it will overlap with the
 			//array itself, but we don't reject this offset value itself just because of
 			//the invalid target in this case.
-			if(relativeOffset && (targetAddress == relativeOffsetBaseAddress))
+			if (relativeOffset && (targetAddress == relativeOffsetBaseAddress))
 			{
 				continue;
 			}
@@ -2782,12 +2782,12 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 
 			//If we haven't recorded any information on this target opcode, add it
 			//to the list of predicted code locations.
-			if((analysis.disassemblyCodeSorted.find(targetAddress) == analysis.disassemblyCodeSorted.end()) && (analysis.predictedCodeEntries.find(targetAddress) == analysis.predictedCodeEntries.end()))
+			if ((analysis.disassemblyCodeSorted.find(targetAddress) == analysis.disassemblyCodeSorted.end()) && (analysis.predictedCodeEntries.find(targetAddress) == analysis.predictedCodeEntries.end()))
 			{
 				//Get the opcode info for the target. If the target appears to be invalid,
 				//don't add a predicted code location at the target.
 				OpcodeInfo opcodeInfo;
-				if(!GetOpcodeInfo(targetAddress, opcodeInfo) || !opcodeInfo.GetIsValidOpcode())
+				if (!GetOpcodeInfo(targetAddress, opcodeInfo) || !opcodeInfo.GetIsValidOpcode())
 				{
 					continue;
 				}
@@ -2797,7 +2797,7 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 				std::list<unsigned int> locationsToExamine;
 				std::set<unsigned int> locationsToExamineSet;
 				std::set<unsigned int> resultantPCLocations = opcodeInfo.GetResultantPCLocations();
-				for(std::set<unsigned int>::const_iterator pcLocationIterator = resultantPCLocations.begin(); pcLocationIterator != resultantPCLocations.end(); ++pcLocationIterator)
+				for (std::set<unsigned int>::const_iterator pcLocationIterator = resultantPCLocations.begin(); pcLocationIterator != resultantPCLocations.end(); ++pcLocationIterator)
 				{
 					unsigned int possibleLocationToExamine = *pcLocationIterator;
 					locationsToExamine.push_back(possibleLocationToExamine);
@@ -2812,7 +2812,7 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 				unsigned int opcodesVerified = 0;
 				bool allCodePathsTraversed = locationsToExamine.empty();
 				bool opcodeVerificationFailed = false;
-				while(!opcodeVerificationFailed && !allCodePathsTraversed && (opcodesVerified < maxOpcodesToVerify))
+				while (!opcodeVerificationFailed && !allCodePathsTraversed && (opcodesVerified < maxOpcodesToVerify))
 				{
 					//Grab the next address from the list of locations to examine
 					unsigned int currentLocation = *locationsToExamine.begin();
@@ -2821,7 +2821,7 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 
 					//Obtain and validate information for the opcode at the next address
 					OpcodeInfo opcodeInfoForCurrentLocation;
-					if(!GetOpcodeInfo(currentLocation, opcodeInfoForCurrentLocation) || !opcodeInfoForCurrentLocation.GetIsValidOpcode())
+					if (!GetOpcodeInfo(currentLocation, opcodeInfoForCurrentLocation) || !opcodeInfoForCurrentLocation.GetIsValidOpcode())
 					{
 						opcodeVerificationFailed = true;
 						continue;
@@ -2830,14 +2830,14 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 					//Insert all unexamined resultant PC locations from this opcode into
 					//the list of locations to examine.
 					std::set<unsigned int> resultantPCLocationsForCurrentLocation = opcodeInfoForCurrentLocation.GetResultantPCLocations();
-					for(std::set<unsigned int>::const_iterator pcLocationIterator = resultantPCLocationsForCurrentLocation.begin(); pcLocationIterator != resultantPCLocationsForCurrentLocation.end(); ++pcLocationIterator)
+					for (std::set<unsigned int>::const_iterator pcLocationIterator = resultantPCLocationsForCurrentLocation.begin(); pcLocationIterator != resultantPCLocationsForCurrentLocation.end(); ++pcLocationIterator)
 					{
 						unsigned int possibleLocationToExamine = *pcLocationIterator;
-						if(locationsExamined.find(possibleLocationToExamine) != locationsExamined.end())
+						if (locationsExamined.find(possibleLocationToExamine) != locationsExamined.end())
 						{
 							continue;
 						}
-						if(locationsToExamineSet.find(possibleLocationToExamine) != locationsToExamineSet.end())
+						if (locationsToExamineSet.find(possibleLocationToExamine) != locationsToExamineSet.end())
 						{
 							continue;
 						}
@@ -2853,7 +2853,7 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 				//If we hit a bad opcode while attempting to verify the code target, flag
 				//this code reference to be suspect, and don't generate a predicted code
 				//entry at the target.
-				if(opcodeVerificationFailed)
+				if (opcodeVerificationFailed)
 				{
 					newEntry->comment += L" [Code verification failed! Opcode target not generated.]";
 					continue;
@@ -2861,7 +2861,7 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 
 				//Add a new entry for this predicted code location if it lies within the
 				//analysis region
-				if((targetAddress >= analysis.minAddress) && ((targetAddress + opcodeInfo.GetOpcodeSize()) <= analysis.maxAddress))
+				if ((targetAddress >= analysis.minAddress) && ((targetAddress + opcodeInfo.GetOpcodeSize()) <= analysis.maxAddress))
 				{
 					DisassemblyAddressInfo* newCodeEntry = new DisassemblyAddressInfo();
 					newCodeEntry->entryType = DisassemblyEntryType::Code;
@@ -2880,30 +2880,30 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 bool Processor::ActiveDisassemblySuspectedJumpTableSeemsToBeValid(ActiveDisassemblyAnalysisData& analysis, const DisassemblyJumpTableInfo& jumpTableInfo) const
 {
 	//Ensure that at least two entries have been detected
-	if(jumpTableInfo.knownEntries.size() < 2)
+	if (jumpTableInfo.knownEntries.size() < 2)
 	{
 		return false;
 	}
 
 	//Validate each known entry in the jump table
-	for(std::set<unsigned int>::const_iterator i = jumpTableInfo.knownEntries.begin(); i != jumpTableInfo.knownEntries.end(); ++i)
+	for (std::set<unsigned int>::const_iterator i = jumpTableInfo.knownEntries.begin(); i != jumpTableInfo.knownEntries.end(); ++i)
 	{
 		//Ensure that this entry has the correct alignment from the base address
 		unsigned int entryLocation = *i;
-		if(((entryLocation - jumpTableInfo.baseMemoryAddress) % jumpTableInfo.entrySize) != 0)
+		if (((entryLocation - jumpTableInfo.baseMemoryAddress) % jumpTableInfo.entrySize) != 0)
 		{
 			return false;
 		}
 
 		//Obtain the opcode information for the target entry
 		OpcodeInfo opcodeInfo;
-		if(!GetOpcodeInfo(entryLocation, opcodeInfo) || !opcodeInfo.GetIsValidOpcode())
+		if (!GetOpcodeInfo(entryLocation, opcodeInfo) || !opcodeInfo.GetIsValidOpcode())
 		{
 			return false;
 		}
 
 		//Ensure that this opcode is the required size
-		if(opcodeInfo.GetOpcodeSize() != jumpTableInfo.entrySize)
+		if (opcodeInfo.GetOpcodeSize() != jumpTableInfo.entrySize)
 		{
 			return false;
 		}
@@ -2911,14 +2911,14 @@ bool Processor::ActiveDisassemblySuspectedJumpTableSeemsToBeValid(ActiveDisassem
 		//Ensure that this opcode defines a resultant PC location and has no undetermined
 		//resultant PC locations
 		std::set<unsigned int> resultantPCLocations = opcodeInfo.GetResultantPCLocations();
-		if(resultantPCLocations.empty() || opcodeInfo.GetHasUndeterminedResultantPCLocation())
+		if (resultantPCLocations.empty() || opcodeInfo.GetHasUndeterminedResultantPCLocation())
 		{
 			return false;
 		}
 
 		//Ensure that this opcode has a single resultant PC location which is different
 		//from the following opcode address
-		if((resultantPCLocations.size() != 1) || (*resultantPCLocations.begin() == (entryLocation + opcodeInfo.GetOpcodeSize())))
+		if ((resultantPCLocations.size() != 1) || (*resultantPCLocations.begin() == (entryLocation + opcodeInfo.GetOpcodeSize())))
 		{
 			return false;
 		}
@@ -2930,7 +2930,7 @@ bool Processor::ActiveDisassemblySuspectedJumpTableSeemsToBeValid(ActiveDisassem
 	unsigned int maxDistanceToSecondKnownEntry = maxEntriesToSecondKnownEntry * jumpTableInfo.entrySize;
 	unsigned int firstEntry = *(jumpTableInfo.knownEntries.begin());
 	unsigned int secondEntry = *(++jumpTableInfo.knownEntries.begin());
-	if((secondEntry - firstEntry) > maxDistanceToSecondKnownEntry)
+	if ((secondEntry - firstEntry) > maxDistanceToSecondKnownEntry)
 	{
 		return false;
 	}
@@ -2952,10 +2952,10 @@ void Processor::ActiveDisassemblyGeneratePredictedJumpTableEntries(ActiveDisasse
 	//address looking for collisions with other items.
 	bool collisionDetected = false;
 	unsigned int currentAddress = firstKnownEntryLocation;
-	while(!collisionDetected && (currentAddress > jumpTableInfo.baseMemoryAddress) && (currentAddress >= analysis.minAddress))
+	while (!collisionDetected && (currentAddress > jumpTableInfo.baseMemoryAddress) && (currentAddress >= analysis.minAddress))
 	{
 		--currentAddress;
-		if(!analysis.disassemblyAddressInfo[currentAddress - analysis.minAddress].empty())
+		if (!analysis.disassemblyAddressInfo[currentAddress - analysis.minAddress].empty())
 		{
 			collisionDetected = true;
 		}
@@ -2965,7 +2965,7 @@ void Processor::ActiveDisassemblyGeneratePredictedJumpTableEntries(ActiveDisasse
 	//If no collisions were encountered with other items, and we were able to scan back to
 	//the base address, consider the base address to be the start address for the array,
 	//and add all predicted array items to the array info.
-	if(!collisionDetected && reachedBaseAddress)
+	if (!collisionDetected && reachedBaseAddress)
 	{
 		//Set the predicted array start address to the relative offset base address,
 		//and flag that we managed to predict the array start location using the
@@ -2977,10 +2977,10 @@ void Processor::ActiveDisassemblyGeneratePredictedJumpTableEntries(ActiveDisasse
 		//If we didn't manage to predict the start of the array using a relative offset
 		//base address, use a content-based search method.
 		bool previousItemAddToArrayFailed = false;
-		while(!previousItemAddToArrayFailed)
+		while (!previousItemAddToArrayFailed)
 		{
 			//Verify that at least one more previous entry could exist in the memory space
-			if(firstPredictedEntryLocation < jumpTableInfo.entrySize)
+			if (firstPredictedEntryLocation < jumpTableInfo.entrySize)
 			{
 				previousItemAddToArrayFailed = true;
 				continue;
@@ -2988,7 +2988,7 @@ void Processor::ActiveDisassemblyGeneratePredictedJumpTableEntries(ActiveDisasse
 
 			//Validate the next possible entry location
 			unsigned int entryLocation = firstPredictedEntryLocation - jumpTableInfo.entrySize;
-			if(entryLocation < analysis.minAddress)
+			if (entryLocation < analysis.minAddress)
 			{
 				previousItemAddToArrayFailed = true;
 				continue;
@@ -2996,14 +2996,14 @@ void Processor::ActiveDisassemblyGeneratePredictedJumpTableEntries(ActiveDisasse
 
 			//Read in the next possible array entry
 			OpcodeInfo opcodeInfo;
-			if(!GetOpcodeInfo(entryLocation, opcodeInfo) || !opcodeInfo.GetIsValidOpcode())
+			if (!GetOpcodeInfo(entryLocation, opcodeInfo) || !opcodeInfo.GetIsValidOpcode())
 			{
 				previousItemAddToArrayFailed = true;
 				continue;
 			}
 
 			//Ensure that this opcode is the required size
-			if(opcodeInfo.GetOpcodeSize() != jumpTableInfo.entrySize)
+			if (opcodeInfo.GetOpcodeSize() != jumpTableInfo.entrySize)
 			{
 				previousItemAddToArrayFailed = true;
 				continue;
@@ -3012,7 +3012,7 @@ void Processor::ActiveDisassemblyGeneratePredictedJumpTableEntries(ActiveDisasse
 			//Ensure that this opcode defines a resultant PC location and has no
 			//undetermined resultant PC locations
 			std::set<unsigned int> resultantPCLocations = opcodeInfo.GetResultantPCLocations();
-			if(resultantPCLocations.empty() || opcodeInfo.GetHasUndeterminedResultantPCLocation())
+			if (resultantPCLocations.empty() || opcodeInfo.GetHasUndeterminedResultantPCLocation())
 			{
 				previousItemAddToArrayFailed = true;
 				continue;
@@ -3020,7 +3020,7 @@ void Processor::ActiveDisassemblyGeneratePredictedJumpTableEntries(ActiveDisasse
 
 			//Ensure that this opcode has a single resultant PC location which is
 			//different from the following opcode address
-			if((resultantPCLocations.size() != 1) || (*resultantPCLocations.begin() == (entryLocation + opcodeInfo.GetOpcodeSize())))
+			if ((resultantPCLocations.size() != 1) || (*resultantPCLocations.begin() == (entryLocation + opcodeInfo.GetOpcodeSize())))
 			{
 				previousItemAddToArrayFailed = true;
 				continue;
@@ -3029,15 +3029,15 @@ void Processor::ActiveDisassemblyGeneratePredictedJumpTableEntries(ActiveDisasse
 			//Ensure this item doesn't collide with a previously known item
 			bool collisionDetected = false;
 			unsigned int currentAddress = entryLocation;
-			while(!collisionDetected && (currentAddress < (entryLocation + jumpTableInfo.entrySize)) && (currentAddress < analysis.maxAddress))
+			while (!collisionDetected && (currentAddress < (entryLocation + jumpTableInfo.entrySize)) && (currentAddress < analysis.maxAddress))
 			{
-				if(!analysis.disassemblyAddressInfo[currentAddress - analysis.minAddress].empty())
+				if (!analysis.disassemblyAddressInfo[currentAddress - analysis.minAddress].empty())
 				{
 					collisionDetected = true;
 				}
 				++currentAddress;
 			}
-			if(collisionDetected)
+			if (collisionDetected)
 			{
 				previousItemAddToArrayFailed = true;
 				continue;
@@ -3052,11 +3052,11 @@ void Processor::ActiveDisassemblyGeneratePredictedJumpTableEntries(ActiveDisasse
 	//Predict the end location of the array
 	unsigned int lastPredictedEntryLocation = firstPredictedEntryLocation + (predictedArrayEntryCount * jumpTableInfo.entrySize);
 	bool nextItemAddToArrayFailed = false;
-	while(!nextItemAddToArrayFailed)
+	while (!nextItemAddToArrayFailed)
 	{
 		//Validate the next possible entry location
 		unsigned int entryLocation = firstPredictedEntryLocation + (predictedArrayEntryCount * jumpTableInfo.entrySize);
-		if((entryLocation + jumpTableInfo.entrySize) > analysis.maxAddress)
+		if ((entryLocation + jumpTableInfo.entrySize) > analysis.maxAddress)
 		{
 			nextItemAddToArrayFailed = true;
 			continue;
@@ -3064,14 +3064,14 @@ void Processor::ActiveDisassemblyGeneratePredictedJumpTableEntries(ActiveDisasse
 
 		//Read in the next possible array entry
 		OpcodeInfo opcodeInfo;
-		if(!GetOpcodeInfo(entryLocation, opcodeInfo) || !opcodeInfo.GetIsValidOpcode())
+		if (!GetOpcodeInfo(entryLocation, opcodeInfo) || !opcodeInfo.GetIsValidOpcode())
 		{
 			nextItemAddToArrayFailed = true;
 			continue;
 		}
 
 		//Ensure that this opcode is the required size
-		if(opcodeInfo.GetOpcodeSize() != jumpTableInfo.entrySize)
+		if (opcodeInfo.GetOpcodeSize() != jumpTableInfo.entrySize)
 		{
 			nextItemAddToArrayFailed = true;
 			continue;
@@ -3080,7 +3080,7 @@ void Processor::ActiveDisassemblyGeneratePredictedJumpTableEntries(ActiveDisasse
 		//Ensure that this opcode defines a resultant PC location and has no undetermined
 		//resultant PC locations
 		std::set<unsigned int> resultantPCLocations = opcodeInfo.GetResultantPCLocations();
-		if(resultantPCLocations.empty() || opcodeInfo.GetHasUndeterminedResultantPCLocation())
+		if (resultantPCLocations.empty() || opcodeInfo.GetHasUndeterminedResultantPCLocation())
 		{
 			nextItemAddToArrayFailed = true;
 			continue;
@@ -3088,7 +3088,7 @@ void Processor::ActiveDisassemblyGeneratePredictedJumpTableEntries(ActiveDisasse
 
 		//Ensure that this opcode has a single resultant PC location which is
 		//different from the following opcode address
-		if((resultantPCLocations.size() != 1) || (*resultantPCLocations.begin() == (entryLocation + opcodeInfo.GetOpcodeSize())))
+		if ((resultantPCLocations.size() != 1) || (*resultantPCLocations.begin() == (entryLocation + opcodeInfo.GetOpcodeSize())))
 		{
 			nextItemAddToArrayFailed = true;
 			continue;
@@ -3098,15 +3098,15 @@ void Processor::ActiveDisassemblyGeneratePredictedJumpTableEntries(ActiveDisasse
 		//##TODO## Check predicted code locations here
 		bool collisionDetected = false;
 		unsigned int currentAddress = entryLocation;
-		while(!collisionDetected && (currentAddress < (entryLocation + jumpTableInfo.entrySize)) && (currentAddress < analysis.maxAddress))
+		while (!collisionDetected && (currentAddress < (entryLocation + jumpTableInfo.entrySize)) && (currentAddress < analysis.maxAddress))
 		{
-			if(!analysis.disassemblyAddressInfo[currentAddress - analysis.minAddress].empty())
+			if (!analysis.disassemblyAddressInfo[currentAddress - analysis.minAddress].empty())
 			{
 				collisionDetected = true;
 			}
 			++currentAddress;
 		}
-		if(collisionDetected)
+		if (collisionDetected)
 		{
 			nextItemAddToArrayFailed = true;
 			continue;
@@ -3119,15 +3119,15 @@ void Processor::ActiveDisassemblyGeneratePredictedJumpTableEntries(ActiveDisasse
 
 	//Now that we've predicted the beginning and end locations of this array, generate
 	//entries for each item in the array.
-	for(unsigned int i = 0; i < predictedArrayEntryCount; ++i)
+	for (unsigned int i = 0; i < predictedArrayEntryCount; ++i)
 	{
 		//Add a new entry for this predicted code location, if it is not already known.
 		unsigned int entryLocation = firstPredictedEntryLocation + (i * jumpTableInfo.entrySize);
-		if(jumpTableInfo.knownEntries.find(entryLocation) == jumpTableInfo.knownEntries.end())
+		if (jumpTableInfo.knownEntries.find(entryLocation) == jumpTableInfo.knownEntries.end())
 		{
 			//Add a new entry for this predicted code location if it lies within the
 			//analysis region
-			if((entryLocation >= analysis.minAddress) && ((entryLocation + jumpTableInfo.entrySize) <= analysis.maxAddress))
+			if ((entryLocation >= analysis.minAddress) && ((entryLocation + jumpTableInfo.entrySize) <= analysis.maxAddress))
 			{
 				DisassemblyAddressInfo* newCodeEntry = new DisassemblyAddressInfo();
 				newCodeEntry->entryType = DisassemblyEntryType::Code;
@@ -3148,7 +3148,7 @@ void Processor::ActiveDisassemblyGenerateLabelsForOffset(ActiveDisassemblyAnalys
 	unsigned int byteBitCountForProcessor = GetByteBitCount();
 	Data entryData(entry->memoryBlockSize * byteBitCountForProcessor, 0);
 	unsigned int entryLocation = entry->baseMemoryAddress;
-	for(unsigned int arrayEntryByte = 0; arrayEntryByte < entry->memoryBlockSize; ++arrayEntryByte)
+	for (unsigned int arrayEntryByte = 0; arrayEntryByte < entry->memoryBlockSize; ++arrayEntryByte)
 	{
 		entryData <<= byteBitCountForProcessor;
 		entryData |= GetMemorySpaceByte(entryLocation + arrayEntryByte);
@@ -3156,7 +3156,7 @@ void Processor::ActiveDisassemblyGenerateLabelsForOffset(ActiveDisassemblyAnalys
 
 	//Build the target address
 	unsigned int targetAddress = entryData.SignExtend(GetPCWidth()).GetData();
-	if(entry->relativeOffset)
+	if (entry->relativeOffset)
 	{
 		targetAddress += entry->relativeOffsetBaseAddress;
 	}
@@ -3165,7 +3165,7 @@ void Processor::ActiveDisassemblyGenerateLabelsForOffset(ActiveDisassemblyAnalys
 	ActiveDisassemblyAddLabelForTarget(analysis, targetAddress, predicted);
 
 	//If this is a relative offset, record a label for the relative offset base address.
-	if(entry->relativeOffset)
+	if (entry->relativeOffset)
 	{
 		ActiveDisassemblyAddLabelForTarget(analysis, entry->relativeOffsetBaseAddress, predicted);
 	}
@@ -3175,7 +3175,7 @@ void Processor::ActiveDisassemblyGenerateLabelsForOffset(ActiveDisassemblyAnalys
 void Processor::ActiveDisassemblyAddLabelForTarget(ActiveDisassemblyAnalysisData& analysis, unsigned int targetAddress, bool predicted) const
 {
 	//Ensure the target address lies within our analysis region
-	if((targetAddress < analysis.minAddress) || (targetAddress > analysis.maxAddress))
+	if ((targetAddress < analysis.minAddress) || (targetAddress > analysis.maxAddress))
 	{
 		return;
 	}
@@ -3185,10 +3185,10 @@ void Processor::ActiveDisassemblyAddLabelForTarget(ActiveDisassemblyAnalysisData
 	int locationOffset = 0;
 	unsigned int adjustedAddress = targetAddress;
 	const std::list<DisassemblyAddressInfo*>& entriesForAddress = analysis.disassemblyAddressInfo[targetAddress - analysis.minAddress];
-	for(std::list<DisassemblyAddressInfo*>::const_iterator i = entriesForAddress.begin(); i != entriesForAddress.end(); ++i)
+	for (std::list<DisassemblyAddressInfo*>::const_iterator i = entriesForAddress.begin(); i != entriesForAddress.end(); ++i)
 	{
 		const DisassemblyAddressInfo* entry = *i;
-		if(entry->baseMemoryAddress != targetAddress)
+		if (entry->baseMemoryAddress != targetAddress)
 		{
 			adjustedAddress = entry->baseMemoryAddress + entry->memoryBlockSize;
 			locationOffset = (int)targetAddress - (int)adjustedAddress;
@@ -3196,7 +3196,7 @@ void Processor::ActiveDisassemblyAddLabelForTarget(ActiveDisassemblyAnalysisData
 	}
 
 	//Ensure the adjusted address lies within our analysis region
-	if((adjustedAddress < analysis.minAddress) || (adjustedAddress >= analysis.maxAddress))
+	if ((adjustedAddress < analysis.minAddress) || (adjustedAddress >= analysis.maxAddress))
 	{
 		return;
 	}
@@ -3208,13 +3208,13 @@ void Processor::ActiveDisassemblyAddLabelForTarget(ActiveDisassemblyAnalysisData
 
 	//Generate a usage string addressing the target label with the calculated offset
 	std::wstring usageLabel;
-	if(!FormatLabelUsageForDisassembly(adjustedAddressLabel, locationOffset, usageLabel))
+	if (!FormatLabelUsageForDisassembly(adjustedAddressLabel, locationOffset, usageLabel))
 	{
 		//If the format operation failed, and we didn't use an offset from the label,
 		//generate a warning. Note that we don't generate a warning if an offset is used,
 		//since it's possible this processor doesn't support offsets from label targets,
 		//in which case, we want to fall back to a numeric reference.
-		if(locationOffset == 0)
+		if (locationOffset == 0)
 		{
 			GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"Failed to generate usage label for label with name \"" + adjustedAddressLabel + L"\" when performing active disassembly!"));
 		}
@@ -3242,7 +3242,7 @@ bool Processor::ActiveDisassemblyArraySeemsToBeCharArray(DisassemblyDataType dat
 {
 	//If the datatype and entry size for this array don't match the required parameters,
 	//reject this array as a character array.
-	if((dataType != DisassemblyDataType::Integer) || (dataElementByteSize != 1))
+	if ((dataType != DisassemblyDataType::Integer) || (dataElementByteSize != 1))
 	{
 		return false;
 	}
@@ -3250,7 +3250,7 @@ bool Processor::ActiveDisassemblyArraySeemsToBeCharArray(DisassemblyDataType dat
 	//If this array doesn't contain enough entries for us to detect character arrays with
 	//sufficient accuracy, return false.
 	const unsigned int minimumArrayEntryCountForCharDetection = 8;
-	if((unsigned int)dataElements.size() < minimumArrayEntryCountForCharDetection)
+	if ((unsigned int)dataElements.size() < minimumArrayEntryCountForCharDetection)
 	{
 		return false;
 	}
@@ -3262,7 +3262,7 @@ bool Processor::ActiveDisassemblyArraySeemsToBeCharArray(DisassemblyDataType dat
 	unsigned int nullCount = 0;
 	bool invalidCharEncountered = false;
 	unsigned int arrayEntryCount = (unsigned int)dataElements.size();
-	while(!invalidCharEncountered && (dataElementsIterator != dataElements.end()))
+	while (!invalidCharEncountered && (dataElementsIterator != dataElements.end()))
 	{
 		//Gather information on this array entry
 		unsigned int elementData = dataElementsIterator->GetData();
@@ -3273,11 +3273,11 @@ bool Processor::ActiveDisassemblyArraySeemsToBeCharArray(DisassemblyDataType dat
 		//Record information on this array entry
 		uniqueDataValues.insert(elementData);
 		invalidCharEncountered |= (!printableChar && !nullChar);
-		if(nullChar)
+		if (nullChar)
 		{
 			++nullCount;
 		}
-		if(whiteSpaceChar)
+		if (whiteSpaceChar)
 		{
 			++whiteSpaceCount;
 		}
@@ -3287,21 +3287,21 @@ bool Processor::ActiveDisassemblyArraySeemsToBeCharArray(DisassemblyDataType dat
 	}
 
 	//If a non-printable character was found in the array, return false.
-	if(invalidCharEncountered)
+	if (invalidCharEncountered)
 	{
 		return false;
 	}
 
 	//If too many entries in this array are null characters, return false.
 	const unsigned int maximumValidCharToNullCharEntryRatio = 3;
-	if(nullCount >= (arrayEntryCount / maximumValidCharToNullCharEntryRatio))
+	if (nullCount >= (arrayEntryCount / maximumValidCharToNullCharEntryRatio))
 	{
 		return false;
 	}
 
 	//If we didn't encounter enough whitespace entries in this array, return false.
 	const unsigned int maximumArrayLengthWithoutWhitespace = 0x20;
-	if((whiteSpaceCount == 0) && (arrayEntryCount > maximumArrayLengthWithoutWhitespace))
+	if ((whiteSpaceCount == 0) && (arrayEntryCount > maximumArrayLengthWithoutWhitespace))
 	{
 		return false;
 	}
@@ -3310,7 +3310,7 @@ bool Processor::ActiveDisassemblyArraySeemsToBeCharArray(DisassemblyDataType dat
 	const unsigned int minimumArrayLengthForUniqueCharText = 0x20;
 	const unsigned int minimumUniqueCharactersInArray = 5;
 	unsigned int arrayEntryCountMinusWhiteSpace = (arrayEntryCount - whiteSpaceCount);
-	if((arrayEntryCountMinusWhiteSpace >= minimumArrayLengthForUniqueCharText) && ((unsigned int)uniqueDataValues.size() < minimumUniqueCharactersInArray))
+	if ((arrayEntryCountMinusWhiteSpace >= minimumArrayLengthForUniqueCharText) && ((unsigned int)uniqueDataValues.size() < minimumUniqueCharactersInArray))
 	{
 		return false;
 	}
@@ -3321,9 +3321,9 @@ bool Processor::ActiveDisassemblyArraySeemsToBeCharArray(DisassemblyDataType dat
 //----------------------------------------------------------------------------------------
 bool Processor::ActiveDisassemblyDecodeIDADataString(unsigned int byteSize, DisassemblyDataType dataType, std::wstring& outputString)
 {
-	if(dataType == DisassemblyDataType::Integer)
+	if (dataType == DisassemblyDataType::Integer)
 	{
-		switch(byteSize)
+		switch (byteSize)
 		{
 		case 1:
 			outputString = L"FF_BYTE";
@@ -3339,9 +3339,9 @@ bool Processor::ActiveDisassemblyDecodeIDADataString(unsigned int byteSize, Disa
 			return true;
 		}
 	}
-	else if(dataType == DisassemblyDataType::Float)
+	else if (dataType == DisassemblyDataType::Float)
 	{
-		switch(byteSize)
+		switch (byteSize)
 		{
 		case 4:
 			outputString = L"FF_FLOAT";
@@ -3351,9 +3351,9 @@ bool Processor::ActiveDisassemblyDecodeIDADataString(unsigned int byteSize, Disa
 			return true;
 		}
 	}
-	else if(dataType == DisassemblyDataType::Character)
+	else if (dataType == DisassemblyDataType::Character)
 	{
-		switch(byteSize)
+		switch (byteSize)
 		{
 		case 1:
 			outputString = L"FF_ASCI";
@@ -3366,7 +3366,7 @@ bool Processor::ActiveDisassemblyDecodeIDADataString(unsigned int byteSize, Disa
 //----------------------------------------------------------------------------------------
 bool Processor::ActiveDisassemblyDecodeIDAOffsetString(unsigned int pcWidth, std::wstring& outputString)
 {
-	switch(pcWidth)
+	switch (pcWidth)
 	{
 	case 8:
 		outputString = L"REF_OFF8";
@@ -3396,7 +3396,7 @@ std::wstring Processor::ActiveDisassemblyGenerateCommentForDataArrayLine(unsigne
 
 	//If this is the first line of data we've written for this array, add info about the
 	//size and location of the array into the comment.
-	if(dataEntryCountAlreadyWritten == 0)
+	if (dataEntryCountAlreadyWritten == 0)
 	{
 		//Write the start location, end location, and entry count for the array into the
 		//comment string.
@@ -3412,7 +3412,7 @@ std::wstring Processor::ActiveDisassemblyGenerateCommentForDataArrayLine(unsigne
 		dataStringComment += L" (0x" + arrayStartLocationAsString + L"-0x" + arrayEndLocationAsString + L", Entry count: " + entryCountStringStream.str() + L")";
 
 		//If this array contains unknown data, flag it as such.
-		if(unknownData)
+		if (unknownData)
 		{
 			dataStringComment += L" [Unknown data]";
 		}
@@ -3424,7 +3424,7 @@ std::wstring Processor::ActiveDisassemblyGenerateCommentForDataArrayLine(unsigne
 //----------------------------------------------------------------------------------------
 std::wstring Processor::ActiveDisassemblyGenerateTextLabelForDataType(DisassemblyDataType dataType)
 {
-	switch(dataType)
+	switch (dataType)
 	{
 	case DisassemblyDataType::Integer:
 		return L"Int";
@@ -3447,7 +3447,7 @@ bool Processor::ActiveDisassemblyExportAnalysisToASMFile(const ActiveDisassembly
 {
 	//Create the output file
 	Stream::File asmFile;
-	if(!asmFile.Open(filePath, Stream::File::OpenMode::ReadAndWrite, Stream::File::CreateMode::Create))
+	if (!asmFile.Open(filePath, Stream::File::OpenMode::ReadAndWrite, Stream::File::CreateMode::Create))
 	{
 		GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"Failed to create output file \"" + filePath + L"\"!"));
 		return false;
@@ -3468,10 +3468,10 @@ bool Processor::ActiveDisassemblyExportAnalysisToASMFile(const ActiveDisassembly
 	fileCommentHeaderLines.push_back(L" # Creation Date:   " + GetTimestamp().GetTimestamp());
 	fileCommentHeaderLines.push_back(L" # Analysis Region: 0x" + analysisMinAddressString + L" - 0x" + analysisMaxAddressString);
 	fileCommentHeaderLines.push_back(L" ########################################################################################");
-	for(std::list<std::wstring>::const_iterator i = fileCommentHeaderLines.begin(); i != fileCommentHeaderLines.end(); ++i)
+	for (std::list<std::wstring>::const_iterator i = fileCommentHeaderLines.begin(); i != fileCommentHeaderLines.end(); ++i)
 	{
 		std::wstring formattedCommentLine;
-		if(!FormatCommentForDisassembly(*i, formattedCommentLine))
+		if (!FormatCommentForDisassembly(*i, formattedCommentLine))
 		{
 			GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"Format failed for comment \"" + *i + L"\" when attempting to export active disassembly analysis to file with path \"" + filePath + L"\"!"));
 			return false;
@@ -3482,14 +3482,14 @@ bool Processor::ActiveDisassemblyExportAnalysisToASMFile(const ActiveDisassembly
 
 	//Write any leading lines to the assembly file which are required for this processor
 	std::list<std::wstring> requiredLeadinglines;
-	if(!GetLeadingLinesForASMFile(analysis.minAddress, analysis.maxAddress, requiredLeadinglines))
+	if (!GetLeadingLinesForASMFile(analysis.minAddress, analysis.maxAddress, requiredLeadinglines))
 	{
 		GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"Failed to get leading lines when attempting to export active disassembly analysis to file with path \"" + filePath + L"\"!"));
 		return false;
 	}
-	if(!requiredLeadinglines.empty())
+	if (!requiredLeadinglines.empty())
 	{
-		for(std::list<std::wstring>::const_iterator i = requiredLeadinglines.begin(); i != requiredLeadinglines.end(); ++i)
+		for (std::list<std::wstring>::const_iterator i = requiredLeadinglines.begin(); i != requiredLeadinglines.end(); ++i)
 		{
 			asmFileView << *i << L'\n';
 		}
@@ -3504,7 +3504,7 @@ bool Processor::ActiveDisassemblyExportAnalysisToASMFile(const ActiveDisassembly
 	unsigned int currentDataArrayStartLocation = analysis.minAddress;
 	unsigned int currentDataArrayEndLocation = analysis.maxAddress;
 	DisassemblyDataType currentDataArrayDataType = DisassemblyDataType::Integer;
-	while(location < analysis.maxAddress)
+	while (location < analysis.maxAddress)
 	{
 		unsigned int nextLocation = location;
 		bool lineDisassembled = false;
@@ -3514,14 +3514,14 @@ bool Processor::ActiveDisassemblyExportAnalysisToASMFile(const ActiveDisassembly
 		std::wstring lineLabel;
 
 		//Write the label for this location if one is defined
-		if(analysis.labelSettings.enableSubstitution)
+		if (analysis.labelSettings.enableSubstitution)
 		{
 			std::map<unsigned int, LabelEntry>::const_iterator labelIterator = analysis.labelSettings.labelTargetsAtLocation.find(location);
-			if(labelIterator != analysis.labelSettings.labelTargetsAtLocation.end())
+			if (labelIterator != analysis.labelSettings.labelTargetsAtLocation.end())
 			{
 				std::wstring rawLabelString = labelIterator->second.label;
 				std::wstring labelString;
-				if(!FormatLabelPlacementForDisassembly(rawLabelString, labelString))
+				if (!FormatLabelPlacementForDisassembly(rawLabelString, labelString))
 				{
 					GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"Placement format failed for label \"" + rawLabelString + L"\" when attempting to export active disassembly analysis to file with path \"" + filePath + L"\"!"));
 					return false;
@@ -3535,20 +3535,20 @@ bool Processor::ActiveDisassemblyExportAnalysisToASMFile(const ActiveDisassembly
 		DisassemblyAddressInfo* codeEntry = 0;
 		std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator codeIterator = analysis.disassemblyCodeSorted.find(location);
 		std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator predictedCodeIterator = analysis.predictedCodeEntries.find(location);
-		if(codeIterator != analysis.disassemblyCodeSorted.end())
+		if (codeIterator != analysis.disassemblyCodeSorted.end())
 		{
 			codeEntry = codeIterator->second;
 		}
-		else if(predictedCodeIterator != analysis.predictedCodeEntries.end())
+		else if (predictedCodeIterator != analysis.predictedCodeEntries.end())
 		{
 			codeEntry = predictedCodeIterator->second;
 		}
-		if(codeEntry != 0)
+		if (codeEntry != 0)
 		{
 			std::wstring opcodePrefix;
 			std::wstring opcodeArguments;
 			std::wstring opcodeComments;
-			if(!FormatOpcodeForDisassembly(codeEntry->baseMemoryAddress, analysis.labelSettings, opcodePrefix, opcodeArguments, opcodeComments))
+			if (!FormatOpcodeForDisassembly(codeEntry->baseMemoryAddress, analysis.labelSettings, opcodePrefix, opcodeArguments, opcodeComments))
 			{
 				LogEntry logEntry(LogEntry::EventLevel::Error);
 				logEntry << L"Format failed for opcode with address \"0x" << std::hex << std::uppercase << codeEntry->baseMemoryAddress << L"\" when attempting to export active disassembly analysis to file with path \"" << filePath << L"\"!";
@@ -3559,7 +3559,7 @@ bool Processor::ActiveDisassemblyExportAnalysisToASMFile(const ActiveDisassembly
 			//Write the line string
 			lineString = L'\t';
 			lineString += opcodePrefix;
-			if(!opcodeArguments.empty())
+			if (!opcodeArguments.empty())
 			{
 				lineString += L'\t';
 				lineString += opcodeArguments;
@@ -3575,21 +3575,21 @@ bool Processor::ActiveDisassemblyExportAnalysisToASMFile(const ActiveDisassembly
 		DisassemblyAddressInfo* offsetEntry = 0;
 		std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator offsetIterator = analysis.disassemblyOffsetSorted.find(location);
 		std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator predictedOffsetIterator = analysis.predictedOffsetEntries.find(location);
-		if(offsetIterator != analysis.disassemblyOffsetSorted.end())
+		if (offsetIterator != analysis.disassemblyOffsetSorted.end())
 		{
 			offsetEntry = offsetIterator->second;
 		}
-		else if(predictedOffsetIterator != analysis.predictedOffsetEntries.end())
+		else if (predictedOffsetIterator != analysis.predictedOffsetEntries.end())
 		{
 			offsetEntry = predictedOffsetIterator->second;
 		}
-		if(offsetEntry != 0)
+		if (offsetEntry != 0)
 		{
 			//Read in the offset data
 			unsigned int byteBitCountForProcessor = GetByteBitCount();
 			Data entryData(offsetEntry->memoryBlockSize * byteBitCountForProcessor, 0);
 			unsigned int entryLocation = offsetEntry->baseMemoryAddress;
-			for(unsigned int arrayEntryByte = 0; arrayEntryByte < offsetEntry->memoryBlockSize; ++arrayEntryByte)
+			for (unsigned int arrayEntryByte = 0; arrayEntryByte < offsetEntry->memoryBlockSize; ++arrayEntryByte)
 			{
 				entryData <<= byteBitCountForProcessor;
 				entryData |= GetMemorySpaceByte(entryLocation + arrayEntryByte);
@@ -3598,7 +3598,7 @@ bool Processor::ActiveDisassemblyExportAnalysisToASMFile(const ActiveDisassembly
 			//Format the offset data
 			std::wstring opcodeStringPrefix;
 			std::wstring opcodeString;
-			if(!FormatOffsetForDisassembly(entryData, offsetEntry->relativeOffset, offsetEntry->relativeOffsetBaseAddress, analysis.labelSettings, opcodeStringPrefix, opcodeString))
+			if (!FormatOffsetForDisassembly(entryData, offsetEntry->relativeOffset, offsetEntry->relativeOffsetBaseAddress, analysis.labelSettings, opcodeStringPrefix, opcodeString))
 			{
 				LogEntry logEntry(LogEntry::EventLevel::Error);
 				logEntry << L"Format failed for offset with address \"0x" << std::hex << std::uppercase << offsetEntry->baseMemoryAddress << L"\" when attempting to export active disassembly analysis to file with path \"" << filePath << L"\"!";
@@ -3609,7 +3609,7 @@ bool Processor::ActiveDisassemblyExportAnalysisToASMFile(const ActiveDisassembly
 			//Write the line string
 			lineString = L'\t';
 			lineString += opcodeStringPrefix;
-			if(!opcodeString.empty())
+			if (!opcodeString.empty())
 			{
 				lineString += L'\t';
 				lineString += opcodeString;
@@ -3624,21 +3624,21 @@ bool Processor::ActiveDisassemblyExportAnalysisToASMFile(const ActiveDisassembly
 		DisassemblyAddressInfo* dataEntry = 0;
 		std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator dataIterator = analysis.disassemblyDataSorted.find(location);
 		std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator predictedDataIterator = analysis.predictedDataEntries.find(location);
-		if(dataIterator != analysis.disassemblyDataSorted.end())
+		if (dataIterator != analysis.disassemblyDataSorted.end())
 		{
 			dataEntry = dataIterator->second;
 		}
-		else if(predictedDataIterator != analysis.predictedDataEntries.end())
+		else if (predictedDataIterator != analysis.predictedDataEntries.end())
 		{
 			dataEntry = predictedDataIterator->second;
 		}
-		if(dataEntry != 0)
+		if (dataEntry != 0)
 		{
 			//Read in the data
 			unsigned int byteBitCountForProcessor = GetByteBitCount();
 			Data entryData(dataEntry->memoryBlockSize * byteBitCountForProcessor, 0);
 			unsigned int entryLocation = dataEntry->baseMemoryAddress;
-			for(unsigned int arrayEntryByte = 0; arrayEntryByte < dataEntry->memoryBlockSize; ++arrayEntryByte)
+			for (unsigned int arrayEntryByte = 0; arrayEntryByte < dataEntry->memoryBlockSize; ++arrayEntryByte)
 			{
 				entryData <<= byteBitCountForProcessor;
 				entryData |= GetMemorySpaceByte(entryLocation + arrayEntryByte);
@@ -3649,7 +3649,7 @@ bool Processor::ActiveDisassemblyExportAnalysisToASMFile(const ActiveDisassembly
 			std::wstring dataString;
 			std::vector<Data> dataEntryInArray;
 			dataEntryInArray.push_back(entryData);
-			if(!FormatDataForDisassembly(dataEntryInArray, entryData.GetByteSize(), dataEntry->dataType, analysis.labelSettings, dataStringPrefix, dataString))
+			if (!FormatDataForDisassembly(dataEntryInArray, entryData.GetByteSize(), dataEntry->dataType, analysis.labelSettings, dataStringPrefix, dataString))
 			{
 				LogEntry logEntry(LogEntry::EventLevel::Error);
 				logEntry << L"Format failed for data with address \"0x" << std::hex << std::uppercase << entryData.GetData() << L"\" when attempting to export active disassembly analysis to file with path \"" << filePath << L"\"!";
@@ -3673,19 +3673,19 @@ bool Processor::ActiveDisassemblyExportAnalysisToASMFile(const ActiveDisassembly
 		unsigned int newArrayEndLocation;
 		unsigned int newArrayElementByteSize;
 		DisassemblyDataType newArrayDataType;
-		if(!lineDisassembled)
+		if (!lineDisassembled)
 		{
 			const DisassemblyArrayInfo* arrayEntry = 0;
 			std::map<unsigned int, DisassemblyArrayInfo>::const_iterator arrayIterator = analysis.disassemblyArraySorted.find(location);
-			if(arrayIterator != analysis.disassemblyArraySorted.end())
+			if (arrayIterator != analysis.disassemblyArraySorted.end())
 			{
 				arrayEntry = &arrayIterator->second;
 			}
-			if(arrayEntry != 0)
+			if (arrayEntry != 0)
 			{
 				//If we detected an array starting at this location, begin an array definition
 				//here.
-				if(!arrayEntry->conflictsWithKnownCode)
+				if (!arrayEntry->conflictsWithKnownCode)
 				{
 					newArrayBeginning = true;
 					newArrayDataType = arrayEntry->dataType;
@@ -3698,10 +3698,10 @@ bool Processor::ActiveDisassemblyExportAnalysisToASMFile(const ActiveDisassembly
 		//If we've reached the end of a data array, write all buffered array data elements
 		//to the file.
 		bool reachedEndOfArray = !dataElements.empty() && ((location >= currentDataArrayEndLocation) || newArrayBeginning || lineLabelDefined || lineDisassembled);
-		if(reachedEndOfArray)
+		if (reachedEndOfArray)
 		{
 			//Write this data array to the file
-			if(!ActiveDisassemblyWriteDataArrayToASMFile(asmFileView, dataElements, currentDataArrayStartLocation, dataElementByteSize, currentDataArrayDataType, !currentDataArrayIsFormallyDefined, analysis.labelSettings, filePath))
+			if (!ActiveDisassemblyWriteDataArrayToASMFile(asmFileView, dataElements, currentDataArrayStartLocation, dataElementByteSize, currentDataArrayDataType, !currentDataArrayIsFormallyDefined, analysis.labelSettings, filePath))
 			{
 				return false;
 			}
@@ -3713,14 +3713,14 @@ bool Processor::ActiveDisassemblyExportAnalysisToASMFile(const ActiveDisassembly
 		//If we need to setup our array parameters for a new array definition, reset the
 		//array properties, using the defined formal array parameters if they have been
 		//specified.
-		if(newArrayBeginning)
+		if (newArrayBeginning)
 		{
 			currentDataArrayIsFormallyDefined = true;
 			currentDataArrayDataType = newArrayDataType;
 			dataElementByteSize = newArrayElementByteSize;
 			currentDataArrayEndLocation = newArrayEndLocation;
 		}
-		else if(reachedEndOfArray)
+		else if (reachedEndOfArray)
 		{
 			currentDataArrayIsFormallyDefined = false;
 			currentDataArrayDataType = DisassemblyDataType::Integer;
@@ -3729,19 +3729,19 @@ bool Processor::ActiveDisassemblyExportAnalysisToASMFile(const ActiveDisassembly
 		}
 
 		//Write the label for this location to the disassembly file
-		if(lineLabelDefined)
+		if (lineLabelDefined)
 		{
 			asmFileView << lineLabel << L'\n';
 		}
 
 		//Write this line to the disassembly file
-		if(lineDisassembled)
+		if (lineDisassembled)
 		{
 			asmFileView << lineString;
-			if(!lineComment.empty())
+			if (!lineComment.empty())
 			{
 				std::wstring formattedComment;
-				if(!FormatCommentForDisassembly(lineComment, formattedComment))
+				if (!FormatCommentForDisassembly(lineComment, formattedComment))
 				{
 					GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"Format failed for comment \"" + lineComment + L"\" when attempting to export active disassembly analysis to file with path \"" + filePath + L"\"!"));
 					return false;
@@ -3754,7 +3754,7 @@ bool Processor::ActiveDisassemblyExportAnalysisToASMFile(const ActiveDisassembly
 		{
 			//If this is the first data element in a new array, latch the current location
 			//as the start address for the array.
-			if(dataElements.empty())
+			if (dataElements.empty())
 			{
 				currentDataArrayStartLocation = location;
 			}
@@ -3763,7 +3763,7 @@ bool Processor::ActiveDisassemblyExportAnalysisToASMFile(const ActiveDisassembly
 			//element in a data array.
 			unsigned int byteBitCountForProcessor = GetByteBitCount();
 			Data entryData(dataElementByteSize * byteBitCountForProcessor, 0);
-			for(unsigned int arrayEntryByte = 0; arrayEntryByte < dataElementByteSize; ++arrayEntryByte)
+			for (unsigned int arrayEntryByte = 0; arrayEntryByte < dataElementByteSize; ++arrayEntryByte)
 			{
 				entryData <<= byteBitCountForProcessor;
 				entryData |= GetMemorySpaceByte(location + arrayEntryByte);
@@ -3777,9 +3777,9 @@ bool Processor::ActiveDisassemblyExportAnalysisToASMFile(const ActiveDisassembly
 	}
 
 	//If there are any remaining unwritten buffered data elements, write them to the file.
-	if(!dataElements.empty())
+	if (!dataElements.empty())
 	{
-		if(!ActiveDisassemblyWriteDataArrayToASMFile(asmFileView, dataElements, currentDataArrayStartLocation, dataElementByteSize, currentDataArrayDataType, !currentDataArrayIsFormallyDefined, analysis.labelSettings, filePath))
+		if (!ActiveDisassemblyWriteDataArrayToASMFile(asmFileView, dataElements, currentDataArrayStartLocation, dataElementByteSize, currentDataArrayDataType, !currentDataArrayIsFormallyDefined, analysis.labelSettings, filePath))
 		{
 			return false;
 		}
@@ -3787,15 +3787,15 @@ bool Processor::ActiveDisassemblyExportAnalysisToASMFile(const ActiveDisassembly
 
 	//Write any trailing lines to the assembly file which are required for this processor
 	std::list<std::wstring> requiredTrailinglines;
-	if(!GetTrailingLinesForASMFile(analysis.minAddress, analysis.maxAddress, requiredTrailinglines))
+	if (!GetTrailingLinesForASMFile(analysis.minAddress, analysis.maxAddress, requiredTrailinglines))
 	{
 		GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"Failed to get trailing lines when attempting to export active disassembly analysis to file with path \"" + filePath + L"\"!"));
 		return false;
 	}
-	if(!requiredTrailinglines.empty())
+	if (!requiredTrailinglines.empty())
 	{
 		asmFileView << L'\n';
-		for(std::list<std::wstring>::const_iterator i = requiredTrailinglines.begin(); i != requiredTrailinglines.end(); ++i)
+		for (std::list<std::wstring>::const_iterator i = requiredTrailinglines.begin(); i != requiredTrailinglines.end(); ++i)
 		{
 			asmFileView << *i << L'\n';
 		}
@@ -3812,7 +3812,7 @@ bool Processor::ActiveDisassemblyWriteDataArrayToASMFile(Stream::ViewText& asmFi
 
 	//If text prediction is enabled, and this is an unknown data array, and it appears
 	//that it could be a character array, change the data type to a character array.
-	if(_activeDisassemblyDetectTextData && unknownData && ActiveDisassemblyArraySeemsToBeCharArray(dataType, dataElementByteSize, dataElements))
+	if (_activeDisassemblyDetectTextData && unknownData && ActiveDisassemblyArraySeemsToBeCharArray(dataType, dataElementByteSize, dataElements))
 	{
 		dataType = DisassemblyDataType::Character;
 	}
@@ -3820,13 +3820,13 @@ bool Processor::ActiveDisassemblyWriteDataArrayToASMFile(Stream::ViewText& asmFi
 	//Write all data elements in the array to the file
 	unsigned int arrayEntriesWritten = 0;
 	std::list<Data>::const_iterator dataElementsIterator = dataElements.begin();
-	while(dataElementsIterator != dataElements.end())
+	while (dataElementsIterator != dataElements.end())
 	{
 		//Extract data from the array until we've got enough data to fill one data line,
 		//or we reach the end of the array.
 		const unsigned int maxDataBytesPerLine = 0x20;
 		std::vector<Data> dataElementsForLine;
-		while((dataElementsIterator != dataElements.end()) && ((unsigned int)dataElementsForLine.size() < maxDataBytesPerLine))
+		while ((dataElementsIterator != dataElements.end()) && ((unsigned int)dataElementsForLine.size() < maxDataBytesPerLine))
 		{
 			dataElementsForLine.push_back(*dataElementsIterator);
 			++dataElementsIterator;
@@ -3835,7 +3835,7 @@ bool Processor::ActiveDisassemblyWriteDataArrayToASMFile(Stream::ViewText& asmFi
 		//Build a string containing all the buffered array data
 		std::wstring dataStringPrefix;
 		std::wstring dataString;
-		if(!FormatDataForDisassembly(dataElementsForLine, dataElementByteSize, dataType, labelSettings, dataStringPrefix, dataString))
+		if (!FormatDataForDisassembly(dataElementsForLine, dataElementByteSize, dataType, labelSettings, dataStringPrefix, dataString))
 		{
 			LogEntry logEntry(LogEntry::EventLevel::Error);
 			logEntry << L"Format failed for data with address \"0x" << std::hex << std::uppercase << dataElements.begin()->GetData() << L"\" when attempting to export active disassembly analysis to file with path \"" << filePath << L"\"!";
@@ -3846,7 +3846,7 @@ bool Processor::ActiveDisassemblyWriteDataArrayToASMFile(Stream::ViewText& asmFi
 		//Generate and format a comment string for this array data line
 		std::wstring formattedComment;
 		std::wstring dataStringComment = ActiveDisassemblyGenerateCommentForDataArrayLine(arrayEntriesWritten, arrayStartLocation, arrayEndLocation, unknownData, GetPCCharWidth());
-		if(!FormatCommentForDisassembly(dataStringComment, formattedComment))
+		if (!FormatCommentForDisassembly(dataStringComment, formattedComment))
 		{
 			GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"Format failed for comment \"" + dataStringComment + L"\" when attempting to export active disassembly analysis to file with path \"" + filePath + L"\"!"));
 			return false;
@@ -3873,7 +3873,7 @@ bool Processor::ActiveDisassemblyExportAnalysisToTextFile(const ActiveDisassembl
 {
 	//Create the output file
 	Stream::File logFile;
-	if(!logFile.Open(filePath, Stream::File::OpenMode::ReadAndWrite, Stream::File::CreateMode::Create))
+	if (!logFile.Open(filePath, Stream::File::OpenMode::ReadAndWrite, Stream::File::CreateMode::Create))
 	{
 		GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"Failed to create output file \"" + filePath + L"\"!"));
 		return false;
@@ -3882,47 +3882,47 @@ bool Processor::ActiveDisassemblyExportAnalysisToTextFile(const ActiveDisassembl
 	//Save our active disassembly analysis to the output file
 	Stream::ViewText logFileView(logFile);
 	logFileView << L"Code:\n";
-	for(std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = analysis.disassemblyCodeSorted.begin(); i != analysis.disassemblyCodeSorted.end(); ++i)
+	for (std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = analysis.disassemblyCodeSorted.begin(); i != analysis.disassemblyCodeSorted.end(); ++i)
 	{
 		logFileView << L"0x" << std::hex << std::uppercase << i->second->baseMemoryAddress << L'\t' << i->second->comment << L'\n';
 	}
 	logFileView << L"Predicted code:\n";
-	for(std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = analysis.predictedCodeEntries.begin(); i != analysis.predictedCodeEntries.end(); ++i)
+	for (std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = analysis.predictedCodeEntries.begin(); i != analysis.predictedCodeEntries.end(); ++i)
 	{
 		logFileView << L"0x" << std::hex << std::uppercase << i->second->baseMemoryAddress << L'\t' << i->second->comment << L'\n';
 	}
 	logFileView << L"Offset:\n";
-	for(std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = analysis.disassemblyOffsetSorted.begin(); i != analysis.disassemblyOffsetSorted.end(); ++i)
+	for (std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = analysis.disassemblyOffsetSorted.begin(); i != analysis.disassemblyOffsetSorted.end(); ++i)
 	{
 		logFileView << L"0x" << std::hex << std::uppercase << i->second->baseMemoryAddress << L'\t' << L"0x" << std::hex << std::uppercase << i->second->memoryBlockSize << L'\t' << i->second->relativeOffset << L'\t' << L"0x" << std::hex << std::uppercase << i->second->relativeOffsetBaseAddress << L'\t' << i->second->comment << L'\n';
 	}
 	logFileView << L"Predicted Offset:\n";
-	for(std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = analysis.predictedOffsetEntries.begin(); i != analysis.predictedOffsetEntries.end(); ++i)
+	for (std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = analysis.predictedOffsetEntries.begin(); i != analysis.predictedOffsetEntries.end(); ++i)
 	{
 		logFileView << L"0x" << std::hex << std::uppercase << i->second->baseMemoryAddress << L'\t' << L"0x" << std::hex << std::uppercase << i->second->memoryBlockSize << L'\t' << i->second->relativeOffset << L'\t' << L"0x" << std::hex << std::uppercase << i->second->relativeOffsetBaseAddress << L'\t' << i->second->comment << L'\n';
 	}
 	logFileView << L"Data:\n";
-	for(std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = analysis.disassemblyDataSorted.begin(); i != analysis.disassemblyDataSorted.end(); ++i)
+	for (std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = analysis.disassemblyDataSorted.begin(); i != analysis.disassemblyDataSorted.end(); ++i)
 	{
 		logFileView << L"0x" << std::hex << std::uppercase << i->second->baseMemoryAddress << L'\t' << ActiveDisassemblyGenerateTextLabelForDataType(i->second->dataType) << L'\t' << L"0x" << std::hex << std::uppercase << i->second->memoryBlockSize << L'\t' << i->second->comment << L'\n';
 	}
 	logFileView << L"Predicted Data:\n";
-	for(std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = analysis.predictedDataEntries.begin(); i != analysis.predictedDataEntries.end(); ++i)
+	for (std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = analysis.predictedDataEntries.begin(); i != analysis.predictedDataEntries.end(); ++i)
 	{
 		logFileView << L"0x" << std::hex << std::uppercase << i->second->baseMemoryAddress << L'\t' << ActiveDisassemblyGenerateTextLabelForDataType(i->second->dataType) << L'\t' << L"0x" << std::hex << std::uppercase << i->second->memoryBlockSize << L'\t' << i->second->comment << L'\n';
 	}
 	logFileView << L"Arrays:\n";
-	for(std::map<unsigned int, DisassemblyArrayInfo>::const_iterator i = analysis.disassemblyArraySorted.begin(); i != analysis.disassemblyArraySorted.end(); ++i)
+	for (std::map<unsigned int, DisassemblyArrayInfo>::const_iterator i = analysis.disassemblyArraySorted.begin(); i != analysis.disassemblyArraySorted.end(); ++i)
 	{
 		logFileView << L"0x" << std::hex << std::uppercase << i->second.baseMemoryAddress << L'\t' << ActiveDisassemblyGenerateTextLabelForDataType(i->second.dataType) << L'\t' << L"0x" << std::hex << std::uppercase << i->second.arrayEntrySize << L'\t' << L"0x" << std::hex << std::uppercase << i->second.arrayEntryCount << L'\n';
 	}
 	logFileView << L"Label usage:\n";
-	for(std::map<unsigned int, LabelSubstitutionEntry>::const_iterator i = analysis.labelSettings.labelTargetsAddressingLocation.begin(); i != analysis.labelSettings.labelTargetsAddressingLocation.end(); ++i)
+	for (std::map<unsigned int, LabelSubstitutionEntry>::const_iterator i = analysis.labelSettings.labelTargetsAddressingLocation.begin(); i != analysis.labelSettings.labelTargetsAddressingLocation.end(); ++i)
 	{
 		logFileView << L"0x" << std::hex << std::uppercase << i->second.targetAddress << L'\t' << L"0x" << std::hex << std::uppercase << i->second.labelLocation << L'\t' << i->second.usageLabel << L'\n';
 	}
 	logFileView << L"Label placement:\n";
-	for(std::map<unsigned int, LabelEntry>::const_iterator i = analysis.labelSettings.labelTargetsAtLocation.begin(); i != analysis.labelSettings.labelTargetsAtLocation.end(); ++i)
+	for (std::map<unsigned int, LabelEntry>::const_iterator i = analysis.labelSettings.labelTargetsAtLocation.begin(); i != analysis.labelSettings.labelTargetsAtLocation.end(); ++i)
 	{
 		logFileView << L"0x" << std::hex << std::uppercase << i->second.location << L'\t' << i->second.label << L'\n';
 	}
@@ -3941,7 +3941,7 @@ bool Processor::ActiveDisassemblyExportAnalysisToIDCFile(const ActiveDisassembly
 {
 	//Create the output file
 	Stream::File idcFile;
-	if(!idcFile.Open(filePath, Stream::File::OpenMode::ReadAndWrite, Stream::File::CreateMode::Create))
+	if (!idcFile.Open(filePath, Stream::File::OpenMode::ReadAndWrite, Stream::File::CreateMode::Create))
 	{
 		GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"Failed to create output file \"" + filePath + L"\"!"));
 		return false;
@@ -3952,51 +3952,51 @@ bool Processor::ActiveDisassemblyExportAnalysisToIDCFile(const ActiveDisassembly
 	idcFileView << L"#include <idc.idc>\n";
 	idcFileView << L"static main()\n";
 	idcFileView << L"{\n";
-	for(std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = analysis.disassemblyCodeSorted.begin(); i != analysis.disassemblyCodeSorted.end(); ++i)
+	for (std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = analysis.disassemblyCodeSorted.begin(); i != analysis.disassemblyCodeSorted.end(); ++i)
 	{
 		idcFileView << L"MakeCode(0x" << std::hex << std::uppercase << i->second->baseMemoryAddress << L");\n";
-		if(!i->second->comment.empty())
+		if (!i->second->comment.empty())
 		{
 			idcFileView << L"MakeComm(0x" << std::hex << std::uppercase << i->second->baseMemoryAddress << L", \"" << i->second->comment << L"\");\n";
 		}
 	}
-	for(std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = analysis.predictedCodeEntries.begin(); i != analysis.predictedCodeEntries.end(); ++i)
+	for (std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = analysis.predictedCodeEntries.begin(); i != analysis.predictedCodeEntries.end(); ++i)
 	{
 		idcFileView << L"MakeCode(0x" << std::hex << std::uppercase << i->second->baseMemoryAddress << L");\n";
-		if(!i->second->comment.empty())
+		if (!i->second->comment.empty())
 		{
 			idcFileView << L"MakeComm(0x" << std::hex << std::uppercase << i->second->baseMemoryAddress << L", \"" << i->second->comment << L"\");\n";
 		}
 	}
-	for(std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = analysis.disassemblyDataSorted.begin(); i != analysis.disassemblyDataSorted.end(); ++i)
+	for (std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = analysis.disassemblyDataSorted.begin(); i != analysis.disassemblyDataSorted.end(); ++i)
 	{
 		std::wstring dataString;
-		if(ActiveDisassemblyDecodeIDADataString(i->second->memoryBlockSize, i->second->dataType, dataString))
+		if (ActiveDisassemblyDecodeIDADataString(i->second->memoryBlockSize, i->second->dataType, dataString))
 		{
 			idcFileView << L"MakeData(0x" << std::hex << std::uppercase << i->second->baseMemoryAddress << L", " << dataString << L", 0x" << i->second->memoryBlockSize << L", 0);\n";
-			if(!i->second->comment.empty())
+			if (!i->second->comment.empty())
 			{
 				idcFileView << L"MakeComm(0x" << std::hex << std::uppercase << i->second->baseMemoryAddress << L", \"" << i->second->comment << L"\");\n";
 			}
 		}
 	}
-	for(std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = analysis.disassemblyOffsetSorted.begin(); i != analysis.disassemblyOffsetSorted.end(); ++i)
+	for (std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = analysis.disassemblyOffsetSorted.begin(); i != analysis.disassemblyOffsetSorted.end(); ++i)
 	{
 		std::wstring dataString;
-		if(ActiveDisassemblyDecodeIDADataString(i->second->memoryBlockSize, DisassemblyDataType::Integer, dataString))
+		if (ActiveDisassemblyDecodeIDADataString(i->second->memoryBlockSize, DisassemblyDataType::Integer, dataString))
 		{
 			//Read in the next possible array entry
 			unsigned int byteBitCountForProcessor = GetByteBitCount();
 			Data entryData(i->second->memoryBlockSize * byteBitCountForProcessor, 0);
 			unsigned int entryLocation = i->second->baseMemoryAddress;
-			for(unsigned int arrayEntryByte = 0; arrayEntryByte < i->second->memoryBlockSize; ++arrayEntryByte)
+			for (unsigned int arrayEntryByte = 0; arrayEntryByte < i->second->memoryBlockSize; ++arrayEntryByte)
 			{
 				entryData <<= byteBitCountForProcessor;
 				entryData |= GetMemorySpaceByte(entryLocation + arrayEntryByte);
 			}
 
 			idcFileView << L"MakeData(0x" << std::hex << std::uppercase << i->second->baseMemoryAddress << L", " << dataString << L", 0x" << i->second->memoryBlockSize << L", 0);\n";
-			if(!i->second->relativeOffset)
+			if (!i->second->relativeOffset)
 			{
 				idcFileView << L"OpOff(0x" << std::hex << std::uppercase << i->second->baseMemoryAddress << L", -1, 0x0);\n";
 			}
@@ -4008,14 +4008,14 @@ bool Processor::ActiveDisassemblyExportAnalysisToIDCFile(const ActiveDisassembly
 				//offset as the lower 16-bit half of a 32-bit offset in order to get IDA
 				//Pro to generate a correct output.
 				unsigned int entrySizeInBits = i->second->memoryBlockSize * byteBitCountForProcessor;
-				if(entryData.Negative() && (entrySizeInBits < GetPCWidth()) && ((entrySizeInBits == 8) || (entrySizeInBits == 16)))
+				if (entryData.Negative() && (entrySizeInBits < GetPCWidth()) && ((entrySizeInBits == 8) || (entrySizeInBits == 16)))
 				{
 					unsigned int offsetTarget = entryData.SignExtend(GetPCWidth()).GetData() + i->second->relativeOffsetBaseAddress;
-					if(entrySizeInBits == 8)
+					if (entrySizeInBits == 8)
 					{
 						idcFileView << L"OpOffEx(0x" << std::hex << std::uppercase << i->second->baseMemoryAddress << L", -1, REF_LOW8, 0x" << std::hex << std::uppercase << offsetTarget <<", 0x" << std::hex << std::uppercase << i->second->relativeOffsetBaseAddress << L", 0);\n";
 					}
-					else if(entrySizeInBits == 16)
+					else if (entrySizeInBits == 16)
 					{
 						idcFileView << L"OpOffEx(0x" << std::hex << std::uppercase << i->second->baseMemoryAddress << L", -1, REF_LOW16, 0x" << std::hex << std::uppercase << offsetTarget <<", 0x" << std::hex << std::uppercase << i->second->relativeOffsetBaseAddress << L", 0);\n";
 					}
@@ -4023,35 +4023,35 @@ bool Processor::ActiveDisassemblyExportAnalysisToIDCFile(const ActiveDisassembly
 				else
 				{
 					std::wstring offsetString;
-					if(ActiveDisassemblyDecodeIDAOffsetString(GetPCWidth(), offsetString))
+					if (ActiveDisassemblyDecodeIDAOffsetString(GetPCWidth(), offsetString))
 					{
 						idcFileView << L"OpOffEx(0x" << std::hex << std::uppercase << i->second->baseMemoryAddress << L", -1, " << offsetString << L", -1, 0x" << std::hex << std::uppercase << i->second->relativeOffsetBaseAddress << L", 0);\n";
 					}
 				}
 			}
-			if(!i->second->comment.empty())
+			if (!i->second->comment.empty())
 			{
 				idcFileView << L"MakeComm(0x" << std::hex << std::uppercase << i->second->baseMemoryAddress << L", \"" << i->second->comment << L"\");\n";
 			}
 		}
 	}
-	for(std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = analysis.predictedOffsetEntries.begin(); i != analysis.predictedOffsetEntries.end(); ++i)
+	for (std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = analysis.predictedOffsetEntries.begin(); i != analysis.predictedOffsetEntries.end(); ++i)
 	{
 		std::wstring dataString;
-		if(ActiveDisassemblyDecodeIDADataString(i->second->memoryBlockSize, DisassemblyDataType::Integer, dataString))
+		if (ActiveDisassemblyDecodeIDADataString(i->second->memoryBlockSize, DisassemblyDataType::Integer, dataString))
 		{
 			//Read in the next possible array entry
 			unsigned int byteBitCountForProcessor = GetByteBitCount();
 			Data entryData(i->second->memoryBlockSize * byteBitCountForProcessor, 0);
 			unsigned int entryLocation = i->second->baseMemoryAddress;
-			for(unsigned int arrayEntryByte = 0; arrayEntryByte < i->second->memoryBlockSize; ++arrayEntryByte)
+			for (unsigned int arrayEntryByte = 0; arrayEntryByte < i->second->memoryBlockSize; ++arrayEntryByte)
 			{
 				entryData <<= byteBitCountForProcessor;
 				entryData |= GetMemorySpaceByte(entryLocation + arrayEntryByte);
 			}
 
 			idcFileView << L"MakeData(0x" << std::hex << std::uppercase << i->second->baseMemoryAddress << L", " << dataString << L", 0x" << i->second->memoryBlockSize << L", 0);\n";
-			if(!i->second->relativeOffset)
+			if (!i->second->relativeOffset)
 			{
 				idcFileView << L"OpOff(0x" << std::hex << std::uppercase << i->second->baseMemoryAddress << L", -1, 0x0);\n";
 			}
@@ -4063,14 +4063,14 @@ bool Processor::ActiveDisassemblyExportAnalysisToIDCFile(const ActiveDisassembly
 				//the offset as the lower 16-bit half of a 32-bit offset in order to
 				//get IDA Pro to generate a correct output.
 				unsigned int entrySizeInBits = i->second->memoryBlockSize * byteBitCountForProcessor;
-				if(entryData.Negative() && (entrySizeInBits < GetPCWidth()) && ((entrySizeInBits == 8) || (entrySizeInBits == 16)))
+				if (entryData.Negative() && (entrySizeInBits < GetPCWidth()) && ((entrySizeInBits == 8) || (entrySizeInBits == 16)))
 				{
 					unsigned int offsetTarget = entryData.SignExtend(GetPCWidth()).GetData() + i->second->relativeOffsetBaseAddress;
-					if(entrySizeInBits == 8)
+					if (entrySizeInBits == 8)
 					{
 						idcFileView << L"OpOffEx(0x" << std::hex << std::uppercase << i->second->baseMemoryAddress << L", -1, REF_LOW8, 0x" << std::hex << std::uppercase << offsetTarget <<", 0x" << std::hex << std::uppercase << i->second->relativeOffsetBaseAddress << L", 0);\n";
 					}
-					else if(entrySizeInBits == 16)
+					else if (entrySizeInBits == 16)
 					{
 						idcFileView << L"OpOffEx(0x" << std::hex << std::uppercase << i->second->baseMemoryAddress << L", -1, REF_LOW16, 0x" << std::hex << std::uppercase << offsetTarget <<", 0x" << std::hex << std::uppercase << i->second->relativeOffsetBaseAddress << L", 0);\n";
 					}
@@ -4078,22 +4078,22 @@ bool Processor::ActiveDisassemblyExportAnalysisToIDCFile(const ActiveDisassembly
 				else
 				{
 					std::wstring offsetString;
-					if(ActiveDisassemblyDecodeIDAOffsetString(GetPCWidth(), offsetString))
+					if (ActiveDisassemblyDecodeIDAOffsetString(GetPCWidth(), offsetString))
 					{
 						idcFileView << L"OpOffEx(0x" << std::hex << std::uppercase << i->second->baseMemoryAddress << L", -1, " << offsetString << L", -1, 0x" << std::hex << std::uppercase << i->second->relativeOffsetBaseAddress << L", 0);\n";
 					}
 				}
 			}
-			if(!i->second->comment.empty())
+			if (!i->second->comment.empty())
 			{
 				idcFileView << L"MakeComm(0x" << std::hex << std::uppercase << i->second->baseMemoryAddress << L", \"" << i->second->comment << L"\");\n";
 			}
 		}
 	}
-	for(std::map<unsigned int, DisassemblyArrayInfo>::const_iterator i = analysis.disassemblyArraySorted.begin(); i != analysis.disassemblyArraySorted.end(); ++i)
+	for (std::map<unsigned int, DisassemblyArrayInfo>::const_iterator i = analysis.disassemblyArraySorted.begin(); i != analysis.disassemblyArraySorted.end(); ++i)
 	{
 		std::wstring dataString;
-		if(ActiveDisassemblyDecodeIDADataString(i->second.arrayEntrySize, i->second.dataType, dataString))
+		if (ActiveDisassemblyDecodeIDADataString(i->second.arrayEntrySize, i->second.dataType, dataString))
 		{
 			const unsigned int maxArrayEntriesPerLine = 0x10;
 			unsigned int arrayEntriesPerLine = (i->second.arrayEntrySize > maxArrayEntriesPerLine)? i->second.arrayEntrySize: maxArrayEntriesPerLine / i->second.arrayEntrySize;
@@ -4164,19 +4164,19 @@ bool Processor::FormatLabelUsageForDisassembly(const std::wstring& rawLabel, int
 void Processor::LoadState(IHierarchicalStorageNode& node)
 {
 	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
-	for(std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	for (std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
 		std::wstring keyName = (*i)->GetName();
-		if(keyName == L"Register")
+		if (keyName == L"Register")
 		{
 			IHierarchicalStorageAttribute* nameAttribute = (*i)->GetAttribute(L"name");
-			if(nameAttribute != 0)
+			if (nameAttribute != 0)
 			{
 				std::wstring registerName = nameAttribute->GetValue();
-				if(registerName == L"ClockSpeed")	_clockSpeed = (*i)->ExtractData<double>();
+				if (registerName == L"ClockSpeed")	_clockSpeed = (*i)->ExtractData<double>();
 			}
 		}
-		else if(keyName == L"CallStack")
+		else if (keyName == L"CallStack")
 		{
 			LoadCallStack(*(*i));
 		}
@@ -4206,84 +4206,84 @@ void Processor::LoadDebuggerState(IHierarchicalStorageNode& node)
 	unsigned int newActiveDisassemblyEndLocation = _activeDisassemblyEndLocation;
 
 	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
-	for(std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	for (std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
 		std::wstring keyName = (*i)->GetName();
-		if(keyName == L"Register")
+		if (keyName == L"Register")
 		{
 			IHierarchicalStorageAttribute* nameAttribute = (*i)->GetAttribute(L"name");
-			if(nameAttribute != 0)
+			if (nameAttribute != 0)
 			{
 				std::wstring registerName = nameAttribute->GetValue();
 				//Device enable
-				if(registerName == L"DeviceEnabled")				GetDeviceContext()->SetDeviceEnabled((*i)->ExtractData<bool>());
+				if (registerName == L"DeviceEnabled")				GetDeviceContext()->SetDeviceEnabled((*i)->ExtractData<bool>());
 				//Clock speed
-				else if(registerName == L"OverriddenClockSpeed")
+				else if (registerName == L"OverriddenClockSpeed")
 				{
 					_clockSpeedOverridden = true;
 					_reportedClockSpeed = (*i)->ExtractData<double>();
 				}
 				//Call stack
-				else if(registerName == L"StackDisassemble")		_stackDisassemble = (*i)->ExtractData<bool>();
+				else if (registerName == L"StackDisassemble")		_stackDisassemble = (*i)->ExtractData<bool>();
 				//Trace
-				else if(registerName == L"TraceEnabled")			_traceLogEnabled = (*i)->ExtractData<bool>();
-				else if(registerName == L"TraceDisassemble")		_traceLogDisassemble = (*i)->ExtractData<bool>();
-				else if(registerName == L"TraceLength")				_traceLogLength = (*i)->ExtractData<unsigned int>();
+				else if (registerName == L"TraceEnabled")			_traceLogEnabled = (*i)->ExtractData<bool>();
+				else if (registerName == L"TraceDisassemble")		_traceLogDisassemble = (*i)->ExtractData<bool>();
+				else if (registerName == L"TraceLength")				_traceLogLength = (*i)->ExtractData<unsigned int>();
 				//Active Disassembly
-				else if(registerName == L"ActiveDisassemblyEnabled")
+				else if (registerName == L"ActiveDisassemblyEnabled")
 				{
 					_activeDisassemblyEnabled = (*i)->ExtractData<bool>();
 					activeDisassemblyStateChanged = true;
 				}
-				else if(registerName == L"ActiveDisassemblyStartLocation")
+				else if (registerName == L"ActiveDisassemblyStartLocation")
 				{
 					newActiveDisassemblyStartLocation = (*i)->ExtractHexData<unsigned int>();
 					activeDisassemblyStateChanged = true;
 				}
-				else if(registerName == L"ActiveDisassemblyEndLocation")
+				else if (registerName == L"ActiveDisassemblyEndLocation")
 				{
 					newActiveDisassemblyEndLocation = (*i)->ExtractHexData<unsigned int>();
 					activeDisassemblyStateChanged = true;
 				}
-				else if(registerName == L"ActiveDisassemblyArrayNextFreeID")
+				else if (registerName == L"ActiveDisassemblyArrayNextFreeID")
 				{
 					_activeDisassemblyArrayNextFreeID = (*i)->ExtractHexData<unsigned int>();
 					activeDisassemblyStateChanged = true;
 				}
-				else if(registerName == L"ActiveDisassemblyAnalysisStartLocation")	_activeDisassemblyAnalysisStartLocation = (*i)->ExtractHexData<unsigned int>();
-				else if(registerName == L"ActiveDisassemblyAnalysisEndLocation")	_activeDisassemblyAnalysisEndLocation = (*i)->ExtractHexData<unsigned int>();
-				else if(registerName == L"ActiveDisassemblyAnalyzeCode")			_activeDisassemblyAnalyzeCode = (*i)->ExtractData<bool>();
-				else if(registerName == L"ActiveDisassemblyAnalyzeData")			_activeDisassemblyAnalyzeData = (*i)->ExtractData<bool>();
-				else if(registerName == L"ActiveDisassemblyAnalyzeCodeOffsets")		_activeDisassemblyAnalyzeCodeOffsets = (*i)->ExtractData<bool>();
-				else if(registerName == L"ActiveDisassemblyAnalyzeDataOffsets")		_activeDisassemblyAnalyzeDataOffsets = (*i)->ExtractData<bool>();
-				else if(registerName == L"ActiveDisassemblyAnalyzePredictedArrays")	_activeDisassemblyAnalyzePredictedArrays = (*i)->ExtractData<bool>();
-				else if(registerName == L"ActiveDisassemblyAnalyzePredictedJumpTables")	_activeDisassemblyAnalyzePredictedJumpTables = (*i)->ExtractData<bool>();
-				else if(registerName == L"ActiveDisassemblyExploreCodePaths")		_activeDisassemblyExploreCodePaths = (*i)->ExtractData<bool>();
-				else if(registerName == L"ActiveDisassemblyPerformLabelSubstitution")	_activeDisassemblyPerformLabelSubstitution = (*i)->ExtractData<bool>();
-				else if(registerName == L"ActiveDisassemblyDetectOffsets")			_activeDisassemblyDetectOffsets = (*i)->ExtractData<bool>();
-				else if(registerName == L"ActiveDisassemblyDetectJumpTables")		_activeDisassemblyDetectJumpTables = (*i)->ExtractData<bool>();
-				else if(registerName == L"ActiveDisassemblyDetectData")				_activeDisassemblyDetectData = (*i)->ExtractData<bool>();
-				else if(registerName == L"ActiveDisassemblyDetectDataArrays")		_activeDisassemblyDetectDataArrays = (*i)->ExtractData<bool>();
-				else if(registerName == L"ActiveDisassemblyDetectTextData")			_activeDisassemblyDetectTextData = (*i)->ExtractData<bool>();
-				else if(registerName == L"ActiveDisassemblyOffsetArrayIncreaseTolerance")	_activeDisassemblyOffsetArrayIncreaseTolerance = (*i)->ExtractData<double>();
-				else if(registerName == L"ActiveDisassemblyMinimumArrayEntryCount")			_activeDisassemblyMinimumArrayEntryCount = (*i)->ExtractData<unsigned int>();
-				else if(registerName == L"ActiveDisassemblyOffsetArrayDistanceTolerance")	_activeDisassemblyOffsetArrayDistanceTolerance = (*i)->ExtractHexData<unsigned int>();
-				else if(registerName == L"ActiveDisassemblyJumpTableDistanceTolerance")		_activeDisassemblyJumpTableDistanceTolerance = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"ActiveDisassemblyAnalysisStartLocation")	_activeDisassemblyAnalysisStartLocation = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"ActiveDisassemblyAnalysisEndLocation")	_activeDisassemblyAnalysisEndLocation = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"ActiveDisassemblyAnalyzeCode")			_activeDisassemblyAnalyzeCode = (*i)->ExtractData<bool>();
+				else if (registerName == L"ActiveDisassemblyAnalyzeData")			_activeDisassemblyAnalyzeData = (*i)->ExtractData<bool>();
+				else if (registerName == L"ActiveDisassemblyAnalyzeCodeOffsets")		_activeDisassemblyAnalyzeCodeOffsets = (*i)->ExtractData<bool>();
+				else if (registerName == L"ActiveDisassemblyAnalyzeDataOffsets")		_activeDisassemblyAnalyzeDataOffsets = (*i)->ExtractData<bool>();
+				else if (registerName == L"ActiveDisassemblyAnalyzePredictedArrays")	_activeDisassemblyAnalyzePredictedArrays = (*i)->ExtractData<bool>();
+				else if (registerName == L"ActiveDisassemblyAnalyzePredictedJumpTables")	_activeDisassemblyAnalyzePredictedJumpTables = (*i)->ExtractData<bool>();
+				else if (registerName == L"ActiveDisassemblyExploreCodePaths")		_activeDisassemblyExploreCodePaths = (*i)->ExtractData<bool>();
+				else if (registerName == L"ActiveDisassemblyPerformLabelSubstitution")	_activeDisassemblyPerformLabelSubstitution = (*i)->ExtractData<bool>();
+				else if (registerName == L"ActiveDisassemblyDetectOffsets")			_activeDisassemblyDetectOffsets = (*i)->ExtractData<bool>();
+				else if (registerName == L"ActiveDisassemblyDetectJumpTables")		_activeDisassemblyDetectJumpTables = (*i)->ExtractData<bool>();
+				else if (registerName == L"ActiveDisassemblyDetectData")				_activeDisassemblyDetectData = (*i)->ExtractData<bool>();
+				else if (registerName == L"ActiveDisassemblyDetectDataArrays")		_activeDisassemblyDetectDataArrays = (*i)->ExtractData<bool>();
+				else if (registerName == L"ActiveDisassemblyDetectTextData")			_activeDisassemblyDetectTextData = (*i)->ExtractData<bool>();
+				else if (registerName == L"ActiveDisassemblyOffsetArrayIncreaseTolerance")	_activeDisassemblyOffsetArrayIncreaseTolerance = (*i)->ExtractData<double>();
+				else if (registerName == L"ActiveDisassemblyMinimumArrayEntryCount")			_activeDisassemblyMinimumArrayEntryCount = (*i)->ExtractData<unsigned int>();
+				else if (registerName == L"ActiveDisassemblyOffsetArrayDistanceTolerance")	_activeDisassemblyOffsetArrayDistanceTolerance = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"ActiveDisassemblyJumpTableDistanceTolerance")		_activeDisassemblyJumpTableDistanceTolerance = (*i)->ExtractHexData<unsigned int>();
 			}
 		}
-		else if(keyName == L"BreakpointList")
+		else if (keyName == L"BreakpointList")
 		{
-			for(size_t breakpointNo = 0; breakpointNo < _breakpoints.size(); ++breakpointNo)
+			for (size_t breakpointNo = 0; breakpointNo < _breakpoints.size(); ++breakpointNo)
 			{
 				delete _breakpoints[breakpointNo];
 			}
 			_breakpoints.clear();
 
 			std::list<IHierarchicalStorageNode*> childList = (*i)->GetChildList();
-			for(std::list<IHierarchicalStorageNode*>::iterator childNodeIterator = childList.begin(); childNodeIterator != childList.end(); ++childNodeIterator)
+			for (std::list<IHierarchicalStorageNode*>::iterator childNodeIterator = childList.begin(); childNodeIterator != childList.end(); ++childNodeIterator)
 			{
 				IHierarchicalStorageNode& childNode = *(*childNodeIterator);
-				if(childNode.GetName() == L"Breakpoint")
+				if (childNode.GetName() == L"Breakpoint")
 				{
 					Breakpoint* breakpoint = new Breakpoint(GetAddressBusWidth(), GetDataBusWidth(), GetAddressBusCharWidth());
 					breakpoint->LoadState(childNode);
@@ -4292,19 +4292,19 @@ void Processor::LoadDebuggerState(IHierarchicalStorageNode& node)
 			}
 			_breakpointExists = !_breakpoints.empty();
 		}
-		else if(keyName == L"WatchpointList")
+		else if (keyName == L"WatchpointList")
 		{
-			for(size_t watchpointNo = 0; watchpointNo < _watchpoints.size(); ++watchpointNo)
+			for (size_t watchpointNo = 0; watchpointNo < _watchpoints.size(); ++watchpointNo)
 			{
 				delete _watchpoints[watchpointNo];
 			}
 			_watchpoints.clear();
 
 			std::list<IHierarchicalStorageNode*> childList = (*i)->GetChildList();
-			for(std::list<IHierarchicalStorageNode*>::iterator childNodeIterator = childList.begin(); childNodeIterator != childList.end(); ++childNodeIterator)
+			for (std::list<IHierarchicalStorageNode*>::iterator childNodeIterator = childList.begin(); childNodeIterator != childList.end(); ++childNodeIterator)
 			{
 				IHierarchicalStorageNode& childNode = *(*childNodeIterator);
-				if(childNode.GetName() == L"Watchpoint")
+				if (childNode.GetName() == L"Watchpoint")
 				{
 					Watchpoint* watchpoint = new Watchpoint(GetAddressBusWidth(), GetDataBusWidth(), GetAddressBusCharWidth());
 					watchpoint->LoadState(childNode);
@@ -4313,7 +4313,7 @@ void Processor::LoadDebuggerState(IHierarchicalStorageNode& node)
 			}
 			_watchpointExists = !_watchpoints.empty();
 		}
-		else if(keyName == L"ActiveDisassemblyData")
+		else if (keyName == L"ActiveDisassemblyData")
 		{
 			//Clear all current active disassembly data
 			ClearActiveDisassemblyInternal();
@@ -4330,7 +4330,7 @@ void Processor::LoadDebuggerState(IHierarchicalStorageNode& node)
 			//Read all address entries from the saved data
 			unsigned int disassemblyEntryCount;
 			stream.ReadData(disassemblyEntryCount);
-			for(unsigned int entryNo = 0; entryNo < disassemblyEntryCount; ++entryNo)
+			for (unsigned int entryNo = 0; entryNo < disassemblyEntryCount; ++entryNo)
 			{
 				DisassemblyAddressInfo* entry = new DisassemblyAddressInfo();
 				unsigned int entryType;
@@ -4350,7 +4350,7 @@ void Processor::LoadDebuggerState(IHierarchicalStorageNode& node)
 
 				unsigned int arrayMembershipCount;
 				stream.ReadData(arrayMembershipCount);
-				for(unsigned int arrayMembershipNo = 0; arrayMembershipNo < arrayMembershipCount; ++arrayMembershipNo)
+				for (unsigned int arrayMembershipNo = 0; arrayMembershipNo < arrayMembershipCount; ++arrayMembershipNo)
 				{
 					unsigned int arrayNo;
 					stream.ReadData(arrayNo);
@@ -4360,7 +4360,7 @@ void Processor::LoadDebuggerState(IHierarchicalStorageNode& node)
 				unsigned int commentLength;
 				stream.ReadData(commentLength);
 				entry->comment.resize(commentLength);
-				for(unsigned int charNo = 0; charNo < commentLength; ++charNo)
+				for (unsigned int charNo = 0; charNo < commentLength; ++charNo)
 				{
 					stream.ReadData(entry->comment[charNo]);
 				}
@@ -4371,7 +4371,7 @@ void Processor::LoadDebuggerState(IHierarchicalStorageNode& node)
 			//Read all jump table entries from the saved data
 			unsigned int jumpTableEntryCount;
 			stream.ReadData(jumpTableEntryCount);
-			for(unsigned int entryNo = 0; entryNo < jumpTableEntryCount; ++entryNo)
+			for (unsigned int entryNo = 0; entryNo < jumpTableEntryCount; ++entryNo)
 			{
 				DisassemblyJumpTableInfo entry;
 				stream.ReadData(entry.baseMemoryAddress);
@@ -4379,7 +4379,7 @@ void Processor::LoadDebuggerState(IHierarchicalStorageNode& node)
 
 				unsigned int tableEntryCount;
 				stream.ReadData(tableEntryCount);
-				for(unsigned int tableEntryNo = 0; tableEntryNo < tableEntryCount; ++tableEntryNo)
+				for (unsigned int tableEntryNo = 0; tableEntryNo < tableEntryCount; ++tableEntryNo)
 				{
 					unsigned int tableEntry;
 					stream.ReadData(tableEntry);
@@ -4392,7 +4392,7 @@ void Processor::LoadDebuggerState(IHierarchicalStorageNode& node)
 			//Read all array entries from the saved data
 			unsigned int arrayEntryCount;
 			stream.ReadData(arrayEntryCount);
-			for(unsigned int entryNo = 0; entryNo < arrayEntryCount; ++entryNo)
+			for (unsigned int entryNo = 0; entryNo < arrayEntryCount; ++entryNo)
 			{
 				DisassemblyArrayInfo entry;
 				unsigned int dataType;
@@ -4413,7 +4413,7 @@ void Processor::LoadDebuggerState(IHierarchicalStorageNode& node)
 
 	//If the location or enable state for active disassembly has changed, update the
 	//active region, and resize the physical memory array.
-	if(activeDisassemblyStateChanged)
+	if (activeDisassemblyStateChanged)
 	{
 		//Set the new active disassembly location
 		_activeDisassemblyStartLocation = newActiveDisassemblyStartLocation;
@@ -4422,7 +4422,7 @@ void Processor::LoadDebuggerState(IHierarchicalStorageNode& node)
 		//Clear disassemblyAddressInfo and resize it correctly for the new region if
 		//active disassembly is currently enabled.
 		_activeDisassemblyAddressInfo.clear();
-		if(_activeDisassemblyEnabled)
+		if (_activeDisassemblyEnabled)
 		{
 			unsigned int disassemblyAddressInfoArraySize = _activeDisassemblyEndLocation - _activeDisassemblyStartLocation;
 			_activeDisassemblyAddressInfo.resize(disassemblyAddressInfoArraySize);
@@ -4431,7 +4431,7 @@ void Processor::LoadDebuggerState(IHierarchicalStorageNode& node)
 
 	//If new active disassembly data was loaded, Clear the active disassembly analysis
 	//data.
-	if(activeDisassemblyDataLoaded)
+	if (activeDisassemblyDataLoaded)
 	{
 		_activeDisassemblyAnalysis->Initialize();
 	}
@@ -4439,10 +4439,10 @@ void Processor::LoadDebuggerState(IHierarchicalStorageNode& node)
 	//If new active disassembly data was loaded, and active disassembly is currently
 	//running, ensure that the physical address entry array is updated to contain the new
 	//entries.
-	if(activeDisassemblyDataLoaded && _activeDisassemblyEnabled)
+	if (activeDisassemblyDataLoaded && _activeDisassemblyEnabled)
 	{
 		//Add all address entries to the memory array
-		for(std::set<DisassemblyAddressInfo*>::const_iterator addressInfoIterator = _activeDisassemblyAddressInfoSet.begin(); addressInfoIterator != _activeDisassemblyAddressInfoSet.end(); ++addressInfoIterator)
+		for (std::set<DisassemblyAddressInfo*>::const_iterator addressInfoIterator = _activeDisassemblyAddressInfoSet.begin(); addressInfoIterator != _activeDisassemblyAddressInfoSet.end(); ++addressInfoIterator)
 		{
 			AddDisassemblyAddressInfoEntryToArray(*addressInfoIterator);
 		}
@@ -4460,20 +4460,20 @@ void Processor::SaveDebuggerState(IHierarchicalStorageNode& node) const
 	node.CreateChild(L"Register", GetDeviceContext()->DeviceEnabled()).CreateAttribute(L"name", L"DeviceEnabled");
 
 	//Clock speed
-	if(_clockSpeedOverridden)
+	if (_clockSpeedOverridden)
 	{
 		node.CreateChild(L"Register", _reportedClockSpeed).CreateAttribute(L"name", L"OverriddenClockSpeed");
 	}
 
 	//Breakpoints
 	IHierarchicalStorageNode& breakpointListNode = node.CreateChild(L"BreakpointList");
-	for(size_t i = 0; i < _breakpoints.size(); ++i)
+	for (size_t i = 0; i < _breakpoints.size(); ++i)
 	{
 		IHierarchicalStorageNode& breakpointListEntry = breakpointListNode.CreateChild(L"Breakpoint");
 		_breakpoints[i]->SaveState(breakpointListEntry);
 	}
 	IHierarchicalStorageNode& watchpointListNode = node.CreateChild(L"WatchpointList");
-	for(size_t i = 0; i < _watchpoints.size(); ++i)
+	for (size_t i = 0; i < _watchpoints.size(); ++i)
 	{
 		IHierarchicalStorageNode& watchpointListEntry = watchpointListNode.CreateChild(L"Watchpoint");
 		_watchpoints[i]->SaveState(watchpointListEntry);
@@ -4511,7 +4511,7 @@ void Processor::SaveDebuggerState(IHierarchicalStorageNode& node) const
 	node.CreateChild(L"Register", _activeDisassemblyMinimumArrayEntryCount).CreateAttribute(L"name", L"ActiveDisassemblyMinimumArrayEntryCount");
 	node.CreateChildHex(L"Register", _activeDisassemblyOffsetArrayDistanceTolerance, GetAddressBusCharWidth()).CreateAttribute(L"name", L"ActiveDisassemblyOffsetArrayDistanceTolerance");
 	node.CreateChildHex(L"Register", _activeDisassemblyJumpTableDistanceTolerance, GetAddressBusCharWidth()).CreateAttribute(L"name", L"ActiveDisassemblyJumpTableDistanceTolerance");
-	if(!_activeDisassemblyAddressInfoSet.empty())
+	if (!_activeDisassemblyAddressInfoSet.empty())
 	{
 		//Create and configure the child node to store our active disassembly data as a
 		//binary data stream.
@@ -4529,7 +4529,7 @@ void Processor::SaveDebuggerState(IHierarchicalStorageNode& node) const
 
 		//Write all address entries to the saved data
 		stream.WriteData((unsigned int)_activeDisassemblyAddressInfoSet.size());
-		for(std::set<DisassemblyAddressInfo*>::const_iterator i = _activeDisassemblyAddressInfoSet.begin(); i != _activeDisassemblyAddressInfoSet.end(); ++i)
+		for (std::set<DisassemblyAddressInfo*>::const_iterator i = _activeDisassemblyAddressInfoSet.begin(); i != _activeDisassemblyAddressInfoSet.end(); ++i)
 		{
 			const DisassemblyAddressInfo* entry = *i;
 			stream.WriteData((unsigned int)entry->entryType);
@@ -4543,12 +4543,12 @@ void Processor::SaveDebuggerState(IHierarchicalStorageNode& node) const
 			stream.WriteData(entry->arrayStartingHereDefined);
 			stream.WriteData(entry->arrayIDStartingHere);
 			stream.WriteData((unsigned int)entry->arraysMemberOf.size());
-			for(std::set<unsigned int>::const_iterator arrayIterator = entry->arraysMemberOf.begin(); arrayIterator != entry->arraysMemberOf.end(); ++arrayIterator)
+			for (std::set<unsigned int>::const_iterator arrayIterator = entry->arraysMemberOf.begin(); arrayIterator != entry->arraysMemberOf.end(); ++arrayIterator)
 			{
 				stream.WriteData(*arrayIterator);
 			}
 			stream.WriteData((unsigned int)entry->comment.size());
-			for(unsigned int charIndex = 0; charIndex < (unsigned int)entry->comment.size(); ++charIndex)
+			for (unsigned int charIndex = 0; charIndex < (unsigned int)entry->comment.size(); ++charIndex)
 			{
 				stream.WriteData(entry->comment[charIndex]);
 			}
@@ -4556,13 +4556,13 @@ void Processor::SaveDebuggerState(IHierarchicalStorageNode& node) const
 
 		//Write all jump table entries to the saved data
 		stream.WriteData((unsigned int)_activeDisassemblyJumpTableInfo.size());
-		for(DisassemblyJumpTableInfoMap::const_iterator i = _activeDisassemblyJumpTableInfo.begin(); i != _activeDisassemblyJumpTableInfo.end(); ++i)
+		for (DisassemblyJumpTableInfoMap::const_iterator i = _activeDisassemblyJumpTableInfo.begin(); i != _activeDisassemblyJumpTableInfo.end(); ++i)
 		{
 			const DisassemblyJumpTableInfo& entry = i->second;
 			stream.WriteData(entry.baseMemoryAddress);
 			stream.WriteData(entry.entrySize);
 			stream.WriteData((unsigned int)entry.knownEntries.size());
-			for(std::set<unsigned int>::const_iterator knownEntryIterator = entry.knownEntries.begin(); knownEntryIterator != entry.knownEntries.end(); ++knownEntryIterator)
+			for (std::set<unsigned int>::const_iterator knownEntryIterator = entry.knownEntries.begin(); knownEntryIterator != entry.knownEntries.end(); ++knownEntryIterator)
 			{
 				stream.WriteData(*knownEntryIterator);
 			}
@@ -4570,7 +4570,7 @@ void Processor::SaveDebuggerState(IHierarchicalStorageNode& node) const
 
 		//Write all array entries to the saved data
 		stream.WriteData((unsigned int)_activeDisassemblyArrayInfo.size());
-		for(DisassemblyArrayInfoMap::const_iterator i = _activeDisassemblyArrayInfo.begin(); i != _activeDisassemblyArrayInfo.end(); ++i)
+		for (DisassemblyArrayInfoMap::const_iterator i = _activeDisassemblyArrayInfo.begin(); i != _activeDisassemblyArrayInfo.end(); ++i)
 		{
 			const DisassemblyArrayInfo& entry = i->second;
 			stream.WriteData(entry.arrayID);
@@ -4590,9 +4590,9 @@ void Processor::LoadCallStack(IHierarchicalStorageNode& node)
 {
 	_callStack.clear();
 	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
-	for(std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	for (std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
-		if((*i)->GetName() == L"CallStackEntry")
+		if ((*i)->GetName() == L"CallStackEntry")
 		{
 			CallStackEntry callStackEntry;
 			(*i)->ExtractAttributeHex(L"SourceAddress", callStackEntry.sourceAddress);
@@ -4608,7 +4608,7 @@ void Processor::LoadCallStack(IHierarchicalStorageNode& node)
 void Processor::SaveCallStack(IHierarchicalStorageNode& node) const
 {
 	unsigned int pcCharWidth = GetPCCharWidth();
-	for(std::list<CallStackEntry>::const_iterator i = _callStack.begin(); i != _callStack.end(); ++i)
+	for (std::list<CallStackEntry>::const_iterator i = _callStack.begin(); i != _callStack.end(); ++i)
 	{
 		IHierarchicalStorageNode& callStackEntry = node.CreateChild(L"CallStackEntry");
 		callStackEntry.CreateAttributeHex(L"SourceAddress", i->sourceAddress, pcCharWidth);
@@ -4624,12 +4624,12 @@ void Processor::SaveCallStack(IHierarchicalStorageNode& node) const
 bool Processor::ReadGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue) const
 {
 	ApplyGenericDataValueDisplaySettings(dataID, dataValue);
-	switch((IProcessorDataSource)dataID)
+	switch ((IProcessorDataSource)dataID)
 	{
 	case IProcessorDataSource::BreakpointName:{
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
-		if(LockBreakpoint(breakpointDataContext.breakpoint))
+		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
 			result = dataValue.SetValue(breakpointDataContext.breakpoint->GetName().Get());
 			UnlockBreakpoint(breakpointDataContext.breakpoint);
@@ -4638,7 +4638,7 @@ bool Processor::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 	case IProcessorDataSource::BreakpointEnable:{
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
-		if(LockBreakpoint(breakpointDataContext.breakpoint))
+		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
 			result = dataValue.SetValue(breakpointDataContext.breakpoint->GetEnabled());
 			UnlockBreakpoint(breakpointDataContext.breakpoint);
@@ -4647,7 +4647,7 @@ bool Processor::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 	case IProcessorDataSource::BreakpointLog:{
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
-		if(LockBreakpoint(breakpointDataContext.breakpoint))
+		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
 			result = dataValue.SetValue(breakpointDataContext.breakpoint->GetLogEvent());
 			UnlockBreakpoint(breakpointDataContext.breakpoint);
@@ -4656,7 +4656,7 @@ bool Processor::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 	case IProcessorDataSource::BreakpointBreak:{
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
-		if(LockBreakpoint(breakpointDataContext.breakpoint))
+		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
 			result = dataValue.SetValue(breakpointDataContext.breakpoint->GetBreakEvent());
 			UnlockBreakpoint(breakpointDataContext.breakpoint);
@@ -4665,7 +4665,7 @@ bool Processor::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 	case IProcessorDataSource::BreakpointNotCondition:{
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
-		if(LockBreakpoint(breakpointDataContext.breakpoint))
+		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
 			result = dataValue.SetValue(breakpointDataContext.breakpoint->GetLocationConditionNot());
 			UnlockBreakpoint(breakpointDataContext.breakpoint);
@@ -4674,7 +4674,7 @@ bool Processor::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 	case IProcessorDataSource::BreakpointCondition:{
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
-		if(LockBreakpoint(breakpointDataContext.breakpoint))
+		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
 			result = dataValue.SetValue((unsigned int)breakpointDataContext.breakpoint->GetLocationCondition());
 			UnlockBreakpoint(breakpointDataContext.breakpoint);
@@ -4683,7 +4683,7 @@ bool Processor::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 	case IProcessorDataSource::BreakpointLocation1:{
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
-		if(LockBreakpoint(breakpointDataContext.breakpoint))
+		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
 			result = dataValue.SetValue(breakpointDataContext.breakpoint->GetLocationConditionData1());
 			UnlockBreakpoint(breakpointDataContext.breakpoint);
@@ -4692,7 +4692,7 @@ bool Processor::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 	case IProcessorDataSource::BreakpointLocation2:{
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
-		if(LockBreakpoint(breakpointDataContext.breakpoint))
+		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
 			result = dataValue.SetValue(breakpointDataContext.breakpoint->GetLocationConditionData2());
 			UnlockBreakpoint(breakpointDataContext.breakpoint);
@@ -4701,7 +4701,7 @@ bool Processor::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 	case IProcessorDataSource::BreakpointLocationMask:{
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
-		if(LockBreakpoint(breakpointDataContext.breakpoint))
+		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
 			result = dataValue.SetValue(breakpointDataContext.breakpoint->GetLocationMask());
 			UnlockBreakpoint(breakpointDataContext.breakpoint);
@@ -4710,7 +4710,7 @@ bool Processor::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 	case IProcessorDataSource::BreakpointHitCounter:{
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
-		if(LockBreakpoint(breakpointDataContext.breakpoint))
+		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
 			result = dataValue.SetValue(breakpointDataContext.breakpoint->GetHitCounter());
 			UnlockBreakpoint(breakpointDataContext.breakpoint);
@@ -4719,7 +4719,7 @@ bool Processor::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 	case IProcessorDataSource::BreakpointEnableBreakInterval:{
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
-		if(LockBreakpoint(breakpointDataContext.breakpoint))
+		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
 			result = dataValue.SetValue(breakpointDataContext.breakpoint->GetBreakOnCounter());
 			UnlockBreakpoint(breakpointDataContext.breakpoint);
@@ -4728,7 +4728,7 @@ bool Processor::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 	case IProcessorDataSource::BreakpointBreakInterval:{
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
-		if(LockBreakpoint(breakpointDataContext.breakpoint))
+		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
 			result = dataValue.SetValue(breakpointDataContext.breakpoint->GetBreakCounter());
 			UnlockBreakpoint(breakpointDataContext.breakpoint);
@@ -4743,14 +4743,14 @@ bool Processor::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 {
 	ApplyGenericDataValueLimitSettings(dataID, dataValue);
 	IGenericAccessDataValue::DataType dataType = dataValue.GetType();
-	switch((IProcessorDataSource)dataID)
+	switch ((IProcessorDataSource)dataID)
 	{
 	case IProcessorDataSource::BreakpointName:{
-		if(dataType != IGenericAccessDataValue::DataType::String) return false;
+		if (dataType != IGenericAccessDataValue::DataType::String) return false;
 		IGenericAccessDataValueString& dataValueAsString = (IGenericAccessDataValueString&)dataValue;
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
-		if(LockBreakpoint(breakpointDataContext.breakpoint))
+		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
 			result = true;
 			breakpointDataContext.breakpoint->SetName(dataValueAsString.GetValue());
@@ -4758,11 +4758,11 @@ bool Processor::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 		}
 		return result;}
 	case IProcessorDataSource::BreakpointEnable:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
-		if(LockBreakpoint(breakpointDataContext.breakpoint))
+		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
 			result = true;
 			breakpointDataContext.breakpoint->SetEnabled(dataValueAsBool.GetValue());
@@ -4770,11 +4770,11 @@ bool Processor::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 		}
 		return result;}
 	case IProcessorDataSource::BreakpointLog:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
-		if(LockBreakpoint(breakpointDataContext.breakpoint))
+		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
 			result = true;
 			breakpointDataContext.breakpoint->SetLogEvent(dataValueAsBool.GetValue());
@@ -4782,11 +4782,11 @@ bool Processor::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 		}
 		return result;}
 	case IProcessorDataSource::BreakpointBreak:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
-		if(LockBreakpoint(breakpointDataContext.breakpoint))
+		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
 			result = true;
 			breakpointDataContext.breakpoint->SetBreakEvent(dataValueAsBool.GetValue());
@@ -4794,11 +4794,11 @@ bool Processor::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 		}
 		return result;}
 	case IProcessorDataSource::BreakpointNotCondition:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
-		if(LockBreakpoint(breakpointDataContext.breakpoint))
+		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
 			result = true;
 			breakpointDataContext.breakpoint->SetLocationConditionNot(dataValueAsBool.GetValue());
@@ -4806,11 +4806,11 @@ bool Processor::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 		}
 		return result;}
 	case IProcessorDataSource::BreakpointCondition:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
-		if(LockBreakpoint(breakpointDataContext.breakpoint))
+		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
 			result = true;
 			breakpointDataContext.breakpoint->SetLocationCondition((IBreakpoint::Condition)dataValueAsUInt.GetValue());
@@ -4818,11 +4818,11 @@ bool Processor::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 		}
 		return result;}
 	case IProcessorDataSource::BreakpointLocation1:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
-		if(LockBreakpoint(breakpointDataContext.breakpoint))
+		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
 			result = true;
 			breakpointDataContext.breakpoint->SetLocationConditionData1(dataValueAsUInt.GetValue());
@@ -4830,11 +4830,11 @@ bool Processor::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 		}
 		return result;}
 	case IProcessorDataSource::BreakpointLocation2:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
-		if(LockBreakpoint(breakpointDataContext.breakpoint))
+		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
 			result = true;
 			breakpointDataContext.breakpoint->SetLocationConditionData2(dataValueAsUInt.GetValue());
@@ -4842,11 +4842,11 @@ bool Processor::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 		}
 		return result;}
 	case IProcessorDataSource::BreakpointLocationMask:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
-		if(LockBreakpoint(breakpointDataContext.breakpoint))
+		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
 			result = true;
 			breakpointDataContext.breakpoint->SetLocationMask(dataValueAsUInt.GetValue());
@@ -4854,11 +4854,11 @@ bool Processor::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 		}
 		return result;}
 	case IProcessorDataSource::BreakpointHitCounter:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
-		if(LockBreakpoint(breakpointDataContext.breakpoint))
+		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
 			result = true;
 			breakpointDataContext.breakpoint->SetHitCounter(dataValueAsUInt.GetValue());
@@ -4866,11 +4866,11 @@ bool Processor::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 		}
 		return result;}
 	case IProcessorDataSource::BreakpointEnableBreakInterval:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
-		if(LockBreakpoint(breakpointDataContext.breakpoint))
+		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
 			result = true;
 			breakpointDataContext.breakpoint->SetBreakOnCounter(dataValueAsBool.GetValue());
@@ -4878,11 +4878,11 @@ bool Processor::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 		}
 		return result;}
 	case IProcessorDataSource::BreakpointBreakInterval:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
-		if(LockBreakpoint(breakpointDataContext.breakpoint))
+		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
 			result = true;
 			breakpointDataContext.breakpoint->SetBreakCounter(dataValueAsUInt.GetValue());
@@ -4898,12 +4898,12 @@ bool Processor::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 //----------------------------------------------------------------------------------------
 bool Processor::ExecuteGenericCommand(unsigned int commandID, const DataContext* dataContext)
 {
-	switch((IProcessorCommand)commandID)
+	switch ((IProcessorCommand)commandID)
 	{
 	case IProcessorCommand::BreakpointResetHitCounter:{
 		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
 		bool result = false;
-		if(LockBreakpoint(breakpointDataContext.breakpoint))
+		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
 			result = true;
 			breakpointDataContext.breakpoint->SetHitCounter(0);
@@ -4919,10 +4919,10 @@ bool Processor::ExecuteGenericCommand(unsigned int commandID, const DataContext*
 		return true;
 	case IProcessorCommand::BreakpointEnableAll:{
 		std::list<IBreakpoint*> cachedBreakpointList = GetBreakpointList();
-		for(std::list<IBreakpoint*>::const_iterator i = cachedBreakpointList.begin(); i != cachedBreakpointList.end(); ++i)
+		for (std::list<IBreakpoint*>::const_iterator i = cachedBreakpointList.begin(); i != cachedBreakpointList.end(); ++i)
 		{
 			IBreakpoint* breakpoint = *i;
-			if(LockBreakpoint(breakpoint))
+			if (LockBreakpoint(breakpoint))
 			{
 				breakpoint->SetEnabled(true);
 				UnlockBreakpoint(breakpoint);
@@ -4931,10 +4931,10 @@ bool Processor::ExecuteGenericCommand(unsigned int commandID, const DataContext*
 		return true;}
 	case IProcessorCommand::BreakpointDisableAll:{
 		std::list<IBreakpoint*> cachedBreakpointList = GetBreakpointList();
-		for(std::list<IBreakpoint*>::const_iterator i = cachedBreakpointList.begin(); i != cachedBreakpointList.end(); ++i)
+		for (std::list<IBreakpoint*>::const_iterator i = cachedBreakpointList.begin(); i != cachedBreakpointList.end(); ++i)
 		{
 			IBreakpoint* breakpoint = *i;
-			if(LockBreakpoint(breakpoint))
+			if (LockBreakpoint(breakpoint))
 			{
 				breakpoint->SetEnabled(false);
 				UnlockBreakpoint(breakpoint);
@@ -4943,7 +4943,7 @@ bool Processor::ExecuteGenericCommand(unsigned int commandID, const DataContext*
 		return true;}
 	case IProcessorCommand::BreakpointDeleteAll:{
 		std::list<IBreakpoint*> cachedBreakpointList = GetBreakpointList();
-		for(std::list<IBreakpoint*>::const_iterator i = cachedBreakpointList.begin(); i != cachedBreakpointList.end(); ++i)
+		for (std::list<IBreakpoint*>::const_iterator i = cachedBreakpointList.begin(); i != cachedBreakpointList.end(); ++i)
 		{
 			IBreakpoint* breakpoint = *i;
 			DeleteBreakpoint(breakpoint);

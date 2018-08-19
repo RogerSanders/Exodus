@@ -32,7 +32,7 @@ public:
 //	|---|---|---|---|-----------|---|---|---|---|---|---|-----------|
 //	| 1 | 1 | 0 | 0 |    Rx     | 1 | 0 | 0 | 0 | 0 |R/M|    Ry     |
 //	-----------------------------------------------------------------
-		if(!data.GetBit(3))
+		if (!data.GetBit(3))
 		{
 			_source.BuildDataDirect(BITCOUNT_BYTE, location + GetInstructionSize(), data.GetDataSegment(0, 3));
 			_target.BuildDataDirect(BITCOUNT_BYTE, location + GetInstructionSize(), data.GetDataSegment(9, 3));
@@ -67,7 +67,7 @@ public:
 
 		M68000Byte resultBase10Temp = result;
 		bool carry = false;
-		if(resultBase10Temp > 99)
+		if (resultBase10Temp > 99)
 		{
 			resultBase10Temp %= 100;
 			carry = true;

@@ -17,7 +17,7 @@ ControlView::ControlView(IUIManager& uiManager, ControlViewPresenter& presenter,
 INT_PTR ControlView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	WndProcDialogImplementSaveFieldWhenLostFocus(hwnd, msg, wparam, lparam);
-	switch(msg)
+	switch (msg)
 	{
 	case WM_INITDIALOG:
 		return msgWM_INITDIALOG(hwnd, wparam, lparam);
@@ -52,7 +52,7 @@ INT_PTR ControlView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	_initializedDialog = true;
 	CheckDlgButton(hwnd, IDC_PROCESSOR_CONTROL_ENABLED, (_model.GetDevice()->GetDeviceContext()->DeviceEnabled())? BST_CHECKED: BST_UNCHECKED);
-	if(_currentControlFocus != IDC_PROCESSOR_CONTROL_CLOCK) UpdateDlgItemDouble(hwnd, IDC_PROCESSOR_CONTROL_CLOCK, _model.GetClockSpeed());
+	if (_currentControlFocus != IDC_PROCESSOR_CONTROL_CLOCK) UpdateDlgItemDouble(hwnd, IDC_PROCESSOR_CONTROL_CLOCK, _model.GetClockSpeed());
 
 	return TRUE;
 }
@@ -60,17 +60,17 @@ INT_PTR ControlView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 //----------------------------------------------------------------------------------------
 INT_PTR ControlView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	if((HIWORD(wparam) == EN_SETFOCUS) && _initializedDialog)
+	if ((HIWORD(wparam) == EN_SETFOCUS) && _initializedDialog)
 	{
 		_previousText = GetDlgItemString(hwnd, LOWORD(wparam));
 		_currentControlFocus = LOWORD(wparam);
 	}
-	else if((HIWORD(wparam) == EN_KILLFOCUS) && _initializedDialog)
+	else if ((HIWORD(wparam) == EN_KILLFOCUS) && _initializedDialog)
 	{
 		std::wstring newText = GetDlgItemString(hwnd, LOWORD(wparam));
-		if(newText != _previousText)
+		if (newText != _previousText)
 		{
-			switch(LOWORD(wparam))
+			switch (LOWORD(wparam))
 			{
 			case IDC_PROCESSOR_CONTROL_CLOCK:
 				_model.OverrideClockSpeed((double)GetDlgItemBin(hwnd, LOWORD(wparam)));
@@ -78,9 +78,9 @@ INT_PTR ControlView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			}
 		}
 	}
-	else if(HIWORD(wparam) == BN_CLICKED)
+	else if (HIWORD(wparam) == BN_CLICKED)
 	{
-		switch(LOWORD(wparam))
+		switch (LOWORD(wparam))
 		{
 		case IDC_PROCESSOR_RESTORE_CLOCKSPEED:
 			_model.RestoreClockSpeed();

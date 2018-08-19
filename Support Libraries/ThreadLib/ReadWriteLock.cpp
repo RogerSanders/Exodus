@@ -17,7 +17,7 @@ void ReadWriteLock::ObtainReadLock()
 
 	//Wait until no write lock is present or pending from another thread
 	std::unique_lock<std::mutex> lock(_accessMutex);
-	while((_writeLocked && (_writeLockThreadID != currentThreadID)) || !_writeLockPendingThreadIDs.empty())
+	while ((_writeLocked && (_writeLockThreadID != currentThreadID)) || !_writeLockPendingThreadIDs.empty())
 	{
 		_writeLockReleased.wait(lock);
 	}
@@ -34,7 +34,7 @@ bool ReadWriteLock::TryObtainReadLock()
 
 	//If a write lock is present or pending from another thread, return false.
 	std::unique_lock<std::mutex> lock(_accessMutex);
-	if((_writeLocked && (_writeLockThreadID != currentThreadID)) || !_writeLockPendingThreadIDs.empty())
+	if ((_writeLocked && (_writeLockThreadID != currentThreadID)) || !_writeLockPendingThreadIDs.empty())
 	{
 		return false;
 	}
@@ -56,14 +56,14 @@ void ReadWriteLock::ReleaseReadLock()
 
 	//If we've just released the last read lock for this thread, remove this thread from
 	//the list of threads with active read locks.
-	if(newReadLockCount == 0)
+	if (newReadLockCount == 0)
 	{
 		//Remove the read lock entry for this thread
 		_readLockCount.erase(currentThreadID);
 
 		//If there's at least one thread waiting for a write lock, notify a single waiting
 		//thread that a write lock may now be available.
-		if(!_writeLockPendingThreadIDs.empty())
+		if (!_writeLockPendingThreadIDs.empty())
 		{
 			_writeLockAvailable.notify_one();
 		}
@@ -79,7 +79,7 @@ void ReadWriteLock::ObtainWriteLock()
 	//If the calling thread already has a write lock, increment the write lock count and
 	//abort any further processing.
 	std::unique_lock<std::mutex> lock(_accessMutex);
-	if(_writeLocked && (_writeLockThreadID == currentThreadID))
+	if (_writeLocked && (_writeLockThreadID == currentThreadID))
 	{
 		++_writeLockCount;
 		return;
@@ -87,7 +87,7 @@ void ReadWriteLock::ObtainWriteLock()
 
 	//If a write lock isn't currently available for the calling thread, wait for it to
 	//become available.
-	if(!IsNewWriteLockAvailableForThread(currentThreadID))
+	if (!IsNewWriteLockAvailableForThread(currentThreadID))
 	{
 		//Add this thread to the list of threads waiting for a write lock
 		_writeLockPendingThreadIDs.insert(currentThreadID);
@@ -97,7 +97,7 @@ void ReadWriteLock::ObtainWriteLock()
 		{
 			_writeLockAvailable.wait(lock);
 		}
-		while(!IsNewWriteLockAvailableForThread(currentThreadID));
+		while (!IsNewWriteLockAvailableForThread(currentThreadID));
 
 		//Remove this thread from the list of threads waiting for a write lock
 		_writeLockPendingThreadIDs.erase(currentThreadID);
@@ -118,14 +118,14 @@ bool ReadWriteLock::TryObtainWriteLock()
 	//If the calling thread already has a write lock, increment the write lock count and
 	//abort any further processing.
 	std::unique_lock<std::mutex> lock(_accessMutex);
-	if(_writeLocked && (_writeLockThreadID == currentThreadID))
+	if (_writeLocked && (_writeLockThreadID == currentThreadID))
 	{
 		++_writeLockCount;
 		return true;
 	}
 
 	//If a write lock isn't currently available for the calling thread, return false.
-	if(!IsNewWriteLockAvailableForThread(currentThreadID))
+	if (!IsNewWriteLockAvailableForThread(currentThreadID))
 	{
 		return false;
 	}
@@ -141,17 +141,17 @@ bool ReadWriteLock::TryObtainWriteLock()
 bool ReadWriteLock::IsNewWriteLockAvailableForThread(DWORD threadID)
 {
 	//If no write lock is currently active, return true.
-	if(!_writeLocked)
+	if (!_writeLocked)
 	{
 		return true;
 	}
 
 	//If any read locks are currently owned by other threads that are not blocked waiting
 	//for a write lock, return false.
-	for(std::map<DWORD, unsigned int>::const_iterator i = _readLockCount.begin(); i != _readLockCount.end(); ++i)
+	for (std::map<DWORD, unsigned int>::const_iterator i = _readLockCount.begin(); i != _readLockCount.end(); ++i)
 	{
 		DWORD readLockThreadID = i->first;
-		if((readLockThreadID != threadID) && (_writeLockPendingThreadIDs.find(readLockThreadID) == _writeLockPendingThreadIDs.end()))
+		if ((readLockThreadID != threadID) && (_writeLockPendingThreadIDs.find(readLockThreadID) == _writeLockPendingThreadIDs.end()))
 		{
 			return false;
 		}
@@ -169,7 +169,7 @@ void ReadWriteLock::ReleaseWriteLock()
 	--_writeLockCount;
 
 	//If the write lock count has reached zero, release the write lock.
-	if(_writeLockCount == 0)
+	if (_writeLockCount == 0)
 	{
 		//Release the write lock
 		_writeLocked = false;
@@ -177,7 +177,7 @@ void ReadWriteLock::ReleaseWriteLock()
 		//If any other threads are waiting for a write lock, notify a single waiting
 		//thread that a write lock is now available, otherwise notify any threads waiting
 		//for a read lock that the write lock has been released.
-		if(!_writeLockPendingThreadIDs.empty())
+		if (!_writeLockPendingThreadIDs.empty())
 		{
 			_writeLockAvailable.notify_one();
 		}

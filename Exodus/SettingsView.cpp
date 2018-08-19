@@ -18,7 +18,7 @@ SettingsView::SettingsView(IUIManager& uiManager, SettingsViewPresenter& present
 INT_PTR SettingsView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	WndProcDialogImplementSaveFieldWhenLostFocus(hwnd, msg, wparam, lparam);
-	switch(msg)
+	switch (msg)
 	{
 	case WM_INITDIALOG:
 		return msgWM_INITDIALOG(hwnd, wparam, lparam);
@@ -77,14 +77,14 @@ INT_PTR SettingsView::msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 //----------------------------------------------------------------------------------------
 INT_PTR SettingsView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	if(HIWORD(wparam) == EN_CHANGE)
+	if (HIWORD(wparam) == EN_CHANGE)
 	{
 		EnableWindow(GetDlgItem(hwnd, IDC_SETTINGS_APPLY), TRUE);
 	}
-	else if(HIWORD(wparam) == BN_CLICKED)
+	else if (HIWORD(wparam) == BN_CLICKED)
 	{
 		unsigned int controlID = LOWORD(wparam);
-		switch(controlID)
+		switch (controlID)
 		{
 		case IDC_SETTINGS_ENABLETHROTTLE:
 		case IDC_SETTINGS_RUNWHENPROGRAMLOADED:
@@ -120,14 +120,14 @@ INT_PTR SettingsView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			//Get the fully resolved path to the current target file
 			std::wstring moduleFolderPath = _model.GetGlobalPreferencePathModules();
 			std::wstring fileNameCurrent = GetDlgItemString(hwnd, IDC_SETTINGS_LOADSYSTEM);
-			if(!fileNameCurrent.empty() && PathIsRelativePath(fileNameCurrent))
+			if (!fileNameCurrent.empty() && PathIsRelativePath(fileNameCurrent))
 			{
 				fileNameCurrent = PathCombinePaths(moduleFolderPath, fileNameCurrent);
 			}
 
 			//Select a new target file
 			std::wstring selectedFilePath;
-			if(_model.SelectExistingFile(L"System Definitions|xml", L"xml", fileNameCurrent, moduleFolderPath, true, selectedFilePath))
+			if (_model.SelectExistingFile(L"System Definitions|xml", L"xml", fileNameCurrent, moduleFolderPath, true, selectedFilePath))
 			{
 				selectedFilePath = PathRemoveBasePath(moduleFolderPath, selectedFilePath);
 				SetDlgItemText(hwnd, IDC_SETTINGS_LOADSYSTEM, selectedFilePath.c_str());
@@ -137,14 +137,14 @@ INT_PTR SettingsView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			//Get the fully resolved path to the current target file
 			std::wstring workspaceFolderPath = _model.GetGlobalPreferencePathWorkspaces();
 			std::wstring fileNameCurrent = GetDlgItemString(hwnd, IDC_SETTINGS_LOADWORKSPACE);
-			if(!fileNameCurrent.empty() && PathIsRelativePath(fileNameCurrent))
+			if (!fileNameCurrent.empty() && PathIsRelativePath(fileNameCurrent))
 			{
 				fileNameCurrent = PathCombinePaths(workspaceFolderPath, fileNameCurrent);
 			}
 
 			//Select a new target file
 			std::wstring selectedFilePath;
-			if(_model.SelectExistingFile(L"Workspace Files|xml", L"xml", fileNameCurrent, workspaceFolderPath, true, selectedFilePath))
+			if (_model.SelectExistingFile(L"Workspace Files|xml", L"xml", fileNameCurrent, workspaceFolderPath, true, selectedFilePath))
 			{
 				selectedFilePath = PathRemoveBasePath(workspaceFolderPath, selectedFilePath);
 				SetDlgItemText(hwnd, IDC_SETTINGS_LOADWORKSPACE, selectedFilePath.c_str());
@@ -158,7 +158,7 @@ INT_PTR SettingsView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		case IDC_SETTINGS_PATHCAPTURESCHANGE:
 		case IDC_SETTINGS_PATHASSEMBLIESCHANGE:{
 			unsigned int textboxControlID = 0;
-			switch(LOWORD(wparam))
+			switch (LOWORD(wparam))
 			{
 			case IDC_SETTINGS_PATHMODULESCHANGE:
 				textboxControlID = IDC_SETTINGS_PATHMODULES;
@@ -185,14 +185,14 @@ INT_PTR SettingsView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 
 			//Retrieve the current target directory
 			std::wstring currentSelectedDir = GetDlgItemString(hwnd, textboxControlID);
-			if(PathIsRelativePath(currentSelectedDir))
+			if (PathIsRelativePath(currentSelectedDir))
 			{
 				currentSelectedDir = PathCombinePaths(_model.GetPreferenceDirectoryPath(), currentSelectedDir);
 			}
 
 			//Select a new target directory
 			std::wstring newSelectedDir;
-			if(SelectExistingDirectory((HWND)_model.GetMainWindowHandle(), currentSelectedDir, newSelectedDir))
+			if (SelectExistingDirectory((HWND)_model.GetMainWindowHandle(), currentSelectedDir, newSelectedDir))
 			{
 				newSelectedDir = PathRemoveBasePath(_model.GetPreferenceDirectoryPath(), newSelectedDir);
 				SetDlgItemText(hwnd, textboxControlID, newSelectedDir.c_str());

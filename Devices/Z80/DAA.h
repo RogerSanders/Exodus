@@ -41,39 +41,39 @@ public:
 		//	| 0 | 9-F  | * | A-F  | 66 |
 		//	| 0 | A-F  | 1 | 0-9  | 66 |
 		//	----------------------------
-		if(!cflag && (upperData <= 0x9) && !hflag && (lowerData <= 0x9))
+		if (!cflag && (upperData <= 0x9) && !hflag && (lowerData <= 0x9))
 		{
 			return 0x00;
 		}
-		else if(!cflag && (upperData <= 0x9) && hflag && (lowerData <= 0x9))
+		else if (!cflag && (upperData <= 0x9) && hflag && (lowerData <= 0x9))
 		{
 			return 0x06;
 		}
-		else if(!cflag && (upperData <= 0x8) && (lowerData >= 0xA))
+		else if (!cflag && (upperData <= 0x8) && (lowerData >= 0xA))
 		{
 			return 0x06;
 		}
-		else if(!cflag && (upperData >= 0xA) && !hflag && (lowerData <= 0x9))
+		else if (!cflag && (upperData >= 0xA) && !hflag && (lowerData <= 0x9))
 		{
 			return 0x60;
 		}
-		else if(cflag && !hflag && (lowerData <= 0x9))
+		else if (cflag && !hflag && (lowerData <= 0x9))
 		{
 			return 0x60;
 		}
-		else if(cflag && hflag && (lowerData <= 0x9))
+		else if (cflag && hflag && (lowerData <= 0x9))
 		{
 			return 0x66;
 		}
-		else if(cflag && (lowerData >= 0xA))
+		else if (cflag && (lowerData >= 0xA))
 		{
 			return 0x66;
 		}
-		else if(!cflag && (upperData >= 0x9) && (lowerData >= 0xA))
+		else if (!cflag && (upperData >= 0x9) && (lowerData >= 0xA))
 		{
 			return 0x66;
 		}
-		else if(!cflag && (upperData >= 0xA) && hflag && (lowerData <= 0x9))
+		else if (!cflag && (upperData >= 0xA) && hflag && (lowerData <= 0x9))
 		{
 			return 0x66;
 		}
@@ -98,23 +98,23 @@ public:
 		//	| 0 | A-F  | 0-9  | 1 |
 		//	| 1 |  *   |  *   | 1 |
 		//	-----------------------
-		if(!cflag && (upperData <= 0x9) && (lowerData <= 0x9))
+		if (!cflag && (upperData <= 0x9) && (lowerData <= 0x9))
 		{
 			return false;
 		}
-		else if(!cflag && (upperData <= 0x8) && (lowerData >= 0xA))
+		else if (!cflag && (upperData <= 0x8) && (lowerData >= 0xA))
 		{
 			return false;
 		}
-		else if(!cflag && (upperData >= 0x9) && (lowerData >= 0xA))
+		else if (!cflag && (upperData >= 0x9) && (lowerData >= 0xA))
 		{
 			return true;
 		}
-		else if(!cflag && (upperData >= 0xA) && (lowerData <= 0x9))
+		else if (!cflag && (upperData >= 0xA) && (lowerData <= 0x9))
 		{
 			return true;
 		}
-		else if(cflag)
+		else if (cflag)
 		{
 			return true;
 		}
@@ -139,23 +139,23 @@ public:
 		//	| 1 | 1 | 6-F  | 0 |
 		//	| 1 | 1 | 0-5  | 1 |
 		//	-----------------------
-		if(!nflag && (lowerData <= 0x9))
+		if (!nflag && (lowerData <= 0x9))
 		{
 			return false;
 		}
-		else if(!nflag && (lowerData >= 0xA))
+		else if (!nflag && (lowerData >= 0xA))
 		{
 			return true;
 		}
-		else if(nflag && !hflag)
+		else if (nflag && !hflag)
 		{
 			return false;
 		}
-		else if(nflag && hflag && (lowerData >= 0x6))
+		else if (nflag && hflag && (lowerData >= 0x6))
 		{
 			return false;
 		}
-		else if(nflag && hflag && (lowerData <= 0x5))
+		else if (nflag && hflag && (lowerData <= 0x5))
 		{
 			return true;
 		}
@@ -187,7 +187,7 @@ public:
 		//Perform the operation
 		additionalTime += _target.Read(cpu, location, op1);
 		diff = GetDiffValue(cpu->GetFlagC(), op1.GetUpperHalf(), cpu->GetFlagH(), op1.GetLowerHalf());
-		if(!cpu->GetFlagN())
+		if (!cpu->GetFlagN())
 		{
 			result = op1 + diff;
 		}

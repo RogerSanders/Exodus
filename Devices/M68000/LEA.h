@@ -13,7 +13,7 @@ public:
 			ExecuteTime(4, 1, 0), ExecuteTime(0, 0, 0), ExecuteTime(0, 0, 0), ExecuteTime(8, 2, 0), ExecuteTime(12, 2, 0), ExecuteTime(8, 2, 0), ExecuteTime(12, 3, 0), ExecuteTime(8, 2, 0), ExecuteTime(12, 2, 0)};
 
 		unsigned int _targetIndex = 0;
-		switch(_targetMode)
+		switch (_targetMode)
 		{
 		case EffectiveAddress::Mode::AddRegIndirect:
 			_targetIndex = 0;

@@ -41,10 +41,10 @@ bool DataRemapTable::SetDataMapping(const std::wstring& mappingString, unsigned 
 	bool parsingComplete = false;
 	bool parsingResult = true;
 	size_t nextChar = 0;
-	while(!parsingComplete)
+	while (!parsingComplete)
 	{
 		//Check if we've reached the end of the mapping string
-		if(nextChar >= mappingString.size())
+		if (nextChar >= mappingString.size())
 		{
 			parsingComplete = true;
 			parsingResult = true;
@@ -52,7 +52,7 @@ bool DataRemapTable::SetDataMapping(const std::wstring& mappingString, unsigned 
 		}
 
 		//Process the next character in the mapping string
-		switch(mappingString[nextChar])
+		switch (mappingString[nextChar])
 		{
 		//Process a bit forced to 0
 		case L'0':{
@@ -77,7 +77,7 @@ bool DataRemapTable::SetDataMapping(const std::wstring& mappingString, unsigned 
 			size_t endBracketLocation = mappingString.find_first_of(L']', nextChar);
 
 			//If we couldn't find a closing bracket, abort.
-			if(endBracketLocation == std::wstring::npos)
+			if (endBracketLocation == std::wstring::npos)
 			{
 				parsingResult = false;
 				parsingComplete = true;
@@ -91,7 +91,7 @@ bool DataRemapTable::SetDataMapping(const std::wstring& mappingString, unsigned 
 
 			//Convert the bit number from a string to a numeric value
 			unsigned int bitNumber = sourceBitCount;
-			if(!StringToIntBase10(bitNumberString, bitNumber))
+			if (!StringToIntBase10(bitNumberString, bitNumber))
 			{
 				parsingComplete = true;
 				parsingResult = true;
@@ -99,7 +99,7 @@ bool DataRemapTable::SetDataMapping(const std::wstring& mappingString, unsigned 
 			}
 
 			//Confirm that the specified source bit number is valid
-			if(bitNumber >= sourceBitCount)
+			if (bitNumber >= sourceBitCount)
 			{
 				parsingResult = false;
 				parsingComplete = true;
@@ -130,7 +130,7 @@ bool DataRemapTable::SetDataMapping(const std::wstring& mappingString, unsigned 
 	}
 
 	//If the mapping string parsing failed, return false.
-	if(!parsingResult)
+	if (!parsingResult)
 	{
 		return false;
 	}
@@ -152,11 +152,11 @@ bool DataRemapTable::SetDataMapping(const std::wstring& mappingString, unsigned 
 	bool allSourceBitsInRelativeOrder = true;
 	bool foundFirstSourceMapping = false;
 	int firstSourceMappingDisplacement;
-	for(std::list<MappingElement>::const_reverse_iterator i = mappingElements.rbegin(); i != mappingElements.rend(); ++i)
+	for (std::list<MappingElement>::const_reverse_iterator i = mappingElements.rbegin(); i != mappingElements.rend(); ++i)
 	{
 		//Check if this element is forcing this bit to a particular value, or specifying a
 		//source bit to map.
-		if(i->forcedBitElement)
+		if (i->forcedBitElement)
 		{
 			//Set the value in the forced bit mask
 			_forcedSetBitMaskInConverted |= i->forcedBitValue? (1 << _bitCountConverted): 0;
@@ -164,7 +164,7 @@ bool DataRemapTable::SetDataMapping(const std::wstring& mappingString, unsigned 
 			//If we haven't encountered a source bit mapping yet, record this as an
 			//inserted bit at the bottom of the converted data, otherwise record it as an
 			//inserted bit at the top of the converted data.
-			if(!foundFirstSourceMapping)
+			if (!foundFirstSourceMapping)
 			{
 				++_insertBottomBitCount;
 			}
@@ -185,7 +185,7 @@ bool DataRemapTable::SetDataMapping(const std::wstring& mappingString, unsigned 
 
 			//If this is the first source bit mapping we've encountered, record the
 			//displacement, otherwise compare it with the previously recorded value.
-			if(!foundFirstSourceMapping)
+			if (!foundFirstSourceMapping)
 			{
 				foundFirstSourceMapping = true;
 				firstSourceMappingDisplacement = sourceMappingDisplacement;
@@ -196,7 +196,7 @@ bool DataRemapTable::SetDataMapping(const std::wstring& mappingString, unsigned 
 				//is different to the first displacement we recorded, the relative order
 				//of all source bits is not maintained by this mapping. We record this
 				//information to help us choose an appropriate conversion method below.
-				if(sourceMappingDisplacement != firstSourceMappingDisplacement)
+				if (sourceMappingDisplacement != firstSourceMappingDisplacement)
 				{
 					allSourceBitsInRelativeOrder = false;
 				}
@@ -214,11 +214,11 @@ bool DataRemapTable::SetDataMapping(const std::wstring& mappingString, unsigned 
 			_bitMaskConverted |= 1 << _bitCountConverted;
 
 			//Update the highest and lowest used source bit numbers
-			if(i->sourceDataBitNumber > highestSourceBitNumberUsed)
+			if (i->sourceDataBitNumber > highestSourceBitNumberUsed)
 			{
 				highestSourceBitNumberUsed = i->sourceDataBitNumber;
 			}
-			if(i->sourceDataBitNumber < lowestSourceBitNumberUsed)
+			if (i->sourceDataBitNumber < lowestSourceBitNumberUsed)
 			{
 				lowestSourceBitNumberUsed = i->sourceDataBitNumber;
 			}
@@ -238,13 +238,13 @@ bool DataRemapTable::SetDataMapping(const std::wstring& mappingString, unsigned 
 	_useMethodShiftAndMask = allSourceBitsInRelativeOrder;
 
 	//Determine whether to use physical conversion tables
-	if(!_conversionTableStateSetManually)
+	if (!_conversionTableStateSetManually)
 	{
 		//Only build conversion tables if we can't use the shift and mask method. The
 		//shift and mask method is so efficient, the table method is almost certainly
 		//going to be slower due to the latency involved in memory access, and the high
 		//likelihood of a cache miss with a conversion table.
-		if(!_useMethodShiftAndMask)
+		if (!_useMethodShiftAndMask)
 		{
 			_useMethodConversionTableTo = ((_bitCountOriginal - (_discardBottomBitCount + _discardTopBitCount)) <= _conversionTableToMaxBitCount);
 			_useMethodConversionTableFrom = ((_bitCountConverted - (_insertBottomBitCount + _insertTopBitCount)) <= _conversionTableFromMaxBitCount);
@@ -257,26 +257,26 @@ bool DataRemapTable::SetDataMapping(const std::wstring& mappingString, unsigned 
 	}
 
 	//Build the physical conversion tables
-	if(_useMethodConversionTableTo)
+	if (_useMethodConversionTableTo)
 	{
 		_useMethodConversionTableTo = false;
 		unsigned int conversionTableToSize = (1 << (_bitCountOriginal - (_discardBottomBitCount + _discardTopBitCount)));
 		_conversionTableTo.resize(conversionTableToSize, 0);
 		unsigned int nextNumber = 0;
-		for(unsigned int i = 0; i < conversionTableToSize; ++i)
+		for (unsigned int i = 0; i < conversionTableToSize; ++i)
 		{
 			_conversionTableTo[i] = ConvertTo(nextNumber);
 			nextNumber += (1 << _discardBottomBitCount);
 		}
 		_useMethodConversionTableTo = true;
 	}
-	if(_useMethodConversionTableFrom)
+	if (_useMethodConversionTableFrom)
 	{
 		_useMethodConversionTableFrom = false;
 		unsigned int conversionTableFromSize = (1 << (_bitCountConverted - (_insertBottomBitCount + _insertTopBitCount)));
 		_conversionTableFrom.resize(conversionTableFromSize, 0);
 		unsigned int nextNumber = 0;
-		for(unsigned int i = 0; i < conversionTableFromSize; ++i)
+		for (unsigned int i = 0; i < conversionTableFromSize; ++i)
 		{
 			_conversionTableFrom[i] = ConvertFrom(nextNumber);
 			nextNumber += (1 << _insertBottomBitCount);
@@ -294,18 +294,18 @@ unsigned int DataRemapTable::ConvertTo(unsigned int sourceData) const
 {
 	unsigned int result = 0;
 
-	if(_useMethodConversionTableTo)
+	if (_useMethodConversionTableTo)
 	{
 		result = _conversionTableTo[(sourceData & _bitMaskOriginal) >> _discardBottomBitCount];
 	}
-	else if(_useMethodShiftAndMask)
+	else if (_useMethodShiftAndMask)
 	{
 		result = ((sourceData & _bitMaskOriginal) >> _discardBottomBitCount) << _insertBottomBitCount;
 		result |= _forcedSetBitMaskInConverted;
 	}
 	else
 	{
-		for(unsigned int i = 0; i < _dataBitMappingsSize; ++i)
+		for (unsigned int i = 0; i < _dataBitMappingsSize; ++i)
 		{
 			result |= ((sourceData & _dataBitMappings[i].bitMaskOriginal) != 0)? _dataBitMappings[i].bitMaskConverted: 0;
 		}
@@ -320,17 +320,17 @@ unsigned int DataRemapTable::ConvertFrom(unsigned int sourceData) const
 {
 	unsigned int result = 0;
 
-	if(_useMethodConversionTableFrom)
+	if (_useMethodConversionTableFrom)
 	{
 		result = _conversionTableFrom[(sourceData & _bitMaskConverted) >> _insertBottomBitCount];
 	}
-	else if(_useMethodShiftAndMask)
+	else if (_useMethodShiftAndMask)
 	{
 		result = ((sourceData >> _insertBottomBitCount) << _discardBottomBitCount) & _bitMaskOriginal;
 	}
 	else
 	{
-		for(unsigned int i = 0; i < _dataBitMappingsSize; ++i)
+		for (unsigned int i = 0; i < _dataBitMappingsSize; ++i)
 		{
 			result |= ((sourceData & _dataBitMappings[i].bitMaskConverted) != 0)? _dataBitMappings[i].bitMaskOriginal: 0;
 		}

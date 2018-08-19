@@ -21,7 +21,7 @@ bool ZIPFileEntry::LoadFromStream(Stream::IStream& source)
 	//Load the local file header and compressed file data from the stream
 	_localFileHeader.LoadFromStream(source);
 	_data.Resize(_localFileHeader.compressedSize);
-	if(!source.ReadData(_data.GetRawBuffer(), _localFileHeader.compressedSize))
+	if (!source.ReadData(_data.GetRawBuffer(), _localFileHeader.compressedSize))
 	{
 		return false;
 	}
@@ -36,7 +36,7 @@ bool ZIPFileEntry::LoadFromStream(Stream::IStream& source)
 bool ZIPFileEntry::SaveToStream(Stream::IStream& target) const
 {
 	//Only allow the data to be saved if it's been successfully compressed
-	if(!_compressedDataWritten)
+	if (!_compressedDataWritten)
 	{
 		return false;
 	}
@@ -54,7 +54,7 @@ bool ZIPFileEntry::Compress(Stream::IStream& source, unsigned int inputCacheSize
 {
 	//Calculate the uncompressed data size
 	Stream::IStream::SizeType uncompressedDataSize = source.Size() - source.GetStreamPos();
-	if(uncompressedDataSize < 0)
+	if (uncompressedDataSize < 0)
 	{
 		uncompressedDataSize = 0;
 	}
@@ -65,7 +65,7 @@ bool ZIPFileEntry::Compress(Stream::IStream& source, unsigned int inputCacheSize
 
 	//Attempt to compress the file to our buffer using deflate compression
 	unsigned int calculatedCRC;
-	if(!Deflate::DeflateCompress(source, _data, calculatedCRC, inputCacheSize, (unsigned int)_data.Size()))
+	if (!Deflate::DeflateCompress(source, _data, calculatedCRC, inputCacheSize, (unsigned int)_data.Size()))
 	{
 		return false;
 	}
@@ -100,21 +100,21 @@ bool ZIPFileEntry::Decompress(Stream::IStream& target, unsigned int outputCacheS
 {
 	//If the object hasn't been populated with a compressed data stream, abort with an
 	//error.
-	if(!_compressedDataWritten)
+	if (!_compressedDataWritten)
 	{
 		return false;
 	}
 
 	//Attempt to decompress the file from our buffer using deflate compression
 	unsigned int calculatedCRC;
-	if(!Deflate::DeflateDecompress(_data, target, calculatedCRC, (unsigned int)_data.Size(), outputCacheSize))
+	if (!Deflate::DeflateDecompress(_data, target, calculatedCRC, (unsigned int)_data.Size(), outputCacheSize))
 	{
 		return false;
 	}
 
 	//If the CRC of the decompressed data doesn't match the CRC reported in the header,
 	//return an error.
-	if(calculatedCRC != _localFileHeader.crc32)
+	if (calculatedCRC != _localFileHeader.crc32)
 	{
 		return false;
 	}

@@ -23,11 +23,11 @@ bool WAVFile::IsAtEnd() const
 bool WAVFile::SkipBytes(SizeType byteCount)
 {
 	bool result = false;
-	if(_fileOpen)
+	if (_fileOpen)
 	{
 		result = true;
 		unsigned char temp;
-		for(SizeType i = 0; i < byteCount; ++i)
+		for (SizeType i = 0; i < byteCount; ++i)
 		{
 			result &= ReadData(temp);
 		}

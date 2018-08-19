@@ -62,12 +62,12 @@ public:
 		additionalTime += _target.ReadWithoutAdjustingAddress(cpu, op2, GetInstructionRegister());
 
 		//Check for divide by zero
-		if(op1 == 0)
+		if (op1 == 0)
 		{
 			//UNDEFINED N
 			//UNDEFINED Z
 			//UNDEFINED V
-			if(cpu->ExceptionDisabled(M68000::Exceptions::ZeroDivide))
+			if (cpu->ExceptionDisabled(M68000::Exceptions::ZeroDivide))
 			{
 				return GetExecuteCycleCount(additionalTime);
 			}
@@ -84,7 +84,7 @@ public:
 		//the quotient after division is still larger than can fit into a 16-bit _target.
 		//To test for this, we perform the division and test if the result is larger than
 		//the maximum number which can be stored in the result.
-		if((op2 / op1) <= quotient.GetMaxValue())
+		if ((op2 / op1) <= quotient.GetMaxValue())
 		{
 			//The operation didn't overflow. Commit the results.
 			quotient = M68000Word(op2 / op1);

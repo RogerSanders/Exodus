@@ -37,7 +37,7 @@ public:
 //	|---------------------------------------------------------------|
 //	|             32 BITS DATA (included last Word)                 |
 //	-----------------------------------------------------------------
-		switch(data.GetDataSegment(6, 2))
+		switch (data.GetDataSegment(6, 2))
 		{
 		case 0:	//00
 			_size = BITCOUNT_BYTE;
@@ -56,9 +56,9 @@ public:
 		_target.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), _size, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
 		AddInstructionSize(_target.ExtensionSize());
 
-		if(_target.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect)
+		if (_target.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect)
 		{
-			if(_size != BITCOUNT_LONG)
+			if (_size != BITCOUNT_LONG)
 			{
 				AddExecuteCycleCount(ExecuteTime(8, 2, 0));
 			}
@@ -69,7 +69,7 @@ public:
 		}
 		else
 		{
-			if(_size != BITCOUNT_LONG)
+			if (_size != BITCOUNT_LONG)
 			{
 				AddExecuteCycleCount(ExecuteTime(12, 2, 1));
 			}

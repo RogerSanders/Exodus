@@ -28,7 +28,7 @@ DebuggerView::~DebuggerView()
 INT_PTR DebuggerView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	WndProcDialogImplementSaveFieldWhenLostFocus(hwnd, msg, wparam, lparam);
-	switch(msg)
+	switch (msg)
 	{
 	case WM_INITDIALOG:
 		return msgWM_INITDIALOG(hwnd, wparam, lparam);
@@ -251,181 +251,181 @@ INT_PTR DebuggerView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	unsigned int channelNo = _selectedChannel;
 
 	//Total Level
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_TL_OP1)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_TL_OP1)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_TL_OP1, 2, _model.GetTotalLevelData(channelNo, IYM2612::OPERATOR1));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_TL_OP2)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_TL_OP2)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_TL_OP2, 2, _model.GetTotalLevelData(channelNo, IYM2612::OPERATOR2));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_TL_OP3)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_TL_OP3)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_TL_OP3, 2, _model.GetTotalLevelData(channelNo, IYM2612::OPERATOR3));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_TL_OP4)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_TL_OP4)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_TL_OP4, 2, _model.GetTotalLevelData(channelNo, IYM2612::OPERATOR4));
 	}
 
 	//Sustain Level
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_SL_OP1)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_SL_OP1)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_SL_OP1, 1, _model.GetSustainLevelData(channelNo, IYM2612::OPERATOR1));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_SL_OP2)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_SL_OP2)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_SL_OP2, 1, _model.GetSustainLevelData(channelNo, IYM2612::OPERATOR2));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_SL_OP3)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_SL_OP3)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_SL_OP3, 1, _model.GetSustainLevelData(channelNo, IYM2612::OPERATOR3));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_SL_OP4)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_SL_OP4)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_SL_OP4, 1, _model.GetSustainLevelData(channelNo, IYM2612::OPERATOR4));
 	}
 
 	//Attack Rate
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_AR_OP1)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_AR_OP1)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_AR_OP1, 2, _model.GetAttackRateData(channelNo, IYM2612::OPERATOR1));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_AR_OP2)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_AR_OP2)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_AR_OP2, 2, _model.GetAttackRateData(channelNo, IYM2612::OPERATOR2));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_AR_OP3)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_AR_OP3)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_AR_OP3, 2, _model.GetAttackRateData(channelNo, IYM2612::OPERATOR3));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_AR_OP4)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_AR_OP4)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_AR_OP4, 2, _model.GetAttackRateData(channelNo, IYM2612::OPERATOR4));
 	}
 
 	//Decay Rate
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_DR_OP1)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_DR_OP1)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_DR_OP1, 2, _model.GetDecayRateData(channelNo, IYM2612::OPERATOR1));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_DR_OP2)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_DR_OP2)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_DR_OP2, 2, _model.GetDecayRateData(channelNo, IYM2612::OPERATOR2));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_DR_OP3)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_DR_OP3)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_DR_OP3, 2, _model.GetDecayRateData(channelNo, IYM2612::OPERATOR3));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_DR_OP4)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_DR_OP4)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_DR_OP4, 2, _model.GetDecayRateData(channelNo, IYM2612::OPERATOR4));
 	}
 
 	//Sustain Rate
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_SR_OP1)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_SR_OP1)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_SR_OP1, 2, _model.GetSustainRateData(channelNo, IYM2612::OPERATOR1));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_SR_OP2)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_SR_OP2)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_SR_OP2, 2, _model.GetSustainRateData(channelNo, IYM2612::OPERATOR2));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_SR_OP3)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_SR_OP3)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_SR_OP3, 2, _model.GetSustainRateData(channelNo, IYM2612::OPERATOR3));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_SR_OP4)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_SR_OP4)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_SR_OP4, 2, _model.GetSustainRateData(channelNo, IYM2612::OPERATOR4));
 	}
 
 	//Release Rate
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_RR_OP1)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_RR_OP1)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_RR_OP1, 1, _model.GetReleaseRateData(channelNo, IYM2612::OPERATOR1));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_RR_OP2)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_RR_OP2)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_RR_OP2, 1, _model.GetReleaseRateData(channelNo, IYM2612::OPERATOR2));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_RR_OP3)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_RR_OP3)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_RR_OP3, 1, _model.GetReleaseRateData(channelNo, IYM2612::OPERATOR3));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_RR_OP4)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_RR_OP4)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_RR_OP4, 1, _model.GetReleaseRateData(channelNo, IYM2612::OPERATOR4));
 	}
 
 	//SSG-EG Mode
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_SSGEG_OP1)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_SSGEG_OP1)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_SSGEG_OP1, 1, _model.GetSSGData(channelNo, IYM2612::OPERATOR1));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_SSGEG_OP2)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_SSGEG_OP2)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_SSGEG_OP2, 1, _model.GetSSGData(channelNo, IYM2612::OPERATOR2));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_SSGEG_OP3)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_SSGEG_OP3)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_SSGEG_OP3, 1, _model.GetSSGData(channelNo, IYM2612::OPERATOR3));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_SSGEG_OP4)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_SSGEG_OP4)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_SSGEG_OP4, 1, _model.GetSSGData(channelNo, IYM2612::OPERATOR4));
 	}
 
 	//Detune
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_DT_OP1)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_DT_OP1)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_DT_OP1, 1, _model.GetDetuneData(channelNo, IYM2612::OPERATOR1));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_DT_OP2)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_DT_OP2)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_DT_OP2, 1, _model.GetDetuneData(channelNo, IYM2612::OPERATOR2));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_DT_OP3)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_DT_OP3)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_DT_OP3, 1, _model.GetDetuneData(channelNo, IYM2612::OPERATOR3));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_DT_OP4)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_DT_OP4)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_DT_OP4, 1, _model.GetDetuneData(channelNo, IYM2612::OPERATOR4));
 	}
 
 	//Multiple
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_MUL_OP1)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_MUL_OP1)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_MUL_OP1, 1, _model.GetMultipleData(channelNo, IYM2612::OPERATOR1));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_MUL_OP2)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_MUL_OP2)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_MUL_OP2, 1, _model.GetMultipleData(channelNo, IYM2612::OPERATOR2));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_MUL_OP3)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_MUL_OP3)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_MUL_OP3, 1, _model.GetMultipleData(channelNo, IYM2612::OPERATOR3));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_MUL_OP4)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_MUL_OP4)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_MUL_OP4, 1, _model.GetMultipleData(channelNo, IYM2612::OPERATOR4));
 	}
 
 	//Key Scale
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_KS_OP1)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_KS_OP1)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_KS_OP1, 1, _model.GetKeyScaleData(channelNo, IYM2612::OPERATOR1));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_KS_OP2)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_KS_OP2)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_KS_OP2, 1, _model.GetKeyScaleData(channelNo, IYM2612::OPERATOR2));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_KS_OP3)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_KS_OP3)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_KS_OP3, 1, _model.GetKeyScaleData(channelNo, IYM2612::OPERATOR3));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_KS_OP4)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_KS_OP4)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_KS_OP4, 1, _model.GetKeyScaleData(channelNo, IYM2612::OPERATOR4));
 	}
@@ -437,27 +437,27 @@ INT_PTR DebuggerView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	CheckDlgButton(hwnd, IDC_YM2612_DEBUGGER_AM_OP4, (_model.GetAmplitudeModulationEnabled(channelNo, IYM2612::OPERATOR4))? BST_CHECKED: BST_UNCHECKED);
 
 	//Channel Registers
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_ALGORITHM)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_ALGORITHM)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_ALGORITHM, 1, _model.GetAlgorithmData(channelNo));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_FEEDBACK)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_FEEDBACK)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_FEEDBACK, 1, _model.GetFeedbackData(channelNo));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_FNUM)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_FNUM)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_FNUM, 3, _model.GetFrequencyData(channelNo));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_BLOCK)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_BLOCK)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_BLOCK, 1, _model.GetBlockData(channelNo));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_AMS)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_AMS)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_AMS, 1, _model.GetAMSData(channelNo));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_PMS)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_PMS)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_PMS, 1, _model.GetPMSData(channelNo));
 	}
@@ -465,39 +465,39 @@ INT_PTR DebuggerView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	CheckDlgButton(hwnd, IDC_YM2612_DEBUGGER_RIGHT, (_model.GetOutputRight(channelNo))? BST_CHECKED: BST_UNCHECKED);
 
 	//Channel 3 Frequency
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_CH3MODE)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_CH3MODE)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_CH3MODE, 1, _model.GetCH3Mode());
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_CH3FNUM_OP1)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_CH3FNUM_OP1)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_CH3FNUM_OP1, 3, _model.GetFrequencyDataChannel3(IYM2612::OPERATOR1));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_CH3FNUM_OP2)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_CH3FNUM_OP2)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_CH3FNUM_OP2, 3, _model.GetFrequencyDataChannel3(IYM2612::OPERATOR2));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_CH3FNUM_OP3)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_CH3FNUM_OP3)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_CH3FNUM_OP3, 3, _model.GetFrequencyDataChannel3(IYM2612::OPERATOR3));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_CH3FNUM_OP4)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_CH3FNUM_OP4)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_CH3FNUM_OP4, 3, _model.GetFrequencyDataChannel3(IYM2612::OPERATOR4));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_CH3BLOCK_OP1)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_CH3BLOCK_OP1)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_CH3BLOCK_OP1, 1, _model.GetBlockDataChannel3(IYM2612::OPERATOR1));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_CH3BLOCK_OP2)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_CH3BLOCK_OP2)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_CH3BLOCK_OP2, 1, _model.GetBlockDataChannel3(IYM2612::OPERATOR2));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_CH3BLOCK_OP3)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_CH3BLOCK_OP3)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_CH3BLOCK_OP3, 1, _model.GetBlockDataChannel3(IYM2612::OPERATOR3));
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_CH3BLOCK_OP4)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_CH3BLOCK_OP4)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_CH3BLOCK_OP4, 1, _model.GetBlockDataChannel3(IYM2612::OPERATOR4));
 	}
@@ -509,32 +509,32 @@ INT_PTR DebuggerView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	CheckDlgButton(hwnd, IDC_YM2612_DEBUGGER_TIMERB_LOADED, (_model.GetTimerBLoad())? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_YM2612_DEBUGGER_TIMERA_OVERFLOW, (_model.GetTimerAOverflow())? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_YM2612_DEBUGGER_TIMERB_OVERFLOW, (_model.GetTimerBOverflow())? BST_CHECKED: BST_UNCHECKED);
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_TIMERA_RATE)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_TIMERA_RATE)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_TIMERA_RATE, 3, _model.GetTimerAData());
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_TIMERB_RATE)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_TIMERB_RATE)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_TIMERB_RATE, 2, _model.GetTimerBData());
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_TIMERA_DATA)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_TIMERA_DATA)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_TIMERA_DATA, 3, _model.GetTimerACurrentCounter());
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_TIMERB_DATA)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_TIMERB_DATA)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_TIMERB_DATA, 2, _model.GetTimerBCurrentCounter());
 	}
 
 	//LFO
 	CheckDlgButton(hwnd, IDC_YM2612_DEBUGGER_LFOENABLED, (_model.GetLFOEnabled())? BST_CHECKED: BST_UNCHECKED);
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_LFOFREQ)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_LFOFREQ)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_LFOFREQ, 2, _model.GetLFOData());
 	}
 	std::wstring lfoFrequencyText;
 	//##TODO## Update these to clock-independent calculations
-	switch(_model.GetLFOData())
+	switch (_model.GetLFOData())
 	{
 	case 0:
 		lfoFrequencyText = L"3.98";
@@ -565,7 +565,7 @@ INT_PTR DebuggerView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 
 	//DAC
 	CheckDlgButton(hwnd, IDC_YM2612_DEBUGGER_DACENABLED, (_model.GetDACEnabled())? BST_CHECKED: BST_UNCHECKED);
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_DACDATA)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_DACDATA)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_DACDATA, 2, _model.GetDACData());
 	}
@@ -604,27 +604,27 @@ INT_PTR DebuggerView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	CheckDlgButton(hwnd, IDC_YM2612_DEBUGGER_KEY_6, (_model.GetKeyState(IYM2612::CHANNEL6, IYM2612::OPERATOR1) && _model.GetKeyState(IYM2612::CHANNEL6, IYM2612::OPERATOR2) && _model.GetKeyState(IYM2612::CHANNEL6, IYM2612::OPERATOR3) && _model.GetKeyState(IYM2612::CHANNEL6, IYM2612::OPERATOR4))? BST_CHECKED: BST_UNCHECKED);
 
 	//Clock
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_CLOCK)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_CLOCK)
 	{
 		UpdateDlgItemFloat(hwnd, IDC_YM2612_DEBUGGER_CLOCK, (float)_model.GetExternalClockRate());
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_FMDIVIDE)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_FMDIVIDE)
 	{
 		UpdateDlgItemBin(hwnd, IDC_YM2612_DEBUGGER_FMDIVIDE, _model.GetFMClockDivider());
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_EGDIVIDE)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_EGDIVIDE)
 	{
 		UpdateDlgItemBin(hwnd, IDC_YM2612_DEBUGGER_EGDIVIDE, _model.GetEGClockDivider());
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_OUTDIVIDE)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_OUTDIVIDE)
 	{
 		UpdateDlgItemBin(hwnd, IDC_YM2612_DEBUGGER_OUTDIVIDE, _model.GetOutputClockDivider());
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_TADIVIDE)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_TADIVIDE)
 	{
 		UpdateDlgItemBin(hwnd, IDC_YM2612_DEBUGGER_TADIVIDE, _model.GetTimerAClockDivider());
 	}
-	if(_currentControlFocus != IDC_YM2612_DEBUGGER_TBDIVIDE)
+	if (_currentControlFocus != IDC_YM2612_DEBUGGER_TBDIVIDE)
 	{
 		UpdateDlgItemBin(hwnd, IDC_YM2612_DEBUGGER_TBDIVIDE, _model.GetTimerBClockDivider());
 	}
@@ -637,15 +637,15 @@ INT_PTR DebuggerView::msgWM_BOUNCE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	BounceMessage* bounceMessage = (BounceMessage*)lparam;
 	int controlID = GetDlgCtrlID(bounceMessage->hwnd);
-	switch(bounceMessage->uMsg)
+	switch (bounceMessage->uMsg)
 	{
 	case WM_LBUTTONDBLCLK:
 	case WM_LBUTTONDOWN:
-		if((bounceMessage->wParam & MK_CONTROL) != 0)
+		if ((bounceMessage->wParam & MK_CONTROL) != 0)
 		{
 			//If the user has control+clicked a control which supports locking, toggle the
 			//lock state of the target register.
-			switch(controlID)
+			switch (controlID)
 			{
 			default:{
 				unsigned int dataID;
@@ -653,7 +653,7 @@ INT_PTR DebuggerView::msgWM_BOUNCE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 				IYM2612::ChannelDataContext channelDataContext;
 				IYM2612::OperatorDataContext operatorDataContext;
 				const IYM2612::DataContext* dataContext;
-				if(ControlIDToDataID(controlID, dataID, registerDataContext, channelDataContext, operatorDataContext, &dataContext))
+				if (ControlIDToDataID(controlID, dataID, registerDataContext, channelDataContext, operatorDataContext, &dataContext))
 				{
 					_model.SetGenericDataLocked(dataID, dataContext, !_model.GetGenericDataLocked(dataID, dataContext));
 				}
@@ -690,7 +690,7 @@ INT_PTR DebuggerView::msgWM_BOUNCE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 				IYM2612::ChannelDataContext channelDataContext;
 				IYM2612::OperatorDataContext operatorDataContext;
 				const IYM2612::DataContext* dataContext;
-				if(ControlIDToDataID(controlID, dataID, registerDataContext, channelDataContext, operatorDataContext, &dataContext))
+				if (ControlIDToDataID(controlID, dataID, registerDataContext, channelDataContext, operatorDataContext, &dataContext))
 				{
 					_model.SetGenericDataLocked(dataID, dataContext, !_model.GetGenericDataLocked(dataID, dataContext));
 				}
@@ -731,7 +731,7 @@ INT_PTR DebuggerView::msgWM_BOUNCE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		}
 		break;
 	case WM_PAINT:
-		switch(controlID)
+		switch (controlID)
 		{
 		case IDC_YM2612_DEBUGGER_AM_OP1:
 		case IDC_YM2612_DEBUGGER_AM_OP2:
@@ -777,9 +777,9 @@ INT_PTR DebuggerView::msgWM_BOUNCE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			IYM2612::ChannelDataContext channelDataContext;
 			IYM2612::OperatorDataContext operatorDataContext;
 			const IYM2612::DataContext* dataContext;
-			if(ControlIDToDataID(controlID, dataID, registerDataContext, channelDataContext, operatorDataContext, &dataContext))
+			if (ControlIDToDataID(controlID, dataID, registerDataContext, channelDataContext, operatorDataContext, &dataContext))
 			{
-				if(_model.GetGenericDataLocked(dataID, dataContext))
+				if (_model.GetGenericDataLocked(dataID, dataContext))
 				{
 					PaintCheckboxHighlight(GetDlgItem(hwnd, controlID));
 					bounceMessage->SetResult(TRUE);
@@ -798,7 +798,7 @@ INT_PTR DebuggerView::msgWM_BOUNCE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			IYM2612::OperatorDataContext operator3KeyStateDataContext(channelNo, IYM2612::OPERATOR3);
 			IYM2612::OperatorDataContext operator4KeyStateDataContext(channelNo, IYM2612::OPERATOR4);
 			bool keyLockingState = (_model.GetGenericDataLocked((unsigned int)IYM2612::IYM2612DataSource::KeyState, &operator1KeyStateDataContext) && _model.GetGenericDataLocked((unsigned int)IYM2612::IYM2612DataSource::KeyState, &operator2KeyStateDataContext) && _model.GetGenericDataLocked((unsigned int)IYM2612::IYM2612DataSource::KeyState, &operator3KeyStateDataContext) && _model.GetGenericDataLocked((unsigned int)IYM2612::IYM2612DataSource::KeyState, &operator4KeyStateDataContext));
-			if(keyLockingState)
+			if (keyLockingState)
 			{
 				PaintCheckboxHighlight(GetDlgItem(hwnd, controlID));
 				bounceMessage->SetResult(TRUE);
@@ -821,9 +821,9 @@ INT_PTR DebuggerView::msgWM_CTLCOLOREDIT(HWND hwnd, WPARAM wparam, LPARAM lparam
 	IYM2612::ChannelDataContext channelDataContext;
 	IYM2612::OperatorDataContext operatorDataContext;
 	const IYM2612::DataContext* dataContext;
-	if(ControlIDToDataID(controlID, dataID, registerDataContext, channelDataContext, operatorDataContext, &dataContext))
+	if (ControlIDToDataID(controlID, dataID, registerDataContext, channelDataContext, operatorDataContext, &dataContext))
 	{
-		if(_model.GetGenericDataLocked(dataID, dataContext))
+		if (_model.GetGenericDataLocked(dataID, dataContext))
 		{
 			SetBkColor((HDC)wparam, _lockedColor);
 			return (BOOL)HandleToLong(_lockedBrush);
@@ -837,10 +837,10 @@ INT_PTR DebuggerView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	unsigned int channelNo = _selectedChannel;
 
-	if(HIWORD(wparam) == BN_CLICKED)
+	if (HIWORD(wparam) == BN_CLICKED)
 	{
 		unsigned int controlID = LOWORD(wparam);
-		switch(controlID)
+		switch (controlID)
 		{
 		case IDC_YM2612_DEBUGGER_INFO_OP1:{
 			_presenter.OpenOperatorView(channelNo, IYM2612::OPERATOR1);
@@ -1053,31 +1053,31 @@ INT_PTR DebuggerView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		IYM2612::ChannelDataContext channelDataContext;
 		IYM2612::OperatorDataContext operatorDataContext;
 		const IYM2612::DataContext* dataContext;
-		if(ControlIDToDataID(controlID, dataID, registerDataContext, channelDataContext, operatorDataContext, &dataContext))
+		if (ControlIDToDataID(controlID, dataID, registerDataContext, channelDataContext, operatorDataContext, &dataContext))
 		{
 			_model.SetGenericDataLocked(dataID, dataContext, _model.GetGenericDataLocked(dataID, dataContext));
 		}
 	}
-	else if((HIWORD(wparam) == EN_SETFOCUS) && _initializedDialog)
+	else if ((HIWORD(wparam) == EN_SETFOCUS) && _initializedDialog)
 	{
 		_previousText = GetDlgItemString(hwnd, LOWORD(wparam));
 		_currentControlFocus = LOWORD(wparam);
 		return FALSE;
 	}
-	else if((HIWORD(wparam) == EN_KILLFOCUS) && _initializedDialog)
+	else if ((HIWORD(wparam) == EN_KILLFOCUS) && _initializedDialog)
 	{
 		std::wstring newText = GetDlgItemString(hwnd, LOWORD(wparam));
-		if(_currentControlFocus == LOWORD(wparam))
+		if (_currentControlFocus == LOWORD(wparam))
 		{
 			_currentControlFocus = 0;
 		}
-		if(newText == _previousText)
+		if (newText == _previousText)
 		{
 			return FALSE;
 		}
 
 		unsigned int controlID = LOWORD(wparam);
-		switch(controlID)
+		switch (controlID)
 		{
 		//Total Level
 		case IDC_YM2612_DEBUGGER_TL_OP1:{
@@ -1321,7 +1321,7 @@ INT_PTR DebuggerView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		IYM2612::ChannelDataContext channelDataContext;
 		IYM2612::OperatorDataContext operatorDataContext;
 		const IYM2612::DataContext* dataContext;
-		if(ControlIDToDataID(controlID, dataID, registerDataContext, channelDataContext, operatorDataContext, &dataContext))
+		if (ControlIDToDataID(controlID, dataID, registerDataContext, channelDataContext, operatorDataContext, &dataContext))
 		{
 			_model.SetGenericDataLocked(dataID, dataContext, _model.GetGenericDataLocked(dataID, dataContext));
 		}
@@ -1337,7 +1337,7 @@ INT_PTR DebuggerView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 bool DebuggerView::ControlIDToDataID(int controlID, unsigned int& genericDataID, IYM2612::RegisterDataContext& registerDataContext, IYM2612::ChannelDataContext& channelDataContext, IYM2612::OperatorDataContext& operatorDataContext, const IGenericAccess::DataContext** dataContext)
 {
 	*dataContext = 0;
-	switch(controlID)
+	switch (controlID)
 	{
 	case IDC_YM2612_DEBUGGER_KEY_11:
 	case IDC_YM2612_DEBUGGER_KEY_12:

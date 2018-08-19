@@ -62,7 +62,7 @@ private:
 	static tmsize_t ReadProc(thandle_t fd, void* buf, tmsize_t size)
 	{
 		TIFFStreamManager* obj = (TIFFStreamManager*)fd;
-		if(!obj->stream.ReadData((unsigned char*)buf, size))
+		if (!obj->stream.ReadData((unsigned char*)buf, size))
 		{
 			size = 0;
 		}
@@ -81,7 +81,7 @@ private:
 		TIFFStreamManager* obj = (TIFFStreamManager*)fd;
 		Stream::IStream::SizeType newStreamPos = 0;
 
-		switch(whence)
+		switch (whence)
 		{
 		default:
 		case SEEK_SET:
@@ -159,7 +159,7 @@ private:
 		//next_input_byte here, and simply refill the buffer, as specified in
 		//libjpeg.txt. These values are not always valid when this function is
 		//called. This function needs to assume the buffer is empty.
-		if(!src->stream.ReadData(src->buffer, src->buffer.size()))
+		if (!src->stream.ReadData(src->buffer, src->buffer.size()))
 		{
 			return FALSE;
 		}
@@ -173,11 +173,11 @@ private:
 		JPGStreamSourceManager* src = (JPGStreamSourceManager*)cinfo->src;
 		//As specified in libjpeg.txt, it seems a negative count may be passed to this
 		//function on occasion. In this case, the operation should be ignored.
-		if(num_bytes <= 0)
+		if (num_bytes <= 0)
 		{
 			return;
 		}
-		if(num_bytes <= (long)src->pub.bytes_in_buffer)
+		if (num_bytes <= (long)src->pub.bytes_in_buffer)
 		{
 			src->pub.next_input_byte += num_bytes;
 			src->pub.bytes_in_buffer -= num_bytes;
@@ -185,7 +185,7 @@ private:
 		else
 		{
 			num_bytes -= (long)src->pub.bytes_in_buffer;
-			for(unsigned int i = 0; i < (unsigned int)num_bytes; ++i)
+			for (unsigned int i = 0; i < (unsigned int)num_bytes; ++i)
 			{
 				unsigned char temp;
 				src->stream.ReadData(temp);
@@ -236,7 +236,7 @@ private:
 		//free_in_buffer and next_output_byte here, and simply write out the entire
 		//buffer, as specified in libjpeg.txt. This function needs to assume the buffer
 		//is full.
-		if(!dest->stream.WriteData(&dest->buffer[0], dest->buffer.size()))
+		if (!dest->stream.WriteData(&dest->buffer[0], dest->buffer.size()))
 		{
 			return FALSE;
 		}
@@ -252,7 +252,7 @@ private:
 		//empty_output_buffer to do the job, since that function has to assume
 		//that the buffer is completely full, which it probably won't be here.
 		unsigned int bytesToWrite = (unsigned int)(dest->buffer.size() - dest->pub.free_in_buffer);
-		if(bytesToWrite > 0)
+		if (bytesToWrite > 0)
 		{
 			dest->stream.WriteData(&dest->buffer[0], bytesToWrite);
 			dest->pub.next_output_byte = &dest->buffer[0];
@@ -385,7 +385,7 @@ void Image::ReadPixelDataInternal(unsigned int posX, unsigned int posY, unsigned
 {
 	PixelData pixelData;
 	GetRawPixelDataInternal(posX, posY, planeNo, pixelData);
-	switch(_dataFormat)
+	switch (_dataFormat)
 	{
 	case DATAFORMAT_FLOAT:
 		data = pixelData.dataFloat;
@@ -404,7 +404,7 @@ void Image::ReadPixelDataInternal(unsigned int posX, unsigned int posY, unsigned
 {
 	PixelData pixelData;
 	GetRawPixelDataInternal(posX, posY, planeNo, pixelData);
-	switch(_dataFormat)
+	switch (_dataFormat)
 	{
 	case DATAFORMAT_FLOAT:
 		data = (unsigned char)((pixelData.dataFloat * 255.0f) + 0.5f);
@@ -424,7 +424,7 @@ void Image::ReadPixelDataInternal(unsigned int posX, unsigned int posY, unsigned
 	unsigned int maxValue = (((1 << (bitCount - 1)) - 1) << 1) | 0x01;
 	PixelData pixelData;
 	GetRawPixelDataInternal(posX, posY, planeNo, pixelData);
-	switch(_dataFormat)
+	switch (_dataFormat)
 	{
 	case DATAFORMAT_FLOAT:
 		data = (unsigned int)(((double)pixelData.dataFloat * ((double)maxValue / 1.0)) + 0.5f);
@@ -442,7 +442,7 @@ void Image::ReadPixelDataInternal(unsigned int posX, unsigned int posY, unsigned
 void Image::WritePixelDataInternal(unsigned int posX, unsigned int posY, unsigned int planeNo, float data)
 {
 	PixelData pixelData;
-	switch(_dataFormat)
+	switch (_dataFormat)
 	{
 	case DATAFORMAT_FLOAT:
 		pixelData.dataFloat = data;
@@ -461,7 +461,7 @@ void Image::WritePixelDataInternal(unsigned int posX, unsigned int posY, unsigne
 void Image::WritePixelDataInternal(unsigned int posX, unsigned int posY, unsigned int planeNo, unsigned char data)
 {
 	PixelData pixelData;
-	switch(_dataFormat)
+	switch (_dataFormat)
 	{
 	case DATAFORMAT_FLOAT:
 		pixelData.dataFloat = ((float)data / 255.0f);
@@ -481,7 +481,7 @@ void Image::WritePixelDataInternal(unsigned int posX, unsigned int posY, unsigne
 {
 	unsigned int maxValue = (((1 << (bitCount - 1)) - 1) << 1) | 0x01;
 	PixelData pixelData;
-	switch(_dataFormat)
+	switch (_dataFormat)
 	{
 	case DATAFORMAT_FLOAT:
 		pixelData.dataFloat = (float)((double)data * (1.0 / (double)maxValue));

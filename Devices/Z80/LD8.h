@@ -38,9 +38,9 @@ public:
 		_source.SetIndexState(GetIndexState(), GetIndexOffset());
 		_target.SetIndexState(GetIndexState(), GetIndexOffset());
 
-		if(data.GetBit(6))
+		if (data.GetBit(6))
 		{
-			if(data.GetDataSegment(0, 3) == 6)
+			if (data.GetDataSegment(0, 3) == 6)
 			{
 				//LD r,(HL)		01rrr110
 				//LD r,(IX+d)	11011101 01rrr110 dddddddd
@@ -53,7 +53,7 @@ public:
 				//exceptions to the indexing rule is EX.
 				_target.SetIndexState(EffectiveAddress::IndexState::None, 0);
 				_target.Decode8BitRegister(data.GetDataSegment(3, 3));
-				if(GetIndexState() == EffectiveAddress::IndexState::None)
+				if (GetIndexState() == EffectiveAddress::IndexState::None)
 				{
 					AddExecuteCycleCount(7);
 				}
@@ -62,7 +62,7 @@ public:
 					AddExecuteCycleCount(15);
 				}
 			}
-			else if(data.GetDataSegment(3, 3) == 6)
+			else if (data.GetDataSegment(3, 3) == 6)
 			{
 				//LD (HL),r		01110rrr
 				//LD (IX+d),r	11011101 01110rrr dddddddd
@@ -71,7 +71,7 @@ public:
 				_source.SetIndexState(EffectiveAddress::IndexState::None, 0);
 				_source.Decode8BitRegister(data.GetDataSegment(0, 3));
 				_target.SetMode(EffectiveAddress::Mode::HLIndirect);
-				if(GetIndexState() == EffectiveAddress::IndexState::None)
+				if (GetIndexState() == EffectiveAddress::IndexState::None)
 				{
 					AddExecuteCycleCount(7);
 				}
@@ -92,56 +92,56 @@ public:
 		}
 		else
 		{
-			if(data == 0x0A)
+			if (data == 0x0A)
 			{
 				//LD A,(BC)		00001010
 				_source.SetMode(EffectiveAddress::Mode::BCIndirect);
 				_target.SetMode(EffectiveAddress::Mode::A);
 				AddExecuteCycleCount(7);
 			}
-			else if(data == 0x1A)
+			else if (data == 0x1A)
 			{
 				//LD A,(DE)		00011010
 				_source.SetMode(EffectiveAddress::Mode::DEIndirect);
 				_target.SetMode(EffectiveAddress::Mode::A);
 				AddExecuteCycleCount(7);
 			}
-			else if(data == 0x3A)
+			else if (data == 0x3A)
 			{
 				//LD A,(nn)		00111010 nnnnnnnn nnnnnnnn
 				_source.BuildAbsoluteAddress(location + GetInstructionSize(), cpu, transparent);
 				_target.SetMode(EffectiveAddress::Mode::A);
 				AddExecuteCycleCount(13);
 			}
-			else if(data == 0x02)
+			else if (data == 0x02)
 			{
 				//LD (BC),A		00000010
 				_source.SetMode(EffectiveAddress::Mode::A);
 				_target.SetMode(EffectiveAddress::Mode::BCIndirect);
 				AddExecuteCycleCount(7);
 			}
-			else if(data == 0x12)
+			else if (data == 0x12)
 			{
 				//LD (DE),A		00010010
 				_source.SetMode(EffectiveAddress::Mode::A);
 				_target.SetMode(EffectiveAddress::Mode::DEIndirect);
 				AddExecuteCycleCount(7);
 			}
-			else if(data == 0x32)
+			else if (data == 0x32)
 			{
 				//LD (nn),A		00110010 nnnnnnnn nnnnnnnn
 				_source.SetMode(EffectiveAddress::Mode::A);
 				_target.BuildAbsoluteAddress(location + GetInstructionSize(), cpu, transparent);
 				AddExecuteCycleCount(13);
 			}
-			else if(data == 0x36)
+			else if (data == 0x36)
 			{
 				//LD (HL),n		00110110 nnnnnnnn
 				//LD (IX+d),n	11011101 00110110 nnnnnnnn
 				//LD (IY+d),n	11111101 00110110 nnnnnnnn
 				_target.SetMode(EffectiveAddress::Mode::HLIndirect);
 				_source.BuildImmediateData(BITCOUNT_BYTE, location + GetInstructionSize() + GetIndexOffsetSize(_target.UsesIndexOffset()), cpu, transparent);
-				if(GetIndexState() == EffectiveAddress::IndexState::None)
+				if (GetIndexState() == EffectiveAddress::IndexState::None)
 				{
 					AddExecuteCycleCount(10);
 				}

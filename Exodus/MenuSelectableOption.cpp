@@ -91,7 +91,7 @@ void MenuSelectableOption::SetCheckedState(bool checkedState)
 	_checkedState = checkedState;
 
 	//Change the checked state on the physical menu item
-	if((_physicalMenuHandle != 0) && (_physicalMenuItemID != 0))
+	if ((_physicalMenuHandle != 0) && (_physicalMenuItemID != 0))
 	{
 		CheckMenuItem(_physicalMenuHandle, (UINT)_physicalMenuItemID, _checkedState? MF_CHECKED: MF_UNCHECKED);
 	}

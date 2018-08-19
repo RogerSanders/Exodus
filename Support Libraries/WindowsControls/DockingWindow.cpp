@@ -73,11 +73,11 @@ DockingWindow::DockingWindow(HINSTANCE moduleHandle, HWND hwnd)
 DockingWindow::~DockingWindow()
 {
 	//Destroy the placement target windows for this docking window
-	for(std::map<WindowEdge, HWND>::const_iterator i = _placementTargets.begin(); i != _placementTargets.end(); ++i)
+	for (std::map<WindowEdge, HWND>::const_iterator i = _placementTargets.begin(); i != _placementTargets.end(); ++i)
 	{
 		DestroyWindow(i->second);
 	}
-	for(std::map<WindowEdge, HWND>::const_iterator i = _placementTargetsForceTop.begin(); i != _placementTargetsForceTop.end(); ++i)
+	for (std::map<WindowEdge, HWND>::const_iterator i = _placementTargetsForceTop.begin(); i != _placementTargetsForceTop.end(); ++i)
 	{
 		DestroyWindow(i->second);
 	}
@@ -85,11 +85,11 @@ DockingWindow::~DockingWindow()
 	DestroyWindow(_placementShadow);
 
 	//Destroy each dock and undock custom cursor
-	for(std::map<WindowEdge, HCURSOR>::const_iterator i = _enableAutoHideCursor.begin(); i != _enableAutoHideCursor.end(); ++i)
+	for (std::map<WindowEdge, HCURSOR>::const_iterator i = _enableAutoHideCursor.begin(); i != _enableAutoHideCursor.end(); ++i)
 	{
 		DestroyCursor(i->second);
 	}
-	for(std::map<WindowEdge, HCURSOR>::const_iterator i = _disableAutoHideCursor.begin(); i != _disableAutoHideCursor.end(); ++i)
+	for (std::map<WindowEdge, HCURSOR>::const_iterator i = _disableAutoHideCursor.begin(); i != _disableAutoHideCursor.end(); ++i)
 	{
 		DestroyCursor(i->second);
 	}
@@ -190,11 +190,11 @@ bool DockingWindow::UnregisterWindowClass(HINSTANCE moduleHandle)
 //----------------------------------------------------------------------------------------
 LRESULT CALLBACK DockingWindow::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	switch(message)
+	switch (message)
 	{
 	default:{
 		DockingWindow* object = (DockingWindow*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-		if(object != 0)
+		if (object != 0)
 		{
 			return object->WndProcPrivate(message, wParam, lParam);
 		}
@@ -206,7 +206,7 @@ LRESULT CALLBACK DockingWindow::WndProc(HWND hwnd, UINT message, WPARAM wParam, 
 		return object->WndProcPrivate(message, wParam, lParam);}
 	case WM_DESTROY:{
 		DockingWindow* object = (DockingWindow*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-		if(object != 0)
+		if (object != 0)
 		{
 			LPARAM result = object->WndProcPrivate(message, wParam, lParam);
 			SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)0);
@@ -222,7 +222,7 @@ LRESULT CALLBACK DockingWindow::WndProc(HWND hwnd, UINT message, WPARAM wParam, 
 //----------------------------------------------------------------------------------------
 LRESULT DockingWindow::WndProcPrivate(UINT message, WPARAM wParam, LPARAM lParam)
 {
-	switch(message)
+	switch (message)
 	{
 	case WM_CREATE:
 		return msgWM_CREATE(wParam, lParam);
@@ -332,7 +332,7 @@ LRESULT DockingWindow::msgWM_CREATE(WPARAM wParam, LPARAM lParam)
 	//Set the font for the created dock panel. Note that we don't set the font for the tab
 	//dock panel, since we need a different font for horizontal and vertical tab text in
 	//this panel. We set the font directly on each of its child elements in this case.
-	if(_controlFont != NULL)
+	if (_controlFont != NULL)
 	{
 		SendMessage(_dockPanel, WM_SETFONT, (WPARAM)_controlFont, FALSE);
 	}
@@ -378,18 +378,18 @@ LRESULT DockingWindow::msgWM_CREATE(WPARAM wParam, LPARAM lParam)
 //----------------------------------------------------------------------------------------
 LRESULT DockingWindow::msgWM_DESTROY(WPARAM wParam, LPARAM lParam)
 {
-	for(std::list<ChildContainerEntry>::const_iterator i = _childContainers.begin(); i != _childContainers.end(); ++i)
+	for (std::list<ChildContainerEntry>::const_iterator i = _childContainers.begin(); i != _childContainers.end(); ++i)
 	{
 		i->childContainer->NotifyRemovedFromParent();
 	}
-	for(size_t i = 0; i < _hostedContent.size(); ++i)
+	for (size_t i = 0; i < _hostedContent.size(); ++i)
 	{
-		if(_hostedContent[i].contentWindowAsDockingWindow != 0)
+		if (_hostedContent[i].contentWindowAsDockingWindow != 0)
 		{
 			_hostedContent[i].contentWindowAsDockingWindow->NotifyRemovedFromParent();
 		}
 	}
-	if(_parentDockingWindow != 0)
+	if (_parentDockingWindow != 0)
 	{
 		_parentDockingWindow->RemoveChildContainer(this);
 	}
@@ -402,26 +402,26 @@ LRESULT DockingWindow::msgWM_SIZING(WPARAM wParam, LPARAM lParam)
 	//If a window size operation isn't currently being tracked, or if this docking window
 	//isn't docked to a parent, perform the default processing for this window message.
 	RECT& rect = *((RECT*)lParam);
-	if(!_windowDragInProgress || (_parentDockingWindow == 0))
+	if (!_windowDragInProgress || (_parentDockingWindow == 0))
 	{
 		return DefWindowProc(_hwnd, WM_SIZING, wParam, lParam);
 	}
 
 	//Ensure that we only allow the edges of this window to be resized that the parent
 	//docking window allows to be resized.
-	if(!_parentDockingWindow->CanResizeChildContainerWindowEdge(this, WindowEdge::Left))
+	if (!_parentDockingWindow->CanResizeChildContainerWindowEdge(this, WindowEdge::Left))
 	{
 		rect.left = _windowSizeMoveInitialPos.left;
 	}
-	if(!_parentDockingWindow->CanResizeChildContainerWindowEdge(this, WindowEdge::Right))
+	if (!_parentDockingWindow->CanResizeChildContainerWindowEdge(this, WindowEdge::Right))
 	{
 		rect.right = _windowSizeMoveInitialPos.right;
 	}
-	if(!_parentDockingWindow->CanResizeChildContainerWindowEdge(this, WindowEdge::Top))
+	if (!_parentDockingWindow->CanResizeChildContainerWindowEdge(this, WindowEdge::Top))
 	{
 		rect.top = _windowSizeMoveInitialPos.top;
 	}
-	if(!_parentDockingWindow->CanResizeChildContainerWindowEdge(this, WindowEdge::Bottom))
+	if (!_parentDockingWindow->CanResizeChildContainerWindowEdge(this, WindowEdge::Bottom))
 	{
 		rect.bottom = _windowSizeMoveInitialPos.bottom;
 	}
@@ -445,7 +445,7 @@ LRESULT DockingWindow::msgWM_SIZE(WPARAM wParam, LPARAM lParam)
 	int newClientHeight = rect.bottom;
 
 	//Handle this size changed event
-	if((_currentControlWidth != newClientWidth) || (_currentControlHeight != newClientHeight))
+	if ((_currentControlWidth != newClientWidth) || (_currentControlHeight != newClientHeight))
 	{
 		HandleSizeChanged(newClientWidth, newClientHeight);
 	}
@@ -457,7 +457,7 @@ LRESULT DockingWindow::msgWM_SIZE(WPARAM wParam, LPARAM lParam)
 LRESULT DockingWindow::msgWM_MOVING(WPARAM wParam, LPARAM lParam)
 {
 	//Ensure we're currently tracking a window move operation
-	if(!_windowDragInProgress)
+	if (!_windowDragInProgress)
 	{
 		return 0;
 	}
@@ -470,7 +470,7 @@ LRESULT DockingWindow::msgWM_MOVING(WPARAM wParam, LPARAM lParam)
 
 	//If we're currently attached to a docking parent, detach now that a move operation is
 	//in progress.
-	if(_parentDockingWindow != 0)
+	if (_parentDockingWindow != 0)
 	{
 		//Cancel the current move operation. We need to do this so that we can change the
 		//window parent, otherwise the move operation doesn't let the mouse leave the old
@@ -487,7 +487,7 @@ LRESULT DockingWindow::msgWM_MOVING(WPARAM wParam, LPARAM lParam)
 		//If our old parent docking window had no owner window at the top of the parent
 		//chain, set the owner window to be the top-level parent window of the old parent
 		//docking window.
-		if(newOwnerWindow == NULL)
+		if (newOwnerWindow == NULL)
 		{
 			newOwnerWindow = GetAncestor(_parentDockingWindow->GetWindowHandle(), GA_ROOT);
 		}
@@ -541,14 +541,14 @@ LRESULT DockingWindow::msgWM_MOVING(WPARAM wParam, LPARAM lParam)
 	bool foundTargetWindow = false;
 	IDockingWindow* targetDockingWindow = 0;
 	std::list<IDockingWindow*>::const_iterator dockingWindowListIterator = dockingWindowList.begin();
-	while(!foundTargetWindow && (dockingWindowListIterator != dockingWindowList.end()))
+	while (!foundTargetWindow && (dockingWindowListIterator != dockingWindowList.end()))
 	{
 		targetDockingWindow = *dockingWindowListIterator;
-		if((targetDockingWindow != this) && (IsChild(_hwnd, targetDockingWindow->GetWindowHandle()) == 0))
+		if ((targetDockingWindow != this) && (IsChild(_hwnd, targetDockingWindow->GetWindowHandle()) == 0))
 		{
 			RECT targetDockingWindowRect;
 			GetWindowRect(targetDockingWindow->GetWindowHandle(), &targetDockingWindowRect);
-			if((targetDockingWindowRect.left <= _lastDragCursorPosX) && (targetDockingWindowRect.right > _lastDragCursorPosX) && (targetDockingWindowRect.top <= _lastDragCursorPosY) && (targetDockingWindowRect.bottom > _lastDragCursorPosY))
+			if ((targetDockingWindowRect.left <= _lastDragCursorPosX) && (targetDockingWindowRect.right > _lastDragCursorPosX) && (targetDockingWindowRect.top <= _lastDragCursorPosY) && (targetDockingWindowRect.bottom > _lastDragCursorPosY))
 			{
 				foundTargetWindow = true;
 				continue;
@@ -559,10 +559,10 @@ LRESULT DockingWindow::msgWM_MOVING(WPARAM wParam, LPARAM lParam)
 
 	//If the target docking window has a parent docking window, set the highest level
 	//parent docking window as our target docking window.
-	if(foundTargetWindow)
+	if (foundTargetWindow)
 	{
 		IDockingWindow* parentOfTargetDockingWindow = targetDockingWindow->GetParentDockingWindow();
-		while(parentOfTargetDockingWindow != 0)
+		while (parentOfTargetDockingWindow != 0)
 		{
 			targetDockingWindow = parentOfTargetDockingWindow;
 			parentOfTargetDockingWindow = targetDockingWindow->GetParentDockingWindow();
@@ -570,7 +570,7 @@ LRESULT DockingWindow::msgWM_MOVING(WPARAM wParam, LPARAM lParam)
 	}
 
 	//Remove the placement target from the previous target window if required
-	if((_dockingWindowUnderDragPos != 0) && (!foundTargetWindow || (_dockingWindowUnderDragPos != targetDockingWindow)))
+	if ((_dockingWindowUnderDragPos != 0) && (!foundTargetWindow || (_dockingWindowUnderDragPos != targetDockingWindow)))
 	{
 		_dockingWindowUnderDragPos->HideDropTargets(this);
 	}
@@ -580,7 +580,7 @@ LRESULT DockingWindow::msgWM_MOVING(WPARAM wParam, LPARAM lParam)
 
 	//If a docking window is currently under the cursor, update the display of any drop
 	//targets for the target docking window.
-	if(_dockingWindowUnderDragPos != 0)
+	if (_dockingWindowUnderDragPos != 0)
 	{
 		//Calculate the current window width and height
 		RECT rect;
@@ -595,7 +595,7 @@ LRESULT DockingWindow::msgWM_MOVING(WPARAM wParam, LPARAM lParam)
 	//Restart the timer to bring the window under the current cursor position up in the
 	//Z-order
 	KillTimer(_hwnd, 1);
-	if(_dockingWindowUnderDragPos != 0)
+	if (_dockingWindowUnderDragPos != 0)
 	{
 		SetTimer(_hwnd, 1, 500, NULL);
 	}
@@ -608,14 +608,14 @@ LRESULT DockingWindow::msgWM_TIMER(WPARAM wParam, LPARAM lParam)
 {
 	//If this timer has expired, bring the docking window under the current drag position
 	//up in the Z-order just below this window being dragged.
-	if(_dockingWindowUnderDragPos != 0)
+	if (_dockingWindowUnderDragPos != 0)
 	{
 		//Locate the top-level parent of the docking window under the current drag
 		//position
 		HWND topLevelParentWindow = NULL;
 		HWND desktopWindow = GetDesktopWindow();
 		HWND searchWindow = _dockingWindowUnderDragPos->GetWindowHandle();
-		while((searchWindow != NULL) && (searchWindow != desktopWindow))
+		while ((searchWindow != NULL) && (searchWindow != desktopWindow))
 		{
 			topLevelParentWindow = searchWindow;
 			searchWindow = GetAncestor(searchWindow, GA_PARENT);
@@ -628,7 +628,7 @@ LRESULT DockingWindow::msgWM_TIMER(WPARAM wParam, LPARAM lParam)
 		//or any owned windows which belong to the top level parent window will appear
 		//behind it after the Z-order change instead of above it, like they're always
 		//meant to.
-		if(topLevelParentWindow != NULL)
+		if (topLevelParentWindow != NULL)
 		{
 			SetWindowPos(topLevelParentWindow, _hwnd, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
 		}
@@ -653,7 +653,7 @@ LRESULT DockingWindow::msgWM_EXITSIZEMOVE(WPARAM wParam, LPARAM lParam)
 {
 	//If a window drag operation isn't currently in progress, abort any further
 	//processing.
-	if(!_windowDragInProgress)
+	if (!_windowDragInProgress)
 	{
 		return 0;
 	}
@@ -664,14 +664,14 @@ LRESULT DockingWindow::msgWM_EXITSIZEMOVE(WPARAM wParam, LPARAM lParam)
 
 	//If another docking window is under the current cursor position, dock this window
 	//into the target docking window if required.
-	if(_dockingWindowUnderDragPos != 0)
+	if (_dockingWindowUnderDragPos != 0)
 	{
 		//Calculate a docking location within the target window
 		IDockingWindowDropTargetInfo* dropTargetInfo;
 		bool foundDockLocation = _dockingWindowUnderDragPos->HitTestDropTargets(this, _lastDragCursorPosX, _lastDragCursorPosY, dropTargetInfo);
 
 		//If we found a target dock location, dock to the new parent docking window.
-		if(foundDockLocation)
+		if (foundDockLocation)
 		{
 			//If the target docking window is the same type of docking window, and we're
 			//docking into the content region of the control with no attached child
@@ -680,19 +680,19 @@ LRESULT DockingWindow::msgWM_EXITSIZEMOVE(WPARAM wParam, LPARAM lParam)
 			bool mergingContentWindows = false;
 			HWND dropTargetOwningWindow = dropTargetInfo->GetOwningDockingWindow();
 			IDockingWindow* dropTargetDockingWindow = GetDockingWindowFromHWND(dropTargetOwningWindow);
-			if(GetClassName(dropTargetOwningWindow) == WindowClassName)
+			if (GetClassName(dropTargetOwningWindow) == WindowClassName)
 			{
 				const DockingWindowDropTargetInfo* dropTargetInfoResolved = (const DockingWindowDropTargetInfo*)dropTargetInfo;
 				mergingContentWindows = dropTargetInfoResolved->dockLocationIsContentRegion;
-				if(mergingContentWindows && _childContainers.empty())
+				if (mergingContentWindows && _childContainers.empty())
 				{
 					//Transfer all our content windows to the target docking window
-					for(size_t i = 0; i < _hostedContent.size(); ++i)
+					for (size_t i = 0; i < _hostedContent.size(); ++i)
 					{
 						//Restore any window styles which were removed from the hosted
 						//content window
 						const ContentEntry& contentEntry = _hostedContent[i];
-						if(contentEntry.removedWindowStyles != 0)
+						if (contentEntry.removedWindowStyles != 0)
 						{
 							DWORD currentWindowStyle = (DWORD)GetWindowLongPtr(contentEntry.contentWindow, GWL_STYLE);
 							SetWindowLongPtr(contentEntry.contentWindow, GWL_STYLE, currentWindowStyle | contentEntry.removedWindowStyles);
@@ -721,7 +721,7 @@ LRESULT DockingWindow::msgWM_EXITSIZEMOVE(WPARAM wParam, LPARAM lParam)
 
 			//If we didn't merge our content windows into the target docking window, dock
 			//to the new parent docking window.
-			if(!mergingContentWindows)
+			if (!mergingContentWindows)
 			{
 				dropTargetDockingWindow->AddChildContainer(this, dropTargetInfo);
 			}
@@ -730,7 +730,7 @@ LRESULT DockingWindow::msgWM_EXITSIZEMOVE(WPARAM wParam, LPARAM lParam)
 			HWND newActiveWindow = NULL;
 			HWND desktopWindow = GetDesktopWindow();
 			HWND searchWindow = dropTargetDockingWindow->GetWindowHandle();
-			while((searchWindow != NULL) && (searchWindow != desktopWindow))
+			while ((searchWindow != NULL) && (searchWindow != desktopWindow))
 			{
 				newActiveWindow = searchWindow;
 				searchWindow = GetAncestor(searchWindow, GA_PARENT);
@@ -743,7 +743,7 @@ LRESULT DockingWindow::msgWM_EXITSIZEMOVE(WPARAM wParam, LPARAM lParam)
 	}
 
 	//Remove the placement target from the previous target window if required
-	if(_dockingWindowUnderDragPos != 0)
+	if (_dockingWindowUnderDragPos != 0)
 	{
 		_dockingWindowUnderDragPos->HideDropTargets(this);
 	}
@@ -759,7 +759,7 @@ LRESULT DockingWindow::msgWM_WINDOWPOSCHANGING(WPARAM wParam, LPARAM lParam)
 {
 	//If we need to ignore the next size and move event due to an undocking operation,
 	//drop any size and position information from this change event.
-	if(_ignoreNextSizeAndMove)
+	if (_ignoreNextSizeAndMove)
 	{
 		WINDOWPOS& windowPos = *((WINDOWPOS*)lParam);
 		windowPos.flags |= SWP_NOMOVE | SWP_NOSIZE;
@@ -774,9 +774,9 @@ LRESULT DockingWindow::msgWM_NCHITTEST(WPARAM wParam, LPARAM lParam)
 	//If we're docked in a parent window, ensure we only display resize icons for the
 	//border edges that can actually be resized.
 	LRESULT result = DefWindowProc(_hwnd, WM_NCHITTEST, wParam, lParam);
-	if(_parentDockingWindow != 0)
+	if (_parentDockingWindow != 0)
 	{
-		switch(result)
+		switch (result)
 		{
 		case HTLEFT:
 			result = (!_parentDockingWindow->CanResizeChildContainerWindowEdge(this, WindowEdge::Left))? HTBORDER: result;
@@ -798,35 +798,35 @@ LRESULT DockingWindow::msgWM_NCHITTEST(WPARAM wParam, LPARAM lParam)
 			bool resizeRightBorder = ((result == HTTOPRIGHT) || (result == HTBOTTOMRIGHT)) && _parentDockingWindow->CanResizeChildContainerWindowEdge(this, WindowEdge::Right);
 			bool resizeTopBorder = ((result == HTTOPLEFT) || (result == HTTOPRIGHT)) && _parentDockingWindow->CanResizeChildContainerWindowEdge(this, WindowEdge::Top);
 			bool resizeBottomBorder = ((result == HTBOTTOMLEFT) || (result == HTBOTTOMRIGHT)) && _parentDockingWindow->CanResizeChildContainerWindowEdge(this, WindowEdge::Bottom);
-			if(resizeLeftBorder && resizeTopBorder)
+			if (resizeLeftBorder && resizeTopBorder)
 			{
 				result = HTTOPLEFT;
 			}
-			else if(resizeLeftBorder && resizeBottomBorder)
+			else if (resizeLeftBorder && resizeBottomBorder)
 			{
 				result = HTBOTTOMLEFT;
 			}
-			else if(resizeRightBorder && resizeTopBorder)
+			else if (resizeRightBorder && resizeTopBorder)
 			{
 				result = HTTOPRIGHT;
 			}
-			else if(resizeRightBorder && resizeBottomBorder)
+			else if (resizeRightBorder && resizeBottomBorder)
 			{
 				result = HTBOTTOMRIGHT;
 			}
-			else if(resizeLeftBorder)
+			else if (resizeLeftBorder)
 			{
 				result = HTLEFT;
 			}
-			else if(resizeRightBorder)
+			else if (resizeRightBorder)
 			{
 				result = HTRIGHT;
 			}
-			else if(resizeTopBorder)
+			else if (resizeTopBorder)
 			{
 				result = HTTOP;
 			}
-			else if(resizeBottomBorder)
+			else if (resizeBottomBorder)
 			{
 				result = HTBOTTOM;
 			}
@@ -844,7 +844,7 @@ LRESULT DockingWindow::msgWM_NCHITTEST(WPARAM wParam, LPARAM lParam)
 LRESULT DockingWindow::msgWM_NCLBUTTONUP(WPARAM wParam, LPARAM lParam)
 {
 	//Ensure we're attached to a parent docking window
-	if(_parentDockingWindow == 0)
+	if (_parentDockingWindow == 0)
 	{
 		return DefWindowProc(_hwnd, WM_NCLBUTTONUP, wParam, lParam);
 	}
@@ -864,7 +864,7 @@ LRESULT DockingWindow::msgWM_SETCURSOR(WPARAM wParam, LPARAM lParam)
 {
 	//If we're not docked to a parent docking window, pass this message on to the default
 	//window procedure.
-	if(_parentDockingWindow == 0)
+	if (_parentDockingWindow == 0)
 	{
 		return DefWindowProc(_hwnd, WM_SETCURSOR, wParam, lParam);
 	}
@@ -878,7 +878,7 @@ LRESULT DockingWindow::msgWM_SETCURSOR(WPARAM wParam, LPARAM lParam)
 	//Allow the parent window to override the cursor for the target mouse position, and
 	//pass this message on to the default window procedure if none is specified.
 	HCURSOR parentOverrideCursor = _parentDockingWindow->ParentOverrideCursorForChildContainer(this, cursorPosX, cursorPosY);
-	if(parentOverrideCursor == NULL)
+	if (parentOverrideCursor == NULL)
 	{
 		return DefWindowProc(_hwnd, WM_SETCURSOR, wParam, lParam);
 	}
@@ -906,17 +906,17 @@ LRESULT DockingWindow::msgWM_SETFONT(WPARAM wParam, LPARAM lParam)
 	//and horizontal tab text, so we set the child controls of this tab group
 	//individually.
 	SendMessage(_dockPanel, WM_SETFONT, wParam, lParam);
-	if(_contentTabControl != NULL)
+	if (_contentTabControl != NULL)
 	{
 		SendMessage(_contentTabControl, WM_SETFONT, wParam, lParam);
 	}
 
 	//Create a vertical version of this font to use for vertical tab text
 	_controlFontVertical = _controlFont;
-	if(_controlFont != NULL)
+	if (_controlFont != NULL)
 	{
 		LOGFONT fontAttributes;
-		if(GetObject(_controlFont, sizeof(fontAttributes), &fontAttributes) != 0)
+		if (GetObject(_controlFont, sizeof(fontAttributes), &fontAttributes) != 0)
 		{
 			fontAttributes.lfOrientation = fontAttributes.lfEscapement = (900 * 3);
 			_controlFontVertical = CreateFontIndirect(&fontAttributes);
@@ -924,7 +924,7 @@ LRESULT DockingWindow::msgWM_SETFONT(WPARAM wParam, LPARAM lParam)
 	}
 
 	//Read the font metrics for our new font
-	if(_controlFont != NULL)
+	if (_controlFont != NULL)
 	{
 		HDC hdc = GetDC(_hwnd);
 		HFONT hfontOld = (HFONT)SelectObject(hdc, _controlFont);
@@ -961,12 +961,12 @@ LRESULT DockingWindow::msgWM_PAINT(WPARAM wParam, LPARAM lParam)
 LRESULT DockingWindow::msgWM_BOUNCE(WPARAM wParam, LPARAM lParam)
 {
 	BounceMessage* bounceMessage = (BounceMessage*)lParam;
-	if(bounceMessage->hwnd == _contentTabControl)
+	if (bounceMessage->hwnd == _contentTabControl)
 	{
-		if(bounceMessage->uMsg == WM_SIZE)
+		if (bounceMessage->uMsg == WM_SIZE)
 		{
 			//Resize the currently selected tab content
-			if(_currentSelectedTabIndex >= 0)
+			if (_currentSelectedTabIndex >= 0)
 			{
 				const ContentEntry& contentEntry = _hostedContent[_tabIndexToHostedContentNo[_currentSelectedTabIndex]];
 				RECT tabControlContentRect;
@@ -1017,14 +1017,14 @@ LRESULT DockingWindow::msgWM_BOUNCE(WPARAM wParam, LPARAM lParam)
 		//	//If the content region of this tab control is in the update region,
 		//	//invalidate the portion of the selected content that needs to be redrawn, and
 		//	//exclude the content region from the tab control update region.
-		//	if(childContentNeedsUpdating)
+		//	if (childContentNeedsUpdating)
 		//	{
 		//		//Locate the content entry for the currently selected tab
 		//		std::list<ContentEntry>::const_iterator hostedContentIterator = hostedContent.begin();
 		//		bool foundSelectedHostedContent = false;
-		//		while(!foundSelectedHostedContent && (hostedContentIterator != hostedContent.end()))
+		//		while (!foundSelectedHostedContent && (hostedContentIterator != hostedContent.end()))
 		//		{
-		//			if(hostedContentIterator->tabIndex == currentSelectedTabIndex)
+		//			if (hostedContentIterator->tabIndex == currentSelectedTabIndex)
 		//			{
 		//				foundSelectedHostedContent = true;
 		//				continue;
@@ -1033,7 +1033,7 @@ LRESULT DockingWindow::msgWM_BOUNCE(WPARAM wParam, LPARAM lParam)
 		//		}
 
 		//		//Request the selected content of this tab control to redraw
-		//		if(foundSelectedHostedContent)
+		//		if (foundSelectedHostedContent)
 		//		{
 		//			//Redraw the non-client area of the selected content
 		//			const ContentEntry& selectedHostedContent = *hostedContentIterator;
@@ -1083,7 +1083,7 @@ LRESULT DockingWindow::msgWM_BOUNCE(WPARAM wParam, LPARAM lParam)
 
 		//			//If an update rectangle was successfully calculated for the client
 		//			//region of our selected content window, invalidate that region now.
-		//			if(intersectRectReturn != 0)
+		//			if (intersectRectReturn != 0)
 		//			{
 		//				//Convert the selected content client update region rectangle from
 		//				//coordinates relative to the parent tab control into client
@@ -1104,7 +1104,7 @@ LRESULT DockingWindow::msgWM_BOUNCE(WPARAM wParam, LPARAM lParam)
 		//		ValidateRect(contentTabControl, &tabControlContentRect);
 		//	}
 		//}
-		else if(bounceMessage->uMsg == WM_LBUTTONDOWN)
+		else if (bounceMessage->uMsg == WM_LBUTTONDOWN)
 		{
 			//Flag that the left mouse button is currently down
 			_leftMouseButtonDown = true;
@@ -1128,7 +1128,7 @@ LRESULT DockingWindow::msgWM_BOUNCE(WPARAM wParam, LPARAM lParam)
 			//partially visible tab is selected. In this case, the tab is repositioned
 			//when it is selected, and we need to ensure we don't confuse this with a drag
 			//event caused by the user.
-			if(currentCursorTabIndex == _currentSelectedTabIndex)
+			if (currentCursorTabIndex == _currentSelectedTabIndex)
 			{
 				_tabDragActive = true;
 				_dragTabIndex = currentCursorTabIndex;
@@ -1136,7 +1136,7 @@ LRESULT DockingWindow::msgWM_BOUNCE(WPARAM wParam, LPARAM lParam)
 				_tabDragIgnoreTabIndex = false;
 			}
 		}
-		else if(bounceMessage->uMsg == WM_LBUTTONUP)
+		else if (bounceMessage->uMsg == WM_LBUTTONUP)
 		{
 			//Flag that the left mouse button is no longer down
 			_leftMouseButtonDown = false;
@@ -1147,9 +1147,9 @@ LRESULT DockingWindow::msgWM_BOUNCE(WPARAM wParam, LPARAM lParam)
 			//Stop the tab drag operation if one is in progress
 			_tabDragActive = false;
 		}
-		else if(bounceMessage->uMsg == WM_MOUSEMOVE)
+		else if (bounceMessage->uMsg == WM_MOUSEMOVE)
 		{
-			if(_tabDragActive)
+			if (_tabDragActive)
 			{
 				//Calculate the tab index that the cursor is currently over
 				int cursorPosX = (short)LOWORD(bounceMessage->lParam);
@@ -1164,7 +1164,7 @@ LRESULT DockingWindow::msgWM_BOUNCE(WPARAM wParam, LPARAM lParam)
 				//tab index, abort any further processing, otherwise disable tab index
 				//ignoring now that the current tab index under the mouse position is
 				//different. See the notes under TCN_SELCHANGE for more info.
-				if(_tabDragIgnoreTabIndex && (_tabDragIndexToIgnore == selectedTabIndex))
+				if (_tabDragIgnoreTabIndex && (_tabDragIndexToIgnore == selectedTabIndex))
 				{
 					return 0;
 				}
@@ -1172,12 +1172,12 @@ LRESULT DockingWindow::msgWM_BOUNCE(WPARAM wParam, LPARAM lParam)
 
 				//If the tab the mouse is currently over has a dead zone, abort any
 				//further processing if the mouse is within the dead zone.
-				if((_tabWithDeadZoneForDrag >= 0) && (selectedTabIndex == _tabWithDeadZoneForDrag))
+				if ((_tabWithDeadZoneForDrag >= 0) && (selectedTabIndex == _tabWithDeadZoneForDrag))
 				{
 					RECT rect;
 					SendMessage(_contentTabControl, TCM_GETITEMRECT, selectedTabIndex, (LPARAM)&rect);
 					int cursorPositionXInTab = cursorPosX - rect.left;
-					if((cursorPositionXInTab >= _tabDeadZoneStartX) && (cursorPositionXInTab < _tabDeadZoneEndX))
+					if ((cursorPositionXInTab >= _tabDeadZoneStartX) && (cursorPositionXInTab < _tabDeadZoneEndX))
 					{
 						return 0;
 					}
@@ -1189,7 +1189,7 @@ LRESULT DockingWindow::msgWM_BOUNCE(WPARAM wParam, LPARAM lParam)
 
 				//If the tab has been moved, either before or after another tab in the
 				//window, or out of the control, adjust the tab being dragged as required.
-				if(selectedTabIndex < 0)
+				if (selectedTabIndex < 0)
 				{
 					//Stop the tab drag operation
 					_tabDragActive = false;
@@ -1214,7 +1214,7 @@ LRESULT DockingWindow::msgWM_BOUNCE(WPARAM wParam, LPARAM lParam)
 					//If we have no owner window at the top of the parent chain, set the
 					//new owner window for the detached content window to be the our
 					//top-level parent window.
-					if(newOwnerWindow == NULL)
+					if (newOwnerWindow == NULL)
 					{
 						newOwnerWindow = GetAncestor(_hwnd, GA_ROOT);
 					}
@@ -1223,7 +1223,7 @@ LRESULT DockingWindow::msgWM_BOUNCE(WPARAM wParam, LPARAM lParam)
 					//if the content window isn't a docking window itself, or in its own
 					//frame if the content window is a docking window.
 					HWND separatedWindow = NULL;
-					if(contentEntry.contentWindowAsDockingWindow != 0)
+					if (contentEntry.contentWindowAsDockingWindow != 0)
 					{
 						//Calculate the width and height of our separated docking window
 						DWORD separatedWindowStyle = (DWORD)GetWindowLongPtr(contentEntry.contentWindow, GWL_STYLE);
@@ -1282,7 +1282,7 @@ LRESULT DockingWindow::msgWM_BOUNCE(WPARAM wParam, LPARAM lParam)
 						HWND separatedDockingWindowHandle = CreateWindowEx(separatedDockingWindowStyleEX, WindowClassName, contentEntry.contentTitle.c_str(), separatedDockingWindowStyle, separatedDockingWindowPosX, separatedDockingWindowPosY, separatedDockingWindowWidth, separatedDockingWindowHeight, newOwnerWindow, NULL, (HINSTANCE)_moduleHandle, NULL);
 
 						//Set the font for the created detached content window
-						if(_controlFont != NULL)
+						if (_controlFont != NULL)
 						{
 							SendMessage(separatedDockingWindowHandle, WM_SETFONT, (WPARAM)_controlFont, FALSE);
 						}
@@ -1307,7 +1307,7 @@ LRESULT DockingWindow::msgWM_BOUNCE(WPARAM wParam, LPARAM lParam)
 					//Enter move mode for the separated window
 					PostMessage(separatedWindow, WM_SYSCOMMAND, SC_MOVE, 0);
 				}
-				else if(selectedTabIndex != _dragTabIndex)
+				else if (selectedTabIndex != _dragTabIndex)
 				{
 					//Retrieve information on the dragged tab
 					const ContentEntry& contentEntry = _hostedContent[_tabIndexToHostedContentNo[_dragTabIndex]];
@@ -1316,23 +1316,23 @@ LRESULT DockingWindow::msgWM_BOUNCE(WPARAM wParam, LPARAM lParam)
 					//tab being moved, and adjust the currently selected tab index.
 					_tabIndexToHostedContentNo.clear();
 					int newCurrentSelectedTabIndex = _currentSelectedTabIndex;
-					for(size_t i = 0; i < _hostedContent.size(); ++i)
+					for (size_t i = 0; i < _hostedContent.size(); ++i)
 					{
 						ContentEntry& contentEntry = _hostedContent[i];
 						int newTabIndex = contentEntry.tabIndex;
-						if(contentEntry.tabIndex == _dragTabIndex)
+						if (contentEntry.tabIndex == _dragTabIndex)
 						{
 							newTabIndex = selectedTabIndex;
 						}
-						else if((_dragTabIndex > selectedTabIndex) && (contentEntry.tabIndex >= selectedTabIndex) && (contentEntry.tabIndex < _dragTabIndex))
+						else if ((_dragTabIndex > selectedTabIndex) && (contentEntry.tabIndex >= selectedTabIndex) && (contentEntry.tabIndex < _dragTabIndex))
 						{
 							newTabIndex = contentEntry.tabIndex + 1;
 						}
-						else if((_dragTabIndex < selectedTabIndex) && (contentEntry.tabIndex > _dragTabIndex) && (contentEntry.tabIndex <= selectedTabIndex))
+						else if ((_dragTabIndex < selectedTabIndex) && (contentEntry.tabIndex > _dragTabIndex) && (contentEntry.tabIndex <= selectedTabIndex))
 						{
 							newTabIndex = contentEntry.tabIndex - 1;
 						}
-						if(contentEntry.tabIndex == _currentSelectedTabIndex)
+						if (contentEntry.tabIndex == _currentSelectedTabIndex)
 						{
 							newCurrentSelectedTabIndex = newTabIndex;
 						}
@@ -1354,7 +1354,7 @@ LRESULT DockingWindow::msgWM_BOUNCE(WPARAM wParam, LPARAM lParam)
 
 					//If we're docked to a parent window, notify the parent docking window
 					//that our list of hosted content windows has changed.
-					if(_parentDockingWindow != 0)
+					if (_parentDockingWindow != 0)
 					{
 						_parentDockingWindow->NotifyChildContainerContentChanged(this);
 					}
@@ -1370,7 +1370,7 @@ LRESULT DockingWindow::msgWM_BOUNCE(WPARAM wParam, LPARAM lParam)
 					//moved back to its previous position if it is shifted further along
 					//in the tab we ended up over.
 					int adjustedSelectedTabIndex = (int)SendMessage(_contentTabControl, TCM_HITTEST, 0, (LPARAM)&hitTestInfo);
-					if(adjustedSelectedTabIndex != _dragTabIndex)
+					if (adjustedSelectedTabIndex != _dragTabIndex)
 					{
 						//Record the tab we ended up on as having a dead zone
 						_tabWithDeadZoneForDrag = adjustedSelectedTabIndex;
@@ -1378,7 +1378,7 @@ LRESULT DockingWindow::msgWM_BOUNCE(WPARAM wParam, LPARAM lParam)
 						//Calculate the start and end positions for the dead zone
 						RECT rect;
 						SendMessage(_contentTabControl, TCM_GETITEMRECT, adjustedSelectedTabIndex, (LPARAM)&rect);
-						if(adjustedSelectedTabIndex < _dragTabIndex)
+						if (adjustedSelectedTabIndex < _dragTabIndex)
 						{
 							_tabDeadZoneStartX = cursorPosX - rect.left;
 							_tabDeadZoneEndX = rect.right - rect.left;
@@ -1393,14 +1393,14 @@ LRESULT DockingWindow::msgWM_BOUNCE(WPARAM wParam, LPARAM lParam)
 			}
 		}
 	}
-	else if(bounceMessage->hwnd == _dockPanel)
+	else if (bounceMessage->hwnd == _dockPanel)
 	{
-		if(bounceMessage->uMsg == WM_NOTIFY)
+		if (bounceMessage->uMsg == WM_NOTIFY)
 		{
 			NMHDR* nmhdr = (NMHDR*)bounceMessage->lParam;
-			if(nmhdr->hwndFrom == _contentTabControl)
+			if (nmhdr->hwndFrom == _contentTabControl)
 			{
-				if(nmhdr->code == TCN_SELCHANGE)
+				if (nmhdr->code == TCN_SELCHANGE)
 				{
 					//Handle the tab selection change
 					int selectedTabIndex = (int)SendMessage(_contentTabControl, TCM_GETCURSEL, 0, 0);
@@ -1411,7 +1411,7 @@ LRESULT DockingWindow::msgWM_BOUNCE(WPARAM wParam, LPARAM lParam)
 					//deferred the start of a tab drag event until the new tab selection
 					//has been completed. In this case, we begin a drag event for the
 					//newly selected tab item.
-					if(!_tabDragActive && _leftMouseButtonDown && (selectedTabIndex >= 0))
+					if (!_tabDragActive && _leftMouseButtonDown && (selectedTabIndex >= 0))
 					{
 						//Flag that a tab drag event is currently in progress
 						_tabDragActive = true;
@@ -1440,7 +1440,7 @@ LRESULT DockingWindow::msgWM_BOUNCE(WPARAM wParam, LPARAM lParam)
 						//events until the current tab index under the mouse cursor
 						//changes. This avoids inadvertent moves or undocks of partially
 						//visible tabs when they are just clicked by the user.
-						if(currentCursorTabIndex != selectedTabIndex)
+						if (currentCursorTabIndex != selectedTabIndex)
 						{
 							_tabDragIgnoreTabIndex = true;
 							_tabDragIndexToIgnore = currentCursorTabIndex;
@@ -1449,19 +1449,19 @@ LRESULT DockingWindow::msgWM_BOUNCE(WPARAM wParam, LPARAM lParam)
 				}
 			}
 		}
-		else if(bounceMessage->uMsg == WM_PARENTNOTIFY)
+		else if (bounceMessage->uMsg == WM_PARENTNOTIFY)
 		{
 			//If a child window of our dock panel is closing, attempt to locate and remove
 			//the corresponding content window for the window that is closing.
-			if(LOWORD(bounceMessage->wParam) == WM_DESTROY)
+			if (LOWORD(bounceMessage->wParam) == WM_DESTROY)
 			{
 				//Attempt to locate a content window entry for the closing window
 				HWND closingChildWindow = (HWND)bounceMessage->lParam;
 				bool foundContentEntry = false;
 				size_t hostedContentNo = 0;
-				while(!foundContentEntry && (hostedContentNo < _hostedContent.size()))
+				while (!foundContentEntry && (hostedContentNo < _hostedContent.size()))
 				{
-					if(_hostedContent[hostedContentNo].contentWindow == closingChildWindow)
+					if (_hostedContent[hostedContentNo].contentWindow == closingChildWindow)
 					{
 						foundContentEntry = true;
 						continue;
@@ -1472,32 +1472,32 @@ LRESULT DockingWindow::msgWM_BOUNCE(WPARAM wParam, LPARAM lParam)
 				//If we found the content entry for this closing window, remove the
 				//content entry from our dock panel, and close our dock panel if no more
 				//content windows remain.
-				if(foundContentEntry)
+				if (foundContentEntry)
 				{
 					//Remove the target hosted content window
 					RemoveHostedContent(_hostedContent[hostedContentNo].contentWindow);
 
 					//Close this dock window if no content windows remain, and we're not
 					//setup as an embedded dock window.
-					if(_hostedContent.empty() && !AlwaysShowContentWindowTabs())
+					if (_hostedContent.empty() && !AlwaysShowContentWindowTabs())
 					{
 						SendMessage(_hwnd, WM_CLOSE, 0, 0);
 					}
 				}
 			}
 		}
-		else if(bounceMessage->uMsg == WM_BOUNCE)
+		else if (bounceMessage->uMsg == WM_BOUNCE)
 		{
 			//Tunnel into children of the dock panel that have bounceback enabled. We need
 			//this so we can receive content tab control messages.
 			return msgWM_BOUNCE(bounceMessage->wParam, bounceMessage->lParam);
 		}
 	}
-	else if(bounceMessage->hwnd == _tabDockPanel)
+	else if (bounceMessage->hwnd == _tabDockPanel)
 	{
 		//Tunnel into children of the tab dock panel that have bounceback enabled. We need
 		//this so we can receive the inner dock panel messages.
-		if(bounceMessage->uMsg == WM_BOUNCE)
+		if (bounceMessage->uMsg == WM_BOUNCE)
 		{
 			return msgWM_BOUNCE(bounceMessage->wParam, bounceMessage->lParam);
 		}
@@ -1527,11 +1527,11 @@ LRESULT DockingWindow::msgDOCKWIN_MODIFYCONTENTWINDOW(WPARAM wParam, LPARAM lPar
 {
 	unsigned int contentEntryNo = (unsigned int)wParam;
 	const ModifyContentWindowParams& params = *((const ModifyContentWindowParams*)lParam);
-	if((params.contentWindowInfo & ContentWindowInfo::Handle) != 0)
+	if ((params.contentWindowInfo & ContentWindowInfo::Handle) != 0)
 	{
 		SetHostedContentWindow(contentEntryNo, params.hwnd);
 	}
-	if((params.contentWindowInfo & ContentWindowInfo::Title) != 0)
+	if ((params.contentWindowInfo & ContentWindowInfo::Title) != 0)
 	{
 		SetHostedContentTitle(contentEntryNo, params.windowTitle);
 	}
@@ -1544,7 +1544,7 @@ LRESULT DockingWindow::msgDOCKWIN_ADDDOCKEDWINDOW(WPARAM wParam, LPARAM lParam)
 	//Retrieve the docking window associated with the supplied window handle
 	const AddDockedWindowParams& params = *((const AddDockedWindowParams*)lParam);
 	IDockingWindow* newDockedWindow = GetDockingWindowFromHWND(params.hwnd);
-	if(newDockedWindow == 0)
+	if (newDockedWindow == 0)
 	{
 		return -1;
 	}
@@ -1565,9 +1565,9 @@ LRESULT DockingWindow::msgDOCKWIN_REMOVEDOCKEDWINDOW(WPARAM wParam, LPARAM lPara
 {
 	HWND dockedWindowHandle = (HWND)lParam;
 	IDockingWindow* dockedWindow = GetDockingWindowFromHWND(dockedWindowHandle);
-	if(dockedWindow != 0)
+	if (dockedWindow != 0)
 	{
-		if(dockedWindow->GetParentDockingWindow() == this)
+		if (dockedWindow->GetParentDockingWindow() == this)
 		{
 			RemoveChildContainer(dockedWindow);
 		}
@@ -1579,9 +1579,9 @@ LRESULT DockingWindow::msgDOCKWIN_REMOVEDOCKEDWINDOW(WPARAM wParam, LPARAM lPara
 LRESULT DockingWindow::msgDOCKWIN_GETCONTENTWINDOWINDEXFROMHANDLE(WPARAM wParam, LPARAM lParam)
 {
 	HWND windowHandle = (HWND)lParam;
-	for(unsigned int currentEntryNo = 0; currentEntryNo < _hostedContent.size(); ++currentEntryNo)
+	for (unsigned int currentEntryNo = 0; currentEntryNo < _hostedContent.size(); ++currentEntryNo)
 	{
-		if(_hostedContent[currentEntryNo].contentWindow == windowHandle)
+		if (_hostedContent[currentEntryNo].contentWindow == windowHandle)
 		{
 			return (LRESULT)currentEntryNo;
 		}
@@ -1594,9 +1594,9 @@ LRESULT DockingWindow::msgDOCKWIN_GETDOCKEDWINDOWINDEXFROMHANDLE(WPARAM wParam, 
 {
 	HWND windowHandle = (HWND)lParam;
 	unsigned int currentEntryNo = 0;
-	for(std::list<ChildContainerEntry>::const_iterator i = _childContainers.begin(); i != _childContainers.end(); ++i)
+	for (std::list<ChildContainerEntry>::const_iterator i = _childContainers.begin(); i != _childContainers.end(); ++i)
 	{
-		if(i->childContainer->GetWindowHandle() == windowHandle)
+		if (i->childContainer->GetWindowHandle() == windowHandle)
 		{
 			return (LRESULT)currentEntryNo;
 		}
@@ -1616,7 +1616,7 @@ LRESULT DockingWindow::msgDOCKWIN_GETCONTENTWINDOWINFO(WPARAM wParam, LPARAM lPa
 {
 	//Retrieve the requested content entry
 	size_t targetEntryNo = (size_t)(unsigned int)wParam;
-	if(targetEntryNo >= _hostedContent.size())
+	if (targetEntryNo >= _hostedContent.size())
 	{
 		return 1;
 	}
@@ -1644,12 +1644,12 @@ LRESULT DockingWindow::msgDOCKWIN_GETDOCKEDWINDOWINFO(WPARAM wParam, LPARAM lPar
 	size_t targetEntryNo = (size_t)(unsigned int)wParam;
 	size_t currentEntryNo = 0;
 	std::list<ChildContainerEntry>::const_iterator childContainerIterator = _childContainers.begin();
-	while((currentEntryNo < targetEntryNo) && (childContainerIterator != _childContainers.end()))
+	while ((currentEntryNo < targetEntryNo) && (childContainerIterator != _childContainers.end()))
 	{
 		++currentEntryNo;
 		++childContainerIterator;
 	}
-	if((currentEntryNo != targetEntryNo) || (childContainerIterator == _childContainers.end()))
+	if ((currentEntryNo != targetEntryNo) || (childContainerIterator == _childContainers.end()))
 	{
 		return 1;
 	}
@@ -1660,7 +1660,7 @@ LRESULT DockingWindow::msgDOCKWIN_GETDOCKEDWINDOWINFO(WPARAM wParam, LPARAM lPar
 	params.hwnd = targetEntry.childContainer->GetWindowHandle();
 	params.dockLocation = targetEntry.dockLocation;
 	params.autoHide = targetEntry.autoHide;
-	if(params.autoHide)
+	if (params.autoHide)
 	{
 		RECT rect;
 		GetWindowRect(params.hwnd, &rect);
@@ -1696,7 +1696,7 @@ LRESULT DockingWindow::msgDOCKWIN_PERFORMTABHITTEST(WPARAM wParam, LPARAM lParam
 	int cursorScreenPosY = (short)HIWORD(lParam);
 
 	//Perform hit testing to see if any tab is under the cursor
-	for(std::map<WindowEdge, AutoHideDockInfo>::const_iterator i = _autoHideDocks.begin(); i != _autoHideDocks.end(); ++i)
+	for (std::map<WindowEdge, AutoHideDockInfo>::const_iterator i = _autoHideDocks.begin(); i != _autoHideDocks.end(); ++i)
 	{
 		//Calculate the width and height of this tab tray
 		const AutoHideDockInfo& autoHideDockInfo = i->second;
@@ -1719,7 +1719,7 @@ LRESULT DockingWindow::msgDOCKWIN_PERFORMTABHITTEST(WPARAM wParam, LPARAM lParam
 		//mouse is all the way towards the edge of the screen.
 		int tabExtendedHitAdditionalBorderMarginX = GetSystemMetrics(SM_CXFIXEDFRAME);
 		int tabExtendedHitAdditionalBorderMarginY = GetSystemMetrics(SM_CYFIXEDFRAME);
-		switch(autoHideDockInfo.dockLocation)
+		switch (autoHideDockInfo.dockLocation)
 		{
 		case IDockingWindow::WindowEdge::Left:
 			cursorPosX = ((cursorPosX < 0) && ((cursorPosX + tabExtendedHitAdditionalBorderMarginX) >= 0))? 0: cursorPosX;
@@ -1737,7 +1737,7 @@ LRESULT DockingWindow::msgDOCKWIN_PERFORMTABHITTEST(WPARAM wParam, LPARAM lParam
 
 		//If the snapped cursor position is within the hit region for the target tab tray,
 		//perform tab hit testing for the target tab tray.
-		if((cursorPosX >= 0) && (cursorPosX < tabTrayWidth) && (cursorPosY >= 0) && (cursorPosY < tabTrayHeight))
+		if ((cursorPosX >= 0) && (cursorPosX < tabTrayWidth) && (cursorPosY >= 0) && (cursorPosY < tabTrayHeight))
 		{
 			TabHitTest(i->second.dockWindow, cursorPosX, cursorPosY);
 		}
@@ -1750,11 +1750,11 @@ LRESULT DockingWindow::msgDOCKWIN_PERFORMTABHITTEST(WPARAM wParam, LPARAM lParam
 //----------------------------------------------------------------------------------------
 LRESULT CALLBACK DockingWindow::TabTrayWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	switch(message)
+	switch (message)
 	{
 	default:{
 		DockingWindow* object = (DockingWindow*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-		if(object != 0)
+		if (object != 0)
 		{
 			return object->TabTrayWndProcPrivate(hwnd, message, wParam, lParam);
 		}
@@ -1766,7 +1766,7 @@ LRESULT CALLBACK DockingWindow::TabTrayWndProc(HWND hwnd, UINT message, WPARAM w
 		return object->TabTrayWndProcPrivate(hwnd, message, wParam, lParam);}
 	case WM_DESTROY:{
 		DockingWindow* object = (DockingWindow*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-		if(object != 0)
+		if (object != 0)
 		{
 			LPARAM result = object->TabTrayWndProcPrivate(hwnd, message, wParam, lParam);
 			SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)0);
@@ -1781,7 +1781,7 @@ LRESULT CALLBACK DockingWindow::TabTrayWndProc(HWND hwnd, UINT message, WPARAM w
 //----------------------------------------------------------------------------------------
 LRESULT DockingWindow::TabTrayWndProcPrivate(HWND tabTrayHwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	switch(message)
+	switch (message)
 	{
 	case WM_SIZE:
 		return msgTabTrayWM_SIZE(tabTrayHwnd, wParam, lParam);
@@ -1813,7 +1813,7 @@ LRESULT DockingWindow::msgTabTrayWM_SIZE(HWND tabTrayHwnd, WPARAM wParam, LPARAM
 LRESULT DockingWindow::msgTabTrayWM_TIMER(HWND tabTrayHwnd, WPARAM wParam, LPARAM lParam)
 {
 	//Ensure an auto hide panel is currently visible, and kill this timer if it is not.
-	if(!_autoHidePanelVisible)
+	if (!_autoHidePanelVisible)
 	{
 		KillTimer(tabTrayHwnd, 1);
 		return 0;
@@ -1827,7 +1827,7 @@ LRESULT DockingWindow::msgTabTrayWM_TIMER(HWND tabTrayHwnd, WPARAM wParam, LPARA
 
 	//If the cursor is within the extended hit region of the tab tray that owns the
 	//currently visible auto hide dock panel, abort any further processing.
-	if((cursorPosX >= _tabExtendedHitRegionX) && (cursorPosX < (_tabExtendedHitRegionX + _tabExtendedHitRegionWidth)) && (cursorPosY >= _tabExtendedHitRegionY) && (cursorPosY < (_tabExtendedHitRegionY + _tabExtendedHitRegionHeight)))
+	if ((cursorPosX >= _tabExtendedHitRegionX) && (cursorPosX < (_tabExtendedHitRegionX + _tabExtendedHitRegionWidth)) && (cursorPosY >= _tabExtendedHitRegionY) && (cursorPosY < (_tabExtendedHitRegionY + _tabExtendedHitRegionHeight)))
 	{
 		return 0;
 	}
@@ -1855,7 +1855,7 @@ LRESULT DockingWindow::msgTabTrayWM_TIMER(HWND tabTrayHwnd, WPARAM wParam, LPARA
 	int dockPanelGraceRegionPosY = (rect.top - dockPanelBorderGraceHeight);
 	int dockPanelGraceRegionWidth = (rect.right - rect.left) + (2 * dockPanelBorderGraceWidth);
 	int dockPanelGraceRegionHeight = (rect.bottom - rect.top) + (2 * dockPanelBorderGraceHeight);
-	if((cursorPosX >= dockPanelGraceRegionPosX) && (cursorPosX < (dockPanelGraceRegionPosX + dockPanelGraceRegionWidth)) && (cursorPosY >= dockPanelGraceRegionPosY) && (cursorPosY < (dockPanelGraceRegionPosY + dockPanelGraceRegionHeight)))
+	if ((cursorPosX >= dockPanelGraceRegionPosX) && (cursorPosX < (dockPanelGraceRegionPosX + dockPanelGraceRegionWidth)) && (cursorPosY >= dockPanelGraceRegionPosY) && (cursorPosY < (dockPanelGraceRegionPosY + dockPanelGraceRegionHeight)))
 	{
 		return 0;
 	}
@@ -1881,11 +1881,11 @@ LRESULT DockingWindow::msgTabTrayWM_MOUSEMOVE(HWND tabTrayHwnd, WPARAM wParam, L
 	HWND activeWindow = GetActiveWindow();
 	HWND desktopWindow = GetDesktopWindow();
 	HWND searchWindow = _hwnd;
-	while((searchWindow != NULL) && (searchWindow != activeWindow) && (searchWindow != desktopWindow))
+	while ((searchWindow != NULL) && (searchWindow != activeWindow) && (searchWindow != desktopWindow))
 	{
 		searchWindow = GetAncestor(searchWindow, GA_PARENT);
 	}
-	if((searchWindow == NULL) || (searchWindow == desktopWindow))
+	if ((searchWindow == NULL) || (searchWindow == desktopWindow))
 	{
 		return 0;
 	}
@@ -1905,16 +1905,16 @@ LRESULT DockingWindow::msgTabTrayWM_PAINT(HWND tabTrayHwnd, WPARAM wParam, LPARA
 	//Attempt to retrieve the target tab dock info
 	std::map<WindowEdge, AutoHideDockInfo>::iterator dockIterator = _autoHideDocks.begin();
 	bool foundTargetDock = false;
-	while(!foundTargetDock && (dockIterator != _autoHideDocks.end()))
+	while (!foundTargetDock && (dockIterator != _autoHideDocks.end()))
 	{
-		if(dockIterator->second.dockWindow == tabTrayHwnd)
+		if (dockIterator->second.dockWindow == tabTrayHwnd)
 		{
 			foundTargetDock = true;
 			continue;
 		}
 		++dockIterator;
 	}
-	if(!foundTargetDock)
+	if (!foundTargetDock)
 	{
 		return 0;
 	}
@@ -1964,10 +1964,10 @@ LRESULT DockingWindow::msgTabTrayWM_PAINT(HWND tabTrayHwnd, WPARAM wParam, LPARA
 	//control now. Note that we need to do this after we've validated the content region,
 	//so that a new WM_PAINT message will be generated after the resize event.
 	int tabTrayRowSize = (_controlFontHeight + (_dockingPanelTabMarginSize * 3));
-	if(dockInfo.tabRowCount != initialDockRowCount)
+	if (dockInfo.tabRowCount != initialDockRowCount)
 	{
 		//Update the size of this tab tray
-		if((dockInfo.dockLocation == WindowEdge::Top) || (dockInfo.dockLocation == WindowEdge::Bottom))
+		if ((dockInfo.dockLocation == WindowEdge::Top) || (dockInfo.dockLocation == WindowEdge::Bottom))
 		{
 			SendMessage(_tabDockPanel, (UINT)WC_DockPanel::WindowMessages::SetDockedWindowDesiredHeight, (dockInfo.tabRowCount * tabTrayRowSize), (LPARAM)tabTrayHwnd);
 		}
@@ -1978,11 +1978,11 @@ LRESULT DockingWindow::msgTabTrayWM_PAINT(HWND tabTrayHwnd, WPARAM wParam, LPARA
 
 		//If this tab tray is docked to the top or bottom, force any left or right docked
 		//tab trays to redraw too, since the top and bottom padding sizes have changed.
-		if((dockInfo.dockLocation == WindowEdge::Top) || (dockInfo.dockLocation == WindowEdge::Bottom))
+		if ((dockInfo.dockLocation == WindowEdge::Top) || (dockInfo.dockLocation == WindowEdge::Bottom))
 		{
-			for(std::map<WindowEdge, AutoHideDockInfo>::const_iterator i = _autoHideDocks.begin(); i != _autoHideDocks.end(); ++i)
+			for (std::map<WindowEdge, AutoHideDockInfo>::const_iterator i = _autoHideDocks.begin(); i != _autoHideDocks.end(); ++i)
 			{
-				if((i->first == WindowEdge::Left) || (i->first == WindowEdge::Right))
+				if ((i->first == WindowEdge::Left) || (i->first == WindowEdge::Right))
 				{
 					InvalidateRect(i->second.dockWindow, NULL, FALSE);
 				}
@@ -2006,16 +2006,16 @@ LRESULT DockingWindow::msgTabTrayWM_PRINTCLIENT(HWND tabTrayHwnd, WPARAM wParam,
 	//Attempt to retrieve the target tab dock info
 	std::map<WindowEdge, AutoHideDockInfo>::iterator dockIterator = _autoHideDocks.begin();
 	bool foundTargetDock = false;
-	while(!foundTargetDock && (dockIterator != _autoHideDocks.end()))
+	while (!foundTargetDock && (dockIterator != _autoHideDocks.end()))
 	{
-		if(dockIterator->second.dockWindow == tabTrayHwnd)
+		if (dockIterator->second.dockWindow == tabTrayHwnd)
 		{
 			foundTargetDock = true;
 			continue;
 		}
 		++dockIterator;
 	}
-	if(!foundTargetDock)
+	if (!foundTargetDock)
 	{
 		return 0;
 	}
@@ -2026,15 +2026,15 @@ LRESULT DockingWindow::msgTabTrayWM_PRINTCLIENT(HWND tabTrayHwnd, WPARAM wParam,
 	//adjoining this one.
 	int verticalTabTrayStartPadding = 0;
 	int verticalTabTrayEndPadding = 0;
-	if((dockInfo.dockLocation == WindowEdge::Left) || (dockInfo.dockLocation == WindowEdge::Right))
+	if ((dockInfo.dockLocation == WindowEdge::Left) || (dockInfo.dockLocation == WindowEdge::Right))
 	{
-		for(std::map<WindowEdge, AutoHideDockInfo>::const_iterator i = _autoHideDocks.begin(); i != _autoHideDocks.end(); ++i)
+		for (std::map<WindowEdge, AutoHideDockInfo>::const_iterator i = _autoHideDocks.begin(); i != _autoHideDocks.end(); ++i)
 		{
-			if(i->first == WindowEdge::Top)
+			if (i->first == WindowEdge::Top)
 			{
 				verticalTabTrayStartPadding += i->second.tabRowCount * tabTrayRowSize;
 			}
-			else if(i->first == WindowEdge::Bottom)
+			else if (i->first == WindowEdge::Bottom)
 			{
 				verticalTabTrayEndPadding += i->second.tabRowCount * tabTrayRowSize;
 			}
@@ -2062,7 +2062,7 @@ LRESULT DockingWindow::msgTabTrayWM_PRINTCLIENT(HWND tabTrayHwnd, WPARAM wParam,
 	int nextTabGroupWindowPosY = (dockInfo.dockLocation == WindowEdge::Bottom)? _dockingPanelTabMarginSize: 0;
 	nextTabGroupWindowPosY += verticalTabTrayStartPadding;
 	int newTabRowCount = 1;
-	for(std::list<AutoHideDockTabGroup>::iterator tabGroupIterator = dockInfo.dockTabGroups.begin(); tabGroupIterator != dockInfo.dockTabGroups.end(); ++tabGroupIterator)
+	for (std::list<AutoHideDockTabGroup>::iterator tabGroupIterator = dockInfo.dockTabGroups.begin(); tabGroupIterator != dockInfo.dockTabGroups.end(); ++tabGroupIterator)
 	{
 		//Calculate the position and size of each tab entry within this tab group, and
 		//calculate the total width and height of the tab group.
@@ -2070,13 +2070,13 @@ LRESULT DockingWindow::msgTabTrayWM_PRINTCLIENT(HWND tabTrayHwnd, WPARAM wParam,
 		int nextTabWindowPosX = 0;
 		int nextTabWindowPosY = 0;
 		std::list<TabRenderInfo> tabRenderInfoList;
-		for(std::list<AutoHideDockTab>::iterator tabIterator = tabGroupInfo.dockTabs.begin(); tabIterator != tabGroupInfo.dockTabs.end(); ++tabIterator)
+		for (std::list<AutoHideDockTab>::iterator tabIterator = tabGroupInfo.dockTabs.begin(); tabIterator != tabGroupInfo.dockTabs.end(); ++tabIterator)
 		{
 			//Attempt to retrieve the content entry index for the content window
 			//associated with this tab
 			AutoHideDockTab& dockTab = *tabIterator;
 			unsigned int contentEntryNo;
-			if(!tabGroupInfo.childContainer->GetHostedContentIndexFromWindow(dockTab.contentWindow, contentEntryNo))
+			if (!tabGroupInfo.childContainer->GetHostedContentIndexFromWindow(dockTab.contentWindow, contentEntryNo))
 			{
 				continue;
 			}
@@ -2089,9 +2089,9 @@ LRESULT DockingWindow::msgTabTrayWM_PRINTCLIENT(HWND tabTrayHwnd, WPARAM wParam,
 			int newTabHeight = dockTab.tabHeight;
 			SIZE textSize;
 			BOOL getTextExtentPoint32Return = GetTextExtentPoint32(hdc, contentWindowTitle.c_str(), (int)contentWindowTitle.size(), &textSize);
-			if(getTextExtentPoint32Return != 0)
+			if (getTextExtentPoint32Return != 0)
 			{
-				if((dockInfo.dockLocation == WindowEdge::Left) || (dockInfo.dockLocation == WindowEdge::Right))
+				if ((dockInfo.dockLocation == WindowEdge::Left) || (dockInfo.dockLocation == WindowEdge::Right))
 				{
 					newTabWidth = _controlFontHeight + (_dockingPanelTabMarginSize * 2);
 					newTabHeight = textSize.cx + (_dockingPanelTabMarginSize * 4);
@@ -2108,7 +2108,7 @@ LRESULT DockingWindow::msgTabTrayWM_PRINTCLIENT(HWND tabTrayHwnd, WPARAM wParam,
 			int borderPosY = nextTabWindowPosY;
 			int borderWidth = newTabWidth;
 			int borderHeight = newTabHeight;
-			switch(dockInfo.dockLocation)
+			switch (dockInfo.dockLocation)
 			{
 			case WindowEdge::Left:
 				borderPosX -= borderWidth;
@@ -2128,9 +2128,9 @@ LRESULT DockingWindow::msgTabTrayWM_PRINTCLIENT(HWND tabTrayHwnd, WPARAM wParam,
 
 			//If another tab just preceded this one within the same tab group, ensure that
 			//the borders for the two tabs share a single dividing line between them.
-			if(!tabRenderInfoList.empty())
+			if (!tabRenderInfoList.empty())
 			{
-				if((dockInfo.dockLocation == WindowEdge::Top) || (dockInfo.dockLocation == WindowEdge::Bottom))
+				if ((dockInfo.dockLocation == WindowEdge::Top) || (dockInfo.dockLocation == WindowEdge::Bottom))
 				{
 					borderPosX -= 1;
 					borderWidth += 1;
@@ -2156,7 +2156,7 @@ LRESULT DockingWindow::msgTabTrayWM_PRINTCLIENT(HWND tabTrayHwnd, WPARAM wParam,
 			tabRenderInfoList.push_back(tabRenderInfo);
 
 			//Calculate the position of the next tab in this tab group
-			if((dockInfo.dockLocation == WindowEdge::Top) || (dockInfo.dockLocation == WindowEdge::Bottom))
+			if ((dockInfo.dockLocation == WindowEdge::Top) || (dockInfo.dockLocation == WindowEdge::Bottom))
 			{
 				nextTabWindowPosX += newTabWidth;
 			}
@@ -2169,9 +2169,9 @@ LRESULT DockingWindow::msgTabTrayWM_PRINTCLIENT(HWND tabTrayHwnd, WPARAM wParam,
 		int tabGroupHeight = nextTabWindowPosY;
 
 		//Calculate the position of this tab group
-		if((dockInfo.dockLocation == WindowEdge::Top) || (dockInfo.dockLocation == WindowEdge::Bottom))
+		if ((dockInfo.dockLocation == WindowEdge::Top) || (dockInfo.dockLocation == WindowEdge::Bottom))
 		{
-			if((tabGroupIterator != dockInfo.dockTabGroups.begin()) && ((nextTabGroupWindowPosX + tabGroupWidth) > tabTrayWidth))
+			if ((tabGroupIterator != dockInfo.dockTabGroups.begin()) && ((nextTabGroupWindowPosX + tabGroupWidth) > tabTrayWidth))
 			{
 				nextTabGroupWindowPosX = 0;
 				nextTabGroupWindowPosY += tabTrayRowSize;
@@ -2180,7 +2180,7 @@ LRESULT DockingWindow::msgTabTrayWM_PRINTCLIENT(HWND tabTrayHwnd, WPARAM wParam,
 		}
 		else
 		{
-			if((tabGroupIterator != dockInfo.dockTabGroups.begin()) && ((nextTabGroupWindowPosY + tabGroupHeight) > (tabTrayHeight - verticalTabTrayEndPadding)))
+			if ((tabGroupIterator != dockInfo.dockTabGroups.begin()) && ((nextTabGroupWindowPosY + tabGroupHeight) > (tabTrayHeight - verticalTabTrayEndPadding)))
 			{
 				nextTabGroupWindowPosX += tabTrayRowSize;
 				nextTabGroupWindowPosY = verticalTabTrayStartPadding;
@@ -2191,7 +2191,7 @@ LRESULT DockingWindow::msgTabTrayWM_PRINTCLIENT(HWND tabTrayHwnd, WPARAM wParam,
 		int tabGroupWindowPosY = nextTabGroupWindowPosY;
 
 		//Draw each tab in this group
-		for(std::list<TabRenderInfo>::const_iterator tabRenderInfoIterator = tabRenderInfoList.begin(); tabRenderInfoIterator != tabRenderInfoList.end(); ++tabRenderInfoIterator)
+		for (std::list<TabRenderInfo>::const_iterator tabRenderInfoIterator = tabRenderInfoList.begin(); tabRenderInfoIterator != tabRenderInfoList.end(); ++tabRenderInfoIterator)
 		{
 			//Create a new pen to draw the tab border
 			const TabRenderInfo& tabRenderInfo = *tabRenderInfoIterator;
@@ -2225,7 +2225,7 @@ LRESULT DockingWindow::msgTabTrayWM_PRINTCLIENT(HWND tabTrayHwnd, WPARAM wParam,
 			//Calculate the position for the text in this tab
 			int textPosX = tabGroupWindowPosX + tabRenderInfo.tabPosX + _dockingPanelTabMarginSize;
 			int textPosY = tabGroupWindowPosY + tabRenderInfo.tabPosY + _dockingPanelTabMarginSize;
-			if((dockInfo.dockLocation == WindowEdge::Left) || (dockInfo.dockLocation == WindowEdge::Right))
+			if ((dockInfo.dockLocation == WindowEdge::Left) || (dockInfo.dockLocation == WindowEdge::Right))
 			{
 				SetTextAlign(hdc, TA_BASELINE);
 				textPosX += _controlFontDescent;
@@ -2247,7 +2247,7 @@ LRESULT DockingWindow::msgTabTrayWM_PRINTCLIENT(HWND tabTrayHwnd, WPARAM wParam,
 		}
 
 		//Calculate the initial position for the next docking tab group
-		if((dockInfo.dockLocation == WindowEdge::Top) || (dockInfo.dockLocation == WindowEdge::Bottom))
+		if ((dockInfo.dockLocation == WindowEdge::Top) || (dockInfo.dockLocation == WindowEdge::Bottom))
 		{
 			nextTabGroupWindowPosX = tabGroupWindowPosX + tabGroupWidth + _dockingPanelTabGroupSeparatorSize;
 			nextTabGroupWindowPosY = tabGroupWindowPosY;
@@ -2273,11 +2273,11 @@ LRESULT DockingWindow::msgTabTrayWM_PRINTCLIENT(HWND tabTrayHwnd, WPARAM wParam,
 //----------------------------------------------------------------------------------------
 LRESULT CALLBACK DockingWindow::PlacementTargetWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	switch(message)
+	switch (message)
 	{
 	default:{
 		DockingWindow* object = (DockingWindow*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-		if(object != 0)
+		if (object != 0)
 		{
 			return object->PlacementTargetWndProcPrivate(hwnd, message, wParam, lParam);
 		}
@@ -2289,7 +2289,7 @@ LRESULT CALLBACK DockingWindow::PlacementTargetWndProc(HWND hwnd, UINT message, 
 		return object->PlacementTargetWndProcPrivate(hwnd, message, wParam, lParam);}
 	case WM_DESTROY:{
 		DockingWindow* object = (DockingWindow*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-		if(object != 0)
+		if (object != 0)
 		{
 			LPARAM result = object->PlacementTargetWndProcPrivate(hwnd, message, wParam, lParam);
 			SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)0);
@@ -2304,7 +2304,7 @@ LRESULT CALLBACK DockingWindow::PlacementTargetWndProc(HWND hwnd, UINT message, 
 //----------------------------------------------------------------------------------------
 LRESULT DockingWindow::PlacementTargetWndProcPrivate(HWND placementTargetHwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	switch(message)
+	switch (message)
 	{
 	case WM_PAINT:
 		return msgPlacementTargetWM_PAINT(placementTargetHwnd, wParam, lParam);
@@ -2376,9 +2376,9 @@ LRESULT DockingWindow::msgPlacementTargetWM_PRINTCLIENT(HWND placementTargetHwnd
 	bool targetLocationIsForceTop = false;
 	bool foundTargetLocation = targetLocationIsCenter;
 	std::map<WindowEdge, HWND>::iterator placementTargetIterator = _placementTargets.begin();
-	while(!foundTargetLocation && (placementTargetIterator != _placementTargets.end()))
+	while (!foundTargetLocation && (placementTargetIterator != _placementTargets.end()))
 	{
-		if(placementTargetIterator->second == placementTargetHwnd)
+		if (placementTargetIterator->second == placementTargetHwnd)
 		{
 			foundTargetLocation = true;
 			targetLocation = placementTargetIterator->first;
@@ -2387,9 +2387,9 @@ LRESULT DockingWindow::msgPlacementTargetWM_PRINTCLIENT(HWND placementTargetHwnd
 		++placementTargetIterator;
 	}
 	std::map<WindowEdge, HWND>::iterator placementTargetForceTopIterator = _placementTargetsForceTop.begin();
-	while(!foundTargetLocation && (placementTargetForceTopIterator != _placementTargetsForceTop.end()))
+	while (!foundTargetLocation && (placementTargetForceTopIterator != _placementTargetsForceTop.end()))
 	{
-		if(placementTargetForceTopIterator->second == placementTargetHwnd)
+		if (placementTargetForceTopIterator->second == placementTargetHwnd)
 		{
 			foundTargetLocation = true;
 			targetLocationIsForceTop = true;
@@ -2398,7 +2398,7 @@ LRESULT DockingWindow::msgPlacementTargetWM_PRINTCLIENT(HWND placementTargetHwnd
 		}
 		++placementTargetForceTopIterator;
 	}
-	if(!foundTargetLocation)
+	if (!foundTargetLocation)
 	{
 		return 0;
 	}
@@ -2409,7 +2409,7 @@ LRESULT DockingWindow::msgPlacementTargetWM_PRINTCLIENT(HWND placementTargetHwnd
 	WinColor windowBorderColor(56, 80, 128);
 	WinColor windowBackgroundColor(224, 224, 224);
 	WinColor windowDockTargetColor(255, 215, 135);
-	if(targetLocationIsCenter && !_placementTargetCenterEnabled)
+	if (targetLocationIsCenter && !_placementTargetCenterEnabled)
 	{
 		windowBorderColor = WinColor(128, 128, 128);
 		windowDockTargetColor = WinColor(255, 245, 225);
@@ -2418,14 +2418,14 @@ LRESULT DockingWindow::msgPlacementTargetWM_PRINTCLIENT(HWND placementTargetHwnd
 	//Calculate the size of the window image inside this window
 	int windowImageHeight;
 	int windowImageWidth;
-	if(targetLocationIsCenter)
+	if (targetLocationIsCenter)
 	{
 		windowImageWidth = windowWidth - (marginSize * 2);
 		windowImageHeight = windowHeight - (marginSize * 2);
 	}
-	else if(!targetLocationIsForceTop)
+	else if (!targetLocationIsForceTop)
 	{
-		if((targetLocation == WindowEdge::Left) || (targetLocation == WindowEdge::Right))
+		if ((targetLocation == WindowEdge::Left) || (targetLocation == WindowEdge::Right))
 		{
 			windowImageWidth = windowWidth - dockingRegionTopInsertMarginSize;
 			windowImageHeight = windowHeight - ((borderWidth + marginSize) * 2);
@@ -2438,7 +2438,7 @@ LRESULT DockingWindow::msgPlacementTargetWM_PRINTCLIENT(HWND placementTargetHwnd
 	}
 	else
 	{
-		if((targetLocation == WindowEdge::Left) || (targetLocation == WindowEdge::Right))
+		if ((targetLocation == WindowEdge::Left) || (targetLocation == WindowEdge::Right))
 		{
 			windowImageWidth = windowWidth - (borderWidth + marginSize);
 			windowImageHeight = windowHeight - ((borderWidth + marginSize) * 2);
@@ -2453,9 +2453,9 @@ LRESULT DockingWindow::msgPlacementTargetWM_PRINTCLIENT(HWND placementTargetHwnd
 	//Calculate the size of the forced top insertion arrow icon
 	int dockingRegionTopInsertIconArrowWidth = 0;
 	int dockingRegionTopInsertIconArrowHeight = 0;
-	if(targetLocationIsForceTop)
+	if (targetLocationIsForceTop)
 	{
-		if((targetLocation == WindowEdge::Left) || (targetLocation == WindowEdge::Right))
+		if ((targetLocation == WindowEdge::Left) || (targetLocation == WindowEdge::Right))
 		{
 			dockingRegionTopInsertIconArrowWidth = windowImageWidth - (borderWidth * 4);
 			dockingRegionTopInsertIconArrowHeight = dockingRegionTopInsertIconArrowWidth * 2;
@@ -2470,29 +2470,29 @@ LRESULT DockingWindow::msgPlacementTargetWM_PRINTCLIENT(HWND placementTargetHwnd
 	//Calculate the position of the window image inside this window
 	int windowImagePosX;
 	int windowImagePosY;
-	if(targetLocationIsCenter)
+	if (targetLocationIsCenter)
 	{
 		windowImagePosX = marginSize;
 		windowImagePosY = marginSize;
 	}
-	else if(!targetLocationIsForceTop)
+	else if (!targetLocationIsForceTop)
 	{
-		if(targetLocation == WindowEdge::Left)
+		if (targetLocation == WindowEdge::Left)
 		{
 			windowImagePosX = dockingRegionTopInsertMarginSize;
 			windowImagePosY = borderWidth + marginSize;
 		}
-		else if(targetLocation == WindowEdge::Right)
+		else if (targetLocation == WindowEdge::Right)
 		{
 			windowImagePosX = 0;
 			windowImagePosY = borderWidth + marginSize;
 		}
-		else if(targetLocation == WindowEdge::Top)
+		else if (targetLocation == WindowEdge::Top)
 		{
 			windowImagePosX = borderWidth + marginSize;
 			windowImagePosY = dockingRegionTopInsertMarginSize;
 		}
-		else if(targetLocation == WindowEdge::Bottom)
+		else if (targetLocation == WindowEdge::Bottom)
 		{
 			windowImagePosX = borderWidth + marginSize;
 			windowImagePosY = 0;
@@ -2507,7 +2507,7 @@ LRESULT DockingWindow::msgPlacementTargetWM_PRINTCLIENT(HWND placementTargetHwnd
 	//Calculate the position of the forced top insertion arrow icon
 	int dockingRegionTopInsertIconArrowPosX = 0;
 	int dockingRegionTopInsertIconArrowPosY = 0;
-	if(targetLocationIsForceTop)
+	if (targetLocationIsForceTop)
 	{
 		dockingRegionTopInsertIconArrowPosX = windowImagePosX + ((windowImageWidth - dockingRegionTopInsertIconArrowWidth) / 2);
 		dockingRegionTopInsertIconArrowPosY = windowImagePosY + ((windowImageHeight - dockingRegionTopInsertIconArrowHeight) / 2);
@@ -2527,18 +2527,18 @@ LRESULT DockingWindow::msgPlacementTargetWM_PRINTCLIENT(HWND placementTargetHwnd
 	int dockTargetImagePosY;
 	int dockTargetImageWidth;
 	int dockTargetImageHeight;
-	if(targetLocationIsCenter)
+	if (targetLocationIsCenter)
 	{
 		dockTargetImagePosX = windowImageClientPosX;
 		dockTargetImagePosY = windowImageClientPosY;
 		dockTargetImageWidth = windowImageClientWidth;
 		dockTargetImageHeight = windowImageClientHeight;
 	}
-	else if(!targetLocationIsForceTop)
+	else if (!targetLocationIsForceTop)
 	{
 		dockTargetImagePosX = (targetLocation == WindowEdge::Right)? windowImageClientPosX + (windowImageClientWidth / 2): windowImageClientPosX;
 		dockTargetImagePosY = (targetLocation == WindowEdge::Bottom)? windowImageClientPosY + (windowImageClientHeight / 2): windowImageClientPosY;
-		if((targetLocation == WindowEdge::Left) || (targetLocation == WindowEdge::Right))
+		if ((targetLocation == WindowEdge::Left) || (targetLocation == WindowEdge::Right))
 		{
 			dockTargetImageWidth = (windowImageClientWidth / 2);
 			dockTargetImageHeight = windowImageClientHeight;
@@ -2563,11 +2563,11 @@ LRESULT DockingWindow::msgPlacementTargetWM_PRINTCLIENT(HWND placementTargetHwnd
 	SelectObject(hdc, backgroundBrushOld);
 
 	//Draw the border for this window
-	if(!targetLocationIsCenter)
+	if (!targetLocationIsCenter)
 	{
 		HPEN hpen = CreatePen(PS_SOLID, 0, borderColor.GetColorREF());
 		HPEN hpenOld = (HPEN)SelectObject(hdc, hpen);
-		if((targetLocation == WindowEdge::Left) || (targetLocation == WindowEdge::Right))
+		if ((targetLocation == WindowEdge::Left) || (targetLocation == WindowEdge::Right))
 		{
 			MoveToEx(hdc, 0, 0, NULL);
 			LineTo(hdc, windowWidth, 0);
@@ -2581,24 +2581,24 @@ LRESULT DockingWindow::msgPlacementTargetWM_PRINTCLIENT(HWND placementTargetHwnd
 			MoveToEx(hdc, windowWidth-1, 0, NULL);
 			LineTo(hdc, windowWidth-1, windowHeight);
 		}
-		if(targetLocationIsForceTop)
+		if (targetLocationIsForceTop)
 		{
-			if(targetLocation == WindowEdge::Left)
+			if (targetLocation == WindowEdge::Left)
 			{
 				MoveToEx(hdc, 0, 0, NULL);
 				LineTo(hdc, 0, windowHeight);
 			}
-			else if(targetLocation == WindowEdge::Right)
+			else if (targetLocation == WindowEdge::Right)
 			{
 				MoveToEx(hdc, windowWidth-1, 0, NULL);
 				LineTo(hdc, windowWidth-1, windowHeight);
 			}
-			else if(targetLocation == WindowEdge::Top)
+			else if (targetLocation == WindowEdge::Top)
 			{
 				MoveToEx(hdc, 0, 0, NULL);
 				LineTo(hdc, windowWidth, 0);
 			}
-			else if(targetLocation == WindowEdge::Bottom)
+			else if (targetLocation == WindowEdge::Bottom)
 			{
 				MoveToEx(hdc, 0, windowHeight-1, NULL);
 				LineTo(hdc, windowWidth, windowHeight-1);
@@ -2617,7 +2617,7 @@ LRESULT DockingWindow::msgPlacementTargetWM_PRINTCLIENT(HWND placementTargetHwnd
 	FrameRect(hdc, &windowBorderRect, windowBorderBrush);
 
 	//Draw the window image caption
-	if(!targetLocationIsForceTop)
+	if (!targetLocationIsForceTop)
 	{
 		RECT windowCaptionRect;
 		windowCaptionRect.left = windowImagePosX;
@@ -2636,7 +2636,7 @@ LRESULT DockingWindow::msgPlacementTargetWM_PRINTCLIENT(HWND placementTargetHwnd
 	FillRect(hdc, &windowBackgroundRect, windowBackgroundBrush);
 
 	//Draw the window image dock target background
-	if(!targetLocationIsForceTop)
+	if (!targetLocationIsForceTop)
 	{
 		RECT windowDockTargetRect;
 		windowDockTargetRect.left = dockTargetImagePosX;
@@ -2647,29 +2647,29 @@ LRESULT DockingWindow::msgPlacementTargetWM_PRINTCLIENT(HWND placementTargetHwnd
 	}
 
 	//Draw a stippled line over the edge of the dock target region
-	if(!targetLocationIsForceTop && !targetLocationIsCenter)
+	if (!targetLocationIsForceTop && !targetLocationIsCenter)
 	{
 		LOGBRUSH logBrush;
 		logBrush.lbStyle = BS_SOLID;
 		logBrush.lbColor = windowBorderColor.GetColorREF();
 		HPEN hpen = ExtCreatePen(PS_COSMETIC | PS_ALTERNATE, 1, &logBrush, 0, NULL);
 		HPEN hpenOld = (HPEN)SelectObject(hdc, hpen);
-		if(targetLocation == WindowEdge::Left)
+		if (targetLocation == WindowEdge::Left)
 		{
 			MoveToEx(hdc, dockTargetImagePosX + (dockTargetImageWidth - 1), dockTargetImagePosY, NULL);
 			LineTo(hdc, dockTargetImagePosX + (dockTargetImageWidth - 1), dockTargetImagePosY + dockTargetImageHeight);
 		}
-		else if(targetLocation == WindowEdge::Right)
+		else if (targetLocation == WindowEdge::Right)
 		{
 			MoveToEx(hdc, dockTargetImagePosX, dockTargetImagePosY, NULL);
 			LineTo(hdc, dockTargetImagePosX, dockTargetImagePosY + dockTargetImageHeight);
 		}
-		else if(targetLocation == WindowEdge::Top)
+		else if (targetLocation == WindowEdge::Top)
 		{
 			MoveToEx(hdc, dockTargetImagePosX, dockTargetImagePosY + (dockTargetImageHeight - 1), NULL);
 			LineTo(hdc, dockTargetImagePosX + dockTargetImageWidth, dockTargetImagePosY + (dockTargetImageHeight - 1));
 		}
-		else if(targetLocation == WindowEdge::Bottom)
+		else if (targetLocation == WindowEdge::Bottom)
 		{
 			MoveToEx(hdc, dockTargetImagePosX, dockTargetImagePosY, NULL);
 			LineTo(hdc, dockTargetImagePosX + dockTargetImageWidth, dockTargetImagePosY);
@@ -2679,13 +2679,13 @@ LRESULT DockingWindow::msgPlacementTargetWM_PRINTCLIENT(HWND placementTargetHwnd
 	}
 
 	//Draw the forced top insertion icon arrow
-	if(targetLocationIsForceTop)
+	if (targetLocationIsForceTop)
 	{
 		HPEN dockingRegionTopInsertIconArrowPen = CreatePen(PS_SOLID, 0, windowBorderColor.GetColorREF());
 		HPEN dockingRegionTopInsertIconArrowPenOld = (HPEN)SelectObject(hdc, dockingRegionTopInsertIconArrowPen);
 		HBRUSH dockingRegionTopInsertIconArrowBrushOld = (HBRUSH)SelectObject(hdc, windowBorderBrush);
 		POINT dockingRegionTopInsertIconArrowPoints[4];
-		if(targetLocation == WindowEdge::Left)
+		if (targetLocation == WindowEdge::Left)
 		{
 			dockingRegionTopInsertIconArrowPoints[0].x = dockingRegionTopInsertIconArrowPosX + (dockingRegionTopInsertIconArrowWidth - 1);
 			dockingRegionTopInsertIconArrowPoints[0].y = dockingRegionTopInsertIconArrowPosY;
@@ -2696,7 +2696,7 @@ LRESULT DockingWindow::msgPlacementTargetWM_PRINTCLIENT(HWND placementTargetHwnd
 			dockingRegionTopInsertIconArrowPoints[3].x = dockingRegionTopInsertIconArrowPosX + (dockingRegionTopInsertIconArrowWidth - 1);
 			dockingRegionTopInsertIconArrowPoints[3].y = dockingRegionTopInsertIconArrowPosY + (dockingRegionTopInsertIconArrowHeight - 1);
 		}
-		else if(targetLocation == WindowEdge::Right)
+		else if (targetLocation == WindowEdge::Right)
 		{
 			dockingRegionTopInsertIconArrowPoints[0].x = dockingRegionTopInsertIconArrowPosX;
 			dockingRegionTopInsertIconArrowPoints[0].y = dockingRegionTopInsertIconArrowPosY;
@@ -2707,7 +2707,7 @@ LRESULT DockingWindow::msgPlacementTargetWM_PRINTCLIENT(HWND placementTargetHwnd
 			dockingRegionTopInsertIconArrowPoints[3].x = dockingRegionTopInsertIconArrowPosX;
 			dockingRegionTopInsertIconArrowPoints[3].y = dockingRegionTopInsertIconArrowPosY + (dockingRegionTopInsertIconArrowHeight - 1);
 		}
-		else if(targetLocation == WindowEdge::Top)
+		else if (targetLocation == WindowEdge::Top)
 		{
 			dockingRegionTopInsertIconArrowPoints[0].x = dockingRegionTopInsertIconArrowPosX;
 			dockingRegionTopInsertIconArrowPoints[0].y = dockingRegionTopInsertIconArrowPosY + (dockingRegionTopInsertIconArrowHeight - 1);
@@ -2718,7 +2718,7 @@ LRESULT DockingWindow::msgPlacementTargetWM_PRINTCLIENT(HWND placementTargetHwnd
 			dockingRegionTopInsertIconArrowPoints[3].x = dockingRegionTopInsertIconArrowPosX + (dockingRegionTopInsertIconArrowWidth - 1);
 			dockingRegionTopInsertIconArrowPoints[3].y = dockingRegionTopInsertIconArrowPosY + (dockingRegionTopInsertIconArrowHeight - 1);
 		}
-		else if(targetLocation == WindowEdge::Bottom)
+		else if (targetLocation == WindowEdge::Bottom)
 		{
 			dockingRegionTopInsertIconArrowPoints[0].x = dockingRegionTopInsertIconArrowPosX;
 			dockingRegionTopInsertIconArrowPoints[0].y = dockingRegionTopInsertIconArrowPosY;
@@ -2749,11 +2749,11 @@ LRESULT DockingWindow::msgPlacementTargetWM_PRINTCLIENT(HWND placementTargetHwnd
 //----------------------------------------------------------------------------------------
 LRESULT CALLBACK DockingWindow::PlacementShadowWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	switch(message)
+	switch (message)
 	{
 	default:{
 		DockingWindow* object = (DockingWindow*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-		if(object != 0)
+		if (object != 0)
 		{
 			return object->PlacementShadowWndProcPrivate(hwnd, message, wParam, lParam);
 		}
@@ -2765,7 +2765,7 @@ LRESULT CALLBACK DockingWindow::PlacementShadowWndProc(HWND hwnd, UINT message, 
 		return object->PlacementShadowWndProcPrivate(hwnd, message, wParam, lParam);}
 	case WM_DESTROY:{
 		DockingWindow* object = (DockingWindow*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-		if(object != 0)
+		if (object != 0)
 		{
 			LPARAM result = object->PlacementShadowWndProcPrivate(hwnd, message, wParam, lParam);
 			SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)0);
@@ -2780,7 +2780,7 @@ LRESULT CALLBACK DockingWindow::PlacementShadowWndProc(HWND hwnd, UINT message, 
 //----------------------------------------------------------------------------------------
 LRESULT DockingWindow::PlacementShadowWndProcPrivate(HWND placementShadowHwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	switch(message)
+	switch (message)
 	{
 	case WM_PAINT:
 		return msgPlacementShadowWM_PAINT(placementShadowHwnd, wParam, lParam);
@@ -2827,7 +2827,7 @@ IDockingWindow* DockingWindow::GetDockingWindowFromHWND(HWND hwnd)
 	//Ensure the class name of the target window begins with our docking window prefix
 	const std::wstring dockWinPrefix = L"EX_DockWin";
 	std::wstring targetWindowClassName = GetClassName(hwnd);
-	if((targetWindowClassName.size() < dockWinPrefix.size()) || (targetWindowClassName.substr(0, dockWinPrefix.size()) != dockWinPrefix))
+	if ((targetWindowClassName.size() < dockWinPrefix.size()) || (targetWindowClassName.substr(0, dockWinPrefix.size()) != dockWinPrefix))
 	{
 		return 0;
 	}
@@ -2856,13 +2856,13 @@ void DockingWindow::AddDockingWindowToWindowList(HWND hwnd, std::list<IDockingWi
 	//static buffer of current windows. Also note that performance tests have shown this
 	//to be quite quick, with no perceivable stalls in the interface from evaluating this
 	//on each mouse move event for 1000 windows iterated.
-	if(IsWindowVisible(hwnd) != 0)
+	if (IsWindowVisible(hwnd) != 0)
 	{
 		//If this window is a docking window, it and its child docking containers to the
 		//list of docking windows, otherwise search into the children of this window
 		//looking for docking windows.
 		IDockingWindow* dockingWindow = GetDockingWindowFromHWND(hwnd);
-		if(dockingWindow != 0)
+		if (dockingWindow != 0)
 		{
 			//Add all children of this docking window to the window list, then add this
 			//window itself. Note that the ordering is important here, as the list is
@@ -2884,7 +2884,7 @@ void DockingWindow::AddDockingWindowToWindowList(HWND hwnd, std::list<IDockingWi
 			//it does indeed seem to always return in Z-order, and it's widely relied upon
 			//to do this.
 			HWND nextWindow = GetWindow(hwnd, GW_CHILD);
-			while(nextWindow != NULL)
+			while (nextWindow != NULL)
 			{
 				AddDockingWindowToWindowList(nextWindow, dockingWindowList);
 				nextWindow = GetWindow(nextWindow, GW_HWNDNEXT);
@@ -2906,21 +2906,21 @@ HCURSOR DockingWindow::LoadCursorFile(const unsigned char* cursorData, size_t cu
 	std::vector<Stream::Buffer> iconResourceData;
 	iconResourceData.resize(iconEntryCount);
 	std::map<int, Stream::IStream*> iconResourceDataMap;
-	for(unsigned int i = 0; i < iconEntryCount; ++i)
+	for (unsigned int i = 0; i < iconEntryCount; ++i)
 	{
 		iconResourceDataMap[(int)i] = &iconResourceData[i];
 	}
 
 	//Attempt to convert the specified cursor file into cursor resource structures
 	Stream::Buffer iconResourceDirectory;
-	if(!ConvertIconFileToIconResource(iconData, iconResourceDirectory, iconResourceDataMap))
+	if (!ConvertIconFileToIconResource(iconData, iconResourceDirectory, iconResourceDataMap))
 	{
 		return NULL;
 	}
 
 	//Select the most appropriate cursor resource to use within the cursor file
 	int selectedIconID = LookupIconIdFromDirectory((PBYTE)&iconResourceDirectory[0], FALSE);
-	if(iconResourceDataMap.find(selectedIconID) == iconResourceDataMap.end())
+	if (iconResourceDataMap.find(selectedIconID) == iconResourceDataMap.end())
 	{
 		return NULL;
 	}
@@ -2956,7 +2956,7 @@ void DockingWindow::HideDropTargets(IDockingWindow* callingDockingWindow, bool h
 {
 	//If a child docking window currently has placement targets visible, and we've been
 	//requested to hide child window drop targets, instruct it to hide them now.
-	if(hideChildWindowDropTargets && (_placementTargetsChildDockingWindow != 0))
+	if (hideChildWindowDropTargets && (_placementTargetsChildDockingWindow != 0))
 	{
 		_placementTargetsChildDockingWindow->HideDropTargets(callingDockingWindow);
 		_placementTargetsChildDockingWindow = 0;
@@ -3103,7 +3103,7 @@ void DockingWindow::ShowDropTargets(IDockingWindow* callingDockingWindow, int do
 {
 	//If an auto hide panel is currently visible, and the cursor is within it, request the
 	//auto hide panel to show drop targets, and abort any further processing.
-	if(_autoHidePanelVisible)
+	if (_autoHidePanelVisible)
 	{
 		//Retrieve the position of the target docking window in screen coordinates
 		HWND openAutoHidePanelWindow = _currentAutoHidePanel->GetWindowHandle();
@@ -3112,7 +3112,7 @@ void DockingWindow::ShowDropTargets(IDockingWindow* callingDockingWindow, int do
 
 		//If the cursor is within the target docking window, pass the request on to the
 		//window.
-		if((cursorPosX >= openAutoHidePanelWindowRect.left) && (cursorPosX < openAutoHidePanelWindowRect.right) && (cursorPosY >= openAutoHidePanelWindowRect.top) && (cursorPosY < openAutoHidePanelWindowRect.bottom))
+		if ((cursorPosX >= openAutoHidePanelWindowRect.left) && (cursorPosX < openAutoHidePanelWindowRect.right) && (cursorPosY >= openAutoHidePanelWindowRect.top) && (cursorPosY < openAutoHidePanelWindowRect.bottom))
 		{
 			//Record this auto hide window as the child docking window with placement
 			//targets currently visible, so we know we need to hide them again when
@@ -3128,7 +3128,7 @@ void DockingWindow::ShowDropTargets(IDockingWindow* callingDockingWindow, int do
 	//Perform hit testing for each tab dock window on the specified cursor position, to
 	//expand docked windows in autohide mode if a window is being dragged over the tab
 	//header for one.
-	for(std::map<WindowEdge, AutoHideDockInfo>::const_iterator i = _autoHideDocks.begin(); i != _autoHideDocks.end(); ++i)
+	for (std::map<WindowEdge, AutoHideDockInfo>::const_iterator i = _autoHideDocks.begin(); i != _autoHideDocks.end(); ++i)
 	{
 		//Calculate the cursor position in client coordinates for the target dock
 		//window
@@ -3164,7 +3164,7 @@ void DockingWindow::ShowDropTargets(IDockingWindow* callingDockingWindow, int do
 	clientPosPoint.y = cursorClientPosY;
 	HWND dockedWindowUnderCursor = ChildWindowFromPointEx(_dockPanel, clientPosPoint, CWP_SKIPINVISIBLE);
 	IDockingWindow* childDockingWindowUnderCursor = 0;
-	if((dockedWindowUnderCursor != NULL) && (dockedWindowUnderCursor != _dockPanel))
+	if ((dockedWindowUnderCursor != NULL) && (dockedWindowUnderCursor != _dockPanel))
 	{
 		childDockingWindowUnderCursor = GetDockingWindowFromHWND(dockedWindowUnderCursor);
 	}
@@ -3172,7 +3172,7 @@ void DockingWindow::ShowDropTargets(IDockingWindow* callingDockingWindow, int do
 	//If the cursor isn't over a hosted child docking window, determine if it's over the
 	//content region of the control.
 	bool cursorInsideContentRegion = false;
-	if(childDockingWindowUnderCursor == 0)
+	if (childDockingWindowUnderCursor == 0)
 	{
 		//Determine if the cursor is currently within the content region of this window
 		RECT contentRegionRect;
@@ -3190,7 +3190,7 @@ void DockingWindow::ShowDropTargets(IDockingWindow* callingDockingWindow, int do
 
 	//If the cursor is over the content region of the control, attempt to retrieve the
 	//currently visible content window as a docking window.
-	if(cursorInsideContentRegion && (_currentSelectedTabIndex >= 0))
+	if (cursorInsideContentRegion && (_currentSelectedTabIndex >= 0))
 	{
 		HWND contentWindowUnderCursor = _hostedContent[_tabIndexToHostedContentNo[_currentSelectedTabIndex]].contentWindow;
 		childDockingWindowUnderCursor = GetDockingWindowFromHWND(contentWindowUnderCursor);
@@ -3199,14 +3199,14 @@ void DockingWindow::ShowDropTargets(IDockingWindow* callingDockingWindow, int do
 	//If we were previously showing drop targets for a child docking window, and the
 	//cursor is now over a different window, instruct the previous child docking window to
 	//hide its drop targets.
-	if((_placementTargetsChildDockingWindow != 0) && (_placementTargetsChildDockingWindow != childDockingWindowUnderCursor))
+	if ((_placementTargetsChildDockingWindow != 0) && (_placementTargetsChildDockingWindow != childDockingWindowUnderCursor))
 	{
 		_placementTargetsChildDockingWindow->HideDropTargets(callingDockingWindow);
 	}
 
 	//If the new child window under the target cursor position is a docking window,
 	//instruct it to show drop targets
-	if(childDockingWindowUnderCursor != 0)
+	if (childDockingWindowUnderCursor != 0)
 	{
 		childDockingWindowUnderCursor->ShowDropTargets(callingDockingWindow, dockWindowWidth, dockWindowHeight, cursorPosX, cursorPosY);
 	}
@@ -3217,18 +3217,18 @@ void DockingWindow::ShowDropTargets(IDockingWindow* callingDockingWindow, int do
 	//If the cursor isn't currently within the content region, hide drop targets for this
 	//window if they are currently visible, but retain any child window drop targets, and
 	//abort any further processing.
-	if(!cursorInsideContentRegion)
+	if (!cursorInsideContentRegion)
 	{
 		HideDropTargets(callingDockingWindow, false);
 		return;
 	}
 
 	//If our drop targets are not currently visible, show them now.
-	if(!_placementTargetsVisible)
+	if (!_placementTargetsVisible)
 	{
 		//Determine whether the center placement target is enabled
 		_placementTargetCenterEnabled = true;
-		if(GetClassName(callingDockingWindow->GetWindowHandle()) == WindowClassName)
+		if (GetClassName(callingDockingWindow->GetWindowHandle()) == WindowClassName)
 		{
 			_placementTargetCenterEnabled = !callingDockingWindow->HasNestedChildDockingWindows();
 		}
@@ -3247,42 +3247,42 @@ void DockingWindow::ShowDropTargets(IDockingWindow* callingDockingWindow, int do
 	cursorPos.x = cursorPosX;
 	cursorPos.y = cursorPosY;
 	RECT rect;
-	if(_placementTargetCenterEnabled && (GetWindowRect(_placementTargetCenter, &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
+	if (_placementTargetCenterEnabled && (GetWindowRect(_placementTargetCenter, &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
 	{
 		newDockLocationIsContentRegion = true;
 	}
-	else if((GetWindowRect(_placementTargets[WindowEdge::Left], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
+	else if ((GetWindowRect(_placementTargets[WindowEdge::Left], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
 	{
 		newDockLocation = WC_DockPanel::DockLocation::Left;
 	}
-	else if((GetWindowRect(_placementTargets[WindowEdge::Right], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
+	else if ((GetWindowRect(_placementTargets[WindowEdge::Right], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
 	{
 		newDockLocation = WC_DockPanel::DockLocation::Right;
 	}
-	else if((GetWindowRect(_placementTargets[WindowEdge::Top], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
+	else if ((GetWindowRect(_placementTargets[WindowEdge::Top], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
 	{
 		newDockLocation = WC_DockPanel::DockLocation::Top;
 	}
-	else if((GetWindowRect(_placementTargets[WindowEdge::Bottom], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
+	else if ((GetWindowRect(_placementTargets[WindowEdge::Bottom], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
 	{
 		newDockLocation = WC_DockPanel::DockLocation::Bottom;
 	}
-	else if((GetWindowRect(_placementTargetsForceTop[WindowEdge::Left], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
+	else if ((GetWindowRect(_placementTargetsForceTop[WindowEdge::Left], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
 	{
 		newDockLocation = WC_DockPanel::DockLocation::Left;
 		forceTopOfDockingOrder = true;
 	}
-	else if((GetWindowRect(_placementTargetsForceTop[WindowEdge::Right], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
+	else if ((GetWindowRect(_placementTargetsForceTop[WindowEdge::Right], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
 	{
 		newDockLocation = WC_DockPanel::DockLocation::Right;
 		forceTopOfDockingOrder = true;
 	}
-	else if((GetWindowRect(_placementTargetsForceTop[WindowEdge::Top], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
+	else if ((GetWindowRect(_placementTargetsForceTop[WindowEdge::Top], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
 	{
 		newDockLocation = WC_DockPanel::DockLocation::Top;
 		forceTopOfDockingOrder = true;
 	}
-	else if((GetWindowRect(_placementTargetsForceTop[WindowEdge::Bottom], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
+	else if ((GetWindowRect(_placementTargetsForceTop[WindowEdge::Bottom], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
 	{
 		newDockLocation = WC_DockPanel::DockLocation::Bottom;
 		forceTopOfDockingOrder = true;
@@ -3294,12 +3294,12 @@ void DockingWindow::ShowDropTargets(IDockingWindow* callingDockingWindow, int do
 
 	//If we found a target dock location, update the placement shadow window position and
 	//size.
-	if(foundDockLocation)
+	if (foundDockLocation)
 	{
 		//Obtain a rectangle representing the target position of the dock window into the
 		//dock panel at the requested location, in dock panel client coordinates.
 		RECT newDockRect;
-		if(newDockLocationIsContentRegion)
+		if (newDockLocationIsContentRegion)
 		{
 			//Since the content region is the target of this dock panel, obtain the
 			//content rectangle as the rectangle for this dock window.
@@ -3346,12 +3346,12 @@ void DockingWindow::ShowDropTargets(IDockingWindow* callingDockingWindow, int do
 	}
 
 	//Show or hide the placement shadow window if required
-	if(foundDockLocation && !_placementShadowVisible)
+	if (foundDockLocation && !_placementShadowVisible)
 	{
 		SetWindowPos(_placementShadow, _placementTargetCenter, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_SHOWWINDOW);
 		_placementShadowVisible = true;
 	}
-	else if(!foundDockLocation && _placementShadowVisible)
+	else if (!foundDockLocation && _placementShadowVisible)
 	{
 		SetWindowPos(_placementShadow, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_HIDEWINDOW);
 		_placementShadowVisible = false;
@@ -3370,42 +3370,42 @@ bool DockingWindow::HitTestDropTargets(IDockingWindow* callingDockingWindow, int
 	cursorPos.x = cursorPosX;
 	cursorPos.y = cursorPosY;
 	RECT rect;
-	if((GetWindowRect(_placementTargetCenter, &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
+	if ((GetWindowRect(_placementTargetCenter, &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
 	{
 		newDockLocationIsContentRegion = true;
 	}
-	else if((GetWindowRect(_placementTargets.find(WindowEdge::Left)->second, &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
+	else if ((GetWindowRect(_placementTargets.find(WindowEdge::Left)->second, &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
 	{
 		newDockLocation = WindowEdge::Left;
 	}
-	else if((GetWindowRect(_placementTargets.find(WindowEdge::Right)->second, &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
+	else if ((GetWindowRect(_placementTargets.find(WindowEdge::Right)->second, &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
 	{
 		newDockLocation = WindowEdge::Right;
 	}
-	else if((GetWindowRect(_placementTargets.find(WindowEdge::Top)->second, &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
+	else if ((GetWindowRect(_placementTargets.find(WindowEdge::Top)->second, &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
 	{
 		newDockLocation = WindowEdge::Top;
 	}
-	else if((GetWindowRect(_placementTargets.find(WindowEdge::Bottom)->second, &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
+	else if ((GetWindowRect(_placementTargets.find(WindowEdge::Bottom)->second, &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
 	{
 		newDockLocation = WindowEdge::Bottom;
 	}
-	else if((GetWindowRect(_placementTargetsForceTop.find(WindowEdge::Left)->second, &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
+	else if ((GetWindowRect(_placementTargetsForceTop.find(WindowEdge::Left)->second, &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
 	{
 		newDockLocation = WindowEdge::Left;
 		forceTopOfDockingOrder = true;
 	}
-	else if((GetWindowRect(_placementTargetsForceTop.find(WindowEdge::Right)->second, &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
+	else if ((GetWindowRect(_placementTargetsForceTop.find(WindowEdge::Right)->second, &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
 	{
 		newDockLocation = WindowEdge::Right;
 		forceTopOfDockingOrder = true;
 	}
-	else if((GetWindowRect(_placementTargetsForceTop.find(WindowEdge::Top)->second, &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
+	else if ((GetWindowRect(_placementTargetsForceTop.find(WindowEdge::Top)->second, &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
 	{
 		newDockLocation = WindowEdge::Top;
 		forceTopOfDockingOrder = true;
 	}
-	else if((GetWindowRect(_placementTargetsForceTop.find(WindowEdge::Bottom)->second, &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
+	else if ((GetWindowRect(_placementTargetsForceTop.find(WindowEdge::Bottom)->second, &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
 	{
 		newDockLocation = WindowEdge::Bottom;
 		forceTopOfDockingOrder = true;
@@ -3417,11 +3417,11 @@ bool DockingWindow::HitTestDropTargets(IDockingWindow* callingDockingWindow, int
 
 	//If we didn't find a target dock location, pass this call onto the target child
 	//docking window if one is active, otherwise return false.
-	if(!foundDockLocation && (_placementTargetsChildDockingWindow != 0))
+	if (!foundDockLocation && (_placementTargetsChildDockingWindow != 0))
 	{
 		return _placementTargetsChildDockingWindow->HitTestDropTargets(callingDockingWindow, cursorPosX, cursorPosY, dropTargetInfo);
 	}
-	else if(!foundDockLocation)
+	else if (!foundDockLocation)
 	{
 		return false;
 	}
@@ -3443,7 +3443,7 @@ bool DockingWindow::HitTestDropTargets(IDockingWindow* callingDockingWindow, int
 void DockingWindow::HandleContentTabChanged(int newTabIndex)
 {
 	//Hide any currently visible content for the currently selected tab
-	if(_currentSelectedTabIndex >= 0)
+	if (_currentSelectedTabIndex >= 0)
 	{
 		ShowWindow(_hostedContent[_tabIndexToHostedContentNo[_currentSelectedTabIndex]].contentWindow, SW_HIDE);
 	}
@@ -3478,11 +3478,11 @@ void DockingWindow::TabHitTest(HWND tabTrayHwnd, int cursorPosX, int cursorPosY)
 	int targetTabExtendedHitRegionWidth;
 	int targetTabExtendedHitRegionHeight;
 	std::map<WindowEdge, AutoHideDockInfo>::const_iterator dockIterator = _autoHideDocks.begin();
-	while(!foundTargetDockWindow && (dockIterator != _autoHideDocks.end()))
+	while (!foundTargetDockWindow && (dockIterator != _autoHideDocks.end()))
 	{
 		//Ensure this dock is the target tab dock
 		const AutoHideDockInfo& dockInfo = dockIterator->second;
-		if(dockInfo.dockWindow != tabTrayHwnd)
+		if (dockInfo.dockWindow != tabTrayHwnd)
 		{
 			++dockIterator;
 			continue;
@@ -3490,18 +3490,18 @@ void DockingWindow::TabHitTest(HWND tabTrayHwnd, int cursorPosX, int cursorPosY)
 
 		//Search for the tab the cursor is currently over in this tab dock
 		std::list<AutoHideDockTabGroup>::const_iterator dockTabGroupIterator = dockInfo.dockTabGroups.begin();
-		while(!foundTargetDockWindow && (dockTabGroupIterator != dockInfo.dockTabGroups.end()))
+		while (!foundTargetDockWindow && (dockTabGroupIterator != dockInfo.dockTabGroups.end()))
 		{
 			const AutoHideDockTabGroup& dockTabGroup = *dockTabGroupIterator;
 			int dockGroupLength = 0;
 			int dockGroupPosScreenX;
 			int dockGroupPosScreenY;
-			for(std::list<AutoHideDockTab>::const_iterator dockTabIterator = dockTabGroup.dockTabs.begin(); dockTabIterator != dockTabGroup.dockTabs.end(); ++dockTabIterator)
+			for (std::list<AutoHideDockTab>::const_iterator dockTabIterator = dockTabGroup.dockTabs.begin(); dockTabIterator != dockTabGroup.dockTabs.end(); ++dockTabIterator)
 			{
 				//If this is the first tab in this docking group, calculate the position
 				//of this tab in screen coordinates.
 				const AutoHideDockTab& dockTab = *dockTabIterator;
-				if(dockTabIterator == dockTabGroup.dockTabs.begin())
+				if (dockTabIterator == dockTabGroup.dockTabs.begin())
 				{
 					POINT point;
 					point.x = dockTab.tabPosX;
@@ -3516,7 +3516,7 @@ void DockingWindow::TabHitTest(HWND tabTrayHwnd, int cursorPosX, int cursorPosY)
 
 				//If the cursor is currently located within this tab, latch the associated
 				//docking window and content item as the target.
-				if((cursorPosX >= dockTab.tabPosX) && (cursorPosX < (dockTab.tabPosX + dockTab.tabWidth)) && (cursorPosY >= dockTab.tabPosY) && (cursorPosY < (dockTab.tabPosY + dockTab.tabHeight)))
+				if ((cursorPosX >= dockTab.tabPosX) && (cursorPosX < (dockTab.tabPosX + dockTab.tabWidth)) && (cursorPosY >= dockTab.tabPosY) && (cursorPosY < (dockTab.tabPosY + dockTab.tabHeight)))
 				{
 					//Calculate the current position of the tab tray that hosts this tab
 					RECT rect;
@@ -3548,22 +3548,22 @@ void DockingWindow::TabHitTest(HWND tabTrayHwnd, int cursorPosX, int cursorPosY)
 					//dimensions at this time.
 					int tabExtendedHitAdditionalBorderMarginX = GetSystemMetrics(SM_CXFIXEDFRAME);
 					int tabExtendedHitAdditionalBorderMarginY = GetSystemMetrics(SM_CYFIXEDFRAME);
-					if(dockInfo.dockLocation == WindowEdge::Left)
+					if (dockInfo.dockLocation == WindowEdge::Left)
 					{
 						targetTabExtendedHitRegionWidth = dockTab.tabWidth + _dockingPanelTabMarginSize + tabExtendedHitAdditionalBorderMarginX;
 						targetTabExtendedHitRegionX = (tabTrayPosX - tabExtendedHitAdditionalBorderMarginX);
 					}
-					else if(dockInfo.dockLocation == WindowEdge::Right)
+					else if (dockInfo.dockLocation == WindowEdge::Right)
 					{
 						targetTabExtendedHitRegionWidth = dockTab.tabWidth + _dockingPanelTabMarginSize + tabExtendedHitAdditionalBorderMarginX;
 						targetTabExtendedHitRegionX = tabTrayPosX;
 					}
-					else if(dockInfo.dockLocation == WindowEdge::Top)
+					else if (dockInfo.dockLocation == WindowEdge::Top)
 					{
 						targetTabExtendedHitRegionHeight = dockTab.tabHeight + _dockingPanelTabMarginSize + tabExtendedHitAdditionalBorderMarginY;
 						targetTabExtendedHitRegionY = (tabTrayPosY - tabExtendedHitAdditionalBorderMarginY);
 					}
-					else if(dockInfo.dockLocation == WindowEdge::Bottom)
+					else if (dockInfo.dockLocation == WindowEdge::Bottom)
 					{
 						targetTabExtendedHitRegionHeight = dockTab.tabHeight + _dockingPanelTabMarginSize + tabExtendedHitAdditionalBorderMarginY;
 						targetTabExtendedHitRegionY = tabTrayPosY;
@@ -3574,9 +3574,9 @@ void DockingWindow::TabHitTest(HWND tabTrayHwnd, int cursorPosX, int cursorPosY)
 			//If we found a target dock tab while iterating this docking group, make the
 			//hit dead zone "length" equal to the length of the docking group, and set the
 			//dead zone position based on the start location of the docking group.
-			if(foundTargetDockWindow)
+			if (foundTargetDockWindow)
 			{
-				if((dockInfo.dockLocation == WindowEdge::Left) || (dockInfo.dockLocation == WindowEdge::Right))
+				if ((dockInfo.dockLocation == WindowEdge::Left) || (dockInfo.dockLocation == WindowEdge::Right))
 				{
 					targetTabExtendedHitRegionHeight = dockGroupLength;
 					targetTabExtendedHitRegionY = dockGroupPosScreenY;
@@ -3594,7 +3594,7 @@ void DockingWindow::TabHitTest(HWND tabTrayHwnd, int cursorPosX, int cursorPosY)
 	}
 
 	//Either show or hide an autohide content panel if required
-	if(!foundTargetDockWindow && _autoHidePanelVisible)
+	if (!foundTargetDockWindow && _autoHidePanelVisible)
 	{
 		//Calculate the cursor position in screen coordinates
 		POINT point;
@@ -3606,7 +3606,7 @@ void DockingWindow::TabHitTest(HWND tabTrayHwnd, int cursorPosX, int cursorPosY)
 
 		//If the cursor is currently outside the extended hit region for the autohide dock
 		//panel that's being shown, hide the panel.
-		if((screenCursorPosX < _tabExtendedHitRegionX) || (screenCursorPosX >= (_tabExtendedHitRegionX + _tabExtendedHitRegionWidth)) || (screenCursorPosY < _tabExtendedHitRegionY) || (screenCursorPosY >= (_tabExtendedHitRegionY + _tabExtendedHitRegionHeight)))
+		if ((screenCursorPosX < _tabExtendedHitRegionX) || (screenCursorPosX >= (_tabExtendedHitRegionX + _tabExtendedHitRegionWidth)) || (screenCursorPosY < _tabExtendedHitRegionY) || (screenCursorPosY >= (_tabExtendedHitRegionY + _tabExtendedHitRegionHeight)))
 		{
 			CollapseHiddenDockPanel();
 		}
@@ -3615,14 +3615,14 @@ void DockingWindow::TabHitTest(HWND tabTrayHwnd, int cursorPosX, int cursorPosY)
 	{
 		//Hide any currently visible auto hide dock panel if it's different to the new tab
 		//the cursor is located over.
-		if(_autoHidePanelVisible && ((_currentAutoHidePanel != targetDockedWindow) || (_currentAutoHidePanelContent != targetContentWindow)))
+		if (_autoHidePanelVisible && ((_currentAutoHidePanel != targetDockedWindow) || (_currentAutoHidePanelContent != targetContentWindow)))
 		{
 			CollapseHiddenDockPanel();
 		}
 
 		//Show the auto hide dock panel corresponding with the tab the cursor is currently
 		//over if required
-		if(foundTargetDockWindow && !_autoHidePanelVisible)
+		if (foundTargetDockWindow && !_autoHidePanelVisible)
 		{
 			//Calculate the current width and height of the hidden dock panel
 			RECT rect;
@@ -3642,7 +3642,7 @@ void DockingWindow::TabHitTest(HWND tabTrayHwnd, int cursorPosX, int cursorPosY)
 			int newPanelPosY;
 			int newPanelWidth;
 			int newPanelHeight;
-			switch(targetDockedWindowDockLocation)
+			switch (targetDockedWindowDockLocation)
 			{
 			case WindowEdge::Left:
 				newPanelPosX = targetTabExtendedHitRegionX + targetTabExtendedHitRegionWidth;
@@ -3676,15 +3676,15 @@ void DockingWindow::TabHitTest(HWND tabTrayHwnd, int cursorPosX, int cursorPosY)
 			int verticalTabTrayStartPadding = 0;
 			int verticalTabTrayEndPadding = 0;
 			int tabTrayRowSize = (_controlFontHeight + (_dockingPanelTabMarginSize * 3));
-			if((targetDockedWindowDockLocation == WindowEdge::Left) || (targetDockedWindowDockLocation == WindowEdge::Right))
+			if ((targetDockedWindowDockLocation == WindowEdge::Left) || (targetDockedWindowDockLocation == WindowEdge::Right))
 			{
-				for(std::map<WindowEdge, AutoHideDockInfo>::const_iterator i = _autoHideDocks.begin(); i != _autoHideDocks.end(); ++i)
+				for (std::map<WindowEdge, AutoHideDockInfo>::const_iterator i = _autoHideDocks.begin(); i != _autoHideDocks.end(); ++i)
 				{
-					if(i->first == WindowEdge::Top)
+					if (i->first == WindowEdge::Top)
 					{
 						verticalTabTrayStartPadding += i->second.tabRowCount * tabTrayRowSize;
 					}
-					else if(i->first == WindowEdge::Bottom)
+					else if (i->first == WindowEdge::Bottom)
 					{
 						verticalTabTrayEndPadding += i->second.tabRowCount * tabTrayRowSize;
 					}
@@ -3732,11 +3732,11 @@ void DockingWindow::TabHitTest(HWND tabTrayHwnd, int cursorPosX, int cursorPosY)
 void DockingWindow::UpdateAutoHideWindowTabSizes()
 {
 	//Update the size of each tab window
-	for(std::map<WindowEdge, AutoHideDockInfo>::iterator dockIterator = _autoHideDocks.begin(); dockIterator != _autoHideDocks.end(); ++dockIterator)
+	for (std::map<WindowEdge, AutoHideDockInfo>::iterator dockIterator = _autoHideDocks.begin(); dockIterator != _autoHideDocks.end(); ++dockIterator)
 	{
 		//Set the size for this tab tray
 		AutoHideDockInfo& dockInfo = dockIterator->second;
-		if((dockInfo.dockLocation == WindowEdge::Top) || (dockInfo.dockLocation == WindowEdge::Bottom))
+		if ((dockInfo.dockLocation == WindowEdge::Top) || (dockInfo.dockLocation == WindowEdge::Bottom))
 		{
 			SendMessage(_tabDockPanel, (UINT)WC_DockPanel::WindowMessages::SetDockedWindowDesiredHeight, _controlFontHeight + (3 * _dockingPanelTabMarginSize), (LPARAM)dockInfo.dockWindow);
 		}
@@ -3760,7 +3760,7 @@ void DockingWindow::AddChildContainer(IDockingWindow* childContainer, const IDoc
 
 	//If this child container is being added to the content region, forward this request
 	//on to the AddHostedContent function, and abort any further processing.
-	if(dropTargetInfoResolved.dockLocationIsContentRegion)
+	if (dropTargetInfoResolved.dockLocationIsContentRegion)
 	{
 		AddHostedContent(childContainer->GetWindowHandle(), GetWindowText(childContainer->GetWindowHandle()));
 		return;
@@ -3769,7 +3769,7 @@ void DockingWindow::AddChildContainer(IDockingWindow* childContainer, const IDoc
 	//If the target window is currently docked to an existing parent docking window,
 	//remove it now.
 	IDockingWindow* existingParentDockingWindow = childContainer->GetParentDockingWindow();
-	if(existingParentDockingWindow != 0)
+	if (existingParentDockingWindow != 0)
 	{
 		existingParentDockingWindow->RemoveChildContainer(childContainer);
 	}
@@ -3788,7 +3788,7 @@ void DockingWindow::AddChildContainer(IDockingWindow* childContainer, const IDoc
 
 	//Either add this window to the docking container, or the autohide region, depending
 	//on whether autohide has been selected for this docked panel.
-	if(!entry.autoHide)
+	if (!entry.autoHide)
 	{
 		//Calculate the maximum initial width or height for this new child docking window
 		//depending on the target dock location. We do this to ensure that a new docked
@@ -3806,7 +3806,7 @@ void DockingWindow::AddChildContainer(IDockingWindow* childContainer, const IDoc
 		int childWindowHeight = rect.bottom - rect.top;
 
 		//Add this child container to our internal docking panel
-		if(dropTargetInfoResolved.forceTop)
+		if (dropTargetInfoResolved.forceTop)
 		{
 			SendMessage(_dockPanel, (UINT)WC_DockPanel::WindowMessages::AddDockedWindowToFront, (WPARAM)entry.dockLocation, (LPARAM)childContainer->GetWindowHandle());
 		}
@@ -3816,16 +3816,16 @@ void DockingWindow::AddChildContainer(IDockingWindow* childContainer, const IDoc
 		}
 
 		//Limit the new docked child window by its maximum width or height if required
-		if((entry.dockLocation == WindowEdge::Top) || (entry.dockLocation == WindowEdge::Bottom))
+		if ((entry.dockLocation == WindowEdge::Top) || (entry.dockLocation == WindowEdge::Bottom))
 		{
-			if(childWindowHeight > maxInitialDockedHeight)
+			if (childWindowHeight > maxInitialDockedHeight)
 			{
 				SendMessage(_dockPanel, (UINT)WC_DockPanel::WindowMessages::SetDockedWindowDesiredHeight, maxInitialDockedHeight, (LPARAM)childContainer->GetWindowHandle());
 			}
 		}
 		else
 		{
-			if(childWindowWidth > maxInitialDockedWidth)
+			if (childWindowWidth > maxInitialDockedWidth)
 			{
 				SendMessage(_dockPanel, (UINT)WC_DockPanel::WindowMessages::SetDockedWindowDesiredWidth, maxInitialDockedWidth, (LPARAM)childContainer->GetWindowHandle());
 			}
@@ -3845,7 +3845,7 @@ void DockingWindow::AddChildContainer(IDockingWindow* childContainer, const IDoc
 		dockInfo.dockLocation = entry.dockLocation;
 
 		//Create the tab dock window for this dock location if it doesn't already exist
-		if(dockInfo.dockWindow == NULL)
+		if (dockInfo.dockWindow == NULL)
 		{
 			//Create the tab dock window
 			dockInfo.dockWindow = CreateWindowEx(0, TabTrayWindowClassName, L"", WS_CHILD, 0, 0, 0, 0, _tabDockPanel, NULL, _moduleHandle, (LPVOID)this);
@@ -3854,7 +3854,7 @@ void DockingWindow::AddChildContainer(IDockingWindow* childContainer, const IDoc
 			//particular ordering of vertical tab trays vs horizontal tab trays so that we
 			//can deal with the corner regions which appear where a horizontal and
 			//vertical tab tray meet.
-			if((dockInfo.dockLocation == WindowEdge::Top) || (dockInfo.dockLocation == WindowEdge::Bottom))
+			if ((dockInfo.dockLocation == WindowEdge::Top) || (dockInfo.dockLocation == WindowEdge::Bottom))
 			{
 				SendMessage(_tabDockPanel, (UINT)WC_DockPanel::WindowMessages::AddDockedWindow, (WPARAM)dockInfo.dockLocation, (LPARAM)dockInfo.dockWindow);
 			}
@@ -3864,7 +3864,7 @@ void DockingWindow::AddChildContainer(IDockingWindow* childContainer, const IDoc
 			}
 
 			//Set the size for this tab tray
-			if((dockInfo.dockLocation == WindowEdge::Top) || (dockInfo.dockLocation == WindowEdge::Bottom))
+			if ((dockInfo.dockLocation == WindowEdge::Top) || (dockInfo.dockLocation == WindowEdge::Bottom))
 			{
 				SendMessage(_tabDockPanel, (UINT)WC_DockPanel::WindowMessages::SetDockedWindowDesiredHeight, _controlFontHeight + (3 * _dockingPanelTabMarginSize), (LPARAM)dockInfo.dockWindow);
 			}
@@ -3879,7 +3879,7 @@ void DockingWindow::AddChildContainer(IDockingWindow* childContainer, const IDoc
 			//Force each tab tray to redraw now that a new tab tray has been added. This
 			//allows existing tab trays to add in padding margins where required to ensure
 			//that tabs don't get drawn in the corner region where two tab trays meet.
-			for(std::map<WindowEdge, AutoHideDockInfo>::const_iterator i = _autoHideDocks.begin(); i != _autoHideDocks.end(); ++i)
+			for (std::map<WindowEdge, AutoHideDockInfo>::const_iterator i = _autoHideDocks.begin(); i != _autoHideDocks.end(); ++i)
 			{
 				InvalidateRect(i->second.dockWindow, NULL, FALSE);
 			}
@@ -3890,7 +3890,7 @@ void DockingWindow::AddChildContainer(IDockingWindow* childContainer, const IDoc
 		AutoHideDockTabGroup dockTabGroup;
 		dockTabGroup.childContainer = entry.childContainer;
 		unsigned int childContainerContentWindowCount = dockTabGroup.childContainer->GetHostedContentCount();
-		for(unsigned int i = 0; i < childContainerContentWindowCount; ++i)
+		for (unsigned int i = 0; i < childContainerContentWindowCount; ++i)
 		{
 			AutoHideDockTab dockTab;
 			unsigned int sortedContentEntryNo = dockTabGroup.childContainer->GetSortedContentEntryNo(i);
@@ -3912,9 +3912,9 @@ void DockingWindow::RemoveChildContainer(IDockingWindow* childContainer)
 	//Attempt to locate a content window entry for the closing window
 	bool foundContentEntry = false;
 	size_t hostedContentNo = 0;
-	while(!foundContentEntry && (hostedContentNo < _hostedContent.size()))
+	while (!foundContentEntry && (hostedContentNo < _hostedContent.size()))
 	{
-		if(_hostedContent[hostedContentNo].contentWindowAsDockingWindow == childContainer)
+		if (_hostedContent[hostedContentNo].contentWindowAsDockingWindow == childContainer)
 		{
 			foundContentEntry = true;
 			continue;
@@ -3924,7 +3924,7 @@ void DockingWindow::RemoveChildContainer(IDockingWindow* childContainer)
 
 	//If we found the content entry for this closing window, remove the content entry from
 	//our dock panel, and abort any further processing.
-	if(foundContentEntry)
+	if (foundContentEntry)
 	{
 		RemoveHostedContent(_hostedContent[hostedContentNo].contentWindow);
 		return;
@@ -3933,23 +3933,23 @@ void DockingWindow::RemoveChildContainer(IDockingWindow* childContainer)
 	//Attempt to locate the target child container in our list of child containers
 	bool foundTargetItem = false;
 	std::list<ChildContainerEntry>::iterator childContainerIterator = _childContainers.begin();
-	while(!foundTargetItem && (childContainerIterator != _childContainers.end()))
+	while (!foundTargetItem && (childContainerIterator != _childContainers.end()))
 	{
-		if(childContainerIterator->childContainer == childContainer)
+		if (childContainerIterator->childContainer == childContainer)
 		{
 			foundTargetItem = true;
 			continue;
 		}
 		++childContainerIterator;
 	}
-	if(!foundTargetItem)
+	if (!foundTargetItem)
 	{
 		return;
 	}
 
 	//If the target child container has placement targets currently visible, hide the
 	//placement targets.
-	if(_placementTargetsVisible && (_placementTargetsChildDockingWindow != 0) && (_placementTargetsChildDockingWindow == childContainer))
+	if (_placementTargetsVisible && (_placementTargetsChildDockingWindow != 0) && (_placementTargetsChildDockingWindow == childContainer))
 	{
 		_placementTargetsChildDockingWindow->HideDropTargets(this);
 		_placementTargetsChildDockingWindow = 0;
@@ -3963,7 +3963,7 @@ void DockingWindow::RemoveChildContainer(IDockingWindow* childContainer)
 	_childContainers.erase(childContainerIterator);
 
 	//Remove the container from our internal docking windows
-	if(!autoHide)
+	if (!autoHide)
 	{
 		//Remove this child container from our internal docking panel
 		SendMessage(_dockPanel, (UINT)WC_DockPanel::WindowMessages::RemoveDockedWindow, 0, (LPARAM)childContainer->GetWindowHandle());
@@ -3972,7 +3972,7 @@ void DockingWindow::RemoveChildContainer(IDockingWindow* childContainer)
 	{
 		//If the child container being removed is the currently visible auto hide dock
 		//panel, flag that no auto hide dock panel is currently visible.
-		if(_autoHidePanelVisible && (_currentAutoHidePanel == childContainer))
+		if (_autoHidePanelVisible && (_currentAutoHidePanel == childContainer))
 		{
 			_autoHidePanelVisible = false;
 			_currentAutoHidePanel = 0;
@@ -3984,9 +3984,9 @@ void DockingWindow::RemoveChildContainer(IDockingWindow* childContainer)
 		AutoHideDockInfo& dockInfo = _autoHideDocks[dockLocation];
 		std::list<AutoHideDockTabGroup>::iterator dockTabGroupIterator = dockInfo.dockTabGroups.begin();
 		bool removedTargetDockGroup = false;
-		while(!removedTargetDockGroup && (dockTabGroupIterator != dockInfo.dockTabGroups.end()))
+		while (!removedTargetDockGroup && (dockTabGroupIterator != dockInfo.dockTabGroups.end()))
 		{
-			if(dockTabGroupIterator->childContainer == childContainer)
+			if (dockTabGroupIterator->childContainer == childContainer)
 			{
 				dockInfo.dockTabGroups.erase(dockTabGroupIterator);
 				removedTargetDockGroup = true;
@@ -4001,7 +4001,7 @@ void DockingWindow::RemoveChildContainer(IDockingWindow* childContainer)
 		//If there are no more tabs present in the dock tab group at the target location,
 		//remove the tab group, otherwise force it to redraw now that its content has
 		//changed.
-		if(dockInfo.dockTabGroups.empty())
+		if (dockInfo.dockTabGroups.empty())
 		{
 			//Destroy the tab tray window
 			ShowWindow(dockInfo.dockWindow, SW_HIDE);
@@ -4015,7 +4015,7 @@ void DockingWindow::RemoveChildContainer(IDockingWindow* childContainer)
 			//allows other tab trays to remove padding margins where they are no longer
 			//required to ensure that tabs don't get drawn in the corner region where two
 			//tab trays meet.
-			for(std::map<WindowEdge, AutoHideDockInfo>::const_iterator i = _autoHideDocks.begin(); i != _autoHideDocks.end(); ++i)
+			for (std::map<WindowEdge, AutoHideDockInfo>::const_iterator i = _autoHideDocks.begin(); i != _autoHideDocks.end(); ++i)
 			{
 				InvalidateRect(i->second.dockWindow, NULL, FALSE);
 			}
@@ -4037,16 +4037,16 @@ void DockingWindow::NotifyChildContainerContentChanged(IDockingWindow* childCont
 	//Attempt to locate the target child container in our list of child containers
 	bool foundTargetItem = false;
 	std::list<ChildContainerEntry>::iterator childContainerIterator = _childContainers.begin();
-	while(!foundTargetItem && (childContainerIterator != _childContainers.end()))
+	while (!foundTargetItem && (childContainerIterator != _childContainers.end()))
 	{
-		if(childContainerIterator->childContainer == childContainer)
+		if (childContainerIterator->childContainer == childContainer)
 		{
 			foundTargetItem = true;
 			continue;
 		}
 		++childContainerIterator;
 	}
-	if(!foundTargetItem)
+	if (!foundTargetItem)
 	{
 		return;
 	}
@@ -4056,7 +4056,7 @@ void DockingWindow::NotifyChildContainerContentChanged(IDockingWindow* childCont
 
 	//Retrieve the tab dock window info for the target dock location
 	std::map<WindowEdge, AutoHideDockInfo>::iterator dockInfoIterator = _autoHideDocks.find(dockLocation);
-	if(dockInfoIterator == _autoHideDocks.end())
+	if (dockInfoIterator == _autoHideDocks.end())
 	{
 		return;
 	}
@@ -4065,16 +4065,16 @@ void DockingWindow::NotifyChildContainerContentChanged(IDockingWindow* childCont
 	//Retrieve the associated tab docking group for the target child container
 	std::list<AutoHideDockTabGroup>::iterator tabGroupIterator = dockInfo.dockTabGroups.begin();
 	bool foundDockTabGroup = false;
-	while(!foundDockTabGroup && (tabGroupIterator != dockInfo.dockTabGroups.end()))
+	while (!foundDockTabGroup && (tabGroupIterator != dockInfo.dockTabGroups.end()))
 	{
-		if(tabGroupIterator->childContainer == childContainer)
+		if (tabGroupIterator->childContainer == childContainer)
 		{
 			foundDockTabGroup = true;
 			continue;
 		}
 		++tabGroupIterator;
 	}
-	if(!foundDockTabGroup)
+	if (!foundDockTabGroup)
 	{
 		return;
 	}
@@ -4083,7 +4083,7 @@ void DockingWindow::NotifyChildContainerContentChanged(IDockingWindow* childCont
 	//Rebuild the list of tabs for this tab group
 	dockTabGroup.dockTabs.clear();
 	unsigned int childContainerContentWindowCount = childContainer->GetHostedContentCount();
-	for(unsigned int i = 0; i < childContainerContentWindowCount; ++i)
+	for (unsigned int i = 0; i < childContainerContentWindowCount; ++i)
 	{
 		AutoHideDockTab dockTab;
 		unsigned int sortedContentEntryNo = childContainer->GetSortedContentEntryNo(i);
@@ -4110,7 +4110,7 @@ Marshal::Ret<std::list<IDockingWindow*>> DockingWindow::GetNestedChildDockingWin
 	//If an auto hide panel is currently visible for this docking window, add it to the
 	//window list first because it's overlapping child windows and at the top of the
 	//Z-order.
-	if(_autoHidePanelVisible)
+	if (_autoHidePanelVisible)
 	{
 		std::list<IDockingWindow*> childDockingWindowList = _currentAutoHidePanel->GetNestedChildDockingWindowList();
 		dockingWindowList.insert(dockingWindowList.end(), childDockingWindowList.begin(), childDockingWindowList.end());
@@ -4119,10 +4119,10 @@ Marshal::Ret<std::list<IDockingWindow*>> DockingWindow::GetNestedChildDockingWin
 
 	//Add each docked non-auto hide child container to the window list. Note that Z-order
 	//doesn't matter here, since non auto hide docked windows don't overlap.
-	for(std::list<ChildContainerEntry>::const_iterator i = _childContainers.begin(); i != _childContainers.end(); ++i)
+	for (std::list<ChildContainerEntry>::const_iterator i = _childContainers.begin(); i != _childContainers.end(); ++i)
 	{
 		const ChildContainerEntry& containerEntry = *i;
-		if(!containerEntry.autoHide)
+		if (!containerEntry.autoHide)
 		{
 			std::list<IDockingWindow*> childDockingWindowList = containerEntry.childContainer->GetNestedChildDockingWindowList();
 			dockingWindowList.insert(dockingWindowList.end(), childDockingWindowList.begin(), childDockingWindowList.end());
@@ -4132,13 +4132,13 @@ Marshal::Ret<std::list<IDockingWindow*>> DockingWindow::GetNestedChildDockingWin
 
 	//If the currently selected hosted content window is a docking window, add it to the
 	//window list.
-	if(_currentSelectedTabIndex >= 0)
+	if (_currentSelectedTabIndex >= 0)
 	{
 		std::map<int, size_t>::const_iterator tabIndexIterator = _tabIndexToHostedContentNo.find(_currentSelectedTabIndex);
-		if(tabIndexIterator != _tabIndexToHostedContentNo.end())
+		if (tabIndexIterator != _tabIndexToHostedContentNo.end())
 		{
 			const ContentEntry& contentEntry = _hostedContent[tabIndexIterator->second];
-			if(contentEntry.contentWindowAsDockingWindow != 0)
+			if (contentEntry.contentWindowAsDockingWindow != 0)
 			{
 				std::list<IDockingWindow*> childDockingWindowList = contentEntry.contentWindowAsDockingWindow->GetNestedChildDockingWindowList();
 				dockingWindowList.insert(dockingWindowList.end(), childDockingWindowList.begin(), childDockingWindowList.end());
@@ -4156,11 +4156,11 @@ bool DockingWindow::CanResizeChildContainerWindowEdge(IDockingWindow* childConta
 {
 	//Retrieve info on the target child container
 	std::list<ChildContainerEntry>::const_iterator childContainerIterator = _childContainers.begin();
-	while((childContainerIterator != _childContainers.end()) && (childContainerIterator->childContainer != childContainer))
+	while ((childContainerIterator != _childContainers.end()) && (childContainerIterator->childContainer != childContainer))
 	{
 		++childContainerIterator;
 	}
-	if(childContainerIterator == _childContainers.end())
+	if (childContainerIterator == _childContainers.end())
 	{
 		return false;
 	}
@@ -4168,7 +4168,7 @@ bool DockingWindow::CanResizeChildContainerWindowEdge(IDockingWindow* childConta
 
 	//Determine whether the target window edge can be resized
 	bool canResizeTargetWindowEdge = false;
-	switch(windowEdge)
+	switch (windowEdge)
 	{
 	case IDockingWindow::WindowEdge::Left:
 		canResizeTargetWindowEdge = (childContainerEntry.dockLocation == WindowEdge::Right);
@@ -4193,11 +4193,11 @@ void DockingWindow::UpdateDesiredChildContainerSize(IDockingWindow* childContain
 {
 	//Retrieve info on the target child container
 	std::list<ChildContainerEntry>::const_iterator childContainerIterator = _childContainers.begin();
-	while((childContainerIterator != _childContainers.end()) && (childContainerIterator->childContainer != childContainer))
+	while ((childContainerIterator != _childContainers.end()) && (childContainerIterator->childContainer != childContainer))
 	{
 		++childContainerIterator;
 	}
-	if(childContainerIterator == _childContainers.end())
+	if (childContainerIterator == _childContainers.end())
 	{
 		return;
 	}
@@ -4205,9 +4205,9 @@ void DockingWindow::UpdateDesiredChildContainerSize(IDockingWindow* childContain
 
 	//If the target child container isn't set to auto hide mode, update its desired size
 	//in our dock panel.
-	if(!childContainerEntry.autoHide)
+	if (!childContainerEntry.autoHide)
 	{
-		if((childContainerEntry.dockLocation == WindowEdge::Left) || (childContainerEntry.dockLocation == WindowEdge::Right))
+		if ((childContainerEntry.dockLocation == WindowEdge::Left) || (childContainerEntry.dockLocation == WindowEdge::Right))
 		{
 			SendMessage(_dockPanel, (UINT)WC_DockPanel::WindowMessages::SetDockedWindowDesiredWidth, desiredWidth, (LPARAM)childContainerEntry.childContainer->GetWindowHandle());
 		}
@@ -4223,11 +4223,11 @@ HCURSOR DockingWindow::ParentOverrideCursorForChildContainer(IDockingWindow* chi
 {
 	//Retrieve info on the target child container
 	std::list<ChildContainerEntry>::const_iterator childContainerIterator = _childContainers.begin();
-	while((childContainerIterator != _childContainers.end()) && (childContainerIterator->childContainer != childContainer))
+	while ((childContainerIterator != _childContainers.end()) && (childContainerIterator->childContainer != childContainer))
 	{
 		++childContainerIterator;
 	}
-	if(childContainerIterator == _childContainers.end())
+	if (childContainerIterator == _childContainers.end())
 	{
 		return NULL;
 	}
@@ -4240,14 +4240,14 @@ HCURSOR DockingWindow::ParentOverrideCursorForChildContainer(IDockingWindow* chi
 	overAutoHideToggleBorder |= ((windowPosHitRegion == HTRIGHT) && (childContainerEntry.dockLocation == WindowEdge::Right));
 	overAutoHideToggleBorder |= ((windowPosHitRegion == HTTOP) && (childContainerEntry.dockLocation == WindowEdge::Top));
 	overAutoHideToggleBorder |= ((windowPosHitRegion == HTBOTTOM) && (childContainerEntry.dockLocation == WindowEdge::Bottom));
-	if(!overAutoHideToggleBorder)
+	if (!overAutoHideToggleBorder)
 	{
 		return NULL;
 	}
 
 	//Attempt to retrieve the handle for the cursor to show for this child window
 	std::map<WindowEdge, HCURSOR>::const_iterator cursorIterator = (!childContainerEntry.autoHide)? _enableAutoHideCursor.find(childContainerEntry.dockLocation): _disableAutoHideCursor.find(childContainerEntry.dockLocation);
-	if(cursorIterator == ((!childContainerEntry.autoHide)? _enableAutoHideCursor.end(): _disableAutoHideCursor.end()))
+	if (cursorIterator == ((!childContainerEntry.autoHide)? _enableAutoHideCursor.end(): _disableAutoHideCursor.end()))
 	{
 		return NULL;
 	}
@@ -4262,11 +4262,11 @@ bool DockingWindow::ParentBorderClickForChildContainer(IDockingWindow* childCont
 {
 	//Retrieve info on the target child container
 	std::list<ChildContainerEntry>::const_iterator childContainerIterator = _childContainers.begin();
-	while((childContainerIterator != _childContainers.end()) && (childContainerIterator->childContainer != childContainer))
+	while ((childContainerIterator != _childContainers.end()) && (childContainerIterator->childContainer != childContainer))
 	{
 		++childContainerIterator;
 	}
-	if(childContainerIterator == _childContainers.end())
+	if (childContainerIterator == _childContainers.end())
 	{
 		return false;
 	}
@@ -4281,7 +4281,7 @@ bool DockingWindow::ParentBorderClickForChildContainer(IDockingWindow* childCont
 	overAutoHideToggleBorder |= ((windowPosHitRegion == HTBOTTOM) && (childContainerEntry.dockLocation == WindowEdge::Bottom));
 
 	//If we're not over a border which toggles auto hide, abort any further processing.
-	if(!overAutoHideToggleBorder)
+	if (!overAutoHideToggleBorder)
 	{
 		return false;
 	}
@@ -4295,7 +4295,7 @@ bool DockingWindow::ParentBorderClickForChildContainer(IDockingWindow* childCont
 	dropTargetInfo.forceTop = true;
 	dropTargetInfo.owningDockingWindow = _hwnd;
 	AddChildContainer(childContainer, &dropTargetInfo);
-	if(!dropTargetInfo.autoHide)
+	if (!dropTargetInfo.autoHide)
 	{
 		SetWindowPos(_hwnd, NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
 	}
@@ -4305,7 +4305,7 @@ bool DockingWindow::ParentBorderClickForChildContainer(IDockingWindow* childCont
 	HWND newActiveWindow = NULL;
 	HWND desktopWindow = GetDesktopWindow();
 	HWND searchWindow = GetWindowHandle();
-	while((searchWindow != NULL) && (searchWindow != desktopWindow))
+	while ((searchWindow != NULL) && (searchWindow != desktopWindow))
 	{
 		newActiveWindow = searchWindow;
 		searchWindow = GetAncestor(searchWindow, GA_PARENT);
@@ -4318,7 +4318,7 @@ bool DockingWindow::ParentBorderClickForChildContainer(IDockingWindow* childCont
 void DockingWindow::ExpandHiddenDockPanel(IDockingWindow* childContainer, HWND targetContentWindow, int newWindowPosX, int newWindowPosY, int newWindowWidth, int newWindowHeight)
 {
 	//Hide any other currently visible hidden child dock panel
-	if(_autoHidePanelVisible)
+	if (_autoHidePanelVisible)
 	{
 		CollapseHiddenDockPanel();
 	}
@@ -4326,7 +4326,7 @@ void DockingWindow::ExpandHiddenDockPanel(IDockingWindow* childContainer, HWND t
 	//Set the selected content tab as the currently active content tab for the target
 	//docking panel
 	unsigned int contentEntryNo;
-	if(childContainer->GetHostedContentIndexFromWindow(targetContentWindow, contentEntryNo))
+	if (childContainer->GetHostedContentIndexFromWindow(targetContentWindow, contentEntryNo))
 	{
 		childContainer->SetActiveContent(contentEntryNo);
 	}
@@ -4347,7 +4347,7 @@ void DockingWindow::ExpandHiddenDockPanel(IDockingWindow* childContainer, HWND t
 void DockingWindow::CollapseHiddenDockPanel()
 {
 	//Ensure a dock panel is currently visible
-	if(!_autoHidePanelVisible)
+	if (!_autoHidePanelVisible)
 	{
 		return;
 	}
@@ -4375,12 +4375,12 @@ void DockingWindow::AddHostedContent(HWND contentWindow, const std::wstring& con
 	//If the specified content window is also a docking window, remove it from any current
 	//docking parent, and add it as a child container of this docking window.
 	entry.contentWindowAsDockingWindow = GetDockingWindowFromHWND(contentWindow);
-	if(entry.contentWindowAsDockingWindow != 0)
+	if (entry.contentWindowAsDockingWindow != 0)
 	{
 		//If the target window is currently docked to an existing parent docking window,
 		//remove it now.
 		IDockingWindow* existingParentDockingWindow = entry.contentWindowAsDockingWindow->GetParentDockingWindow();
-		if(existingParentDockingWindow != 0)
+		if (existingParentDockingWindow != 0)
 		{
 			existingParentDockingWindow->RemoveChildContainer(entry.contentWindowAsDockingWindow);
 		}
@@ -4399,17 +4399,17 @@ void DockingWindow::AddHostedContent(HWND contentWindow, const std::wstring& con
 	//Subclass any child edit controls to fix the focus issue outlined in KB230587. This
 	//bug affects us because we use the native window caption bar for docked windows.
 	std::list<HWND> descendantWindows = GetDescendantWindows(contentWindow);
-	for(std::list<HWND>::const_iterator i = descendantWindows.begin(); i != descendantWindows.end(); ++i)
+	for (std::list<HWND>::const_iterator i = descendantWindows.begin(); i != descendantWindows.end(); ++i)
 	{
 		HWND childWindow = *i;
-		if(GetClassName(childWindow) == WC_EDIT)
+		if (GetClassName(childWindow) == WC_EDIT)
 		{
 			SetWindowSubclass(childWindow, EditBoxFocusFixSubclassProc, 0, 0);
 		}
 	}
 
 	//Add the target content window
-	if(_hostedContent.empty() && !AlwaysShowContentWindowTabs())
+	if (_hostedContent.empty() && !AlwaysShowContentWindowTabs())
 	{
 		//Add this entry object to the list of hosted content entries
 		_tabIndexToHostedContentNo[entry.tabIndex] = _hostedContent.size();
@@ -4424,7 +4424,7 @@ void DockingWindow::AddHostedContent(HWND contentWindow, const std::wstring& con
 	else
 	{
 		bool createNewTabControl = (_contentTabControl == NULL);
-		if(createNewTabControl)
+		if (createNewTabControl)
 		{
 			//Create a new tab control to manage the content
 			_contentTabControl = CreateWindowEx(0, WC_TABCONTROL, L"", WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, 0, 0, 0, 0, _hwnd, NULL, _moduleHandle, NULL);
@@ -4433,7 +4433,7 @@ void DockingWindow::AddHostedContent(HWND contentWindow, const std::wstring& con
 			SetWindowSubclass(_contentTabControl, BounceBackSubclassProc, 0, 0);
 
 			//Set the font for the created tab control
-			if(_controlFont != NULL)
+			if (_controlFont != NULL)
 			{
 				SendMessage(_contentTabControl, WM_SETFONT, (WPARAM)_controlFont, FALSE);
 			}
@@ -4441,7 +4441,7 @@ void DockingWindow::AddHostedContent(HWND contentWindow, const std::wstring& con
 			//Set no tab as currently active in the tab control
 			_currentSelectedTabIndex = -1;
 
-			if(!_hostedContent.empty())
+			if (!_hostedContent.empty())
 			{
 				//Hide the existing content window
 				ContentEntry& existingContentEntry = *_hostedContent.begin();
@@ -4499,7 +4499,7 @@ void DockingWindow::AddHostedContent(HWND contentWindow, const std::wstring& con
 		//Set this content item as a child window of the tab control
 		SetWindowParent(entry.contentWindow, _contentTabControl);
 
-		if(createNewTabControl)
+		if (createNewTabControl)
 		{
 			//Set the content tab control as the content for our internal docking panel
 			SendMessage(_dockPanel, (UINT)WC_DockPanel::WindowMessages::AddContentWindow, 0, (LPARAM)_contentTabControl);
@@ -4519,7 +4519,7 @@ void DockingWindow::AddHostedContent(HWND contentWindow, const std::wstring& con
 
 	//If we're docked to a parent window, notify the parent docking window that our list
 	//of hosted content windows has changed.
-	if(_parentDockingWindow != 0)
+	if (_parentDockingWindow != 0)
 	{
 		_parentDockingWindow->NotifyChildContainerContentChanged(this);
 	}
@@ -4531,16 +4531,16 @@ void DockingWindow::RemoveHostedContent(HWND contentWindow)
 	//Attempt to locate the target window in our list of hosted content windows
 	bool foundTargetItem = false;
 	size_t hostedContentIndex = 0;
-	while(!foundTargetItem && (hostedContentIndex < _hostedContent.size()))
+	while (!foundTargetItem && (hostedContentIndex < _hostedContent.size()))
 	{
-		if(_hostedContent[hostedContentIndex].contentWindow == contentWindow)
+		if (_hostedContent[hostedContentIndex].contentWindow == contentWindow)
 		{
 			foundTargetItem = true;
 			continue;
 		}
 		++hostedContentIndex;
 	}
-	if(!foundTargetItem)
+	if (!foundTargetItem)
 	{
 		return;
 	}
@@ -4553,21 +4553,21 @@ void DockingWindow::RemoveHostedContent(HWND contentWindow)
 
 	//If the target content window is a docking window that has placement targets
 	//currently visible, hide the placement targets.
-	if(_placementTargetsVisible && (_placementTargetsChildDockingWindow != 0) && (_placementTargetsChildDockingWindow == entry.contentWindowAsDockingWindow))
+	if (_placementTargetsVisible && (_placementTargetsChildDockingWindow != 0) && (_placementTargetsChildDockingWindow == entry.contentWindowAsDockingWindow))
 	{
 		_placementTargetsChildDockingWindow->HideDropTargets(this);
 		_placementTargetsChildDockingWindow = 0;
 	}
 
 	//Restore any window styles which were removed from the hosted content window
-	if(entry.removedWindowStyles != 0)
+	if (entry.removedWindowStyles != 0)
 	{
 		DWORD currentWindowStyle = (DWORD)GetWindowLongPtr(contentWindow, GWL_STYLE);
 		SetWindowLongPtr(contentWindow, GWL_STYLE, currentWindowStyle | entry.removedWindowStyles);
 	}
 
 	//Remove the target content window
-	if((_hostedContent.size() > 1) || (AlwaysShowContentWindowTabs() && (_hostedContent.size() == 1)))
+	if ((_hostedContent.size() > 1) || (AlwaysShowContentWindowTabs() && (_hostedContent.size() == 1)))
 	{
 		//Remove the content window from our tab control
 		SendMessage(_contentTabControl, TCM_DELETEITEM, entry.tabIndex, 0);
@@ -4576,7 +4576,7 @@ void DockingWindow::RemoveHostedContent(HWND contentWindow)
 		//and calculate the tab index of the tab nearest to this one.
 		_tabIndexToHostedContentNo.clear();
 		int nextTabIndexFromRemovedTab = -1;
-		for(size_t i = 0; i < _hostedContent.size(); ++i)
+		for (size_t i = 0; i < _hostedContent.size(); ++i)
 		{
 			_hostedContent[i].tabIndex = (_hostedContent[i].tabIndex >= entry.tabIndex)? _hostedContent[i].tabIndex - 1: _hostedContent[i].tabIndex;
 			_tabIndexToHostedContentNo[_hostedContent[i].tabIndex] = i;
@@ -4585,7 +4585,7 @@ void DockingWindow::RemoveHostedContent(HWND contentWindow)
 
 		//If the content item that was removed was the currently selected tab, or appears
 		//before the currently selected tab in the list, update the current tab selection.
-		if(_currentSelectedTabIndex >= entry.tabIndex)
+		if (_currentSelectedTabIndex >= entry.tabIndex)
 		{
 			int newSelectedTabIndex = (_currentSelectedTabIndex == entry.tabIndex)? nextTabIndexFromRemovedTab: _currentSelectedTabIndex - 1;
 			_currentSelectedTabIndex = -1;
@@ -4596,7 +4596,7 @@ void DockingWindow::RemoveHostedContent(HWND contentWindow)
 		//Remove the specified window as a child window of the tab control
 		SetWindowParent(entry.contentWindow, NULL);
 	}
-	else if(_hostedContent.size() == 1)
+	else if (_hostedContent.size() == 1)
 	{
 		//Remove both the specified window and the remaining content window as child
 		//windows of the tab control
@@ -4631,7 +4631,7 @@ void DockingWindow::RemoveHostedContent(HWND contentWindow)
 		//Update the title of our docking window to match the content title
 		SetWindowText(_hwnd, remainingContentEntry.contentTitle.c_str());
 	}
-	else if(AlwaysShowContentWindowTabs())
+	else if (AlwaysShowContentWindowTabs())
 	{
 		//Remove the specified window as a child window of the tab control
 		SetWindowParent(entry.contentWindow, NULL);
@@ -4662,14 +4662,14 @@ void DockingWindow::RemoveHostedContent(HWND contentWindow)
 
 	//If the hosted window is a docking window, notify the child docking window that it's
 	//been removed from our docking window as a child.
-	if(entry.contentWindowAsDockingWindow != 0)
+	if (entry.contentWindowAsDockingWindow != 0)
 	{
 		entry.contentWindowAsDockingWindow->NotifyRemovedFromParent();
 	}
 
 	//If we're docked to a parent window, notify the parent docking window that our list
 	//of hosted content windows has changed.
-	if(_parentDockingWindow != 0)
+	if (_parentDockingWindow != 0)
 	{
 		_parentDockingWindow->NotifyChildContainerContentChanged(this);
 	}
@@ -4699,16 +4699,16 @@ bool DockingWindow::GetHostedContentIndexFromWindow(HWND contentWindow, unsigned
 	//Attempt to locate the content entry for the target content window
 	size_t contentEntryIndex = 0;
 	bool foundContentEntry = false;
-	while(!foundContentEntry && (contentEntryIndex < _hostedContent.size()))
+	while (!foundContentEntry && (contentEntryIndex < _hostedContent.size()))
 	{
-		if(_hostedContent[contentEntryIndex].contentWindow == contentWindow)
+		if (_hostedContent[contentEntryIndex].contentWindow == contentWindow)
 		{
 			foundContentEntry = true;
 			continue;
 		}
 		++contentEntryIndex;
 	}
-	if(!foundContentEntry)
+	if (!foundContentEntry)
 	{
 		return false;
 	}
@@ -4723,10 +4723,10 @@ unsigned int DockingWindow::GetActiveContent() const
 {
 	//Return the index number of the currently active content entry
 	unsigned int activeContentNo = 0;
-	if(_hostedContent.size() > 1)
+	if (_hostedContent.size() > 1)
 	{
 		std::map<int, size_t>::const_iterator tabIndexToHostedContentNoIterator = _tabIndexToHostedContentNo.find(_currentSelectedTabIndex);
-		if(tabIndexToHostedContentNoIterator != _tabIndexToHostedContentNo.end())
+		if (tabIndexToHostedContentNoIterator != _tabIndexToHostedContentNo.end())
 		{
 			activeContentNo = (unsigned int)tabIndexToHostedContentNoIterator->second;
 		}
@@ -4739,14 +4739,14 @@ void DockingWindow::SetActiveContent(unsigned int contentEntryNo)
 {
 	//Ensure that our content is currently hosted within a tab control. If no tab control
 	//is present, we don't need to do anything here.
-	if(_contentTabControl == NULL)
+	if (_contentTabControl == NULL)
 	{
 		return;
 	}
 
 	//Set the target content window as the new active content window if required
 	const ContentEntry& contentEntry = _hostedContent[contentEntryNo];
-	if(_currentSelectedTabIndex != contentEntry.tabIndex)
+	if (_currentSelectedTabIndex != contentEntry.tabIndex)
 	{
 		SendMessage(_contentTabControl, TCM_SETCURSEL, contentEntry.tabIndex, 0);
 		HandleContentTabChanged(contentEntry.tabIndex);
@@ -4770,7 +4770,7 @@ void DockingWindow::SetHostedContentTitle(unsigned int contentEntryNo, const std
 	//If we're currently displaying a tab control for our hosted content items, update the
 	//text for the tab item for the target content entry now that the title has been
 	//modified.
-	if(_contentTabControl != NULL)
+	if (_contentTabControl != NULL)
 	{
 		TCITEM tabControlItem;
 		tabControlItem.mask = TCIF_TEXT;
@@ -4781,14 +4781,14 @@ void DockingWindow::SetHostedContentTitle(unsigned int contentEntryNo, const std
 	//If the hosted content entry having its title modified is the currently selected
 	//content entry, update the title of our docking window to match the new content
 	//title.
-	if((_hostedContent.size() <= 1) || (_currentSelectedTabIndex == contentEntry.tabIndex))
+	if ((_hostedContent.size() <= 1) || (_currentSelectedTabIndex == contentEntry.tabIndex))
 	{
 		SetWindowText(_hwnd, contentEntry.contentTitle.c_str());
 	}
 
 	//If we're docked to a parent window, notify the parent docking window that our list
 	//of hosted content windows has changed.
-	if(_parentDockingWindow != 0)
+	if (_parentDockingWindow != 0)
 	{
 		_parentDockingWindow->NotifyChildContainerContentChanged(this);
 	}
@@ -4819,10 +4819,10 @@ void DockingWindow::SetHostedContentWindow(unsigned int contentEntryNo, HWND new
 	//Subclass any child edit controls to fix the focus issue outlined in KB230587. This
 	//bug affects us because we use the native window caption bar for docked windows.
 	std::list<HWND> descendantWindows = GetDescendantWindows(newContentWindow);
-	for(std::list<HWND>::const_iterator i = descendantWindows.begin(); i != descendantWindows.end(); ++i)
+	for (std::list<HWND>::const_iterator i = descendantWindows.begin(); i != descendantWindows.end(); ++i)
 	{
 		HWND childWindow = *i;
-		if(GetClassName(childWindow) == WC_EDIT)
+		if (GetClassName(childWindow) == WC_EDIT)
 		{
 			SetWindowSubclass(childWindow, EditBoxFocusFixSubclassProc, 0, 0);
 		}
@@ -4830,7 +4830,7 @@ void DockingWindow::SetHostedContentWindow(unsigned int contentEntryNo, HWND new
 
 	//Replace the target content window in the main docking window or the docked tab
 	//control as required
-	if(_contentTabControl != NULL)
+	if (_contentTabControl != NULL)
 	{
 		//Set the new content window as a child window of the tab control
 		SetWindowParent(newContentWindow, _contentTabControl);
@@ -4844,7 +4844,7 @@ void DockingWindow::SetHostedContentWindow(unsigned int contentEntryNo, HWND new
 		//If the hosted content entry having its associated window modified is the
 		//currently selected content entry, handle its tab selection event again to update
 		//the visibility, position, and size of the window, otherwise hide the window.
-		if(_currentSelectedTabIndex == contentEntry.tabIndex)
+		if (_currentSelectedTabIndex == contentEntry.tabIndex)
 		{
 			HandleContentTabChanged(_currentSelectedTabIndex);
 		}
@@ -4863,7 +4863,7 @@ void DockingWindow::SetHostedContentWindow(unsigned int contentEntryNo, HWND new
 
 	//If we're docked to a parent window, notify the parent docking window that our list
 	//of hosted content windows has changed.
-	if(_parentDockingWindow != 0)
+	if (_parentDockingWindow != 0)
 	{
 		_parentDockingWindow->NotifyChildContainerContentChanged(this);
 	}

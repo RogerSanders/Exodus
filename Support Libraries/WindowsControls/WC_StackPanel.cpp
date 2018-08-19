@@ -63,11 +63,11 @@ bool WC_StackPanel::UnregisterWindowClass(HINSTANCE moduleHandle)
 //----------------------------------------------------------------------------------------
 LRESULT CALLBACK WC_StackPanel::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	switch(message)
+	switch (message)
 	{
 	default:{
 		WC_StackPanel* object = (WC_StackPanel*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-		if(object != 0)
+		if (object != 0)
 		{
 			return object->WndProcPrivate(message, wParam, lParam);
 		}
@@ -79,7 +79,7 @@ LRESULT CALLBACK WC_StackPanel::WndProc(HWND hwnd, UINT message, WPARAM wParam, 
 		return object->WndProcPrivate(message, wParam, lParam);}
 	case WM_DESTROY:{
 		WC_StackPanel* object = (WC_StackPanel*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-		if(object != 0)
+		if (object != 0)
 		{
 			LPARAM result = object->WndProcPrivate(message, wParam, lParam);
 			SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)0);
@@ -95,7 +95,7 @@ LRESULT CALLBACK WC_StackPanel::WndProc(HWND hwnd, UINT message, WPARAM wParam, 
 //----------------------------------------------------------------------------------------
 LRESULT WC_StackPanel::WndProcPrivate(UINT message, WPARAM wParam, LPARAM lParam)
 {
-	switch(message)
+	switch (message)
 	{
 	case WM_CREATE:
 		return msgWM_CREATE(wParam, lParam);
@@ -158,7 +158,7 @@ LRESULT WC_StackPanel::msgWM_SIZE(WPARAM wParam, LPARAM lParam)
 	int newClientHeight = (int)(rect.bottom - rect.top);
 
 	//Handle this size changed event
-	if((_currentControlWidth != newClientWidth) || (_currentControlHeight != newClientHeight))
+	if ((_currentControlWidth != newClientWidth) || (_currentControlHeight != newClientHeight))
 	{
 		HandleSizeChanged(newClientWidth, newClientHeight);
 	}
@@ -174,7 +174,7 @@ LRESULT WC_StackPanel::msgWM_ERASEBKGND(WPARAM wParam, LPARAM lParam)
 	//containing window to use the WS_EX_COMPOSITED style in order to achieve the desired
 	//effect. If the WS_EX_TRANSPARENT style has not been specified, we pass this message
 	//on to DefWindowProc.
-	if(((unsigned int)GetWindowLongPtr(_hwnd, GWL_EXSTYLE) & WS_EX_TRANSPARENT) != 0)
+	if (((unsigned int)GetWindowLongPtr(_hwnd, GWL_EXSTYLE) & WS_EX_TRANSPARENT) != 0)
 	{
 		return TRUE;
 	}
@@ -207,17 +207,17 @@ LRESULT WC_StackPanel::msgWM_NOTIFY(WPARAM wParam, LPARAM lParam)
 LRESULT WC_StackPanel::msgWM_BOUNCE(WPARAM wParam, LPARAM lParam)
 {
 	BounceMessage* bounceMessage = (BounceMessage*)lParam;
-	if(bounceMessage->uMsg == WM_SIZE)
+	if (bounceMessage->uMsg == WM_SIZE)
 	{
 		//If the size of a hosted window has changed, update the size of all child
 		//windows.
 		std::map<HWND, unsigned int>::iterator hostedWindowsIterator = _hostedWindowsSet.find(bounceMessage->hwnd);
-		if(hostedWindowsIterator != _hostedWindowsSet.end())
+		if (hostedWindowsIterator != _hostedWindowsSet.end())
 		{
 			HostedWindowInfo& windowInfo = _hostedWindows[hostedWindowsIterator->second];
 			RECT rect;
 			GetClientRect(windowInfo.windowHandle, &rect);
-			if((windowInfo.currentSizeX  != rect.right) || (windowInfo.currentSizeY != rect.bottom))
+			if ((windowInfo.currentSizeX  != rect.right) || (windowInfo.currentSizeY != rect.bottom))
 			{
 				windowInfo.currentSizeX = rect.right;
 				windowInfo.currentSizeY = rect.bottom;
@@ -341,21 +341,21 @@ bool WC_StackPanel::InsertWindow(const HostedWindowInfo& windowInfo, unsigned in
 {
 	//Ensure this window isn't currently hosted in our control
 	std::map<HWND, unsigned int>::iterator hostedWindowsIterator = _hostedWindowsSet.find(windowInfo.windowHandle);
-	if(hostedWindowsIterator != _hostedWindowsSet.end())
+	if (hostedWindowsIterator != _hostedWindowsSet.end())
 	{
 		return false;
 	}
 
 	//Ensure the target insert position is valid
-	if(insertPos > (unsigned int)_hostedWindows.size())
+	if (insertPos > (unsigned int)_hostedWindows.size())
 	{
 		return false;
 	}
 
 	//Adjust the index values for the existing hosted windows
-	for(std::map<HWND, unsigned int>::iterator i = _hostedWindowsSet.begin(); i != _hostedWindowsSet.end(); ++i)
+	for (std::map<HWND, unsigned int>::iterator i = _hostedWindowsSet.begin(); i != _hostedWindowsSet.end(); ++i)
 	{
-		if(i->second >= insertPos)
+		if (i->second >= insertPos)
 		{
 			++i->second;
 		}
@@ -381,7 +381,7 @@ void WC_StackPanel::RemoveWindow(HWND windowHandle)
 {
 	//Attempt to retrieve info on the target hosted window
 	std::map<HWND, unsigned int>::iterator hostedWindowsIterator = _hostedWindowsSet.find(windowHandle);
-	if(hostedWindowsIterator == _hostedWindowsSet.end())
+	if (hostedWindowsIterator == _hostedWindowsSet.end())
 	{
 		return;
 	}
@@ -396,9 +396,9 @@ void WC_StackPanel::RemoveWindow(HWND windowHandle)
 	_hostedWindowsSet.erase(hostedWindowsIterator);
 
 	//Adjust the index values for the remaining hosted windows
-	for(std::map<HWND, unsigned int>::iterator i = _hostedWindowsSet.begin(); i != _hostedWindowsSet.end(); ++i)
+	for (std::map<HWND, unsigned int>::iterator i = _hostedWindowsSet.begin(); i != _hostedWindowsSet.end(); ++i)
 	{
-		if(i->second > hostedWindowsIndex)
+		if (i->second > hostedWindowsIndex)
 		{
 			--i->second;
 		}
@@ -412,7 +412,7 @@ void WC_StackPanel::HandleSizeChanged(int newWidth, int newHeight)
 {
 	//If we're currently in the process of changing the size of the control internally,
 	//abort any further processing.
-	if(_updatingControlSizeInternally)
+	if (_updatingControlSizeInternally)
 	{
 		return;
 	}
@@ -442,7 +442,7 @@ void WC_StackPanel::UpdateChildWindowPositions()
 	std::vector<RowInfo> rows;
 	rows.push_back(RowInfo());
 	int largestRowStackDirectionSize = 0;
-	for(unsigned int i = 0; i < (unsigned int)_hostedWindows.size(); ++i)
+	for (unsigned int i = 0; i < (unsigned int)_hostedWindows.size(); ++i)
 	{
 		//Retrieve the size of the target window
 		const HostedWindowInfo& windowInfo = _hostedWindows[i];
@@ -452,10 +452,10 @@ void WC_StackPanel::UpdateChildWindowPositions()
 		//If wrapping is enabled, and the stack direction isn't being sized based on the
 		//content, advance to a new row if there are other windows in the current row, and
 		//this window would exceed the maximum size of the row.
-		if(_wrappingEnabled && ((_sizeMode == SizeMode::Fixed) || (_sizeMode == SizeMode::StackRowSize) || ((_stackDirection == StackDirection::Horizontal) && (_sizeMode == SizeMode::ContentHeight)) || ((_stackDirection == StackDirection::Vertical) && (_sizeMode == SizeMode::ContentWidth))))
+		if (_wrappingEnabled && ((_sizeMode == SizeMode::Fixed) || (_sizeMode == SizeMode::StackRowSize) || ((_stackDirection == StackDirection::Horizontal) && (_sizeMode == SizeMode::ContentHeight)) || ((_stackDirection == StackDirection::Vertical) && (_sizeMode == SizeMode::ContentWidth))))
 		{
 			int windowAvailableStackDirectionSize = (_stackDirection == StackDirection::Horizontal)? _currentControlWidth: _currentControlHeight;
-			if(!rows[currentRowNo].hostedWindows.empty() && ((rows[currentRowNo].rowStackDirectionSize + paddingStackDirection + windowStackDirectionSize) > windowAvailableStackDirectionSize))
+			if (!rows[currentRowNo].hostedWindows.empty() && ((rows[currentRowNo].rowStackDirectionSize + paddingStackDirection + windowStackDirectionSize) > windowAvailableStackDirectionSize))
 			{
 				rows.push_back(RowInfo());
 				++currentRowNo;
@@ -475,7 +475,7 @@ void WC_StackPanel::UpdateChildWindowPositions()
 
 	//Update the position of each window based on the calculated row sizes
 	int rowNonStackDirectionCurrentDisplacement = 0;
-	for(unsigned int rowNo = 0; rowNo < (unsigned int)rows.size(); ++rowNo)
+	for (unsigned int rowNo = 0; rowNo < (unsigned int)rows.size(); ++rowNo)
 	{
 		//Insert padding into the start position for this row if required
 		rowNonStackDirectionCurrentDisplacement += (rowNo > 0)? paddingNonStackDirection: 0;
@@ -487,7 +487,7 @@ void WC_StackPanel::UpdateChildWindowPositions()
 		int nextWindowPosY = (_stackDirection == StackDirection::Horizontal)? rowNonStackDirectionCurrentDisplacement: rowStackDirectionInitialDisplacement;
 
 		//Position each window in the row
-		for(std::list<unsigned int>::const_iterator i = rowInfo.hostedWindows.begin(); i != rowInfo.hostedWindows.end(); ++i)
+		for (std::list<unsigned int>::const_iterator i = rowInfo.hostedWindows.begin(); i != rowInfo.hostedWindows.end(); ++i)
 		{
 			//Position this window
 			const HostedWindowInfo& windowInfo = _hostedWindows[*i];
@@ -508,18 +508,18 @@ void WC_StackPanel::UpdateChildWindowPositions()
 	//Calculate the new required size of the stack panels
 	int newControlWidth = _currentControlWidth;
 	int newControlHeight = _currentControlHeight;
-	if((_sizeMode == SizeMode::ContentWidth) || (_sizeMode == SizeMode::ContentWidthAndHeight) || ((_sizeMode == SizeMode::StackRowSize) && (_stackDirection == StackDirection::Vertical)))
+	if ((_sizeMode == SizeMode::ContentWidth) || (_sizeMode == SizeMode::ContentWidthAndHeight) || ((_sizeMode == SizeMode::StackRowSize) && (_stackDirection == StackDirection::Vertical)))
 	{
 		newControlWidth = (_stackDirection == StackDirection::Horizontal)? largestRowStackDirectionSize: rowNonStackDirectionCurrentDisplacement;
 	}
-	if((_sizeMode == SizeMode::ContentHeight) || (_sizeMode == SizeMode::ContentWidthAndHeight) || ((_sizeMode == SizeMode::StackRowSize) && (_stackDirection == StackDirection::Horizontal)))
+	if ((_sizeMode == SizeMode::ContentHeight) || (_sizeMode == SizeMode::ContentWidthAndHeight) || ((_sizeMode == SizeMode::StackRowSize) && (_stackDirection == StackDirection::Horizontal)))
 	{
 		newControlHeight = (_stackDirection == StackDirection::Horizontal)? rowNonStackDirectionCurrentDisplacement: largestRowStackDirectionSize;
 	}
 
 	//If the new required size of the stack panel is different to the current size, resize
 	//the stack panel to the required size.
-	if((newControlWidth != _currentControlWidth) || (newControlHeight != _currentControlHeight))
+	if ((newControlWidth != _currentControlWidth) || (newControlHeight != _currentControlHeight))
 	{
 		_updatingControlSizeInternally = true;
 		SetWindowPos(_hwnd, NULL, 0, 0, newControlWidth, newControlHeight, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOMOVE);

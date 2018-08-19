@@ -71,7 +71,7 @@ public:
 		//Note that this method must be virtual, so that the assembly which allocated this object will be the one in
 		//which the deletion is performed.
 		--_refCount;
-		if(_refCount <= 0)
+		if (_refCount <= 0)
 		{
 			delete this;
 		}
@@ -124,7 +124,7 @@ public:
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION DecrementRefCount()
 	{
 		--_refCount;
-		if(_refCount <= 0)
+		if (_refCount <= 0)
 		{
 			delete this;
 		}
@@ -192,7 +192,7 @@ public:
 #endif
 	inline ~Ret()
 	{
-		if(_data != 0)
+		if (_data != 0)
 		{
 			_data->DecrementRefCount();
 		}
@@ -251,7 +251,7 @@ public:
 	}
 	inline ~Ret()
 	{
-		if(_data != nullptr)
+		if (_data != nullptr)
 		{
 			_data->DecrementRefCount();
 		}
@@ -320,7 +320,7 @@ public:
 #endif
 	inline ~Ret()
 	{
-		if(_data != 0)
+		if (_data != 0)
 		{
 			_data->DecrementRefCount();
 		}
@@ -377,7 +377,7 @@ public:
 	}
 	inline ~Ret()
 	{
-		if(_data != nullptr)
+		if (_data != nullptr)
 		{
 			_deleter(_data);
 		}

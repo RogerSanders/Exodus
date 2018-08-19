@@ -33,7 +33,7 @@ public:
 //	| 1 | 0 | 0 | 1 |  REGISTER |  SIZE | 1 |    MODE   |  REGISTER |
 //	----------------------------------------=========================
 //                              |--<opmode>-|----------<ea>---------|
-		switch(data.GetDataSegment(7, 2))
+		switch (data.GetDataSegment(7, 2))
 		{
 		case 1:	//01
 			_size = BITCOUNT_WORD;
@@ -48,10 +48,10 @@ public:
 		AddInstructionSize(_source.ExtensionSize());
 		_target.BuildAddressDirect(_size, location + GetInstructionSize(), data.GetDataSegment(9, 3));
 
-		if(_size == BITCOUNT_LONG)
+		if (_size == BITCOUNT_LONG)
 		{
 			AddExecuteCycleCount(ExecuteTime(6, 1, 0));
-			if((_source.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect) || (_source.GetAddressMode() == EffectiveAddress::Mode::AddRegDirect) || (_source.GetAddressMode() == EffectiveAddress::Mode::Immediate))
+			if ((_source.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect) || (_source.GetAddressMode() == EffectiveAddress::Mode::AddRegDirect) || (_source.GetAddressMode() == EffectiveAddress::Mode::Immediate))
 			{
 				AddExecuteCycleCount(ExecuteTime(2, 0, 0));
 			}

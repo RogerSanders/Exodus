@@ -27,7 +27,7 @@ public:
 
 		//Enter a spin lock until the mutex can be acquired
 		//while(InterlockedCompareExchangeAcquire(&mutex, 1, 0) != 0) {}
-		while(PerformanceInterlockedBitTestAndSet(&_mutex, 0)) {}
+		while (PerformanceInterlockedBitTestAndSet(&_mutex, 0)) {}
 
 		//This final write barrier ensures that the compiler doesn't re-order our acquire
 		//of the mutex after any following instructions.

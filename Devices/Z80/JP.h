@@ -26,7 +26,7 @@ public:
 
 	virtual Disassembly Z80Disassemble(const Z80::LabelSubstitutionSettings& labelSettings) const
 	{
-		if(_conditionCode == ConditionCode::None)
+		if (_conditionCode == ConditionCode::None)
 		{
 			return Disassembly(GetOpcodeName(), _source.Disassemble());
 		}
@@ -41,7 +41,7 @@ public:
 		_source.SetIndexState(GetIndexState(), GetIndexOffset());
 
 		_conditionCode = ConditionCode::None;
-		if(data.GetDataSegment(0, 3) == 0x01)
+		if (data.GetDataSegment(0, 3) == 0x01)
 		{
 			//##NOTE## This is NOT indirect, despite the notation.
 			//JP (HL)		11101001
@@ -50,7 +50,7 @@ public:
 			_source.SetMode(EffectiveAddress::Mode::HL);
 			AddExecuteCycleCount(4);
 		}
-		else if(data.GetDataSegment(0, 3) == 0x03)
+		else if (data.GetDataSegment(0, 3) == 0x03)
 		{
 			//JP nn			11000011 nnnnnnnn nnnnnnnn
 			_source.BuildImmediateData(BITCOUNT_WORD, location + GetInstructionSize(), cpu, transparent);
@@ -74,7 +74,7 @@ public:
 		Z80Word newPC;
 
 		//Test the condition code
-		if(ConditionCodeTrue(cpu, _conditionCode))
+		if (ConditionCodeTrue(cpu, _conditionCode))
 		{
 			//If the condition is true, jump to the _target location.
 			additionalTime += _source.Read(cpu, location, newPC);

@@ -177,11 +177,11 @@ private:
 
 		const IGenericAccess::DataContext* GetDataContext() const
 		{
-			if(usingChannelDataContext)
+			if (usingChannelDataContext)
 			{
 				return &channelDataContext;
 			}
-			if(usingOperatorDataContext)
+			if (usingOperatorDataContext)
 			{
 				return &operatorDataContext;
 			}

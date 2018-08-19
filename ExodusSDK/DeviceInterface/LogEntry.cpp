@@ -79,7 +79,7 @@ Marshal::Ret<std::wstring> LogEntry::GetSource() const
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> LogEntry::GetEventLevelString() const
 {
-	switch(_eventLevel)
+	switch (_eventLevel)
 	{
 	case EventLevel::Info:
 		return L"1 - Information";

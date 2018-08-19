@@ -52,7 +52,7 @@ void ObserverSubscription::Unsubscribe(IObserverCollection& targetCollection)
 void ObserverSubscription::UnsubscribeAll()
 {
 	std::unique_lock<std::mutex> lock(_accessMutex);
-	while(!_linkedCollections.empty())
+	while (!_linkedCollections.empty())
 	{
 		IObserverCollection& targetCollection = *(*_linkedCollections.begin());
 		lock.unlock();
@@ -66,7 +66,7 @@ void ObserverSubscription::UnsubscribeAll()
 //----------------------------------------------------------------------------------------
 void ObserverSubscription::Notify() const
 {
-	if(_callback != 0)
+	if (_callback != 0)
 	{
 		(*_callback)();
 	}

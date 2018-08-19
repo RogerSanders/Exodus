@@ -34,7 +34,7 @@ public:
 		//POP IX		11011101 11100001
 		//POP IY		11111101 11100001
 		_source.SetMode(EffectiveAddress::Mode::SPPostInc);
-		switch(data.GetDataSegment(4, 2))
+		switch (data.GetDataSegment(4, 2))
 		{
 		case 0:
 			_target.SetMode(EffectiveAddress::Mode::BC);

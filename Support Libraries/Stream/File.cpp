@@ -23,21 +23,21 @@ bool File::IsAtEnd() const
 File::SizeType File::Size() const
 {
 	SizeType fileSize = 0;
-	if(_fileOpen)
+	if (_fileOpen)
 	{
 		LARGE_INTEGER fileSizeWindows;
 		BOOL getFileSizeExReturn = GetFileSizeEx(_fileHandle, &fileSizeWindows);
-		if(getFileSizeExReturn != 0)
+		if (getFileSizeExReturn != 0)
 		{
 			fileSize = (SizeType)fileSizeWindows.QuadPart;
 
 			//Adjust the reported file size to take into account any unwritten data
 			//currently held in the data buffer.
-			if(_bufferInWriteMode)
+			if (_bufferInWriteMode)
 			{
 				SizeType virtualFilePos = GetStreamPos();
 				virtualFilePos += (SizeType)_bufferPosOffset;
-				if(virtualFilePos > fileSize)
+				if (virtualFilePos > fileSize)
 				{
 					fileSize = virtualFilePos;
 				}
@@ -51,19 +51,19 @@ File::SizeType File::Size() const
 File::SizeType File::GetStreamPos() const
 {
 	SizeType streamPos = 0;
-	if(_fileOpen)
+	if (_fileOpen)
 	{
 		LARGE_INTEGER dummyFilePointer;
 		dummyFilePointer.QuadPart = 0;
 		LARGE_INTEGER currentFilePointer;
 		BOOL setFilePointerExReturn = SetFilePointerEx(_fileHandle, dummyFilePointer, &currentFilePointer, FILE_CURRENT);
-		if(setFilePointerExReturn != 0)
+		if (setFilePointerExReturn != 0)
 		{
 			streamPos = (SizeType)currentFilePointer.QuadPart;
 
 			//Adjust the reported file position to take into account our position in the
 			//data buffer.
-			if(_bufferInWriteMode)
+			if (_bufferInWriteMode)
 			{
 				streamPos += (SizeType)_bufferPosOffset;
 			}
@@ -79,7 +79,7 @@ File::SizeType File::GetStreamPos() const
 //----------------------------------------------------------------------------------------
 void File::SetStreamPos(SizeType position)
 {
-	if(_fileOpen)
+	if (_fileOpen)
 	{
 		//Empty the contents of the data buffer before we perform a seek operation
 		EmptyDataBuffer();
@@ -95,11 +95,11 @@ void File::SetStreamPos(SizeType position)
 bool File::SkipBytes(SizeType byteCount)
 {
 	bool result = false;
-	if(_fileOpen)
+	if (_fileOpen)
 	{
 		result = true;
 		unsigned char temp;
-		for(SizeType i = 0; i < byteCount; ++i)
+		for (SizeType i = 0; i < byteCount; ++i)
 		{
 			result &= ReadData(temp);
 		}

@@ -35,7 +35,7 @@ public:
 //	|---------------------------------------------------------------|
 //	|                        16 BITS OFFSET                         |
 //	-----------------------------------------------------------------
-		if(!data.GetBit(6))
+		if (!data.GetBit(6))
 		{
 			_size = BITCOUNT_WORD;
 		}
@@ -46,13 +46,13 @@ public:
 
 		_memoryTarget = data.GetBit(7);
 
-		if(_memoryTarget)
+		if (_memoryTarget)
 		{
 			//MOVEP	Dx,(d,Ay)
 			_source.BuildDataDirect(_size, location + GetInstructionSize(), data.GetDataSegment(9, 3));
 			_target.BuildAddressIndirectDisplace(_size, location + GetInstructionSize(), data.GetDataSegment(0, 3), cpu, transparent, GetInstructionRegister());
 			AddInstructionSize(_target.ExtensionSize());
-			if(_size != BITCOUNT_LONG)
+			if (_size != BITCOUNT_LONG)
 			{
 				AddExecuteCycleCount(ExecuteTime(16, 4, 0));
 			}
@@ -67,7 +67,7 @@ public:
 			_source.BuildAddressIndirectDisplace(_size, location + GetInstructionSize(), data.GetDataSegment(0, 3), cpu, transparent, GetInstructionRegister());
 			AddInstructionSize(_source.ExtensionSize());
 			_target.BuildDataDirect(_size, location + GetInstructionSize(), data.GetDataSegment(9, 3));
-			if(_size != BITCOUNT_LONG)
+			if (_size != BITCOUNT_LONG)
 			{
 				AddExecuteCycleCount(ExecuteTime(16, 2, 2));
 			}
@@ -84,14 +84,14 @@ public:
 		EffectiveAddress newTarget(_target);
 		EffectiveAddress newSource(_source);
 
-		if(_memoryTarget)
+		if (_memoryTarget)
 		{
 			//Move the data from the _source to the _target memory location
 			Data totalData(_size);
 			additionalTime += _source.Read(cpu, totalData, GetInstructionRegister());
 			M68000Long address;
 			_target.GetAddress(cpu, address);
-			for(unsigned int i = 0; i < totalData.GetByteSize(); ++i)
+			for (unsigned int i = 0; i < totalData.GetByteSize(); ++i)
 			{
 				M68000Byte byte = totalData.GetByteFromTopDown(i);
 				additionalTime += cpu->WriteMemory(address, byte, cpu->GetFunctionCode(false), location + 2, true, GetInstructionRegister(), false, false);
@@ -105,7 +105,7 @@ public:
 			_source.GetAddress(cpu, address);
 			Data totalData(_size);
 			totalData = 0;
-			for(unsigned int i = 0; i < totalData.GetByteSize(); ++i)
+			for (unsigned int i = 0; i < totalData.GetByteSize(); ++i)
 			{
 				M68000Byte byte;
 

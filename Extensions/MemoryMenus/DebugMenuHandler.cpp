@@ -19,7 +19,7 @@ void DebugMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) co
 //----------------------------------------------------------------------------------------
 IViewPresenter* DebugMenuHandler::CreateViewForItem(int menuItemID, const std::wstring& viewName)
 {
-	switch(menuItemID)
+	switch (menuItemID)
 	{
 	case MENUITEM_MEMORYEDITOR:
 		return new MemoryEditorViewPresenter(GetMenuHandlerName(), viewName, menuItemID, _owner, _modelInstanceKey, _model);

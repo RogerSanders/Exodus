@@ -12,7 +12,7 @@ GenericAccessGroup::~GenericAccessGroup()
 	delete _dataContext;
 
 	//Delete any child content that we've been given ownership of
-	for(std::list<IGenericAccessGroupEntry*>::const_iterator i = _childEntries.begin(); i != _childEntries.end(); ++i)
+	for (std::list<IGenericAccessGroupEntry*>::const_iterator i = _childEntries.begin(); i != _childEntries.end(); ++i)
 	{
 		delete *i;
 	}
@@ -60,9 +60,9 @@ GenericAccessGroup* GenericAccessGroup::AddEntry(IGenericAccessGroupEntry* entry
 GenericAccessGroup* GenericAccessGroup::RemoveEntry(IGenericAccessGroupEntry* entry)
 {
 	//Remove the target entry from the list of children if it is currently present
-	for(std::list<IGenericAccessGroupEntry*>::iterator i = _childEntries.begin(); i != _childEntries.end(); ++i)
+	for (std::list<IGenericAccessGroupEntry*>::iterator i = _childEntries.begin(); i != _childEntries.end(); ++i)
 	{
-		if(*i == entry)
+		if (*i == entry)
 		{
 			SetParentForTargetEntry(entry, 0);
 			_childEntries.erase(i);

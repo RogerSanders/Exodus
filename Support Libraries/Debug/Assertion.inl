@@ -7,7 +7,7 @@
 //----------------------------------------------------------------------------------------
 void Assert(bool expression, unsigned int line, const wchar_t* file, const wchar_t* message)
 {
-	if(!expression)
+	if (!expression)
 	{
 		std::wcout << L"Assert failed:\n"
 		           << L"-Expression:\t" << message << '\n'

@@ -13,12 +13,12 @@ GenericAccessMenus::GenericAccessMenus(const std::wstring& implementationName, c
 GenericAccessMenus::~GenericAccessMenus()
 {
 	//Delete all menu handlers
-	for(std::map<IDevice*, DebugMenuHandler*>::const_iterator i = _debugMenuHandlers.begin(); i != _debugMenuHandlers.end(); ++i)
+	for (std::map<IDevice*, DebugMenuHandler*>::const_iterator i = _debugMenuHandlers.begin(); i != _debugMenuHandlers.end(); ++i)
 	{
 		i->second->ClearMenuItems();
 		delete i->second;
 	}
-	for(std::map<IDevice*, SettingsMenuHandler*>::const_iterator i = _settingsMenuHandlers.begin(); i != _settingsMenuHandlers.end(); ++i)
+	for (std::map<IDevice*, SettingsMenuHandler*>::const_iterator i = _settingsMenuHandlers.begin(); i != _settingsMenuHandlers.end(); ++i)
 	{
 		i->second->ClearMenuItems();
 		delete i->second;
@@ -32,7 +32,7 @@ bool GenericAccessMenus::RegisterDeviceMenuHandler(IDevice* targetDevice)
 {
 	//Attempt to cast the supplied device to the correct type
 	IGenericAccess* targetDeviceAsIDeviceGenericAccess = dynamic_cast<IGenericAccess*>(targetDevice);
-	if(targetDeviceAsIDeviceGenericAccess == 0)
+	if (targetDeviceAsIDeviceGenericAccess == 0)
 	{
 		return false;
 	}
@@ -69,7 +69,7 @@ void GenericAccessMenus::UnregisterDeviceMenuHandler(IDevice* targetDevice)
 //----------------------------------------------------------------------------------------
 void GenericAccessMenus::AddDeviceMenuItems(DeviceMenu deviceMenu, IMenuSegment& menuSegment, IDevice* targetDevice)
 {
-	switch(deviceMenu)
+	switch (deviceMenu)
 	{
 	case IExtension::DeviceMenu::Debug:
 		_debugMenuHandlers[targetDevice]->AddMenuItems(menuSegment);

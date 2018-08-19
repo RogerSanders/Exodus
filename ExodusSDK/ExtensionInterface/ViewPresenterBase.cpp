@@ -44,14 +44,14 @@ AssemblyHandle ViewPresenterBase::GetAssemblyHandle() const
 bool ViewPresenterBase::OpenView(IUIManager& uiManager, IViewStateChangeNotifier* notifier, IHierarchicalStorageNode* viewState)
 {
 	//Ensure the view isn't already open
-	if(_viewOpen)
+	if (_viewOpen)
 	{
 		return false;
 	}
 
 	//Create the view
 	_view = CreateView(uiManager);
-	if(_view == 0)
+	if (_view == 0)
 	{
 		return false;
 	}
@@ -62,11 +62,11 @@ bool ViewPresenterBase::OpenView(IUIManager& uiManager, IViewStateChangeNotifier
 	//Open the view
 	_viewOpen = true;
 	IHierarchicalStorageNode* containedViewState = 0;
-	if(viewState != 0)
+	if (viewState != 0)
 	{
 		containedViewState = viewState->GetChild(L"ViewState");
 	}
-	if(!_view->OpenView(containedViewState))
+	if (!_view->OpenView(containedViewState))
 	{
 		DeleteView(_view);
 		_view = 0;
@@ -84,7 +84,7 @@ bool ViewPresenterBase::OpenView(IUIManager& uiManager, IViewStateChangeNotifier
 //----------------------------------------------------------------------------------------
 void ViewPresenterBase::CloseView()
 {
-	if(_viewOpen)
+	if (_viewOpen)
 	{
 		_view->CloseView();
 	}
@@ -93,7 +93,7 @@ void ViewPresenterBase::CloseView()
 //----------------------------------------------------------------------------------------
 void ViewPresenterBase::ShowView()
 {
-	if(_viewOpen)
+	if (_viewOpen)
 	{
 		_view->ShowView();
 	}
@@ -102,7 +102,7 @@ void ViewPresenterBase::ShowView()
 //----------------------------------------------------------------------------------------
 void ViewPresenterBase::HideView()
 {
-	if(_viewOpen)
+	if (_viewOpen)
 	{
 		_view->HideView();
 	}
@@ -111,7 +111,7 @@ void ViewPresenterBase::HideView()
 //----------------------------------------------------------------------------------------
 void ViewPresenterBase::ActivateView()
 {
-	if(_viewOpen)
+	if (_viewOpen)
 	{
 		_view->ActivateView();
 	}
@@ -120,7 +120,7 @@ void ViewPresenterBase::ActivateView()
 //----------------------------------------------------------------------------------------
 void ViewPresenterBase::NotifyViewClosed(IView* view)
 {
-	if(_view == view)
+	if (_view == view)
 	{
 		//##TODO## Comment this
 		NotifyViewClosed();
@@ -210,16 +210,16 @@ Marshal::Ret<std::wstring> ViewPresenterBase::GetViewName() const
 bool ViewPresenterBase::LoadViewState(IHierarchicalStorageNode& viewState)
 {
 	//Ensure this view is currently open
-	if(!_viewOpen)
+	if (!_viewOpen)
 	{
 		return false;
 	}
 
 	//Load the state for this view if present
 	IHierarchicalStorageNode* containedViewState = viewState.GetChild(L"ViewState");
-	if(containedViewState != 0)
+	if (containedViewState != 0)
 	{
-		if(!_view->LoadViewState(*containedViewState))
+		if (!_view->LoadViewState(*containedViewState))
 		{
 			return false;
 		}
@@ -233,7 +233,7 @@ bool ViewPresenterBase::LoadViewState(IHierarchicalStorageNode& viewState)
 bool ViewPresenterBase::SaveViewState(IHierarchicalStorageNode& viewState) const
 {
 	//Ensure this view is currently open
-	if(!_viewOpen)
+	if (!_viewOpen)
 	{
 		return false;
 	}

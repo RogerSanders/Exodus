@@ -704,7 +704,7 @@ public:
 	}
 	inline ~In()
 	{
-		if(_data != nullptr)
+		if (_data != nullptr)
 		{
 			_deleter(_data);
 		}

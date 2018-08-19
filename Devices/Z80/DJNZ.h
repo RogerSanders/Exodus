@@ -53,7 +53,7 @@ public:
 		--count;
 		additionalTime += _source.Write(cpu, location, count);
 
-		if(count != 0)
+		if (count != 0)
 		{
 			//If the counter is nonzero, run the loop again
 			additionalTime += _target.Read(cpu, location, offset);

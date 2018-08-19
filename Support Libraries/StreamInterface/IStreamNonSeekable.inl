@@ -41,7 +41,7 @@ struct IStreamNonSeekable::UnicodeCodePoint
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadChar(ByteOrder byteOrder, UnicodeCodePoint& data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadChar(data);
@@ -56,7 +56,7 @@ bool IStreamNonSeekable::ReadChar(ByteOrder byteOrder, UnicodeCodePoint& data)
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadCharAsASCII(ByteOrder byteOrder, UnicodeCodePoint& data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadCharAsASCII(data);
@@ -71,7 +71,7 @@ bool IStreamNonSeekable::ReadCharAsASCII(ByteOrder byteOrder, UnicodeCodePoint& 
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadCharAsUTF8(ByteOrder byteOrder, UnicodeCodePoint& data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadCharAsUTF8(data);
@@ -86,7 +86,7 @@ bool IStreamNonSeekable::ReadCharAsUTF8(ByteOrder byteOrder, UnicodeCodePoint& d
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadCharAsUTF16(ByteOrder byteOrder, UnicodeCodePoint& data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadCharAsUTF16(data);
@@ -101,7 +101,7 @@ bool IStreamNonSeekable::ReadCharAsUTF16(ByteOrder byteOrder, UnicodeCodePoint& 
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadCharAsUTF32(ByteOrder byteOrder, UnicodeCodePoint& data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadCharAsUTF32(data);
@@ -118,7 +118,7 @@ bool IStreamNonSeekable::ReadCharAsUTF32(ByteOrder byteOrder, UnicodeCodePoint& 
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextFixedLengthBufferAsASCII(ByteOrder byteOrder, SizeType codeUnitsInStream, char* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, char paddingChar)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadTextFixedLengthBufferAsASCII(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
@@ -133,7 +133,7 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsASCII(ByteOrder byteOrder, S
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextFixedLengthBufferAsASCII(ByteOrder byteOrder, SizeType codeUnitsInStream, wchar_t* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, wchar_t paddingChar)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadTextFixedLengthBufferAsASCII(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
@@ -148,7 +148,7 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsASCII(ByteOrder byteOrder, S
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF8(ByteOrder byteOrder, SizeType codeUnitsInStream, char* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, char paddingChar)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadTextFixedLengthBufferAsUTF8(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
@@ -163,7 +163,7 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF8(ByteOrder byteOrder, Si
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF8(ByteOrder byteOrder, SizeType codeUnitsInStream, wchar_t* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, wchar_t paddingChar)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadTextFixedLengthBufferAsUTF8(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
@@ -178,7 +178,7 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF8(ByteOrder byteOrder, Si
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF16(ByteOrder byteOrder, SizeType codeUnitsInStream, char* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, char paddingChar)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadTextFixedLengthBufferAsUTF16(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
@@ -193,7 +193,7 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF16(ByteOrder byteOrder, S
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF16(ByteOrder byteOrder, SizeType codeUnitsInStream, wchar_t* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, wchar_t paddingChar)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadTextFixedLengthBufferAsUTF16(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
@@ -208,7 +208,7 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF16(ByteOrder byteOrder, S
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF32(ByteOrder byteOrder, SizeType codeUnitsInStream, char* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, char paddingChar)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadTextFixedLengthBufferAsUTF32(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
@@ -223,7 +223,7 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF32(ByteOrder byteOrder, S
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF32(ByteOrder byteOrder, SizeType codeUnitsInStream, wchar_t* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, wchar_t paddingChar)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadTextFixedLengthBufferAsUTF32(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, codeUnitsWritten, paddingChar);
@@ -238,7 +238,7 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF32(ByteOrder byteOrder, S
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextFixedLengthBufferAsASCII(ByteOrder byteOrder, SizeType codeUnitsInStream, std::string& data, char paddingChar)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadTextFixedLengthBufferAsASCII(codeUnitsInStream, data, paddingChar);
@@ -253,7 +253,7 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsASCII(ByteOrder byteOrder, S
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextFixedLengthBufferAsASCII(ByteOrder byteOrder, SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadTextFixedLengthBufferAsASCII(codeUnitsInStream, data, paddingChar);
@@ -268,7 +268,7 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsASCII(ByteOrder byteOrder, S
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF8(ByteOrder byteOrder, SizeType codeUnitsInStream, std::string& data, char paddingChar)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadTextFixedLengthBufferAsUTF8(codeUnitsInStream, data, paddingChar);
@@ -283,7 +283,7 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF8(ByteOrder byteOrder, Si
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF8(ByteOrder byteOrder, SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadTextFixedLengthBufferAsUTF8(codeUnitsInStream, data, paddingChar);
@@ -298,7 +298,7 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF8(ByteOrder byteOrder, Si
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF16(ByteOrder byteOrder, SizeType codeUnitsInStream, std::string& data, char paddingChar)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadTextFixedLengthBufferAsUTF16(codeUnitsInStream, data, paddingChar);
@@ -313,7 +313,7 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF16(ByteOrder byteOrder, S
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF16(ByteOrder byteOrder, SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadTextFixedLengthBufferAsUTF16(codeUnitsInStream, data, paddingChar);
@@ -328,7 +328,7 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF16(ByteOrder byteOrder, S
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF32(ByteOrder byteOrder, SizeType codeUnitsInStream, std::string& data, char paddingChar)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadTextFixedLengthBufferAsUTF32(codeUnitsInStream, data, paddingChar);
@@ -343,7 +343,7 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF32(ByteOrder byteOrder, S
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF32(ByteOrder byteOrder, SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadTextFixedLengthBufferAsUTF32(codeUnitsInStream, data, paddingChar);
@@ -600,7 +600,7 @@ bool IStreamNonSeekable::ReadTextLittleEndianFixedLengthBufferAsUTF32(SizeType c
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, bool& data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadData(data);
@@ -615,7 +615,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, bool& data)
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, char& data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadData(data);
@@ -630,7 +630,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, char& data)
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, signed char& data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadData(data);
@@ -645,7 +645,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, signed char& data)
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, unsigned char& data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadData(data);
@@ -660,7 +660,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, unsigned char& data)
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, wchar_t& data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadData(data);
@@ -675,7 +675,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, wchar_t& data)
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, short& data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadData(data);
@@ -690,7 +690,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, short& data)
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, unsigned short& data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadData(data);
@@ -705,7 +705,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, unsigned short& data)
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, int& data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadData(data);
@@ -720,7 +720,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, int& data)
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, unsigned int& data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadData(data);
@@ -735,7 +735,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, unsigned int& data)
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, long& data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadData(data);
@@ -750,7 +750,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, long& data)
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, unsigned long& data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadData(data);
@@ -765,7 +765,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, unsigned long& data)
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, long long& data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadData(data);
@@ -780,7 +780,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, long long& data)
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, unsigned long long& data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadData(data);
@@ -795,7 +795,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, unsigned long long& data)
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, float& data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadData(data);
@@ -810,7 +810,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, float& data)
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, double& data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadData(data);
@@ -825,7 +825,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, double& data)
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, long double& data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadData(data);
@@ -842,7 +842,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, long double& data)
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, bool* data, SizeType length)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadData(data, length);
@@ -857,7 +857,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, bool* data, SizeType leng
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, char* data, SizeType length)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadData(data, length);
@@ -872,7 +872,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, char* data, SizeType leng
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, signed char* data, SizeType length)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadData(data, length);
@@ -887,7 +887,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, signed char* data, SizeTy
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, unsigned char* data, SizeType length)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadData(data, length);
@@ -902,7 +902,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, unsigned char* data, Size
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, wchar_t* data, SizeType length)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadData(data, length);
@@ -917,7 +917,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, wchar_t* data, SizeType l
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, short* data, SizeType length)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadData(data, length);
@@ -932,7 +932,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, short* data, SizeType len
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, unsigned short* data, SizeType length)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadData(data, length);
@@ -947,7 +947,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, unsigned short* data, Siz
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, int* data, SizeType length)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadData(data, length);
@@ -962,7 +962,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, int* data, SizeType lengt
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, unsigned int* data, SizeType length)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadData(data, length);
@@ -977,7 +977,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, unsigned int* data, SizeT
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, long* data, SizeType length)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadData(data, length);
@@ -992,7 +992,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, long* data, SizeType leng
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, unsigned long* data, SizeType length)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadData(data, length);
@@ -1007,7 +1007,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, unsigned long* data, Size
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, long long* data, SizeType length)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadData(data, length);
@@ -1022,7 +1022,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, long long* data, SizeType
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, unsigned long long* data, SizeType length)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadData(data, length);
@@ -1037,7 +1037,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, unsigned long long* data,
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, float* data, SizeType length)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadData(data, length);
@@ -1052,7 +1052,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, float* data, SizeType len
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, double* data, SizeType length)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadData(data, length);
@@ -1067,7 +1067,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, double* data, SizeType le
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, long double* data, SizeType length)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadData(data, length);
@@ -1082,7 +1082,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, long double* data, SizeTy
 //----------------------------------------------------------------------------------------
 template<class T> bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, std::vector<T>& data, SizeType length)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return ReadData(data, length);
@@ -1098,7 +1098,7 @@ template<class T> bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, std::ve
 template<class T> bool IStreamNonSeekable::ReadData(std::vector<T>& data, SizeType length)
 {
 	data.resize((std::vector<T>::size_type)length);
-	if(length <= 0)
+	if (length <= 0)
 	{
 		return true;
 	}
@@ -1109,7 +1109,7 @@ template<class T> bool IStreamNonSeekable::ReadData(std::vector<T>& data, SizeTy
 template<class T> bool IStreamNonSeekable::ReadDataBigEndian(std::vector<T>& data, SizeType length)
 {
 	data.resize((std::vector<T>::size_type)length);
-	if(length <= 0)
+	if (length <= 0)
 	{
 		return true;
 	}
@@ -1120,7 +1120,7 @@ template<class T> bool IStreamNonSeekable::ReadDataBigEndian(std::vector<T>& dat
 template<class T> bool IStreamNonSeekable::ReadDataLittleEndian(std::vector<T>& data, SizeType length)
 {
 	data.resize((std::vector<T>::size_type)length);
-	if(length <= 0)
+	if (length <= 0)
 	{
 		return true;
 	}
@@ -1133,7 +1133,7 @@ bool IStreamNonSeekable::ReadData(std::vector<bool>& data, SizeType length)
 	bool result = true;
 	size_t elementCount = (size_t)length;
 	data.resize(elementCount);
-	for(size_t i = 0; i < elementCount; ++i)
+	for (size_t i = 0; i < elementCount; ++i)
 	{
 		bool temp;
 		result &= ReadData(temp);
@@ -1148,7 +1148,7 @@ bool IStreamNonSeekable::ReadDataBigEndian(std::vector<bool>& data, SizeType len
 	bool result = true;
 	size_t elementCount = (size_t)length;
 	data.resize(elementCount);
-	for(size_t i = 0; i < elementCount; ++i)
+	for (size_t i = 0; i < elementCount; ++i)
 	{
 		bool temp;
 		result &= ReadDataBigEndian(temp);
@@ -1163,7 +1163,7 @@ bool IStreamNonSeekable::ReadDataLittleEndian(std::vector<bool>& data, SizeType 
 	bool result = true;
 	size_t elementCount = (size_t)length;
 	data.resize(elementCount);
-	for(size_t i = 0; i < elementCount; ++i)
+	for (size_t i = 0; i < elementCount; ++i)
 	{
 		bool temp;
 		result &= ReadDataLittleEndian(temp);
@@ -1177,7 +1177,7 @@ bool IStreamNonSeekable::ReadDataLittleEndian(std::vector<bool>& data, SizeType 
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteChar(ByteOrder byteOrder, const UnicodeCodePoint& data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteChar(data);
@@ -1192,7 +1192,7 @@ bool IStreamNonSeekable::WriteChar(ByteOrder byteOrder, const UnicodeCodePoint& 
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteCharAsASCII(ByteOrder byteOrder, const UnicodeCodePoint& data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteCharAsASCII(data);
@@ -1207,7 +1207,7 @@ bool IStreamNonSeekable::WriteCharAsASCII(ByteOrder byteOrder, const UnicodeCode
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteCharAsUTF8(ByteOrder byteOrder, const UnicodeCodePoint& data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteCharAsUTF8(data);
@@ -1222,7 +1222,7 @@ bool IStreamNonSeekable::WriteCharAsUTF8(ByteOrder byteOrder, const UnicodeCodeP
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteCharAsUTF16(ByteOrder byteOrder, const UnicodeCodePoint& data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteCharAsUTF16(data);
@@ -1237,7 +1237,7 @@ bool IStreamNonSeekable::WriteCharAsUTF16(ByteOrder byteOrder, const UnicodeCode
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteCharAsUTF32(ByteOrder byteOrder, const UnicodeCodePoint& data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteCharAsUTF32(data);
@@ -1254,7 +1254,7 @@ bool IStreamNonSeekable::WriteCharAsUTF32(ByteOrder byteOrder, const UnicodeCode
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteText(ByteOrder byteOrder, const char* data, SizeType bufferSize, char terminator)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteText(data, bufferSize, terminator);
@@ -1269,7 +1269,7 @@ bool IStreamNonSeekable::WriteText(ByteOrder byteOrder, const char* data, SizeTy
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteText(ByteOrder byteOrder, const wchar_t* data, SizeType bufferSize, wchar_t terminator)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteText(data, bufferSize, terminator);
@@ -1284,7 +1284,7 @@ bool IStreamNonSeekable::WriteText(ByteOrder byteOrder, const wchar_t* data, Siz
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextAsASCII(ByteOrder byteOrder, const char* data, SizeType bufferSize, char terminator)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteTextAsASCII(data, bufferSize, terminator);
@@ -1299,7 +1299,7 @@ bool IStreamNonSeekable::WriteTextAsASCII(ByteOrder byteOrder, const char* data,
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextAsASCII(ByteOrder byteOrder, const wchar_t* data, SizeType bufferSize, wchar_t terminator)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteTextAsASCII(data, bufferSize, terminator);
@@ -1314,7 +1314,7 @@ bool IStreamNonSeekable::WriteTextAsASCII(ByteOrder byteOrder, const wchar_t* da
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextAsUTF8(ByteOrder byteOrder, const char* data, SizeType bufferSize, char terminator)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteTextAsUTF8(data, bufferSize, terminator);
@@ -1329,7 +1329,7 @@ bool IStreamNonSeekable::WriteTextAsUTF8(ByteOrder byteOrder, const char* data, 
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextAsUTF8(ByteOrder byteOrder, const wchar_t* data, SizeType bufferSize, wchar_t terminator)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteTextAsUTF8(data, bufferSize, terminator);
@@ -1344,7 +1344,7 @@ bool IStreamNonSeekable::WriteTextAsUTF8(ByteOrder byteOrder, const wchar_t* dat
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextAsUTF16(ByteOrder byteOrder, const char* data, SizeType bufferSize, char terminator)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteTextAsUTF16(data, bufferSize, terminator);
@@ -1359,7 +1359,7 @@ bool IStreamNonSeekable::WriteTextAsUTF16(ByteOrder byteOrder, const char* data,
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextAsUTF16(ByteOrder byteOrder, const wchar_t* data, SizeType bufferSize, wchar_t terminator)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteTextAsUTF16(data, bufferSize, terminator);
@@ -1374,7 +1374,7 @@ bool IStreamNonSeekable::WriteTextAsUTF16(ByteOrder byteOrder, const wchar_t* da
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextAsUTF32(ByteOrder byteOrder, const char* data, SizeType bufferSize, char terminator)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteTextAsUTF32(data, bufferSize, terminator);
@@ -1389,7 +1389,7 @@ bool IStreamNonSeekable::WriteTextAsUTF32(ByteOrder byteOrder, const char* data,
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextAsUTF32(ByteOrder byteOrder, const wchar_t* data, SizeType bufferSize, wchar_t terminator)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteTextAsUTF32(data, bufferSize, terminator);
@@ -1404,7 +1404,7 @@ bool IStreamNonSeekable::WriteTextAsUTF32(ByteOrder byteOrder, const wchar_t* da
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteText(ByteOrder byteOrder, const std::string& data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteText(data);
@@ -1419,7 +1419,7 @@ bool IStreamNonSeekable::WriteText(ByteOrder byteOrder, const std::string& data)
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteText(ByteOrder byteOrder, const std::wstring& data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteText(data);
@@ -1434,7 +1434,7 @@ bool IStreamNonSeekable::WriteText(ByteOrder byteOrder, const std::wstring& data
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextAsASCII(ByteOrder byteOrder, const std::string& data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteTextAsASCII(data);
@@ -1449,7 +1449,7 @@ bool IStreamNonSeekable::WriteTextAsASCII(ByteOrder byteOrder, const std::string
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextAsASCII(ByteOrder byteOrder, const std::wstring& data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteTextAsASCII(data);
@@ -1464,7 +1464,7 @@ bool IStreamNonSeekable::WriteTextAsASCII(ByteOrder byteOrder, const std::wstrin
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextAsUTF8(ByteOrder byteOrder, const std::string& data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteTextAsUTF8(data);
@@ -1479,7 +1479,7 @@ bool IStreamNonSeekable::WriteTextAsUTF8(ByteOrder byteOrder, const std::string&
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextAsUTF8(ByteOrder byteOrder, const std::wstring& data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteTextAsUTF8(data);
@@ -1494,7 +1494,7 @@ bool IStreamNonSeekable::WriteTextAsUTF8(ByteOrder byteOrder, const std::wstring
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextAsUTF16(ByteOrder byteOrder, const std::string& data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteTextAsUTF16(data);
@@ -1509,7 +1509,7 @@ bool IStreamNonSeekable::WriteTextAsUTF16(ByteOrder byteOrder, const std::string
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextAsUTF16(ByteOrder byteOrder, const std::wstring& data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteTextAsUTF16(data);
@@ -1524,7 +1524,7 @@ bool IStreamNonSeekable::WriteTextAsUTF16(ByteOrder byteOrder, const std::wstrin
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextAsUTF32(ByteOrder byteOrder, const std::string& data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteTextAsUTF32(data);
@@ -1539,7 +1539,7 @@ bool IStreamNonSeekable::WriteTextAsUTF32(ByteOrder byteOrder, const std::string
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextAsUTF32(ByteOrder byteOrder, const std::wstring& data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteTextAsUTF32(data);
@@ -1700,7 +1700,7 @@ bool IStreamNonSeekable::WriteTextLittleEndianAsUTF32(const std::wstring& data)
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextFixedLengthBufferAsASCII(ByteOrder byteOrder, SizeType codeUnitsInStream, const char* memoryBuffer, SizeType codeUnitsInMemory, char paddingChar)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteTextFixedLengthBufferAsASCII(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
@@ -1715,7 +1715,7 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsASCII(ByteOrder byteOrder, 
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextFixedLengthBufferAsASCII(ByteOrder byteOrder, SizeType codeUnitsInStream, const wchar_t* memoryBuffer, SizeType codeUnitsInMemory, wchar_t paddingChar)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteTextFixedLengthBufferAsASCII(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
@@ -1730,7 +1730,7 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsASCII(ByteOrder byteOrder, 
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF8(ByteOrder byteOrder, SizeType codeUnitsInStream, const char* memoryBuffer, SizeType codeUnitsInMemory, char paddingChar)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteTextFixedLengthBufferAsUTF8(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
@@ -1745,7 +1745,7 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF8(ByteOrder byteOrder, S
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF8(ByteOrder byteOrder, SizeType codeUnitsInStream, const wchar_t* memoryBuffer, SizeType codeUnitsInMemory, wchar_t paddingChar)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteTextFixedLengthBufferAsUTF8(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
@@ -1760,7 +1760,7 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF8(ByteOrder byteOrder, S
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF16(ByteOrder byteOrder, SizeType codeUnitsInStream, const char* memoryBuffer, SizeType codeUnitsInMemory, char paddingChar)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteTextFixedLengthBufferAsUTF16(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
@@ -1775,7 +1775,7 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF16(ByteOrder byteOrder, 
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF16(ByteOrder byteOrder, SizeType codeUnitsInStream, const wchar_t* memoryBuffer, SizeType codeUnitsInMemory, wchar_t paddingChar)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteTextFixedLengthBufferAsUTF16(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
@@ -1790,7 +1790,7 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF16(ByteOrder byteOrder, 
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF32(ByteOrder byteOrder, SizeType codeUnitsInStream, const char* memoryBuffer, SizeType codeUnitsInMemory, char paddingChar)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteTextFixedLengthBufferAsUTF32(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
@@ -1805,7 +1805,7 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF32(ByteOrder byteOrder, 
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF32(ByteOrder byteOrder, SizeType codeUnitsInStream, const wchar_t* memoryBuffer, SizeType codeUnitsInMemory, wchar_t paddingChar)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteTextFixedLengthBufferAsUTF32(codeUnitsInStream, memoryBuffer, codeUnitsInMemory, paddingChar);
@@ -1820,7 +1820,7 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF32(ByteOrder byteOrder, 
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextFixedLengthBufferAsASCII(ByteOrder byteOrder, SizeType codeUnitsInStream, const std::string& data, char paddingChar)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteTextFixedLengthBufferAsASCII(codeUnitsInStream, data, paddingChar);
@@ -1835,7 +1835,7 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsASCII(ByteOrder byteOrder, 
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextFixedLengthBufferAsASCII(ByteOrder byteOrder, SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteTextFixedLengthBufferAsASCII(codeUnitsInStream, data, paddingChar);
@@ -1850,7 +1850,7 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsASCII(ByteOrder byteOrder, 
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF8(ByteOrder byteOrder, SizeType codeUnitsInStream, const std::string& data, char paddingChar)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteTextFixedLengthBufferAsUTF8(codeUnitsInStream, data, paddingChar);
@@ -1865,7 +1865,7 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF8(ByteOrder byteOrder, S
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF8(ByteOrder byteOrder, SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteTextFixedLengthBufferAsUTF8(codeUnitsInStream, data, paddingChar);
@@ -1880,7 +1880,7 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF8(ByteOrder byteOrder, S
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF16(ByteOrder byteOrder, SizeType codeUnitsInStream, const std::string& data, char paddingChar)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteTextFixedLengthBufferAsUTF16(codeUnitsInStream, data, paddingChar);
@@ -1895,7 +1895,7 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF16(ByteOrder byteOrder, 
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF16(ByteOrder byteOrder, SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteTextFixedLengthBufferAsUTF16(codeUnitsInStream, data, paddingChar);
@@ -1910,7 +1910,7 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF16(ByteOrder byteOrder, 
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF32(ByteOrder byteOrder, SizeType codeUnitsInStream, const std::string& data, char paddingChar)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteTextFixedLengthBufferAsUTF32(codeUnitsInStream, data, paddingChar);
@@ -1925,7 +1925,7 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF32(ByteOrder byteOrder, 
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF32(ByteOrder byteOrder, SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteTextFixedLengthBufferAsUTF32(codeUnitsInStream, data, paddingChar);
@@ -2086,7 +2086,7 @@ bool IStreamNonSeekable::WriteTextLittleEndianFixedLengthBufferAsUTF32(SizeType 
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, bool data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteData(data);
@@ -2101,7 +2101,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, bool data)
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, char data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteData(data);
@@ -2116,7 +2116,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, char data)
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, signed char data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteData(data);
@@ -2131,7 +2131,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, signed char data)
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, unsigned char data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteData(data);
@@ -2146,7 +2146,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, unsigned char data)
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, wchar_t data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteData(data);
@@ -2161,7 +2161,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, wchar_t data)
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, short data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteData(data);
@@ -2176,7 +2176,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, short data)
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, unsigned short data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteData(data);
@@ -2191,7 +2191,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, unsigned short data)
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, int data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteData(data);
@@ -2206,7 +2206,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, int data)
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, unsigned int data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteData(data);
@@ -2221,7 +2221,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, unsigned int data)
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, long data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteData(data);
@@ -2236,7 +2236,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, long data)
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, unsigned long data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteData(data);
@@ -2251,7 +2251,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, unsigned long data)
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, long long data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteData(data);
@@ -2266,7 +2266,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, long long data)
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, unsigned long long data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteData(data);
@@ -2281,7 +2281,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, unsigned long long data)
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, float data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteData(data);
@@ -2296,7 +2296,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, float data)
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, double data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteData(data);
@@ -2311,7 +2311,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, double data)
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, long double data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteData(data);
@@ -2328,7 +2328,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, long double data)
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const bool* data, SizeType length)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteData(data, length);
@@ -2343,7 +2343,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const bool* data, SizeTy
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const char* data, SizeType length)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteData(data, length);
@@ -2358,7 +2358,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const char* data, SizeTy
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const signed char* data, SizeType length)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteData(data, length);
@@ -2373,7 +2373,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const signed char* data,
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const unsigned char* data, SizeType length)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteData(data, length);
@@ -2388,7 +2388,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const unsigned char* dat
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const wchar_t* data, SizeType length)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteData(data, length);
@@ -2403,7 +2403,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const wchar_t* data, Siz
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const short* data, SizeType length)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteData(data, length);
@@ -2418,7 +2418,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const short* data, SizeT
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const unsigned short* data, SizeType length)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteData(data, length);
@@ -2433,7 +2433,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const unsigned short* da
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const int* data, SizeType length)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteData(data, length);
@@ -2448,7 +2448,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const int* data, SizeTyp
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const unsigned int* data, SizeType length)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteData(data, length);
@@ -2463,7 +2463,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const unsigned int* data
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const long* data, SizeType length)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteData(data, length);
@@ -2478,7 +2478,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const long* data, SizeTy
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const unsigned long* data, SizeType length)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteData(data, length);
@@ -2493,7 +2493,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const unsigned long* dat
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const long long* data, SizeType length)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteData(data, length);
@@ -2508,7 +2508,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const long long* data, S
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const unsigned long long* data, SizeType length)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteData(data, length);
@@ -2523,7 +2523,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const unsigned long long
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const float* data, SizeType length)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteData(data, length);
@@ -2538,7 +2538,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const float* data, SizeT
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const double* data, SizeType length)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteData(data, length);
@@ -2553,7 +2553,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const double* data, Size
 //----------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const long double* data, SizeType length)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteData(data, length);
@@ -2568,7 +2568,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const long double* data,
 //----------------------------------------------------------------------------------------
 template<class T> bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const std::vector<T>& data)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteData(data);
@@ -2584,7 +2584,7 @@ template<class T> bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const 
 template<class T> bool IStreamNonSeekable::WriteData(const std::vector<T>& data)
 {
 	SizeType length = (SizeType)data.size();
-	if(length <= 0)
+	if (length <= 0)
 	{
 		return true;
 	}
@@ -2595,7 +2595,7 @@ template<class T> bool IStreamNonSeekable::WriteData(const std::vector<T>& data)
 template<class T> bool IStreamNonSeekable::WriteDataBigEndian(const std::vector<T>& data)
 {
 	SizeType length = (SizeType)data.size();
-	if(length <= 0)
+	if (length <= 0)
 	{
 		return true;
 	}
@@ -2606,7 +2606,7 @@ template<class T> bool IStreamNonSeekable::WriteDataBigEndian(const std::vector<
 template<class T> bool IStreamNonSeekable::WriteDataLittleEndian(const std::vector<T>& data)
 {
 	SizeType length = (SizeType)data.size();
-	if(length <= 0)
+	if (length <= 0)
 	{
 		return true;
 	}
@@ -2618,7 +2618,7 @@ bool IStreamNonSeekable::WriteData(const std::vector<bool>& data)
 {
 	bool result = true;
 	size_t elementCount = data.size();
-	for(size_t i = 0; i < elementCount; ++i)
+	for (size_t i = 0; i < elementCount; ++i)
 	{
 		result |= WriteData(data[i]);
 	}
@@ -2630,7 +2630,7 @@ bool IStreamNonSeekable::WriteDataBigEndian(const std::vector<bool>& data)
 {
 	bool result = true;
 	size_t elementCount = data.size();
-	for(size_t i = 0; i < elementCount; ++i)
+	for (size_t i = 0; i < elementCount; ++i)
 	{
 		result |= WriteDataBigEndian(data[i]);
 	}
@@ -2642,7 +2642,7 @@ bool IStreamNonSeekable::WriteDataLittleEndian(const std::vector<bool>& data)
 {
 	bool result = true;
 	size_t elementCount = data.size();
-	for(size_t i = 0; i < elementCount; ++i)
+	for (size_t i = 0; i < elementCount; ++i)
 	{
 		result |= WriteDataLittleEndian(data[i]);
 	}
@@ -2652,7 +2652,7 @@ bool IStreamNonSeekable::WriteDataLittleEndian(const std::vector<bool>& data)
 //----------------------------------------------------------------------------------------
 template<class T> bool IStreamNonSeekable::WriteDataMultipleTimes(ByteOrder byteOrder, T data, SizeType count)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case ByteOrder::Platform:
 		return WriteDataMultipleTimes(data, count);
@@ -2668,7 +2668,7 @@ template<class T> bool IStreamNonSeekable::WriteDataMultipleTimes(ByteOrder byte
 template<class T> bool IStreamNonSeekable::WriteDataMultipleTimes(T data, SizeType count)
 {
 	bool result = true;
-	for(SizeType i = 0; i < count; ++i)
+	for (SizeType i = 0; i < count; ++i)
 	{
 		result &= WriteData(data);
 	}
@@ -2679,7 +2679,7 @@ template<class T> bool IStreamNonSeekable::WriteDataMultipleTimes(T data, SizeTy
 template<class T> bool IStreamNonSeekable::WriteDataBigEndianMultipleTimes(T data, SizeType count)
 {
 	bool result = true;
-	for(SizeType i = 0; i < count; ++i)
+	for (SizeType i = 0; i < count; ++i)
 	{
 		result &= WriteDataBigEndian(data);
 	}
@@ -2690,7 +2690,7 @@ template<class T> bool IStreamNonSeekable::WriteDataBigEndianMultipleTimes(T dat
 template<class T> bool IStreamNonSeekable::WriteDataLittleEndianMultipleTimes(T data, SizeType count)
 {
 	bool result = true;
-	for(SizeType i = 0; i < count; ++i)
+	for (SizeType i = 0; i < count; ++i)
 	{
 		result &= WriteDataLittleEndian(data);
 	}

@@ -13,7 +13,7 @@ MenuSegment::MenuSegment(bool surroundWithSeparators, SortMode sortMode)
 //----------------------------------------------------------------------------------------
 MenuSegment::~MenuSegment()
 {
-	for(std::list<IMenuItem*>::const_iterator i = _menuItems.begin(); i != _menuItems.end(); ++i)
+	for (std::list<IMenuItem*>::const_iterator i = _menuItems.begin(); i != _menuItems.end(); ++i)
 	{
 		delete *i;
 	}
@@ -47,7 +47,7 @@ MenuSegment::Type MenuSegment::GetType() const
 Marshal::Ret<std::wstring> MenuSegment::GetMenuSortTitle() const
 {
 	//If we have no child menu items, return an empty string.
-	if(_menuItems.empty())
+	if (_menuItems.empty())
 	{
 		return L"";
 	}
@@ -55,7 +55,7 @@ Marshal::Ret<std::wstring> MenuSegment::GetMenuSortTitle() const
 	//Return the title of the first child menu item to the caller
 	IMenuItem* firstChildMenuItem = _menuItems.front();
 	std::wstring firstChildMenuItemTitle;
-	switch(firstChildMenuItem->GetType())
+	switch (firstChildMenuItem->GetType())
 	{
 	case Type::Segment:
 		firstChildMenuItemTitle = ((IMenuSegment*)firstChildMenuItem)->GetMenuSortTitle();
@@ -105,7 +105,7 @@ Marshal::Ret<std::list<IMenuItem*>> MenuSegment::GetSortedMenuItems() const
 {
 	//If the menu items in this segment are sorted based on the order items were added,
 	//return the actual menu item list directly here, and abort any further processing.
-	if(_sortMode == SORTMODE_ADDITIONORDER)
+	if (_sortMode == SORTMODE_ADDITIONORDER)
 	{
 		return _menuItems;
 	}
@@ -113,11 +113,11 @@ Marshal::Ret<std::list<IMenuItem*>> MenuSegment::GetSortedMenuItems() const
 	//If the menu items in this segment are sorted based on their title, build a container
 	//to sort each menu item entry based on their titles.
 	std::map<std::wstring, IMenuItem*> menuItemSortContainer;
-	for(std::list<IMenuItem*>::const_iterator i = _menuItems.begin(); i != _menuItems.end(); ++i)
+	for (std::list<IMenuItem*>::const_iterator i = _menuItems.begin(); i != _menuItems.end(); ++i)
 	{
 		IMenuItem* childMenuItem = *i;
 		std::wstring childMenuItemTitle;
-		switch(childMenuItem->GetType())
+		switch (childMenuItem->GetType())
 		{
 		case Type::Segment:
 			childMenuItemTitle = ((IMenuSegment*)childMenuItem)->GetMenuSortTitle();
@@ -135,7 +135,7 @@ Marshal::Ret<std::list<IMenuItem*>> MenuSegment::GetSortedMenuItems() const
 	//Build and return a list of each item in this menu, sorted based on the specified
 	//sort order.
 	std::list<IMenuItem*> sortedMenuItems;
-	for(std::map<std::wstring, IMenuItem*>::const_iterator i = menuItemSortContainer.begin(); i != menuItemSortContainer.end(); ++i)
+	for (std::map<std::wstring, IMenuItem*>::const_iterator i = menuItemSortContainer.begin(); i != menuItemSortContainer.end(); ++i)
 	{
 		sortedMenuItems.push_back(i->second);
 	}
@@ -174,9 +174,9 @@ void MenuSegment::DeleteMenuItem(IMenuItem& menuItem)
 	IMenuItem* menuItemPointer = &menuItem;
 	bool done = false;
 	std::list<IMenuItem*>::iterator i = _menuItems.begin();
-	while(!done && (i != _menuItems.end()))
+	while (!done && (i != _menuItems.end()))
 	{
-		if(*i == menuItemPointer)
+		if (*i == menuItemPointer)
 		{
 			_menuItems.erase(i);
 			delete menuItemPointer;
@@ -190,7 +190,7 @@ void MenuSegment::DeleteMenuItem(IMenuItem& menuItem)
 //----------------------------------------------------------------------------------------
 void MenuSegment::DeleteAllMenuItems()
 {
-	for(std::list<IMenuItem*>::iterator i = _menuItems.begin(); i != _menuItems.end(); ++i)
+	for (std::list<IMenuItem*>::iterator i = _menuItems.begin(); i != _menuItems.end(); ++i)
 	{
 		delete *i;
 	}

@@ -29,7 +29,7 @@ public:
 	{
 		_target.SetIndexState(GetIndexState(), GetIndexOffset());
 
-		if(_target.Decode8BitRegister(data.GetDataSegment(3, 3)))
+		if (_target.Decode8BitRegister(data.GetDataSegment(3, 3)))
 		{
 			//INC r		00rrr100
 			AddExecuteCycleCount(4);
@@ -40,7 +40,7 @@ public:
 			//INC (IX + d)	11011101 00110100 dddddddd
 			//INC (IY + d)	11111101 00110100 dddddddd
 			_target.SetMode(EffectiveAddress::Mode::HLIndirect);
-			if(GetIndexState() == EffectiveAddress::IndexState::None)
+			if (GetIndexState() == EffectiveAddress::IndexState::None)
 			{
 				AddExecuteCycleCount(11);
 			}

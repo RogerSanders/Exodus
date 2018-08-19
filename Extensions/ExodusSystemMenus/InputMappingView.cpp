@@ -19,7 +19,7 @@ InputMappingView::InputMappingView(IUIManager& uiManager, InputMappingViewPresen
 INT_PTR InputMappingView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	WndProcDialogImplementSaveFieldWhenLostFocus(hwnd, msg, wparam, lparam);
-	switch(msg)
+	switch (msg)
 	{
 	case WM_INITDIALOG:
 		return msgWM_INITDIALOG(hwnd, wparam, lparam);
@@ -56,7 +56,7 @@ INT_PTR InputMappingView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	//If the input device list hasn't been modified, abort any further processing.
 	unsigned int newInputDeviceListLastModifiedToken = _model.GetInputDeviceListLastModifiedToken();
-	if(_inputDeviceListLastModifiedToken == newInputDeviceListLastModifiedToken)
+	if (_inputDeviceListLastModifiedToken == newInputDeviceListLastModifiedToken)
 	{
 		return TRUE;
 	}
@@ -71,12 +71,12 @@ INT_PTR InputMappingView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	bool foundCurrentlySelectedInputDevice = false;
 	LRESULT top = SendMessage(GetDlgItem(hwnd, IDC_INPUTMAPPING_LIST), LB_GETTOPINDEX, 0, 0);
 	SendMessage(GetDlgItem(hwnd, IDC_INPUTMAPPING_LIST), LB_RESETCONTENT, 0, NULL);
-	for(std::list<IDevice*>::const_iterator i = inputDeviceList.begin(); i != inputDeviceList.end(); ++i)
+	for (std::list<IDevice*>::const_iterator i = inputDeviceList.begin(); i != inputDeviceList.end(); ++i)
 	{
 		//Attempt to retrieve the display name of the next input device
 		IDevice* inputDevice = *i;
 		std::wstring deviceDisplayName;
-		if(!_model.GetFullyQualifiedDeviceDisplayName(inputDevice, deviceDisplayName))
+		if (!_model.GetFullyQualifiedDeviceDisplayName(inputDevice, deviceDisplayName))
 		{
 			continue;
 		}
@@ -87,7 +87,7 @@ INT_PTR InputMappingView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 
 		//If this input device was the previously selected input device, record its index
 		//in the list.
-		if(inputDevice == _selectedInputDevice)
+		if (inputDevice == _selectedInputDevice)
 		{
 			SendMessage(GetDlgItem(hwnd, IDC_INPUTMAPPING_LIST), LB_SETCURSEL, newItemIndex, 0);
 			foundCurrentlySelectedInputDevice = true;
@@ -97,7 +97,7 @@ INT_PTR InputMappingView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 
 	//If the previously selected input device was not found, clear the current selection
 	//in the list.
-	if(!foundCurrentlySelectedInputDevice)
+	if (!foundCurrentlySelectedInputDevice)
 	{
 		_selectedInputDevice = 0;
 		SendMessage(GetDlgItem(hwnd, IDC_INPUTMAPPING_LIST), LB_SETCURSEL, (WPARAM)-1, 0);
@@ -119,7 +119,7 @@ INT_PTR InputMappingView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	//model. Windows such as our input mapping details view must subscribe to this
 	//message, and ensure they clean up any references to the device which is being
 	//removed when the message is received.
-	if(!foundCurrentlySelectedInputDevice)
+	if (!foundCurrentlySelectedInputDevice)
 	{
 		_presenter.CloseInputMappingDetailsView();
 	}
@@ -130,14 +130,14 @@ INT_PTR InputMappingView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 //----------------------------------------------------------------------------------------
 INT_PTR InputMappingView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	if(HIWORD(wparam) == LBN_DBLCLK)
+	if (HIWORD(wparam) == LBN_DBLCLK)
 	{
 		//Display the input mapping details dialog for the selected input device
-		switch(LOWORD(wparam))
+		switch (LOWORD(wparam))
 		{
 		case IDC_INPUTMAPPING_LIST:{
 			LRESULT getCurrentSelectionResult = SendMessage(GetDlgItem(hwnd, IDC_INPUTMAPPING_LIST), LB_GETCURSEL, 0, 0);
-			if(getCurrentSelectionResult != LB_ERR)
+			if (getCurrentSelectionResult != LB_ERR)
 			{
 				int currentItemListIndex = (int)getCurrentSelectionResult;
 				_selectedInputDevice = (IDevice*)SendMessage(GetDlgItem(hwnd, IDC_INPUTMAPPING_LIST), LB_GETITEMDATA, currentItemListIndex, NULL);

@@ -20,7 +20,7 @@ EmbeddedROMView::EmbeddedROMView(IUIManager& uiManager, EmbeddedROMViewPresenter
 INT_PTR EmbeddedROMView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	WndProcDialogImplementSaveFieldWhenLostFocus(hwnd, msg, wparam, lparam);
-	switch(msg)
+	switch (msg)
 	{
 	case WM_INITDIALOG:
 		return msgWM_INITDIALOG(hwnd, wparam, lparam);
@@ -61,7 +61,7 @@ INT_PTR EmbeddedROMView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	//If the embedded ROM list hasn't been modified, abort any further processing.
 	unsigned int newEmbeddedROMIDLastModifiedToken = _model.GetEmbeddedROMInfoLastModifiedToken();
-	if(_embeddedROMIDLastModifiedToken == newEmbeddedROMIDLastModifiedToken)
+	if (_embeddedROMIDLastModifiedToken == newEmbeddedROMIDLastModifiedToken)
 	{
 		return TRUE;
 	}
@@ -76,19 +76,19 @@ INT_PTR EmbeddedROMView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	bool foundCurrentlySelectedROMID = false;
 	LRESULT top = SendMessage(GetDlgItem(hwnd, IDC_EMBEDDEDROM_LIST), LB_GETTOPINDEX, 0, 0);
 	SendMessage(GetDlgItem(hwnd, IDC_EMBEDDEDROM_LIST), LB_RESETCONTENT, 0, NULL);
-	for(std::list<unsigned int>::const_iterator i = embeddedROMIDList.begin(); i != embeddedROMIDList.end(); ++i)
+	for (std::list<unsigned int>::const_iterator i = embeddedROMIDList.begin(); i != embeddedROMIDList.end(); ++i)
 	{
 		//Attempt to obtain info on the next embedded ROM
 		unsigned int embeddedROMID = *i;
 		EmbeddedROMInfo embeddedROMInfo;
-		if(!_model.GetEmbeddedROMInfo(embeddedROMID, embeddedROMInfo))
+		if (!_model.GetEmbeddedROMInfo(embeddedROMID, embeddedROMInfo))
 		{
 			continue;
 		}
 
 		//Attempt to retrieve the display name of the associated module
 		std::wstring moduleDisplayName;
-		if(!_model.GetModuleDisplayName(embeddedROMInfo.GetModuleID(), moduleDisplayName))
+		if (!_model.GetModuleDisplayName(embeddedROMInfo.GetModuleID(), moduleDisplayName))
 		{
 			continue;
 		}
@@ -102,7 +102,7 @@ INT_PTR EmbeddedROMView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 
 		//If this ROM entry was the previously selected ROM entry, record its index in the
 		//list.
-		if(embeddedROMID == _selectedROMID)
+		if (embeddedROMID == _selectedROMID)
 		{
 			std::wstring filePath = embeddedROMInfo.GetFilePath();
 			SetDlgItemText(hwnd, IDC_EMBEDDEDROM_PATH, filePath.c_str());
@@ -114,7 +114,7 @@ INT_PTR EmbeddedROMView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 
 	//If the previously selected embedded ROM item was not found, clear the current
 	//selection in the list.
-	if(!foundCurrentlySelectedROMID)
+	if (!foundCurrentlySelectedROMID)
 	{
 		_selectedROMID = 0;
 		SetDlgItemText(hwnd, IDC_EMBEDDEDROM_PATH, L"");
@@ -134,46 +134,46 @@ INT_PTR EmbeddedROMView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 //----------------------------------------------------------------------------------------
 INT_PTR EmbeddedROMView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	if(HIWORD(wparam) == BN_CLICKED)
+	if (HIWORD(wparam) == BN_CLICKED)
 	{
 		unsigned int controlID = LOWORD(wparam);
-		switch(controlID)
+		switch (controlID)
 		{
 		case IDC_EMBEDDEDROM_BROWSE:{
 			//Select a new target file
 			std::wstring fileNameCurrent = GetDlgItemString(hwnd, IDC_EMBEDDEDROM_PATH);
 			std::wstring selectedFilePath;
-			if(_presenter.GetGUIInterface().SelectExistingFile(L"Binary files|bin", L"bin", fileNameCurrent, L"", true, selectedFilePath))
+			if (_presenter.GetGUIInterface().SelectExistingFile(L"Binary files|bin", L"bin", fileNameCurrent, L"", true, selectedFilePath))
 			{
 				SetDlgItemText(hwnd, IDC_EMBEDDEDROM_PATH, &selectedFilePath[0]);
 			}
 			break;}
 		case IDC_EMBEDDEDROM_APPLY:
-			if(_selectedROMID != 0)
+			if (_selectedROMID != 0)
 			{
 				std::wstring filePath = GetDlgItemString(hwnd, IDC_EMBEDDEDROM_PATH);
 				_model.SetEmbeddedROMPath(_selectedROMID, filePath);
 			}
 			break;
 		case IDC_EMBEDDEDROM_RELOAD:
-			if(_selectedROMID != 0)
+			if (_selectedROMID != 0)
 			{
 				_model.ReloadEmbeddedROMData(_selectedROMID);
 			}
 			break;
 		}
 	}
-	else if(HIWORD(wparam) == LBN_SELCHANGE)
+	else if (HIWORD(wparam) == LBN_SELCHANGE)
 	{
-		switch(LOWORD(wparam))
+		switch (LOWORD(wparam))
 		{
 		case IDC_EMBEDDEDROM_LIST:
 			int selectedItem = (int)SendMessage(GetDlgItem(hwnd, IDC_EMBEDDEDROM_LIST), LB_GETCURSEL, 0, NULL);
-			if(selectedItem != LB_ERR)
+			if (selectedItem != LB_ERR)
 			{
 				_selectedROMID = (unsigned int)SendMessage(GetDlgItem(hwnd, IDC_EMBEDDEDROM_LIST), LB_GETITEMDATA, selectedItem, 0);
 				EmbeddedROMInfo embeddedROMInfo;
-				if(_model.GetEmbeddedROMInfo(_selectedROMID, embeddedROMInfo))
+				if (_model.GetEmbeddedROMInfo(_selectedROMID, embeddedROMInfo))
 				{
 					std::wstring filePath = embeddedROMInfo.GetFilePath();
 					SetDlgItemText(hwnd, IDC_EMBEDDEDROM_PATH, filePath.c_str());

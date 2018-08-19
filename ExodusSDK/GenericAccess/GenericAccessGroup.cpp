@@ -47,11 +47,11 @@ void GenericAccessGroup::SetParent(IGenericAccessGroup* parent)
 //----------------------------------------------------------------------------------------
 const IGenericAccess::DataContext* GenericAccessGroup::GetDataContext() const
 {
-	if(_dataContext != 0)
+	if (_dataContext != 0)
 	{
 		return _dataContext;
 	}
-	else if(_parent != 0)
+	else if (_parent != 0)
 	{
 		return _parent->GetDataContext();
 	}

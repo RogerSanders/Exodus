@@ -24,7 +24,7 @@ template<class T> bool RAMBase<T>::Construct(IHierarchicalStorageNode& node)
 
 	//Validate the specified memory entry count
 	_memoryArraySize = GetMemoryEntryCount();
-	if(_memoryArraySize <= 0)
+	if (_memoryArraySize <= 0)
 	{
 		return false;
 	}
@@ -40,13 +40,13 @@ template<class T> bool RAMBase<T>::Construct(IHierarchicalStorageNode& node)
 
 	//Read the PersistentData attribute if specified
 	IHierarchicalStorageAttribute* persistentDataAttribute = node.GetAttribute(L"PersistentData");
-	if(persistentDataAttribute != 0)
+	if (persistentDataAttribute != 0)
 	{
 		_dataIsPersistent = persistentDataAttribute->ExtractValue<bool>();
 	}
 
 	//If initial RAM state data has been specified, attempt to load it now.
-	if(node.GetBinaryDataPresent())
+	if (node.GetBinaryDataPresent())
 	{
 		//Flag that initial memory data has been specified
 		_initialMemoryDataSpecified = true;
@@ -57,7 +57,7 @@ template<class T> bool RAMBase<T>::Construct(IHierarchicalStorageNode& node)
 
 		//Read the RepeatData attribute if specified
 		IHierarchicalStorageAttribute* repeatDataAttribute = node.GetAttribute(L"RepeatData");
-		if(repeatDataAttribute != 0)
+		if (repeatDataAttribute != 0)
 		{
 			_repeatInitialMemoryData = repeatDataAttribute->ExtractValue<bool>();
 		}
@@ -68,7 +68,7 @@ template<class T> bool RAMBase<T>::Construct(IHierarchicalStorageNode& node)
 		unsigned int initialMemoryDataSize = ((dataStreamByteSize + (memoryArrayEntryByteSize - 1)) / memoryArrayEntryByteSize);
 		unsigned int entriesToRead = (_memoryArraySize < entriesInDataStream)? _memoryArraySize: entriesInDataStream;
 		_initialMemoryData.resize(initialMemoryDataSize);
-		if(!dataStream.ReadDataBigEndian(&_memoryArray[0], entriesToRead))
+		if (!dataStream.ReadDataBigEndian(&_memoryArray[0], entriesToRead))
 		{
 			return false;
 		}
@@ -77,14 +77,14 @@ template<class T> bool RAMBase<T>::Construct(IHierarchicalStorageNode& node)
 		//with a whole entry in the array, read in the remaining data into the next array
 		//entry, and pad out the missing lower data with zeros.
 		unsigned int bytesRemainingInDataStream = (dataStreamByteSize % memoryArrayEntryByteSize);
-		if((initialMemoryDataSize > entriesInDataStream) && (bytesRemainingInDataStream > 0))
+		if ((initialMemoryDataSize > entriesInDataStream) && (bytesRemainingInDataStream > 0))
 		{
 			//Read in each remaining byte in the data stream into the next available array
 			//entry
-			for(unsigned int i = 0; i < bytesRemainingInDataStream; ++i)
+			for (unsigned int i = 0; i < bytesRemainingInDataStream; ++i)
 			{
 				unsigned char remainingData;
-				if(!dataStream.ReadDataBigEndian(remainingData))
+				if (!dataStream.ReadDataBigEndian(remainingData))
 				{
 					return false;
 				}
@@ -105,12 +105,12 @@ template<class T> bool RAMBase<T>::Construct(IHierarchicalStorageNode& node)
 template<class T> void RAMBase<T>::Initialize()
 {
 	//Initialize the memory buffer
-	for(unsigned int i = 0; i < _memoryArraySize; ++i)
+	for (unsigned int i = 0; i < _memoryArraySize; ++i)
 	{
-		if(!_memoryLockedArray[i])
+		if (!_memoryLockedArray[i])
 		{
 			T initialValue = 0;
-			if(_initialMemoryDataSpecified && (_repeatInitialMemoryData || (i < (unsigned int)_initialMemoryData.size())))
+			if (_initialMemoryDataSpecified && (_repeatInitialMemoryData || (i < (unsigned int)_initialMemoryData.size())))
 			{
 				unsigned int initialMemoryDataIndex = (i % (unsigned int)_initialMemoryData.size());
 				initialValue = _initialMemoryData[initialMemoryDataIndex];
@@ -136,7 +136,7 @@ template<class T> unsigned int RAMBase<T>::GetMemoryEntrySizeInBytes() const
 //----------------------------------------------------------------------------------------
 template<class T> void RAMBase<T>::ExecuteRollback()
 {
-	for(MemoryAccessBuffer::const_iterator i = _buffer.begin(); i != _buffer.end(); ++i)
+	for (MemoryAccessBuffer::const_iterator i = _buffer.begin(); i != _buffer.end(); ++i)
 	{
 		_memoryArray[i->first] = i->second;
 	}
@@ -160,7 +160,7 @@ template<class T> bool RAMBase<T>::IsMemoryLockingSupported() const
 //----------------------------------------------------------------------------------------
 template<class T> void RAMBase<T>::LockMemoryBlock(unsigned int location, unsigned int size, bool state)
 {
-	for(unsigned int i = 0; i < size; ++i)
+	for (unsigned int i = 0; i < size; ++i)
 	{
 		_memoryLockedArray[location + i] = state;
 	}
@@ -177,7 +177,7 @@ template<class T> bool RAMBase<T>::IsAddressLocked(unsigned int location) const
 //----------------------------------------------------------------------------------------
 template<class T> void RAMBase<T>::WriteArrayValueWithLockCheckAndRollback(unsigned int arrayEntryPos, T newValue)
 {
-	if(!_memoryLockedArray[arrayEntryPos])
+	if (!_memoryLockedArray[arrayEntryPos])
 	{
 		_buffer.insert(MemoryAccessBufferEntry(arrayEntryPos, _memoryArray[arrayEntryPos]));
 		_memoryArray[arrayEntryPos] = newValue;
@@ -194,11 +194,11 @@ template<class T> void RAMBase<T>::LoadState(IHierarchicalStorageNode& node)
 	unsigned int savedMemoryDataSize = (unsigned int)savedMemoryData.size();
 	unsigned int entriesToLoad = (savedMemoryDataSize <= _memoryArraySize)? savedMemoryDataSize: _memoryArraySize;
 	unsigned int entriesToFill = _memoryArraySize - entriesToLoad;
-	if(entriesToLoad > 0)
+	if (entriesToLoad > 0)
 	{
 		memcpy(&_memoryArray[0], &savedMemoryData[0], (entriesToLoad * sizeof(T)));
 	}
-	if(entriesToFill > 0)
+	if (entriesToFill > 0)
 	{
 		memset(&_memoryArray[entriesToLoad], 0, (entriesToFill * sizeof(T)));
 	}
@@ -217,18 +217,18 @@ template<class T> void RAMBase<T>::SaveState(IHierarchicalStorageNode& node) con
 //----------------------------------------------------------------------------------------
 template<class T> void RAMBase<T>::LoadPersistentState(IHierarchicalStorageNode& node)
 {
-	if(_dataIsPersistent)
+	if (_dataIsPersistent)
 	{
 		std::vector<T> savedMemoryData(_memoryArraySize, 0);
 		node.ExtractBinaryData(savedMemoryData);
 		unsigned int savedMemoryDataSize = (unsigned int)savedMemoryData.size();
 		unsigned int entriesToLoad = (savedMemoryDataSize <= _memoryArraySize)? savedMemoryDataSize: _memoryArraySize;
 		unsigned int entriesToFill = _memoryArraySize - entriesToLoad;
-		if(entriesToLoad > 0)
+		if (entriesToLoad > 0)
 		{
 			memcpy(&_memoryArray[0], &savedMemoryData[0], (entriesToLoad * sizeof(T)));
 		}
-		if(entriesToFill > 0)
+		if (entriesToFill > 0)
 		{
 			memset(&_memoryArray[entriesToLoad], 0, (entriesToFill * sizeof(T)));
 		}
@@ -240,7 +240,7 @@ template<class T> void RAMBase<T>::LoadPersistentState(IHierarchicalStorageNode&
 //----------------------------------------------------------------------------------------
 template<class T> void RAMBase<T>::SavePersistentState(IHierarchicalStorageNode& node) const
 {
-	if(_dataIsPersistent)
+	if (_dataIsPersistent)
 	{
 		node.InsertBinaryData(_memoryArray, _memoryArraySize, GetFullyQualifiedDeviceInstanceName(), false);
 	}
@@ -256,19 +256,19 @@ template<class T> void RAMBase<T>::LoadDebuggerState(IHierarchicalStorageNode& n
 	unsigned int savedMemoryLockedDataSize = (unsigned int)savedMemoryLockedData.size();
 	unsigned int entriesToLoad = (savedMemoryLockedDataSize <= _memoryArraySize)? savedMemoryLockedDataSize: _memoryArraySize;
 	unsigned int entriesToFill = _memoryArraySize - entriesToLoad;
-	if(entriesToLoad > 0)
+	if (entriesToLoad > 0)
 	{
 		//Note that we need to unpack the loaded boolean vector here one element at a
 		//time, as there's a very poorly thought out specialization of std::vector for
 		//boolean types in the current C++ standard, which packs each entry as a single
 		//bit within an integer. As a result, there's no way to take the address of the
 		//first element and do a memcpy.
-		for(unsigned int i = 0; i < entriesToLoad; ++i)
+		for (unsigned int i = 0; i < entriesToLoad; ++i)
 		{
 			_memoryLockedArray[i] = savedMemoryLockedData[i];
 		}
 	}
-	if(entriesToFill > 0)
+	if (entriesToFill > 0)
 	{
 		memset(&_memoryLockedArray[entriesToLoad], 0, (entriesToFill * sizeof(bool)));
 	}

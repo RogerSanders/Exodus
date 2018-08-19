@@ -48,7 +48,7 @@ File::File(TextEncoding textEncoding, NewLineEncoding newLineEncoding, ByteOrder
 bool File::Open(const std::wstring& filename, OpenMode openMode, CreateMode createMode, SizeType bufferSize)
 {
 	//If a file handle is currently open, close it.
-	if(IsOpen())
+	if (IsOpen())
 	{
 		Close();
 	}
@@ -59,7 +59,7 @@ bool File::Open(const std::wstring& filename, OpenMode openMode, CreateMode crea
 	DWORD creationDisposition;
 
 	//Process the openMode parameter
-	switch(openMode)
+	switch (openMode)
 	{
 	case OpenMode::ReadOnly:
 		desiredAccess = GENERIC_READ;
@@ -78,7 +78,7 @@ bool File::Open(const std::wstring& filename, OpenMode openMode, CreateMode crea
 	}
 
 	//Process the createMode parameter
-	switch(createMode)
+	switch (createMode)
 	{
 	case CreateMode::Open: //Open an existing file. Fails if the file doesn't exist.
 		creationDisposition = OPEN_EXISTING;
@@ -101,13 +101,13 @@ bool File::Open(const std::wstring& filename, OpenMode openMode, CreateMode crea
 
 	//Try and open a new file handle
 	_fileHandle = CreateFile(filename.c_str(), desiredAccess, shareMode, NULL, creationDisposition, 0, NULL);
-	if(_fileHandle == INVALID_HANDLE_VALUE)
+	if (_fileHandle == INVALID_HANDLE_VALUE)
 	{
 		return false;
 	}
 
 	//Initialize the buffer for the file
-	if(_bufferSize != bufferSize)
+	if (_bufferSize != bufferSize)
 	{
 		_bufferSize = bufferSize;
 		delete[] _fileBuffer;
@@ -125,7 +125,7 @@ bool File::Open(const std::wstring& filename, OpenMode openMode, CreateMode crea
 //----------------------------------------------------------------------------------------
 void File::Close()
 {
-	if(_fileOpen)
+	if (_fileOpen)
 	{
 		// Ensure the write buffer is flushed to disk before closing
 		EmptyDataBuffer();
@@ -148,7 +148,7 @@ bool File::IsOpen() const
 bool File::ReadBinary(void* rawData, SizeType bytesToRead)
 {
 	//Ensure that a file is currently open
-	if(!_fileOpen)
+	if (!_fileOpen)
 	{
 		return false;
 	}
@@ -162,7 +162,7 @@ bool File::ReadBinary(void* rawData, SizeType bytesToRead)
 	//roughly as efficient for a single byte transfer, and noticeably more efficient for
 	//two bytes or more.
 	SizeType bytesToReadFromBuffer = 0;
-	if(!_bufferInWriteMode)
+	if (!_bufferInWriteMode)
 	{
 		bytesToReadFromBuffer = (bytesToRead <= _bytesRemainingInBuffer)? bytesToRead: _bytesRemainingInBuffer;
 	}
@@ -172,7 +172,7 @@ bool File::ReadBinary(void* rawData, SizeType bytesToRead)
 
 	//Perform the read operation from the file
 	SizeType bytesRemainingToRead = bytesToRead - bytesToReadFromBuffer;
-	if(bytesRemainingToRead > 0)
+	if (bytesRemainingToRead > 0)
 	{
 		//Empty the contents of the data buffer. If the buffer is in write mode, this will
 		//cause the uncommitted contents to be flushed to disk. If the buffer is in read
@@ -183,7 +183,7 @@ bool File::ReadBinary(void* rawData, SizeType bytesToRead)
 		//If the size of the operation can fit within the data buffer, perform the
 		//operation using the data buffer, otherwise perform the read operation
 		//unbuffered.
-		if(bytesRemainingToRead > _bufferSize)
+		if (bytesRemainingToRead > _bufferSize)
 		{
 			//Perform the remainder of the read operation unbuffered
 			result &= ReadBinaryUnbuffered((void*)(rawDataAsCharArray + bytesToReadFromBuffer), bytesRemainingToRead);
@@ -195,7 +195,7 @@ bool File::ReadBinary(void* rawData, SizeType bytesToRead)
 
 			//If there's enough data in the read buffer to perform the read operation,
 			//read the data out of the buffer, otherwise set the result to false.
-			if(bytesRemainingToRead > _bytesRemainingInBuffer)
+			if (bytesRemainingToRead > _bytesRemainingInBuffer)
 			{
 				//There's not enough data remaining in the file to complete the read
 				//operation. In case we read data out of the buffer before reloading the
@@ -228,14 +228,14 @@ bool File::ReadBinary(void* rawData, SizeType bytesToRead)
 bool File::WriteBinary(const void* rawData, SizeType bytesToWrite)
 {
 	//Ensure that a file is currently open
-	if(!_fileOpen)
+	if (!_fileOpen)
 	{
 		return false;
 	}
 
 	//Perform the write operation to the file
 	bool result = true;
-	if(bytesToWrite > _bufferSize)
+	if (bytesToWrite > _bufferSize)
 	{
 		//If the size of the operation exceeds the maximum data buffer size for the file,
 		//empty any current contents from the buffer, and perform the operation
@@ -251,7 +251,7 @@ bool File::WriteBinary(const void* rawData, SizeType bytesToWrite)
 
 		//Write data to the buffer
 		SizeType bytesToWriteToBuffer = 0;
-		if(_bufferInWriteMode)
+		if (_bufferInWriteMode)
 		{
 			bytesToWriteToBuffer = (bytesToWrite <= _bytesRemainingInBuffer)? bytesToWrite: _bytesRemainingInBuffer;
 		}
@@ -262,7 +262,7 @@ bool File::WriteBinary(const void* rawData, SizeType bytesToWrite)
 		//Reload the data buffer if necessary, and write any remaining data to be written
 		//to the buffer.
 		SizeType bytesRemainingToWrite = bytesToWrite - bytesToWriteToBuffer;
-		if(bytesRemainingToWrite > 0)
+		if (bytesRemainingToWrite > 0)
 		{
 			//Set the data buffer to write mode
 			result &= EmptyDataBuffer();
@@ -281,7 +281,7 @@ bool File::WriteBinary(const void* rawData, SizeType bytesToWrite)
 //----------------------------------------------------------------------------------------
 bool File::ReadBinaryUnbuffered(void* rawData, SizeType bytesToRead)
 {
-	if(!_fileOpen)
+	if (!_fileOpen)
 	{
 		return false;
 	}
@@ -291,7 +291,7 @@ bool File::ReadBinaryUnbuffered(void* rawData, SizeType bytesToRead)
 	BOOL readFileReturn = ReadFile(_fileHandle, rawData, bytesToReadAsDWORD, &bytesRead, NULL);
 	//If we only managed to read part of the requested data, restore the original stream
 	//position, and return false.
-	if((bytesRead > 0) && (bytesRead != bytesToReadAsDWORD))
+	if ((bytesRead > 0) && (bytesRead != bytesToReadAsDWORD))
 	{
 		SetStreamPos(GetStreamPos() - (SizeType)bytesRead);
 		return false;
@@ -304,7 +304,7 @@ bool File::ReadBinaryUnbuffered(void* rawData, SizeType bytesToRead)
 //----------------------------------------------------------------------------------------
 bool File::WriteBinaryUnbuffered(const void* rawData, SizeType bytesToWrite)
 {
-	if(!_fileOpen)
+	if (!_fileOpen)
 	{
 		return false;
 	}
@@ -314,7 +314,7 @@ bool File::WriteBinaryUnbuffered(const void* rawData, SizeType bytesToWrite)
 	BOOL writeFileReturn = WriteFile(_fileHandle, rawData, bytesToWriteAsDWORD, &bytesWritten, NULL);
 	//If we only managed to write part of the supplied data, restore the original stream
 	//position, and return false.
-	if((bytesWritten > 0) && (bytesWritten != bytesToWriteAsDWORD))
+	if ((bytesWritten > 0) && (bytesWritten != bytesToWriteAsDWORD))
 	{
 		SetStreamPos(GetStreamPos() - (SizeType)bytesWritten);
 		return false;
@@ -332,10 +332,10 @@ bool File::EmptyDataBuffer()
 	bool result = true;
 
 	//Empty the contents of the data buffer
-	if(_bufferInWriteMode)
+	if (_bufferInWriteMode)
 	{
 		//If the buffer contains written data, write the buffer contents to the file.
-		if(_bufferPosOffset > 0)
+		if (_bufferPosOffset > 0)
 		{
 			result &= WriteBinaryUnbuffered((void*)_fileBuffer, _bufferPosOffset);
 		}
@@ -344,7 +344,7 @@ bool File::EmptyDataBuffer()
 	{
 		//If the buffer contains unused cached read data, seek to the position in the file
 		//that we're up to in the buffer.
-		if(_bytesRemainingInBuffer > 0)
+		if (_bytesRemainingInBuffer > 0)
 		{
 			LARGE_INTEGER relativeFilePointer;
 			relativeFilePointer.QuadPart = -((LONGLONG)_bytesRemainingInBuffer);
@@ -369,7 +369,7 @@ bool File::PrepareDataBufferForReads()
 
 	//If a data buffer has been specified, load a new page of data into the data buffer,
 	//otherwise set the data buffer as empty.
-	if(_bufferSize > 0)
+	if (_bufferSize > 0)
 	{
 		//Read a new page into the data buffer. If there are not enough bytes remaining in
 		//the file, the number returned in bytesRead will be less than the amount
@@ -380,7 +380,7 @@ bool File::PrepareDataBufferForReads()
 
 		//If there was an error performing the read operation, we empty the buffer and
 		//return false.
-		if(readFileReturn == 0)
+		if (readFileReturn == 0)
 		{
 			_bufferPosOffset = 0;
 			_bytesRemainingInBuffer = 0;

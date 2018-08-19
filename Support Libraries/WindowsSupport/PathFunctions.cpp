@@ -13,7 +13,7 @@ std::wstring PathGetFileName(const std::wstring& path)
 	const std::wstring pathSeparators = L"\\/";
 	std::wstring::size_type lastPathSeparatorPos = path.find_last_of(pathSeparators);
 	std::wstring fileName = path;
-	if(lastPathSeparatorPos != std::wstring::npos)
+	if (lastPathSeparatorPos != std::wstring::npos)
 	{
 		fileName = path.substr(lastPathSeparatorPos + 1);
 	}
@@ -28,7 +28,7 @@ std::wstring PathGetFileExtension(const std::wstring& path)
 	std::wstring::size_type lastPathSeparatorPos = path.find_last_of(pathSeparators);
 	std::wstring::size_type lastExtensionSeparatorPos = path.find_last_of(extensionSeparators);
 	std::wstring fileExtension = L"";
-	if((lastExtensionSeparatorPos != std::wstring::npos) && ((lastPathSeparatorPos == std::wstring::npos) || (lastPathSeparatorPos < lastExtensionSeparatorPos)))
+	if ((lastExtensionSeparatorPos != std::wstring::npos) && ((lastPathSeparatorPos == std::wstring::npos) || (lastPathSeparatorPos < lastExtensionSeparatorPos)))
 	{
 		fileExtension = path.substr(lastExtensionSeparatorPos + 1);
 	}
@@ -41,7 +41,7 @@ std::wstring PathGetDirectory(const std::wstring& path)
 	const std::wstring directorySeparators = L"\\/";
 	std::wstring::size_type lastDirectorySeparatorPos = path.find_last_of(directorySeparators);
 	std::wstring fileDirectory = L"";
-	if(lastDirectorySeparatorPos != std::wstring::npos)
+	if (lastDirectorySeparatorPos != std::wstring::npos)
 	{
 		fileDirectory = path.substr(0, lastDirectorySeparatorPos + 1);
 	}
@@ -52,7 +52,7 @@ std::wstring PathGetDirectory(const std::wstring& path)
 bool PathIsRelativePath(const std::wstring& path)
 {
 	bool absolutePath = false;
-	if(path.size() >= 2)
+	if (path.size() >= 2)
 	{
 		absolutePath |= ((path[0] == L'\\') && (path[1] == L'\\'));
 		absolutePath |= (path[1] == L':');
@@ -68,10 +68,10 @@ std::wstring PathCombinePaths(const std::wstring& pathHead, const std::wstring& 
 	//result of the two, taking into account relative path elements, is returned by this
 	//function.
 	std::wstring combinedPath = pathHead;
-	if(!pathHead.empty())
+	if (!pathHead.empty())
 	{
 		wchar_t lastCharInHead = *pathHead.rbegin();
-		if((lastCharInHead != L'\\') && (lastCharInHead != L'/'))
+		if ((lastCharInHead != L'\\') && (lastCharInHead != L'/'))
 		{
 			combinedPath += L'\\';
 		}
@@ -85,7 +85,7 @@ bool PathStartsWithBasePath(const std::wstring& basePath, const std::wstring& pa
 {
 	//If the specified path string is shorter that the specified base path, return false,
 	//since the path cannot start with the base path.
-	if(path.length() < basePath.length())
+	if (path.length() < basePath.length())
 	{
 		return false;
 	}
@@ -94,9 +94,9 @@ bool PathStartsWithBasePath(const std::wstring& basePath, const std::wstring& pa
 	//insensitive string comparison is used, as paths are case insensitive on Windows.
 	std::wstring::size_type stringSearchPos = 0;
 	std::locale compareLocale = std::locale::classic();
-	while(stringSearchPos < basePath.length())
+	while (stringSearchPos < basePath.length())
 	{
-		if(std::tolower(basePath[stringSearchPos], compareLocale) != std::tolower(path[stringSearchPos], compareLocale))
+		if (std::tolower(basePath[stringSearchPos], compareLocale) != std::tolower(path[stringSearchPos], compareLocale))
 		{
 			return false;
 		}
@@ -112,7 +112,7 @@ std::wstring PathRemoveBasePath(const std::wstring& basePath, const std::wstring
 {
 	//If the target path doesn't begin with the specified base path, return it to the
 	//caller.
-	if(!PathStartsWithBasePath(basePath, path))
+	if (!PathStartsWithBasePath(basePath, path))
 	{
 		return path;
 	}
@@ -121,7 +121,7 @@ std::wstring PathRemoveBasePath(const std::wstring& basePath, const std::wstring
 	const std::wstring directorySeparators = L"\\/";
 	std::wstring::size_type charCountToRemove = basePath.size();
 	std::wstring::size_type firstNonSeparatorPosAfterBasePath = path.find_first_not_of(directorySeparators, charCountToRemove);
-	if(firstNonSeparatorPosAfterBasePath != std::wstring::npos)
+	if (firstNonSeparatorPosAfterBasePath != std::wstring::npos)
 	{
 		charCountToRemove = firstNonSeparatorPosAfterBasePath;
 	}
@@ -139,7 +139,7 @@ std::vector<std::wstring> SplitPathIntoComponents(const std::wstring& path)
 	const std::wstring directorySeparators = L"\\/";
 	std::vector<std::wstring> pathElements;
 	std::wstring::size_type currentPos = 0;
-	while(currentPos != std::wstring::npos)
+	while (currentPos != std::wstring::npos)
 	{
 		//If this appears to be a UNC path, and we're looking at the first path element,
 		//adjust the search position to combine the UNC path prefix, host, and volume name
@@ -151,10 +151,10 @@ std::vector<std::wstring> SplitPathIntoComponents(const std::wstring& path)
 		//##FIX## The above functions that retrieve file and directory components don't
 		//take the path prefix into account, and may return bad information.
 		std::wstring::size_type searchPos = currentPos;
-		if((searchPos == 0) && (PathStartsWithBasePath(L"\\\\", path) || PathStartsWithBasePath(L"//", path)))
+		if ((searchPos == 0) && (PathStartsWithBasePath(L"\\\\", path) || PathStartsWithBasePath(L"//", path)))
 		{
 			std::wstring::size_type hostNameSeparatorPos = path.find_first_of(directorySeparators, currentPos + 2);
-			if(hostNameSeparatorPos != std::wstring::npos)
+			if (hostNameSeparatorPos != std::wstring::npos)
 			{
 				std::wstring::size_type volumeNameSeparatorPos = path.find_first_of(directorySeparators, hostNameSeparatorPos);
 				searchPos = volumeNameSeparatorPos;
@@ -167,7 +167,7 @@ std::vector<std::wstring> SplitPathIntoComponents(const std::wstring& path)
 		std::wstring pathElement = path.substr(currentPos, pathElementEndPos);
 
 		//If the next path element isn't empty, add it to the list of path elements.
-		if(!pathElement.empty())
+		if (!pathElement.empty())
 		{
 			pathElements.push_back(pathElement);
 		}
@@ -183,7 +183,7 @@ std::wstring BuildPathFromComponents(const std::vector<std::wstring>& pathCompon
 {
 	//Combine each path component into a path, and return it to the caller.
 	std::wstring path;
-	for(size_t i = 0; i < pathComponents.size(); ++i)
+	for (size_t i = 0; i < pathComponents.size(); ++i)
 	{
 		path = PathCombinePaths(path, pathComponents[i]);
 	}
@@ -200,7 +200,7 @@ bool PathBuildRelativePathToTarget(const std::wstring& sourcePath, const std::ws
 	//If the target path references a file, extract the filename, and strip it from the
 	//list of target path components.
 	std::wstring targetFileName;
-	if(targetIsFile && !targetPathComponents.empty())
+	if (targetIsFile && !targetPathComponents.empty())
 	{
 		targetFileName = *targetPathComponents.rbegin();
 		targetPathComponents.pop_back();
@@ -208,7 +208,7 @@ bool PathBuildRelativePathToTarget(const std::wstring& sourcePath, const std::ws
 
 	//Count the number of base components that the source and target paths have in common
 	unsigned int matchingComponentCount = 0;
-	while((matchingComponentCount < (unsigned int)sourcePathComponents.size())
+	while ((matchingComponentCount < (unsigned int)sourcePathComponents.size())
 	   && (matchingComponentCount < (unsigned int)targetPathComponents.size())
 	   && (sourcePathComponents[matchingComponentCount] == targetPathComponents[matchingComponentCount]))
 	{
@@ -216,7 +216,7 @@ bool PathBuildRelativePathToTarget(const std::wstring& sourcePath, const std::ws
 	}
 
 	//If the source and target paths don't have any common base components, return false.
-	if(matchingComponentCount == 0)
+	if (matchingComponentCount == 0)
 	{
 		return false;
 	}
@@ -227,20 +227,20 @@ bool PathBuildRelativePathToTarget(const std::wstring& sourcePath, const std::ws
 	//Add components to the relative path string to move up from the source directory back
 	//to the first common base directory
 	unsigned int sourcePathComponentsToLeave = (unsigned int)sourcePathComponents.size() - matchingComponentCount;
-	for(unsigned int i = 0; i < sourcePathComponentsToLeave; ++i)
+	for (unsigned int i = 0; i < sourcePathComponentsToLeave; ++i)
 	{
 		relativePath = PathCombinePaths(relativePath, L"..");
 	}
 
 	//Add components from the relative path string to move from the first common base
 	//directory down into the target directory
-	for(unsigned int i = matchingComponentCount; i < (unsigned int)targetPathComponents.size(); ++i)
+	for (unsigned int i = matchingComponentCount; i < (unsigned int)targetPathComponents.size(); ++i)
 	{
 		relativePath = PathCombinePaths(relativePath, targetPathComponents[i]);
 	}
 
 	//If the target path references a file, add the filename to the relative path string.
-	if(targetIsFile)
+	if (targetIsFile)
 	{
 		relativePath = PathCombinePaths(relativePath, targetFileName);
 	}
@@ -255,11 +255,11 @@ std::wstring PathGetCurrentWorkingDirectory()
 	std::wstring currentDirectory = L"";
 	bool pathRead = false;
 	bool operationAborted = false;
-	while(!pathRead && !operationAborted)
+	while (!pathRead && !operationAborted)
 	{
 		//Attempt to determine the required buffer size to read in the current directory
 		DWORD requiredBufferSize = GetCurrentDirectory(0, NULL);
-		if(requiredBufferSize <= 0)
+		if (requiredBufferSize <= 0)
 		{
 			operationAborted = true;
 			continue;
@@ -270,7 +270,7 @@ std::wstring PathGetCurrentWorkingDirectory()
 
 		//Attempt to retrieve the current directory
 		DWORD getCurrentDirectoryReturn = GetCurrentDirectory(requiredBufferSize, pathBuffer);
-		if(getCurrentDirectoryReturn == 0)
+		if (getCurrentDirectoryReturn == 0)
 		{
 			delete[] pathBuffer;
 			operationAborted = true;
@@ -280,7 +280,7 @@ std::wstring PathGetCurrentWorkingDirectory()
 		//In the unlikely event that the current directory has been changed and grown in
 		//length since we obtained the required buffer size, delete the buffer we created
 		//and try again.
-		if(getCurrentDirectoryReturn > requiredBufferSize)
+		if (getCurrentDirectoryReturn > requiredBufferSize)
 		{
 			delete[] pathBuffer;
 			continue;
@@ -306,11 +306,11 @@ void PathSetCurrentWorkingDirectory(const std::wstring& path)
 	unsigned int maxRetryCount = 10;
 	unsigned int retryCount = 0;
 	bool done = false;
-	while(!done && (retryCount < maxRetryCount))
+	while (!done && (retryCount < maxRetryCount))
 	{
 		//Attempt to set the current directory
 		BOOL setCurrentDirectoryReturn = SetCurrentDirectory(path.c_str());
-		if(setCurrentDirectoryReturn == 0)
+		if (setCurrentDirectoryReturn == 0)
 		{
 			++retryCount;
 			continue;
@@ -330,7 +330,7 @@ std::list<FileSelectionType> ParseSelectionTypeString(const std::wstring& select
 	const std::wstring entrySeparators = L";";
 	std::list<std::wstring> typeElementStrings;
 	std::wstring::size_type typeStringCurrentPos = 0;
-	while(typeStringCurrentPos != std::wstring::npos)
+	while (typeStringCurrentPos != std::wstring::npos)
 	{
 		//Extract the next complete entry string inside the selection type string
 		std::wstring::size_type separatorPos = selectionTypeString.find_first_of(entrySeparators, typeStringCurrentPos);
@@ -343,7 +343,7 @@ std::list<FileSelectionType> ParseSelectionTypeString(const std::wstring& select
 	//Decode the extracted type element strings, and build a FileSelectionType structure
 	//for each one.
 	std::list<FileSelectionType> selectionTypes;
-	for(std::list<std::wstring>::const_iterator i = typeElementStrings.begin(); i != typeElementStrings.end(); ++i)
+	for (std::list<std::wstring>::const_iterator i = typeElementStrings.begin(); i != typeElementStrings.end(); ++i)
 	{
 		//Extract the next type element, and create a new selection type structure for
 		//this type element.
@@ -355,7 +355,7 @@ std::list<FileSelectionType> ParseSelectionTypeString(const std::wstring& select
 		const std::wstring extensionSeparators = L"|";
 		bool firstTypeElementEntry = true;
 		std::wstring::size_type typeElementCurrentPos = 0;
-		while(typeElementCurrentPos != std::wstring::npos)
+		while (typeElementCurrentPos != std::wstring::npos)
 		{
 			//Extract the next entry from the type element
 			std::wstring::size_type typeElementSeparatorPos = typeElement.find_first_of(extensionSeparators, typeElementCurrentPos);
@@ -364,7 +364,7 @@ std::list<FileSelectionType> ParseSelectionTypeString(const std::wstring& select
 
 			//If this is the first entry in the type element string, add it as the type
 			//name, otherwise add it to the list of type extensions.
-			if(firstTypeElementEntry)
+			if (firstTypeElementEntry)
 			{
 				selectionType.typeName = typeElementEntry;
 				firstTypeElementEntry = false;
@@ -392,14 +392,14 @@ std::wstring BuildCommonFileDialogTypeFilterString(const std::list<FileSelection
 	//Build a filter string using the appropriate format for the GetOpenFileName and
 	//GetSaveFileName functions
 	std::wstringstream filterStringStream;
-	for(std::list<FileSelectionType>::const_iterator i = typeFilters.begin(); i != typeFilters.end(); ++i)
+	for (std::list<FileSelectionType>::const_iterator i = typeFilters.begin(); i != typeFilters.end(); ++i)
 	{
 		//Build a string for the extension filters
 		std::wstringstream extensionFilterStringStream;
 		bool firstExtensionFilter = true;
-		for(std::list<std::wstring>::const_iterator extensionFiltersIterator = i->extensionFilters.begin(); extensionFiltersIterator != i->extensionFilters.end(); ++extensionFiltersIterator)
+		for (std::list<std::wstring>::const_iterator extensionFiltersIterator = i->extensionFilters.begin(); extensionFiltersIterator != i->extensionFilters.end(); ++extensionFiltersIterator)
 		{
-			if(!firstExtensionFilter)
+			if (!firstExtensionFilter)
 			{
 				extensionFilterStringStream << L";";
 			}
@@ -457,9 +457,9 @@ bool SelectExistingFile(HWND parentWindow, const std::list<FileSelectionType>& s
 	//Select the initial directory path and file path to use in order to populate the
 	//initially selected content of the dialog.
 	std::wstring initialDirectoryToUse = initialDirectory;
-	if(!initialFilePath.empty())
+	if (!initialFilePath.empty())
 	{
-		if(PathGetFileName(initialFilePath).empty())
+		if (PathGetFileName(initialFilePath).empty())
 		{
 			//If an initial file path has been specified, but there isn't any actual
 			//filename component specified in the path, and no initial directory path has
@@ -468,7 +468,7 @@ bool SelectExistingFile(HWND parentWindow, const std::list<FileSelectionType>& s
 			//ignore the invalid initial file path. We do this because if a path is passed
 			//to the dialog as the initial file path, and there is no file name component,
 			//the dialog will fail with the FNERR_INVALIDFILENAME error code.
-			if(initialDirectoryToUse.empty())
+			if (initialDirectoryToUse.empty())
 			{
 				initialDirectoryToUse = PathGetDirectory(initialFilePath);
 			}
@@ -478,7 +478,7 @@ bool SelectExistingFile(HWND parentWindow, const std::list<FileSelectionType>& s
 			//If the supplied initial file path appears to be valid, use it to populate
 			//the initial file path of the dialog.
 			unsigned int pathCharIndex = 0;
-			while((pathCharIndex < (unsigned int)initialFilePath.size()) && (pathCharIndex < MAX_PATH))
+			while ((pathCharIndex < (unsigned int)initialFilePath.size()) && (pathCharIndex < MAX_PATH))
 			{
 				fileNameBuffer[pathCharIndex] = initialFilePath[pathCharIndex];
 				++pathCharIndex;
@@ -500,7 +500,7 @@ bool SelectExistingFile(HWND parentWindow, const std::list<FileSelectionType>& s
 	openFileParams.lpstrFileTitle = NULL;
 	openFileParams.nMaxFileTitle = 0;
 	openFileParams.lpstrInitialDir = NULL;
-	if(!initialDirectoryToUse.empty())
+	if (!initialDirectoryToUse.empty())
 	{
 		openFileParams.lpstrInitialDir = &initialDirectoryToUse[0];
 	}
@@ -525,12 +525,12 @@ bool SelectExistingFile(HWND parentWindow, const std::list<FileSelectionType>& s
 
 	//If a file was not successfully selected using the open file dialog, handle the
 	//failure.
-	if(openDialogReturn == 0)
+	if (openDialogReturn == 0)
 	{
 		//If the dialog failed with an actual error, rather than the user just canceling
 		//the operation, display that error to the user.
 		DWORD dialogErrorCode = CommDlgExtendedError();
-		if(dialogErrorCode != 0)
+		if (dialogErrorCode != 0)
 		{
 			std::wstring title = L"Error selecting file!";
 			std::wstringstream textStream;
@@ -584,7 +584,7 @@ bool SelectNewFile(HWND parentWindow, const std::list<FileSelectionType>& select
 
 	//Use the initial file path to populate the initially selected content of the dialog
 	unsigned int pathCharIndex = 0;
-	while((pathCharIndex < (unsigned int)initialFilePath.size()) && (pathCharIndex < MAX_PATH))
+	while ((pathCharIndex < (unsigned int)initialFilePath.size()) && (pathCharIndex < MAX_PATH))
 	{
 		fileNameBuffer[pathCharIndex] = initialFilePath[pathCharIndex];
 		++pathCharIndex;
@@ -604,7 +604,7 @@ bool SelectNewFile(HWND parentWindow, const std::list<FileSelectionType>& select
 	openFileParams.lpstrFileTitle = NULL;
 	openFileParams.nMaxFileTitle = 0;
 	openFileParams.lpstrInitialDir = NULL;
-	if(!initialDirectory.empty())
+	if (!initialDirectory.empty())
 	{
 		openFileParams.lpstrInitialDir = &initialDirectory[0];
 	}
@@ -628,12 +628,12 @@ bool SelectNewFile(HWND parentWindow, const std::list<FileSelectionType>& select
 
 	//If a file was not successfully selected using the save file dialog, handle the
 	//failure.
-	if(saveDialogReturn == 0)
+	if (saveDialogReturn == 0)
 	{
 		//If the dialog failed with an actual error, rather than the user just canceling
 		//the operation, display that error to the user.
 		DWORD dialogErrorCode = CommDlgExtendedError();
-		if(dialogErrorCode != 0)
+		if (dialogErrorCode != 0)
 		{
 			std::wstring title = L"Error selecting file!";
 			std::wstringstream textStream;
@@ -654,7 +654,7 @@ bool SelectNewFile(HWND parentWindow, const std::list<FileSelectionType>& select
 //----------------------------------------------------------------------------------------
 int CALLBACK SetSHBrowseForFolderInitialDir(HWND hwnd, UINT umsg, LPARAM lparam, LPARAM lpData)
 {
-	if(umsg == BFFM_INITIALIZED)
+	if (umsg == BFFM_INITIALIZED)
 	{
 		//When the dialog is initialized, try and set the initial selection on the tree.
 		LPTSTR pathName = (LPTSTR)lpData;
@@ -663,12 +663,12 @@ int CALLBACK SetSHBrowseForFolderInitialDir(HWND hwnd, UINT umsg, LPARAM lparam,
 		fullPathName[MAX_PATH] = L'\0';
 		fullPathName[0] = L'\0';
 		DWORD getFullPathNameReturn = GetFullPathName(pathName, MAX_PATH, &fullPathName[0], &filePart);
-		if(getFullPathNameReturn != 0)
+		if (getFullPathNameReturn != 0)
 		{
 			SendMessage(hwnd, BFFM_SETSELECTION, TRUE, (LPARAM)&fullPathName[0]);
 		}
 	}
-	else if(umsg == BFFM_SELCHANGED)
+	else if (umsg == BFFM_SELCHANGED)
 	{
 		//Note that on Windows 7 and up, the BFFM_SETSELECTION message doesn't always
 		//work. Sometimes the tree isn't fully loaded by this point, and the folder can't
@@ -685,10 +685,10 @@ int CALLBACK SetSHBrowseForFolderInitialDir(HWND hwnd, UINT umsg, LPARAM lparam,
 		const int subPaneDialogItemID = 0x0;
 		const int treeDialogItemID = 0x64;
 		HWND subPaneHandle = GetDlgItem(hwnd, subPaneDialogItemID);
-		if(subPaneHandle != 0)
+		if (subPaneHandle != 0)
 		{
 			HWND treeHandle = GetDlgItem(subPaneHandle, treeDialogItemID);
-			if(treeHandle != 0)
+			if (treeHandle != 0)
 			{
 				HTREEITEM selectedItemHandle = (HTREEITEM)SendMessage(treeHandle, TVM_GETNEXTITEM, TVGN_CARET, 0);
 				SendMessage(treeHandle, TVM_ENSUREVISIBLE, 0, (LPARAM)selectedItemHandle);
@@ -719,13 +719,13 @@ bool SelectExistingDirectory(HWND parentWindow, const std::wstring& initialDirec
 	//Attempt to obtain a folder selection from the user
 	LPITEMIDLIST itemIDList;
 	itemIDList = SHBrowseForFolder(&info);
-	if(itemIDList == NULL)
+	if (itemIDList == NULL)
 	{
 		return false;
 	}
 
 	//Obtain a path from the folder selection results
-	if(SHGetPathFromIDList(itemIDList, &folderDataBuffer[0]) == FALSE)
+	if (SHGetPathFromIDList(itemIDList, &folderDataBuffer[0]) == FALSE)
 	{
 		CoTaskMemFree(itemIDList);
 		return false;
@@ -745,11 +745,11 @@ bool CreateDirectoryInternal(const std::wstring& path)
 
 	//If the file attributes couldn't be retrieved, assume the folder doesn't exist and
 	//create it, otherwise verify that the target path references a folder.
-	if(fileAttributes == INVALID_FILE_ATTRIBUTES)
+	if (fileAttributes == INVALID_FILE_ATTRIBUTES)
 	{
 		//Attempt to create the target folder, and return false if it fails.
 		BOOL createDirectoryReturn = CreateDirectory(path.c_str(), NULL);
-		if(createDirectoryReturn == 0)
+		if (createDirectoryReturn == 0)
 		{
 			return false;
 		}
@@ -757,7 +757,7 @@ bool CreateDirectoryInternal(const std::wstring& path)
 	else
 	{
 		//If this path element references a file rather than a folder, return false.
-		if((fileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
+		if ((fileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
 		{
 			return false;
 		}
@@ -771,7 +771,7 @@ bool CreateDirectory(const std::wstring& path, bool createIntermediateDirectorie
 {
 	//If we haven't been requested to create intermediate directories, attempt to directly
 	//create the target folder, and return the result of the operation.
-	if(!createIntermediateDirectories)
+	if (!createIntermediateDirectories)
 	{
 		return CreateDirectoryInternal(path);
 	}
@@ -782,14 +782,14 @@ bool CreateDirectory(const std::wstring& path, bool createIntermediateDirectorie
 	//Iterate through each path component and ensure a directory exists at each level of
 	//the path
 	std::wstring currentPath;
-	for(unsigned int i = 0; i < (unsigned int)pathComponents.size(); ++i)
+	for (unsigned int i = 0; i < (unsigned int)pathComponents.size(); ++i)
 	{
 		//Add the next path component to the current path string
 		currentPath = PathCombinePaths(currentPath, pathComponents[i]);
 
 		//Attempt to create the directory referenced by this level in the path string, and
 		//return false if the operation fails.
-		if(!CreateDirectoryInternal(currentPath))
+		if (!CreateDirectoryInternal(currentPath))
 		{
 			return false;
 		}
@@ -807,7 +807,7 @@ bool CreateDirectoryAndAllIntermediateDirectories(const std::wstring& path)
 	//Iterate through each path component and ensure a directory exists at each level of
 	//the path
 	std::wstring currentPath;
-	for(unsigned int i = 0; i < (unsigned int)pathComponents.size(); ++i)
+	for (unsigned int i = 0; i < (unsigned int)pathComponents.size(); ++i)
 	{
 		//Add the next path component to the current path string
 		currentPath = PathCombinePaths(currentPath, pathComponents[i]);
@@ -817,11 +817,11 @@ bool CreateDirectoryAndAllIntermediateDirectories(const std::wstring& path)
 
 		//If the file attributes couldn't be retrieved, assume the folder doesn't exist
 		//and create it, otherwise verify that the target path references a folder.
-		if(fileAttributes == INVALID_FILE_ATTRIBUTES)
+		if (fileAttributes == INVALID_FILE_ATTRIBUTES)
 		{
 			//Attempt to create the target folder, and return false if it fails.
 			BOOL createDirectoryReturn = CreateDirectory(currentPath.c_str(), NULL);
-			if(createDirectoryReturn == 0)
+			if (createDirectoryReturn == 0)
 			{
 				return false;
 			}
@@ -829,7 +829,7 @@ bool CreateDirectoryAndAllIntermediateDirectories(const std::wstring& path)
 		else
 		{
 			//If this path element references a file rather than a folder, return false.
-			if((fileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
+			if ((fileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
 			{
 				return false;
 			}

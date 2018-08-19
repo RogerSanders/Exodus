@@ -25,7 +25,7 @@ public:
 
 	virtual Disassembly M68000Disassemble(const M68000::LabelSubstitutionSettings& labelSettings) const
 	{
-		if(_target.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect)
+		if (_target.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect)
 		{
 			return Disassembly(GetOpcodeName() + L"." + DisassembleSize(_size), _source.Disassemble(labelSettings) + L", " + _target.Disassemble(labelSettings));
 		}
@@ -45,9 +45,9 @@ public:
 //	| 1 | 1 | 1 | 0 |  NUMBER/  | 0 |  SIZE |i/r| 1 | 0 | REGISTER  |
 //	|   |   |   |   |  REGISTER |   |       |   |   |   |           |
 //	-----------------------------------------------------------------
-		if(data.GetDataSegment(6, 2) != 3)
+		if (data.GetDataSegment(6, 2) != 3)
 		{
-			switch(data.GetDataSegment(6, 2))
+			switch (data.GetDataSegment(6, 2))
 			{
 			case 0:	//00
 				_size = BITCOUNT_BYTE;
@@ -61,7 +61,7 @@ public:
 			}
 
 			_target.BuildDataDirect(_size, location + GetInstructionSize(), data.GetDataSegment(0, 3));
-			if(!data.GetBit(5))
+			if (!data.GetBit(5))
 			{
 				_source.BuildQuickData(location + GetInstructionSize(), data.GetDataSegment(9, 3));
 			}
@@ -70,7 +70,7 @@ public:
 				_source.BuildDataDirect(_size, location + GetInstructionSize(), data.GetDataSegment(9, 3));
 			}
 
-			if(_size == BITCOUNT_LONG)
+			if (_size == BITCOUNT_LONG)
 			{
 				AddExecuteCycleCount(ExecuteTime(8, 1, 0));
 			}
@@ -114,7 +114,7 @@ public:
 		additionalTime += _target.ReadWithoutAdjustingAddress(cpu, op2, GetInstructionRegister());
 		op1 %= 64;
 		result = op2;
-		for(unsigned int i = 0; i < op1.GetData(); ++i)
+		for (unsigned int i = 0; i < op1.GetData(); ++i)
 		{
 			bool lastXBit = cpu->GetX();
 			cpu->SetX(result.GetBit(0));
@@ -128,14 +128,14 @@ public:
 		cpu->SetN(result.Negative());
 		cpu->SetZ(result.Zero());
 		cpu->SetV(false);
-		if(op1.Zero())
+		if (op1.Zero())
 		{
 			cpu->SetC(cpu->GetX());
 		}
 
 		//Calculate the additional execution time
 		ExecuteTime additionalCycles;
-		if(_target.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect)
+		if (_target.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect)
 		{
 			additionalCycles.Set(2 * op1.GetData(), 0, 0);
 		}

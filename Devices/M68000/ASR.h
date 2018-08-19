@@ -25,7 +25,7 @@ public:
 
 	virtual Disassembly M68000Disassemble(const M68000::LabelSubstitutionSettings& labelSettings) const
 	{
-		if(_target.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect)
+		if (_target.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect)
 		{
 			return Disassembly(GetOpcodeName() + L"." + DisassembleSize(_size), _source.Disassemble(labelSettings) + L", " + _target.Disassemble(labelSettings));
 		}
@@ -45,9 +45,9 @@ public:
 //	| 1 | 1 | 1 | 0 |  NUMBER/  | 0 |  SIZE |i/r| 0 | 0 | REGISTER  |
 //	|   |   |   |   |  REGISTER |   |       |   |   |   |           |
 //	-----------------------------------------------------------------
-		if(data.GetDataSegment(6, 2) != 3)
+		if (data.GetDataSegment(6, 2) != 3)
 		{
-			switch(data.GetDataSegment(6, 2))
+			switch (data.GetDataSegment(6, 2))
 			{
 			case 0:	//00
 				_size = BITCOUNT_BYTE;
@@ -61,7 +61,7 @@ public:
 			}
 
 			_target.BuildDataDirect(_size, location + GetInstructionSize(), data.GetDataSegment(0, 3));
-			if(!data.GetBit(5))
+			if (!data.GetBit(5))
 			{
 				_source.BuildQuickData(location + GetInstructionSize(), data.GetDataSegment(9, 3));
 			}
@@ -70,7 +70,7 @@ public:
 				_source.BuildDataDirect(_size, location + GetInstructionSize(), data.GetDataSegment(9, 3));
 			}
 
-			if(_size == BITCOUNT_LONG)
+			if (_size == BITCOUNT_LONG)
 			{
 				AddExecuteCycleCount(ExecuteTime(8, 1, 0));
 			}
@@ -114,7 +114,7 @@ public:
 		//the shift count before performing the operation. Since the M68000 platform
 		//works up to 64, we zero the _target operand to simulate a shift greater than
 		//31 places.
-		if(op1.GetData() >= 32)
+		if (op1.GetData() >= 32)
 		{
 			op2 = 0;
 		}
@@ -124,7 +124,7 @@ public:
 		//were NOT discarded in the _source as a result of the shift. We can then sign
 		//extend this data to get the final result.
 		unsigned int remainingBitCount = 0;
-		if(op1 < op2.GetBitCount())
+		if (op1 < op2.GetBitCount())
 		{
 			remainingBitCount = op2.GetBitCount() - op1.GetData();
 		}
@@ -140,9 +140,9 @@ public:
 		//shift sign extends the result. Since we're shifting to the right, the MSB never
 		//changes, so we simply need to clear this flag.
 		cpu->SetV(false);
-		if(!op1.Zero())
+		if (!op1.Zero())
 		{
-			if(op1.GetData() > op2.GetBitCount())
+			if (op1.GetData() > op2.GetBitCount())
 			{
 				cpu->SetX(op2.MSB());
 				cpu->SetC(op2.MSB());
@@ -160,7 +160,7 @@ public:
 
 		//Calculate the additional execution time
 		ExecuteTime additionalCycles;
-		if(_target.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect)
+		if (_target.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect)
 		{
 			additionalCycles.Set(2 * op1.GetData(), 0, 0);
 		}

@@ -69,7 +69,7 @@ void GenericAccessDataValueString::SetMaxLength(unsigned int state)
 //----------------------------------------------------------------------------------------
 void GenericAccessDataValueString::ApplyLimitSettingsToCurrentValue()
 {
-	if((_maxLength > 0) && (_dataValue.length() > (size_t)_maxLength))
+	if ((_maxLength > 0) && (_dataValue.length() > (size_t)_maxLength))
 	{
 		_dataValue.resize((size_t)_maxLength);
 	}

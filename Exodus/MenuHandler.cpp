@@ -25,7 +25,7 @@ void MenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) const
 //----------------------------------------------------------------------------------------
 IViewPresenter* MenuHandler::CreateViewForItem(int menuItemID, const std::wstring& viewName)
 {
-	switch(menuItemID)
+	switch (menuItemID)
 	{
 	case MENUITEM_ABOUT:
 		return new AboutViewPresenter(GetMenuHandlerName(), viewName, menuItemID, _owner, _model);

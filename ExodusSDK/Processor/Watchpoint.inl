@@ -65,7 +65,7 @@ unsigned int Watchpoint::GetLiveHitCounter() const
 //----------------------------------------------------------------------------------------
 void Watchpoint::IncrementHitCounter()
 {
-	if(!_preIncrementCounter)
+	if (!_preIncrementCounter)
 	{
 		++_hitCounterIncrement;
 	}

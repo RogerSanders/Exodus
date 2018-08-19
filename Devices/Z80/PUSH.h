@@ -33,7 +33,7 @@ public:
 		//PUSH qq		11qq0101
 		//PUSH IX		11011101 11100101
 		//PUSH IY		11111101 11100101
-		switch(data.GetDataSegment(4, 2))
+		switch (data.GetDataSegment(4, 2))
 		{
 		case 0:
 			_source.SetMode(EffectiveAddress::Mode::BC);

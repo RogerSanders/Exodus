@@ -76,7 +76,7 @@ void Watchpoint::SetName(const Marshal::In<std::wstring>& name)
 Marshal::Ret<std::wstring> Watchpoint::GenerateName() const
 {
 	std::wstring newName;
-	switch(_locationCondition)
+	switch (_locationCondition)
 	{
 	case Condition::Equal:{
 		std::wstring locationData1AsString;
@@ -171,7 +171,7 @@ bool Watchpoint::PassesLocationCondition(unsigned int location)
 {
 	bool result = true;
 	unsigned int locationMasked = (location & _locationMask);
-	switch(GetLocationCondition())
+	switch (GetLocationCondition())
 	{
 	case Condition::Equal:
 		result = (locationMasked == GetLocationConditionData1());
@@ -232,9 +232,9 @@ void Watchpoint::SetBreakCounter(unsigned int breakCounter)
 bool Watchpoint::CheckHitCounter()
 {
 	IncrementHitCounter();
-	if(GetBreakOnCounter())
+	if (GetBreakOnCounter())
 	{
-		if((GetLiveHitCounter() % GetBreakCounter()) != 0)
+		if ((GetLiveHitCounter() % GetBreakCounter()) != 0)
 		{
 			return false;
 		}
@@ -334,9 +334,9 @@ void Watchpoint::SetReadConditionData2(unsigned int data)
 bool Watchpoint::PassesReadCondition(unsigned int data)
 {
 	bool result = true;
-	if(GetReadConditionEnabled())
+	if (GetReadConditionEnabled())
 	{
-		switch(GetReadCondition())
+		switch (GetReadCondition())
 		{
 		case Condition::Equal:
 			result = (data == GetReadConditionData1());
@@ -422,9 +422,9 @@ void Watchpoint::SetWriteConditionData2(unsigned int data)
 bool Watchpoint::PassesWriteCondition(unsigned int data)
 {
 	bool result = true;
-	if(GetWriteConditionEnabled())
+	if (GetWriteConditionEnabled())
 	{
-		switch(GetWriteCondition())
+		switch (GetWriteCondition())
 		{
 		case Condition::Equal:
 			result = (data == GetWriteConditionData1());

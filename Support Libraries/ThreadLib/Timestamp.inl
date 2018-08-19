@@ -37,7 +37,7 @@ std::wstring Timestamp::GetFilenameTime() const
 {
 	std::wstring filenameTime = _time;
 	std::wstring::size_type pos = filenameTime.find_first_of(L':');
-	while(pos != std::wstring::npos)
+	while (pos != std::wstring::npos)
 	{
 		filenameTime[pos] = L'.';
 		pos = filenameTime.find_first_of(L':');

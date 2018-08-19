@@ -12,7 +12,7 @@ SN76489Menus::SN76489Menus(const std::wstring& implementationName, const std::ws
 SN76489Menus::~SN76489Menus()
 {
 	//Delete all menu handlers
-	for(std::map<IDevice*, DebugMenuHandler*>::const_iterator i = _debugMenuHandlers.begin(); i != _debugMenuHandlers.end(); ++i)
+	for (std::map<IDevice*, DebugMenuHandler*>::const_iterator i = _debugMenuHandlers.begin(); i != _debugMenuHandlers.end(); ++i)
 	{
 		i->second->ClearMenuItems();
 		delete i->second;
@@ -26,7 +26,7 @@ bool SN76489Menus::RegisterDeviceMenuHandler(IDevice* targetDevice)
 {
 	//Attempt to cast the supplied device to the correct type
 	ISN76489* targetDeviceAsISN76489 = dynamic_cast<ISN76489*>(targetDevice);
-	if(targetDeviceAsISN76489 == 0)
+	if (targetDeviceAsISN76489 == 0)
 	{
 		return false;
 	}
@@ -50,7 +50,7 @@ void SN76489Menus::UnregisterDeviceMenuHandler(IDevice* targetDevice)
 //----------------------------------------------------------------------------------------
 void SN76489Menus::AddDeviceMenuItems(DeviceMenu deviceMenu, IMenuSegment& menuSegment, IDevice* targetDevice)
 {
-	if(deviceMenu == IExtension::DeviceMenu::Debug)
+	if (deviceMenu == IExtension::DeviceMenu::Debug)
 	{
 		_debugMenuHandlers[targetDevice]->AddMenuItems(menuSegment);
 	}

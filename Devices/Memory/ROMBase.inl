@@ -22,7 +22,7 @@ template<class T> bool ROMBase<T>::Construct(IHierarchicalStorageNode& node)
 	unsigned int memoryArrayEntryByteSize = (unsigned int)sizeof(T);
 
 	//If embedded ROM data has been specified, attempt to load it now.
-	if(node.GetBinaryDataPresent())
+	if (node.GetBinaryDataPresent())
 	{
 		//Obtain the stream for our binary data
 		Stream::IStream& dataStream = node.GetBinaryDataBufferStream();
@@ -32,18 +32,18 @@ template<class T> bool ROMBase<T>::Construct(IHierarchicalStorageNode& node)
 		//been manually specified, we set the entry count based on the size of the
 		//specified embedded ROM data, if available.
 		unsigned int memoryEntryCount = GetMemoryEntryCount();
-		if(memoryEntryCount <= 0)
+		if (memoryEntryCount <= 0)
 		{
 			//Calculate the required size of the memory array in bytes to hold the
 			//supplied data
 			memoryEntryCount = (unsigned int)dataStream.Size();
-			if(memoryEntryCount <= 0)
+			if (memoryEntryCount <= 0)
 			{
 				//If no memory array entry count has been specified, and the embedded ROM
 				//data is empty, return false.
 				return false;
 			}
-			else if((memoryEntryCount % memoryArrayEntryByteSize) != 0)
+			else if ((memoryEntryCount % memoryArrayEntryByteSize) != 0)
 			{
 				//If the specified ROM data doesn't give us a clean alignment with the
 				//memory array entry size, we extend it to the end of the last array
@@ -73,7 +73,7 @@ template<class T> bool ROMBase<T>::Construct(IHierarchicalStorageNode& node)
 		//Read the RepeatData attribute if specified
 		bool repeatData = false;
 		IHierarchicalStorageAttribute* repeatDataAttribute = node.GetAttribute(L"RepeatData");
-		if(repeatDataAttribute != 0)
+		if (repeatDataAttribute != 0)
 		{
 			repeatData = repeatDataAttribute->ExtractValue<bool>();
 		}
@@ -82,7 +82,7 @@ template<class T> bool ROMBase<T>::Construct(IHierarchicalStorageNode& node)
 		unsigned int dataStreamByteSize = (unsigned int)dataStream.Size();
 		unsigned int entriesInDataStream = (dataStreamByteSize / memoryArrayEntryByteSize);
 		unsigned int entriesToRead = (_memoryArraySize < entriesInDataStream)? _memoryArraySize: entriesInDataStream;
-		if(!dataStream.ReadDataBigEndian(&_memoryArray[0], entriesToRead))
+		if (!dataStream.ReadDataBigEndian(&_memoryArray[0], entriesToRead))
 		{
 			return false;
 		}
@@ -92,14 +92,14 @@ template<class T> bool ROMBase<T>::Construct(IHierarchicalStorageNode& node)
 		//doesn't align with a whole entry in the array, read in the remaining data into
 		//the next array entry, and pad out the missing lower data with zeros.
 		unsigned int bytesRemainingInDataStream = (dataStreamByteSize % memoryArrayEntryByteSize);
-		if((_memoryArraySize > entriesInDataStream) && (bytesRemainingInDataStream > 0))
+		if ((_memoryArraySize > entriesInDataStream) && (bytesRemainingInDataStream > 0))
 		{
 			//Read in each remaining byte in the data stream into the next available array
 			//entry
-			for(unsigned int i = 0; i < bytesRemainingInDataStream; ++i)
+			for (unsigned int i = 0; i < bytesRemainingInDataStream; ++i)
 			{
 				unsigned char remainingData;
-				if(!dataStream.ReadDataBigEndian(remainingData))
+				if (!dataStream.ReadDataBigEndian(remainingData))
 				{
 					return false;
 				}
@@ -114,9 +114,9 @@ template<class T> bool ROMBase<T>::Construct(IHierarchicalStorageNode& node)
 
 		//If the data string has been set to repeat until the end of the memory block is
 		//reached, fill out the remainder of the memory block now.
-		if(repeatData)
+		if (repeatData)
 		{
-			for(unsigned int i = entriesToRead; i < _memoryArraySize; ++i)
+			for (unsigned int i = entriesToRead; i < _memoryArraySize; ++i)
 			{
 				unsigned int originalDataIndex = i % entriesInDataStream;
 				_memoryArray[i] = _memoryArray[originalDataIndex];
@@ -128,7 +128,7 @@ template<class T> bool ROMBase<T>::Construct(IHierarchicalStorageNode& node)
 		//If no embedded ROM data has been provided, ensure that a valid interface size
 		//has been specified, and set the size of our internal memory.
 		_memoryArraySize = GetMemoryEntryCount();
-		if(_memoryArraySize <= 0)
+		if (_memoryArraySize <= 0)
 		{
 			return false;
 		}

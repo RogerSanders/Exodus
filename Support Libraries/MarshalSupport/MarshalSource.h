@@ -68,7 +68,7 @@ protected:
 		elementSizeArray = elementSizeArrayTemp;
 
 		//Allocate key marshallers for any keyed containers in the _source object
-		if(Internal::nested_container_has_keys<ContainerType>::value)
+		if (Internal::nested_container_has_keys<ContainerType>::value)
 		{
 			MARSHALSUPPORT_CONSTEXPR size_t nestingDepth = Internal::CalculateSTLContainerNestingDepth(0, (ContainerType*)0);
 			Internal::INestedMarshallerBase** nestedMarshallerArrayTemp = new Internal::INestedMarshallerBase*[nestingDepth];
@@ -82,7 +82,7 @@ protected:
 		size_t elementSizeArrayIndex = 0;
 		size_t nestedMarshallerArrayIndex = 0;
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-		if(__sourceDataMovable && allowMove)
+		if (__sourceDataMovable && allowMove)
 		{
 			Internal::DecomposeSTLContainer(itemArray, elementSizeArrayTemp, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex, std::move(const_cast<ContainerType&>(*__sourceObject)));
 		}
@@ -97,7 +97,7 @@ protected:
 		//Release the allocated data arrays
 		Internal::DeleteSTLContainerItemArray(itemArray, __sourceObject);
 		delete[] elementSizeArray;
-		if(Internal::nested_container_has_keys<ContainerType>::value)
+		if (Internal::nested_container_has_keys<ContainerType>::value)
 		{
 			Internal::DeleteSTLContainerKeyMarshallers(const_cast<Internal::INestedMarshallerBase**>(nestedMarshallerArray), 0, (ContainerType*)0);
 			delete[] nestedMarshallerArray;
@@ -149,7 +149,7 @@ protected:
 		elementSizeArray = elementSizeArrayTemp;
 
 		//Allocate key marshallers for any keyed containers in the _source object
-		if(Internal::nested_container_has_keys<ContainerType>::value)
+		if (Internal::nested_container_has_keys<ContainerType>::value)
 		{
 			MARSHALSUPPORT_CONSTEXPR size_t nestingDepth = Internal::CalculateSTLContainerNestingDepth(0, (ContainerType*)0);
 			Internal::INestedMarshallerBase** nestedMarshallerArrayTemp = new Internal::INestedMarshallerBase*[nestingDepth];
@@ -169,7 +169,7 @@ protected:
 		//Release the allocated data arrays
 		Internal::DeleteSTLContainerItemArray(itemArray, __sourceObject);
 		delete[] elementSizeArray;
-		if(Internal::nested_container_has_keys<ContainerType>::value)
+		if (Internal::nested_container_has_keys<ContainerType>::value)
 		{
 			Internal::DeleteSTLContainerKeyMarshallers(const_cast<Internal::INestedMarshallerBase**>(nestedMarshallerArray), 0, (ContainerType*)0);
 			delete[] nestedMarshallerArray;
@@ -442,7 +442,7 @@ protected:
 		//elements of this boolean vector here into a flat array so that we can marshal it.
 		size_t _sourceObjectLength = __sourceObject->size();
 		bool* itemArray = new bool[_sourceObjectLength];
-		for(size_t i = 0; i < _sourceObjectLength; ++i)
+		for (size_t i = 0; i < _sourceObjectLength; ++i)
 		{
 			itemArray[i] = (*__sourceObject)[(typename std::vector<bool, Alloc>::size_type)i];
 		}
@@ -605,7 +605,7 @@ protected:
 	virtual Marshal::Ret<T1, false> MARSHALSUPPORT_CALLINGCONVENTION RetrieveFirstElement(bool allowMove) const
 	{
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-		if(__sourceDataMovable && allowMove)
+		if (__sourceDataMovable && allowMove)
 		{
 			return std::move(const_cast<T1&>(__sourceObject->first));
 		}
@@ -615,7 +615,7 @@ protected:
 	virtual Marshal::Ret<T2, false> MARSHALSUPPORT_CALLINGCONVENTION RetrieveSecondElement(bool allowMove) const
 	{
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-		if(__sourceDataMovable && allowMove)
+		if (__sourceDataMovable && allowMove)
 		{
 			return std::move(const_cast<T2&>(__sourceObject->second));
 		}
@@ -714,7 +714,7 @@ protected:
 	//Marshalling methods
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION CreateElementMarshallers(Internal::INestedMarshallerBase* (&elementMarshallers)[std::tuple_size<std::tuple<Args...>>::value], bool allowMove) const
 	{
-		if(__sourceDataMovable && allowMove)
+		if (__sourceDataMovable && allowMove)
 		{
 			CreateElementMarshallersHelper<true, std::tuple_size<std::tuple<Args...>>::value-1, Args...>::CreateElementMarshallers(elementMarshallers, const_cast<std::tuple<Args...>&>(*__sourceObject));
 		}
@@ -725,7 +725,7 @@ protected:
 	}
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION DeleteElementMarshallers(Internal::INestedMarshallerBase* (&elementMarshallers)[std::tuple_size<std::tuple<Args...>>::value]) const
 	{
-		for(size_t i = 0; i < std::tuple_size<std::tuple<Args...>>::value; ++i)
+		for (size_t i = 0; i < std::tuple_size<std::tuple<Args...>>::value; ++i)
 		{
 			delete elementMarshallers[i];
 		}
@@ -805,7 +805,7 @@ protected:
 	}
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION DeleteElementMarshallers(Internal::INestedMarshallerBase* (&elementMarshallers)[std::tuple_size<std::tuple<Args...>>::value]) const
 	{
-		for(size_t i = 0; i < std::tuple_size<std::tuple<Args...>>::value; ++i)
+		for (size_t i = 0; i < std::tuple_size<std::tuple<Args...>>::value; ++i)
 		{
 			delete elementMarshallers[i];
 		}

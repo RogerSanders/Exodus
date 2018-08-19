@@ -12,7 +12,7 @@ Z80Menus::Z80Menus(const std::wstring& implementationName, const std::wstring& i
 Z80Menus::~Z80Menus()
 {
 	//Delete all menu handlers
-	for(std::map<IDevice*, DebugMenuHandler*>::const_iterator i = _debugMenuHandlers.begin(); i != _debugMenuHandlers.end(); ++i)
+	for (std::map<IDevice*, DebugMenuHandler*>::const_iterator i = _debugMenuHandlers.begin(); i != _debugMenuHandlers.end(); ++i)
 	{
 		i->second->ClearMenuItems();
 		delete i->second;
@@ -26,7 +26,7 @@ bool Z80Menus::RegisterDeviceMenuHandler(IDevice* targetDevice)
 {
 	//Attempt to cast the supplied device to the correct type
 	IZ80* targetDeviceAsIZ80 = dynamic_cast<IZ80*>(targetDevice);
-	if(targetDeviceAsIZ80 == 0)
+	if (targetDeviceAsIZ80 == 0)
 	{
 		return false;
 	}
@@ -50,7 +50,7 @@ void Z80Menus::UnregisterDeviceMenuHandler(IDevice* targetDevice)
 //----------------------------------------------------------------------------------------
 void Z80Menus::AddDeviceMenuItems(DeviceMenu deviceMenu, IMenuSegment& menuSegment, IDevice* targetDevice)
 {
-	if(deviceMenu == IExtension::DeviceMenu::Debug)
+	if (deviceMenu == IExtension::DeviceMenu::Debug)
 	{
 		_debugMenuHandlers[targetDevice]->AddMenuItems(menuSegment);
 	}

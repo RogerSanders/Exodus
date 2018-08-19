@@ -22,7 +22,7 @@ SpriteListView::SpriteListView(IUIManager& uiManager, SpriteListViewPresenter& p
 //----------------------------------------------------------------------------------------
 LRESULT SpriteListView::WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
-	switch(msg)
+	switch (msg)
 	{
 	case WM_CREATE:
 		return msgWM_CREATE(hwnd, wparam, lparam);
@@ -134,7 +134,7 @@ LRESULT SpriteListView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	//Update the data grid with the latest text
 	unsigned int spriteMappingBaseAddress = _model.RegGetNameTableBaseSprite();
 	std::map<unsigned int, std::map<unsigned int, std::wstring>> rowText;
-	for(unsigned int i = 0; i < 80; ++i)
+	for (unsigned int i = 0; i < 80; ++i)
 	{
 		IS315_5313::SpriteMappingTableEntry mapping = _model.GetSpriteMappingTableEntry(spriteMappingBaseAddress, i);
 		std::map<unsigned int, std::wstring>& columnText = rowText[i];
@@ -162,15 +162,15 @@ LRESULT SpriteListView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 //----------------------------------------------------------------------------------------
 LRESULT SpriteListView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	if(LOWORD(wparam) == DataListControlID)
+	if (LOWORD(wparam) == DataListControlID)
 	{
-		if((WC_DataGrid::WindowNotifications)HIWORD(wparam) == WC_DataGrid::WindowNotifications::CellEdit)
+		if ((WC_DataGrid::WindowNotifications)HIWORD(wparam) == WC_DataGrid::WindowNotifications::CellEdit)
 		{
 			WC_DataGrid::Grid_CellEditEvent* cellEditEventInfo = (WC_DataGrid::Grid_CellEditEvent*)lparam;
 			unsigned int spriteMappingBaseAddress = _model.RegGetNameTableBaseSprite();
 			IS315_5313::SpriteMappingTableEntry spriteMapping = _model.GetSpriteMappingTableEntry(spriteMappingBaseAddress, cellEditEventInfo->targetRowNo);
 			bool useSeparatedData = true;
-			switch(cellEditEventInfo->targetColumnID)
+			switch (cellEditEventInfo->targetColumnID)
 			{
 			case COLUMN_XPOS:
 				StringToIntBase16(cellEditEventInfo->newData, spriteMapping.xpos);

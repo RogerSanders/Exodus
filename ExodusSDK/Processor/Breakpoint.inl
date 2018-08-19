@@ -50,7 +50,7 @@ unsigned int Breakpoint::GetLiveHitCounter() const
 //----------------------------------------------------------------------------------------
 void Breakpoint::IncrementHitCounter()
 {
-	if(!_preIncrementCounter)
+	if (!_preIncrementCounter)
 	{
 		++_hitCounterIncrement;
 	}

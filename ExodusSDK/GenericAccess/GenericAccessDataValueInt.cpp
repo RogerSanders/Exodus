@@ -43,7 +43,7 @@ int GenericAccessDataValueInt::GetValue() const
 Marshal::Ret<std::wstring> GenericAccessDataValueInt::GetValueString() const
 {
 	std::wstring result;
-	switch(_displayMode)
+	switch (_displayMode)
 	{
 	case IntDisplayMode::Binary:
 		IntToStringBase2(_dataValue, result, _minChars);
@@ -83,7 +83,7 @@ bool GenericAccessDataValueInt::SetValueString(const Marshal::In<std::wstring>& 
 	//Calculate the default base to use for the specified number based on the specified
 	//display mode
 	unsigned int defaultBase = 10;
-	switch(_displayMode)
+	switch (_displayMode)
 	{
 	case IntDisplayMode::Binary:
 		defaultBase = 2;
@@ -101,7 +101,7 @@ bool GenericAccessDataValueInt::SetValueString(const Marshal::In<std::wstring>& 
 
 	//Attempt to convert the string to an integer
 	int valueConverted;
-	if(!StringToInt(value, valueConverted, defaultBase))
+	if (!StringToInt(value, valueConverted, defaultBase))
 	{
 		return false;
 	}
@@ -142,7 +142,7 @@ unsigned int GenericAccessDataValueInt::CalculateDisplayChars(IntDisplayMode dis
 	//Build strings for the max and min values
 	std::wstring minValueString;
 	std::wstring maxValueString;
-	switch(displayMode)
+	switch (displayMode)
 	{
 	case IntDisplayMode::Binary:
 		IntToStringBase2(abs(minValue), minValueString, 0, false);

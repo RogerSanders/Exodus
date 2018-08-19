@@ -18,7 +18,7 @@ DebugMenuHandler::DebugMenuHandler(ProcessorMenus& owner, const IDevice& modelIn
 //----------------------------------------------------------------------------------------
 void DebugMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) const
 {
-	if(_model.ActiveDisassemblySupported())
+	if (_model.ActiveDisassemblySupported())
 	{
 		menuItems.push_back(MenuItemDefinition(MENUITEM_ACTIVEDISASSEMBLY, L"ActiveDisassembly", ActiveDisassemblyViewPresenter::GetUnqualifiedViewTitle(), true, true));
 	}
@@ -32,7 +32,7 @@ void DebugMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) co
 //----------------------------------------------------------------------------------------
 IViewPresenter* DebugMenuHandler::CreateViewForItem(int menuItemID, const std::wstring& viewName)
 {
-	switch(menuItemID)
+	switch (menuItemID)
 	{
 	case MENUITEM_CONTROL:
 		return new ControlViewPresenter(GetMenuHandlerName(), viewName, menuItemID, _owner, _modelInstanceKey, _model);

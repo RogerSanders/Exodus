@@ -265,16 +265,16 @@ bool GetStudentNamesInClass(int classNo, int studentNo, char* buffer, int buffer
 {
     std::cout << "School name: " << GetSchoolName() << std::endl;
     std::vector<std::string> classNames;
-    if(GetClassNames(classNames))
+    if (GetClassNames(classNames))
     {
-        for each(std::string className in classNames)
+        for (const std::string& className : classNames)
         {
             std::cout << "Class name: " << className << std::endl;
             std::list<std::string> studentNames;
-            if(GetStudentNamesInClass(className, studentNames))
+            if (GetStudentNamesInClass(className, studentNames))
             {
                 std::cout << "Enrolled students:" << std::endl;
-                for each(std::string studentName in studentNames)
+                for (const std::string& studentName : studentNames)
                 {
                     std::cout << studentName << std::endl;
                 }
@@ -294,11 +294,11 @@ bool GetStudentNamesInClass(int classNo, int studentNo, char* buffer, int buffer
     bool readData = false;
 
     std::string schoolName;
-    while(!readData)
+    while (!readData)
     {
         GetSchoolName(&buffer[0], buffer.size(), requiredBufferSize);
         readData = (requiredBufferSize > buffer.size());
-        if(!readData)
+        if (!readData)
         {
             buffer.resize(requiredBufferSize);
         }
@@ -310,65 +310,65 @@ bool GetStudentNamesInClass(int classNo, int studentNo, char* buffer, int buffer
     int classCount = GetClassCount();
     int currentClassNo = 0;
     bool getClassNamesFailed = false;
-    while(currentClassNo < classCount)
+    while (currentClassNo < classCount)
     {
         readData = false;
-        while(!readData && !getClassNamesFailed)
+        while (!readData && !getClassNamesFailed)
         {
-            if(!GetClassName(currentClassNo, &buffer[0], buffer.size(), requiredBufferSize))
+            if (!GetClassName(currentClassNo, &buffer[0], buffer.size(), requiredBufferSize))
             {
                 getClassNamesFailed = true;
                 continue;
             }
             readData = (requiredBufferSize > buffer.size());
-            if(!readData)
+            if (!readData)
             {
                 buffer.resize(requiredBufferSize);
             }
         }
-        if(getClassNamesFailed)
+        if (getClassNamesFailed)
         {
             continue;
         }
         classNames.push_back(&buffer[0]);
         ++currentClassNo;
     }
-    if(!getClassNamesFailed)
+    if (!getClassNamesFailed)
     {
-        for(int classNo = 0; classNo < classNames.size(); ++classNo)
+        for (int classNo = 0; classNo < classNames.size(); ++classNo)
         {
             std::cout << "Class name: " << classNames[classNo] << std::endl;
             std::list<std::string> studentNames;
             int studentCount = GetStudentCountInClass(classNo);
             int currentStudentNo = 0;
             bool getStudentNamesFailed = false;
-            while(currentStudentNo < studentCount)
+            while (currentStudentNo < studentCount)
             {
                 readData = false;
-                while(!readData && !getStudentNamesFailed)
+                while (!readData && !getStudentNamesFailed)
                 {
-                    if(!GetStudentNamesInClass(classNo, currentStudentNo, &buffer[0], buffer.size(), requiredBufferSize))
+                    if (!GetStudentNamesInClass(classNo, currentStudentNo, &buffer[0], buffer.size(), requiredBufferSize))
                     {
                         getStudentNamesFailed = true;
                         continue;
                     }
                     readData = (requiredBufferSize > buffer.size());
-                    if(!readData)
+                    if (!readData)
                     {
                         buffer.resize(requiredBufferSize);
                     }
                 }
-                if(getStudentNamesFailed)
+                if (getStudentNamesFailed)
                 {
                     continue;
                 }
                 studentNames.push_back(&buffer[0]);
                 ++currentStudentNo;
             }
-            if(!getStudentNamesFailed)
+            if (!getStudentNamesFailed)
             {
                 std::cout << "Enrolled students:" << std::endl;
-                for each(std::string studentName in studentNames)
+                for (const std::string& studentName : studentNames)
                 {
                     std::cout << studentName << std::endl;
                 }

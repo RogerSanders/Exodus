@@ -31,7 +31,7 @@ public:
 	virtual void M68000Decode(const M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)
 	{
 		_size = (data.GetDataSegment(3, 3) == 0)? BITCOUNT_LONG: BITCOUNT_BYTE;
-		if(data.GetBit(8))
+		if (data.GetBit(8))
 		{
 //	-----------------------------------------------------------------
 //	|15 |14 |13 |12 |11 |10 | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
@@ -42,7 +42,7 @@ public:
 			_source.BuildDataDirect(_size, location + GetInstructionSize(), data.GetDataSegment(9, 3));
 			_target.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), _size, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
 			AddInstructionSize(_target.ExtensionSize());
-			if((_target.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect) || (_target.GetAddressMode() == EffectiveAddress::Mode::AddRegDirect))
+			if ((_target.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect) || (_target.GetAddressMode() == EffectiveAddress::Mode::AddRegDirect))
 			{
 				AddExecuteCycleCount(ExecuteTime(6, 1, 0));
 			}
@@ -66,7 +66,7 @@ public:
 			AddInstructionSize(_source.ExtensionSize());
 			_target.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), _size, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
 			AddInstructionSize(_target.ExtensionSize());
-			if((_target.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect) || (_target.GetAddressMode() == EffectiveAddress::Mode::AddRegDirect))
+			if ((_target.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect) || (_target.GetAddressMode() == EffectiveAddress::Mode::AddRegDirect))
 			{
 				AddExecuteCycleCount(ExecuteTime(10, 2, 0));
 			}

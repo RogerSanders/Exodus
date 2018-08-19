@@ -34,7 +34,7 @@ public:
 	virtual void Z80Decode(const Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)
 	{
 		//##TODO## Determine which mode the undocumented "IM 0/1*" modes actually set
-		switch(data.GetDataSegment(3, 2))
+		switch (data.GetDataSegment(3, 2))
 		{
 		case 0:
 			_newInterruptMode = 0;

@@ -14,7 +14,7 @@ template<class B> Stream<B>::Stream(typename B::TextEncoding textEncoding, typen
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::ReadCharInternal(typename B::UnicodeCodePoint& data, typename B::ByteOrder byteOrder, typename B::SizeType& remainingCodeUnitsAvailable, bool stripCarriageReturn)
 {
-	switch(_textEncoding)
+	switch (_textEncoding)
 	{
 	case TextEncoding::ASCII:
 		return ReadCharInternalAsASCII(data, _byteOrder, remainingCodeUnitsAvailable, stripCarriageReturn);
@@ -35,7 +35,7 @@ template<class B> bool Stream<B>::ReadCharInternalAsASCII(typename B::UnicodeCod
 	do
 	{
 		//Ensure that code units are available in the stream
-		if(remainingCodeUnitsAvailable <= 0)
+		if (remainingCodeUnitsAvailable <= 0)
 		{
 			result = false;
 			continue;
@@ -46,7 +46,7 @@ template<class B> bool Stream<B>::ReadCharInternalAsASCII(typename B::UnicodeCod
 		result &= ReadDataInternal(codeUnit, byteOrder);
 		--remainingCodeUnitsAvailable;
 		ConvertASCIIToUnicodeCodePoint(codeUnit, data);
-	} while(result && stripCarriageReturn && (data.codeUnit1 == L'\r'));
+	} while (result && stripCarriageReturn && (data.codeUnit1 == L'\r'));
 	return result;
 }
 
@@ -59,7 +59,7 @@ template<class B> bool Stream<B>::ReadCharInternalAsUTF8(typename B::UnicodeCode
 	do
 	{
 		//Ensure that code units are available in the stream
-		if(remainingCodeUnitsAvailable <= 0)
+		if (remainingCodeUnitsAvailable <= 0)
 		{
 			result = false;
 			continue;
@@ -73,7 +73,7 @@ template<class B> bool Stream<B>::ReadCharInternalAsUTF8(typename B::UnicodeCode
 		--remainingCodeUnitsAvailable;
 
 		//If this a continuation byte, the data is invalid. Abort the read.
-		if((codeUnit1 & 0xC0) == 0x80)
+		if ((codeUnit1 & 0xC0) == 0x80)
 		{
 			result = false;
 			continue;
@@ -81,13 +81,13 @@ template<class B> bool Stream<B>::ReadCharInternalAsUTF8(typename B::UnicodeCode
 
 		//Determine how many continuation bytes to read
 		unsigned int continuationBytesToRead = 0;
-		if((codeUnit1 & 0x80) == 0x00)
+		if ((codeUnit1 & 0x80) == 0x00)
 		{
 			codePoint = codeUnit1 & 0x7F;
 		}
 		else
 		{
-			switch((codeUnit1 >> 3) & 0x07)
+			switch ((codeUnit1 >> 3) & 0x07)
 			{
 			case 0x00:
 			case 0x01:
@@ -114,10 +114,10 @@ template<class B> bool Stream<B>::ReadCharInternalAsUTF8(typename B::UnicodeCode
 		}
 
 		//Read all the continuation bytes
-		for(unsigned int i = 0; result && (i < continuationBytesToRead); ++i)
+		for (unsigned int i = 0; result && (i < continuationBytesToRead); ++i)
 		{
 			//Ensure that code units are available in the stream
-			if(remainingCodeUnitsAvailable <= 0)
+			if (remainingCodeUnitsAvailable <= 0)
 			{
 				result = false;
 				continue;
@@ -129,7 +129,7 @@ template<class B> bool Stream<B>::ReadCharInternalAsUTF8(typename B::UnicodeCode
 			--remainingCodeUnitsAvailable;
 
 			//Ensure this byte is correctly tagged as a continuation byte
-			if((continuationByte & 0xC0) != 0x80)
+			if ((continuationByte & 0xC0) != 0x80)
 			{
 				result = false;
 				continue;
@@ -140,13 +140,13 @@ template<class B> bool Stream<B>::ReadCharInternalAsUTF8(typename B::UnicodeCode
 		}
 
 		//If there was an error processing the continuation bytes, abort.
-		if(!result)
+		if (!result)
 		{
 			continue;
 		}
 
 		//Ensure the code point doesn't represent a character in the reserved UTF16 range
-		if((codePoint & 0xFFFFF800) == 0x0000D800)
+		if ((codePoint & 0xFFFFF800) == 0x0000D800)
 		{
 			result = false;
 			continue;
@@ -154,7 +154,7 @@ template<class B> bool Stream<B>::ReadCharInternalAsUTF8(typename B::UnicodeCode
 
 		//Ensure the code point comes from a valid code point plane. We do this to ensure
 		//that there is a valid conversion to other supported unicode formats.
-		if(codePoint > 0x0010FFFF)
+		if (codePoint > 0x0010FFFF)
 		{
 			result = false;
 			continue;
@@ -164,14 +164,14 @@ template<class B> bool Stream<B>::ReadCharInternalAsUTF8(typename B::UnicodeCode
 		ConvertUTF32ToUnicodeCodePoint(codePoint, data);
 
 		//If we've encountered a carriage return, skip it.
-		if(!data.surrogatePair && stripCarriageReturn && (data.codeUnit1 == L'\r'))
+		if (!data.surrogatePair && stripCarriageReturn && (data.codeUnit1 == L'\r'))
 		{
 			continue;
 		}
 
 		//We're done
 		done = true;
-	} while(!done && result);
+	} while (!done && result);
 
 	return result;
 }
@@ -185,7 +185,7 @@ template<class B> bool Stream<B>::ReadCharInternalAsUTF16(typename B::UnicodeCod
 	do
 	{
 		//Ensure that code units are available in the stream
-		if(remainingCodeUnitsAvailable <= 0)
+		if (remainingCodeUnitsAvailable <= 0)
 		{
 			result = false;
 			continue;
@@ -198,7 +198,7 @@ template<class B> bool Stream<B>::ReadCharInternalAsUTF16(typename B::UnicodeCod
 
 		//If this is the second half of a surrogate pair, the data is invalid. Abort the
 		//read.
-		if((codeUnit1 & 0xFC00) == 0xDC00)
+		if ((codeUnit1 & 0xFC00) == 0xDC00)
 		{
 			result = false;
 			continue;
@@ -207,10 +207,10 @@ template<class B> bool Stream<B>::ReadCharInternalAsUTF16(typename B::UnicodeCod
 		//If this is the first half of a surrogate pair, read in the second half.
 		bool surrogatePair = false;
 		unsigned short codeUnit2 = 0;
-		if((codeUnit1 & 0xFC00) == 0xD800)
+		if ((codeUnit1 & 0xFC00) == 0xD800)
 		{
 			//Ensure that code units are available in the stream
-			if(remainingCodeUnitsAvailable <= 0)
+			if (remainingCodeUnitsAvailable <= 0)
 			{
 				result = false;
 				continue;
@@ -223,7 +223,7 @@ template<class B> bool Stream<B>::ReadCharInternalAsUTF16(typename B::UnicodeCod
 
 			//If this is isn't the second half of a surrogate pair, the data is invalid.
 			//Abort the read.
-			if((codeUnit2 & 0xFC00) != 0xDC00)
+			if ((codeUnit2 & 0xFC00) != 0xDC00)
 			{
 				result = false;
 				continue;
@@ -231,7 +231,7 @@ template<class B> bool Stream<B>::ReadCharInternalAsUTF16(typename B::UnicodeCod
 		}
 
 		//If we failed to read in the second code unit, abort.
-		if(!result)
+		if (!result)
 		{
 			continue;
 		}
@@ -240,14 +240,14 @@ template<class B> bool Stream<B>::ReadCharInternalAsUTF16(typename B::UnicodeCod
 		ConvertUTF16ToUnicodeCodePoint(codeUnit1, codeUnit2, surrogatePair, data);
 
 		//If we've encountered a carriage return, skip it.
-		if(!data.surrogatePair && stripCarriageReturn && (data.codeUnit1 == L'\r'))
+		if (!data.surrogatePair && stripCarriageReturn && (data.codeUnit1 == L'\r'))
 		{
 			continue;
 		}
 
 		//We're done
 		done = true;
-	} while(!done && result);
+	} while (!done && result);
 
 	return result;
 }
@@ -261,7 +261,7 @@ template<class B> bool Stream<B>::ReadCharInternalAsUTF32(typename B::UnicodeCod
 	do
 	{
 		//Ensure that code units are available in the stream
-		if(remainingCodeUnitsAvailable <= 0)
+		if (remainingCodeUnitsAvailable <= 0)
 		{
 			result = false;
 			continue;
@@ -273,13 +273,13 @@ template<class B> bool Stream<B>::ReadCharInternalAsUTF32(typename B::UnicodeCod
 		--remainingCodeUnitsAvailable;
 
 		//If we failed to read in the code point, abort.
-		if(!result)
+		if (!result)
 		{
 			continue;
 		}
 
 		//Ensure the code point doesn't represent a character in the reserved UTF16 range
-		if((codePoint & 0xFFFFF800) == 0x0000D800)
+		if ((codePoint & 0xFFFFF800) == 0x0000D800)
 		{
 			result = false;
 			continue;
@@ -287,7 +287,7 @@ template<class B> bool Stream<B>::ReadCharInternalAsUTF32(typename B::UnicodeCod
 
 		//Ensure the code point comes from a valid code point plane. We do this to ensure
 		//that there is a valid conversion to other supported unicode formats.
-		if(codePoint > 0x0010FFFF)
+		if (codePoint > 0x0010FFFF)
 		{
 			result = false;
 			continue;
@@ -297,14 +297,14 @@ template<class B> bool Stream<B>::ReadCharInternalAsUTF32(typename B::UnicodeCod
 		ConvertUTF32ToUnicodeCodePoint(codePoint, data);
 
 		//If we've encountered a carriage return, skip it.
-		if(!data.surrogatePair && stripCarriageReturn && (data.codeUnit1 == L'\r'))
+		if (!data.surrogatePair && stripCarriageReturn && (data.codeUnit1 == L'\r'))
 		{
 			continue;
 		}
 
 		//Now that we've read in the code point, we're done.
 		done = true;
-	} while(!done && result);
+	} while (!done && result);
 
 	return result;
 }
@@ -317,7 +317,7 @@ template<class B> bool Stream<B>::ReadTextInternalFixedLengthBufferAsASCII(typen
 	bool result = true;
 	bool foundEndOfString = false;
 	codeUnitsWritten = 0;
-	while(codeUnitsInStream > 0)
+	while (codeUnitsInStream > 0)
 	{
 		UnicodeCodePoint codePoint;
 		result &= ReadCharInternalAsASCII(codePoint, _byteOrder, codeUnitsInStream, false);
@@ -326,11 +326,11 @@ template<class B> bool Stream<B>::ReadTextInternalFixedLengthBufferAsASCII(typen
 		char codeUnit;
 		result &= ConvertUnicodeCodePointToChar(codePoint, codeUnit);
 
-		if(codeUnit == paddingChar)
+		if (codeUnit == paddingChar)
 		{
 			foundEndOfString = true;
 		}
-		if(!foundEndOfString)
+		if (!foundEndOfString)
 		{
 			*(memoryBuffer + codeUnitsWritten) = codeUnit;
 			++codeUnitsWritten;
@@ -346,7 +346,7 @@ template<class B> bool Stream<B>::ReadTextInternalFixedLengthBufferAsASCII(typen
 	bool result = true;
 	bool foundEndOfString = false;
 	codeUnitsWritten = 0;
-	while(codeUnitsInStream > 0)
+	while (codeUnitsInStream > 0)
 	{
 		typename B::UnicodeCodePoint codePoint;
 		result &= ReadCharInternalAsASCII(codePoint, _byteOrder, codeUnitsInStream, false);
@@ -357,19 +357,19 @@ template<class B> bool Stream<B>::ReadTextInternalFixedLengthBufferAsASCII(typen
 		typename B::SizeType codeUnitsConverted = 0;
 		result &= ConvertUnicodeCodePointToWCharT(codePoint, &codeUnits[0], bufferSize, codeUnitsConverted);
 
-		if(codeUnits[0] == paddingChar)
+		if (codeUnits[0] == paddingChar)
 		{
 			foundEndOfString = true;
 		}
-		if(!foundEndOfString)
+		if (!foundEndOfString)
 		{
-			if((codeUnitsWritten + codeUnitsConverted) > codeUnitsInMemory)
+			if ((codeUnitsWritten + codeUnitsConverted) > codeUnitsInMemory)
 			{
 				result = false;
 			}
 			else
 			{
-				for(unsigned int codeUnitIndex = 0; codeUnitIndex < codeUnitsConverted; ++codeUnitIndex)
+				for (unsigned int codeUnitIndex = 0; codeUnitIndex < codeUnitsConverted; ++codeUnitIndex)
 				{
 					*(memoryBuffer + codeUnitsWritten) = codeUnits[codeUnitIndex];
 					++codeUnitsWritten;
@@ -387,7 +387,7 @@ template<class B> bool Stream<B>::ReadTextInternalFixedLengthBufferAsUTF8(typena
 	bool result = true;
 	bool foundEndOfString = false;
 	codeUnitsWritten = 0;
-	while(codeUnitsInStream > 0)
+	while (codeUnitsInStream > 0)
 	{
 		typename B::UnicodeCodePoint codePoint;
 		result &= ReadCharInternalAsUTF8(codePoint, _byteOrder, codeUnitsInStream, false);
@@ -396,11 +396,11 @@ template<class B> bool Stream<B>::ReadTextInternalFixedLengthBufferAsUTF8(typena
 		char codeUnit;
 		result &= ConvertUnicodeCodePointToChar(codePoint, codeUnit);
 
-		if(codeUnit == paddingChar)
+		if (codeUnit == paddingChar)
 		{
 			foundEndOfString = true;
 		}
-		if(!foundEndOfString)
+		if (!foundEndOfString)
 		{
 			*(memoryBuffer + codeUnitsWritten) = codeUnit;
 			++codeUnitsWritten;
@@ -416,7 +416,7 @@ template<class B> bool Stream<B>::ReadTextInternalFixedLengthBufferAsUTF8(typena
 	bool result = true;
 	bool foundEndOfString = false;
 	codeUnitsWritten = 0;
-	while(codeUnitsInStream > 0)
+	while (codeUnitsInStream > 0)
 	{
 		typename B::UnicodeCodePoint codePoint;
 		result &= ReadCharInternalAsUTF8(codePoint, _byteOrder, codeUnitsInStream, false);
@@ -427,19 +427,19 @@ template<class B> bool Stream<B>::ReadTextInternalFixedLengthBufferAsUTF8(typena
 		typename B::SizeType codeUnitsConverted = 0;
 		result &= ConvertUnicodeCodePointToWCharT(codePoint, &codeUnits[0], bufferSize, codeUnitsConverted);
 
-		if(codeUnits[0] == paddingChar)
+		if (codeUnits[0] == paddingChar)
 		{
 			foundEndOfString = true;
 		}
-		if(!foundEndOfString)
+		if (!foundEndOfString)
 		{
-			if((codeUnitsWritten + codeUnitsConverted) > codeUnitsInMemory)
+			if ((codeUnitsWritten + codeUnitsConverted) > codeUnitsInMemory)
 			{
 				result = false;
 			}
 			else
 			{
-				for(unsigned int codeUnitIndex = 0; codeUnitIndex < codeUnitsConverted; ++codeUnitIndex)
+				for (unsigned int codeUnitIndex = 0; codeUnitIndex < codeUnitsConverted; ++codeUnitIndex)
 				{
 					*(memoryBuffer + codeUnitsWritten) = codeUnits[codeUnitIndex];
 					++codeUnitsWritten;
@@ -457,7 +457,7 @@ template<class B> bool Stream<B>::ReadTextInternalFixedLengthBufferAsUTF16(typen
 	bool result = true;
 	bool foundEndOfString = false;
 	codeUnitsWritten = 0;
-	while(codeUnitsInStream > 0)
+	while (codeUnitsInStream > 0)
 	{
 		typename B::UnicodeCodePoint codePoint;
 		result &= ReadCharInternalAsUTF16(codePoint, _byteOrder, codeUnitsInStream, false);
@@ -466,11 +466,11 @@ template<class B> bool Stream<B>::ReadTextInternalFixedLengthBufferAsUTF16(typen
 		char codeUnit;
 		result &= ConvertUnicodeCodePointToChar(codePoint, codeUnit);
 
-		if(codeUnit == paddingChar)
+		if (codeUnit == paddingChar)
 		{
 			foundEndOfString = true;
 		}
-		if(!foundEndOfString)
+		if (!foundEndOfString)
 		{
 			*(memoryBuffer + codeUnitsWritten) = codeUnit;
 			++codeUnitsWritten;
@@ -486,7 +486,7 @@ template<class B> bool Stream<B>::ReadTextInternalFixedLengthBufferAsUTF16(typen
 	bool result = true;
 	bool foundEndOfString = false;
 	codeUnitsWritten = 0;
-	while(codeUnitsInStream > 0)
+	while (codeUnitsInStream > 0)
 	{
 		typename B::UnicodeCodePoint codePoint;
 		result &= ReadCharInternalAsUTF16(codePoint, _byteOrder, codeUnitsInStream, false);
@@ -497,19 +497,19 @@ template<class B> bool Stream<B>::ReadTextInternalFixedLengthBufferAsUTF16(typen
 		typename B::SizeType codeUnitsConverted = 0;
 		result &= ConvertUnicodeCodePointToWCharT(codePoint, &codeUnits[0], bufferSize, codeUnitsConverted);
 
-		if(codeUnits[0] == paddingChar)
+		if (codeUnits[0] == paddingChar)
 		{
 			foundEndOfString = true;
 		}
-		if(!foundEndOfString)
+		if (!foundEndOfString)
 		{
-			if((codeUnitsWritten + codeUnitsConverted) > codeUnitsInMemory)
+			if ((codeUnitsWritten + codeUnitsConverted) > codeUnitsInMemory)
 			{
 				result = false;
 			}
 			else
 			{
-				for(unsigned int codeUnitIndex = 0; codeUnitIndex < codeUnitsConverted; ++codeUnitIndex)
+				for (unsigned int codeUnitIndex = 0; codeUnitIndex < codeUnitsConverted; ++codeUnitIndex)
 				{
 					*(memoryBuffer + codeUnitsWritten) = codeUnits[codeUnitIndex];
 					++codeUnitsWritten;
@@ -527,7 +527,7 @@ template<class B> bool Stream<B>::ReadTextInternalFixedLengthBufferAsUTF32(typen
 	bool result = true;
 	bool foundEndOfString = false;
 	codeUnitsWritten = 0;
-	while(codeUnitsInStream > 0)
+	while (codeUnitsInStream > 0)
 	{
 		typename B::UnicodeCodePoint codePoint;
 		result &= ReadCharInternalAsUTF32(codePoint, _byteOrder, codeUnitsInStream, false);
@@ -536,11 +536,11 @@ template<class B> bool Stream<B>::ReadTextInternalFixedLengthBufferAsUTF32(typen
 		char codeUnit;
 		result &= ConvertUnicodeCodePointToChar(codePoint, codeUnit);
 
-		if(codeUnit == paddingChar)
+		if (codeUnit == paddingChar)
 		{
 			foundEndOfString = true;
 		}
-		if(!foundEndOfString)
+		if (!foundEndOfString)
 		{
 			*(memoryBuffer + codeUnitsWritten) = codeUnit;
 			++codeUnitsWritten;
@@ -556,7 +556,7 @@ template<class B> bool Stream<B>::ReadTextInternalFixedLengthBufferAsUTF32(typen
 	bool result = true;
 	bool foundEndOfString = false;
 	codeUnitsWritten = 0;
-	while(codeUnitsInStream > 0)
+	while (codeUnitsInStream > 0)
 	{
 		typename B::UnicodeCodePoint codePoint;
 		result &= ReadCharInternalAsUTF32(codePoint, _byteOrder, codeUnitsInStream, false);
@@ -567,19 +567,19 @@ template<class B> bool Stream<B>::ReadTextInternalFixedLengthBufferAsUTF32(typen
 		typename B::SizeType codeUnitsConverted = 0;
 		result &= ConvertUnicodeCodePointToWCharT(codePoint, &codeUnits[0], bufferSize, codeUnitsConverted);
 
-		if(codeUnits[0] == paddingChar)
+		if (codeUnits[0] == paddingChar)
 		{
 			foundEndOfString = true;
 		}
-		if(!foundEndOfString)
+		if (!foundEndOfString)
 		{
-			if((codeUnitsWritten + codeUnitsConverted) > codeUnitsInMemory)
+			if ((codeUnitsWritten + codeUnitsConverted) > codeUnitsInMemory)
 			{
 				result = false;
 			}
 			else
 			{
-				for(unsigned int codeUnitIndex = 0; codeUnitIndex < codeUnitsConverted; ++codeUnitIndex)
+				for (unsigned int codeUnitIndex = 0; codeUnitIndex < codeUnitsConverted; ++codeUnitIndex)
 				{
 					*(memoryBuffer + codeUnitsWritten) = codeUnits[codeUnitIndex];
 					++codeUnitsWritten;
@@ -596,7 +596,7 @@ template<class B> bool Stream<B>::ReadTextInternalFixedLengthBufferAsUTF32(typen
 //----------------------------------------------------------------------------------------
 template<class B> template<class T> bool Stream<B>::ReadDataInternal(T& data, typename B::ByteOrder byteOrder)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case B::ByteOrder::Platform:
 		return ReadBinaryNativeByteOrder(data);
@@ -611,7 +611,7 @@ template<class B> template<class T> bool Stream<B>::ReadDataInternal(T& data, ty
 //----------------------------------------------------------------------------------------
 template<class B> template<class T> bool Stream<B>::ReadDataInternal(T& data)
 {
-	switch(_byteOrder)
+	switch (_byteOrder)
 	{
 	case B::ByteOrder::Platform:
 		return ReadBinaryNativeByteOrder(data);
@@ -646,7 +646,7 @@ template<class B> template<class T> bool Stream<B>::ReadDataInternalLittleEndian
 //----------------------------------------------------------------------------------------
 template<class B> template<class T> bool Stream<B>::ReadDataInternal(T* data, typename B::SizeType length, typename B::ByteOrder byteOrder)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case B::ByteOrder::Platform:
 		return ReadBinaryNativeByteOrder(data, length);
@@ -661,7 +661,7 @@ template<class B> template<class T> bool Stream<B>::ReadDataInternal(T* data, ty
 //----------------------------------------------------------------------------------------
 template<class B> template<class T> bool Stream<B>::ReadDataInternal(T* data, typename B::SizeType length)
 {
-	switch(_byteOrder)
+	switch (_byteOrder)
 	{
 	case B::ByteOrder::Platform:
 		return ReadBinaryNativeByteOrder(data, length);
@@ -700,7 +700,7 @@ template<class B> template<class T> bool Stream<B>::ReadBinaryInvertedByteOrder(
 {
 	//Read the data in the native byte order
 	T temp;
-	if(!ReadBinaryNativeByteOrder(temp))
+	if (!ReadBinaryNativeByteOrder(temp))
 	{
 		return false;
 	}
@@ -708,7 +708,7 @@ template<class B> template<class T> bool Stream<B>::ReadBinaryInvertedByteOrder(
 	//Invert the byte order
 	unsigned char* binaryData = (unsigned char*)&data;
 	unsigned char* binaryTemp = (unsigned char*)&temp;
-	for(unsigned int i = 0; i < sizeof(data); ++i)
+	for (unsigned int i = 0; i < sizeof(data); ++i)
 	{
 		*(binaryData + i) = *(binaryTemp + ((sizeof(data) - 1) - i));
 	}
@@ -721,7 +721,7 @@ template<class B> template<class T> bool Stream<B>::ReadBinaryInvertedByteOrder(
 {
 	//Read the data in the native byte order
 	T* temp = new T[(size_t)length];
-	if(!ReadBinaryNativeByteOrder(temp, length))
+	if (!ReadBinaryNativeByteOrder(temp, length))
 	{
 		delete[] temp;
 		return false;
@@ -729,11 +729,11 @@ template<class B> template<class T> bool Stream<B>::ReadBinaryInvertedByteOrder(
 
 	//Invert the byte order
 	unsigned int dataTypeSize = sizeof(*data);
-	for(unsigned int entry = 0; entry < length; ++entry)
+	for (unsigned int entry = 0; entry < length; ++entry)
 	{
 		unsigned char* binaryData = (unsigned char*)&data[entry];
 		unsigned char* binaryTemp = (unsigned char*)&temp[entry];
-		for(unsigned int i = 0; i < dataTypeSize; ++i)
+		for (unsigned int i = 0; i < dataTypeSize; ++i)
 		{
 			*(binaryData + i) = *(binaryTemp + ((dataTypeSize - 1) - i));
 		}
@@ -748,7 +748,7 @@ template<class B> template<class T> bool Stream<B>::ReadBinaryInvertedByteOrder(
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::WriteCharInternal(const typename B::UnicodeCodePoint& data, typename B::ByteOrder byteOrder, typename B::SizeType& remainingCodeUnitsAvailable, bool insertCarriageReturn)
 {
-	switch(_textEncoding)
+	switch (_textEncoding)
 	{
 	case B::TextEncoding::ASCII:
 		return WriteCharInternalAsASCII(data, _byteOrder, remainingCodeUnitsAvailable, insertCarriageReturn);
@@ -768,7 +768,7 @@ template<class B> bool Stream<B>::WriteCharInternalAsASCII(const typename B::Uni
 	bool result = true;
 
 	//Check if we need to insert a carriage return
-	if(insertCarriageReturn && (data.codeUnit1 == L'\n'))
+	if (insertCarriageReturn && (data.codeUnit1 == L'\n'))
 	{
 		typename B::UnicodeCodePoint codePoint;
 		result &= ConvertCharToUnicodeCodePoint('\r', codePoint);
@@ -776,7 +776,7 @@ template<class B> bool Stream<B>::WriteCharInternalAsASCII(const typename B::Uni
 	}
 
 	//Ensure that code units are available in the stream
-	if(remainingCodeUnitsAvailable <= 0)
+	if (remainingCodeUnitsAvailable <= 0)
 	{
 		return false;
 	}
@@ -798,7 +798,7 @@ template<class B> bool Stream<B>::WriteCharInternalAsUTF8(const typename B::Unic
 	bool result = true;
 
 	//Check if we need to insert a carriage return
-	if(insertCarriageReturn && (data.codeUnit1 == L'\n'))
+	if (insertCarriageReturn && (data.codeUnit1 == L'\n'))
 	{
 		typename B::UnicodeCodePoint codePoint;
 		result &= ConvertCharToUnicodeCodePoint('\r', codePoint);
@@ -812,11 +812,11 @@ template<class B> bool Stream<B>::WriteCharInternalAsUTF8(const typename B::Unic
 	//Determine how many bytes we need to write, and encode the data.
 	unsigned int bytesToWrite;
 	unsigned char codeUnits[6];
-	if(codePoint > 0x0010FFFF)
+	if (codePoint > 0x0010FFFF)
 	{
 		return false;
 	}
-	else if(codePoint > 0x0000FFFF)
+	else if (codePoint > 0x0000FFFF)
 	{
 		bytesToWrite = 4;
 		codeUnits[0] = ((unsigned char)(codePoint >> 18) & 0x07) | 0xF0;
@@ -824,14 +824,14 @@ template<class B> bool Stream<B>::WriteCharInternalAsUTF8(const typename B::Unic
 		codeUnits[2] = ((unsigned char)(codePoint >> 6) & 0x3F) | 0x80;
 		codeUnits[3] = ((unsigned char)(codePoint >> 0) & 0x3F) | 0x80;
 	}
-	else if(codePoint > 0x000007FF)
+	else if (codePoint > 0x000007FF)
 	{
 		bytesToWrite = 3;
 		codeUnits[0] = ((unsigned char)(codePoint >> 12) & 0x0F) | 0xE0;
 		codeUnits[1] = ((unsigned char)(codePoint >> 6) & 0x3F) | 0x80;
 		codeUnits[2] = ((unsigned char)(codePoint >> 0) & 0x3F) | 0x80;
 	}
-	else if(codePoint > 0x0000007F)
+	else if (codePoint > 0x0000007F)
 	{
 		bytesToWrite = 2;
 		codeUnits[0] = ((unsigned char)(codePoint >> 6) & 0x1F) | 0xC0;
@@ -844,13 +844,13 @@ template<class B> bool Stream<B>::WriteCharInternalAsUTF8(const typename B::Unic
 	}
 
 	//Ensure that code units are available in the stream
-	if(remainingCodeUnitsAvailable < (SizeType)bytesToWrite)
+	if (remainingCodeUnitsAvailable < (SizeType)bytesToWrite)
 	{
 		return false;
 	}
 
 	//Write the data
-	for(unsigned int i = 0; i < bytesToWrite; ++i)
+	for (unsigned int i = 0; i < bytesToWrite; ++i)
 	{
 		result &= WriteDataInternal(codeUnits[i], byteOrder);
 		--remainingCodeUnitsAvailable;
@@ -865,7 +865,7 @@ template<class B> bool Stream<B>::WriteCharInternalAsUTF16(const typename B::Uni
 	bool result = true;
 
 	//Check if we need to insert a carriage return
-	if(insertCarriageReturn && (data.codeUnit1 == L'\n'))
+	if (insertCarriageReturn && (data.codeUnit1 == L'\n'))
 	{
 		typename B::UnicodeCodePoint codePoint;
 		result &= ConvertCharToUnicodeCodePoint('\r', codePoint);
@@ -880,7 +880,7 @@ template<class B> bool Stream<B>::WriteCharInternalAsUTF16(const typename B::Uni
 
 	//Ensure that code units are available in the stream
 	typename B::SizeType codeUnitsToWrite = surrogatePair? 2: 1;
-	if(remainingCodeUnitsAvailable < codeUnitsToWrite)
+	if (remainingCodeUnitsAvailable < codeUnitsToWrite)
 	{
 		return false;
 	}
@@ -888,7 +888,7 @@ template<class B> bool Stream<B>::WriteCharInternalAsUTF16(const typename B::Uni
 	//Write the data
 	result &= WriteDataInternal(codeUnit1, byteOrder);
 	--remainingCodeUnitsAvailable;
-	if(surrogatePair)
+	if (surrogatePair)
 	{
 		result &= WriteDataInternal(codeUnit2, byteOrder);
 		--remainingCodeUnitsAvailable;
@@ -903,7 +903,7 @@ template<class B> bool Stream<B>::WriteCharInternalAsUTF32(const typename B::Uni
 	bool result = true;
 
 	//Check if we need to insert a carriage return
-	if(insertCarriageReturn && (data.codeUnit1 == L'\n'))
+	if (insertCarriageReturn && (data.codeUnit1 == L'\n'))
 	{
 		typename B::UnicodeCodePoint codePoint;
 		result &= ConvertCharToUnicodeCodePoint('\r', codePoint);
@@ -915,7 +915,7 @@ template<class B> bool Stream<B>::WriteCharInternalAsUTF32(const typename B::Uni
 	ConvertUnicodeCodePointToUTF32(data, codeUnit);
 
 	//Ensure that code units are available in the stream
-	if(remainingCodeUnitsAvailable <= 0)
+	if (remainingCodeUnitsAvailable <= 0)
 	{
 		return false;
 	}
@@ -935,21 +935,21 @@ template<class B> bool Stream<B>::WriteTextInternal(typename B::ByteOrder byteOr
 	bool done = false;
 	bool result = true;
 	typename B::SizeType i = 0;
-	while(result && !done)
+	while (result && !done)
 	{
-		if(i >= bufferSize)
+		if (i >= bufferSize)
 		{
 			result = false;
 			continue;
 		}
-		if(*(data + i) == terminator)
+		if (*(data + i) == terminator)
 		{
 			done = true;
 			continue;
 		}
 		typename B::SizeType remainingCodeUnitsAvailable = 9999;
 		typename B::UnicodeCodePoint codePoint;
-		if(!ConvertCharToUnicodeCodePoint(*(data + i), codePoint))
+		if (!ConvertCharToUnicodeCodePoint(*(data + i), codePoint))
 		{
 			result = false;
 			continue;
@@ -966,21 +966,21 @@ template<class B> bool Stream<B>::WriteTextInternal(typename B::ByteOrder byteOr
 	bool done = false;
 	bool result = true;
 	typename B::SizeType i = 0;
-	while(result && !done)
+	while (result && !done)
 	{
-		if(i >= bufferSize)
+		if (i >= bufferSize)
 		{
 			result = false;
 			continue;
 		}
-		if(*(data + i) == terminator)
+		if (*(data + i) == terminator)
 		{
 			done = true;
 			continue;
 		}
 		typename B::SizeType remainingCodeUnitsAvailable = 9999;
 		typename B::UnicodeCodePoint codePoint;
-		if(!ConvertWCharTToUnicodeCodePoint((data + i), codePoint, bufferSize, i))
+		if (!ConvertWCharTToUnicodeCodePoint((data + i), codePoint, bufferSize, i))
 		{
 			result = false;
 			continue;
@@ -996,21 +996,21 @@ template<class B> bool Stream<B>::WriteTextInternalAsASCII(typename B::ByteOrder
 	bool done = false;
 	bool result = true;
 	typename B::SizeType i = 0;
-	while(result && !done)
+	while (result && !done)
 	{
-		if(i >= bufferSize)
+		if (i >= bufferSize)
 		{
 			result = false;
 			continue;
 		}
-		if(*(data + i) == terminator)
+		if (*(data + i) == terminator)
 		{
 			done = true;
 			continue;
 		}
 		typename B::SizeType remainingCodeUnitsAvailable = 9999;
 		typename B::UnicodeCodePoint codePoint;
-		if(!ConvertCharToUnicodeCodePoint(*(data + i), codePoint))
+		if (!ConvertCharToUnicodeCodePoint(*(data + i), codePoint))
 		{
 			result = false;
 			continue;
@@ -1027,21 +1027,21 @@ template<class B> bool Stream<B>::WriteTextInternalAsASCII(typename B::ByteOrder
 	bool done = false;
 	bool result = true;
 	typename B::SizeType i = 0;
-	while(result && !done)
+	while (result && !done)
 	{
-		if(i >= bufferSize)
+		if (i >= bufferSize)
 		{
 			result = false;
 			continue;
 		}
-		if(*(data + i) == terminator)
+		if (*(data + i) == terminator)
 		{
 			done = true;
 			continue;
 		}
 		typename B::SizeType remainingCodeUnitsAvailable = 9999;
 		typename B::UnicodeCodePoint codePoint;
-		if(!ConvertWCharTToUnicodeCodePoint((data + i), codePoint, bufferSize, i))
+		if (!ConvertWCharTToUnicodeCodePoint((data + i), codePoint, bufferSize, i))
 		{
 			result = false;
 			continue;
@@ -1057,21 +1057,21 @@ template<class B> bool Stream<B>::WriteTextInternalAsUTF8(typename B::ByteOrder 
 	bool done = false;
 	bool result = true;
 	typename B::SizeType i = 0;
-	while(result && !done)
+	while (result && !done)
 	{
-		if(i >= bufferSize)
+		if (i >= bufferSize)
 		{
 			result = false;
 			continue;
 		}
-		if(*(data + i) == terminator)
+		if (*(data + i) == terminator)
 		{
 			done = true;
 			continue;
 		}
 		typename B::SizeType remainingCodeUnitsAvailable = 9999;
 		typename B::UnicodeCodePoint codePoint;
-		if(!ConvertCharToUnicodeCodePoint(*(data + i), codePoint))
+		if (!ConvertCharToUnicodeCodePoint(*(data + i), codePoint))
 		{
 			result = false;
 			continue;
@@ -1088,21 +1088,21 @@ template<class B> bool Stream<B>::WriteTextInternalAsUTF8(typename B::ByteOrder 
 	bool done = false;
 	bool result = true;
 	typename B::SizeType i = 0;
-	while(result && !done)
+	while (result && !done)
 	{
-		if(i >= bufferSize)
+		if (i >= bufferSize)
 		{
 			result = false;
 			continue;
 		}
-		if(*(data + i) == terminator)
+		if (*(data + i) == terminator)
 		{
 			done = true;
 			continue;
 		}
 		typename B::SizeType remainingCodeUnitsAvailable = 9999;
 		typename B::UnicodeCodePoint codePoint;
-		if(!ConvertWCharTToUnicodeCodePoint((data + i), codePoint, bufferSize, i))
+		if (!ConvertWCharTToUnicodeCodePoint((data + i), codePoint, bufferSize, i))
 		{
 			result = false;
 			continue;
@@ -1118,21 +1118,21 @@ template<class B> bool Stream<B>::WriteTextInternalAsUTF16(typename B::ByteOrder
 	bool done = false;
 	bool result = true;
 	typename B::SizeType i = 0;
-	while(result && !done)
+	while (result && !done)
 	{
-		if(i >= bufferSize)
+		if (i >= bufferSize)
 		{
 			result = false;
 			continue;
 		}
-		if(*(data + i) == terminator)
+		if (*(data + i) == terminator)
 		{
 			done = true;
 			continue;
 		}
 		typename B::SizeType remainingCodeUnitsAvailable = 9999;
 		typename B::UnicodeCodePoint codePoint;
-		if(!ConvertCharToUnicodeCodePoint(*(data + i), codePoint))
+		if (!ConvertCharToUnicodeCodePoint(*(data + i), codePoint))
 		{
 			result = false;
 			continue;
@@ -1149,21 +1149,21 @@ template<class B> bool Stream<B>::WriteTextInternalAsUTF16(typename B::ByteOrder
 	bool done = false;
 	bool result = true;
 	typename B::SizeType i = 0;
-	while(result && !done)
+	while (result && !done)
 	{
-		if(i >= bufferSize)
+		if (i >= bufferSize)
 		{
 			result = false;
 			continue;
 		}
-		if(*(data + i) == terminator)
+		if (*(data + i) == terminator)
 		{
 			done = true;
 			continue;
 		}
 		typename B::SizeType remainingCodeUnitsAvailable = 9999;
 		typename B::UnicodeCodePoint codePoint;
-		if(!ConvertWCharTToUnicodeCodePoint((data + i), codePoint, bufferSize, i))
+		if (!ConvertWCharTToUnicodeCodePoint((data + i), codePoint, bufferSize, i))
 		{
 			result = false;
 			continue;
@@ -1179,21 +1179,21 @@ template<class B> bool Stream<B>::WriteTextInternalAsUTF32(typename B::ByteOrder
 	bool done = false;
 	bool result = true;
 	typename B::SizeType i = 0;
-	while(result && !done)
+	while (result && !done)
 	{
-		if(i >= bufferSize)
+		if (i >= bufferSize)
 		{
 			result = false;
 			continue;
 		}
-		if(*(data + i) == terminator)
+		if (*(data + i) == terminator)
 		{
 			done = true;
 			continue;
 		}
 		typename B::SizeType remainingCodeUnitsAvailable = 9999;
 		typename B::UnicodeCodePoint codePoint;
-		if(!ConvertCharToUnicodeCodePoint(*(data + i), codePoint))
+		if (!ConvertCharToUnicodeCodePoint(*(data + i), codePoint))
 		{
 			result = false;
 			continue;
@@ -1210,21 +1210,21 @@ template<class B> bool Stream<B>::WriteTextInternalAsUTF32(typename B::ByteOrder
 	bool done = false;
 	bool result = true;
 	typename B::SizeType i = 0;
-	while(result && !done)
+	while (result && !done)
 	{
-		if(i >= bufferSize)
+		if (i >= bufferSize)
 		{
 			result = false;
 			continue;
 		}
-		if(*(data + i) == terminator)
+		if (*(data + i) == terminator)
 		{
 			done = true;
 			continue;
 		}
 		typename B::SizeType remainingCodeUnitsAvailable = 9999;
 		typename B::UnicodeCodePoint codePoint;
-		if(!ConvertWCharTToUnicodeCodePoint((data + i), codePoint, bufferSize, i))
+		if (!ConvertWCharTToUnicodeCodePoint((data + i), codePoint, bufferSize, i))
 		{
 			result = false;
 			continue;
@@ -1243,10 +1243,10 @@ template<class B> bool Stream<B>::WriteTextInternalFixedLengthBufferAsASCII(type
 
 	//Write the source string to the target buffer
 	bool foundEndOfString = false;
-	for(typename B::SizeType i = 0; !foundEndOfString && (i < codeUnitsInMemory); ++i)
+	for (typename B::SizeType i = 0; !foundEndOfString && (i < codeUnitsInMemory); ++i)
 	{
 		//Check if we've reached the end of the source string
-		if(*(memoryBuffer + i) == '\0')
+		if (*(memoryBuffer + i) == '\0')
 		{
 			foundEndOfString = true;
 			continue;
@@ -1265,7 +1265,7 @@ template<class B> bool Stream<B>::WriteTextInternalFixedLengthBufferAsASCII(type
 	result &= ConvertCharToUnicodeCodePoint(paddingChar, codePoint);
 
 	//Pad the buffer to the target length
-	while(result && (codeUnitsInStream > 0))
+	while (result && (codeUnitsInStream > 0))
 	{
 		result &= WriteCharInternalAsASCII(codePoint, byteOrder, codeUnitsInStream, false);
 	}
@@ -1280,10 +1280,10 @@ template<class B> bool Stream<B>::WriteTextInternalFixedLengthBufferAsASCII(type
 
 	//Write the source string to the target buffer
 	bool foundEndOfString = false;
-	for(typename B::SizeType i = 0; !foundEndOfString && (i < codeUnitsInMemory); ++i)
+	for (typename B::SizeType i = 0; !foundEndOfString && (i < codeUnitsInMemory); ++i)
 	{
 		//Check if we've reached the end of the source string
-		if(*(memoryBuffer + i) == '\0')
+		if (*(memoryBuffer + i) == '\0')
 		{
 			foundEndOfString = true;
 			continue;
@@ -1304,7 +1304,7 @@ template<class B> bool Stream<B>::WriteTextInternalFixedLengthBufferAsASCII(type
 	result &= ConvertWCharTToUnicodeCodePoint(&paddingChar, codePoint, 1, codeUnitsRead);
 
 	//Pad the buffer to the target length
-	while(result && (codeUnitsInStream > 0))
+	while (result && (codeUnitsInStream > 0))
 	{
 		result &= WriteCharInternalAsASCII(codePoint, byteOrder, codeUnitsInStream, false);
 	}
@@ -1319,10 +1319,10 @@ template<class B> bool Stream<B>::WriteTextInternalFixedLengthBufferAsUTF8(typen
 
 	//Write the source string to the target buffer
 	bool foundEndOfString = false;
-	for(typename B::SizeType i = 0; !foundEndOfString && (i < codeUnitsInMemory); ++i)
+	for (typename B::SizeType i = 0; !foundEndOfString && (i < codeUnitsInMemory); ++i)
 	{
 		//Check if we've reached the end of the source string
-		if(*(memoryBuffer + i) == '\0')
+		if (*(memoryBuffer + i) == '\0')
 		{
 			foundEndOfString = true;
 			continue;
@@ -1341,7 +1341,7 @@ template<class B> bool Stream<B>::WriteTextInternalFixedLengthBufferAsUTF8(typen
 	result &= ConvertCharToUnicodeCodePoint(paddingChar, codePoint);
 
 	//Pad the buffer to the target length
-	while(result && (codeUnitsInStream > 0))
+	while (result && (codeUnitsInStream > 0))
 	{
 		result &= WriteCharInternalAsUTF8(codePoint, byteOrder, codeUnitsInStream, false);
 	}
@@ -1356,10 +1356,10 @@ template<class B> bool Stream<B>::WriteTextInternalFixedLengthBufferAsUTF8(typen
 
 	//Write the source string to the target buffer
 	bool foundEndOfString = false;
-	for(typename B::SizeType i = 0; !foundEndOfString && (i < codeUnitsInMemory); ++i)
+	for (typename B::SizeType i = 0; !foundEndOfString && (i < codeUnitsInMemory); ++i)
 	{
 		//Check if we've reached the end of the source string
-		if(*(memoryBuffer + i) == '\0')
+		if (*(memoryBuffer + i) == '\0')
 		{
 			foundEndOfString = true;
 			continue;
@@ -1380,7 +1380,7 @@ template<class B> bool Stream<B>::WriteTextInternalFixedLengthBufferAsUTF8(typen
 	result &= ConvertWCharTToUnicodeCodePoint(&paddingChar, codePoint, 1, codeUnitsRead);
 
 	//Pad the buffer to the target length
-	while(result && (codeUnitsInStream > 0))
+	while (result && (codeUnitsInStream > 0))
 	{
 		result &= WriteCharInternalAsUTF8(codePoint, byteOrder, codeUnitsInStream, false);
 	}
@@ -1395,10 +1395,10 @@ template<class B> bool Stream<B>::WriteTextInternalFixedLengthBufferAsUTF16(type
 
 	//Write the source string to the target buffer
 	bool foundEndOfString = false;
-	for(typename B::SizeType i = 0; !foundEndOfString && (i < codeUnitsInMemory); ++i)
+	for (typename B::SizeType i = 0; !foundEndOfString && (i < codeUnitsInMemory); ++i)
 	{
 		//Check if we've reached the end of the source string
-		if(*(memoryBuffer + i) == '\0')
+		if (*(memoryBuffer + i) == '\0')
 		{
 			foundEndOfString = true;
 			continue;
@@ -1417,7 +1417,7 @@ template<class B> bool Stream<B>::WriteTextInternalFixedLengthBufferAsUTF16(type
 	result &= ConvertCharToUnicodeCodePoint(paddingChar, codePoint);
 
 	//Pad the buffer to the target length
-	while(result && (codeUnitsInStream > 0))
+	while (result && (codeUnitsInStream > 0))
 	{
 		result &= WriteCharInternalAsUTF16(codePoint, byteOrder, codeUnitsInStream, false);
 	}
@@ -1432,10 +1432,10 @@ template<class B> bool Stream<B>::WriteTextInternalFixedLengthBufferAsUTF16(type
 
 	//Write the source string to the target buffer
 	bool foundEndOfString = false;
-	for(typename B::SizeType i = 0; !foundEndOfString && (i < codeUnitsInMemory); ++i)
+	for (typename B::SizeType i = 0; !foundEndOfString && (i < codeUnitsInMemory); ++i)
 	{
 		//Check if we've reached the end of the source string
-		if(*(memoryBuffer + i) == '\0')
+		if (*(memoryBuffer + i) == '\0')
 		{
 			foundEndOfString = true;
 			continue;
@@ -1456,7 +1456,7 @@ template<class B> bool Stream<B>::WriteTextInternalFixedLengthBufferAsUTF16(type
 	result &= ConvertWCharTToUnicodeCodePoint(&paddingChar, codePoint, 1, codeUnitsRead);
 
 	//Pad the buffer to the target length
-	while(result && (codeUnitsInStream > 0))
+	while (result && (codeUnitsInStream > 0))
 	{
 		result &= WriteCharInternalAsUTF16(codePoint, byteOrder, codeUnitsInStream, false);
 	}
@@ -1471,10 +1471,10 @@ template<class B> bool Stream<B>::WriteTextInternalFixedLengthBufferAsUTF32(type
 
 	//Write the source string to the target buffer
 	bool foundEndOfString = false;
-	for(typename B::SizeType i = 0; !foundEndOfString && (i < codeUnitsInMemory); ++i)
+	for (typename B::SizeType i = 0; !foundEndOfString && (i < codeUnitsInMemory); ++i)
 	{
 		//Check if we've reached the end of the source string
-		if(*(memoryBuffer + i) == '\0')
+		if (*(memoryBuffer + i) == '\0')
 		{
 			foundEndOfString = true;
 			continue;
@@ -1493,7 +1493,7 @@ template<class B> bool Stream<B>::WriteTextInternalFixedLengthBufferAsUTF32(type
 	result &= ConvertCharToUnicodeCodePoint(paddingChar, codePoint);
 
 	//Pad the buffer to the target length
-	while(result && (codeUnitsInStream > 0))
+	while (result && (codeUnitsInStream > 0))
 	{
 		result &= WriteCharInternalAsUTF32(codePoint, byteOrder, codeUnitsInStream, false);
 	}
@@ -1508,10 +1508,10 @@ template<class B> bool Stream<B>::WriteTextInternalFixedLengthBufferAsUTF32(type
 
 	//Write the source string to the target buffer
 	bool foundEndOfString = false;
-	for(typename B::SizeType i = 0; !foundEndOfString && (i < codeUnitsInMemory); ++i)
+	for (typename B::SizeType i = 0; !foundEndOfString && (i < codeUnitsInMemory); ++i)
 	{
 		//Check if we've reached the end of the source string
-		if(*(memoryBuffer + i) == '\0')
+		if (*(memoryBuffer + i) == '\0')
 		{
 			foundEndOfString = true;
 			continue;
@@ -1532,7 +1532,7 @@ template<class B> bool Stream<B>::WriteTextInternalFixedLengthBufferAsUTF32(type
 	result &= ConvertWCharTToUnicodeCodePoint(&paddingChar, codePoint, 1, codeUnitsRead);
 
 	//Pad the buffer to the target length
-	while(result && (codeUnitsInStream > 0))
+	while (result && (codeUnitsInStream > 0))
 	{
 		result &= WriteCharInternalAsUTF32(codePoint, byteOrder, codeUnitsInStream, false);
 	}
@@ -1545,7 +1545,7 @@ template<class B> bool Stream<B>::WriteTextInternalFixedLengthBufferAsUTF32(type
 //----------------------------------------------------------------------------------------
 template<class B> template<class T> bool Stream<B>::WriteDataInternal(T data, typename B::ByteOrder byteOrder)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case B::ByteOrder::Platform:
 		return WriteBinaryNativeByteOrder(data);
@@ -1560,7 +1560,7 @@ template<class B> template<class T> bool Stream<B>::WriteDataInternal(T data, ty
 //----------------------------------------------------------------------------------------
 template<class B> template<class T> bool Stream<B>::WriteDataInternal(T data)
 {
-	switch(_byteOrder)
+	switch (_byteOrder)
 	{
 	case B::ByteOrder::Platform:
 		return WriteBinaryNativeByteOrder(data);
@@ -1595,7 +1595,7 @@ template<class B> template<class T> bool Stream<B>::WriteDataInternalLittleEndia
 //----------------------------------------------------------------------------------------
 template<class B> template<class T> bool Stream<B>::WriteDataInternal(const T* data, typename B::SizeType length, typename B::ByteOrder byteOrder)
 {
-	switch(byteOrder)
+	switch (byteOrder)
 	{
 	case B::ByteOrder::Platform:
 		return WriteBinaryNativeByteOrder(data, length);
@@ -1610,7 +1610,7 @@ template<class B> template<class T> bool Stream<B>::WriteDataInternal(const T* d
 //----------------------------------------------------------------------------------------
 template<class B> template<class T> bool Stream<B>::WriteDataInternal(const T* data, typename B::SizeType length)
 {
-	switch(_byteOrder)
+	switch (_byteOrder)
 	{
 	case B::ByteOrder::Platform:
 		return WriteBinaryNativeByteOrder(data, length);
@@ -1651,7 +1651,7 @@ template<class B> template<class T> bool Stream<B>::WriteBinaryInvertedByteOrder
 	T temp;
 	unsigned char* binaryData = (unsigned char*)&data;
 	unsigned char* binaryTemp = (unsigned char*)&temp;
-	for(unsigned int i = 0; i < sizeof(data); ++i)
+	for (unsigned int i = 0; i < sizeof(data); ++i)
 	{
 		*(binaryTemp + i) = *(binaryData + ((sizeof(data) - 1) - i));
 	}
@@ -1667,11 +1667,11 @@ template<class B> template<class T> bool Stream<B>::WriteBinaryInvertedByteOrder
 	T* temp = new T[(size_t)length];
 
 	unsigned int dataTypeSize = sizeof(*data);
-	for(unsigned int entry = 0; entry < length; ++entry)
+	for (unsigned int entry = 0; entry < length; ++entry)
 	{
 		unsigned char* binaryData = (unsigned char*)&data[entry];
 		unsigned char* binaryTemp = (unsigned char*)&temp[entry];
-		for(unsigned int i = 0; i < dataTypeSize; ++i)
+		for (unsigned int i = 0; i < dataTypeSize; ++i)
 		{
 			*(binaryTemp + i) = *(binaryData + ((dataTypeSize - 1) - i));
 		}

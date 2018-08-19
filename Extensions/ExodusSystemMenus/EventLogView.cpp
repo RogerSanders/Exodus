@@ -28,7 +28,7 @@ EventLogView::EventLogView(IUIManager& uiManager, EventLogViewPresenter& present
 //----------------------------------------------------------------------------------------
 LRESULT EventLogView::WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
-	switch(msg)
+	switch (msg)
 	{
 	case WM_CREATE:
 		return msgWM_CREATE(hwnd, wparam, lparam);
@@ -138,10 +138,10 @@ LRESULT EventLogView::msgWM_ERASEBKGND(HWND hwnd, WPARAM wParam, LPARAM lParam)
 LRESULT EventLogView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	unsigned int newEventLogLastModifiedToken = _model.GetEventLogLastModifiedToken();
-	if(newEventLogLastModifiedToken != _logLastModifiedToken)
+	if (newEventLogLastModifiedToken != _logLastModifiedToken)
 	{
 		std::vector<ISystemGUIInterface::SystemLogEntry> newEventLog = _model.GetEventLog();
-		if(_eventLog.empty() || (newEventLog.size() < _eventLog.size()) || (_eventLog[0].eventTimeString != newEventLog[0].eventTimeString) || (_eventLog[_eventLog.size()-1].eventTimeString != newEventLog[_eventLog.size()-1].eventTimeString))
+		if (_eventLog.empty() || (newEventLog.size() < _eventLog.size()) || (_eventLog[0].eventTimeString != newEventLog[0].eventTimeString) || (_eventLog[_eventLog.size()-1].eventTimeString != newEventLog[_eventLog.size()-1].eventTimeString))
 		{
 			SendMessage(_hwndEventLogGrid, (UINT)WC_DataGrid::WindowMessages::DeleteRows, 0, (LPARAM)&(const WC_DataGrid::Grid_DeleteRows&)WC_DataGrid::Grid_DeleteRows(0, (unsigned int)_eventLog.size()));
 			_eventLog.clear();
@@ -154,10 +154,10 @@ LRESULT EventLogView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		insertRowsInfo.targetRowNo = currentEntryCount;
 		insertRowsInfo.rowCount = addedEntryCount;
 		insertRowsInfo.rowData.reserve(addedEntryCount);
-		for(unsigned int i = 0; i < addedEntryCount; ++i)
+		for (unsigned int i = 0; i < addedEntryCount; ++i)
 		{
 			const ISystemGUIInterface::SystemLogEntry& logEntry = newEventLog[currentEntryCount + i];
-			if((_loggerLevel1Enabled && (logEntry.eventLevel == ILogEntry::EventLevel::Info))
+			if ((_loggerLevel1Enabled && (logEntry.eventLevel == ILogEntry::EventLevel::Info))
 			|| (_loggerLevel2Enabled && (logEntry.eventLevel == ILogEntry::EventLevel::Debug))
 			|| (_loggerLevel3Enabled && (logEntry.eventLevel == ILogEntry::EventLevel::Warning))
 			|| (_loggerLevel4Enabled && (logEntry.eventLevel == ILogEntry::EventLevel::Error))
@@ -188,7 +188,7 @@ INT_PTR CALLBACK EventLogView::WndProcPanelStatic(HWND hwnd, UINT msg, WPARAM wp
 	EventLogView* state = (EventLogView*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
 	//Process the message
-	switch(msg)
+	switch (msg)
 	{
 	case WM_INITDIALOG:
 		//Set the object pointer
@@ -196,13 +196,13 @@ INT_PTR CALLBACK EventLogView::WndProcPanelStatic(HWND hwnd, UINT msg, WPARAM wp
 		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)(state));
 
 		//Pass this message on to the member window procedure function
-		if(state != 0)
+		if (state != 0)
 		{
 			return state->WndProcPanel(hwnd, msg, wparam, lparam);
 		}
 		break;
 	case WM_DESTROY:
-		if(state != 0)
+		if (state != 0)
 		{
 			//Pass this message on to the member window procedure function
 			INT_PTR result = state->WndProcPanel(hwnd, msg, wparam, lparam);
@@ -218,7 +218,7 @@ INT_PTR CALLBACK EventLogView::WndProcPanelStatic(HWND hwnd, UINT msg, WPARAM wp
 
 	//Pass this message on to the member window procedure function
 	INT_PTR result = FALSE;
-	if(state != 0)
+	if (state != 0)
 	{
 		result = state->WndProcPanel(hwnd, msg, wparam, lparam);
 	}
@@ -228,7 +228,7 @@ INT_PTR CALLBACK EventLogView::WndProcPanelStatic(HWND hwnd, UINT msg, WPARAM wp
 //----------------------------------------------------------------------------------------
 INT_PTR EventLogView::WndProcPanel(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
-	switch(msg)
+	switch (msg)
 	{
 	case WM_INITDIALOG:
 		return msgPanelWM_INITDIALOG(hwnd, wparam, lparam);
@@ -255,16 +255,16 @@ INT_PTR EventLogView::msgPanelWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lpa
 //----------------------------------------------------------------------------------------
 INT_PTR EventLogView::msgPanelWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	if(HIWORD(wparam) == BN_CLICKED)
+	if (HIWORD(wparam) == BN_CLICKED)
 	{
-		switch(LOWORD(wparam))
+		switch (LOWORD(wparam))
 		{
 		case IDC_EVENTLOG_CLEAR:
 			_model.ClearEventLog();
 			break;
 		case IDC_EVENTLOG_SAVE:{
 			std::wstring selectedFilePath;
-			if(SelectNewFile(hwnd, L"CSV Files|csv", L"csv", L"", L"", selectedFilePath))
+			if (SelectNewFile(hwnd, L"CSV Files|csv", L"csv", L"", L"", selectedFilePath))
 			{
 				_presenter.SaveEventLog(_eventLog, selectedFilePath);
 			}

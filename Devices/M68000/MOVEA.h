@@ -39,7 +39,7 @@ public:
 
 		unsigned int _sourceIndex = 0;
 		unsigned int _targetIndex = 0;
-		switch(_sourceMode)
+		switch (_sourceMode)
 		{
 		case EffectiveAddress::Mode::DataRegDirect:
 			_sourceIndex = 0;
@@ -78,7 +78,7 @@ public:
 			_sourceIndex = 11;
 			break;
 		}
-		switch(_targetMode)
+		switch (_targetMode)
 		{
 		case EffectiveAddress::Mode::DataRegDirect:
 			_targetIndex = 0;
@@ -108,7 +108,7 @@ public:
 			_targetIndex = 8;
 			break;
 		}
-		if(operationSize != BITCOUNT_LONG)
+		if (operationSize != BITCOUNT_LONG)
 		{
 			return executeTimeArray[_sourceIndex][_targetIndex];
 		}
@@ -146,7 +146,7 @@ public:
 //	|   |   |       |  REGISTER |   |   |   |           |           |
 //	----------------------------------------=========================
 //	                                        |------_source <ea>------|
-		switch(data.GetDataSegment(12, 2))
+		switch (data.GetDataSegment(12, 2))
 		{
 		case 3:	//11
 			_size = BITCOUNT_WORD;

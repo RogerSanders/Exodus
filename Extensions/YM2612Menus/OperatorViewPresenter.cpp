@@ -41,10 +41,10 @@ void OperatorViewPresenter::SetTargetOperator(unsigned int channelNo, unsigned i
 	_channelNo = channelNo;
 	_operatorNo = operatorNo;
 	IView* viewBase = GetOpenView();
-	if(viewBase != 0)
+	if (viewBase != 0)
 	{
 		OperatorView* view = dynamic_cast<OperatorView*>(viewBase);
-		if(view != 0)
+		if (view != 0)
 		{
 			view->SetTargetOperator(_channelNo, _operatorNo);
 		}

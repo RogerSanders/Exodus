@@ -65,7 +65,7 @@ Buffer::Buffer(TextEncoding textEncoding, NewLineEncoding newLineEncoding, ByteO
 void Buffer::Resize(SizeType size)
 {
 	_bufferSize = size;
-	if(_bufferSize > (SizeType)_buffer.size())
+	if (_bufferSize > (SizeType)_buffer.size())
 	{
 		_buffer.resize((size_t)((_bufferSize - (_bufferSize % _bufferSizeIncrement)) + _bufferSizeIncrement));
 	}
@@ -74,7 +74,7 @@ void Buffer::Resize(SizeType size)
 //----------------------------------------------------------------------------------------
 void Buffer::CheckBufferSize(SizeType writeSize)
 {
-	if((_streamPos + writeSize) > _bufferSize)
+	if ((_streamPos + writeSize) > _bufferSize)
 	{
 		Resize(_streamPos + writeSize);
 	}
@@ -89,7 +89,7 @@ unsigned char* Buffer::GetRawBuffer() const
 	//when iterating through the buffer for elements while not at the end of the buffer.
 	//In these cases the null pointer is never used, but its neater to obtain it before
 	//checking the size of the buffer.
-	if(_buffer.empty())
+	if (_buffer.empty())
 	{
 		return (unsigned char*)0;
 	}
@@ -121,13 +121,13 @@ unsigned char& Buffer::operator[](SizeType position)
 bool Buffer::ReadBinary(unsigned char* rawData, SizeType bytesToRead)
 {
 	//Return false if a read tries to pass the end of the buffer
-	if((_streamPos + bytesToRead) > _bufferSize)
+	if ((_streamPos + bytesToRead) > _bufferSize)
 	{
 		return false;
 	}
 
 	//Read the data from the buffer
-	for(SizeType i = 0; i < bytesToRead; ++i)
+	for (SizeType i = 0; i < bytesToRead; ++i)
 	{
 		*(rawData + i) = _buffer[(size_t)_streamPos++];
 	}
@@ -138,13 +138,13 @@ bool Buffer::ReadBinary(unsigned char* rawData, SizeType bytesToRead)
 bool Buffer::WriteBinary(const unsigned char* rawData, SizeType bytesToWrite)
 {
 	//Resize the buffer if a write tries to pass the end of the buffer
-	if((_streamPos + bytesToWrite) > _bufferSize)
+	if ((_streamPos + bytesToWrite) > _bufferSize)
 	{
 		Resize(_streamPos + bytesToWrite);
 	}
 
 	//Write the data to the buffer
-	for(SizeType i = 0; i < bytesToWrite; ++i)
+	for (SizeType i = 0; i < bytesToWrite; ++i)
 	{
 		_buffer[(size_t)_streamPos++] = *(rawData + i);
 	}

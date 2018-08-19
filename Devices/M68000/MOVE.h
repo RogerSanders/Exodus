@@ -39,7 +39,7 @@ public:
 
 		unsigned int _sourceIndex = 0;
 		unsigned int _targetIndex = 0;
-		switch(_sourceMode)
+		switch (_sourceMode)
 		{
 		case EffectiveAddress::Mode::DataRegDirect:
 			_sourceIndex = 0;
@@ -78,7 +78,7 @@ public:
 			_sourceIndex = 11;
 			break;
 		}
-		switch(_targetMode)
+		switch (_targetMode)
 		{
 		case EffectiveAddress::Mode::DataRegDirect:
 			_targetIndex = 0;
@@ -108,7 +108,7 @@ public:
 			_targetIndex = 8;
 			break;
 		}
-		if(operationSize != BITCOUNT_LONG)
+		if (operationSize != BITCOUNT_LONG)
 		{
 			return executeTimeArray[_sourceIndex][_targetIndex];
 		}
@@ -150,7 +150,7 @@ public:
 //	| 0 | 0 |  SIZE |  REGISTER |    MODE   |    MODE   | REGISTER  |
 //	----------------************************=========================
 //	                |----destination <ea>---|------_source <ea>------|
-		switch(data.GetDataSegment(12, 2))
+		switch (data.GetDataSegment(12, 2))
 		{
 		case 1:	//01
 			_size = BITCOUNT_BYTE;
@@ -208,7 +208,7 @@ public:
 		//The HV counter will increment between the reads, which will allow the order the
 		//words are read in to be determined.
 		additionalTime += _source.Read(cpu, result, GetInstructionRegister());
-		if((_target.GetAddressMode() == EffectiveAddress::Mode::AddRegIndirectPreDec) && (_size == BITCOUNT_LONG))
+		if ((_target.GetAddressMode() == EffectiveAddress::Mode::AddRegIndirectPreDec) && (_size == BITCOUNT_LONG))
 		{
 			M68000Word lower(result.GetLowerBits(BITCOUNT_WORD));
 			M68000Word upper(result.GetUpperBits(BITCOUNT_WORD));

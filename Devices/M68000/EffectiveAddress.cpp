@@ -74,7 +74,7 @@ const ExecuteTime EffectiveAddress::ExecuteTime32[] = {
 void EffectiveAddress::Decode(unsigned int reg, unsigned int mode, Bitcount size, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister)
 {
 	_savedPC = location;
-	switch(mode)
+	switch (mode)
 	{
 	default:
 		DebugAssert(false);
@@ -101,7 +101,7 @@ void EffectiveAddress::Decode(unsigned int reg, unsigned int mode, Bitcount size
 		BuildAddressIndirectIndex(size, location, reg, cpu, transparent, instructionRegister);
 		break;
 	case 7:	//111
-		switch(reg)
+		switch (reg)
 		{
 		case 0:	//000
 			BuildAbsoluteAddressWord(size, location, cpu, transparent, instructionRegister);
@@ -127,7 +127,7 @@ void EffectiveAddress::Decode(unsigned int reg, unsigned int mode, Bitcount size
 //----------------------------------------------------------------------------------------
 bool EffectiveAddress::GetAddress(const M68000* cpu, Data& address) const
 {
-	switch(_mode)
+	switch (_mode)
 	{
 	default:
 		DebugAssert(false);
@@ -144,7 +144,7 @@ bool EffectiveAddress::GetAddress(const M68000* cpu, Data& address) const
 
 		//Get index value
 		Data index(_indexSize);
-		if(!_useAddressRegister)
+		if (!_useAddressRegister)
 		{
 			cpu->GetD(_indexReg, index);
 		}
@@ -165,7 +165,7 @@ bool EffectiveAddress::GetAddress(const M68000* cpu, Data& address) const
 
 		//Get index value
 		Data index(_indexSize);
-		if(!_useAddressRegister)
+		if (!_useAddressRegister)
 		{
 			cpu->GetD(_indexReg, index);
 		}
@@ -188,7 +188,7 @@ bool EffectiveAddress::GetAddress(const M68000* cpu, Data& address) const
 //----------------------------------------------------------------------------------------
 bool EffectiveAddress::GetAddressTransparent(Data& address) const
 {
-	switch(_mode)
+	switch (_mode)
 	{
 	default:
 		return false;
@@ -207,7 +207,7 @@ bool EffectiveAddress::GetAddressTransparent(Data& address) const
 //----------------------------------------------------------------------------------------
 bool EffectiveAddress::GetAddressDisplacementTargetNoIndex(M68000* cpu, Data& address) const
 {
-	switch(_mode)
+	switch (_mode)
 	{
 	default:
 		return false;
@@ -231,7 +231,7 @@ bool EffectiveAddress::GetAddressDisplacementTargetNoIndex(M68000* cpu, Data& ad
 double EffectiveAddress::Read(M68000* cpu, Data& target, const M68000Word& instructionRegister, bool rmwCycleInProgress, bool rmwCycleFirstOperation) const
 {
 	double additionalTime = 0;
-	switch(_mode)
+	switch (_mode)
 	{
 	default:
 		DebugAssert(false);
@@ -244,7 +244,7 @@ double EffectiveAddress::Read(M68000* cpu, Data& target, const M68000Word& instr
 		break;
 	case Mode::AddRegIndirect:{
 		unsigned int originalAddressSourceLocation;
-		if(cpu->DisassemblyGetAddressRegisterUnmodified(_reg, originalAddressSourceLocation))
+		if (cpu->DisassemblyGetAddressRegisterUnmodified(_reg, originalAddressSourceLocation))
 		{
 			cpu->AddDisassemblyAddressInfoOffset(originalAddressSourceLocation, cpu->DisassemblyGetAddressRegisterUnmodifiedSize(_reg), false, false, 0);
 		}
@@ -256,7 +256,7 @@ double EffectiveAddress::Read(M68000* cpu, Data& target, const M68000Word& instr
 		break;}
 	case Mode::AddRegIndirectPostInc:{
 		unsigned int originalAddressSourceLocation;
-		if(cpu->DisassemblyGetAddressRegisterUnmodified(_reg, originalAddressSourceLocation))
+		if (cpu->DisassemblyGetAddressRegisterUnmodified(_reg, originalAddressSourceLocation))
 		{
 			cpu->AddDisassemblyAddressInfoOffset(originalAddressSourceLocation, cpu->DisassemblyGetAddressRegisterUnmodifiedSize(_reg), false, false, 0);
 		}
@@ -265,7 +265,7 @@ double EffectiveAddress::Read(M68000* cpu, Data& target, const M68000Word& instr
 		cpu->GetA(_reg, address);
 		additionalTime = cpu->ReadMemory(address, target, cpu->GetFunctionCode(false), _savedPC, true, instructionRegister, rmwCycleInProgress, rmwCycleFirstOperation);
 		unsigned int arrayID = 0;
-		if(!cpu->DisassemblyGetAddressRegisterLastAccessedInPostIncMode(_reg))
+		if (!cpu->DisassemblyGetAddressRegisterLastAccessedInPostIncMode(_reg))
 		{
 			arrayID = cpu->MakeDataArrayAtLocation(address.GetData(), target.GetByteSize(), M68000::DisassemblyDataType::Integer);
 			cpu->DisassemblySetAddressRegisterCurrentArrayID(_reg, arrayID);
@@ -310,7 +310,7 @@ double EffectiveAddress::Read(M68000* cpu, Data& target, const M68000Word& instr
 		break;}
 	case Mode::AddRegIndirectDisplace:{
 		unsigned int originalAddressSourceLocation;
-		if(cpu->DisassemblyGetAddressRegisterUnmodified(_reg, originalAddressSourceLocation))
+		if (cpu->DisassemblyGetAddressRegisterUnmodified(_reg, originalAddressSourceLocation))
 		{
 			cpu->AddDisassemblyAddressInfoOffset(originalAddressSourceLocation, cpu->DisassemblyGetAddressRegisterUnmodifiedSize(_reg), false, false, 0);
 		}
@@ -323,7 +323,7 @@ double EffectiveAddress::Read(M68000* cpu, Data& target, const M68000Word& instr
 		break;}
 	case Mode::AddRegIndirectIndex8Bit:{
 		unsigned int originalAddressSourceLocation;
-		if(cpu->DisassemblyGetAddressRegisterUnmodified(_reg, originalAddressSourceLocation))
+		if (cpu->DisassemblyGetAddressRegisterUnmodified(_reg, originalAddressSourceLocation))
 		{
 			cpu->AddDisassemblyAddressInfoOffset(originalAddressSourceLocation, cpu->DisassemblyGetAddressRegisterUnmodifiedSize(_reg), false, false, 0);
 		}
@@ -333,7 +333,7 @@ double EffectiveAddress::Read(M68000* cpu, Data& target, const M68000Word& instr
 
 		//Get index value
 		Data index(_indexSize);
-		if(!_useAddressRegister)
+		if (!_useAddressRegister)
 		{
 			cpu->GetD(_indexReg, index);
 		}
@@ -360,7 +360,7 @@ double EffectiveAddress::Read(M68000* cpu, Data& target, const M68000Word& instr
 
 		//Get index value
 		Data index(_indexSize);
-		if(!_useAddressRegister)
+		if (!_useAddressRegister)
 		{
 			cpu->GetD(_indexReg, index);
 		}
@@ -395,7 +395,7 @@ double EffectiveAddress::Read(M68000* cpu, Data& target, const M68000Word& instr
 double EffectiveAddress::Write(M68000* cpu, const Data& target, const M68000Word& instructionRegister, bool rmwCycleInProgress, bool rmwCycleFirstOperation, bool dataUnmodifiedFromMemoryRead, unsigned int sourceMemoryAddress, unsigned int sourceMemorySize) const
 {
 	double additionalTime = 0;
-	switch(_mode)
+	switch (_mode)
 	{
 	default:
 		DebugAssert(false);
@@ -463,7 +463,7 @@ double EffectiveAddress::Write(M68000* cpu, const Data& target, const M68000Word
 
 		//Get index value
 		Data index(_indexSize);
-		if(!_useAddressRegister)
+		if (!_useAddressRegister)
 		{
 			cpu->GetD(_indexReg, index);
 		}
@@ -488,7 +488,7 @@ double EffectiveAddress::Write(M68000* cpu, const Data& target, const M68000Word
 
 		//Get index value
 		Data index(_indexSize);
-		if(!_useAddressRegister)
+		if (!_useAddressRegister)
 		{
 			cpu->GetD(_indexReg, index);
 		}
@@ -518,13 +518,13 @@ double EffectiveAddress::Write(M68000* cpu, const Data& target, const M68000Word
 double EffectiveAddress::ReadWithoutAdjustingAddress(M68000* cpu, Data& target, const M68000Word& instructionRegister, bool rmwCycleInProgress, bool rmwCycleFirstOperation) const
 {
 	double additionalTime = 0;
-	if(_mode == Mode::AddRegIndirectPostInc)
+	if (_mode == Mode::AddRegIndirectPostInc)
 	{
 		M68000Long address;
 		cpu->GetA(_reg, address);
 		additionalTime = cpu->ReadMemory(address, target, cpu->GetFunctionCode(false), _savedPC, true, instructionRegister, rmwCycleInProgress, rmwCycleFirstOperation);
 	}
-	else if(_mode == Mode::AddRegIndirectPreDec)
+	else if (_mode == Mode::AddRegIndirectPreDec)
 	{
 		M68000Long address;
 		cpu->GetA(_reg, address);
@@ -551,7 +551,7 @@ double EffectiveAddress::ReadWithoutAdjustingAddress(M68000* cpu, Data& target, 
 bool EffectiveAddress::IsTargetUnmodifiedFromMemoryRead(M68000* cpu, Bitcount readSize, unsigned int& sourceMemoryAddress) const
 {
 	bool targetUnmodified = false;
-	switch(_mode)
+	switch (_mode)
 	{
 	default:
 		DebugAssert(false);
@@ -598,7 +598,7 @@ bool EffectiveAddress::IsTargetUnmodifiedFromMemoryRead(M68000* cpu, Bitcount re
 
 		//Get index value
 		Data index(_indexSize);
-		if(!_useAddressRegister)
+		if (!_useAddressRegister)
 		{
 			cpu->GetD(_indexReg, index);
 		}
@@ -625,7 +625,7 @@ bool EffectiveAddress::IsTargetUnmodifiedFromMemoryRead(M68000* cpu, Bitcount re
 
 		//Get index value
 		Data index(_indexSize);
-		if(!_useAddressRegister)
+		if (!_useAddressRegister)
 		{
 			cpu->GetD(_indexReg, index);
 		}
@@ -653,7 +653,7 @@ bool EffectiveAddress::IsTargetUnmodifiedFromMemoryRead(M68000* cpu, Bitcount re
 unsigned int EffectiveAddress::GetTargetOriginalMemoryReadSize(M68000* cpu, Bitcount readBitcount) const
 {
 	unsigned int memorySize = ((unsigned int)readBitcount) / 8;
-	switch(_mode)
+	switch (_mode)
 	{
 	case Mode::DataRegDirect:{
 		memorySize = cpu->DisassemblyGetDataRegisterUnmodifiedSize(_reg);
@@ -669,7 +669,7 @@ unsigned int EffectiveAddress::GetTargetOriginalMemoryReadSize(M68000* cpu, Bitc
 bool EffectiveAddress::IsTargetUnmodifiedFromMemoryReadV2(M68000* cpu, unsigned int& sourceMemoryAddress, bool& dataIsOffset, unsigned int& offsetBaseAddress, unsigned int& dataSize) const
 {
 	bool targetUnmodified = false;
-	switch(_mode)
+	switch (_mode)
 	{
 	default:
 		DebugAssert(false);
@@ -680,7 +680,7 @@ bool EffectiveAddress::IsTargetUnmodifiedFromMemoryReadV2(M68000* cpu, unsigned 
 		dataIsOffset = false;
 		break;
 	case Mode::AddRegIndirectIndex8Bit:{
-		if(!_useAddressRegister)
+		if (!_useAddressRegister)
 		{
 			targetUnmodified = cpu->DisassemblyGetDataRegisterUnmodified(_indexReg, sourceMemoryAddress);
 		}
@@ -699,7 +699,7 @@ bool EffectiveAddress::IsTargetUnmodifiedFromMemoryReadV2(M68000* cpu, unsigned 
 		dataIsOffset = true;
 		break;}
 	case Mode::PCIndirectIndex8Bit:{
-		if(!_useAddressRegister)
+		if (!_useAddressRegister)
 		{
 			targetUnmodified = cpu->DisassemblyGetDataRegisterUnmodified(_indexReg, sourceMemoryAddress);
 		}
@@ -736,7 +736,7 @@ std::wstring EffectiveAddress::Disassemble(const M68000::LabelSubstitutionSettin
 {
 	std::wstringstream stream;
 
-	switch(_mode)
+	switch (_mode)
 	{
 	default:
 		stream << L"<INVALID>";
@@ -758,7 +758,7 @@ std::wstring EffectiveAddress::Disassemble(const M68000::LabelSubstitutionSettin
 		break;
 	case Mode::AddRegIndirectDisplace:{
 		Data displacementExtended = _displacement.SignExtend(BITCOUNT_LONG);
-		if(displacementExtended.Negative())
+		if (displacementExtended.Negative())
 		{
 			stream << L"-$" << std::hex << std::uppercase << 0 - displacementExtended.GetData();
 		}
@@ -769,10 +769,10 @@ std::wstring EffectiveAddress::Disassemble(const M68000::LabelSubstitutionSettin
 		stream << L"(A" << _reg << L")";
 		break;}
 	case Mode::AddRegIndirectIndex8Bit:
-		if(_displacement.NonZero())
+		if (_displacement.NonZero())
 		{
 			Data displacementExtended = _displacement.SignExtend(BITCOUNT_LONG);
-			if(displacementExtended.Negative())
+			if (displacementExtended.Negative())
 			{
 				stream << L"-$" << std::hex << std::uppercase << 0 - displacementExtended.GetData();
 			}
@@ -782,7 +782,7 @@ std::wstring EffectiveAddress::Disassemble(const M68000::LabelSubstitutionSettin
 			}
 		}
 		stream << L"(A" << _reg << L",";
-		if(!_useAddressRegister)
+		if (!_useAddressRegister)
 		{
 			stream << L"D";
 		}
@@ -796,18 +796,18 @@ std::wstring EffectiveAddress::Disassemble(const M68000::LabelSubstitutionSettin
 		Data targetAddress(BITCOUNT_LONG);
 		targetAddress = _savedPC.GetData() + _displacement.SignExtend(BITCOUNT_LONG).GetData();
 		bool labelWritten = false;
-		if(labelSettings.enableSubstitution)
+		if (labelSettings.enableSubstitution)
 		{
 			std::map<unsigned int, M68000::LabelSubstitutionEntry>::const_iterator labelIterator = labelSettings.labelTargetsAddressingLocation.find(targetAddress.GetData());
-			if(labelIterator != labelSettings.labelTargetsAddressingLocation.end())
+			if (labelIterator != labelSettings.labelTargetsAddressingLocation.end())
 			{
 				stream << labelIterator->second.usageLabel << L"(PC)";
 				labelWritten = true;
 			}
 		}
-		if(!labelWritten)
+		if (!labelWritten)
 		{
-			if(targetAddress.Negative())
+			if (targetAddress.Negative())
 			{
 				stream << L"*-$" << std::hex << std::uppercase << 0 - targetAddress.GetData();
 			}
@@ -821,18 +821,18 @@ std::wstring EffectiveAddress::Disassemble(const M68000::LabelSubstitutionSettin
 		Data targetAddress(BITCOUNT_LONG);
 		targetAddress = _savedPC.GetData() + _displacement.SignExtend(BITCOUNT_LONG).GetData();
 		bool labelWritten = false;
-		if(labelSettings.enableSubstitution)
+		if (labelSettings.enableSubstitution)
 		{
 			std::map<unsigned int, M68000::LabelSubstitutionEntry>::const_iterator labelIterator = labelSettings.labelTargetsAddressingLocation.find(targetAddress.GetData());
-			if(labelIterator != labelSettings.labelTargetsAddressingLocation.end())
+			if (labelIterator != labelSettings.labelTargetsAddressingLocation.end())
 			{
 				stream << labelIterator->second.usageLabel;
 				labelWritten = true;
 			}
 		}
-		if(!labelWritten)
+		if (!labelWritten)
 		{
-			if(targetAddress.Negative())
+			if (targetAddress.Negative())
 			{
 				stream << L"*-$" << std::hex << std::uppercase << 0 - targetAddress.GetData();
 			}
@@ -842,7 +842,7 @@ std::wstring EffectiveAddress::Disassemble(const M68000::LabelSubstitutionSettin
 			}
 		}
 		stream << L"(PC,";
-		if(!_useAddressRegister)
+		if (!_useAddressRegister)
 		{
 			stream << L"D";
 		}
@@ -857,19 +857,19 @@ std::wstring EffectiveAddress::Disassemble(const M68000::LabelSubstitutionSettin
 		Data targetAddress(BITCOUNT_LONG);
 		targetAddress = _address.SignExtend(BITCOUNT_LONG);
 		bool labelWritten = false;
-		if(labelSettings.enableSubstitution)
+		if (labelSettings.enableSubstitution)
 		{
 			std::map<unsigned int, M68000::LabelSubstitutionEntry>::const_iterator labelIterator = labelSettings.labelTargetsAddressingLocation.find(targetAddress.GetData());
-			if(labelIterator != labelSettings.labelTargetsAddressingLocation.end())
+			if (labelIterator != labelSettings.labelTargetsAddressingLocation.end())
 			{
 				stream << labelIterator->second.usageLabel;
 				labelWritten = true;
 			}
 		}
-		if(!labelWritten)
+		if (!labelWritten)
 		{
 			stream << L'$' << std::setw(targetAddress.GetByteSize() * 2) << std::setfill(L'0') << std::hex << std::uppercase << targetAddress.GetData();
-			if(_address.GetBitCount() < BITCOUNT_LONG)
+			if (_address.GetBitCount() < BITCOUNT_LONG)
 			{
 				stream << L"." << M68000Instruction::DisassembleSize((Bitcount)_address.GetBitCount());
 			}
@@ -877,13 +877,13 @@ std::wstring EffectiveAddress::Disassemble(const M68000::LabelSubstitutionSettin
 		break;}
 	case Mode::Immediate:
 		stream << L'#';
-		if(_dataSignExtended)
+		if (_dataSignExtended)
 		{
 			Data dataModified = _data.SignExtend(BITCOUNT_LONG);
-			if(dataModified.Negative())
+			if (dataModified.Negative())
 			{
 				stream << L"-";
-				if((0 - dataModified.GetData()) > 9)
+				if ((0 - dataModified.GetData()) > 9)
 				{
 					stream << L'$' << std::setw(dataModified.GetByteSize() * 2) << std::setfill(L'0') << std::hex << std::uppercase;
 				}
@@ -891,7 +891,7 @@ std::wstring EffectiveAddress::Disassemble(const M68000::LabelSubstitutionSettin
 			}
 			else
 			{
-				if(dataModified.GetData() > 9)
+				if (dataModified.GetData() > 9)
 				{
 					stream << L'$' << std::setw(dataModified.GetByteSize() * 2) << std::setfill(L'0') << std::hex << std::uppercase;
 				}
@@ -900,7 +900,7 @@ std::wstring EffectiveAddress::Disassemble(const M68000::LabelSubstitutionSettin
 		}
 		else
 		{
-			if(_data.GetData() > 9)
+			if (_data.GetData() > 9)
 			{
 				stream << L'$' << std::setw(_data.GetByteSize() * 2) << std::setfill(L'0') << std::hex << std::uppercase;
 			}
@@ -918,18 +918,18 @@ std::wstring EffectiveAddress::DisassembleImmediateAsPCDisplacement(const M68000
 	M68000Long targetAddress = _savedPC + M68000Long(_data.SignExtend(BITCOUNT_LONG));
 	std::wstringstream stream;
 	bool labelWritten = false;
-	if(labelSettings.enableSubstitution)
+	if (labelSettings.enableSubstitution)
 	{
 		std::map<unsigned int, M68000::LabelSubstitutionEntry>::const_iterator labelIterator = labelSettings.labelTargetsAddressingLocation.find(targetAddress.GetData());
-		if(labelIterator != labelSettings.labelTargetsAddressingLocation.end())
+		if (labelIterator != labelSettings.labelTargetsAddressingLocation.end())
 		{
 			stream << labelIterator->second.usageLabel;
 			labelWritten = true;
 		}
 	}
-	if(!labelWritten)
+	if (!labelWritten)
 	{
-		if(targetAddress.Negative())
+		if (targetAddress.Negative())
 		{
 			stream << L"*-$" << std::hex << std::uppercase << 0 - _data.GetData();
 		}
@@ -953,7 +953,7 @@ std::wstring EffectiveAddress::DisassembleImmediateAsPCDisplacementTargetAddress
 //----------------------------------------------------------------------------------------
 void EffectiveAddress::AddLabelTargetsToSet(std::set<unsigned int>& labelTargetLocations) const
 {
-	switch(_mode)
+	switch (_mode)
 	{
 	case Mode::PCIndirectDisplace:
 	case Mode::PCIndirectIndex8Bit:{

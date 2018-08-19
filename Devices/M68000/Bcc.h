@@ -22,7 +22,7 @@ public:
 
 	virtual Disassembly M68000Disassemble(const M68000::LabelSubstitutionSettings& labelSettings) const
 	{
-		if(labelSettings.enableSubstitution)
+		if (labelSettings.enableSubstitution)
 		{
 			return Disassembly(L"B" + DisassembleConditionCode(_conditionCode) + L"." + DisassembleSize(_size), _target.DisassembleImmediateAsPCDisplacement(labelSettings));
 		}
@@ -44,7 +44,7 @@ public:
 		_conditionCode = (ConditionCode)data.GetDataSegment(8, 4);
 
 		//Bcc	<label>
-		if(data.GetDataSegment(0, 8) != 0x00)
+		if (data.GetDataSegment(0, 8) != 0x00)
 		{
 			_size = BITCOUNT_BYTE;
 			_target.BuildImmediateData(location + GetInstructionSize(), M68000Byte(data.GetDataSegment(0, 8)));
@@ -66,7 +66,7 @@ public:
 		bool result = ConditionCodeTrue(cpu, _conditionCode);
 
 		ExecuteTime additionalCycles;
-		if(result)
+		if (result)
 		{
 			//If the condition is true, branch to the _target location and run the loop
 			//again.
@@ -80,7 +80,7 @@ public:
 			//If the condition is false, skip the branch, and continue execution at the
 			//next instruction.
 			newPC = location + GetInstructionSize();
-			if(_size == BITCOUNT_BYTE)
+			if (_size == BITCOUNT_BYTE)
 			{
 				additionalCycles.Set(8, 1, 0);
 			}

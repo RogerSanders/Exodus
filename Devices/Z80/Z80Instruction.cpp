@@ -13,7 +13,7 @@ Z80Instruction::~Z80Instruction()
 //----------------------------------------------------------------------------------------
 bool Z80Instruction::ConditionCodeTrue(Z80* cpu, ConditionCode conditionCode)
 {
-	switch(conditionCode)
+	switch (conditionCode)
 	{
 	case ConditionCode::NZ: //Non Zero
 		return !cpu->GetFlagZ();
@@ -52,7 +52,7 @@ Z80Instruction::Disassembly Z80Instruction::Z80Disassemble(const Z80::LabelSubst
 //----------------------------------------------------------------------------------------
 std::wstring Z80Instruction::DisassembleConditionCode(ConditionCode conditionCode)
 {
-	switch(conditionCode)
+	switch (conditionCode)
 	{
 	case ConditionCode::NZ: //Non Zero
 		return L"NZ";

@@ -31,7 +31,7 @@ bool FileStreamReference::OpenExistingFileForRead(const std::wstring& path)
 void FileStreamReference::CloseFileStream()
 {
 	//If a file stream is currently open, close it.
-	if(_stream != 0)
+	if (_stream != 0)
 	{
 		_guiExtensionInterface.DeleteFileStream(_stream);
 		_stream = 0;

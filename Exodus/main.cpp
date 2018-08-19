@@ -62,14 +62,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	//Load the system assembly
 	ExodusInterface::PluginInfo systemPluginInfo;
-	if(!exodusInterface.LoadAssemblyInfo(L"System.dll", systemPluginInfo) || (systemPluginInfo.GetSystemEntry == 0))
+	if (!exodusInterface.LoadAssemblyInfo(L"System.dll", systemPluginInfo) || (systemPluginInfo.GetSystemEntry == 0))
 	{
 		return 10;
 	}
 
 	//Retrieve information on the system plugin from the system assembly
 	SystemInfo systemInfo;
-	if(!systemPluginInfo.GetSystemEntry(0, systemInfo))
+	if (!systemPluginInfo.GetSystemEntry(0, systemInfo))
 	{
 		return 20;
 	}
@@ -83,21 +83,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	exodusInterface.BindToSystem(systemObject);
 
 	//Initialize the preferences system
-	if(!exodusInterface.InitializePrefs())
+	if (!exodusInterface.InitializePrefs())
 	{
 		return 30;
 	}
 
 	//Create the main interface window
 	HWND hwnd = exodusInterface.CreateMainInterface(hInstance);
-	if(hwnd == NULL)
+	if (hwnd == NULL)
 	{
 		return 40;
 	}
 
 	//Load the keyboard accelerator table
 	HACCEL acceleratorTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDR_ACCELERATORS));
-	if(acceleratorTable == NULL)
+	if (acceleratorTable == NULL)
 	{
 		return 50;
 	}
@@ -105,19 +105,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//Begin the message loop
 	MSG msg;
 	bool done = false;
-	while(!done)
+	while (!done)
 	{
 		BOOL getMessageReturn = GetMessage(&msg, NULL, 0, 0);
-		if(getMessageReturn == 0)
+		if (getMessageReturn == 0)
 		{
 			done = true;
 		}
-		else if(getMessageReturn != -1)
+		else if (getMessageReturn != -1)
 		{
-			if(TranslateAccelerator(hwnd, acceleratorTable, &msg) == 0)
+			if (TranslateAccelerator(hwnd, acceleratorTable, &msg) == 0)
 			{
 				HWND activeDialogWindowHandle = exodusInterface.GetCurrentActiveDialogWindowHandle();
-				if((activeDialogWindowHandle == NULL) || (IsDialogMessage(activeDialogWindowHandle, &msg) == 0))
+				if ((activeDialogWindowHandle == NULL) || (IsDialogMessage(activeDialogWindowHandle, &msg) == 0))
 				{
 					TranslateMessage(&msg);
 					DispatchMessage(&msg);

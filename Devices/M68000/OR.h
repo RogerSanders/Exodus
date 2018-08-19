@@ -36,7 +36,7 @@ public:
 //	| 1 | 1 | 0 | 0 |  REGISTER | D |  SIZE |    MODE   |  REGISTER |
 //	----------------------------=====================================
 //	                            |--<opmode>-|----------<ea>---------|
-		switch(data.GetDataSegment(6, 2))
+		switch (data.GetDataSegment(6, 2))
 		{
 		case 0:	//00
 			_size = BITCOUNT_BYTE;
@@ -49,17 +49,17 @@ public:
 			break;
 		}
 
-		if(!data.GetBit(8))
+		if (!data.GetBit(8))
 		{
 			//OR	<ea>,Dn
 			_target.BuildDataDirect(_size, location + GetInstructionSize(), data.GetDataSegment(9, 3));
 			_source.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), _size, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
 			AddInstructionSize(_source.ExtensionSize());
 
-			if(_size == BITCOUNT_LONG)
+			if (_size == BITCOUNT_LONG)
 			{
 				AddExecuteCycleCount(ExecuteTime(6, 1, 0));
-				if((_source.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect) || (_source.GetAddressMode() == EffectiveAddress::Mode::AddRegDirect) || (_source.GetAddressMode() == EffectiveAddress::Mode::Immediate))
+				if ((_source.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect) || (_source.GetAddressMode() == EffectiveAddress::Mode::AddRegDirect) || (_source.GetAddressMode() == EffectiveAddress::Mode::Immediate))
 				{
 					AddExecuteCycleCount(ExecuteTime(2, 0, 0));
 				}
@@ -77,7 +77,7 @@ public:
 			AddInstructionSize(_target.ExtensionSize());
 			_source.BuildDataDirect(_size, location + GetInstructionSize(), data.GetDataSegment(9, 3));
 
-			if(_size == BITCOUNT_LONG)
+			if (_size == BITCOUNT_LONG)
 			{
 				AddExecuteCycleCount(ExecuteTime(12, 1, 2));
 			}

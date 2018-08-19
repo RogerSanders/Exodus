@@ -25,7 +25,7 @@ public:
 
 	virtual Disassembly Z80Disassemble(const Z80::LabelSubstitutionSettings& labelSettings) const
 	{
-		if(_conditionCode == ConditionCode::None)
+		if (_conditionCode == ConditionCode::None)
 		{
 			return Disassembly(GetOpcodeName(), _source.Disassemble());
 		}
@@ -43,7 +43,7 @@ public:
 
 		//CALL nn		//11001101 nnnnnnnn nnnnnnnn
 		_source.BuildImmediateData(BITCOUNT_WORD, location + GetInstructionSize(), cpu, transparent);
-		if(!data.GetBit(0))
+		if (!data.GetBit(0))
 		{
 			//CALL cc,nn		//11ccc100 nnnnnnnn nnnnnnnn
 			_conditionCode = (ConditionCode)data.GetDataSegment(3, 3);
@@ -61,7 +61,7 @@ public:
 		ExecuteTime additionalCycles;
 
 		//Test the condition code
-		if(ConditionCodeTrue(cpu, _conditionCode))
+		if (ConditionCodeTrue(cpu, _conditionCode))
 		{
 			//If the condition is true, jump to the _target location.
 			additionalTime += _target.Write(cpu, location + GetInstructionSize(), location + GetInstructionSize());

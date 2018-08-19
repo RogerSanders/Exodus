@@ -68,7 +68,7 @@ bool GenericAccessDataValueFloat::SetValueDouble(double value)
 bool GenericAccessDataValueFloat::SetValueString(const Marshal::In<std::wstring>& value)
 {
 	float valueConverted;
-	if(!StringToFloat(value, valueConverted))
+	if (!StringToFloat(value, valueConverted))
 	{
 		return false;
 	}

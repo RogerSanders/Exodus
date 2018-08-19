@@ -46,7 +46,7 @@ public:
 
 		//Perform the operation
 		M68000::Exceptions exceptionNo = (M68000::Exceptions)((unsigned int)M68000::Exceptions::InterruptTrap0 + _trapNo);
-		if(!cpu->ExceptionDisabled(exceptionNo))
+		if (!cpu->ExceptionDisabled(exceptionNo))
 		{
 			cpu->SetPC(location + GetInstructionSize());
 			cpu->PushStackFrame(cpu->GetPC(), cpu->GetSR());

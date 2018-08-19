@@ -73,7 +73,7 @@ private:
 			//Release the allocated data arrays
 			Internal::DeleteSTLContainerItemArray(itemArray, (ContainerType*)0);
 			delete[] elementSizeArray;
-			if(Internal::nested_container_has_keys<ContainerType>::value)
+			if (Internal::nested_container_has_keys<ContainerType>::value)
 			{
 				Internal::DeleteSTLContainerKeyMarshallers(nestedMarshallerArray, 0, (ContainerType*)0);
 				delete[] nestedMarshallerArray;
@@ -110,7 +110,7 @@ private:
 		arrayHelper.elementSizeArray = new size_t[elementSizeArraySize];
 
 		//Allocate key marshallers for any keyed containers in the source object
-		if(Internal::nested_container_has_keys<ContainerType>::value)
+		if (Internal::nested_container_has_keys<ContainerType>::value)
 		{
 			MARSHALSUPPORT_CONSTEXPR size_t nestingDepth = Internal::CalculateSTLContainerNestingDepth(0, (ContainerType*)0);
 			arrayHelper.nestedMarshallerArray = new Internal::INestedMarshallerBase*[nestingDepth];
@@ -151,7 +151,7 @@ public:
 		arrayHelper.elementSizeArray = new size_t[elementSizeArraySize];
 
 		//Allocate key marshallers for any keyed containers in the source object
-		if(Internal::nested_container_has_keys<ContainerType>::value)
+		if (Internal::nested_container_has_keys<ContainerType>::value)
 		{
 			MARSHALSUPPORT_CONSTEXPR size_t nestingDepth = Internal::CalculateSTLContainerNestingDepth(0, (ContainerType*)0);
 			arrayHelper.nestedMarshallerArray = new Internal::INestedMarshallerBase*[nestingDepth];
@@ -190,7 +190,7 @@ private:
 			//Release the allocated data arrays
 			Internal::DeleteSTLContainerItemArray(itemArray, (ContainerType*)0);
 			delete[] elementSizeArray;
-			if(Internal::nested_container_has_keys<ContainerType>::value)
+			if (Internal::nested_container_has_keys<ContainerType>::value)
 			{
 				Internal::DeleteSTLContainerKeyMarshallers(nestedMarshallerArray, 0, (ContainerType*)0);
 				delete[] nestedMarshallerArray;
@@ -379,7 +379,7 @@ private:
 
 		//Marshal the contents of this container directly into the target object. We move the elements if the supplied
 		//source is a non-const rvalue reference, otherwise we copy the elements.
-		if(Internal::is_non_const_rvalue_reference<MARSHALSUPPORT_UNIVERSALREFERENCE(FullType)>::value)
+		if (Internal::is_non_const_rvalue_reference<MARSHALSUPPORT_UNIVERSALREFERENCE(FullType)>::value)
 		{
 			MarshalFrom(sizeof(typename Internal::get_last_nested_container_element_type<ElementType>::type), const_cast<ElementType*>(sourceData), sourceObject.size());
 		}
@@ -469,7 +469,7 @@ public:
 		//marshal it.
 		size_t sourceObjectLength = sourceObject.size();
 		bool* itemArray = new bool[sourceObjectLength];
-		for(size_t i = 0; i < sourceObjectLength; ++i)
+		for (size_t i = 0; i < sourceObjectLength; ++i)
 		{
 			itemArray[i] = sourceObject[i];
 		}
@@ -549,7 +549,7 @@ private:
 
 		//Marshal the contents of this container directly into the target object. We move the elements if the supplied
 		//source is a non-const rvalue reference, otherwise we copy the elements.
-		if(Internal::is_non_const_rvalue_reference<MARSHALSUPPORT_UNIVERSALREFERENCE(FullType)>::value)
+		if (Internal::is_non_const_rvalue_reference<MARSHALSUPPORT_UNIVERSALREFERENCE(FullType)>::value)
 		{
 			MarshalRange(sizeof(typename Internal::get_last_nested_container_element_type<ElementType>::type), 0, const_cast<ElementType*>(sourceData), ArraySize);
 		}
@@ -632,7 +632,7 @@ private:
 
 		//Marshal the contents of this container directly into the target object. We move the elements if the supplied
 		//source is a non-const rvalue reference, otherwise we copy the elements.
-		if(Internal::is_non_const_rvalue_reference<MARSHALSUPPORT_UNIVERSALREFERENCE(FullType)>::value)
+		if (Internal::is_non_const_rvalue_reference<MARSHALSUPPORT_UNIVERSALREFERENCE(FullType)>::value)
 		{
 			MarshalFrom(sizeof(typename Internal::get_last_nested_container_element_type<ElementType>::type), const_cast<ElementType*>(sourceData), sourceObject.size());
 		}

@@ -6,7 +6,7 @@
 void ExecutionManager::EnableTimesliceExecutionSuspend()
 {
 	//Go through each device that supports suspension and enable the suspend feature
-	for(size_t i = 0; i < _suspendDeviceCount; ++i)
+	for (size_t i = 0; i < _suspendDeviceCount; ++i)
 	{
 		DeviceContext* device = _suspendDeviceArray[i];
 		device->EnableTimesliceExecutionSuspend();
@@ -17,7 +17,7 @@ void ExecutionManager::EnableTimesliceExecutionSuspend()
 void ExecutionManager::DisableTimesliceExecutionSuspend()
 {
 	//Go through each device that supports suspension and disable the suspend feature
-	for(size_t i = 0; i < _suspendDeviceCount; ++i)
+	for (size_t i = 0; i < _suspendDeviceCount; ++i)
 	{
 		DeviceContext* device = _suspendDeviceArray[i];
 		device->DisableTimesliceExecutionSuspend();
@@ -29,10 +29,10 @@ bool ExecutionManager::AllDevicesSuspended(volatile ReferenceCounterType& suspen
 {
 	//Go through each device that supports transient execution, and see if any of them are
 	//currently executing.
-	for(size_t transientDeviceNo = 0; transientDeviceNo < _transientDeviceCount; ++transientDeviceNo)
+	for (size_t transientDeviceNo = 0; transientDeviceNo < _transientDeviceCount; ++transientDeviceNo)
 	{
 		const DeviceContext* transientDevice = _transientDeviceArray[transientDeviceNo];
-		if(!transientDevice->TimesliceExecutionSuspended() && transientDevice->TransientExecutionActive())
+		if (!transientDevice->TimesliceExecutionSuspended() && transientDevice->TransientExecutionActive())
 		{
 			return false;
 		}
@@ -41,10 +41,10 @@ bool ExecutionManager::AllDevicesSuspended(volatile ReferenceCounterType& suspen
 	//Go through each device that supports suspension and build a set of dependent devices
 	//that are still executing, not suspended, and not finished their timeslice.
 	std::set<const DeviceContext*> dependentDeviceSet;
-	for(size_t suspendedDeviceNo = 0; suspendedDeviceNo < _suspendDeviceCount; ++suspendedDeviceNo)
+	for (size_t suspendedDeviceNo = 0; suspendedDeviceNo < _suspendDeviceCount; ++suspendedDeviceNo)
 	{
 		const DeviceContext* suspendedDevice = _suspendDeviceArray[suspendedDeviceNo];
-		if(suspendedDevice->TimesliceExecutionSuspended())
+		if (suspendedDevice->TimesliceExecutionSuspended())
 		{
 			//Recursively iterate through each directly or indirectly dependent device for
 			//the suspended device, and confirm which devices are currently blocked by it
@@ -67,10 +67,10 @@ void ExecutionManager::BuildBlockedDependentDeviceSet(const DeviceContext* sourc
 {
 	const std::vector<DeviceContext*>& dependentDeviceArray = sourceDevice->GetDependentDeviceArray();
 	size_t dependentDeviceArraySize = dependentDeviceArray.size();
-	for(size_t i = 0; i < dependentDeviceArraySize; ++i)
+	for (size_t i = 0; i < dependentDeviceArraySize; ++i)
 	{
 		const DeviceContext* dependentDevice = dependentDeviceArray[i];
-		if(!dependentDevice->TimesliceExecutionSuspended() && !dependentDevice->TimesliceExecutionCompleted())
+		if (!dependentDevice->TimesliceExecutionSuspended() && !dependentDevice->TimesliceExecutionCompleted())
 		{
 			dependentDeviceSet.insert(dependentDevice);
 			BuildBlockedDependentDeviceSet(dependentDevice, dependentDeviceSet);

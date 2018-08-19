@@ -134,19 +134,19 @@ struct Processor::ActiveDisassemblyAnalysisData
 	void Initialize()
 	{
 		//Erase all our allocated data items
-		for(std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = disassemblyCodeSorted.begin(); i != disassemblyCodeSorted.end(); ++i)
+		for (std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = disassemblyCodeSorted.begin(); i != disassemblyCodeSorted.end(); ++i)
 		{
 			delete i->second;
 		}
-		for(std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = predictedCodeEntries.begin(); i != predictedCodeEntries.end(); ++i)
+		for (std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = predictedCodeEntries.begin(); i != predictedCodeEntries.end(); ++i)
 		{
 			delete i->second;
 		}
-		for(std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = predictedDataEntries.begin(); i != predictedDataEntries.end(); ++i)
+		for (std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = predictedDataEntries.begin(); i != predictedDataEntries.end(); ++i)
 		{
 			delete i->second;
 		}
-		for(std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = predictedOffsetEntries.begin(); i != predictedOffsetEntries.end(); ++i)
+		for (std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = predictedOffsetEntries.begin(); i != predictedOffsetEntries.end(); ++i)
 		{
 			delete i->second;
 		}
@@ -198,7 +198,7 @@ void Processor::CheckExecution(unsigned int location) const
 	//which we expect it will almost all the time, due to a lack of inlining and needing
 	//to prepare the stack and registers for inner variables that never get used. This has
 	//been verified through profiling as a performance bottleneck.
-	if(_breakpointExists || _breakOnNextOpcode || _stepOver)
+	if (_breakpointExists || _breakOnNextOpcode || _stepOver)
 	{
 		CheckExecutionInternal(location);
 	}
@@ -215,7 +215,7 @@ void Processor::CheckMemoryRead(unsigned int location, unsigned int data) const
 	//which we expect it will almost all the time, due to a lack of inlining and needing
 	//to prepare the stack and registers for inner variables that never get used. This has
 	//been verified through profiling as a performance bottleneck.
-	if(_watchpointExists)
+	if (_watchpointExists)
 	{
 		CheckMemoryReadInternal(location, data);
 	}
@@ -230,7 +230,7 @@ void Processor::CheckMemoryWrite(unsigned int location, unsigned int data) const
 	//which we expect it will almost all the time, due to a lack of inlining and needing
 	//to prepare the stack and registers for inner variables that never get used. This has
 	//been verified through profiling as a performance bottleneck.
-	if(_watchpointExists)
+	if (_watchpointExists)
 	{
 		CheckMemoryWriteInternal(location, data);
 	}
@@ -247,7 +247,7 @@ void Processor::RecordTrace(unsigned int pc)
 	//which we expect it will almost all the time, due to a lack of inlining and needing
 	//to prepare the stack and registers for inner variables that never get used. This has
 	//been verified through profiling as a performance bottleneck.
-	if(_traceLogEnabled)
+	if (_traceLogEnabled)
 	{
 		return RecordTraceInternal(pc);
 	}

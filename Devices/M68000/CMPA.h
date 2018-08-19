@@ -33,7 +33,7 @@ public:
 //	| 1 | 0 | 1 | 1 |  REGISTER |  SIZE | 1 |    MODE   |  REGISTER |
 //	----------------------------------------=========================
 //                              |--<opmode>-|----------<ea>---------|
-		switch(data.GetDataSegment(7, 2))
+		switch (data.GetDataSegment(7, 2))
 		{
 		case 1:	//01
 			_size = BITCOUNT_WORD;

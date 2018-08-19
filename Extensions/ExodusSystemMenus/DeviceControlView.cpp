@@ -19,7 +19,7 @@ DeviceControlView::DeviceControlView(IUIManager& uiManager, DeviceControlViewPre
 INT_PTR DeviceControlView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	WndProcDialogImplementSaveFieldWhenLostFocus(hwnd, msg, wparam, lparam);
-	switch(msg)
+	switch (msg)
 	{
 	case WM_INITDIALOG:
 		return msgWM_INITDIALOG(hwnd, wparam, lparam);
@@ -47,17 +47,17 @@ INT_PTR DeviceControlView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	_initializedDialog = true;
 
 	//Update the textboxes
-	if(_currentControlFocus != IDC_DEVICECONTROL_SYSTEM_EXECUTEAMOUNT)  UpdateDlgItemBin(hwnd, IDC_DEVICECONTROL_SYSTEM_EXECUTEAMOUNT, _systemStep);
-	if(_currentControlFocus != IDC_DEVICECONTROL_DEVICE_STEPAMOUNT)     UpdateDlgItemBin(hwnd, IDC_DEVICECONTROL_DEVICE_STEPAMOUNT, _deviceStep);
+	if (_currentControlFocus != IDC_DEVICECONTROL_SYSTEM_EXECUTEAMOUNT)  UpdateDlgItemBin(hwnd, IDC_DEVICECONTROL_SYSTEM_EXECUTEAMOUNT, _systemStep);
+	if (_currentControlFocus != IDC_DEVICECONTROL_DEVICE_STEPAMOUNT)     UpdateDlgItemBin(hwnd, IDC_DEVICECONTROL_DEVICE_STEPAMOUNT, _deviceStep);
 
 	//Check if we need to refresh the device list
 	std::list<IDevice*> newDeviceList = _model.GetLoadedDevices();
 	bool refreshDeviceList = (newDeviceList.size() != _deviceList.size());
-	if(!refreshDeviceList)
+	if (!refreshDeviceList)
 	{
 		std::list<IDevice*>::const_iterator newDeviceListIterator = newDeviceList.begin();
 		std::list<IDevice*>::const_iterator deviceListIterator = _deviceList.begin();
-		while(!refreshDeviceList && (newDeviceListIterator != newDeviceList.end()) && (deviceListIterator != _deviceList.end()))
+		while (!refreshDeviceList && (newDeviceListIterator != newDeviceList.end()) && (deviceListIterator != _deviceList.end()))
 		{
 			refreshDeviceList |= (*newDeviceListIterator != *deviceListIterator);
 			++newDeviceListIterator;
@@ -67,22 +67,22 @@ INT_PTR DeviceControlView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 
 	//If we need to refresh the device list, copy the current list of devices into our
 	//local copy.
-	if(refreshDeviceList)
+	if (refreshDeviceList)
 	{
 		_deviceList = newDeviceList;
 	}
 
 	//Refresh the device list if required
-	if(refreshDeviceList)
+	if (refreshDeviceList)
 	{
 		SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), WM_SETREDRAW, FALSE, 0);
 
 		LRESULT top = SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_GETTOPINDEX, 0, 0);
 		SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_RESETCONTENT, 0, NULL);
-		for(std::list<IDevice*>::const_iterator i = _deviceList.begin(); i != _deviceList.end(); ++i)
+		for (std::list<IDevice*>::const_iterator i = _deviceList.begin(); i != _deviceList.end(); ++i)
 		{
 			IDevice* device = *i;
-			if(device->GetUpdateMethod() == IDevice::UpdateMethod::Step)
+			if (device->GetUpdateMethod() == IDevice::UpdateMethod::Step)
 			{
 				LRESULT newItemIndex = SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_ADDSTRING, 0, (LPARAM)device->GetDeviceInstanceName().Get().c_str());
 				SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_SETITEMDATA, newItemIndex, (LPARAM)device);
@@ -100,10 +100,10 @@ INT_PTR DeviceControlView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	//Update the checkboxes
 	int selectedDeviceIndex = (int)SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_GETCURSEL, 0, NULL);
 	LRESULT getItemDataResult = SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_GETITEMDATA, selectedDeviceIndex, NULL);
-	if(getItemDataResult != LB_ERR)
+	if (getItemDataResult != LB_ERR)
 	{
 		IDevice* device = (IDevice*)getItemDataResult;
-		if(device != 0)
+		if (device != 0)
 		{
 			CheckDlgButton(hwnd, IDC_DEVICECONTROL_DEVICE_ENABLED, device->GetDeviceContext()->DeviceEnabled()? BST_CHECKED: BST_UNCHECKED);
 		}
@@ -115,9 +115,9 @@ INT_PTR DeviceControlView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 //----------------------------------------------------------------------------------------
 INT_PTR DeviceControlView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	if(HIWORD(wparam) == BN_CLICKED)
+	if (HIWORD(wparam) == BN_CLICKED)
 	{
-		switch(LOWORD(wparam))
+		switch (LOWORD(wparam))
 		{
 		case IDC_DEVICECONTROL_SYSTEM_RUN:
 			_model.RunSystem();
@@ -131,7 +131,7 @@ INT_PTR DeviceControlView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam
 		case IDC_DEVICECONTROL_DEVICE_INITIALIZE:{
 			int selectedDeviceIndex = (int)SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_GETCURSEL, 0, NULL);
 			IDevice* device = (IDevice*)SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_GETITEMDATA, selectedDeviceIndex, NULL);
-			if(device != 0)
+			if (device != 0)
 			{
 				_model.InitializeDevice(device);
 			}
@@ -139,11 +139,11 @@ INT_PTR DeviceControlView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam
 		case IDC_DEVICECONTROL_DEVICE_STEP:{
 			int selectedDeviceIndex = (int)SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_GETCURSEL, 0, NULL);
 			IDevice* device = (IDevice*)SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_GETITEMDATA, selectedDeviceIndex, NULL);
-			if(device != 0)
+			if (device != 0)
 			{
 				//##TODO## Show a dialog box indicating the current step progress, and
 				//giving the user an option to cancel.
-				for(unsigned int i = 0; i < _deviceStep; ++i)
+				for (unsigned int i = 0; i < _deviceStep; ++i)
 				{
 					_model.ExecuteDeviceStep(device);
 				}
@@ -152,24 +152,24 @@ INT_PTR DeviceControlView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam
 		case IDC_DEVICECONTROL_DEVICE_ENABLED:{
 			int selectedDeviceIndex = (int)SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_GETCURSEL, 0, NULL);
 			IDevice* device = (IDevice*)SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_GETITEMDATA, selectedDeviceIndex, NULL);
-			if(device != 0)
+			if (device != 0)
 			{
 				device->GetDeviceContext()->SetDeviceEnabled(IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED);
 			}
 			break;}
 		}
 	}
-	else if((HIWORD(wparam) == EN_SETFOCUS) && _initializedDialog)
+	else if ((HIWORD(wparam) == EN_SETFOCUS) && _initializedDialog)
 	{
 		_previousText = GetDlgItemString(hwnd, LOWORD(wparam));
 		_currentControlFocus = LOWORD(wparam);
 	}
-	else if((HIWORD(wparam) == EN_KILLFOCUS) && _initializedDialog)
+	else if ((HIWORD(wparam) == EN_KILLFOCUS) && _initializedDialog)
 	{
 		std::wstring newText = GetDlgItemString(hwnd, LOWORD(wparam));
-		if(newText != _previousText)
+		if (newText != _previousText)
 		{
-			switch(LOWORD(wparam))
+			switch (LOWORD(wparam))
 			{
 			case IDC_DEVICECONTROL_DEVICE_STEPAMOUNT:
 				_deviceStep = GetDlgItemBin(hwnd, LOWORD(wparam));
@@ -180,13 +180,13 @@ INT_PTR DeviceControlView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam
 			}
 		}
 	}
-	else if(HIWORD(wparam) == LBN_SELCHANGE)
+	else if (HIWORD(wparam) == LBN_SELCHANGE)
 	{
-		switch(LOWORD(wparam))
+		switch (LOWORD(wparam))
 		{
 		case IDC_DEVICECONTROL_LIST:{
 			int selectedItem = (int)SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_GETCURSEL, 0, NULL);
-			if(selectedItem != LB_ERR)
+			if (selectedItem != LB_ERR)
 			{
 				_deviceListIndex = selectedItem;
 			}

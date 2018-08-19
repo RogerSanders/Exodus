@@ -12,7 +12,7 @@ public:
 			//(An)					(An)+					-(An)					d(An)					d(An,ix)+				xxx.W					xxx.L					d(PC)					d(PC,ix)
 			ExecuteTime(12, 2, 1),	ExecuteTime(0, 0, 0),	ExecuteTime(0, 0, 0),	ExecuteTime(16, 2, 2),	ExecuteTime(20, 2, 2),	ExecuteTime(16, 2, 2),	ExecuteTime(20, 3, 2),	ExecuteTime(16, 2, 2),	ExecuteTime(20, 2, 2)};
 		unsigned int _targetIndex = 0;
-		switch(_targetMode)
+		switch (_targetMode)
 		{
 		case EffectiveAddress::Mode::AddRegIndirect:
 			_targetIndex = 0;

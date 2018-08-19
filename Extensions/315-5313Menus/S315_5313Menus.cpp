@@ -13,12 +13,12 @@ S315_5313Menus::S315_5313Menus(const std::wstring& implementationName, const std
 S315_5313Menus::~S315_5313Menus()
 {
 	//Delete all menu handlers
-	for(std::map<const IDevice*, DebugMenuHandler*>::const_iterator i = _debugMenuHandlers.begin(); i != _debugMenuHandlers.end(); ++i)
+	for (std::map<const IDevice*, DebugMenuHandler*>::const_iterator i = _debugMenuHandlers.begin(); i != _debugMenuHandlers.end(); ++i)
 	{
 		i->second->ClearMenuItems();
 		delete i->second;
 	}
-	for(std::map<const IDevice*, SettingsMenuHandler*>::const_iterator i = _settingsMenuHandlers.begin(); i != _settingsMenuHandlers.end(); ++i)
+	for (std::map<const IDevice*, SettingsMenuHandler*>::const_iterator i = _settingsMenuHandlers.begin(); i != _settingsMenuHandlers.end(); ++i)
 	{
 		i->second->ClearMenuItems();
 		delete i->second;
@@ -32,7 +32,7 @@ bool S315_5313Menus::RegisterDeviceMenuHandler(IDevice* targetDevice)
 {
 	//Attempt to cast the supplied device to the correct type
 	IS315_5313* targetDeviceAsIS315_5313 = dynamic_cast<IS315_5313*>(targetDevice);
-	if(targetDeviceAsIS315_5313 == 0)
+	if (targetDeviceAsIS315_5313 == 0)
 	{
 		return false;
 	}
@@ -69,7 +69,7 @@ void S315_5313Menus::UnregisterDeviceMenuHandler(IDevice* targetDevice)
 //----------------------------------------------------------------------------------------
 void S315_5313Menus::AddDeviceMenuItems(DeviceMenu deviceMenu, IMenuSegment& menuSegment, IDevice* targetDevice)
 {
-	switch(deviceMenu)
+	switch (deviceMenu)
 	{
 	case IExtension::DeviceMenu::Debug:
 		_debugMenuHandlers[targetDevice]->AddMenuItems(menuSegment);

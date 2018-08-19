@@ -11,13 +11,13 @@ TimedBufferIntDevice::TimedBufferIntDevice(const std::wstring& implementationNam
 bool TimedBufferIntDevice::Construct(IHierarchicalStorageNode& node)
 {
 	//Call the base class Construct method
-	if(!MemoryWrite::Construct(node))
+	if (!MemoryWrite::Construct(node))
 	{
 		return false;
 	}
 
 	//Validate the specified interface size
-	if(GetMemoryEntryCount() <= 0)
+	if (GetMemoryEntryCount() <= 0)
 	{
 		return false;
 	}
@@ -25,7 +25,7 @@ bool TimedBufferIntDevice::Construct(IHierarchicalStorageNode& node)
 	//Read the KeepLatestBufferCopy attribute
 	bool keepLatestBufferCopy = false;
 	IHierarchicalStorageAttribute* keepLatestBufferCopyAttribute = node.GetAttribute(L"KeepLatestBufferCopy");
-	if(keepLatestBufferCopyAttribute != 0)
+	if (keepLatestBufferCopyAttribute != 0)
 	{
 		keepLatestBufferCopy = keepLatestBufferCopyAttribute->ExtractValue<bool>();
 	}
@@ -34,7 +34,7 @@ bool TimedBufferIntDevice::Construct(IHierarchicalStorageNode& node)
 	_bufferShell.Resize(GetMemoryEntryCount(), keepLatestBufferCopy);
 
 	//If initial RAM state data has been specified, attempt to load it now.
-	if(node.GetBinaryDataPresent())
+	if (node.GetBinaryDataPresent())
 	{
 		//Flag that initial memory data has been specified
 		_initialMemoryDataSpecified = true;
@@ -45,7 +45,7 @@ bool TimedBufferIntDevice::Construct(IHierarchicalStorageNode& node)
 
 		//Read the RepeatData attribute if specified
 		IHierarchicalStorageAttribute* repeatDataAttribute = node.GetAttribute(L"RepeatData");
-		if(repeatDataAttribute != 0)
+		if (repeatDataAttribute != 0)
 		{
 			_repeatInitialMemoryData = repeatDataAttribute->ExtractValue<bool>();
 		}
@@ -55,7 +55,7 @@ bool TimedBufferIntDevice::Construct(IHierarchicalStorageNode& node)
 		unsigned int memoryArraySize = GetMemoryEntryCount();
 		unsigned int bytesToRead = (memoryArraySize < bytesInDataStream)? memoryArraySize: bytesInDataStream;
 		_initialMemoryData.resize(bytesInDataStream);
-		if(!dataStream.ReadData(&_initialMemoryData[0], bytesToRead))
+		if (!dataStream.ReadData(&_initialMemoryData[0], bytesToRead))
 		{
 			return false;
 		}
@@ -79,12 +79,12 @@ void TimedBufferIntDevice::Initialize()
 {
 	//Initialize the memory buffer
 	_bufferShell.Initialize();
-	for(unsigned int i = 0; i < GetMemoryEntryCount(); ++i)
+	for (unsigned int i = 0; i < GetMemoryEntryCount(); ++i)
 	{
-		if(!IsAddressLocked(i))
+		if (!IsAddressLocked(i))
 		{
 			unsigned char initialValue = 0;
-			if(_initialMemoryDataSpecified && (_repeatInitialMemoryData || (i < (unsigned int)_initialMemoryData.size())))
+			if (_initialMemoryDataSpecified && (_repeatInitialMemoryData || (i < (unsigned int)_initialMemoryData.size())))
 			{
 				unsigned int initialMemoryDataIndex = (i % (unsigned int)_initialMemoryData.size());
 				initialValue = _initialMemoryData[initialMemoryDataIndex];
@@ -101,7 +101,7 @@ void TimedBufferIntDevice::TransparentReadInterface(unsigned int interfaceNumber
 {
 	unsigned int memorySize = GetMemoryEntryCount();
 	unsigned int dataByteSize = data.GetByteSize();
-	for(unsigned int i = 0; i < dataByteSize; ++i)
+	for (unsigned int i = 0; i < dataByteSize; ++i)
 	{
 		data.SetByteFromTopDown(i, _bufferShell.ReadLatest((location + i) % memorySize));
 	}
@@ -112,7 +112,7 @@ void TimedBufferIntDevice::TransparentWriteInterface(unsigned int interfaceNumbe
 {
 	unsigned int memorySize = GetMemoryEntryCount();
 	unsigned int dataByteSize = data.GetByteSize();
-	for(unsigned int i = 0; i < dataByteSize; ++i)
+	for (unsigned int i = 0; i < dataByteSize; ++i)
 	{
 		_bufferShell.WriteLatest((location + i) % memorySize, data.GetByteFromTopDown(i));
 	}

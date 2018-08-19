@@ -71,7 +71,7 @@ void EffectiveAddress::SetMode(Mode mode)
 //----------------------------------------------------------------------------------------
 bool EffectiveAddress::Decode8BitRegister(unsigned int data)
 {
-	switch(data & 0x07)
+	switch (data & 0x07)
 	{
 	case 0:	//000
 		_mode = Mode::B;
@@ -104,7 +104,7 @@ bool EffectiveAddress::Decode8BitRegister(unsigned int data)
 //----------------------------------------------------------------------------------------
 bool EffectiveAddress::Decode16BitRegister(unsigned int data)
 {
-	switch(data & 0x03)
+	switch (data & 0x03)
 	{
 	default:
 		DebugAssert(false);
@@ -177,11 +177,11 @@ EffectiveAddress::Mode EffectiveAddress::GetMode() const
 unsigned int EffectiveAddress::ExtensionSize()
 {
 	unsigned int extensionSize = 0;
-	if(_mode == Mode::Immediate)
+	if (_mode == Mode::Immediate)
 	{
 		extensionSize += _data.GetByteSize();
 	}
-	else if(_mode == Mode::AddressIndirect)
+	else if (_mode == Mode::AddressIndirect)
 	{
 		extensionSize += _address.GetByteSize();
 	}
@@ -200,9 +200,9 @@ void EffectiveAddress::SetIndexState(IndexState indexState, const Z80Byte& index
 //----------------------------------------------------------------------------------------
 bool EffectiveAddress::UsesIndexOffset() const
 {
-	if(_indexState != IndexState::None)
+	if (_indexState != IndexState::None)
 	{
-		if((_mode == Mode::HLIndirect) || (_mode == Mode::HLPostInc) || (_mode == Mode::HLPostDec))
+		if ((_mode == Mode::HLIndirect) || (_mode == Mode::HLPostInc) || (_mode == Mode::HLPostDec))
 		{
 			return true;
 		}

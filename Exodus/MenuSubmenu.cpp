@@ -12,7 +12,7 @@ MenuSubmenu::MenuSubmenu(const std::wstring& title)
 //----------------------------------------------------------------------------------------
 MenuSubmenu::~MenuSubmenu()
 {
-	for(std::list<IMenuItem*>::const_iterator i = _menuItems.begin(); i != _menuItems.end(); ++i)
+	for (std::list<IMenuItem*>::const_iterator i = _menuItems.begin(); i != _menuItems.end(); ++i)
 	{
 		delete *i;
 	}
@@ -53,22 +53,22 @@ Marshal::Ret<std::wstring> MenuSubmenu::GetMenuTitle() const
 //----------------------------------------------------------------------------------------
 bool MenuSubmenu::NoMenuItemsExist() const
 {
-	for(std::list<IMenuItem*>::const_iterator i = _menuItems.begin(); i != _menuItems.end(); ++i)
+	for (std::list<IMenuItem*>::const_iterator i = _menuItems.begin(); i != _menuItems.end(); ++i)
 	{
 		const IMenuItem* menuItem = *i;
 		IMenuItem::Type menuItemType = menuItem->GetType();
-		if(menuItemType == IMenuItem::Type::Segment)
+		if (menuItemType == IMenuItem::Type::Segment)
 		{
 			const IMenuSegment* menuItemAsSegment = (IMenuSegment*)menuItem;
-			if(!menuItemAsSegment->NoMenuItemsExist())
+			if (!menuItemAsSegment->NoMenuItemsExist())
 			{
 				return false;
 			}
 		}
-		else if(menuItemType == IMenuItem::Type::SubMenu)
+		else if (menuItemType == IMenuItem::Type::SubMenu)
 		{
 			const IMenuSubmenu* menuItemAsSubmenu = (IMenuSubmenu*)menuItem;
-			if(!menuItemAsSubmenu->NoMenuItemsExist())
+			if (!menuItemAsSubmenu->NoMenuItemsExist())
 			{
 				return false;
 			}
@@ -119,9 +119,9 @@ void MenuSubmenu::DeleteMenuItem(IMenuItem& menuItem)
 	IMenuItem* menuItemPointer = &menuItem;
 	bool done = false;
 	std::list<IMenuItem*>::iterator i = _menuItems.begin();
-	while(!done && (i != _menuItems.end()))
+	while (!done && (i != _menuItems.end()))
 	{
-		if(*i == menuItemPointer)
+		if (*i == menuItemPointer)
 		{
 			_menuItems.erase(i);
 			delete menuItemPointer;
@@ -135,7 +135,7 @@ void MenuSubmenu::DeleteMenuItem(IMenuItem& menuItem)
 //----------------------------------------------------------------------------------------
 void MenuSubmenu::DeleteAllMenuItems()
 {
-	for(std::list<IMenuItem*>::iterator i = _menuItems.begin(); i != _menuItems.end(); ++i)
+	for (std::list<IMenuItem*>::iterator i = _menuItems.begin(); i != _menuItems.end(); ++i)
 	{
 		delete *i;
 	}

@@ -25,7 +25,7 @@ CallStackView::CallStackView(IUIManager& uiManager, CallStackViewPresenter& pres
 LRESULT CallStackView::WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	WndProcDialogImplementGiveFocusToChildWindowOnClick(hwnd, msg, wparam, lparam);
-	switch(msg)
+	switch (msg)
 	{
 	case WM_CREATE:
 		return msgWM_CREATE(hwnd, wparam, lparam);
@@ -116,7 +116,7 @@ LRESULT CallStackView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	//If the call stack hasn't changed since the last refresh, abort any further
 	//processing.
 	unsigned int newLogLastModifiedToken = _model.GetCallStackLastModifiedToken();
-	if(newLogLastModifiedToken == _logLastModifiedToken)
+	if (newLogLastModifiedToken == _logLastModifiedToken)
 	{
 		return 0;
 	}
@@ -127,7 +127,7 @@ LRESULT CallStackView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 
 	//Delete any extra rows from the data grid that are no longer required
 	unsigned int currentRowCount = (unsigned int)SendMessage(_hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::GetRowCount, 0, 0);
-	if((unsigned int)callStack.size() < currentRowCount)
+	if ((unsigned int)callStack.size() < currentRowCount)
 	{
 		unsigned int rowCountToRemove = currentRowCount - (unsigned int)callStack.size();
 		WC_DataGrid::Grid_DeleteRows deleteRowsInfo;
@@ -140,7 +140,7 @@ LRESULT CallStackView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	std::map<unsigned int, std::map<unsigned int, std::wstring>> rowText;
 	unsigned int pcLength = _model.GetPCCharWidth();
 	unsigned int currentRow = 0;
-	for(std::list<IProcessor::CallStackEntry>::const_iterator i = callStack.begin(); i != callStack.end(); ++i)
+	for (std::list<IProcessor::CallStackEntry>::const_iterator i = callStack.begin(); i != callStack.end(); ++i)
 	{
 		const IProcessor::CallStackEntry& entry = *i;
 		std::map<unsigned int, std::wstring>& columnText = rowText[currentRow++];
@@ -218,7 +218,7 @@ INT_PTR CALLBACK CallStackView::WndProcPanelStatic(HWND hwnd, UINT msg, WPARAM w
 	CallStackView* state = (CallStackView*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
 	//Process the message
-	switch(msg)
+	switch (msg)
 	{
 	case WM_INITDIALOG:
 		//Set the object pointer
@@ -226,13 +226,13 @@ INT_PTR CALLBACK CallStackView::WndProcPanelStatic(HWND hwnd, UINT msg, WPARAM w
 		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)(state));
 
 		//Pass this message on to the member window procedure function
-		if(state != 0)
+		if (state != 0)
 		{
 			return state->WndProcPanel(hwnd, msg, wparam, lparam);
 		}
 		break;
 	case WM_DESTROY:
-		if(state != 0)
+		if (state != 0)
 		{
 			//Pass this message on to the member window procedure function
 			INT_PTR result = state->WndProcPanel(hwnd, msg, wparam, lparam);
@@ -248,7 +248,7 @@ INT_PTR CALLBACK CallStackView::WndProcPanelStatic(HWND hwnd, UINT msg, WPARAM w
 
 	//Pass this message on to the member window procedure function
 	INT_PTR result = FALSE;
-	if(state != 0)
+	if (state != 0)
 	{
 		result = state->WndProcPanel(hwnd, msg, wparam, lparam);
 	}
@@ -259,7 +259,7 @@ INT_PTR CALLBACK CallStackView::WndProcPanelStatic(HWND hwnd, UINT msg, WPARAM w
 INT_PTR CallStackView::WndProcPanel(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	WndProcDialogImplementSaveFieldWhenLostFocus(hwnd, msg, wparam, lparam);
-	switch(msg)
+	switch (msg)
 	{
 	case WM_INITDIALOG:
 		return msgPanelWM_INITDIALOG(hwnd, wparam, lparam);
@@ -295,9 +295,9 @@ INT_PTR CallStackView::msgPanelWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 //----------------------------------------------------------------------------------------
 INT_PTR CallStackView::msgPanelWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	if(HIWORD(wparam) == BN_CLICKED)
+	if (HIWORD(wparam) == BN_CLICKED)
 	{
-		switch(LOWORD(wparam))
+		switch (LOWORD(wparam))
 		{
 		case IDC_PROCESSOR_STACK_DISASSEMBLE:{
 			_model.SetCallStackDisassemble(IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED);

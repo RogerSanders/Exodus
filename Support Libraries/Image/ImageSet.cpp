@@ -6,7 +6,7 @@
 ImageSet::~ImageSet()
 {
 	//Delete any images contained in this image set
-	for(size_t i = 0; i < _images.size(); ++i)
+	for (size_t i = 0; i < _images.size(); ++i)
 	{
 		delete _images[i];
 	}
@@ -24,7 +24,7 @@ unsigned int ImageSet::GetImageCount() const
 IImage* ImageSet::GetImageEntry(unsigned int imageNo) const
 {
 	//Ensure the requested image number is valid
-	if(imageNo >= (unsigned int)_images.size())
+	if (imageNo >= (unsigned int)_images.size())
 	{
 		return 0;
 	}

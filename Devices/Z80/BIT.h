@@ -30,7 +30,7 @@ public:
 		_target.SetIndexState(GetIndexState(), GetIndexOffset());
 		_doubleOutput = false;
 
-		if(_target.Decode8BitRegister(data.GetDataSegment(0, 3)))
+		if (_target.Decode8BitRegister(data.GetDataSegment(0, 3)))
 		{
 			//BIT b,r		11001011 01bbbrrr
 			AddExecuteCycleCount(4);
@@ -43,7 +43,7 @@ public:
 			_target.SetMode(EffectiveAddress::Mode::HLIndirect);
 			AddExecuteCycleCount(8);
 
-			if(GetIndexState() != EffectiveAddress::IndexState::None)
+			if (GetIndexState() != EffectiveAddress::IndexState::None)
 			{
 				_doubleOutput = true;
 				_targetHL.SetIndexState(GetIndexState(), GetIndexOffset());
@@ -64,7 +64,7 @@ public:
 		bool result;
 
 		//Perform the operation
-		if(_doubleOutput)
+		if (_doubleOutput)
 		{
 			additionalTime += _targetHL.Read(cpu, location, op1);
 		}
