@@ -80,7 +80,7 @@ void DeviceContext::NotifyUpcomingTimeslice(double nanoseconds)
 	//our devices, and it can be performed here with very little overhead.
 	_currentTimesliceProgress = _remainingTime;
 
-	if(_device.SendNotifyUpcomingTimeslice())
+	if (_device.SendNotifyUpcomingTimeslice())
 	{
 		_device.NotifyUpcomingTimeslice(nanoseconds);
 	}
@@ -89,7 +89,7 @@ void DeviceContext::NotifyUpcomingTimeslice(double nanoseconds)
 //----------------------------------------------------------------------------------------
 void DeviceContext::NotifyBeforeExecuteCalled()
 {
-	if(_device.SendNotifyBeforeExecuteCalled())
+	if (_device.SendNotifyBeforeExecuteCalled())
 	{
 		_device.NotifyBeforeExecuteCalled();
 	}
@@ -98,7 +98,7 @@ void DeviceContext::NotifyBeforeExecuteCalled()
 //----------------------------------------------------------------------------------------
 void DeviceContext::NotifyAfterExecuteCalled()
 {
-	if(_device.SendNotifyAfterExecuteCalled())
+	if (_device.SendNotifyAfterExecuteCalled())
 	{
 		_device.NotifyAfterExecuteCalled();
 	}
@@ -118,7 +118,7 @@ double DeviceContext::ExecuteStep()
 {
 	double additionalTime = 0;
 
-	if(_device.GetUpdateMethod() == IDevice::UpdateMethod::Step)
+	if (_device.GetUpdateMethod() == IDevice::UpdateMethod::Step)
 	{
 		_remainingTime += _device.ExecuteStep();
 		additionalTime = _remainingTime;
@@ -132,12 +132,12 @@ double DeviceContext::ExecuteStep(unsigned int accessContext)
 {
 	double additionalTime = 0;
 
-	if(_device.GetUpdateMethod() == IDevice::UpdateMethod::Step)
+	if (_device.GetUpdateMethod() == IDevice::UpdateMethod::Step)
 	{
 		_remainingTime += _device.ExecuteStep();
 		additionalTime = _remainingTime;
 	}
-	else if(_device.GetUpdateMethod() == IDevice::UpdateMethod::Timeslice)
+	else if (_device.GetUpdateMethod() == IDevice::UpdateMethod::Timeslice)
 	{
 		_device.ExecuteTimesliceTimingPointStep(accessContext);
 	}
@@ -149,7 +149,7 @@ double DeviceContext::ExecuteStep(unsigned int accessContext)
 void DeviceContext::WaitForCompletion()
 {
 	std::unique_lock<std::mutex> executeLock(_executeThreadMutex);
-	while(!_timesliceCompleted)
+	while (!_timesliceCompleted)
 	{
 		_executeCompletionStateChanged.wait(executeLock);
 	}
@@ -159,9 +159,9 @@ void DeviceContext::WaitForCompletion()
 void DeviceContext::WaitForCompletionAndDetectSuspendLock(volatile ReferenceCounterType& suspendedThreadCount, volatile ReferenceCounterType& remainingThreadCount, std::mutex& commandMutex, IExecutionSuspendManager* suspendManager)
 {
 	std::unique_lock<std::mutex> executeLock(_executeThreadMutex);
-	while(!_timesliceCompleted)
+	while (!_timesliceCompleted)
 	{
-		if(!_timesliceSuspended || _timesliceSuspensionDisable)
+		if (!_timesliceSuspended || _timesliceSuspensionDisable)
 		{
 			//If this execution thread isn't suspended, we need to wait for it to either
 			//finish the current timeslice, or enter a suspended state.
@@ -187,7 +187,7 @@ void DeviceContext::WaitForCompletionAndDetectSuspendLock(volatile ReferenceCoun
 			//Evaluate whether all remaining threads are suspended. If they are, release
 			//all suspended threads. If not, wait for the completion state of this execute
 			//thread to change.
-			if(suspendManager->AllDevicesSuspended(suspendedThreadCount, remainingThreadCount))
+			if (suspendManager->AllDevicesSuspended(suspendedThreadCount, remainingThreadCount))
 			{
 				//Note that we need to not hold a lock on executeThreadMutex here, since
 				//the suspend manager will call back into this DeviceContext object and
@@ -210,7 +210,7 @@ void DeviceContext::WaitForCompletionAndDetectSuspendLock(volatile ReferenceCoun
 				//state here.
 				executeLock.lock();
 				commandLock.unlock();
-				if(!_timesliceCompleted)
+				if (!_timesliceCompleted)
 				{
 					_executeCompletionStateChanged.wait(executeLock);
 				}
@@ -257,15 +257,15 @@ double DeviceContext::GetNextTimingPoint(unsigned int& accessContext) const
 {
 	double result = -1;
 
-	if(_device.GetUpdateMethod() == IDevice::UpdateMethod::Step)
+	if (_device.GetUpdateMethod() == IDevice::UpdateMethod::Step)
 	{
 		result = _device.GetNextTimingPointInDeviceTime(accessContext);
-		if(result >= 0)
+		if (result >= 0)
 		{
 			result += _remainingTime;
 		}
 	}
-	else if(_device.GetUpdateMethod() == IDevice::UpdateMethod::Timeslice)
+	else if (_device.GetUpdateMethod() == IDevice::UpdateMethod::Timeslice)
 	{
 		result = _device.GetNextTimingPointInDeviceTime(accessContext);
 	}
@@ -329,9 +329,9 @@ void DeviceContext::RemoveDeviceDependency(DeviceContext* targetDevice)
 {
 	bool done = false;
 	std::vector<DeviceDependency>::iterator i = _deviceDependencies.begin();
-	while(!done && (i != _deviceDependencies.end()))
+	while (!done && (i != _deviceDependencies.end()))
 	{
-		if(i->device == targetDevice)
+		if (i->device == targetDevice)
 		{
 			//Notify the target device that this device has removed it as a dependency
 			targetDevice->RemoveDependentDevice(this);
@@ -358,9 +358,9 @@ void DeviceContext::RemoveDependentDevice(DeviceContext* targetDevice)
 {
 	bool done = false;
 	std::vector<DeviceContext*>::iterator i = _dependentDevices.begin();
-	while(!done && (i != _dependentDevices.end()))
+	while (!done && (i != _dependentDevices.end()))
 	{
-		if(*i == targetDevice)
+		if (*i == targetDevice)
 		{
 			_dependentDevices.erase(i);
 			done = true;

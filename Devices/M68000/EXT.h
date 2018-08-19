@@ -33,7 +33,7 @@ public:
 //	| 0 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 1 | S | 0 | 0 | 0 | REGISTER  |
 //	-----------------------------------------------------------------
 //	                            |--<opmode>-|
-		switch(data.GetDataSegment(6, 1))
+		switch (data.GetDataSegment(6, 1))
 		{
 		case 0: //0
 			_size = BITCOUNT_BYTE;

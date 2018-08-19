@@ -107,7 +107,7 @@ void EffectiveAddress::BuildAddressIndirectIndex(Bitcount size, const M68000Long
 	//	|D/A|  Register |W/L| 0 | 0 | 0 |          Displacement         |
 	//	-----------------------------------------------------------------
 	_useAddressRegister = temp.GetBit(15);
-	if(!temp.GetBit(11))
+	if (!temp.GetBit(11))
 	{
 		_indexSize = BITCOUNT_WORD;
 	}
@@ -183,7 +183,7 @@ void EffectiveAddress::BuildPCIndirectIndex(Bitcount size, const M68000Long& loc
 	//	|D/A|  Register |W/L| 0 | 0 | 0 |          Displacement         |
 	//	-----------------------------------------------------------------
 	_useAddressRegister = temp.GetBit(15);
-	if(!temp.GetBit(11))
+	if (!temp.GetBit(11))
 	{
 		_indexSize = BITCOUNT_WORD;
 	}
@@ -205,7 +205,7 @@ void EffectiveAddress::BuildImmediateData(Bitcount size, const M68000Long& locat
 
 	_data.Resize(_size);
 	M68000Long tempLocation = location;
-	if(_size == BITCOUNT_BYTE)
+	if (_size == BITCOUNT_BYTE)
 	{
 		tempLocation += 1;
 	}
@@ -230,7 +230,7 @@ void EffectiveAddress::BuildQuickData(const M68000Long& location, unsigned int d
 	_savedPC = location;
 	_mode = Mode::Immediate;
 	_data.Resize(_size);
-	if(data == 0)
+	if (data == 0)
 	{
 		data = 8;
 	}
@@ -266,7 +266,7 @@ bool EffectiveAddress::IncrementAddress(Bitcount size)
 unsigned int EffectiveAddress::ExtensionSize()
 {
 	unsigned int addressSize = 0;
-	switch(_size)
+	switch (_size)
 	{
 	default:
 		DebugAssert(false);
@@ -285,7 +285,7 @@ unsigned int EffectiveAddress::ExtensionSize()
 ExecuteTime EffectiveAddress::DecodeTime()
 {
 	ExecuteTime executeTime;
-	switch(_size)
+	switch (_size)
 	{
 	default:
 		DebugAssert(false);

@@ -714,9 +714,9 @@ const S315_5313::HScanSettings& S315_5313::GetHScanSettings(bool screenModeRS0Ac
 const S315_5313::VScanSettings& S315_5313::GetVScanSettings(bool screenModeV30Active, bool palModeActive, bool interlaceActive)
 {
 	//Select the scan settings which correspond with the current screen mode
-	if(palModeActive)
+	if (palModeActive)
 	{
-		if(screenModeV30Active)
+		if (screenModeV30Active)
 		{
 			return (interlaceActive)? V30PalIntEnScanSettingsStatic: V30PalNoIntScanSettingsStatic;
 		}
@@ -727,7 +727,7 @@ const S315_5313::VScanSettings& S315_5313::GetVScanSettings(bool screenModeV30Ac
 	}
 	else
 	{
-		if(screenModeV30Active)
+		if (screenModeV30Active)
 		{
 			return (interlaceActive)? V30NtscIntEnScanSettingsStatic: V30NtscNoIntScanSettingsStatic;
 		}
@@ -777,7 +777,7 @@ unsigned int S315_5313::GetPixelClockStepsBetweenHVCounterValues(bool advanceIfV
 	//the same value right now, shortcut the rest of the process, and calculate the number
 	//of pixel clock steps required to return to the current horizontal and vertical
 	//counter values.
-	if(advanceIfValuesMatch && (hcounterCurrent == hcounterTarget) && (vcounterCurrent == vcounterTarget))
+	if (advanceIfValuesMatch && (hcounterCurrent == hcounterTarget) && (vcounterCurrent == vcounterTarget))
 	{
 		AdvanceHVCountersOneStep(hscanSettings, hcounterCurrent, vscanSettings, interlaceIsEnabled, oddFlagSet, vcounterCurrent);
 		totalPixelClockSteps = GetPixelClockStepsBetweenHVCounterValues(false, hscanSettings, hcounterCurrent, hcounterTarget, vscanSettings, interlaceIsEnabled, oddFlagSet, vcounterCurrent, vcounterTarget);
@@ -787,7 +787,7 @@ unsigned int S315_5313::GetPixelClockStepsBetweenHVCounterValues(bool advanceIfV
 
 	//Check if the hcounter is going to pass the vcounter increment point when advancing
 	//it from its current position to the target position
-	if(((hcounterCurrent < hcounterTarget) && (hcounterCurrent < hscanSettings.vcounterIncrementPoint) && (hcounterTarget >= hscanSettings.vcounterIncrementPoint))
+	if (((hcounterCurrent < hcounterTarget) && (hcounterCurrent < hscanSettings.vcounterIncrementPoint) && (hcounterTarget >= hscanSettings.vcounterIncrementPoint))
 	|| ((hcounterCurrent > hcounterTarget) && ((hcounterCurrent < hscanSettings.vcounterIncrementPoint) || (hcounterTarget >= hscanSettings.vcounterIncrementPoint))))
 	{
 		//If the hcounter advancement is going to increment the vcounter, advance the
@@ -799,7 +799,7 @@ unsigned int S315_5313::GetPixelClockStepsBetweenHVCounterValues(bool advanceIfV
 
 	//Calculate the total number of steps required to advance the vcounter to its final
 	//position
-	if(vcounterCurrent != vcounterTarget)
+	if (vcounterCurrent != vcounterTarget)
 	{
 		//##FIX## This function first advances the hcounter to the vcounter increment point,
 		//then leaves it there and advances the vcounter.
@@ -831,10 +831,10 @@ unsigned int S315_5313::GetPixelClockStepsBetweenHCounterValues(const HScanSetti
 unsigned int S315_5313::GetPixelClockStepsBetweenVCounterValues(const HScanSettings& hscanSettings, unsigned int hcounterCurrent, const VScanSettings& vscanSettings, bool interlaceIsEnabled, bool oddFlagSet, unsigned int vcounterCurrent, unsigned int vcounterTarget)
 {
 	unsigned int totalPixelClockSteps = 0;
-	if(vcounterCurrent != vcounterTarget)
+	if (vcounterCurrent != vcounterTarget)
 	{
 		bool hcounterAdvancedToIncrementPoint = false;
-		if(hcounterCurrent != hscanSettings.vcounterIncrementPoint)
+		if (hcounterCurrent != hscanSettings.vcounterIncrementPoint)
 		{
 			//Add the number of pixel clock steps required to advance the hcounter to the
 			//point where the vcounter is incremented.
@@ -849,7 +849,7 @@ unsigned int S315_5313::GetPixelClockStepsBetweenVCounterValues(const HScanSetti
 		//If the current horizontal and vertical counters haven't yet passed the point
 		//where the odd flag is toggled, and the target vcounter value is passed that
 		//point, update the value of the odd flag.
-		if(((vcounterCurrent < vscanSettings.vblankSetPoint) || ((vcounterCurrent == vscanSettings.vblankSetPoint) && (hcounterCurrent < hscanSettings.oddFlagTogglePoint))) && (vcounterTarget > vscanSettings.vblankSetPoint))
+		if (((vcounterCurrent < vscanSettings.vblankSetPoint) || ((vcounterCurrent == vscanSettings.vblankSetPoint) && (hcounterCurrent < hscanSettings.oddFlagTogglePoint))) && (vcounterTarget > vscanSettings.vblankSetPoint))
 		{
 			oddFlagSet = interlaceIsEnabled && !oddFlagSet;
 		}
@@ -859,7 +859,7 @@ unsigned int S315_5313::GetPixelClockStepsBetweenVCounterValues(const HScanSetti
 		unsigned int vcounterStepsPerIteration = oddFlagSet? vscanSettings.vcounterStepsPerIterationOddFlag: vscanSettings.vcounterStepsPerIteration;
 		unsigned int totalVCounterStepsBetweenValues = ((vcounterTarget + vcounterStepsPerIteration) - vcounterCurrent) % vcounterStepsPerIteration;
 
-		if(hcounterAdvancedToIncrementPoint)
+		if (hcounterAdvancedToIncrementPoint)
 		{
 			//Subtract 1 from the total number of vcounter increment steps, since we know we
 			//will already have advanced one vcounter step by advancing the hcounter to the
@@ -922,7 +922,7 @@ bool S315_5313::AdvanceHVCounterSession(HVCounterAdvanceSession& advanceSession,
 
 	//Gather information on the next hblank update point
 	unsigned int pixelClockTicksBeforeUpdatePointHBlank = 0;
-	if(hscanSettingsChanged)
+	if (hscanSettingsChanged)
 	{
 		//Calculate the number of pixel clock ticks until the hblank event occurs, and new
 		//screen mode settings are latched.
@@ -931,7 +931,7 @@ bool S315_5313::AdvanceHVCounterSession(HVCounterAdvanceSession& advanceSession,
 
 	//Gather information on the next vblank update point
 	unsigned int pixelClockTicksBeforeUpdatePointVBlank = 0;
-	if(vscanSettingsChanged)
+	if (vscanSettingsChanged)
 	{
 		//Calculate the number of pixel clock ticks until the vblank event occurs, and new
 		//screen mode settings are latched.
@@ -944,11 +944,11 @@ bool S315_5313::AdvanceHVCounterSession(HVCounterAdvanceSession& advanceSession,
 
 	//Set this advance operation to stop at the next update point if required
 	unsigned int pixelClockCyclesToAdvanceThisStep = pixelClockTicksBeforeTarget;
-	if(hscanSettingsChanged && (pixelClockTicksBeforeUpdatePointHBlank < pixelClockTicksBeforeTarget))
+	if (hscanSettingsChanged && (pixelClockTicksBeforeUpdatePointHBlank < pixelClockTicksBeforeTarget))
 	{
 		pixelClockCyclesToAdvanceThisStep = pixelClockTicksBeforeUpdatePointHBlank;
 	}
-	if(vscanSettingsChanged && (pixelClockTicksBeforeUpdatePointVBlank < pixelClockTicksBeforeTarget))
+	if (vscanSettingsChanged && (pixelClockTicksBeforeUpdatePointVBlank < pixelClockTicksBeforeTarget))
 	{
 		pixelClockCyclesToAdvanceThisStep = pixelClockTicksBeforeUpdatePointVBlank;
 	}
@@ -967,7 +967,7 @@ bool S315_5313::AdvanceHVCounterSession(HVCounterAdvanceSession& advanceSession,
 
 	//If horizontal scan information has changed, and we've just advanced to hblank, latch
 	//the new screen mode settings.
-	if(hscanSettingsChanged && (pixelClockTicksBeforeUpdatePointHBlank == pixelClockCyclesToAdvanceThisStep))
+	if (hscanSettingsChanged && (pixelClockTicksBeforeUpdatePointHBlank == pixelClockCyclesToAdvanceThisStep))
 	{
 		advanceSession.screenModeRS0Current = advanceSession.screenModeRS0New;
 		advanceSession.screenModeRS1Current = advanceSession.screenModeRS1New;
@@ -976,7 +976,7 @@ bool S315_5313::AdvanceHVCounterSession(HVCounterAdvanceSession& advanceSession,
 
 	//If vertical scan information has changed, and we've just advanced to vblank, latch
 	//the new screen mode settings.
-	if(vscanSettingsChanged && (pixelClockTicksBeforeUpdatePointVBlank == pixelClockCyclesToAdvanceThisStep))
+	if (vscanSettingsChanged && (pixelClockTicksBeforeUpdatePointVBlank == pixelClockCyclesToAdvanceThisStep))
 	{
 		advanceSession.interlaceEnabledCurrent = advanceSession.interlaceEnabledNew;
 		advanceSession.interlaceDoubleCurrent = advanceSession.interlaceDoubleNew;
@@ -1023,7 +1023,7 @@ unsigned int S315_5313::AddStepsToVCounter(const HScanSettings& hscanSettings, u
 	//If the current horizontal and vertical counters haven't yet passed the point
 	//where the odd flag is toggled, and the target vcounter value is passed that
 	//point, update the value of the odd flag.
-	if(((vcounterCurrent < vscanSettings.vblankSetPoint) || ((vcounterCurrent == vscanSettings.vblankSetPoint) && (hcounterCurrent < hscanSettings.oddFlagTogglePoint))) && (vcounterTarget > vscanSettings.vblankSetPoint))
+	if (((vcounterCurrent < vscanSettings.vblankSetPoint) || ((vcounterCurrent == vscanSettings.vblankSetPoint) && (hcounterCurrent < hscanSettings.oddFlagTogglePoint))) && (vcounterTarget > vscanSettings.vblankSetPoint))
 	{
 		oddFlagSet = interlaceIsEnabled && !oddFlagSet;
 	}
@@ -1050,7 +1050,7 @@ void S315_5313::AdvanceHVCounters(const HScanSettings& hscanSettings, unsigned i
 	//Calculate the number of times the hcounter needs to be incremented in order to reach
 	//the odd flag toggle point.
 	unsigned int hcounterIncrementStepsUntilOddFlagToggle;
-	if(hcounterCurrent < hscanSettings.oddFlagTogglePoint)
+	if (hcounterCurrent < hscanSettings.oddFlagTogglePoint)
 	{
 		hcounterIncrementStepsUntilOddFlagToggle = hscanSettings.oddFlagTogglePoint - hcounterCurrent;
 	}
@@ -1063,7 +1063,7 @@ void S315_5313::AdvanceHVCounters(const HScanSettings& hscanSettings, unsigned i
 	//the odd flag toggle point.
 	unsigned int vcounterStepsPerIteration = oddFlagSet? vscanSettings.vcounterStepsPerIterationOddFlag: vscanSettings.vcounterStepsPerIteration;
 	unsigned int vcounterIncrementStepsUntilOddFlagToggle;
-	if((vcounterCurrent < vscanSettings.vblankSetPoint) || ((vcounterCurrent == vscanSettings.vblankSetPoint) && (hcounterCurrent < hscanSettings.oddFlagTogglePoint)))
+	if ((vcounterCurrent < vscanSettings.vblankSetPoint) || ((vcounterCurrent == vscanSettings.vblankSetPoint) && (hcounterCurrent < hscanSettings.oddFlagTogglePoint)))
 	{
 		vcounterIncrementStepsUntilOddFlagToggle = vscanSettings.vblankSetPoint - vcounterCurrent;
 	}
@@ -1080,7 +1080,7 @@ void S315_5313::AdvanceHVCounters(const HScanSettings& hscanSettings, unsigned i
 	//calculating the number of pixel clock steps required to reach the target counter
 	//value.
 	unsigned int vcounterManualIncrementStepsUntilOddFlagToggle = vcounterIncrementStepsUntilOddFlagToggle;
-	if((hcounterCurrent >= hscanSettings.oddFlagTogglePoint) && (hcounterCurrent < hscanSettings.vcounterIncrementPoint))
+	if ((hcounterCurrent >= hscanSettings.oddFlagTogglePoint) && (hcounterCurrent < hscanSettings.vcounterIncrementPoint))
 	{
 		vcounterManualIncrementStepsUntilOddFlagToggle = (vcounterIncrementStepsUntilOddFlagToggle > 0)? vcounterIncrementStepsUntilOddFlagToggle - 1: vcounterStepsPerIteration - 1;
 	}
@@ -1090,7 +1090,7 @@ void S315_5313::AdvanceHVCounters(const HScanSettings& hscanSettings, unsigned i
 
 	//While there's enough cycles remaining to reach the odd flag toggle point, advance to
 	//that point, and update the odd flag.
-	while(pixelClockStepsUntilOddFlagToggle <= pixelClockSteps)
+	while (pixelClockStepsUntilOddFlagToggle <= pixelClockSteps)
 	{
 		//Advance the hcounter and vcounter to the odd flag toggle point
 		hcounterCurrent += hcounterIncrementStepsUntilOddFlagToggle;
@@ -1115,7 +1115,7 @@ void S315_5313::AdvanceHVCounters(const HScanSettings& hscanSettings, unsigned i
 	//Calculate the number of times the hcounter needs to be incremented in order to reach
 	//the vcounter increment point.
 	unsigned int hcounterIncrementStepsUntilVCounterIncrement;
-	if(hcounterCurrent < hscanSettings.vcounterIncrementPoint)
+	if (hcounterCurrent < hscanSettings.vcounterIncrementPoint)
 	{
 		hcounterIncrementStepsUntilVCounterIncrement = hscanSettings.vcounterIncrementPoint - hcounterCurrent;
 	}
@@ -1126,7 +1126,7 @@ void S315_5313::AdvanceHVCounters(const HScanSettings& hscanSettings, unsigned i
 
 	//Advance the hcounter and vcounter to their final positions
 	hcounterCurrent = (hcounterCurrent + pixelClockSteps) % hscanSettings.hcounterStepsPerIteration;
-	if(hcounterIncrementStepsUntilVCounterIncrement <= pixelClockSteps)
+	if (hcounterIncrementStepsUntilVCounterIncrement <= pixelClockSteps)
 	{
 		unsigned int vcounterIncrementSteps = ((pixelClockSteps - hcounterIncrementStepsUntilVCounterIncrement) / hscanSettings.hcounterStepsPerIteration) + 1;
 		vcounterCurrent = (vcounterCurrent + vcounterIncrementSteps) % vcounterStepsPerIteration;
@@ -1142,11 +1142,11 @@ void S315_5313::AdvanceHVCounters(const HScanSettings& hscanSettings, unsigned i
 void S315_5313::AdvanceHVCountersOneStep(const HScanSettings& hscanSettings, unsigned int& hcounterCurrent, const VScanSettings& vscanSettings, bool interlaceIsEnabled, bool& oddFlagSet, unsigned int& vcounterCurrent)
 {
 	//Advance the hcounter by one step
-	if(hcounterCurrent == hscanSettings.hcounterActiveScanMaxValue)
+	if (hcounterCurrent == hscanSettings.hcounterActiveScanMaxValue)
 	{
 		hcounterCurrent = hscanSettings.hcounterBlankingInitialValue;
 	}
-	else if(hcounterCurrent == hscanSettings.hcounterMaxValue)
+	else if (hcounterCurrent == hscanSettings.hcounterMaxValue)
 	{
 		hcounterCurrent = 0;
 	}
@@ -1156,17 +1156,17 @@ void S315_5313::AdvanceHVCountersOneStep(const HScanSettings& hscanSettings, uns
 	}
 
 	//Perform any adjustments required based on the new hcounter position
-	if(hcounterCurrent == hscanSettings.vcounterIncrementPoint)
+	if (hcounterCurrent == hscanSettings.vcounterIncrementPoint)
 	{
 		//Advance the vcounter by one step. Note that we have an unusual check here for
 		//vcounterBlankingInitialValue being less than vcounterMaxValue. This is only here
 		//right now to support our unusual handling of a H32 V30 display in NTSC, where
 		//there is no vertical blanking period.
-		if((vcounterCurrent == vscanSettings.vcounterActiveScanMaxValue) && (vscanSettings.vcounterBlankingInitialValue < vscanSettings.vcounterMaxValue))
+		if ((vcounterCurrent == vscanSettings.vcounterActiveScanMaxValue) && (vscanSettings.vcounterBlankingInitialValue < vscanSettings.vcounterMaxValue))
 		{
 			vcounterCurrent = oddFlagSet? vscanSettings.vcounterBlankingInitialValueOddFlag: vscanSettings.vcounterBlankingInitialValue;
 		}
-		else if(vcounterCurrent == vscanSettings.vcounterMaxValue)
+		else if (vcounterCurrent == vscanSettings.vcounterMaxValue)
 		{
 			vcounterCurrent = 0;
 		}
@@ -1175,7 +1175,7 @@ void S315_5313::AdvanceHVCountersOneStep(const HScanSettings& hscanSettings, uns
 			++vcounterCurrent;
 		}
 	}
-	else if((vcounterCurrent == vscanSettings.vblankSetPoint) && (hcounterCurrent == hscanSettings.oddFlagTogglePoint))
+	else if ((vcounterCurrent == vscanSettings.vblankSetPoint) && (hcounterCurrent == hscanSettings.oddFlagTogglePoint))
 	{
 		//Update the odd flag, now that we've reached the toggle point.
 		oddFlagSet = interlaceIsEnabled & !oddFlagSet;
@@ -1207,7 +1207,7 @@ void S315_5313::AdvanceHVCountersOneStep(const HScanSettings& hscanSettings, uns
 //	unsigned int vsramLastReadHCounter;
 //	unsigned int vsramLastReadVCounter;
 //	unsigned int vsramLastReadIndex;
-//	if(!screenModeRS1Current)
+//	if (!screenModeRS1Current)
 //	{
 //		//VSRAM read operations (H32):
 //		//----------------------------------
@@ -1248,7 +1248,7 @@ void S315_5313::AdvanceHVCountersOneStep(const HScanSettings& hscanSettings, uns
 //		//----------------------------------
 //		vsramLastReadVCounter = vcounterFinal;
 //		static const unsigned int vsramFirstReadHCounterOnLine = 0x003;
-//		if((vcounterFinal > vscanSettings.activeDisplayVCounterLastValue) //VCounter is past the end of the active scan region
+//		if ((vcounterFinal > vscanSettings.activeDisplayVCounterLastValue) //VCounter is past the end of the active scan region
 //		|| (vcounterFinal < vscanSettings.activeDisplayVCounterFirstValue) //VCounter is before the start of the active scan region
 //		|| ((vcounterFinal == vscanSettings.activeDisplayVCounterFirstValue) && ((hcounterFinal < vsramFirstReadHCounterOnLine) || (hcounterFinal >= hscanSettings.vcounterIncrementPoint)))) //VCounter is on the same line as the start of the active scan region, but hasn't reached the first VSRAM read position yet
 //		{
@@ -1256,45 +1256,45 @@ void S315_5313::AdvanceHVCountersOneStep(const HScanSettings& hscanSettings, uns
 //			vsramLastReadHCounter = 0x0FB;
 //			vsramLastReadIndex = 0x3E;
 //		}
-//		else if(hcounterFinal < 0x003) {vsramLastReadHCounter = 0x0FB; vsramLastReadIndex = 0x3E; vsramLastReadVCounter = vcounterFinal-1;}
-//		else if(hcounterFinal < 0x00B) {vsramLastReadHCounter = 0x003; vsramLastReadIndex = 0x00;}
-//		else if(hcounterFinal < 0x013) {vsramLastReadHCounter = 0x00B; vsramLastReadIndex = 0x02;}
-//		else if(hcounterFinal < 0x01B) {vsramLastReadHCounter = 0x013; vsramLastReadIndex = 0x04;}
-//		else if(hcounterFinal < 0x023) {vsramLastReadHCounter = 0x01B; vsramLastReadIndex = 0x06;}
-//		else if(hcounterFinal < 0x02B) {vsramLastReadHCounter = 0x023; vsramLastReadIndex = 0x08;}
-//		else if(hcounterFinal < 0x033) {vsramLastReadHCounter = 0x02B; vsramLastReadIndex = 0x0A;}
-//		else if(hcounterFinal < 0x03B) {vsramLastReadHCounter = 0x033; vsramLastReadIndex = 0x0C;}
-//		else if(hcounterFinal < 0x043) {vsramLastReadHCounter = 0x03B; vsramLastReadIndex = 0x0E;}
-//		else if(hcounterFinal < 0x04B) {vsramLastReadHCounter = 0x043; vsramLastReadIndex = 0x10;}
-//		else if(hcounterFinal < 0x053) {vsramLastReadHCounter = 0x04B; vsramLastReadIndex = 0x12;}
-//		else if(hcounterFinal < 0x05B) {vsramLastReadHCounter = 0x053; vsramLastReadIndex = 0x14;}
-//		else if(hcounterFinal < 0x063) {vsramLastReadHCounter = 0x05B; vsramLastReadIndex = 0x16;}
-//		else if(hcounterFinal < 0x06B) {vsramLastReadHCounter = 0x063; vsramLastReadIndex = 0x18;}
-//		else if(hcounterFinal < 0x073) {vsramLastReadHCounter = 0x06B; vsramLastReadIndex = 0x1A;}
-//		else if(hcounterFinal < 0x07B) {vsramLastReadHCounter = 0x073; vsramLastReadIndex = 0x1C;}
-//		else if(hcounterFinal < 0x083) {vsramLastReadHCounter = 0x07B; vsramLastReadIndex = 0x1E;}
-//		else if(hcounterFinal < 0x08B) {vsramLastReadHCounter = 0x083; vsramLastReadIndex = 0x20;}
-//		else if(hcounterFinal < 0x093) {vsramLastReadHCounter = 0x08B; vsramLastReadIndex = 0x22;}
-//		else if(hcounterFinal < 0x09B) {vsramLastReadHCounter = 0x093; vsramLastReadIndex = 0x24;}
-//		else if(hcounterFinal < 0x0A3) {vsramLastReadHCounter = 0x09B; vsramLastReadIndex = 0x26;}
-//		else if(hcounterFinal < 0x0AB) {vsramLastReadHCounter = 0x0A3; vsramLastReadIndex = 0x28;}
-//		else if(hcounterFinal < 0x0B3) {vsramLastReadHCounter = 0x0AB; vsramLastReadIndex = 0x2A;}
-//		else if(hcounterFinal < 0x0BB) {vsramLastReadHCounter = 0x0B3; vsramLastReadIndex = 0x2C;}
-//		else if(hcounterFinal < 0x0C3) {vsramLastReadHCounter = 0x0BB; vsramLastReadIndex = 0x2E;}
-//		else if(hcounterFinal < 0x0CB) {vsramLastReadHCounter = 0x0C3; vsramLastReadIndex = 0x30;}
-//		else if(hcounterFinal < 0x0D3) {vsramLastReadHCounter = 0x0CB; vsramLastReadIndex = 0x32;}
-//		else if(hcounterFinal < 0x0DB) {vsramLastReadHCounter = 0x0D3; vsramLastReadIndex = 0x34;}
-//		else if(hcounterFinal < 0x0E3) {vsramLastReadHCounter = 0x0DB; vsramLastReadIndex = 0x36;}
-//		else if(hcounterFinal < 0x0EB) {vsramLastReadHCounter = 0x0E3; vsramLastReadIndex = 0x38;}
-//		else if(hcounterFinal < 0x0F3) {vsramLastReadHCounter = 0x0EB; vsramLastReadIndex = 0x3A;}
-//		else if(hcounterFinal < 0x0FB) {vsramLastReadHCounter = 0x0F3; vsramLastReadIndex = 0x3C;}
+//		else if (hcounterFinal < 0x003) {vsramLastReadHCounter = 0x0FB; vsramLastReadIndex = 0x3E; vsramLastReadVCounter = vcounterFinal-1;}
+//		else if (hcounterFinal < 0x00B) {vsramLastReadHCounter = 0x003; vsramLastReadIndex = 0x00;}
+//		else if (hcounterFinal < 0x013) {vsramLastReadHCounter = 0x00B; vsramLastReadIndex = 0x02;}
+//		else if (hcounterFinal < 0x01B) {vsramLastReadHCounter = 0x013; vsramLastReadIndex = 0x04;}
+//		else if (hcounterFinal < 0x023) {vsramLastReadHCounter = 0x01B; vsramLastReadIndex = 0x06;}
+//		else if (hcounterFinal < 0x02B) {vsramLastReadHCounter = 0x023; vsramLastReadIndex = 0x08;}
+//		else if (hcounterFinal < 0x033) {vsramLastReadHCounter = 0x02B; vsramLastReadIndex = 0x0A;}
+//		else if (hcounterFinal < 0x03B) {vsramLastReadHCounter = 0x033; vsramLastReadIndex = 0x0C;}
+//		else if (hcounterFinal < 0x043) {vsramLastReadHCounter = 0x03B; vsramLastReadIndex = 0x0E;}
+//		else if (hcounterFinal < 0x04B) {vsramLastReadHCounter = 0x043; vsramLastReadIndex = 0x10;}
+//		else if (hcounterFinal < 0x053) {vsramLastReadHCounter = 0x04B; vsramLastReadIndex = 0x12;}
+//		else if (hcounterFinal < 0x05B) {vsramLastReadHCounter = 0x053; vsramLastReadIndex = 0x14;}
+//		else if (hcounterFinal < 0x063) {vsramLastReadHCounter = 0x05B; vsramLastReadIndex = 0x16;}
+//		else if (hcounterFinal < 0x06B) {vsramLastReadHCounter = 0x063; vsramLastReadIndex = 0x18;}
+//		else if (hcounterFinal < 0x073) {vsramLastReadHCounter = 0x06B; vsramLastReadIndex = 0x1A;}
+//		else if (hcounterFinal < 0x07B) {vsramLastReadHCounter = 0x073; vsramLastReadIndex = 0x1C;}
+//		else if (hcounterFinal < 0x083) {vsramLastReadHCounter = 0x07B; vsramLastReadIndex = 0x1E;}
+//		else if (hcounterFinal < 0x08B) {vsramLastReadHCounter = 0x083; vsramLastReadIndex = 0x20;}
+//		else if (hcounterFinal < 0x093) {vsramLastReadHCounter = 0x08B; vsramLastReadIndex = 0x22;}
+//		else if (hcounterFinal < 0x09B) {vsramLastReadHCounter = 0x093; vsramLastReadIndex = 0x24;}
+//		else if (hcounterFinal < 0x0A3) {vsramLastReadHCounter = 0x09B; vsramLastReadIndex = 0x26;}
+//		else if (hcounterFinal < 0x0AB) {vsramLastReadHCounter = 0x0A3; vsramLastReadIndex = 0x28;}
+//		else if (hcounterFinal < 0x0B3) {vsramLastReadHCounter = 0x0AB; vsramLastReadIndex = 0x2A;}
+//		else if (hcounterFinal < 0x0BB) {vsramLastReadHCounter = 0x0B3; vsramLastReadIndex = 0x2C;}
+//		else if (hcounterFinal < 0x0C3) {vsramLastReadHCounter = 0x0BB; vsramLastReadIndex = 0x2E;}
+//		else if (hcounterFinal < 0x0CB) {vsramLastReadHCounter = 0x0C3; vsramLastReadIndex = 0x30;}
+//		else if (hcounterFinal < 0x0D3) {vsramLastReadHCounter = 0x0CB; vsramLastReadIndex = 0x32;}
+//		else if (hcounterFinal < 0x0DB) {vsramLastReadHCounter = 0x0D3; vsramLastReadIndex = 0x34;}
+//		else if (hcounterFinal < 0x0E3) {vsramLastReadHCounter = 0x0DB; vsramLastReadIndex = 0x36;}
+//		else if (hcounterFinal < 0x0EB) {vsramLastReadHCounter = 0x0E3; vsramLastReadIndex = 0x38;}
+//		else if (hcounterFinal < 0x0F3) {vsramLastReadHCounter = 0x0EB; vsramLastReadIndex = 0x3A;}
+//		else if (hcounterFinal < 0x0FB) {vsramLastReadHCounter = 0x0F3; vsramLastReadIndex = 0x3C;}
 //		else
 //		{
 //			vsramLastReadHCounter = 0x0FB;
 //			vsramLastReadIndex = 0x3E;
 //			//If the hcounter has passed the vcounter increment point, the real vcounter
 //			//value to use is one less than the current value.
-//			if(hcounterFinal >= hscanSettings.vcounterIncrementPoint)
+//			if (hcounterFinal >= hscanSettings.vcounterIncrementPoint)
 //			{
 //				vsramLastReadVCounter = vcounterFinal-1;
 //			}
@@ -1348,7 +1348,7 @@ void S315_5313::AdvanceHVCountersOneStep(const HScanSettings& hscanSettings, uns
 //		//| 40 |  B  |  20  | 0x4E|  0x138 |
 //		//----------------------------------
 //		vsramLastReadVCounter = vcounterFinal;
-//		if((vcounterFinal > vscanSettings.activeDisplayVCounterLastValue) //VCounter is past the end of the active scan region
+//		if ((vcounterFinal > vscanSettings.activeDisplayVCounterLastValue) //VCounter is past the end of the active scan region
 //		|| (vcounterFinal < vscanSettings.activeDisplayVCounterFirstValue) //VCounter is before the start of the active scan region
 //		|| ((vcounterFinal == vscanSettings.activeDisplayVCounterFirstValue) && (hcounterFinal >= hscanSettings.vcounterIncrementPoint))) //VCounter is on the same line as the start of the active scan region, but hasn't reached the first VSRAM read position yet
 //		{
@@ -1356,52 +1356,52 @@ void S315_5313::AdvanceHVCountersOneStep(const HScanSettings& hscanSettings, uns
 //			vsramLastReadHCounter = 0x138;
 //			vsramLastReadIndex = 0x4E;
 //		}
-//		else if(hcounterFinal < 0x008) {vsramLastReadHCounter = 0x000; vsramLastReadIndex = 0x00;}
-//		else if(hcounterFinal < 0x010) {vsramLastReadHCounter = 0x008; vsramLastReadIndex = 0x02;}
-//		else if(hcounterFinal < 0x018) {vsramLastReadHCounter = 0x010; vsramLastReadIndex = 0x04;}
-//		else if(hcounterFinal < 0x020) {vsramLastReadHCounter = 0x018; vsramLastReadIndex = 0x06;}
-//		else if(hcounterFinal < 0x028) {vsramLastReadHCounter = 0x020; vsramLastReadIndex = 0x08;}
-//		else if(hcounterFinal < 0x030) {vsramLastReadHCounter = 0x028; vsramLastReadIndex = 0x0A;}
-//		else if(hcounterFinal < 0x038) {vsramLastReadHCounter = 0x030; vsramLastReadIndex = 0x0C;}
-//		else if(hcounterFinal < 0x040) {vsramLastReadHCounter = 0x038; vsramLastReadIndex = 0x0E;}
-//		else if(hcounterFinal < 0x048) {vsramLastReadHCounter = 0x040; vsramLastReadIndex = 0x10;}
-//		else if(hcounterFinal < 0x050) {vsramLastReadHCounter = 0x048; vsramLastReadIndex = 0x12;}
-//		else if(hcounterFinal < 0x058) {vsramLastReadHCounter = 0x050; vsramLastReadIndex = 0x14;}
-//		else if(hcounterFinal < 0x060) {vsramLastReadHCounter = 0x058; vsramLastReadIndex = 0x16;}
-//		else if(hcounterFinal < 0x068) {vsramLastReadHCounter = 0x060; vsramLastReadIndex = 0x18;}
-//		else if(hcounterFinal < 0x070) {vsramLastReadHCounter = 0x068; vsramLastReadIndex = 0x1A;}
-//		else if(hcounterFinal < 0x078) {vsramLastReadHCounter = 0x070; vsramLastReadIndex = 0x1C;}
-//		else if(hcounterFinal < 0x080) {vsramLastReadHCounter = 0x078; vsramLastReadIndex = 0x1E;}
-//		else if(hcounterFinal < 0x088) {vsramLastReadHCounter = 0x080; vsramLastReadIndex = 0x20;}
-//		else if(hcounterFinal < 0x090) {vsramLastReadHCounter = 0x088; vsramLastReadIndex = 0x22;}
-//		else if(hcounterFinal < 0x098) {vsramLastReadHCounter = 0x090; vsramLastReadIndex = 0x24;}
-//		else if(hcounterFinal < 0x0A0) {vsramLastReadHCounter = 0x098; vsramLastReadIndex = 0x26;}
-//		else if(hcounterFinal < 0x0A8) {vsramLastReadHCounter = 0x0A0; vsramLastReadIndex = 0x28;}
-//		else if(hcounterFinal < 0x0B0) {vsramLastReadHCounter = 0x0A8; vsramLastReadIndex = 0x2A;}
-//		else if(hcounterFinal < 0x0B8) {vsramLastReadHCounter = 0x0B0; vsramLastReadIndex = 0x2C;}
-//		else if(hcounterFinal < 0x0C0) {vsramLastReadHCounter = 0x0B8; vsramLastReadIndex = 0x2E;}
-//		else if(hcounterFinal < 0x0C8) {vsramLastReadHCounter = 0x0C0; vsramLastReadIndex = 0x30;}
-//		else if(hcounterFinal < 0x0D0) {vsramLastReadHCounter = 0x0C8; vsramLastReadIndex = 0x32;}
-//		else if(hcounterFinal < 0x0D8) {vsramLastReadHCounter = 0x0D0; vsramLastReadIndex = 0x34;}
-//		else if(hcounterFinal < 0x0E0) {vsramLastReadHCounter = 0x0D8; vsramLastReadIndex = 0x36;}
-//		else if(hcounterFinal < 0x0E8) {vsramLastReadHCounter = 0x0E0; vsramLastReadIndex = 0x38;}
-//		else if(hcounterFinal < 0x0F0) {vsramLastReadHCounter = 0x0E8; vsramLastReadIndex = 0x3A;}
-//		else if(hcounterFinal < 0x0F8) {vsramLastReadHCounter = 0x0F0; vsramLastReadIndex = 0x3C;}
-//		else if(hcounterFinal < 0x100) {vsramLastReadHCounter = 0x0F8; vsramLastReadIndex = 0x3E;}
-//		else if(hcounterFinal < 0x108) {vsramLastReadHCounter = 0x100; vsramLastReadIndex = 0x40;}
-//		else if(hcounterFinal < 0x110) {vsramLastReadHCounter = 0x108; vsramLastReadIndex = 0x42;}
-//		else if(hcounterFinal < 0x118) {vsramLastReadHCounter = 0x110; vsramLastReadIndex = 0x44;}
-//		else if(hcounterFinal < 0x120) {vsramLastReadHCounter = 0x118; vsramLastReadIndex = 0x46;}
-//		else if(hcounterFinal < 0x128) {vsramLastReadHCounter = 0x120; vsramLastReadIndex = 0x48;}
-//		else if(hcounterFinal < 0x130) {vsramLastReadHCounter = 0x128; vsramLastReadIndex = 0x4A;}
-//		else if(hcounterFinal < 0x138) {vsramLastReadHCounter = 0x130; vsramLastReadIndex = 0x4C;}
+//		else if (hcounterFinal < 0x008) {vsramLastReadHCounter = 0x000; vsramLastReadIndex = 0x00;}
+//		else if (hcounterFinal < 0x010) {vsramLastReadHCounter = 0x008; vsramLastReadIndex = 0x02;}
+//		else if (hcounterFinal < 0x018) {vsramLastReadHCounter = 0x010; vsramLastReadIndex = 0x04;}
+//		else if (hcounterFinal < 0x020) {vsramLastReadHCounter = 0x018; vsramLastReadIndex = 0x06;}
+//		else if (hcounterFinal < 0x028) {vsramLastReadHCounter = 0x020; vsramLastReadIndex = 0x08;}
+//		else if (hcounterFinal < 0x030) {vsramLastReadHCounter = 0x028; vsramLastReadIndex = 0x0A;}
+//		else if (hcounterFinal < 0x038) {vsramLastReadHCounter = 0x030; vsramLastReadIndex = 0x0C;}
+//		else if (hcounterFinal < 0x040) {vsramLastReadHCounter = 0x038; vsramLastReadIndex = 0x0E;}
+//		else if (hcounterFinal < 0x048) {vsramLastReadHCounter = 0x040; vsramLastReadIndex = 0x10;}
+//		else if (hcounterFinal < 0x050) {vsramLastReadHCounter = 0x048; vsramLastReadIndex = 0x12;}
+//		else if (hcounterFinal < 0x058) {vsramLastReadHCounter = 0x050; vsramLastReadIndex = 0x14;}
+//		else if (hcounterFinal < 0x060) {vsramLastReadHCounter = 0x058; vsramLastReadIndex = 0x16;}
+//		else if (hcounterFinal < 0x068) {vsramLastReadHCounter = 0x060; vsramLastReadIndex = 0x18;}
+//		else if (hcounterFinal < 0x070) {vsramLastReadHCounter = 0x068; vsramLastReadIndex = 0x1A;}
+//		else if (hcounterFinal < 0x078) {vsramLastReadHCounter = 0x070; vsramLastReadIndex = 0x1C;}
+//		else if (hcounterFinal < 0x080) {vsramLastReadHCounter = 0x078; vsramLastReadIndex = 0x1E;}
+//		else if (hcounterFinal < 0x088) {vsramLastReadHCounter = 0x080; vsramLastReadIndex = 0x20;}
+//		else if (hcounterFinal < 0x090) {vsramLastReadHCounter = 0x088; vsramLastReadIndex = 0x22;}
+//		else if (hcounterFinal < 0x098) {vsramLastReadHCounter = 0x090; vsramLastReadIndex = 0x24;}
+//		else if (hcounterFinal < 0x0A0) {vsramLastReadHCounter = 0x098; vsramLastReadIndex = 0x26;}
+//		else if (hcounterFinal < 0x0A8) {vsramLastReadHCounter = 0x0A0; vsramLastReadIndex = 0x28;}
+//		else if (hcounterFinal < 0x0B0) {vsramLastReadHCounter = 0x0A8; vsramLastReadIndex = 0x2A;}
+//		else if (hcounterFinal < 0x0B8) {vsramLastReadHCounter = 0x0B0; vsramLastReadIndex = 0x2C;}
+//		else if (hcounterFinal < 0x0C0) {vsramLastReadHCounter = 0x0B8; vsramLastReadIndex = 0x2E;}
+//		else if (hcounterFinal < 0x0C8) {vsramLastReadHCounter = 0x0C0; vsramLastReadIndex = 0x30;}
+//		else if (hcounterFinal < 0x0D0) {vsramLastReadHCounter = 0x0C8; vsramLastReadIndex = 0x32;}
+//		else if (hcounterFinal < 0x0D8) {vsramLastReadHCounter = 0x0D0; vsramLastReadIndex = 0x34;}
+//		else if (hcounterFinal < 0x0E0) {vsramLastReadHCounter = 0x0D8; vsramLastReadIndex = 0x36;}
+//		else if (hcounterFinal < 0x0E8) {vsramLastReadHCounter = 0x0E0; vsramLastReadIndex = 0x38;}
+//		else if (hcounterFinal < 0x0F0) {vsramLastReadHCounter = 0x0E8; vsramLastReadIndex = 0x3A;}
+//		else if (hcounterFinal < 0x0F8) {vsramLastReadHCounter = 0x0F0; vsramLastReadIndex = 0x3C;}
+//		else if (hcounterFinal < 0x100) {vsramLastReadHCounter = 0x0F8; vsramLastReadIndex = 0x3E;}
+//		else if (hcounterFinal < 0x108) {vsramLastReadHCounter = 0x100; vsramLastReadIndex = 0x40;}
+//		else if (hcounterFinal < 0x110) {vsramLastReadHCounter = 0x108; vsramLastReadIndex = 0x42;}
+//		else if (hcounterFinal < 0x118) {vsramLastReadHCounter = 0x110; vsramLastReadIndex = 0x44;}
+//		else if (hcounterFinal < 0x120) {vsramLastReadHCounter = 0x118; vsramLastReadIndex = 0x46;}
+//		else if (hcounterFinal < 0x128) {vsramLastReadHCounter = 0x120; vsramLastReadIndex = 0x48;}
+//		else if (hcounterFinal < 0x130) {vsramLastReadHCounter = 0x128; vsramLastReadIndex = 0x4A;}
+//		else if (hcounterFinal < 0x138) {vsramLastReadHCounter = 0x130; vsramLastReadIndex = 0x4C;}
 //		else
 //		{
 //			vsramLastReadHCounter = 0x138;
 //			vsramLastReadIndex = 0x4E;
 //			//If the hcounter has passed the vcounter increment point, the real vcounter
 //			//value to use is one less than the current value.
-//			if(hcounterFinal >= hscanSettings.vcounterIncrementPoint)
+//			if (hcounterFinal >= hscanSettings.vcounterIncrementPoint)
 //			{
 //				vsramLastReadVCounter = vcounterFinal-1;
 //			}
@@ -1412,14 +1412,14 @@ void S315_5313::AdvanceHVCountersOneStep(const HScanSettings& hscanSettings, uns
 //	//accordingly. If the vscroll mode is set to overall scrolling rather than column
 //	//based scrolling, all columns use the scroll value for the first column. We mask the
 //	//read index to apply that effect here.
-//	if(!vscrollMode)
+//	if (!vscrollMode)
 //	{
 //		vsramLastReadIndex &= 0x03;
 //	}
 //
 //	//If we advanced past the last VSRAM read slot in the last advance operation, latch
 //	//the last VSRAM read cache index as the new VSRAM read cache index.
-//	if(EventOccursWithinCounterRange(hscanSettings, hcounterInitial, vcounterInitial, hcounterFinal, vcounterFinal, vsramLastReadHCounter, vsramLastReadVCounter))
+//	if (EventOccursWithinCounterRange(hscanSettings, hcounterInitial, vcounterInitial, hcounterFinal, vcounterFinal, vsramLastReadHCounter, vsramLastReadVCounter))
 //	{
 //		vsramReadCacheIndexNew = vsramLastReadIndex;
 //	}
@@ -1450,9 +1450,9 @@ unsigned int S315_5313::GetPixelClockTicksUntilNextAccessSlot(const HScanSetting
 	//there is during an active line.
 	//##TODO## Consider using table lookups here to eliminate branching.
 	unsigned int nextAccessSlotHCounter = 0;
-	if(!currentLineActiveDisplayRegion || !displayEnabled)
+	if (!currentLineActiveDisplayRegion || !displayEnabled)
 	{
-		if(!screenModeRS1Current)
+		if (!screenModeRS1Current)
 		{
 			//Refresh cycle slots (H32):
 			//---------------
@@ -1465,10 +1465,10 @@ unsigned int S315_5313::GetPixelClockTicksUntilNextAccessSlot(const HScanSetting
 			//|  5 |  0x1F5 |
 			//---------------
 			if     ((hcounterCurrent >= 0x035) && (hcounterCurrent <= 0x03A)) {nextAccessSlotHCounter = 0x03B;}
-			else if((hcounterCurrent >= 0x075) && (hcounterCurrent <= 0x07A)) {nextAccessSlotHCounter = 0x07B;}
-			else if((hcounterCurrent >= 0x0B5) && (hcounterCurrent <= 0x0BA)) {nextAccessSlotHCounter = 0x0BB;}
-			else if((hcounterCurrent >= 0x0F5) && (hcounterCurrent <= 0x0FA)) {nextAccessSlotHCounter = 0x0FB;}
-			else if((hcounterCurrent >= 0x1F5) && (hcounterCurrent <= 0x1FA)) {nextAccessSlotHCounter = 0x1FB;}
+			else if ((hcounterCurrent >= 0x075) && (hcounterCurrent <= 0x07A)) {nextAccessSlotHCounter = 0x07B;}
+			else if ((hcounterCurrent >= 0x0B5) && (hcounterCurrent <= 0x0BA)) {nextAccessSlotHCounter = 0x0BB;}
+			else if ((hcounterCurrent >= 0x0F5) && (hcounterCurrent <= 0x0FA)) {nextAccessSlotHCounter = 0x0FB;}
+			else if ((hcounterCurrent >= 0x1F5) && (hcounterCurrent <= 0x1FA)) {nextAccessSlotHCounter = 0x1FB;}
 			else
 			{
 				//If none of the above cases apply, our next access slot is on the next
@@ -1481,7 +1481,7 @@ unsigned int S315_5313::GetPixelClockTicksUntilNextAccessSlot(const HScanSetting
 				//display line, set the next access slot based on the first allowed access
 				//slot after vcounter increment in an active display line for this screen
 				//mode.
-				if(displayEnabled && nextLineActiveDisplayRegion && ((hcounterCurrent < hscanSettings.vcounterIncrementPoint) && (nextAccessSlotHCounter >= hscanSettings.vcounterIncrementPoint)))
+				if (displayEnabled && nextLineActiveDisplayRegion && ((hcounterCurrent < hscanSettings.vcounterIncrementPoint) && (nextAccessSlotHCounter >= hscanSettings.vcounterIncrementPoint)))
 				{
 					nextAccessSlotHCounter = 0x121;
 				}
@@ -1501,11 +1501,11 @@ unsigned int S315_5313::GetPixelClockTicksUntilNextAccessSlot(const HScanSetting
 			//|  6 |  0x1F2 |
 			//---------------
 			if     ((hcounterCurrent >= 0x030) && (hcounterCurrent <= 0x035)) {nextAccessSlotHCounter = 0x036;}
-			else if((hcounterCurrent >= 0x070) && (hcounterCurrent <= 0x075)) {nextAccessSlotHCounter = 0x076;}
-			else if((hcounterCurrent >= 0x0B0) && (hcounterCurrent <= 0x0B5)) {nextAccessSlotHCounter = 0x0B6;}
-			else if((hcounterCurrent >= 0x0F0) && (hcounterCurrent <= 0x0F5)) {nextAccessSlotHCounter = 0x0F6;}
-			else if((hcounterCurrent >= 0x130) && (hcounterCurrent <= 0x135)) {nextAccessSlotHCounter = 0x136;}
-			else if((hcounterCurrent >= 0x1F0) && (hcounterCurrent <= 0x1F5)) {nextAccessSlotHCounter = 0x1F6;}
+			else if ((hcounterCurrent >= 0x070) && (hcounterCurrent <= 0x075)) {nextAccessSlotHCounter = 0x076;}
+			else if ((hcounterCurrent >= 0x0B0) && (hcounterCurrent <= 0x0B5)) {nextAccessSlotHCounter = 0x0B6;}
+			else if ((hcounterCurrent >= 0x0F0) && (hcounterCurrent <= 0x0F5)) {nextAccessSlotHCounter = 0x0F6;}
+			else if ((hcounterCurrent >= 0x130) && (hcounterCurrent <= 0x135)) {nextAccessSlotHCounter = 0x136;}
+			else if ((hcounterCurrent >= 0x1F0) && (hcounterCurrent <= 0x1F5)) {nextAccessSlotHCounter = 0x1F6;}
 			else
 			{
 				//If none of the above cases apply, our next access slot is on the next
@@ -1518,7 +1518,7 @@ unsigned int S315_5313::GetPixelClockTicksUntilNextAccessSlot(const HScanSetting
 				//display line, set the next access slot based on the first allowed access
 				//slot after vcounter increment in an active display line for this screen
 				//mode.
-				if(displayEnabled && nextLineActiveDisplayRegion && ((hcounterCurrent < hscanSettings.vcounterIncrementPoint) && (nextAccessSlotHCounter >= hscanSettings.vcounterIncrementPoint)))
+				if (displayEnabled && nextLineActiveDisplayRegion && ((hcounterCurrent < hscanSettings.vcounterIncrementPoint) && (nextAccessSlotHCounter >= hscanSettings.vcounterIncrementPoint)))
 				{
 					nextAccessSlotHCounter = 0x1CE;
 				}
@@ -1527,7 +1527,7 @@ unsigned int S315_5313::GetPixelClockTicksUntilNextAccessSlot(const HScanSetting
 	}
 	else
 	{
-		if(!screenModeRS1Current)
+		if (!screenModeRS1Current)
 		{
 			//External access slots (H32):
 			//---------------
@@ -1551,20 +1551,20 @@ unsigned int S315_5313::GetPixelClockTicksUntilNextAccessSlot(const HScanSetting
 			//| 16 |  0x1E7 | //Next line
 			//---------------
 			if     (hcounterCurrent < 0x005) {nextAccessSlotHCounter = 0x005;}
-			else if(hcounterCurrent < 0x015) {nextAccessSlotHCounter = 0x015;}
-			else if(hcounterCurrent < 0x025) {nextAccessSlotHCounter = 0x025;}
-			else if(hcounterCurrent < 0x045) {nextAccessSlotHCounter = 0x045;}
-			else if(hcounterCurrent < 0x055) {nextAccessSlotHCounter = 0x055;}
-			else if(hcounterCurrent < 0x065) {nextAccessSlotHCounter = 0x065;}
-			else if(hcounterCurrent < 0x085) {nextAccessSlotHCounter = 0x085;}
-			else if(hcounterCurrent < 0x095) {nextAccessSlotHCounter = 0x095;}
-			else if(hcounterCurrent < 0x0A5) {nextAccessSlotHCounter = 0x0A5;}
-			else if(hcounterCurrent < 0x0C5) {nextAccessSlotHCounter = 0x0C5;}
-			else if(hcounterCurrent < 0x0D5) {nextAccessSlotHCounter = 0x0D5;}
-			else if(hcounterCurrent < 0x0E5) {nextAccessSlotHCounter = 0x0E5;}
-			else if(hcounterCurrent < 0x103) {nextAccessSlotHCounter = 0x103;}
-			else if(hcounterCurrent < 0x105) {nextAccessSlotHCounter = 0x105;}
-			else if(!nextLineActiveDisplayRegion && (hcounterCurrent < hscanSettings.vcounterIncrementPoint))
+			else if (hcounterCurrent < 0x015) {nextAccessSlotHCounter = 0x015;}
+			else if (hcounterCurrent < 0x025) {nextAccessSlotHCounter = 0x025;}
+			else if (hcounterCurrent < 0x045) {nextAccessSlotHCounter = 0x045;}
+			else if (hcounterCurrent < 0x055) {nextAccessSlotHCounter = 0x055;}
+			else if (hcounterCurrent < 0x065) {nextAccessSlotHCounter = 0x065;}
+			else if (hcounterCurrent < 0x085) {nextAccessSlotHCounter = 0x085;}
+			else if (hcounterCurrent < 0x095) {nextAccessSlotHCounter = 0x095;}
+			else if (hcounterCurrent < 0x0A5) {nextAccessSlotHCounter = 0x0A5;}
+			else if (hcounterCurrent < 0x0C5) {nextAccessSlotHCounter = 0x0C5;}
+			else if (hcounterCurrent < 0x0D5) {nextAccessSlotHCounter = 0x0D5;}
+			else if (hcounterCurrent < 0x0E5) {nextAccessSlotHCounter = 0x0E5;}
+			else if (hcounterCurrent < 0x103) {nextAccessSlotHCounter = 0x103;}
+			else if (hcounterCurrent < 0x105) {nextAccessSlotHCounter = 0x105;}
+			else if (!nextLineActiveDisplayRegion && (hcounterCurrent < hscanSettings.vcounterIncrementPoint))
 			{
 				//If we're going to pass from an active line to a non-active line on the
 				//next vcounter increment, and there are no remaining access slots on the
@@ -1574,8 +1574,8 @@ unsigned int S315_5313::GetPixelClockTicksUntilNextAccessSlot(const HScanSetting
 				nextAccessSlotHCounter = hscanSettings.vcounterIncrementPoint;
 				nextAccessSlotHCounter += ((nextAccessSlotHCounter % 2) != 0)? 0: 1;
 			}
-			else if(hcounterCurrent < 0x121) {nextAccessSlotHCounter = 0x121;}
-			else if(hcounterCurrent < 0x1E7) {nextAccessSlotHCounter = 0x1E7;}
+			else if (hcounterCurrent < 0x121) {nextAccessSlotHCounter = 0x121;}
+			else if (hcounterCurrent < 0x1E7) {nextAccessSlotHCounter = 0x1E7;}
 			else                             {nextAccessSlotHCounter = 0x005;}
 		}
 		else
@@ -1604,23 +1604,23 @@ unsigned int S315_5313::GetPixelClockTicksUntilNextAccessSlot(const HScanSetting
 			//| 18 |  0x1CE | //Next line
 			//---------------
 			if     (hcounterCurrent < 0x002) {nextAccessSlotHCounter = 0x002;}
-			else if(hcounterCurrent < 0x012) {nextAccessSlotHCounter = 0x012;}
-			else if(hcounterCurrent < 0x022) {nextAccessSlotHCounter = 0x022;}
-			else if(hcounterCurrent < 0x042) {nextAccessSlotHCounter = 0x042;}
-			else if(hcounterCurrent < 0x052) {nextAccessSlotHCounter = 0x052;}
-			else if(hcounterCurrent < 0x062) {nextAccessSlotHCounter = 0x062;}
-			else if(hcounterCurrent < 0x082) {nextAccessSlotHCounter = 0x082;}
-			else if(hcounterCurrent < 0x092) {nextAccessSlotHCounter = 0x092;}
-			else if(hcounterCurrent < 0x0A2) {nextAccessSlotHCounter = 0x0A2;}
-			else if(hcounterCurrent < 0x0C2) {nextAccessSlotHCounter = 0x0C2;}
-			else if(hcounterCurrent < 0x0D2) {nextAccessSlotHCounter = 0x0D2;}
-			else if(hcounterCurrent < 0x0E2) {nextAccessSlotHCounter = 0x0E2;}
-			else if(hcounterCurrent < 0x102) {nextAccessSlotHCounter = 0x102;}
-			else if(hcounterCurrent < 0x112) {nextAccessSlotHCounter = 0x112;}
-			else if(hcounterCurrent < 0x122) {nextAccessSlotHCounter = 0x122;}
-			else if(hcounterCurrent < 0x140) {nextAccessSlotHCounter = 0x140;}
-			else if(hcounterCurrent < 0x142) {nextAccessSlotHCounter = 0x142;}
-			else if(!nextLineActiveDisplayRegion && (hcounterCurrent < hscanSettings.vcounterIncrementPoint))
+			else if (hcounterCurrent < 0x012) {nextAccessSlotHCounter = 0x012;}
+			else if (hcounterCurrent < 0x022) {nextAccessSlotHCounter = 0x022;}
+			else if (hcounterCurrent < 0x042) {nextAccessSlotHCounter = 0x042;}
+			else if (hcounterCurrent < 0x052) {nextAccessSlotHCounter = 0x052;}
+			else if (hcounterCurrent < 0x062) {nextAccessSlotHCounter = 0x062;}
+			else if (hcounterCurrent < 0x082) {nextAccessSlotHCounter = 0x082;}
+			else if (hcounterCurrent < 0x092) {nextAccessSlotHCounter = 0x092;}
+			else if (hcounterCurrent < 0x0A2) {nextAccessSlotHCounter = 0x0A2;}
+			else if (hcounterCurrent < 0x0C2) {nextAccessSlotHCounter = 0x0C2;}
+			else if (hcounterCurrent < 0x0D2) {nextAccessSlotHCounter = 0x0D2;}
+			else if (hcounterCurrent < 0x0E2) {nextAccessSlotHCounter = 0x0E2;}
+			else if (hcounterCurrent < 0x102) {nextAccessSlotHCounter = 0x102;}
+			else if (hcounterCurrent < 0x112) {nextAccessSlotHCounter = 0x112;}
+			else if (hcounterCurrent < 0x122) {nextAccessSlotHCounter = 0x122;}
+			else if (hcounterCurrent < 0x140) {nextAccessSlotHCounter = 0x140;}
+			else if (hcounterCurrent < 0x142) {nextAccessSlotHCounter = 0x142;}
+			else if (!nextLineActiveDisplayRegion && (hcounterCurrent < hscanSettings.vcounterIncrementPoint))
 			{
 				//If we're going to pass from an active line to a non-active line on the
 				//next vcounter increment, and there are no remaining access slots on the
@@ -1630,7 +1630,7 @@ unsigned int S315_5313::GetPixelClockTicksUntilNextAccessSlot(const HScanSetting
 				nextAccessSlotHCounter = hscanSettings.vcounterIncrementPoint;
 				nextAccessSlotHCounter += ((nextAccessSlotHCounter % 2) != 0)? 1: 0;
 			}
-			else if(hcounterCurrent < 0x1CE) {nextAccessSlotHCounter = 0x1CE;}
+			else if (hcounterCurrent < 0x1CE) {nextAccessSlotHCounter = 0x1CE;}
 			else                             {nextAccessSlotHCounter = 0x002;}
 		}
 	}
@@ -1650,14 +1650,14 @@ unsigned int S315_5313::GetPixelClockTicksForMclkTicks(const HScanSettings& hsca
 	//number of mclk ticks, based on the current screen mode.
 	static const unsigned int pixelClockDivider = 2;
 	unsigned int pixelClockTicks;
-	if(!screenModeRS0Active)
+	if (!screenModeRS0Active)
 	{
 		//If the RS0 bit is clear, the serial clock is generated internally, using a
 		//divider from the MCLK input. If the RS1 bit is clear, selecting a H32 screen
 		//mode, the serial clock is calculated as MCLK/5. If the RS1 bit is set, selecting
 		//a H40 screen mode, the serial clock is calculated as MCLK/4.
 		unsigned int serialClockDivider;
-		if(!screenModeRS1Active)
+		if (!screenModeRS1Active)
 		{
 			//In H32 mode, if the RS0 bit is not set, the serial clock is calculated as
 			//MCLK/5. The relation of hcounter to the various clock signals, and the
@@ -1733,7 +1733,7 @@ unsigned int S315_5313::GetPixelClockTicksForMclkTicks(const HScanSettings& hsca
 		//this clock signal is external to the VDP itself, and this should eventually be
 		//separated from the VDP core itself, so that a different EDCLK input signal can
 		//be supplied if another system has different video sync requirements.
-		if(!screenModeRS1Active)
+		if (!screenModeRS1Active)
 		{
 			//The external EDCLK input is not designed to be used with H32 mode. Selecting
 			//the EDCLK input without enabling H40 mode produces a video signal with a far
@@ -1830,48 +1830,48 @@ unsigned int S315_5313::GetPixelClockTicksForMclkTicks(const HScanSettings& hsca
 			//--------------------------
 			//We use this information below to accurately calculate the number of mclk
 			//cycles used to advance the hcounter.
-			while(mclkTicksRemaining > 0)
+			while (mclkTicksRemaining > 0)
 			{
 				//Determine the current clock rate, and the number of steps we can advance
 				//the pixel clock until the clock rate changes.
 				unsigned int nextHCounterTargetStep;
 				unsigned int currentMclksPerStep;
-				if(hcounterCurrent < 0x1D9)
+				if (hcounterCurrent < 0x1D9)
 				{
 					nextHCounterTargetStep = 0x1D9;
 					currentMclksPerStep = 8;
 				}
-				else if(hcounterCurrent < 0x1E0)
+				else if (hcounterCurrent < 0x1E0)
 				{
 					nextHCounterTargetStep = 0x1E0;
 					currentMclksPerStep = 10;
 				}
-				else if(hcounterCurrent < 0x1E2)
+				else if (hcounterCurrent < 0x1E2)
 				{
 					nextHCounterTargetStep = 0x1E2;
 					currentMclksPerStep = 9;
 				}
-				else if(hcounterCurrent < 0x1E9)
+				else if (hcounterCurrent < 0x1E9)
 				{
 					nextHCounterTargetStep = 0x1E9;
 					currentMclksPerStep = 10;
 				}
-				else if(hcounterCurrent < 0x1EA)
+				else if (hcounterCurrent < 0x1EA)
 				{
 					nextHCounterTargetStep = 0x1EA;
 					currentMclksPerStep = 8;
 				}
-				else if(hcounterCurrent < 0x1F1)
+				else if (hcounterCurrent < 0x1F1)
 				{
 					nextHCounterTargetStep = 0x1F1;
 					currentMclksPerStep = 10;
 				}
-				else if(hcounterCurrent < 0x1F3)
+				else if (hcounterCurrent < 0x1F3)
 				{
 					nextHCounterTargetStep = 0x1F3;
 					currentMclksPerStep = 9;
 				}
-				else if(hcounterCurrent < 0x1FA)
+				else if (hcounterCurrent < 0x1FA)
 				{
 					nextHCounterTargetStep = 0x1FA;
 					currentMclksPerStep = 10;
@@ -2024,48 +2024,48 @@ unsigned int S315_5313::GetPixelClockTicksForMclkTicks(const HScanSettings& hsca
 			//--------------------------
 			//We use this information below to accurately calculate the number of mclk
 			//cycles used to advance the hcounter.
-			while(mclkTicksRemaining > 0)
+			while (mclkTicksRemaining > 0)
 			{
 				//Determine the current clock rate, and the number of steps we can advance
 				//the pixel clock until the clock rate changes.
 				unsigned int nextHCounterTargetStep;
 				unsigned int currentMclksPerStep;
-				if(hcounterCurrent < 0x1CD)
+				if (hcounterCurrent < 0x1CD)
 				{
 					nextHCounterTargetStep = 0x1CD;
 					currentMclksPerStep = 8;
 				}
-				else if(hcounterCurrent < 0x1D4)
+				else if (hcounterCurrent < 0x1D4)
 				{
 					nextHCounterTargetStep = 0x1D4;
 					currentMclksPerStep = 10;
 				}
-				else if(hcounterCurrent < 0x1D6)
+				else if (hcounterCurrent < 0x1D6)
 				{
 					nextHCounterTargetStep = 0x1D6;
 					currentMclksPerStep = 9;
 				}
-				else if(hcounterCurrent < 0x1DD)
+				else if (hcounterCurrent < 0x1DD)
 				{
 					nextHCounterTargetStep = 0x1DD;
 					currentMclksPerStep = 10;
 				}
-				else if(hcounterCurrent < 0x1DE)
+				else if (hcounterCurrent < 0x1DE)
 				{
 					nextHCounterTargetStep = 0x1DE;
 					currentMclksPerStep = 8;
 				}
-				else if(hcounterCurrent < 0x1E5)
+				else if (hcounterCurrent < 0x1E5)
 				{
 					nextHCounterTargetStep = 0x1E5;
 					currentMclksPerStep = 10;
 				}
-				else if(hcounterCurrent < 0x1E7)
+				else if (hcounterCurrent < 0x1E7)
 				{
 					nextHCounterTargetStep = 0x1E7;
 					currentMclksPerStep = 9;
 				}
-				else if(hcounterCurrent < 0x1EE)
+				else if (hcounterCurrent < 0x1EE)
 				{
 					nextHCounterTargetStep = 0x1EE;
 					currentMclksPerStep = 10;
@@ -2119,14 +2119,14 @@ unsigned int S315_5313::GetMclkTicksForPixelClockTicks(const HScanSettings& hsca
 	//scanline, and the current screen mode settings.
 	static const unsigned int pixelClockDivider = 2;
 	unsigned int mclkTicks;
-	if(!screenModeRS0Active)
+	if (!screenModeRS0Active)
 	{
 		//If the RS0 bit is clear, the serial clock is generated internally, using a
 		//divider from the MCLK input. If the RS1 bit is clear, selecting a H32 screen
 		//mode, the serial clock is calculated as MCLK/5. If the RS1 bit is set, selecting
 		//a H40 screen mode, the serial clock is calculated as MCLK/4.
 		unsigned int serialClockDivider;
-		if(!screenModeRS1Active)
+		if (!screenModeRS1Active)
 		{
 			//In H32 mode, if the RS0 bit is not set, the serial clock is calculated as
 			//MCLK/5. The relation of hcounter to the various clock signals, and the
@@ -2201,7 +2201,7 @@ unsigned int S315_5313::GetMclkTicksForPixelClockTicks(const HScanSettings& hsca
 		//this clock signal is external to the VDP itself, and this should eventually be
 		//separated from the VDP core itself, so that a different EDCLK input signal can
 		//be supplied if another system has different video sync requirements.
-		if(!screenModeRS1Active)
+		if (!screenModeRS1Active)
 		{
 			//The external EDCLK input is not designed to be used with H32 mode. Selecting
 			//the EDCLK input without enabling H40 mode produces a video signal with a far
@@ -2298,48 +2298,48 @@ unsigned int S315_5313::GetMclkTicksForPixelClockTicks(const HScanSettings& hsca
 			//--------------------------
 			//We use this information below to accurately calculate the number of mclk
 			//cycles used to advance the hcounter.
-			while(pixelClockTicksRemaining > 0)
+			while (pixelClockTicksRemaining > 0)
 			{
 				//Determine the current clock rate, and the number of steps we can advance
 				//the pixel clock until the clock rate changes.
 				unsigned int nextHCounterTargetStep;
 				unsigned int currentMclksPerStep;
-				if(hcounterCurrent < 0x1D9)
+				if (hcounterCurrent < 0x1D9)
 				{
 					nextHCounterTargetStep = 0x1D9;
 					currentMclksPerStep = 8;
 				}
-				else if(hcounterCurrent < 0x1E0)
+				else if (hcounterCurrent < 0x1E0)
 				{
 					nextHCounterTargetStep = 0x1E0;
 					currentMclksPerStep = 10;
 				}
-				else if(hcounterCurrent < 0x1E2)
+				else if (hcounterCurrent < 0x1E2)
 				{
 					nextHCounterTargetStep = 0x1E2;
 					currentMclksPerStep = 9;
 				}
-				else if(hcounterCurrent < 0x1E9)
+				else if (hcounterCurrent < 0x1E9)
 				{
 					nextHCounterTargetStep = 0x1E9;
 					currentMclksPerStep = 10;
 				}
-				else if(hcounterCurrent < 0x1EA)
+				else if (hcounterCurrent < 0x1EA)
 				{
 					nextHCounterTargetStep = 0x1EA;
 					currentMclksPerStep = 8;
 				}
-				else if(hcounterCurrent < 0x1F1)
+				else if (hcounterCurrent < 0x1F1)
 				{
 					nextHCounterTargetStep = 0x1F1;
 					currentMclksPerStep = 10;
 				}
-				else if(hcounterCurrent < 0x1F3)
+				else if (hcounterCurrent < 0x1F3)
 				{
 					nextHCounterTargetStep = 0x1F3;
 					currentMclksPerStep = 9;
 				}
-				else if(hcounterCurrent < 0x1FA)
+				else if (hcounterCurrent < 0x1FA)
 				{
 					nextHCounterTargetStep = 0x1FA;
 					currentMclksPerStep = 10;
@@ -2482,48 +2482,48 @@ unsigned int S315_5313::GetMclkTicksForPixelClockTicks(const HScanSettings& hsca
 			//--------------------------
 			//We use this information below to accurately calculate the number of mclk
 			//cycles used to advance the hcounter.
-			while(pixelClockTicksRemaining > 0)
+			while (pixelClockTicksRemaining > 0)
 			{
 				//Determine the current clock rate, and the number of steps we can advance
 				//the pixel clock until the clock rate changes.
 				unsigned int nextHCounterTargetStep;
 				unsigned int currentMclksPerStep;
-				if(hcounterCurrent < 0x1CD)
+				if (hcounterCurrent < 0x1CD)
 				{
 					nextHCounterTargetStep = 0x1CD;
 					currentMclksPerStep = 8;
 				}
-				else if(hcounterCurrent < 0x1D4)
+				else if (hcounterCurrent < 0x1D4)
 				{
 					nextHCounterTargetStep = 0x1D4;
 					currentMclksPerStep = 10;
 				}
-				else if(hcounterCurrent < 0x1D6)
+				else if (hcounterCurrent < 0x1D6)
 				{
 					nextHCounterTargetStep = 0x1D6;
 					currentMclksPerStep = 9;
 				}
-				else if(hcounterCurrent < 0x1DD)
+				else if (hcounterCurrent < 0x1DD)
 				{
 					nextHCounterTargetStep = 0x1DD;
 					currentMclksPerStep = 10;
 				}
-				else if(hcounterCurrent < 0x1DE)
+				else if (hcounterCurrent < 0x1DE)
 				{
 					nextHCounterTargetStep = 0x1DE;
 					currentMclksPerStep = 8;
 				}
-				else if(hcounterCurrent < 0x1E5)
+				else if (hcounterCurrent < 0x1E5)
 				{
 					nextHCounterTargetStep = 0x1E5;
 					currentMclksPerStep = 10;
 				}
-				else if(hcounterCurrent < 0x1E7)
+				else if (hcounterCurrent < 0x1E7)
 				{
 					nextHCounterTargetStep = 0x1E7;
 					currentMclksPerStep = 9;
 				}
-				else if(hcounterCurrent < 0x1EE)
+				else if (hcounterCurrent < 0x1EE)
 				{
 					nextHCounterTargetStep = 0x1EE;
 					currentMclksPerStep = 10;
@@ -2627,11 +2627,11 @@ unsigned int S315_5313::GetMclkTicksForOnePixelClockTick(const HScanSettings& hs
 	                                                                10,10,10,10, 9, 9,10,10,10,10,10,10,10, 8,10,10, //0x1D0-0x1DF
 	                                                                10,10,10,10,10, 9, 9,10,10,10,10,10,10,10, 8, 8, //0x1E0-0x1EF
 	                                                                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8};//0x1F0-0x1FF
-	if(!screenModeRS0Active)
+	if (!screenModeRS0Active)
 	{
 		return (!screenModeRS1Active)? 10: 8;
 	}
-	else if(!screenModeRS1Active)
+	else if (!screenModeRS1Active)
 	{
 		return mclkTicksForHCounterH32EDClkArray[hcounterCurrent];
 	}
@@ -2647,7 +2647,7 @@ unsigned int S315_5313::GetMclkTicksForOnePixelClockTick(const HScanSettings& hs
 unsigned int S315_5313::ConvertAccessTimeToMclkCount(double accessTime) const
 {
 	//##DEBUG##
-	if(accessTime < 0)
+	if (accessTime < 0)
 	{
 		std::wcout << "######################################################\n";
 		std::wcout << "VDP ConvertAccessTimeToMclkCount accessTime < 0!\n";

@@ -18,7 +18,7 @@ CreateDashboardView::CreateDashboardView(IUIManager& uiManager, CreateDashboardV
 INT_PTR CreateDashboardView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	WndProcDialogImplementSaveFieldWhenLostFocus(hwnd, msg, wparam, lparam);
-	switch(msg)
+	switch (msg)
 	{
 	case WM_INITDIALOG:
 		return msgWM_INITDIALOG(hwnd, wparam, lparam);
@@ -40,14 +40,14 @@ INT_PTR CreateDashboardView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM l
 //----------------------------------------------------------------------------------------
 INT_PTR CreateDashboardView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	if(HIWORD(wparam) == EN_CHANGE)
+	if (HIWORD(wparam) == EN_CHANGE)
 	{
 		EnableWindow(GetDlgItem(hwnd, IDC_CREATEDASHBOARD_OK), (GetDlgItemString(hwnd, IDC_CREATEDASHBOARD_NAME).empty()? FALSE: TRUE));
 	}
-	else if(HIWORD(wparam) == BN_CLICKED)
+	else if (HIWORD(wparam) == BN_CLICKED)
 	{
 		unsigned int controlID = LOWORD(wparam);
-		switch(controlID)
+		switch (controlID)
 		{
 		case IDC_CREATEDASHBOARD_OK:{
 			std::wstring dashboardTitle = GetDlgItemString(hwnd, IDC_CREATEDASHBOARD_NAME);

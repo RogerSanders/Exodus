@@ -42,7 +42,7 @@ void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLCont
 {
 	size_t containerEntryCount = elementSizeArray[elementSizeArrayIndex++];
 	element.resize(containerEntryCount);
-	for(size_t i = 0; i < containerEntryCount; ++i)
+	for (size_t i = 0; i < containerEntryCount; ++i)
 	{
 		::MarshalSupport::Internal::RecomposeSTLContainer(elementByteSize, itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, element[i]);
 	}
@@ -55,7 +55,7 @@ void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(siz
 {
 	size_t containerEntryCount = elementSizeArray[elementSizeArrayIndex++];
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-	if(!has_marshal_constructor<ElementType>::value && std::is_trivial<ElementType>::value)
+	if (!has_marshal_constructor<ElementType>::value && std::is_trivial<ElementType>::value)
 	{
 		ElementType* itemArrayWithType = (ElementType*)itemArray;
 		element.assign(itemArrayWithType + elementArrayIndex, itemArrayWithType + elementArrayIndex + containerEntryCount);
@@ -67,7 +67,7 @@ void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(siz
 		ElementType* nextSourceObject = reinterpret_cast<ElementType*>(reinterpret_cast<unsigned char*>(itemArray) + (elementArrayIndex * elementByteSize));
 		element.clear();
 		element.reserve(containerEntryCount);
-		for(size_t i = 0; i < containerEntryCount; ++i)
+		for (size_t i = 0; i < containerEntryCount; ++i)
 		{
 			MarshalObjectHelper<std::vector<ElementType, Alloc>>::MarshalObjectToContainer(MARSHALSUPPORT_MOVE(*nextSourceObject), element);
 			nextSourceObject = reinterpret_cast<ElementType*>(reinterpret_cast<unsigned char*>(nextSourceObject) + elementByteSize);
@@ -98,7 +98,7 @@ template<bool IsLastElement, bool IsOnlyMovable>
 template<class ElementType, size_t ArraySize>
 void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::array<ElementType, ArraySize>& element)
 {
-	for(size_t i = 0; i < ArraySize; ++i)
+	for (size_t i = 0; i < ArraySize; ++i)
 	{
 		::MarshalSupport::Internal::RecomposeSTLContainer(elementByteSize, itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, element[i]);
 	}
@@ -109,7 +109,7 @@ template<bool IsOnlyMovable>
 template<class ElementType, size_t ArraySize>
 void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::array<ElementType, ArraySize>& element)
 {
-	if(!has_marshal_constructor<ElementType>::value && std::is_trivial<ElementType>::value)
+	if (!has_marshal_constructor<ElementType>::value && std::is_trivial<ElementType>::value)
 	{
 		ElementType* itemArrayWithType = (ElementType*)itemArray;
 		memcpy((void*)element.data(), (const void*)&itemArrayWithType[elementArrayIndex], ArraySize * sizeof(ElementType));
@@ -118,7 +118,7 @@ void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(siz
 	else
 	{
 		ElementType* nextSourceObject = reinterpret_cast<ElementType*>(reinterpret_cast<unsigned char*>(itemArray) + (elementArrayIndex * elementByteSize));
-		for(size_t i = 0; i < ArraySize; ++i)
+		for (size_t i = 0; i < ArraySize; ++i)
 		{
 			MarshalObjectHelper<ElementType>::MarshalObjectToExistingObject(MARSHALSUPPORT_MOVE(*nextSourceObject), element[i]);
 			nextSourceObject = reinterpret_cast<ElementType*>(reinterpret_cast<unsigned char*>(nextSourceObject) + elementByteSize);
@@ -132,7 +132,7 @@ template<class ElementType, size_t ArraySize>
 void RecomposeSTLContainerHelper<true, true>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::array<ElementType, ArraySize>& element)
 {
 	ElementType* nextSourceObject = reinterpret_cast<ElementType*>(reinterpret_cast<unsigned char*>(itemArray) + (elementArrayIndex * elementByteSize));
-	for(size_t i = 0; i < ArraySize; ++i)
+	for (size_t i = 0; i < ArraySize; ++i)
 	{
 		MarshalObjectHelper<ElementType>::MarshalObjectToExistingObject(MARSHALSUPPORT_MOVE(*nextSourceObject), element[i]);
 		nextSourceObject = reinterpret_cast<ElementType*>(reinterpret_cast<unsigned char*>(nextSourceObject) + elementByteSize);
@@ -149,7 +149,7 @@ void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLCont
 	size_t containerEntryCount = elementSizeArray[elementSizeArrayIndex++];
 	element.resize(containerEntryCount);
 	typename std::list<ElementType, Alloc>::iterator containerIterator = element.begin();
-	for(size_t i = 0; i < containerEntryCount; ++i)
+	for (size_t i = 0; i < containerEntryCount; ++i)
 	{
 		::MarshalSupport::Internal::RecomposeSTLContainer(elementByteSize, itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, *containerIterator);
 		++containerIterator;
@@ -163,7 +163,7 @@ void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(siz
 {
 	ElementType* nextSourceObject = reinterpret_cast<ElementType*>(reinterpret_cast<unsigned char*>(itemArray) + (elementArrayIndex * elementByteSize));
 	size_t containerEntryCount = elementSizeArray[elementSizeArrayIndex++];
-	for(size_t i = 0; i < containerEntryCount; ++i)
+	for (size_t i = 0; i < containerEntryCount; ++i)
 	{
 		MarshalObjectHelper<std::list<ElementType, Alloc>>::MarshalObjectToContainer(MARSHALSUPPORT_MOVE(*nextSourceObject), element);
 		nextSourceObject = reinterpret_cast<ElementType*>(reinterpret_cast<unsigned char*>(nextSourceObject) + elementByteSize);
@@ -180,7 +180,7 @@ void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLCont
 	size_t containerEntryCount = elementSizeArray[elementSizeArrayIndex++];
 	element.resize(containerEntryCount);
 	typename std::forward_list<ElementType, Alloc>::iterator containerIterator = element.begin();
-	for(size_t i = 0; i < containerEntryCount; ++i)
+	for (size_t i = 0; i < containerEntryCount; ++i)
 	{
 		::MarshalSupport::Internal::RecomposeSTLContainer(elementByteSize, itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, *containerIterator);
 		++containerIterator;
@@ -195,7 +195,7 @@ void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(siz
 	ElementType* nextSourceObject = reinterpret_cast<ElementType*>(reinterpret_cast<unsigned char*>(itemArray) + (elementArrayIndex * elementByteSize));
 	size_t containerEntryCount = elementSizeArray[elementSizeArrayIndex++];
 	typename std::forward_list<ElementType, Alloc>::iterator insertPosition = element.before_begin();
-	for(size_t i = 0; i < containerEntryCount; ++i)
+	for (size_t i = 0; i < containerEntryCount; ++i)
 	{
 		insertPosition = MarshalObjectHelper<std::forward_list<ElementType, Alloc>>::MarshalObjectToContainer(MARSHALSUPPORT_MOVE(*nextSourceObject), element, insertPosition);
 		nextSourceObject = reinterpret_cast<ElementType*>(reinterpret_cast<unsigned char*>(nextSourceObject) + elementByteSize);
@@ -212,7 +212,7 @@ void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLCont
 	size_t containerEntryCount = elementSizeArray[elementSizeArrayIndex++];
 	element.resize(containerEntryCount);
 	typename std::deque<ElementType, Alloc>::iterator containerIterator = element.begin();
-	for(size_t i = 0; i < containerEntryCount; ++i)
+	for (size_t i = 0; i < containerEntryCount; ++i)
 	{
 		::MarshalSupport::Internal::RecomposeSTLContainer(elementByteSize, itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, *containerIterator);
 		++containerIterator;
@@ -226,7 +226,7 @@ void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(siz
 {
 	ElementType* nextSourceObject = reinterpret_cast<ElementType*>(reinterpret_cast<unsigned char*>(itemArray) + (elementArrayIndex * elementByteSize));
 	size_t containerEntryCount = elementSizeArray[elementSizeArrayIndex++];
-	for(size_t i = 0; i < containerEntryCount; ++i)
+	for (size_t i = 0; i < containerEntryCount; ++i)
 	{
 		MarshalObjectHelper<std::deque<ElementType, Alloc>>::MarshalObjectToContainer(MARSHALSUPPORT_MOVE(*nextSourceObject), element);
 		nextSourceObject = reinterpret_cast<ElementType*>(reinterpret_cast<unsigned char*>(nextSourceObject) + elementByteSize);
@@ -240,7 +240,7 @@ template<class ElementType, class Compare, class Alloc>
 void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::set<ElementType, Compare, Alloc>& element)
 {
 	size_t containerEntryCount = elementSizeArray[elementSizeArrayIndex++];
-	for(size_t i = 0; i < containerEntryCount; ++i)
+	for (size_t i = 0; i < containerEntryCount; ++i)
 	{
 		ElementType containerEntry;
 		::MarshalSupport::Internal::RecomposeSTLContainer(elementByteSize, itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, containerEntry);
@@ -256,7 +256,7 @@ void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(siz
 	ElementType* nextSourceObject = reinterpret_cast<ElementType*>(reinterpret_cast<unsigned char*>(itemArray) + (elementArrayIndex * elementByteSize));
 	size_t containerEntryCount = elementSizeArray[elementSizeArrayIndex++];
 	typename std::set<ElementType, Compare, Alloc>::iterator insertPosition = element.begin();
-	for(size_t i = 0; i < containerEntryCount; ++i)
+	for (size_t i = 0; i < containerEntryCount; ++i)
 	{
 		insertPosition = MarshalObjectHelper<std::set<ElementType, Compare, Alloc>>::MarshalObjectToContainer(MARSHALSUPPORT_MOVE(*nextSourceObject), element, insertPosition);
 		nextSourceObject = reinterpret_cast<ElementType*>(reinterpret_cast<unsigned char*>(nextSourceObject) + elementByteSize);
@@ -270,7 +270,7 @@ template<class ElementType, class Compare, class Alloc>
 void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::multiset<ElementType, Compare, Alloc>& element)
 {
 	size_t containerEntryCount = elementSizeArray[elementSizeArrayIndex++];
-	for(size_t i = 0; i < containerEntryCount; ++i)
+	for (size_t i = 0; i < containerEntryCount; ++i)
 	{
 		ElementType containerEntry;
 		::MarshalSupport::Internal::RecomposeSTLContainer(elementByteSize, itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, containerEntry);
@@ -286,7 +286,7 @@ void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(siz
 	ElementType* nextSourceObject = reinterpret_cast<ElementType*>(reinterpret_cast<unsigned char*>(itemArray) + (elementArrayIndex * elementByteSize));
 	size_t containerEntryCount = elementSizeArray[elementSizeArrayIndex++];
 	typename std::multiset<ElementType, Compare, Alloc>::iterator insertPosition = element.begin();
-	for(size_t i = 0; i < containerEntryCount; ++i)
+	for (size_t i = 0; i < containerEntryCount; ++i)
 	{
 		insertPosition = MarshalObjectHelper<std::multiset<ElementType, Compare, Alloc>>::MarshalObjectToContainer(MARSHALSUPPORT_MOVE(*nextSourceObject), element, insertPosition);
 		nextSourceObject = reinterpret_cast<ElementType*>(reinterpret_cast<unsigned char*>(nextSourceObject) + elementByteSize);
@@ -301,7 +301,7 @@ template<class ElementType, class Hash, class Pred, class Alloc>
 void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::unordered_set<ElementType, Hash, Pred, Alloc>& element)
 {
 	size_t containerEntryCount = elementSizeArray[elementSizeArrayIndex++];
-	for(size_t i = 0; i < containerEntryCount; ++i)
+	for (size_t i = 0; i < containerEntryCount; ++i)
 	{
 		ElementType containerEntry;
 		::MarshalSupport::Internal::RecomposeSTLContainer(elementByteSize, itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, containerEntry);
@@ -316,7 +316,7 @@ void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(siz
 {
 	ElementType* nextSourceObject = reinterpret_cast<ElementType*>(reinterpret_cast<unsigned char*>(itemArray) + (elementArrayIndex * elementByteSize));
 	size_t containerEntryCount = elementSizeArray[elementSizeArrayIndex++];
-	for(size_t i = 0; i < containerEntryCount; ++i)
+	for (size_t i = 0; i < containerEntryCount; ++i)
 	{
 		MarshalObjectHelper<std::unordered_set<ElementType, Hash, Pred, Alloc>>::MarshalObjectToContainer(std::move(*nextSourceObject), element);
 		nextSourceObject = reinterpret_cast<ElementType*>(reinterpret_cast<unsigned char*>(nextSourceObject) + elementByteSize);
@@ -330,7 +330,7 @@ template<class ElementType, class Hash, class Pred, class Alloc>
 void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::unordered_multiset<ElementType, Hash, Pred, Alloc>& element)
 {
 	size_t containerEntryCount = elementSizeArray[elementSizeArrayIndex++];
-	for(size_t i = 0; i < containerEntryCount; ++i)
+	for (size_t i = 0; i < containerEntryCount; ++i)
 	{
 		ElementType containerEntry;
 		::MarshalSupport::Internal::RecomposeSTLContainer(elementByteSize, itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, containerEntry);
@@ -345,7 +345,7 @@ void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(siz
 {
 	ElementType* nextSourceObject = reinterpret_cast<ElementType*>(reinterpret_cast<unsigned char*>(itemArray) + (elementArrayIndex * elementByteSize));
 	size_t containerEntryCount = elementSizeArray[elementSizeArrayIndex++];
-	for(size_t i = 0; i < containerEntryCount; ++i)
+	for (size_t i = 0; i < containerEntryCount; ++i)
 	{
 		MarshalObjectHelper<std::unordered_multiset<ElementType, Hash, Pred, Alloc>>::MarshalObjectToContainer(std::move(*nextSourceObject), element);
 		nextSourceObject = reinterpret_cast<ElementType*>(reinterpret_cast<unsigned char*>(nextSourceObject) + elementByteSize);
@@ -360,7 +360,7 @@ template<class KeyType, class ElementType, class Compare, class Alloc>
 void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::map<KeyType, ElementType, Compare, Alloc>& element)
 {
 	size_t containerEntryCount = elementSizeArray[elementSizeArrayIndex++];
-	for(size_t i = 0; i < containerEntryCount; ++i)
+	for (size_t i = 0; i < containerEntryCount; ++i)
 	{
 		ElementType containerEntry;
 		::MarshalSupport::Internal::RecomposeSTLContainer(elementByteSize, itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, containerEntry);
@@ -377,7 +377,7 @@ void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(siz
 	ElementType* nextSourceObject = reinterpret_cast<ElementType*>(reinterpret_cast<unsigned char*>(itemArray) + (elementArrayIndex * elementByteSize));
 	size_t containerEntryCount = elementSizeArray[elementSizeArrayIndex++];
 	typename std::map<KeyType, ElementType, Compare, Alloc>::iterator insertPosition = element.begin();
-	for(size_t i = 0; i < containerEntryCount; ++i)
+	for (size_t i = 0; i < containerEntryCount; ++i)
 	{
 		INestedMarshaller<KeyType>* keyWrapper = (INestedMarshaller<KeyType>*)nestedMarshallerArray[nestedMarshallerArrayIndex];
 		insertPosition = MarshalObjectHelper<std::map<KeyType, ElementType, Compare, Alloc>>::MarshalObjectToContainer(keyWrapper->RemoveKey(), MARSHALSUPPORT_MOVE(*nextSourceObject), element, insertPosition);
@@ -392,7 +392,7 @@ template<class KeyType, class ElementType, class Compare, class Alloc>
 void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::multimap<KeyType, ElementType, Compare, Alloc>& element)
 {
 	size_t containerEntryCount = elementSizeArray[elementSizeArrayIndex++];
-	for(size_t i = 0; i < containerEntryCount; ++i)
+	for (size_t i = 0; i < containerEntryCount; ++i)
 	{
 		ElementType containerEntry;
 		::MarshalSupport::Internal::RecomposeSTLContainer(elementByteSize, itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, containerEntry);
@@ -409,7 +409,7 @@ void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(siz
 	ElementType* nextSourceObject = reinterpret_cast<ElementType*>(reinterpret_cast<unsigned char*>(itemArray) + (elementArrayIndex * elementByteSize));
 	size_t containerEntryCount = elementSizeArray[elementSizeArrayIndex++];
 	typename std::multimap<KeyType, ElementType, Compare, Alloc>::iterator insertPosition = element.begin();
-	for(size_t i = 0; i < containerEntryCount; ++i)
+	for (size_t i = 0; i < containerEntryCount; ++i)
 	{
 		INestedMarshaller<KeyType>* keyWrapper = (INestedMarshaller<KeyType>*)nestedMarshallerArray[nestedMarshallerArrayIndex];
 		insertPosition = MarshalObjectHelper<std::multimap<KeyType, ElementType, Compare, Alloc>>::MarshalObjectToContainer(keyWrapper->RemoveKey(), MARSHALSUPPORT_MOVE(*nextSourceObject), element, insertPosition);
@@ -425,7 +425,7 @@ template<class KeyType, class ElementType, class Hash, class Pred, class Alloc>
 void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::unordered_map<KeyType, ElementType, Hash, Pred, Alloc>& element)
 {
 	size_t containerEntryCount = elementSizeArray[elementSizeArrayIndex++];
-	for(size_t i = 0; i < containerEntryCount; ++i)
+	for (size_t i = 0; i < containerEntryCount; ++i)
 	{
 		ElementType containerEntry;
 		::MarshalSupport::Internal::RecomposeSTLContainer(elementByteSize, itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, containerEntry);
@@ -441,7 +441,7 @@ void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(siz
 {
 	ElementType* nextSourceObject = reinterpret_cast<ElementType*>(reinterpret_cast<unsigned char*>(itemArray) + (elementArrayIndex * elementByteSize));
 	size_t containerEntryCount = elementSizeArray[elementSizeArrayIndex++];
-	for(size_t i = 0; i < containerEntryCount; ++i)
+	for (size_t i = 0; i < containerEntryCount; ++i)
 	{
 		INestedMarshaller<KeyType>* keyWrapper = (INestedMarshaller<KeyType>*)nestedMarshallerArray[nestedMarshallerArrayIndex];
 		MarshalObjectHelper<std::unordered_map<KeyType, ElementType, Hash, Pred, Alloc>>::MarshalObjectToContainer(keyWrapper->RemoveKey(), std::move(*nextSourceObject), element);
@@ -456,7 +456,7 @@ template<class KeyType, class ElementType, class Hash, class Pred, class Alloc>
 void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::unordered_multimap<KeyType, ElementType, Hash, Pred, Alloc>& element)
 {
 	size_t containerEntryCount = elementSizeArray[elementSizeArrayIndex++];
-	for(size_t i = 0; i < containerEntryCount; ++i)
+	for (size_t i = 0; i < containerEntryCount; ++i)
 	{
 		ElementType containerEntry;
 		::MarshalSupport::Internal::RecomposeSTLContainer(elementByteSize, itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, containerEntry);
@@ -472,7 +472,7 @@ void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(siz
 {
 	ElementType* nextSourceObject = reinterpret_cast<ElementType*>(reinterpret_cast<unsigned char*>(itemArray) + (elementArrayIndex * elementByteSize));
 	size_t containerEntryCount = elementSizeArray[elementSizeArrayIndex++];
-	for(size_t i = 0; i < containerEntryCount; ++i)
+	for (size_t i = 0; i < containerEntryCount; ++i)
 	{
 		INestedMarshaller<KeyType>* keyWrapper = (INestedMarshaller<KeyType>*)nestedMarshallerArray[nestedMarshallerArrayIndex];
 		MarshalObjectHelper<std::unordered_multimap<KeyType, ElementType, Hash, Pred, Alloc>>::MarshalObjectToContainer(keyWrapper->RemoveKey(), std::move(*nextSourceObject), element);
@@ -488,7 +488,7 @@ template<class ElementType, class Container>
 void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::stack<ElementType, Container>& element)
 {
 	size_t containerEntryCount = elementSizeArray[elementSizeArrayIndex++];
-	for(size_t i = 0; i < containerEntryCount; ++i)
+	for (size_t i = 0; i < containerEntryCount; ++i)
 	{
 		ElementType entry;
 		::MarshalSupport::Internal::RecomposeSTLContainer(elementByteSize, itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, entry);
@@ -503,7 +503,7 @@ void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(siz
 {
 	ElementType* nextSourceObject = reinterpret_cast<ElementType*>(reinterpret_cast<unsigned char*>(itemArray) + (elementArrayIndex * elementByteSize));
 	size_t containerEntryCount = elementSizeArray[elementSizeArrayIndex++];
-	for(size_t i = 0; i < containerEntryCount; ++i)
+	for (size_t i = 0; i < containerEntryCount; ++i)
 	{
 		MarshalObjectHelper<std::stack<ElementType, Container>>::MarshalObjectToContainer(MARSHALSUPPORT_MOVE(*nextSourceObject), element);
 		nextSourceObject = reinterpret_cast<ElementType*>(reinterpret_cast<unsigned char*>(nextSourceObject) + elementByteSize);
@@ -516,7 +516,7 @@ template<class ElementType, class Container>
 void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::queue<ElementType, Container>& element)
 {
 	size_t containerEntryCount = elementSizeArray[elementSizeArrayIndex++];
-	for(size_t i = 0; i < containerEntryCount; ++i)
+	for (size_t i = 0; i < containerEntryCount; ++i)
 	{
 		ElementType entry;
 		::MarshalSupport::Internal::RecomposeSTLContainer(elementByteSize, itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, entry);
@@ -531,7 +531,7 @@ void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(siz
 {
 	ElementType* nextSourceObject = reinterpret_cast<ElementType*>(reinterpret_cast<unsigned char*>(itemArray) + (elementArrayIndex * elementByteSize));
 	size_t containerEntryCount = elementSizeArray[elementSizeArrayIndex++];
-	for(size_t i = 0; i < containerEntryCount; ++i)
+	for (size_t i = 0; i < containerEntryCount; ++i)
 	{
 		MarshalObjectHelper<std::queue<ElementType, Container>>::MarshalObjectToContainer(MARSHALSUPPORT_MOVE(*nextSourceObject), element);
 		nextSourceObject = reinterpret_cast<ElementType*>(reinterpret_cast<unsigned char*>(nextSourceObject) + elementByteSize);
@@ -544,7 +544,7 @@ template<class ElementType, class Container, class Compare>
 void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::priority_queue<ElementType, Container, Compare>& element)
 {
 	size_t containerEntryCount = elementSizeArray[elementSizeArrayIndex++];
-	for(size_t i = 0; i < containerEntryCount; ++i)
+	for (size_t i = 0; i < containerEntryCount; ++i)
 	{
 		ElementType entry;
 		::MarshalSupport::Internal::RecomposeSTLContainer(elementByteSize, itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, entry);
@@ -559,7 +559,7 @@ void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(siz
 {
 	ElementType* nextSourceObject = reinterpret_cast<ElementType*>(reinterpret_cast<unsigned char*>(itemArray) + (elementArrayIndex * elementByteSize));
 	size_t containerEntryCount = elementSizeArray[elementSizeArrayIndex++];
-	for(size_t i = 0; i < containerEntryCount; ++i)
+	for (size_t i = 0; i < containerEntryCount; ++i)
 	{
 		MarshalObjectHelper<std::priority_queue<ElementType, Container, Compare>>::MarshalObjectToContainer(MARSHALSUPPORT_MOVE(*nextSourceObject), element);
 		nextSourceObject = reinterpret_cast<ElementType*>(reinterpret_cast<unsigned char*>(nextSourceObject) + elementByteSize);
@@ -573,7 +573,7 @@ void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLCont
 {
 	size_t containerEntryCount = elementSizeArray[elementSizeArrayIndex++];
 	element.resize(containerEntryCount);
-	for(size_t i = 0; i < containerEntryCount; ++i)
+	for (size_t i = 0; i < containerEntryCount; ++i)
 	{
 		::MarshalSupport::Internal::RecomposeSTLContainer(elementByteSize, itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, element[i]);
 	}
@@ -586,7 +586,7 @@ void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(siz
 {
 	size_t containerEntryCount = elementSizeArray[elementSizeArrayIndex++];
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-	if(!has_marshal_constructor<ElementType>::value && std::is_trivial<ElementType>::value)
+	if (!has_marshal_constructor<ElementType>::value && std::is_trivial<ElementType>::value)
 	{
 		ElementType* itemArrayWithType = (ElementType*)itemArray;
 		element.assign(itemArrayWithType + elementArrayIndex, itemArrayWithType + elementArrayIndex + containerEntryCount);
@@ -598,7 +598,7 @@ void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(siz
 		ElementType* nextSourceObject = reinterpret_cast<ElementType*>(reinterpret_cast<unsigned char*>(itemArray) + (elementArrayIndex * elementByteSize));
 		element.clear();
 		element.reserve(containerEntryCount);
-		for(size_t i = 0; i < containerEntryCount; ++i)
+		for (size_t i = 0; i < containerEntryCount; ++i)
 		{
 			MarshalObjectHelper<std::basic_string<ElementType, traits, Alloc>>::MarshalObjectToContainer(MARSHALSUPPORT_MOVE(*nextSourceObject), element);
 			nextSourceObject = reinterpret_cast<ElementType*>(reinterpret_cast<unsigned char*>(nextSourceObject) + elementByteSize);

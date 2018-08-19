@@ -69,7 +69,7 @@ protected:
 			//Note that this method must be virtual, so that the assembly which allocated this object will be the one in
 			//which the deletion is performed.
 			--_refCount;
-			if(_refCount <= 0)
+			if (_refCount <= 0)
 			{
 				delete this;
 			}
@@ -138,7 +138,7 @@ protected:
 			//Note that this method must be virtual, so that the assembly which allocated this object will be the one in
 			//which the deletion is performed.
 			--_refCount;
-			if(_refCount <= 0)
+			if (_refCount <= 0)
 			{
 				delete this;
 			}

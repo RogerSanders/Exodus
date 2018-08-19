@@ -37,12 +37,12 @@ void EventLogViewPresenter::DeleteView(IView* view)
 void EventLogViewPresenter::SaveEventLog(const std::vector<ISystemGUIInterface::SystemLogEntry>& eventLog, const std::wstring& filePath)
 {
 	Stream::File target;
-	if(target.Open(filePath, Stream::File::OpenMode::ReadAndWrite, Stream::File::CreateMode::Create))
+	if (target.Open(filePath, Stream::File::OpenMode::ReadAndWrite, Stream::File::CreateMode::Create))
 	{
 		target.SetTextEncoding(Stream::IStream::TextEncoding::UTF8);
 		target.InsertByteOrderMark();
 		Stream::ViewText targetView(target);
-		for(unsigned int i = 0; i < (unsigned int)eventLog.size(); ++i)
+		for (unsigned int i = 0; i < (unsigned int)eventLog.size(); ++i)
 		{
 			const ISystemGUIInterface::SystemLogEntry& logEntry = eventLog[i];
 			targetView << logEntry.eventTimeString << L'\t' << logEntry.eventLevelString << L'\t' << logEntry.source << L'\t' << logEntry.text << L'\n';

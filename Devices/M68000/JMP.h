@@ -12,7 +12,7 @@ public:
 			//(An)					(An)+					-(An)					d(An)					d(An,ix)+				xxx.W					xxx.L					d(PC)					d(PC,ix)
 			ExecuteTime(8, 2, 0),	ExecuteTime(0, 0, 0),	ExecuteTime(0, 0, 0),	ExecuteTime(10, 2, 0),	ExecuteTime(14, 3, 0),	ExecuteTime(10, 2, 0),	ExecuteTime(12, 3, 0),	ExecuteTime(10, 2, 0),	ExecuteTime(14, 3, 0)};
 		unsigned int _targetIndex = 0;
-		switch(_targetMode)
+		switch (_targetMode)
 		{
 		case EffectiveAddress::Mode::AddRegIndirect:
 			_targetIndex = 0;
@@ -90,7 +90,7 @@ public:
 		bool dataIsOffset;
 		unsigned int offsetBaseAddress;
 		unsigned int dataSize;
-		if(_target.IsTargetUnmodifiedFromMemoryReadV2(cpu, _targetReadFromAddress, dataIsOffset, offsetBaseAddress, dataSize))
+		if (_target.IsTargetUnmodifiedFromMemoryReadV2(cpu, _targetReadFromAddress, dataIsOffset, offsetBaseAddress, dataSize))
 		{
 			cpu->AddDisassemblyAddressInfoOffset(_targetReadFromAddress, dataSize, true, dataIsOffset, offsetBaseAddress);
 		}
@@ -100,7 +100,7 @@ public:
 		cpu->SetPC(address);
 
 		//Detect possible jump tables for active disassembly
-		if(cpu->ActiveDisassemblyEnabled() && ((_target.GetAddressMode() == EffectiveAddress::Mode::AddRegIndirectIndex8Bit) || (_target.GetAddressMode() == EffectiveAddress::Mode::PCIndirectIndex8Bit)))
+		if (cpu->ActiveDisassemblyEnabled() && ((_target.GetAddressMode() == EffectiveAddress::Mode::AddRegIndirectIndex8Bit) || (_target.GetAddressMode() == EffectiveAddress::Mode::PCIndirectIndex8Bit)))
 		{
 			M68000Long baseAddress;
 			_target.GetAddressDisplacementTargetNoIndex(cpu, baseAddress);
@@ -120,7 +120,7 @@ public:
 		//executing this opcode.
 		undeterminedResultantPCLocation = false;
 		M68000Long jumpOpcodeAddress;
-		if(_target.GetAddressTransparent(jumpOpcodeAddress))
+		if (_target.GetAddressTransparent(jumpOpcodeAddress))
 		{
 			resultantPCLocations.insert(jumpOpcodeAddress.GetData());
 		}

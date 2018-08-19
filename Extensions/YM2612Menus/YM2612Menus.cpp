@@ -12,7 +12,7 @@ YM2612Menus::YM2612Menus(const std::wstring& implementationName, const std::wstr
 YM2612Menus::~YM2612Menus()
 {
 	//Delete all menu handlers
-	for(std::map<const IDevice*, DebugMenuHandler*>::const_iterator i = _debugMenuHandlers.begin(); i != _debugMenuHandlers.end(); ++i)
+	for (std::map<const IDevice*, DebugMenuHandler*>::const_iterator i = _debugMenuHandlers.begin(); i != _debugMenuHandlers.end(); ++i)
 	{
 		i->second->ClearMenuItems();
 		delete i->second;
@@ -26,7 +26,7 @@ bool YM2612Menus::RegisterDeviceMenuHandler(IDevice* targetDevice)
 {
 	//Attempt to cast the supplied device to the correct type
 	IYM2612* targetDeviceAsIYM2612 = dynamic_cast<IYM2612*>(targetDevice);
-	if(targetDeviceAsIYM2612 == 0)
+	if (targetDeviceAsIYM2612 == 0)
 	{
 		return false;
 	}
@@ -50,7 +50,7 @@ void YM2612Menus::UnregisterDeviceMenuHandler(IDevice* targetDevice)
 //----------------------------------------------------------------------------------------
 void YM2612Menus::AddDeviceMenuItems(DeviceMenu deviceMenu, IMenuSegment& menuSegment, IDevice* targetDevice)
 {
-	if(deviceMenu == IExtension::DeviceMenu::Debug)
+	if (deviceMenu == IExtension::DeviceMenu::Debug)
 	{
 		_debugMenuHandlers[targetDevice]->AddMenuItems(menuSegment);
 	}

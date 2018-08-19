@@ -35,7 +35,7 @@ ImageView::ImageView(IUIManager& uiManager, ImageViewPresenter& presenter, IS315
 LRESULT ImageView::WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	WndProcDialogImplementGiveFocusToChildWindowOnClick(hwnd, msg, wparam, lparam);
-	switch(msg)
+	switch (msg)
 	{
 	case WM_CREATE:
 		return msgWM_CREATE(hwnd, wparam, lparam);
@@ -125,7 +125,7 @@ LRESULT ImageView::msgWM_NCHITTEST(HWND hwnd, WPARAM wParam, LPARAM lParam)
 LRESULT ImageView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	//Refresh the status bar visibility setting
-	if(_videoShowStatusBarCached != _model.GetVideoShowStatusBar())
+	if (_videoShowStatusBarCached != _model.GetVideoShowStatusBar())
 	{
 		_videoShowStatusBarCached = _model.GetVideoShowStatusBar();
 		UpdateRenderWindowSize();
@@ -138,7 +138,7 @@ LRESULT ImageView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 //----------------------------------------------------------------------------------------
 LRESULT ImageView::WndProcChildGroup(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
-	switch(msg)
+	switch (msg)
 	{
 	case WM_KEYUP:
 		return msgChildWM_KEYUP(hwnd, wparam, lparam);
@@ -156,7 +156,7 @@ LRESULT ImageView::WndProcChildGroup(HWND hwnd, UINT msg, WPARAM wparam, LPARAM 
 LRESULT ImageView::msgChildWM_KEYUP(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	ISystemDeviceInterface::KeyCode keyCode;
-	if(_presenter.GetSystemInterface().TranslateKeyCode((unsigned int)wparam, keyCode))
+	if (_presenter.GetSystemInterface().TranslateKeyCode((unsigned int)wparam, keyCode))
 	{
 		_presenter.GetSystemInterface().HandleInputKeyUp(keyCode);
 	}
@@ -166,14 +166,14 @@ LRESULT ImageView::msgChildWM_KEYUP(HWND hwnd, WPARAM wparam, LPARAM lparam)
 //----------------------------------------------------------------------------------------
 LRESULT ImageView::msgChildWM_KEYDOWN(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	if(_fullScreenMode && (wparam == VK_ESCAPE))
+	if (_fullScreenMode && (wparam == VK_ESCAPE))
 	{
 		SetFullScreen(false);
 	}
 	else
 	{
 		ISystemDeviceInterface::KeyCode keyCode;
-		if(_presenter.GetSystemInterface().TranslateKeyCode((unsigned int)wparam, keyCode))
+		if (_presenter.GetSystemInterface().TranslateKeyCode((unsigned int)wparam, keyCode))
 		{
 			_presenter.GetSystemInterface().HandleInputKeyDown(keyCode);
 		}
@@ -184,7 +184,7 @@ LRESULT ImageView::msgChildWM_KEYDOWN(HWND hwnd, WPARAM wparam, LPARAM lparam)
 //----------------------------------------------------------------------------------------
 LRESULT ImageView::msgChildWM_SYSKEYDOWN(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	if(wparam == VK_RETURN)
+	if (wparam == VK_RETURN)
 	{
 		SetFullScreen(!_fullScreenMode);
 	}
@@ -196,7 +196,7 @@ LRESULT ImageView::msgChildWM_SYSKEYDOWN(HWND hwnd, WPARAM wparam, LPARAM lparam
 //----------------------------------------------------------------------------------------
 LRESULT ImageView::WndProcRender(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
-	switch(msg)
+	switch (msg)
 	{
 	case WM_CREATE:
 		return msgRenderWM_CREATE(hwnd, wparam, lparam);
@@ -224,7 +224,7 @@ LRESULT ImageView::msgRenderWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 
 	//OpenGL Initialization code
 	_glrc = CreateOpenGLWindow(hwnd);
-	if(_glrc != NULL)
+	if (_glrc != NULL)
 	{
 		//Create a texture coordinate matrix which maps texture coordinates to pixel
 		//numbers within the texture
@@ -280,7 +280,7 @@ LRESULT ImageView::msgRenderWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	_hwndPixelInfo = NULL;
 	KillTimer(hwnd, 1);
 
-	if(_glrc != NULL)
+	if (_glrc != NULL)
 	{
 		wglDeleteContext(_glrc);
 	}
@@ -295,7 +295,7 @@ LRESULT ImageView::msgRenderWM_SIZE(HWND hwnd, WPARAM wParam, LPARAM lParam)
 	//this point on.
 	_renderWindowWidth = (int)LOWORD(lParam);
 	_renderWindowHeight = (int)HIWORD(lParam);
-	if((_renderWindowWidth <= 0) || (_renderWindowHeight <= 0))
+	if ((_renderWindowWidth <= 0) || (_renderWindowHeight <= 0))
 	{
 		_renderWindowWidth = 1;
 		_renderWindowHeight = 1;
@@ -303,9 +303,9 @@ LRESULT ImageView::msgRenderWM_SIZE(HWND hwnd, WPARAM wParam, LPARAM lParam)
 
 	//Now that the window size has changed, update the OpenGL viewport.
 	HDC hdc = GetDC(hwnd);
-	if(hdc != NULL)
+	if (hdc != NULL)
 	{
-		if((_glrc != NULL) && (wglMakeCurrent(hdc, _glrc) != FALSE))
+		if ((_glrc != NULL) && (wglMakeCurrent(hdc, _glrc) != FALSE))
 		{
 			//Flag two pending clear operations of the OpenGL colour buffer. We need to do
 			//this when resizing the viewport, since if we make an adjustment to a smaller
@@ -326,17 +326,17 @@ LRESULT ImageView::msgRenderWM_SIZE(HWND hwnd, WPARAM wParam, LPARAM lParam)
 //----------------------------------------------------------------------------------------
 LRESULT ImageView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	switch(wparam)
+	switch (wparam)
 	{
 	case 1:{
 		HDC hdc = GetDC(hwnd);
-		if(hdc != NULL)
+		if (hdc != NULL)
 		{
-			if((_glrc != NULL) && (wglMakeCurrent(hdc, _glrc) != FALSE))
+			if ((_glrc != NULL) && (wglMakeCurrent(hdc, _glrc) != FALSE))
 			{
 				//If the fixed aspect ratio setting has changed, update the OpenGL
 				//viewport.
-				if(_videoFixedAspectRatioCached != _model.GetVideoFixedAspectRatio())
+				if (_videoFixedAspectRatioCached != _model.GetVideoFixedAspectRatio())
 				{
 					//Flag two pending clear operations of the OpenGL colour buffer. We
 					//need to do this when resizing the viewport, since if we make an
@@ -377,9 +377,9 @@ LRESULT ImageView::msgRenderWM_MOUSEMOVE(HWND hwnd, WPARAM wparam, LPARAM lparam
 {
 	//If full image buffer info isn't being generated by the VDP core, hide the pixel info
 	//window if it is currently visible, and abort any further processing.
-	if(!_model.GetVideoEnableFullImageBufferInfo())
+	if (!_model.GetVideoEnableFullImageBufferInfo())
 	{
-		if(_pixelInfoVisible)
+		if (_pixelInfoVisible)
 		{
 			HidePixelInfoWindow();
 		}
@@ -392,7 +392,7 @@ LRESULT ImageView::msgRenderWM_MOUSEMOVE(HWND hwnd, WPARAM wparam, LPARAM lparam
 
 	//If the new mouse position is outside the region of the render window which contains
 	//image content, hide the details popup.
-	if((xpos < _imageRegionPosX) || (xpos >= (_imageRegionPosX + _imageRegionWidth)) || (ypos < _imageRegionPosY) || (ypos >= (_imageRegionPosY + _imageRegionHeight)))
+	if ((xpos < _imageRegionPosX) || (xpos >= (_imageRegionPosX + _imageRegionWidth)) || (ypos < _imageRegionPosY) || (ypos >= (_imageRegionPosY + _imageRegionHeight)))
 	{
 		HidePixelInfoWindow();
 		return 0;
@@ -403,7 +403,7 @@ LRESULT ImageView::msgRenderWM_MOUSEMOVE(HWND hwnd, WPARAM wparam, LPARAM lparam
 
 	//Obtain the number of rows in this frame
 	unsigned int rowCount = _model.GetImageBufferLineCount(displayingImageBufferPlane);
-	if(rowCount <= 0)
+	if (rowCount <= 0)
 	{
 		HidePixelInfoWindow();
 		return 0;
@@ -441,25 +441,25 @@ LRESULT ImageView::msgRenderWM_MOUSEMOVE(HWND hwnd, WPARAM wparam, LPARAM lparam
 
 	//Snap to the screen boundaries, jumping to the other side if the cursor moves
 	//past the center of the window.
-	if((xposDetails + detailsWidth) > screenRect.right)
+	if ((xposDetails + detailsWidth) > screenRect.right)
 	{
 		xposDetails = screenRect.right - detailsWidth;
-		if(((windowPos.left + xpos) - xposDetails) > (detailsWidth / 2))
+		if (((windowPos.left + xpos) - xposDetails) > (detailsWidth / 2))
 		{
 			xposDetails = (windowPos.left + xpos) - (detailsWidth + 10);
-			if(xposDetails < screenRect.left)
+			if (xposDetails < screenRect.left)
 			{
 				xposDetails = screenRect.left;
 			}
 		}
 	}
-	if((yposDetails + detailsHeight) > screenRect.bottom)
+	if ((yposDetails + detailsHeight) > screenRect.bottom)
 	{
 		yposDetails = screenRect.bottom - detailsHeight;
-		if(((windowPos.top + ypos) - yposDetails) > (detailsHeight / 2))
+		if (((windowPos.top + ypos) - yposDetails) > (detailsHeight / 2))
 		{
 			yposDetails = (windowPos.top + ypos) - (detailsHeight + 10);
-			if(yposDetails < screenRect.top)
+			if (yposDetails < screenRect.top)
 			{
 				yposDetails = screenRect.top;
 			}
@@ -467,14 +467,14 @@ LRESULT ImageView::msgRenderWM_MOUSEMOVE(HWND hwnd, WPARAM wparam, LPARAM lparam
 	}
 
 	//Prevent the window being trapped by the cursor in the bottom righthand corner
-	if((((windowPos.left + xpos) >= xposDetails) && ((windowPos.left + xpos) < (xposDetails + detailsWidth)))
+	if ((((windowPos.left + xpos) >= xposDetails) && ((windowPos.left + xpos) < (xposDetails + detailsWidth)))
 	&& (((windowPos.top + ypos) >= yposDetails) && ((windowPos.top + ypos) < (yposDetails + detailsHeight))))
 	{
 		xposDetails = (windowPos.left + xpos) - (detailsWidth + 10);
 	}
 
 	//Enable the WM_MOUSELEAVE notification if the details popup isn't currently visible
-	if(!_pixelInfoVisible)
+	if (!_pixelInfoVisible)
 	{
 		TRACKMOUSEEVENT mouseEvent;
 		mouseEvent.cbSize = sizeof(mouseEvent);
@@ -486,7 +486,7 @@ LRESULT ImageView::msgRenderWM_MOUSEMOVE(HWND hwnd, WPARAM wparam, LPARAM lparam
 
 	//Position the details popup, and show it if necessary.
 	SetWindowPos(_hwndPixelInfo, NULL, xposDetails, yposDetails, 0, 0, SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER);
-	if(!_pixelInfoVisible)
+	if (!_pixelInfoVisible)
 	{
 		_pixelInfoVisible = true;
 		ShowWindow(_hwndPixelInfo, SW_SHOWNA);
@@ -517,7 +517,7 @@ void ImageView::UpdateImage()
 {
 	//If at least one pending window clear operation is flagged, clear the OpenGL colour
 	//buffer, and decrement the number of pending clear operations.
-	if(_windowPendingClearCount > 0)
+	if (_windowPendingClearCount > 0)
 	{
 		glClear(GL_COLOR_BUFFER_BIT);
 		--_windowPendingClearCount;
@@ -528,7 +528,7 @@ void ImageView::UpdateImage()
 
 	//Obtain the number of rows in this frame
 	unsigned int rowCount = _model.GetImageBufferLineCount(displayingImageBufferPlane);
-	if(rowCount <= 0)
+	if (rowCount <= 0)
 	{
 		return;
 	}
@@ -542,7 +542,7 @@ void ImageView::UpdateImage()
 	//If a new frame is ready to be displayed, update our image texture with the new
 	//rendered image data.
 	unsigned int latestLastRenderedFrameToken = _model.GetImageLastRenderedFrameToken();
-	if(_model.GetVideoSingleBuffering() || (_lastRenderedFrameTokenCached != latestLastRenderedFrameToken))
+	if (_model.GetVideoSingleBuffering() || (_lastRenderedFrameTokenCached != latestLastRenderedFrameToken))
 	{
 		//Copy the contents of the image buffer into our image texture for rendering
 		_model.LockImageBufferData(displayingImageBufferPlane);
@@ -554,7 +554,7 @@ void ImageView::UpdateImage()
 		_lastRenderedFrameTokenCached = latestLastRenderedFrameToken;
 
 		//Update the FPS counter if a new frame has been completed
-		if(framesCompletedDrawing > 0)
+		if (framesCompletedDrawing > 0)
 		{
 			//Obtain the current timer value
 			LARGE_INTEGER newFrameTickCount;
@@ -566,7 +566,7 @@ void ImageView::UpdateImage()
 
 			//If a second or more has passed since we last updated the FPS counter, update
 			//it now.
-			if((newFrameTickCount.QuadPart - _lastFPSCounterUpdateTickCount.QuadPart) >= _counterFrequency.QuadPart)
+			if ((newFrameTickCount.QuadPart - _lastFPSCounterUpdateTickCount.QuadPart) >= _counterFrequency.QuadPart)
 			{
 				//Calculate the current FPS
 				LONGLONG ticksSinceLastFPSCounterUpdate = newFrameTickCount.QuadPart - _lastFPSCounterUpdateTickCount.QuadPart;
@@ -601,7 +601,7 @@ void ImageView::UpdateImage()
 
 	//Render each line of the output image, using hardware resampling to scale the line
 	//width to match the output surface width.
-	for(unsigned int rowNo = 0; rowNo < rowCount; ++rowNo)
+	for (unsigned int rowNo = 0; rowNo < rowCount; ++rowNo)
 	{
 		//Render this line
 		unsigned int lineWidth = _model.GetImageBufferLineWidth(displayingImageBufferPlane, rowNo);
@@ -626,7 +626,7 @@ void ImageView::UpdateImage()
 		glDisable(GL_TEXTURE_2D);
 
 		//Draw the active image start and end positions on this line if requested
-		if(_model.GetVideoShowBoundaryActiveImage())
+		if (_model.GetVideoShowBoundaryActiveImage())
 		{
 			glColor3d(0.0, 1.0, 0.0);
 			unsigned int activeScanStartPosX;
@@ -635,7 +635,7 @@ void ImageView::UpdateImage()
 			unsigned int activeScanEndPosY;
 			_model.GetImageBufferActiveScanPosX(displayingImageBufferPlane, rowNo, activeScanStartPosX, activeScanEndPosX);
 			_model.GetImageBufferActiveScanPosY(displayingImageBufferPlane, activeScanStartPosY, activeScanEndPosY);
-			if(rowNo == activeScanStartPosY)
+			if (rowNo == activeScanStartPosY)
 			{
 				glBegin(GL_LINES);
 					glVertex2d((double)activeScanStartPosX / (double)lineWidth, (double)rowNo + rowScreenOffset);
@@ -646,14 +646,14 @@ void ImageView::UpdateImage()
 					glVertex2d((double)activeScanEndPosX / (double)lineWidth, (double)(rowNo + 1) + rowScreenOffset);
 				glEnd();
 			}
-			else if(rowNo == activeScanEndPosY)
+			else if (rowNo == activeScanEndPosY)
 			{
 				glBegin(GL_LINES);
 					glVertex2d((double)activeScanStartPosX / (double)lineWidth, (double)rowNo + rowScreenOffset);
 					glVertex2d((double)activeScanEndPosX / (double)lineWidth, (double)rowNo + rowScreenOffset);
 				glEnd();
 			}
-			else if((rowNo > activeScanStartPosY) && (rowNo < activeScanEndPosY))
+			else if ((rowNo > activeScanStartPosY) && (rowNo < activeScanEndPosY))
 			{
 				glBegin(GL_LINES);
 					glVertex2d((double)activeScanStartPosX / (double)lineWidth, (double)rowNo + rowScreenOffset);
@@ -667,7 +667,7 @@ void ImageView::UpdateImage()
 	}
 
 	//If the user has requested the current render position to be highlighted, display it.
-	if(_model.GetVideoHighlightRenderPos() && _model.GetCurrentRenderPosOnScreen())
+	if (_model.GetVideoHighlightRenderPos() && _model.GetCurrentRenderPosOnScreen())
 	{
 		//Calculate the position of the render position within the OpenGL render space
 		unsigned int currentRenderPosScreenXCache = _model.GetCurrentRenderPosScreenX();
@@ -679,7 +679,7 @@ void ImageView::UpdateImage()
 		double currentRenderPosScreenYEnd = (double)(currentRenderPosScreenYCache + 1);
 
 		//Set the current colour for the render position marker
-		switch(_renderPosHighlightColorIndex % 3)
+		switch (_renderPosHighlightColorIndex % 3)
 		{
 		case 0:
 			glColor3d(1.0, 0.0, 0.0);
@@ -700,7 +700,7 @@ void ImageView::UpdateImage()
 	}
 
 	//Display the title safe image boundary if requested
-	if(_model.GetVideoShowBoundaryTitleSafe())
+	if (_model.GetVideoShowBoundaryTitleSafe())
 	{
 		double screenRegionPercentage = 0.9;
 		double screenRegionXStart = (1.0 - screenRegionPercentage);
@@ -718,7 +718,7 @@ void ImageView::UpdateImage()
 	}
 
 	//Display the action safe image boundary if requested
-	if(_model.GetVideoShowBoundaryActionSafe())
+	if (_model.GetVideoShowBoundaryActionSafe())
 	{
 		double screenRegionPercentage = 0.95;
 		double screenRegionXStart = (1.0 - screenRegionPercentage);
@@ -736,14 +736,14 @@ void ImageView::UpdateImage()
 	}
 
 	//Display sprite boundary information if requested
-	if(_model.GetVideoEnableSpriteBoxing())
+	if (_model.GetVideoEnableSpriteBoxing())
 	{
 		std::list<IS315_5313::SpriteBoundaryLineEntry> spriteBoundaryLines = _model.GetSpriteBoundaryLines(displayingImageBufferPlane);
-		for(std::list<IS315_5313::SpriteBoundaryLineEntry>::const_iterator i = spriteBoundaryLines.begin(); i != spriteBoundaryLines.end(); ++i)
+		for (std::list<IS315_5313::SpriteBoundaryLineEntry>::const_iterator i = spriteBoundaryLines.begin(); i != spriteBoundaryLines.end(); ++i)
 		{
 			const IS315_5313::SpriteBoundaryLineEntry& spriteBoundaryLineEntry = *i;
 			unsigned int displayLineWidth = _model.GetImageBufferLineWidth(displayingImageBufferPlane, spriteBoundaryLineEntry.linePosYStart);
-			if(displayLineWidth <= 0)
+			if (displayLineWidth <= 0)
 			{
 				continue;
 			}
@@ -778,7 +778,7 @@ void ImageView::UpdateOpenGLViewport()
 	int newImageRegionWidth = _renderWindowWidth;
 	int newImageRegionHeight = _renderWindowHeight;
 	double windowAspectRatio = (double)_renderWindowWidth / (double)_renderWindowHeight;
-	if(_videoFixedAspectRatioCached && (windowAspectRatio < _imageAspectRatio))
+	if (_videoFixedAspectRatioCached && (windowAspectRatio < _imageAspectRatio))
 	{
 		//If the window aspect ratio is less than the image aspect ratio, the image is too
 		//wide to fit perfectly in the window. In this case, we need to calculate a window
@@ -786,7 +786,7 @@ void ImageView::UpdateOpenGLViewport()
 		newImageRegionHeight = (int)(((double)_renderWindowWidth * (1.0 / _imageAspectRatio)) + 0.5);
 		newImageRegionPosY = (_renderWindowHeight - newImageRegionHeight) / 2;
 	}
-	else if(_videoFixedAspectRatioCached && (windowAspectRatio > _imageAspectRatio))
+	else if (_videoFixedAspectRatioCached && (windowAspectRatio > _imageAspectRatio))
 	{
 		//If the window aspect ratio is greater than the image aspect ratio, the image is
 		//too high to fit perfectly in the window. In this case, we need to calculate a
@@ -819,7 +819,7 @@ void ImageView::UpdateRenderWindowSize()
 	//If the status bar is currently visible, position and size it correctly within the
 	//window.
 	int statusBarHeight = 0;
-	if(_videoShowStatusBarCached)
+	if (_videoShowStatusBarCached)
 	{
 		//Send a size message to the status bar. Note that the status bar auto-sizes and
 		//positions itself based on the size of its parent window. Simply sending a
@@ -854,13 +854,13 @@ void ImageView::UpdateRenderWindowSize()
 void ImageView::SetFullScreen(bool fullScreenModeNew)
 {
 	//If we're already in the target mode, abort any further processing.
-	if(_fullScreenMode == fullScreenModeNew)
+	if (_fullScreenMode == fullScreenModeNew)
 	{
 		return;
 	}
 
 	//Set the fullscreen mode to the requested state
-	if(fullScreenModeNew)
+	if (fullScreenModeNew)
 	{
 		//Obtain the position and dimensions of the monitor closest to the image window
 		MONITORINFO monitorInfo;
@@ -881,7 +881,7 @@ void ImageView::SetFullScreen(bool fullScreenModeNew)
 
 		//If we had a parent window previously, convert the saved window position into
 		//coordinates relative to the parent window.
-		if(_savedParent != NULL)
+		if (_savedParent != NULL)
 		{
 			POINT windowPos;
 			windowPos.x = _savedWindowPosX;
@@ -930,7 +930,7 @@ void ImageView::SetFullScreen(bool fullScreenModeNew)
 //----------------------------------------------------------------------------------------
 INT_PTR ImageView::WndProcPixelInfo(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
-	switch(msg)
+	switch (msg)
 	{
 	case WM_INITDIALOG:
 		return msgPixelInfoWM_INITDIALOG(hwnd, wparam, lparam);
@@ -953,14 +953,14 @@ INT_PTR ImageView::msgPixelInfoWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lp
 INT_PTR ImageView::msgPixelInfoWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	//If the pixel info window isn't currently visible, abort any further processing.
-	if(!_pixelInfoVisible)
+	if (!_pixelInfoVisible)
 	{
 		return TRUE;
 	}
 
 	//If full image buffer info has been disabled on the VDP core, hide the pixel info
 	//window, and abort any further processing.
-	if(!_model.GetVideoEnableFullImageBufferInfo())
+	if (!_model.GetVideoEnableFullImageBufferInfo())
 	{
 		HidePixelInfoWindow();
 		return TRUE;
@@ -971,7 +971,7 @@ INT_PTR ImageView::msgPixelInfoWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 
 	//Retrieve info for the target pixel
 	const IS315_5313::ImageBufferInfo* pixelInfo = _model.GetImageBufferInfo(displayingImageBufferPlane, _pixelInfoTargetBufferPosY, _pixelInfoTargetBufferPosX);
-	if(pixelInfo == 0)
+	if (pixelInfo == 0)
 	{
 		return TRUE;
 	}
@@ -980,7 +980,7 @@ INT_PTR ImageView::msgPixelInfoWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	std::wstring pixelSourceString;
 	bool mappingDataPresent = false;
 	bool spriteDataPresent = false;
-	switch(pixelInfo->pixelSource)
+	switch (pixelInfo->pixelSource)
 	{
 	case IS315_5313::PixelSource::Sprite:
 		pixelSourceString = L"Sprite";
@@ -1026,16 +1026,16 @@ INT_PTR ImageView::msgPixelInfoWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	UpdateDlgItemHex(hwnd, IDC_VDP_IMAGE_PIXELINFO_G, 1, pixelInfo->colorComponentG);
 	UpdateDlgItemHex(hwnd, IDC_VDP_IMAGE_PIXELINFO_B, 1, pixelInfo->colorComponentB);
 	HWND hwndColor = GetDlgItem(hwnd, IDC_VDP_IMAGE_PIXELINFO_COLOR);
-	if(hwndColor != NULL)
+	if (hwndColor != NULL)
 	{
 		HDC dc = GetDC(hwndColor);
-		if(dc != NULL)
+		if (dc != NULL)
 		{
 			unsigned char r = _model.ColorValueTo8BitValue(pixelInfo->colorComponentR, pixelInfo->pixelIsShadowed, pixelInfo->pixelIsHighlighted);
 			unsigned char g = _model.ColorValueTo8BitValue(pixelInfo->colorComponentG, pixelInfo->pixelIsShadowed, pixelInfo->pixelIsHighlighted);
 			unsigned char b = _model.ColorValueTo8BitValue(pixelInfo->colorComponentB, pixelInfo->pixelIsShadowed, pixelInfo->pixelIsHighlighted);
 			HBRUSH brush = CreateSolidBrush(RGB(r, g, b));
-			if(brush != NULL)
+			if (brush != NULL)
 			{
 				RECT rect;
 				GetClientRect(hwndColor, &rect);
@@ -1056,7 +1056,7 @@ INT_PTR ImageView::msgPixelInfoWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	//PalRow: The palette row number to use when displaying the pattern data
 	//VF:     Vertical Flip
 	//HF:     Horizontal Flip
-	if(mappingDataPresent)
+	if (mappingDataPresent)
 	{
 		UpdateDlgItemHex(hwnd, IDC_VDP_IMAGE_PIXELINFO_MAPPINGADDRESS, 5, pixelInfo->mappingVRAMAddress);
 		UpdateDlgItemHex(hwnd, IDC_VDP_IMAGE_PIXELINFO_MAPPINGDATA, 4, pixelInfo->mappingData.GetData());
@@ -1080,7 +1080,7 @@ INT_PTR ImageView::msgPixelInfoWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	}
 
 	//Sprite data
-	if(spriteDataPresent)
+	if (spriteDataPresent)
 	{
 		UpdateDlgItemHex(hwnd, IDC_VDP_IMAGE_PIXELINFO_SPRITEENTRYNO, 2, pixelInfo->spriteTableEntryNo);
 		UpdateDlgItemHex(hwnd, IDC_VDP_IMAGE_PIXELINFO_SPRITEENTRYADDRESS, 5, pixelInfo->spriteTableEntryAddress);

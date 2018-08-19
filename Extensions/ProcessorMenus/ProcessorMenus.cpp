@@ -12,7 +12,7 @@ ProcessorMenus::ProcessorMenus(const std::wstring& implementationName, const std
 ProcessorMenus::~ProcessorMenus()
 {
 	//Delete all menu handlers
-	for(std::map<IDevice*, DebugMenuHandler*>::const_iterator i = _debugMenuHandlers.begin(); i != _debugMenuHandlers.end(); ++i)
+	for (std::map<IDevice*, DebugMenuHandler*>::const_iterator i = _debugMenuHandlers.begin(); i != _debugMenuHandlers.end(); ++i)
 	{
 		i->second->ClearMenuItems();
 		delete i->second;
@@ -26,7 +26,7 @@ bool ProcessorMenus::RegisterDeviceMenuHandler(IDevice* targetDevice)
 {
 	//Attempt to cast the supplied device to the correct type
 	IProcessor* targetDeviceAsIProcessor = dynamic_cast<IProcessor*>(targetDevice);
-	if(targetDeviceAsIProcessor == 0)
+	if (targetDeviceAsIProcessor == 0)
 	{
 		return false;
 	}
@@ -50,7 +50,7 @@ void ProcessorMenus::UnregisterDeviceMenuHandler(IDevice* targetDevice)
 //----------------------------------------------------------------------------------------
 void ProcessorMenus::AddDeviceMenuItems(DeviceMenu deviceMenu, IMenuSegment& menuSegment, IDevice* targetDevice)
 {
-	if(deviceMenu == IExtension::DeviceMenu::Debug)
+	if (deviceMenu == IExtension::DeviceMenu::Debug)
 	{
 		_debugMenuHandlers[targetDevice]->AddMenuItems(menuSegment);
 	}

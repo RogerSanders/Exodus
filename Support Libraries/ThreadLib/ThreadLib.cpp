@@ -4,7 +4,7 @@
 void SetCurrentThreadPriority(ThreadPriority priority)
 {
 	int threadPriority = THREAD_PRIORITY_NORMAL;
-	switch(priority)
+	switch (priority)
 	{
 	case THREADPRIORITY_IDLE:
 		threadPriority = THREAD_PRIORITY_IDLE;

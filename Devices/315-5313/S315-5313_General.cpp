@@ -63,7 +63,7 @@ _renderSpriteDisplayCellCache(maxSpriteDisplayCellCacheSize)
 	_clockSourceCLK1 = 0;
 
 	//Initialize the locked register state
-	for(unsigned int i = 0; i < RegisterCount; ++i)
+	for (unsigned int i = 0; i < RegisterCount; ++i)
 	{
 		_rawRegisterLocking[i] = false;
 	}
@@ -90,17 +90,17 @@ _renderSpriteDisplayCellCache(maxSpriteDisplayCellCacheSize)
 	_renderThreadActive = false;
 	_drawingImageBufferPlane = 0;
 	_lastRenderedFrameToken = 0;
-	for(unsigned int bufferPlaneNo = 0; bufferPlaneNo < ImageBufferPlanes; ++bufferPlaneNo)
+	for (unsigned int bufferPlaneNo = 0; bufferPlaneNo < ImageBufferPlanes; ++bufferPlaneNo)
 	{
 		_imageBufferLineCount[bufferPlaneNo] = 0;
-		for(unsigned int lineNo = 0; lineNo < ImageBufferHeight; ++lineNo)
+		for (unsigned int lineNo = 0; lineNo < ImageBufferHeight; ++lineNo)
 		{
 			_imageBufferLineWidth[bufferPlaneNo][lineNo] = 0;
 		}
 	}
 
 	//Initialize the sprite pixel buffer
-	for(unsigned int i = 0; i < renderSpritePixelBufferPlaneCount; ++i)
+	for (unsigned int i = 0; i < renderSpritePixelBufferPlaneCount; ++i)
 	{
 		_spritePixelBuffer[i].resize(spritePixelBufferSize);
 	}
@@ -171,7 +171,7 @@ bool S315_5313::BuildDevice()
 	//Initialize the layer priority lookup table. We use this table to speed up layer
 	//priority selection during rendering.
 	_layerPriorityLookupTable.resize(layerPriorityLookupTableSize);
-	for(unsigned int i = 0; i < layerPriorityLookupTableSize; ++i)
+	for (unsigned int i = 0; i < layerPriorityLookupTableSize; ++i)
 	{
 		//Determine the input layer settings for this table index value
 		bool shadowHighlightEnabled = (i & (1 << 8)) != 0;
@@ -289,11 +289,11 @@ void S315_5313::Initialize()
 	//##TODO## Make the clock dividers configurable through the VDP debugger
 	static const unsigned int initialClockDividerCLK0 = 15;
 	static const unsigned int initialClockDividerCLK1 = 7;
-	if(_clockSourceCLK0 != 0)
+	if (_clockSourceCLK0 != 0)
 	{
 		_clockSourceCLK0->TransparentSetClockDivider((double)initialClockDividerCLK0);
 	}
-	if(_clockSourceCLK1 != 0)
+	if (_clockSourceCLK1 != 0)
 	{
 		_clockSourceCLK1->TransparentSetClockDivider((double)initialClockDividerCLK1);
 	}
@@ -329,7 +329,7 @@ void S315_5313::Initialize()
 	_originalCommandAddress = 0;
 	_commandAddress = 0;
 	_commandCode = 0;
-	for(unsigned int i = 0; i < FifoBufferSize; ++i)
+	for (unsigned int i = 0; i < FifoBufferSize; ++i)
 	{
 		_fifoBuffer[i].codeRegData = 0;
 		_fifoBuffer[i].addressRegData = 0;
@@ -458,7 +458,7 @@ void S315_5313::Initialize()
 	_currentRenderPosOnScreen = false;
 
 	//Additional render buffers
-	for(unsigned int i = 0; i < maxSpriteDisplayCellCacheSize; ++i)
+	for (unsigned int i = 0; i < maxSpriteDisplayCellCacheSize; ++i)
 	{
 		_renderSpriteDisplayCellCache[i].patternCellOffsetX = 0;
 		_renderSpriteDisplayCellCache[i].patternCellOffsetY = 0;
@@ -468,7 +468,7 @@ void S315_5313::Initialize()
 		_renderSpriteDisplayCellCache[i].spriteDisplayCacheIndex = 0;
 		_renderSpriteDisplayCellCache[i].spriteTableEntryAddress = 0;
 	}
-	for(unsigned int i = 0; i < maxSpriteDisplayCacheSize; ++i)
+	for (unsigned int i = 0; i < maxSpriteDisplayCacheSize; ++i)
 	{
 		_renderSpriteDisplayCache[i].spriteTableIndex = 0;
 		_renderSpriteDisplayCache[i].spriteRowIndex = 0;
@@ -498,7 +498,7 @@ void S315_5313::Reset(double accessTime)
 	//cleared on a reset. In particular, we need to determine if the pending command port
 	//write state is cleared on a reset.
 	AccessTarget accessTarget;
-	if(_reg.DoesLatestTimesliceExist())
+	if (_reg.DoesLatestTimesliceExist())
 	{
 		unsigned int accessMclkCycle = ConvertAccessTimeToMclkCount(accessTime + _lastTimesliceMclkCyclesRemainingTime);
 		accessTarget.AccessTime(accessMclkCycle);
@@ -507,7 +507,7 @@ void S315_5313::Reset(double accessTime)
 	{
 		accessTarget.AccessLatest();
 	}
-	for(unsigned int i = 0; i < RegisterCount; ++i)
+	for (unsigned int i = 0; i < RegisterCount; ++i)
 	{
 		Data data(8, 0);
 		SetRegisterData(i, accessTarget, data);
@@ -544,7 +544,7 @@ void S315_5313::SuspendExecution()
 {
 	//Suspend the render worker thread
 	std::unique_lock<std::mutex> renderLock(_renderThreadMutex);
-	if(_renderThreadActive)
+	if (_renderThreadActive)
 	{
 		_renderThreadActive = false;
 		_renderThreadUpdate.notify_all();
@@ -553,7 +553,7 @@ void S315_5313::SuspendExecution()
 
 	//Suspend the DMA worker thread
 	std::unique_lock<std::mutex> workerLock(_workerThreadMutex);
-	if(_workerThreadActive)
+	if (_workerThreadActive)
 	{
 		_workerThreadActive = false;
 		_workerThreadUpdate.notify_all();
@@ -568,39 +568,39 @@ bool S315_5313::AddReference(const Marshal::In<std::wstring>& referenceName, IDe
 {
 	bool result = true;
 	_externalReferenceLock.ObtainWriteLock();
-	if(referenceName == L"VRAM")
+	if (referenceName == L"VRAM")
 	{
 		ITimedBufferIntDevice* device = dynamic_cast<ITimedBufferIntDevice*>(target);
-		if(device != 0)
+		if (device != 0)
 		{
 			_vram = device->GetTimedBuffer();
 		}
 	}
-	else if(referenceName == L"CRAM")
+	else if (referenceName == L"CRAM")
 	{
 		ITimedBufferIntDevice* device = dynamic_cast<ITimedBufferIntDevice*>(target);
-		if(device != 0)
+		if (device != 0)
 		{
 			_cram = device->GetTimedBuffer();
 		}
 	}
-	else if(referenceName == L"VSRAM")
+	else if (referenceName == L"VSRAM")
 	{
 		ITimedBufferIntDevice* device = dynamic_cast<ITimedBufferIntDevice*>(target);
-		if(device != 0)
+		if (device != 0)
 		{
 			_vsram = device->GetTimedBuffer();
 		}
 	}
-	else if(referenceName == L"SpriteCache")
+	else if (referenceName == L"SpriteCache")
 	{
 		ITimedBufferIntDevice* device = dynamic_cast<ITimedBufferIntDevice*>(target);
-		if(device != 0)
+		if (device != 0)
 		{
 			_spriteCache = device->GetTimedBuffer();
 		}
 	}
-	else if(referenceName == L"PSG")
+	else if (referenceName == L"PSG")
 	{
 		_psg = target;
 	}
@@ -617,7 +617,7 @@ bool S315_5313::AddReference(const Marshal::In<std::wstring>& referenceName, IBu
 {
 	bool result = true;
 	_externalReferenceLock.ObtainWriteLock();
-	if(referenceName == L"BusInterface")
+	if (referenceName == L"BusInterface")
 	{
 		_memoryBus = target;
 	}
@@ -634,17 +634,17 @@ bool S315_5313::AddReference(const Marshal::In<std::wstring>& referenceName, ICl
 {
 	bool result = false;
 	_externalReferenceLock.ObtainWriteLock();
-	if(referenceName == L"CLK0")
+	if (referenceName == L"CLK0")
 	{
-		if(target->GetClockType() == IClockSource::ClockType::Divider)
+		if (target->GetClockType() == IClockSource::ClockType::Divider)
 		{
 			_clockSourceCLK0 = target;
 			result = true;
 		}
 	}
-	else if(referenceName == L"CLK1")
+	else if (referenceName == L"CLK1")
 	{
-		if(target->GetClockType() == IClockSource::ClockType::Divider)
+		if (target->GetClockType() == IClockSource::ClockType::Divider)
 		{
 			_clockSourceCLK1 = target;
 			result = true;
@@ -659,27 +659,27 @@ void S315_5313::RemoveReference(IDevice* target)
 {
 	_externalReferenceLock.ObtainWriteLock();
 	ITimedBufferIntDevice* targetAsTimedBufferDevice = dynamic_cast<ITimedBufferIntDevice*>(target);
-	if(targetAsTimedBufferDevice != 0)
+	if (targetAsTimedBufferDevice != 0)
 	{
 		ITimedBufferInt* timedBuffer = targetAsTimedBufferDevice->GetTimedBuffer();
-		if(_vram == timedBuffer)
+		if (_vram == timedBuffer)
 		{
 			_vram = 0;
 		}
-		else if(_cram == timedBuffer)
+		else if (_cram == timedBuffer)
 		{
 			_cram = 0;
 		}
-		else if(_vsram == timedBuffer)
+		else if (_vsram == timedBuffer)
 		{
 			_vsram = 0;
 		}
-		else if(_spriteCache == timedBuffer)
+		else if (_spriteCache == timedBuffer)
 		{
 			_spriteCache = 0;
 		}
 	}
-	else if(_psg == target)
+	else if (_psg == target)
 	{
 		_psg = 0;
 	}
@@ -690,7 +690,7 @@ void S315_5313::RemoveReference(IDevice* target)
 void S315_5313::RemoveReference(IBusInterface* target)
 {
 	_externalReferenceLock.ObtainWriteLock();
-	if(_memoryBus == target)
+	if (_memoryBus == target)
 	{
 		_memoryBus = 0;
 	}
@@ -701,11 +701,11 @@ void S315_5313::RemoveReference(IBusInterface* target)
 void S315_5313::RemoveReference(IClockSource* target)
 {
 	_externalReferenceLock.ObtainWriteLock();
-	if(_clockSourceCLK0 == target)
+	if (_clockSourceCLK0 == target)
 	{
 		_clockSourceCLK0 = 0;
 	}
-	else if(_clockSourceCLK1 == target)
+	else if (_clockSourceCLK1 == target)
 	{
 		_clockSourceCLK1 = 0;
 	}
@@ -762,7 +762,7 @@ void S315_5313::NotifyUpcomingTimeslice(double nanoseconds)
 	//numbers getting further and further off with each successive timeslice. We
 	//compensate for the negative error here when it occurs, by removing one mclk cycle to
 	//force a positive result.
-	while(_currentTimesliceMclkCyclesRemainingTime < 0)
+	while (_currentTimesliceMclkCyclesRemainingTime < 0)
 	{
 		//##DEBUG##
 //		std::wcout << "######################################################\n";
@@ -773,7 +773,7 @@ void S315_5313::NotifyUpcomingTimeslice(double nanoseconds)
 //		std::wcout << "currentTimesliceMclkCyclesRemainingTime:\t" << currentTimesliceMclkCyclesRemainingTime << "\n";
 //		std::wcout << "lastTimesliceMclkCyclesRemainingTime:\t" << lastTimesliceMclkCyclesRemainingTime << "\n";
 //		std::wcout << "######################################################\n";
-		if(_currentTimesliceTotalMclkCycles > 0)
+		if (_currentTimesliceTotalMclkCycles > 0)
 		{
 			_currentTimesliceTotalMclkCycles -= 1;
 			mclkCyclesToAddInAccessTime = ConvertMclkCountToAccessTime(_currentTimesliceTotalMclkCycles);
@@ -782,7 +782,7 @@ void S315_5313::NotifyUpcomingTimeslice(double nanoseconds)
 	}
 
 	//##DEBUG##
-	if(_outputTimingDebugMessages)
+	if (_outputTimingDebugMessages)
 	{
 		std::wcout << "VDPNotifyUpcomingTimeslice:\t" << _currentTimesliceLength << '\t' << _currentTimesliceTotalMclkCycles << '\t' << mclkCyclesToAddInAccessTime << '\t' << _currentTimesliceMclkCyclesRemainingTime << '\n';
 	}
@@ -814,14 +814,14 @@ bool S315_5313::SendNotifyBeforeExecuteCalled() const
 void S315_5313::NotifyBeforeExecuteCalled()
 {
 	//##DEBUG##
-	if(_outputTimingDebugMessages)
+	if (_outputTimingDebugMessages)
 	{
 		std::wcout << "VDPNotifyBeforeExecuteCalled: " << _hcounter.GetData() << '\t' << _vcounter.GetData() << '\t' << _stateLastUpdateMclk << '\t' << _stateLastUpdateMclkUnused << '\t' << _currentTimesliceTotalMclkCycles << '\n';
 	}
 
 	//If the DMA worker thread is currently active but paused, resume it here.
 	std::unique_lock<std::mutex> lock(_workerThreadMutex);
-	if(_workerThreadActive && _workerThreadPaused)
+	if (_workerThreadActive && _workerThreadPaused)
 	{
 		//##DEBUG##
 //		std::wcout << L"NotifyBeforeExecuteCalled is resuming DMA worker thread\n";
@@ -841,7 +841,7 @@ void S315_5313::NotifyAfterExecuteCalled()
 {
 	//Ensure that the DMA worker thread has finished executing
 	std::unique_lock<std::mutex> workerThreadLock(_workerThreadMutex);
-	if(_workerThreadActive && !_workerThreadPaused && _busGranted)
+	if (_workerThreadActive && !_workerThreadPaused && _busGranted)
 	{
 		//##DEBUG##
 //		std::wcout << L"NotifyAfterExecuteCalled is waiting for DMA worker thread to pause\n";
@@ -856,13 +856,13 @@ void S315_5313::NotifyAfterExecuteCalled()
 	workerThreadLock.unlock();
 
 	//##DEBUG##
-	if(_outputTimingDebugMessages)
+	if (_outputTimingDebugMessages)
 	{
 		std::wcout << "VDP - NotifyAfterExecuteCalled(Before): " << _hcounter.GetData() << '\t' << _vcounter.GetData() << '\t' << _currentTimesliceTotalMclkCycles << '\t' << _stateLastUpdateMclk << '\t' << _stateLastUpdateMclkUnused << '\t' << _stateLastUpdateMclkUnusedFromLastTimeslice << '\t' << std::setprecision(16) << _stateLastUpdateTime << '\n';
 	}
 
 	//Ensure the VDP is advanced up to the end of its timeslice
-	if((_currentTimesliceTotalMclkCycles > 0) && (_currentTimesliceTotalMclkCycles > GetProcessorStateMclkCurrent()))
+	if ((_currentTimesliceTotalMclkCycles > 0) && (_currentTimesliceTotalMclkCycles > GetProcessorStateMclkCurrent()))
 	{
 		UpdateInternalState(_currentTimesliceTotalMclkCycles, false, false, false, false, false, false, false);
 	}
@@ -871,12 +871,12 @@ void S315_5313::NotifyAfterExecuteCalled()
 	//already been consumed out of the delay time before the next external bus read
 	//operation, and reset the next read time to 0. This will allow the result of the DMA
 	//read operation to be processed at the correct mclk cycle in the next timeslice.
-	if(_dmaTransferActive)
+	if (_dmaTransferActive)
 	{
 		//Calculate the number of mclk wait cycles that have already been served out of
 		//the delay before the next read operation is complete.
 		unsigned int dmaTransferNextReadCompleteTime = (_dmaTransferNextReadMclk + (dmaTransferReadTimeInMclkCycles - _dmaTransferLastTimesliceUsedReadDelay));
-		if(dmaTransferNextReadCompleteTime > GetProcessorStateMclkCurrent())
+		if (dmaTransferNextReadCompleteTime > GetProcessorStateMclkCurrent())
 		{
 			//Calculate the number of mclk cycles that have already been advanced from the
 			//point at which the DMA read operation began, to the point we're up to now.
@@ -910,19 +910,19 @@ void S315_5313::NotifyAfterExecuteCalled()
 
 	//Calculate the number of mclk cycles we ran over the end of the last timeslice
 	_lastTimesliceMclkCyclesOverrun = 0;
-	if(GetProcessorStateMclkCurrent() > _currentTimesliceTotalMclkCycles)
+	if (GetProcessorStateMclkCurrent() > _currentTimesliceTotalMclkCycles)
 	{
 		_lastTimesliceMclkCyclesOverrun = GetProcessorStateMclkCurrent() - _currentTimesliceTotalMclkCycles;
 	}
 
 	//##DEBUG##
-	if(_outputTimingDebugMessages)
+	if (_outputTimingDebugMessages)
 	{
 		std::wcout << "VDP - NotifyAfterExecuteCalled(After): " << _hcounter.GetData() << '\t' << _vcounter.GetData() << '\t' << _currentTimesliceTotalMclkCycles << '\t' << _stateLastUpdateMclk << '\t' << _stateLastUpdateMclkUnused << '\t' << _stateLastUpdateMclkUnusedFromLastTimeslice << '\t' << std::setprecision(16) << _stateLastUpdateTime << '\t' << _lastTimesliceMclkCyclesOverrun << '\n';
 	}
 
 	//##DEBUG##
-	if(_lastTimesliceMclkCyclesOverrun > 0x80000000)
+	if (_lastTimesliceMclkCyclesOverrun > 0x80000000)
 	{
 		std::wcout << "VDP - Bad value for lastTimesliceMclkCyclesOverrun: " << _hcounter.GetData() << '\t' << _vcounter.GetData() << '\t' << _currentTimesliceTotalMclkCycles << '\t' << _stateLastUpdateMclk << '\t' << _stateLastUpdateMclkUnused << '\t' << _stateLastUpdateMclkUnusedFromLastTimeslice << '\t' << std::setprecision(16) << _stateLastUpdateTime << '\t' << _lastTimesliceMclkCyclesOverrun << '\n';
 	}
@@ -945,7 +945,7 @@ void S315_5313::NotifyAfterExecuteCalled()
 void S315_5313::ExecuteTimeslice(double nanoseconds)
 {
 	//##DEBUG##
-	if(_outputTimingDebugMessages)
+	if (_outputTimingDebugMessages)
 	{
 		std::wcout << "VDP - ExecuteTimeslice: " << nanoseconds << '\t' << _hcounter.GetData() << '\t' << _vcounter.GetData() << '\t' << _stateLastUpdateMclkUnused << '\n';
 	}
@@ -955,7 +955,7 @@ void S315_5313::ExecuteTimeslice(double nanoseconds)
 	//progress set by the worker thread, potentially causing waiting devices to execute
 	//beyond the DMA execution progress set by the DMA worker thread.
 	std::unique_lock<std::mutex> workerThreadLock(_workerThreadMutex);
-	if(_workerThreadActive && !_workerThreadPaused && _busGranted)
+	if (_workerThreadActive && !_workerThreadPaused && _busGranted)
 	{
 		_workerThreadIdle.wait(workerThreadLock);
 	}
@@ -963,10 +963,10 @@ void S315_5313::ExecuteTimeslice(double nanoseconds)
 	//If the render thread is lagging, pause here until it has caught up, so we don't
 	//leave the render thread behind with an ever-increasing workload it will never be
 	//able to complete.
-	if(_renderThreadLagging)
+	if (_renderThreadLagging)
 	{
 		std::unique_lock<std::mutex> lock(_timesliceMutex);
-		while(_renderThreadLagging)
+		while (_renderThreadLagging)
 		{
 			_renderThreadLaggingStateChange.wait(lock);
 		}
@@ -978,7 +978,7 @@ void S315_5313::ExecuteTimesliceTimingPointStep(unsigned int accessContext)
 {
 	//Ensure that the DMA worker thread has finished executing
 	std::unique_lock<std::mutex> workerThreadLock(_workerThreadMutex);
-	if(_workerThreadActive && !_workerThreadPaused && _busGranted)
+	if (_workerThreadActive && !_workerThreadPaused && _busGranted)
 	{
 		//##DEBUG##
 		//std::wcout << L"ExecuteTimeslice is on a timing point waiting for DMA worker thread to pause\n";
@@ -993,7 +993,7 @@ void S315_5313::ExecuteTimesliceTimingPointStep(unsigned int accessContext)
 	workerThreadLock.unlock();
 
 	//Ensure the VDP is advanced up to the end of its timeslice
-	if((_currentTimesliceTotalMclkCycles > 0) && (_currentTimesliceTotalMclkCycles > GetProcessorStateMclkCurrent()))
+	if ((_currentTimesliceTotalMclkCycles > 0) && (_currentTimesliceTotalMclkCycles > GetProcessorStateMclkCurrent()))
 	{
 		UpdateInternalState(_currentTimesliceTotalMclkCycles, false, false, false, false, false, false, false);
 	}
@@ -1007,9 +1007,9 @@ void S315_5313::ExecuteTimesliceTimingPointStep(unsigned int accessContext)
 	UpdatePredictedLineStateChanges(GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::TimingPoint);
 
 	//##DEBUG##
-	if((AccessContext)accessContext == AccessContext::TimingPoint)
+	if ((AccessContext)accessContext == AccessContext::TimingPoint)
 	{
-		if(_outputTimingDebugMessages)
+		if (_outputTimingDebugMessages)
 		{
 			std::wcout << "VDP - ExecuteOnTimingPoint: " << _hcounter.GetData() << '\t' << _vcounter.GetData() << '\t' << _stateLastUpdateMclkUnused << '\n';
 		}
@@ -1040,7 +1040,7 @@ double S315_5313::GetNextTimingPointInDeviceTime(unsigned int& accessContext) co
 	//mclk cycles from the last timeslice. These cycles have already been executed, so
 	//they're available for free. As such, we need to subtract these cycles from the
 	//number of cycles we need to execute in order to reach the target event.
-	if(_stateLastUpdateMclkUnusedFromLastTimeslice >= mclkCyclesBeforeVSync)
+	if (_stateLastUpdateMclkUnusedFromLastTimeslice >= mclkCyclesBeforeVSync)
 	{
 		mclkCyclesBeforeVSync = 0;
 	}
@@ -1061,7 +1061,7 @@ double S315_5313::GetNextTimingPointInDeviceTime(unsigned int& accessContext) co
 	double timeFromEndOfLastTimesliceToNextEventInSystemTime = timeUntilNextEventFromLastTimesliceMclkCycleEnd - extraTimeBetweenLastTimesliceMclkCycleEndAndActualTimesliceEnd;
 
 	//##DEBUG##
-	if(_outputTimingDebugMessages)
+	if (_outputTimingDebugMessages)
 	{
 		std::wcout << "VDP - GetTimingPoint: " << _hcounter.GetData() << '\t' << _vcounter.GetData() << '\t' << _lastTimesliceMclkCyclesOverrun << '\t' << _currentTimesliceMclkCyclesRemainingTime << '\t' << mclkCyclesBeforeVSync << '\t' << std::setprecision(16) << timeFromEndOfLastTimesliceToNextEventInSystemTime << '\n';
 	}
@@ -1073,7 +1073,7 @@ double S315_5313::GetNextTimingPointInDeviceTime(unsigned int& accessContext) co
 void S315_5313::ExecuteRollback()
 {
 	//Port monitor state
-	if(_logStatusRegisterRead || _logDataPortRead || _logHVCounterRead || _logControlPortWrite || _logDataPortWrite)
+	if (_logStatusRegisterRead || _logDataPortRead || _logHVCounterRead || _logControlPortWrite || _logDataPortWrite)
 	{
 		std::unique_lock<std::mutex> lock(_portMonitorMutex);
 		_portMonitorList = _bportMonitorList;
@@ -1159,7 +1159,7 @@ void S315_5313::ExecuteRollback()
 	_verticalScrollModeCached = _bverticalScrollModeCached;
 
 	//FIFO buffer registers
-	for(unsigned int i = 0; i < FifoBufferSize; ++i)
+	for (unsigned int i = 0; i < FifoBufferSize; ++i)
 	{
 		_fifoBuffer[i] = _bfifoBuffer[i];
 	}
@@ -1212,39 +1212,39 @@ void S315_5313::ExecuteRollback()
 	//Clear any uncommitted timeslices from our render timeslice buffers
 	_timesliceRenderInfoListUncommitted.clear();
 	_regTimesliceListUncommitted.clear();
-	for(std::list<ITimedBufferInt::Timeslice*>::const_iterator i = _vramTimesliceListUncommitted.begin(); i != _vramTimesliceListUncommitted.end(); ++i)
+	for (std::list<ITimedBufferInt::Timeslice*>::const_iterator i = _vramTimesliceListUncommitted.begin(); i != _vramTimesliceListUncommitted.end(); ++i)
 	{
 		_vram->FreeTimesliceReference(*i);
 	}
 	_vramTimesliceListUncommitted.clear();
-	for(std::list<ITimedBufferInt::Timeslice*>::const_iterator i = _cramTimesliceListUncommitted.begin(); i != _cramTimesliceListUncommitted.end(); ++i)
+	for (std::list<ITimedBufferInt::Timeslice*>::const_iterator i = _cramTimesliceListUncommitted.begin(); i != _cramTimesliceListUncommitted.end(); ++i)
 	{
 		_cram->FreeTimesliceReference(*i);
 	}
 	_cramTimesliceListUncommitted.clear();
-	for(std::list<ITimedBufferInt::Timeslice*>::const_iterator i = _vsramTimesliceListUncommitted.begin(); i != _vsramTimesliceListUncommitted.end(); ++i)
+	for (std::list<ITimedBufferInt::Timeslice*>::const_iterator i = _vsramTimesliceListUncommitted.begin(); i != _vsramTimesliceListUncommitted.end(); ++i)
 	{
 		_vsram->FreeTimesliceReference(*i);
 	}
 	_vsramTimesliceListUncommitted.clear();
-	for(std::list<ITimedBufferInt::Timeslice*>::const_iterator i = _spriteCacheTimesliceListUncommitted.begin(); i != _spriteCacheTimesliceListUncommitted.end(); ++i)
+	for (std::list<ITimedBufferInt::Timeslice*>::const_iterator i = _spriteCacheTimesliceListUncommitted.begin(); i != _spriteCacheTimesliceListUncommitted.end(); ++i)
 	{
 		_spriteCache->FreeTimesliceReference(*i);
 	}
 	_spriteCacheTimesliceListUncommitted.clear();
 
 	//##DEBUG##
-	if(_outputRenderSyncMessages || _outputTimingDebugMessages)
+	if (_outputRenderSyncMessages || _outputTimingDebugMessages)
 	{
 		//Wait for the render thread to complete its work
 		std::unique_lock<std::mutex> lock(_renderThreadMutex);
-		while(_pendingRenderOperationCount > 0)
+		while (_pendingRenderOperationCount > 0)
 		{
 			_renderThreadLaggingStateChange.wait(lock);
 		}
 
 		//Print out render thread synchronization info
-		if(_outputTimingDebugMessages)
+		if (_outputTimingDebugMessages)
 		{
 			std::wcout << "VDP Synchronization - Rollback:\n"
 			           << "-Digital:\t" << _hcounter.GetData() << '\t' << _vcounter.GetData() << '\t' << _stateLastUpdateMclkUnusedFromLastTimeslice << '\n'
@@ -1252,7 +1252,7 @@ void S315_5313::ExecuteRollback()
 		}
 
 		//##DEBUG##
-		if((_hcounter.GetData() != _renderDigitalHCounterPos) || (_vcounter.GetData() != _renderDigitalVCounterPos))
+		if ((_hcounter.GetData() != _renderDigitalHCounterPos) || (_vcounter.GetData() != _renderDigitalVCounterPos))
 		{
 			std::wcout << "*************************************************************\n"
 			           << "VDP render thread synchronization lost:\n"
@@ -1269,7 +1269,7 @@ void S315_5313::ExecuteRollback()
 void S315_5313::ExecuteCommit()
 {
 	//Port monitor state
-	if(_logStatusRegisterRead || _logDataPortRead || _logHVCounterRead || _logControlPortWrite || _logDataPortWrite)
+	if (_logStatusRegisterRead || _logDataPortRead || _logHVCounterRead || _logControlPortWrite || _logDataPortWrite)
 	{
 		std::unique_lock<std::mutex> lock(_portMonitorMutex);
 		_bportMonitorList = _portMonitorList;
@@ -1356,7 +1356,7 @@ void S315_5313::ExecuteCommit()
 
 	//Propagate any changes to the cached DMA settings back into the reg buffer. This
 	//makes changes to DMA settings visible to the debugger.
-	if(_cachedDMASettingsChanged)
+	if (_cachedDMASettingsChanged)
 	{
 		AccessTarget accessTarget;
 		accessTarget.AccessLatest();
@@ -1367,7 +1367,7 @@ void S315_5313::ExecuteCommit()
 	}
 
 	//FIFO buffer registers
-	for(unsigned int i = 0; i < FifoBufferSize; ++i)
+	for (unsigned int i = 0; i < FifoBufferSize; ++i)
 	{
 		_bfifoBuffer[i] = _fifoBuffer[i];
 	}
@@ -1420,7 +1420,7 @@ void S315_5313::ExecuteCommit()
 	//Ensure that a valid latest timeslice exists in all our buffers. We need this check
 	//here, because commits can be triggered by the system at potentially any point in
 	//time, whether a timeslice has been issued or not.
-	if(!_regTimesliceListUncommitted.empty() && !_vramTimesliceListUncommitted.empty() && !_cramTimesliceListUncommitted.empty() && !_vsramTimesliceListUncommitted.empty() && !_spriteCacheTimesliceListUncommitted.empty())
+	if (!_regTimesliceListUncommitted.empty() && !_vramTimesliceListUncommitted.empty() && !_cramTimesliceListUncommitted.empty() && !_vsramTimesliceListUncommitted.empty() && !_spriteCacheTimesliceListUncommitted.empty())
 	{
 		//Obtain a timeslice lock so we can update the data we feed to the render thread
 		std::unique_lock<std::mutex> lock(_timesliceMutex);
@@ -1443,17 +1443,17 @@ void S315_5313::ExecuteCommit()
 	}
 
 	//##DEBUG##
-	if(_outputRenderSyncMessages || _outputTimingDebugMessages)
+	if (_outputRenderSyncMessages || _outputTimingDebugMessages)
 	{
 		//Wait for the render thread to complete its work
 		std::unique_lock<std::mutex> lock(_renderThreadMutex);
-		while(_pendingRenderOperationCount > 0)
+		while (_pendingRenderOperationCount > 0)
 		{
 			_renderThreadLaggingStateChange.wait(lock);
 		}
 
 		//Print out render thread synchronization info
-		if(_outputTimingDebugMessages)
+		if (_outputTimingDebugMessages)
 		{
 			std::wcout << "VDP Synchronization - Commit:\n"
 			           << "-Digital:\t" << _hcounter.GetData() << '\t' << _vcounter.GetData() << '\t' << _stateLastUpdateMclkUnusedFromLastTimeslice << '\n'
@@ -1461,7 +1461,7 @@ void S315_5313::ExecuteCommit()
 		}
 
 		//##DEBUG##
-		if((_hcounter.GetData() != _renderDigitalHCounterPos) || (_vcounter.GetData() != _renderDigitalVCounterPos))
+		if ((_hcounter.GetData() != _renderDigitalHCounterPos) || (_vcounter.GetData() != _renderDigitalVCounterPos))
 		{
 			std::wcout << "*************************************************************\n"
 			           << "VDP render thread synchronization lost:\n"
@@ -1485,9 +1485,9 @@ void S315_5313::DMAWorkerThread()
 //	std::wcout << L"DMAWorkerThread running\n";
 
 	//Begin the DMA work loop
-	while(_workerThreadActive)
+	while (_workerThreadActive)
 	{
-		if(!_busGranted)
+		if (!_busGranted)
 		{
 			//##DEBUG##
 //			std::wcout << L"DMAWorkerThread going idle\t" << GetProcessorStateTime() << '\n';
@@ -1506,7 +1506,7 @@ void S315_5313::DMAWorkerThread()
 		else
 		{
 			//##DEBUG##
-			if(_commandCode.GetBit(5) != GetStatusFlagDMA())
+			if (_commandCode.GetBit(5) != GetStatusFlagDMA())
 			{
 				std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
 				std::wcout << "VDP commandCode.GetBit(5) != GetStatusFlagDMA()\n";
@@ -1528,7 +1528,7 @@ void S315_5313::DMAWorkerThread()
 			//If a DMA transfer is currently in progress and we currently have the bus,
 			//advance the processor state until the DMA operation is complete, or we reach
 			//the end of the current timeslice.
-			if(_dmaTransferActive && _busGranted)
+			if (_dmaTransferActive && _busGranted)
 			{
 				//Advance the DMA operation. Note that we execute up to exactly 1 more
 				//MCLK cycle than is available in the current timeslice. We need to do
@@ -1538,7 +1538,7 @@ void S315_5313::DMAWorkerThread()
 				//timeslice, so that any waiting devices don't stall waiting for us to
 				//reach the end of the timeslice too.
 				unsigned int mclkCycleTimeToExecuteTo = _currentTimesliceTotalMclkCycles + 1;
-				if(_dmaAdvanceUntilDMAComplete)
+				if (_dmaAdvanceUntilDMAComplete)
 				{
 					//If we've been requested to advance the current DMA operation until
 					//it is complete, ignore the timeslice length and advance until we
@@ -1549,7 +1549,7 @@ void S315_5313::DMAWorkerThread()
 
 					UpdateInternalState(mclkCycleTimeToExecuteTo, true, false, false, false, false, true, true);
 				}
-				else if(GetProcessorStateMclkCurrent() < mclkCycleTimeToExecuteTo)
+				else if (GetProcessorStateMclkCurrent() < mclkCycleTimeToExecuteTo)
 				{
 					//If we currently have the bus, advance the processor state until the DMA
 					//operation is complete, or we reach the end of the current timeslice.
@@ -1564,10 +1564,10 @@ void S315_5313::DMAWorkerThread()
 				GetDeviceContext()->SetCurrentTimesliceProgress(_lastTimesliceMclkCyclesRemainingTime + GetProcessorStateTime());
 
 				//If the DMA transfer has been completed, negate BR to release the bus.
-				if(!_dmaTransferActive)
+				if (!_dmaTransferActive)
 				{
 					//##DEBUG##
-	//				if(outputPortAccessDebugMessages)
+	//				if (outputPortAccessDebugMessages)
 	//				{
 	//					std::wcout << "SetLineState - VDP_LINE_BR:\t" << false << '\t' << GetProcessorStateTime() << '\t' << GetProcessorStateMclkCurrent() << '\n';
 	//				}
@@ -1584,10 +1584,10 @@ void S315_5313::DMAWorkerThread()
 					//halves of a long-word operation. Until we have a microcode level
 					//M68000 core online, we cache these invalid reads, and process them
 					//when the DMA operation is complete.
-					if(_dmaTransferInvalidPortWriteCached)
+					if (_dmaTransferInvalidPortWriteCached)
 					{
 						//##DEBUG##
-						if(_outputPortAccessDebugMessages)
+						if (_outputPortAccessDebugMessages)
 						{
 							std::wcout << "VDP Performing a cached write!\n";
 						}
@@ -1620,7 +1620,7 @@ void S315_5313::DMAWorkerThread()
 			//If the VDP still has the bus, but we've negated BR or reached the end of the
 			//current timeslice, suspend the worker thread until the next timeslice is
 			//received, or the BR line state changes.
-			if(_busGranted)
+			if (_busGranted)
 			{
 				//##DEBUG##
 	//			std::wcout << L"DMAWorkerThread pausing\t" << GetProcessorStateTime() << '\n';
@@ -1743,7 +1743,7 @@ void S315_5313::UpdateInternalState(unsigned int mclkCyclesTarget, bool checkFif
 	bool writeOperationWillRun = !IsWriteFIFOEmpty();
 
 	//##DEBUG##
-	if(stopWhenNoDMAOperationInProgress && !dmaOperationWillRun)
+	if (stopWhenNoDMAOperationInProgress && !dmaOperationWillRun)
 	{
 		std::wcout << "######################################################\n";
 		std::wcout << "VDP UpdateInternalState called with stopWhenNoDMAOperationInProgress when no DMA operation was running!\n";
@@ -1763,11 +1763,11 @@ void S315_5313::UpdateInternalState(unsigned int mclkCyclesTarget, bool checkFif
 
 	//Check if we're already sitting on one of the target states
 	bool targetFifoStateReached = false;
-	if(checkFifoStateBeforeUpdate)
+	if (checkFifoStateBeforeUpdate)
 	{
 		//If we're already at the target state, we exit the function immediately, since
 		//there's no more work to do.
-		if(TargetProcessorStateReached(stopWhenFifoEmpty, stopWhenFifoFull, stopWhenFifoNotFull, stopWhenReadDataAvailable, stopWhenNoDMAOperationInProgress))
+		if (TargetProcessorStateReached(stopWhenFifoEmpty, stopWhenFifoFull, stopWhenFifoNotFull, stopWhenReadDataAvailable, stopWhenNoDMAOperationInProgress))
 		{
 			return;
 		}
@@ -1777,7 +1777,7 @@ void S315_5313::UpdateInternalState(unsigned int mclkCyclesTarget, bool checkFif
 	bool stopAtAccessSlot = writeOperationWillRun || readOperationWillRun || dmaOperationWillRun;
 
 	//Advance the VDP until we reach the target state
-	while(!targetFifoStateReached && (!AdvanceProcessorState(mclkCyclesTarget, stopAtAccessSlot, allowAdvancePastCycleTarget) || allowAdvancePastCycleTarget))
+	while (!targetFifoStateReached && (!AdvanceProcessorState(mclkCyclesTarget, stopAtAccessSlot, allowAdvancePastCycleTarget) || allowAdvancePastCycleTarget))
 	{
 		//Advance a DMA transfer operation while the write FIFO or read cache is not full,
 		//and there has been enough time since the read cache became empty to fully read
@@ -1797,12 +1797,12 @@ void S315_5313::UpdateInternalState(unsigned int mclkCyclesTarget, bool checkFif
 		//the FIFO, there's a 4SC cycle delay before another value can be released, or in
 		//other words, we need to skip the next hcounter location when an access slot has
 		//just been used. We need to emulate that when detecting the next access slot.
-		while(_commandCode.GetBit(5) && !_dmd1 && _busGranted && (!_dmaTransferReadDataCached || !IsWriteFIFOFull())
+		while (_commandCode.GetBit(5) && !_dmd1 && _busGranted && (!_dmaTransferReadDataCached || !IsWriteFIFOFull())
 		  && ((_dmaTransferNextReadMclk + (dmaTransferReadTimeInMclkCycles - _dmaTransferLastTimesliceUsedReadDelay)) <= GetProcessorStateMclkCurrent()))
 		{
 			//If there is space in the DMA transfer read cache, read a new data value into
 			//the read cache.
-			if(!_dmaTransferReadDataCached)
+			if (!_dmaTransferReadDataCached)
 			{
 				CacheDMATransferReadData(_dmaTransferNextReadMclk);
 			}
@@ -1814,7 +1814,7 @@ void S315_5313::UpdateInternalState(unsigned int mclkCyclesTarget, bool checkFif
 
 			//If there is space in the write FIFO to store another write value, empty the
 			//DMA transfer read cache data into the FIFO.
-			if(!IsWriteFIFOFull())
+			if (!IsWriteFIFOFull())
 			{
 				PerformDMATransferOperation();
 				AdvanceDMAState();
@@ -1825,14 +1825,14 @@ void S315_5313::UpdateInternalState(unsigned int mclkCyclesTarget, bool checkFif
 		//and the write FIFO is empty. If a data port write has been made during an active
 		//DMA fill operation, that data port write is performed first, and we carry on the
 		//fill once the FIFO returns to an empty state.
-		if(_commandCode.GetBit(5) && _dmd1 && !_dmd0 && _dmaFillOperationRunning && IsWriteFIFOEmpty())
+		if (_commandCode.GetBit(5) && _dmd1 && !_dmd0 && _dmaFillOperationRunning && IsWriteFIFOEmpty())
 		{
 			PerformDMAFillOperation();
 			AdvanceDMAState();
 		}
 
 		//Advance a DMA copy operation
-		if(_commandCode.GetBit(5) && _dmd1 && _dmd0)
+		if (_commandCode.GetBit(5) && _dmd1 && _dmd0)
 		{
 			PerformDMACopyOperation();
 			AdvanceDMAState();
@@ -1840,7 +1840,7 @@ void S315_5313::UpdateInternalState(unsigned int mclkCyclesTarget, bool checkFif
 
 		//Perform a VRAM read cache operation
 		bool readOperationPerformed = false;
-		if(IsWriteFIFOEmpty() && !_readDataAvailable && ValidReadTargetInCommandCode())
+		if (IsWriteFIFOEmpty() && !_readDataAvailable && ValidReadTargetInCommandCode())
 		//##TODO## Evaluate this old code, and figure out what to do with it.
 		//if(!readDataAvailable && ValidReadTargetInCommandCode())
 		{
@@ -1849,7 +1849,7 @@ void S315_5313::UpdateInternalState(unsigned int mclkCyclesTarget, bool checkFif
 		}
 
 		//Perform a VRAM write operation
-		if(!IsWriteFIFOEmpty() && !readOperationPerformed)
+		if (!IsWriteFIFOEmpty() && !readOperationPerformed)
 		{
 			PerformFIFOWriteOperation();
 		}
@@ -1861,7 +1861,7 @@ void S315_5313::UpdateInternalState(unsigned int mclkCyclesTarget, bool checkFif
 		//more data pending, which is essential in order to ensure that the FIFO full flag
 		//appears as full immediately after a DMA transfer operation has reached the end
 		//of the source data.
-		if(_commandCode.GetBit(5) && !_dmd1 && _dmaTransferReadDataCached && !IsWriteFIFOFull())
+		if (_commandCode.GetBit(5) && !_dmd1 && _dmaTransferReadDataCached && !IsWriteFIFOFull())
 		{
 			//If there is space in the write FIFO to store another write value, empty the
 			//DMA transfer read cache data into the FIFO.
@@ -1890,8 +1890,8 @@ void S315_5313::UpdateInternalState(unsigned int mclkCyclesTarget, bool checkFif
 bool S315_5313::AdvanceProcessorState(unsigned int mclkCyclesTarget, bool stopAtNextAccessSlot, bool allowAdvancePastTargetForAccessSlot)
 {
 	//Ensure that we aren't trying to trigger an update out of order
-	//	if((!stopAtNextAccessSlot || !allowAdvancePastTargetForAccessSlot) && (mclkCyclesTarget < (stateLastUpdateMclk + stateLastUpdateMclkUnused)))
-	if((mclkCyclesTarget < GetProcessorStateMclkCurrent()) && (!stopAtNextAccessSlot || !allowAdvancePastTargetForAccessSlot))
+	//	if ((!stopAtNextAccessSlot || !allowAdvancePastTargetForAccessSlot) && (mclkCyclesTarget < (stateLastUpdateMclk + stateLastUpdateMclkUnused)))
+	if ((mclkCyclesTarget < GetProcessorStateMclkCurrent()) && (!stopAtNextAccessSlot || !allowAdvancePastTargetForAccessSlot))
 	{
 		//##TODO## Raise an assert if this occurs
 		//##DEBUG##
@@ -1948,7 +1948,7 @@ bool S315_5313::AdvanceProcessorState(unsigned int mclkCyclesTarget, bool stopAt
 	//Advance the device until we reach the target position
 	bool stoppedAtAccessSlot = false;
 	unsigned int mclkCyclesAdvanced = 0;
-	while(((mclkCyclesAdvanced < mclkCyclesToExecute) && (!stopAtNextAccessSlot || !stoppedAtAccessSlot)) || (allowAdvancePastTargetForAccessSlot && stopAtNextAccessSlot && !stoppedAtAccessSlot))
+	while (((mclkCyclesAdvanced < mclkCyclesToExecute) && (!stopAtNextAccessSlot || !stoppedAtAccessSlot)) || (allowAdvancePastTargetForAccessSlot && stopAtNextAccessSlot && !stoppedAtAccessSlot))
 	{
 		//Obtain the current hscan and vscan settings
 		//##TODO## Only latch these at the start of the search, and when they change, to
@@ -1960,7 +1960,7 @@ bool S315_5313::AdvanceProcessorState(unsigned int mclkCyclesTarget, bool stopAt
 		//information on the next access slot update point.
 		bool updatePointAccessSlotActive = false;
 		unsigned int pixelClockTicksBeforeUpdatePointAccessSlot = 0;
-		if(stopAtNextAccessSlot)
+		if (stopAtNextAccessSlot)
 		{
 			//Calculate the number of pixel clock ticks which will occur before the next
 			//access slot occurs
@@ -1971,7 +1971,7 @@ bool S315_5313::AdvanceProcessorState(unsigned int mclkCyclesTarget, bool stopAt
 		//Gather information on the next hblank update point
 		bool updatePointHBlankActive = false;
 		unsigned int pixelClockTicksBeforeUpdatePointHBlank = 0;
-		if(hscanSettingsChanged)
+		if (hscanSettingsChanged)
 		{
 			//Calculate the number of pixel clock ticks until the hblank event occurs, and
 			//new screen mode settings are latched.
@@ -1982,7 +1982,7 @@ bool S315_5313::AdvanceProcessorState(unsigned int mclkCyclesTarget, bool stopAt
 		//Gather information on the next vblank update point
 		bool updatePointVBlankActive = false;
 		unsigned int pixelClockTicksBeforeUpdatePointVBlank = 0;
-		if(vscanSettingsChanged)
+		if (vscanSettingsChanged)
 		{
 			//Calculate the number of pixel clock ticks until the vblank event occurs, and
 			//new screen mode settings are latched.
@@ -1997,7 +1997,7 @@ bool S315_5313::AdvanceProcessorState(unsigned int mclkCyclesTarget, bool stopAt
 		//Gather information on the next exint update point
 		bool updatePointEXIntActive = false;
 		unsigned int pixelClockTicksBeforeUpdatePointEXInt = 0;
-		if(_externalInterruptVideoTriggerPointPending)
+		if (_externalInterruptVideoTriggerPointPending)
 		{
 			pixelClockTicksBeforeUpdatePointEXInt = GetPixelClockStepsBetweenHVCounterValues(true, hscanSettings, _hcounter.GetData(), _externalInterruptVideoTriggerPointHCounter, vscanSettings, _interlaceEnabled, GetStatusFlagOddInterlaceFrame(), _vcounter.GetData(), _externalInterruptVideoTriggerPointVCounter);
 		}
@@ -2023,37 +2023,37 @@ bool S315_5313::AdvanceProcessorState(unsigned int mclkCyclesTarget, bool stopAt
 		//Set this advance operation to stop at the next update point if required
 		unsigned int mclkCyclesToAdvanceThisStep = mclkCyclesAvailableInUpdateStep;
 		unsigned int pixelClockCyclesToAdvanceThisStep = pixelClockCyclesAvailableInUpdateStep;
-		if(updatePointAccessSlotActive && stopAtNextAccessSlot && ((pixelClockTicksBeforeUpdatePointAccessSlot < pixelClockCyclesToAdvanceThisStep) || allowAdvancePastTargetForAccessSlot))
+		if (updatePointAccessSlotActive && stopAtNextAccessSlot && ((pixelClockTicksBeforeUpdatePointAccessSlot < pixelClockCyclesToAdvanceThisStep) || allowAdvancePastTargetForAccessSlot))
 		{
 			mclkCyclesToAdvanceThisStep = GetMclkTicksForPixelClockTicks(hscanSettings, pixelClockTicksBeforeUpdatePointAccessSlot, _hcounter.GetData(), _screenModeRS0, _screenModeRS1) - _stateLastUpdateMclkUnused;
 			mclkRemainingCycles = 0;
 			pixelClockCyclesToAdvanceThisStep = pixelClockTicksBeforeUpdatePointAccessSlot;
 		}
-		if(updatePointHBlankActive && (pixelClockTicksBeforeUpdatePointHBlank < pixelClockCyclesToAdvanceThisStep))
+		if (updatePointHBlankActive && (pixelClockTicksBeforeUpdatePointHBlank < pixelClockCyclesToAdvanceThisStep))
 		{
 			mclkCyclesToAdvanceThisStep = GetMclkTicksForPixelClockTicks(hscanSettings, pixelClockTicksBeforeUpdatePointHBlank, _hcounter.GetData(), _screenModeRS0, _screenModeRS1) - _stateLastUpdateMclkUnused;
 			mclkRemainingCycles = 0;
 			pixelClockCyclesToAdvanceThisStep = pixelClockTicksBeforeUpdatePointHBlank;
 		}
-		if(updatePointVBlankActive && (pixelClockTicksBeforeUpdatePointVBlank < pixelClockCyclesToAdvanceThisStep))
+		if (updatePointVBlankActive && (pixelClockTicksBeforeUpdatePointVBlank < pixelClockCyclesToAdvanceThisStep))
 		{
 			mclkCyclesToAdvanceThisStep = GetMclkTicksForPixelClockTicks(hscanSettings, pixelClockTicksBeforeUpdatePointVBlank, _hcounter.GetData(), _screenModeRS0, _screenModeRS1) - _stateLastUpdateMclkUnused;
 			mclkRemainingCycles = 0;
 			pixelClockCyclesToAdvanceThisStep = pixelClockTicksBeforeUpdatePointVBlank;
 		}
-		if(updatePointVIntActive && (pixelClockTicksBeforeUpdatePointVInt < pixelClockCyclesToAdvanceThisStep))
+		if (updatePointVIntActive && (pixelClockTicksBeforeUpdatePointVInt < pixelClockCyclesToAdvanceThisStep))
 		{
 			mclkCyclesToAdvanceThisStep = GetMclkTicksForPixelClockTicks(hscanSettings, pixelClockTicksBeforeUpdatePointVInt, _hcounter.GetData(), _screenModeRS0, _screenModeRS1) - _stateLastUpdateMclkUnused;
 			mclkRemainingCycles = 0;
 			pixelClockCyclesToAdvanceThisStep = pixelClockTicksBeforeUpdatePointVInt;
 		}
-		if(updatePointEXIntActive && (pixelClockTicksBeforeUpdatePointEXInt < pixelClockCyclesToAdvanceThisStep))
+		if (updatePointEXIntActive && (pixelClockTicksBeforeUpdatePointEXInt < pixelClockCyclesToAdvanceThisStep))
 		{
 			mclkCyclesToAdvanceThisStep = GetMclkTicksForPixelClockTicks(hscanSettings, pixelClockTicksBeforeUpdatePointEXInt, _hcounter.GetData(), _screenModeRS0, _screenModeRS1) - _stateLastUpdateMclkUnused;
 			mclkRemainingCycles = 0;
 			pixelClockCyclesToAdvanceThisStep = pixelClockTicksBeforeUpdatePointEXInt;
 		}
-		if(updatePointHIntCounterAdvanceActive && (pixelClockTicksBeforeUpdatePointHIntCounterAdvance < pixelClockCyclesToAdvanceThisStep))
+		if (updatePointHIntCounterAdvanceActive && (pixelClockTicksBeforeUpdatePointHIntCounterAdvance < pixelClockCyclesToAdvanceThisStep))
 		{
 			mclkCyclesToAdvanceThisStep = GetMclkTicksForPixelClockTicks(hscanSettings, pixelClockTicksBeforeUpdatePointHIntCounterAdvance, _hcounter.GetData(), _screenModeRS0, _screenModeRS1) - _stateLastUpdateMclkUnused;
 			mclkRemainingCycles = 0;
@@ -2106,11 +2106,11 @@ bool S315_5313::AdvanceProcessorState(unsigned int mclkCyclesTarget, bool stopAt
 		//Update the cache of the last value to be read from VSRAM by the render process
 		//##TODO## Add better comments here
 		unsigned int lastVSRAMReadIndex = (hcounterNew >> 2) & 0x7E;
-		if(!_verticalScrollModeCached)
+		if (!_verticalScrollModeCached)
 		{
 			lastVSRAMReadIndex &= 0x03;
 		}
-		if(lastVSRAMReadIndex < 0x50)
+		if (lastVSRAMReadIndex < 0x50)
 		{
 			_vsramLastRenderReadCache = ((unsigned int)_vsram->ReadLatest(lastVSRAMReadIndex+0) << 8) | (unsigned int)_vsram->ReadLatest(lastVSRAMReadIndex+1);
 		}
@@ -2128,7 +2128,7 @@ bool S315_5313::AdvanceProcessorState(unsigned int mclkCyclesTarget, bool stopAt
 		//##TODO## Update the sprite overflow flag
 		//##TODO## Confirm whether the sprite overflow flag is set just for a sprite
 		//overflow, or for a dot overflow as well.
-		if(!GetStatusFlagSpriteOverflow())
+		if (!GetStatusFlagSpriteOverflow())
 		{
 			//##STUB##
 			SetStatusFlagSpriteOverflow(false);
@@ -2152,7 +2152,7 @@ bool S315_5313::AdvanceProcessorState(unsigned int mclkCyclesTarget, bool stopAt
 		//sprite overflow flag is set while performing sprite mapping reads, if there are
 		//still blocks remaining when the last sprite mapping read slot is used on a
 		//scanline.
-		if(!GetStatusFlagSpriteCollision())
+		if (!GetStatusFlagSpriteCollision())
 		{
 			//##STUB##
 			SetStatusFlagSpriteCollision(false);
@@ -2177,7 +2177,7 @@ bool S315_5313::AdvanceProcessorState(unsigned int mclkCyclesTarget, bool stopAt
 		bool vintLineChangeReached = (_lineStateChangePendingVINT && (_lineStateChangeVINTMClkCountFromCurrent <= mclkCyclesToAdvanceThisStep));
 		bool hintLineChangeReached = (_lineStateChangePendingHINT && (_lineStateChangeHINTMClkCountFromCurrent <= mclkCyclesToAdvanceThisStep));
 		bool exintLineChangeReached = (_lineStateChangePendingEXINT && (_lineStateChangeEXINTMClkCountFromCurrent <= mclkCyclesToAdvanceThisStep));
-		if(vintLineChangeReached || hintLineChangeReached || exintLineChangeReached)
+		if (vintLineChangeReached || hintLineChangeReached || exintLineChangeReached)
 		{
 			unsigned int newLineStateIPL = ~0u;
 			newLineStateIPL = (vintLineChangeReached && (_lineStateChangeVINTMClkCountFromCurrent < newLineStateIPL))? VintIPLLineState: newLineStateIPL;
@@ -2206,14 +2206,14 @@ bool S315_5313::AdvanceProcessorState(unsigned int mclkCyclesTarget, bool stopAt
 
 		//If we're stopping at an access slot, flag that we've reached the target access
 		//slot.
-		if(updatePointAccessSlotActive && (pixelClockTicksBeforeUpdatePointAccessSlot == pixelClockCyclesToAdvanceThisStep))
+		if (updatePointAccessSlotActive && (pixelClockTicksBeforeUpdatePointAccessSlot == pixelClockCyclesToAdvanceThisStep))
 		{
 			stoppedAtAccessSlot = true;
 		}
 
 		//If horizontal scan information has changed, and we've just advanced to hblank,
 		//latch the new screen mode settings.
-		if(updatePointHBlankActive && (pixelClockTicksBeforeUpdatePointHBlank == pixelClockCyclesToAdvanceThisStep))
+		if (updatePointHBlankActive && (pixelClockTicksBeforeUpdatePointHBlank == pixelClockCyclesToAdvanceThisStep))
 		{
 			//##FIX## These settings changes are supposed to take effect immediately
 			_screenModeRS0 = screenModeRS0New;
@@ -2226,7 +2226,7 @@ bool S315_5313::AdvanceProcessorState(unsigned int mclkCyclesTarget, bool stopAt
 
 		//If vertical scan information has changed, and we've just advanced to vblank,
 		//latch the new screen mode settings.
-		if(updatePointVBlankActive && (pixelClockTicksBeforeUpdatePointVBlank == pixelClockCyclesToAdvanceThisStep))
+		if (updatePointVBlankActive && (pixelClockTicksBeforeUpdatePointVBlank == pixelClockCyclesToAdvanceThisStep))
 		{
 			//If the interlace mode has changed, the new setting is latched when the
 			//vblank set event occurs. This has been verified in all video modes through
@@ -2248,7 +2248,7 @@ bool S315_5313::AdvanceProcessorState(unsigned int mclkCyclesTarget, bool stopAt
 		//flag. Note that the actual analog VINT line state change would have already been
 		//raised in advance to occur at this time, we simply need to set the digital state
 		//of the VDP to reflect this now.
-		if(updatePointVIntActive && (pixelClockTicksBeforeUpdatePointVInt == pixelClockCyclesToAdvanceThisStep))
+		if (updatePointVIntActive && (pixelClockTicksBeforeUpdatePointVInt == pixelClockCyclesToAdvanceThisStep))
 		{
 			//Set the VINT pending flag, to indicate that the VDP needs to trigger a
 			//vertical interrupt.
@@ -2267,7 +2267,7 @@ bool S315_5313::AdvanceProcessorState(unsigned int mclkCyclesTarget, bool stopAt
 		//pending flag. Note that the actual analog EXINT line state change would have
 		//already been raised in advance to occur at this time, we simply need to set the
 		//digital state of the VDP to reflect this now.
-		if(updatePointEXIntActive && (pixelClockTicksBeforeUpdatePointEXInt == pixelClockCyclesToAdvanceThisStep))
+		if (updatePointEXIntActive && (pixelClockTicksBeforeUpdatePointEXInt == pixelClockCyclesToAdvanceThisStep))
 		{
 			//Since this external interrupt trigger point has now been processed, flag
 			//that it is no longer pending.
@@ -2291,14 +2291,14 @@ bool S315_5313::AdvanceProcessorState(unsigned int mclkCyclesTarget, bool stopAt
 		//counter and calculate its new value. Note that horizontal interrupt generation
 		//would have already been raised at the correct time, but we need to change the
 		//digital state of the VDP to reflect this.
-		if(updatePointHIntCounterAdvanceActive && (pixelClockTicksBeforeUpdatePointHIntCounterAdvance == pixelClockCyclesToAdvanceThisStep))
+		if (updatePointHIntCounterAdvanceActive && (pixelClockTicksBeforeUpdatePointHIntCounterAdvance == pixelClockCyclesToAdvanceThisStep))
 		{
-			if(updatePointHIntCounterAdvanceVCounter > vscanSettings.vblankSetPoint)
+			if (updatePointHIntCounterAdvanceVCounter > vscanSettings.vblankSetPoint)
 			{
 				//Latch the initial hintCounter value for the frame
 				_hintCounter = _hintCounterReloadValue;
 			}
-			else if(_hintCounter == 0)
+			else if (_hintCounter == 0)
 			{
 				//Reload the hint counter now that it has expired
 				_hintCounter = _hintCounterReloadValue;
@@ -2378,7 +2378,7 @@ void S315_5313::PerformReadCacheOperation()
 	//##TODO## Confirm the above assertion about the live state of the FIFO not being used
 	//at the time the read value is output over the data port. Re-running our original
 	//test with the NOP operations inserted should give us the answer.
-	if(!_readDataHalfCached)
+	if (!_readDataHalfCached)
 	{
 		_readBuffer = _fifoBuffer[_fifoNextReadEntry].dataPortWriteData;
 	}
@@ -2387,7 +2387,7 @@ void S315_5313::PerformReadCacheOperation()
 	//the hardware. Reads are decoded based on the lower 5 bits of the code data.
 	RAMAccessTarget ramAccessTarget;
 	ramAccessTarget.AccessTime(GetProcessorStateMclkCurrent());
-	switch(_commandCode.GetDataSegment(0, 5))
+	switch (_commandCode.GetDataSegment(0, 5))
 	{
 	case 0x00:{ //?00000 VRAM Read
 		//Note that hardware tests have shown that the LSB of the address is ignored for
@@ -2408,7 +2408,7 @@ void S315_5313::PerformReadCacheOperation()
 		//##TODO## Comment what's going on here with the read operations. The
 		//M5ReadVRAM8Bit() function inverts the LSB of the address, so this is a bit
 		//confusing.
-		if(!_readDataHalfCached)
+		if (!_readDataHalfCached)
 		{
 			Data tempDataBuffer(8);
 			M5ReadVRAM8Bit(tempAddress+1, tempDataBuffer, ramAccessTarget);
@@ -2457,7 +2457,7 @@ void S315_5313::PerformReadCacheOperation()
 	//##FIX## Is this correct? We need to sort out how we track incremented address
 	//register data for operations such as reads and DMA fill/transfer operations.
 	//Increment the target address
-	if(!_readDataHalfCached)
+	if (!_readDataHalfCached)
 	{
 		_commandAddress += _autoIncrementData;
 	}
@@ -2490,7 +2490,7 @@ void S315_5313::PerformFIFOWriteOperation()
 	//on the hardware. Writes are decoded based on the lower 4 bits of the code data.
 	RAMAccessTarget ramAccessTarget;
 	ramAccessTarget.AccessTime(GetProcessorStateMclkCurrent());
-	switch(fifoBufferEntry.codeRegData.GetDataSegment(0, 4))
+	switch (fifoBufferEntry.codeRegData.GetDataSegment(0, 4))
 	{
 	case 0x01:{ //??0001 VRAM Write
 		//-Hardware tests have verified that if the LSB of the address is set, it is
@@ -2570,7 +2570,7 @@ void S315_5313::PerformFIFOWriteOperation()
 
 	//If this pending write has been fully processed, advance to the next entry in the
 	//FIFO buffer.
-	if(!fifoBufferEntry.pendingDataWrite)
+	if (!fifoBufferEntry.pendingDataWrite)
 	{
 		_fifoNextReadEntry = (_fifoNextReadEntry+1) % FifoBufferSize;
 
@@ -2581,7 +2581,7 @@ void S315_5313::PerformFIFOWriteOperation()
 		//attempt a read. Actually, this will probably lock up. Bad things happen when you
 		//mix read and write operations. Still, if it locks up, that's enough evidence to
 		//indicate that CD4 is not set as a result of a DMA fill operation.
-		if(_commandCode.GetBit(5) && _dmd1 && !_dmd0)
+		if (_commandCode.GetBit(5) && _dmd1 && !_dmd0)
 		{
 			_dmaFillOperationRunning = true;
 		}
@@ -2593,14 +2593,14 @@ void S315_5313::PerformFIFOWriteOperation()
 		//just made a write slot available in the FIFO, we set the dmaTransferNextReadMclk
 		//variable to the current processor state time, so that the next external memory
 		//read for the DMA transfer operation will start no sooner than this time.
-		if(_commandCode.GetBit(5) && !_dmd1 && _dmaTransferReadDataCached)
+		if (_commandCode.GetBit(5) && !_dmd1 && _dmaTransferReadDataCached)
 		{
 			unsigned int processorStateMclkCurrent = GetProcessorStateMclkCurrent();
-			if(_dmaTransferLastTimesliceUsedReadDelay == 0)
+			if (_dmaTransferLastTimesliceUsedReadDelay == 0)
 			{
 				_dmaTransferNextReadMclk = processorStateMclkCurrent;
 			}
-			else if(_dmaTransferLastTimesliceUsedReadDelay >= processorStateMclkCurrent)
+			else if (_dmaTransferLastTimesliceUsedReadDelay >= processorStateMclkCurrent)
 			{
 				_dmaTransferNextReadMclk = 0;
 				_dmaTransferLastTimesliceUsedReadDelay -= processorStateMclkCurrent;
@@ -2647,7 +2647,7 @@ void S315_5313::PerformDMACopyOperation()
 	//Ensure that CD4 is set when performing a DMA copy. Hardware tests have shown that
 	//while the state of CD0-CD3 is completely ignored for DMA copy operations, CD4 must
 	//be set, otherwise the VDP locks up hard when the DMA operation is triggered.
-	if(!_commandCode.GetBit(4))
+	if (!_commandCode.GetBit(4))
 	{
 		//##TODO## Log an error or trigger an assert here
 	}
@@ -2735,7 +2735,7 @@ void S315_5313::PerformDMAFillOperation()
 	//completes in one step, this results in the FIFO being advanced, and the entire write
 	//being repeated.
 	Data fillData(16);
-	if(fillTargetsVRAM)
+	if (fillTargetsVRAM)
 	{
 		//Extract the upper byte of the written data. This single byte of data is used to
 		//perform the fill. Hardware tests have shown no other data gets written to the
@@ -2779,7 +2779,7 @@ void S315_5313::PerformDMAFillOperation()
 	//while a DMA fill operation is in progress.
 	RAMAccessTarget ramAccessTarget;
 	ramAccessTarget.AccessTime(GetProcessorStateMclkCurrent());
-	switch(_commandCode.GetDataSegment(0, 4))
+	switch (_commandCode.GetDataSegment(0, 4))
 	{
 	case 0x01: //??0001 VRAM Write
 		M5WriteVRAM8Bit(_fifoBuffer[fifoLastReadEntry].addressRegData, fillData, ramAccessTarget);
@@ -2850,7 +2850,7 @@ void S315_5313::PerformDMATransferOperation()
 	//to CRAM, corrupting the palette. If the DMA source and DMA length registers are
 	//correctly updated by DMA operations, as hardware tests have proven does occur, this
 	//bug will not occur.
-	if(_codeAndAddressRegistersModifiedSinceLastWrite)
+	if (_codeAndAddressRegistersModifiedSinceLastWrite)
 	{
 		_fifoBuffer[_fifoNextWriteEntry].codeRegData = _commandCode;
 		_fifoBuffer[_fifoNextWriteEntry].addressRegData = _commandAddress;
@@ -2899,7 +2899,7 @@ void S315_5313::AdvanceDMAState()
 	//reached the end of the DMA operation. In this case, we clear CD5. This flags the DMA
 	//operation as completed. If we're in a DMA transfer operation, this will also cause
 	//the bus to be released by the DMA worker thread.
-	if(_dmaLengthCounter == 0)
+	if (_dmaLengthCounter == 0)
 	{
 		_commandCode.SetBit(5, false);
 		SetStatusFlagDMA(false);
@@ -2922,23 +2922,23 @@ bool S315_5313::TargetProcessorStateReached(bool stopWhenFifoEmpty, bool stopWhe
 
 	//Check if we've reached one of the target processor states
 	bool targetProcessorStateReached = false;
-	if(stopWhenFifoEmpty && GetStatusFlagFIFOEmpty())
+	if (stopWhenFifoEmpty && GetStatusFlagFIFOEmpty())
 	{
 		targetProcessorStateReached = true;
 	}
-	else if(stopWhenFifoFull && GetStatusFlagFIFOFull())
+	else if (stopWhenFifoFull && GetStatusFlagFIFOFull())
 	{
 		targetProcessorStateReached = true;
 	}
-	else if(stopWhenFifoNotFull && !GetStatusFlagFIFOFull())
+	else if (stopWhenFifoNotFull && !GetStatusFlagFIFOFull())
 	{
 		targetProcessorStateReached = true;
 	}
-	else if(stopWhenReadDataAvailable && _readDataAvailable)
+	else if (stopWhenReadDataAvailable && _readDataAvailable)
 	{
 		targetProcessorStateReached = true;
 	}
-	else if(stopWhenNoDMAOperationInProgress && !dmaOperationRunning)
+	else if (stopWhenNoDMAOperationInProgress && !dmaOperationRunning)
 	{
 		targetProcessorStateReached = true;
 	}
@@ -3065,7 +3065,7 @@ void S315_5313::M5ReadVSRAM(const Data& address, Data& data, const RAMAccessTarg
 	//being saved into.
 	unsigned int dataMask = 0x07FF;
 	Data tempData(16);
-	if(tempAddress >= 0x50)
+	if (tempAddress >= 0x50)
 	{
 		//##TODO## Comment this
 		tempData = _vsramLastRenderReadCache;
@@ -3107,7 +3107,7 @@ void S315_5313::M5WriteVRAM8Bit(const Data& address, const Data& data, const RAM
 	//support. Level 6-3 of "Castlevania Bloodlines" on the Mega Drive is known to rely on
 	//the sprite cache not being invalidated by a table address change, in order to
 	//implement an "upside down" effect.
-	if((tempAddressData >= _spriteAttributeTableBaseAddressDecoded) //Target address is at or above the start of the sprite table
+	if ((tempAddressData >= _spriteAttributeTableBaseAddressDecoded) //Target address is at or above the start of the sprite table
 	&& (tempAddressData < (_spriteAttributeTableBaseAddressDecoded + (SpriteCacheSize * 2))) //Target address is before the end of the sprite table
 	&& ((tempAddressData & 0x4) == 0)) //Target address is within the first 4 bytes of a sprite table entry
 	{
@@ -3171,7 +3171,7 @@ void S315_5313::M5WriteVSRAM(const Data& address, const Data& data, const RAMAcc
 
 	//##TODO## Comment this, as per the M5ReadVSRAM function, and perform hardware tests
 	//to confirm whether VSRAM writes should update the VSRAM read buffer.
-	if(tempAddress < 0x50)
+	if (tempAddress < 0x50)
 	{
 		//Write the masked data to VSRAM
 		_vsram->Write(tempAddress, tempData.GetByteFromBottomUp(1), accessTarget);
@@ -3203,7 +3203,7 @@ bool S315_5313::GetScreenshot(IImage& targetImage) const
 
 	//Write the current contents of the image buffer to the output image
 	targetImage.SetImageFormat(imageWidth, imageHeight, IImage::PIXELFORMAT_RGB, IImage::DATAFORMAT_8BIT);
-	for(unsigned int ypos = 0; ypos < imageHeight; ++ypos)
+	for (unsigned int ypos = 0; ypos < imageHeight; ++ypos)
 	{
 		//Obtain the width of this line in pixels
 		unsigned int lineWidth = _imageBufferLineWidth[displayingImageBufferPlane][ypos];
@@ -3211,10 +3211,10 @@ bool S315_5313::GetScreenshot(IImage& targetImage) const
 		//If the width of this line doesn't match the width of the image, resample this
 		//line and write it to the output image, otherwise write the pixel data directly
 		//to the output image.
-		if(lineWidth != imageWidth)
+		if (lineWidth != imageWidth)
 		{
 			Image lineImage(lineWidth, 1, IImage::PIXELFORMAT_RGB, IImage::DATAFORMAT_8BIT);
-			for(unsigned int xpos = 0; xpos < lineWidth; ++xpos)
+			for (unsigned int xpos = 0; xpos < lineWidth; ++xpos)
 			{
 				ImageBufferColorEntry& imageBufferEntry = *((ImageBufferColorEntry*)&_imageBuffer[_drawingImageBufferPlane][((ypos * ImageBufferWidth) + xpos) * 4]);
 				lineImage.WritePixelData(xpos, ypos, 0, imageBufferEntry.r);
@@ -3222,7 +3222,7 @@ bool S315_5313::GetScreenshot(IImage& targetImage) const
 				lineImage.WritePixelData(xpos, ypos, 2, imageBufferEntry.b);
 			}
 			lineImage.ResampleBilinear(imageWidth, 1);
-			for(unsigned int xpos = 0; xpos < imageWidth; ++xpos)
+			for (unsigned int xpos = 0; xpos < imageWidth; ++xpos)
 			{
 				unsigned char r;
 				unsigned char g;
@@ -3237,7 +3237,7 @@ bool S315_5313::GetScreenshot(IImage& targetImage) const
 		}
 		else
 		{
-			for(unsigned int xpos = 0; xpos < imageWidth; ++xpos)
+			for (unsigned int xpos = 0; xpos < imageWidth; ++xpos)
 			{
 				ImageBufferColorEntry& imageBufferEntry = *((ImageBufferColorEntry*)&_imageBuffer[_drawingImageBufferPlane][((ypos * ImageBufferWidth) + xpos) * 4]);
 				targetImage.WritePixelData(xpos, ypos, 0, imageBufferEntry.r);
@@ -3257,161 +3257,161 @@ bool S315_5313::GetScreenshot(IImage& targetImage) const
 void S315_5313::LoadState(IHierarchicalStorageNode& node)
 {
 	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
-	for(std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	for (std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
-		if((*i)->GetName() == L"Registers")
+		if ((*i)->GetName() == L"Registers")
 		{
 			_reg.LoadState(*(*i));
 
 			//Update any cached register settings
 			AccessTarget accessTarget;
 			accessTarget.AccessLatest();
-			for(unsigned int i = 0; i < RegisterCount; ++i)
+			for (unsigned int i = 0; i < RegisterCount; ++i)
 			{
 				TransparentRegisterSpecialUpdateFunction(i, GetRegisterData(i, accessTarget));
 			}
 		}
-		else if((*i)->GetName() == L"Register")
+		else if ((*i)->GetName() == L"Register")
 		{
 			IHierarchicalStorageAttribute* nameAttribute = (*i)->GetAttribute(L"name");
-			if(nameAttribute != 0)
+			if (nameAttribute != 0)
 			{
 				std::wstring registerName = nameAttribute->GetValue();
 				//Bus interface
-				if(registerName == L"BusGranted")				_busGranted = (*i)->ExtractData<bool>();
-				else if(registerName == L"PalModeLineState")	_palModeLineState = (*i)->ExtractData<bool>();
-				else if(registerName == L"ResetLineState")		_resetLineState = (*i)->ExtractData<bool>();
-				else if(registerName == L"LineStateIPL")		_lineStateIPL = (*i)->ExtractData<unsigned int>();
-				else if(registerName == L"BusRequestLineState")	_busRequestLineState = (*i)->ExtractData<bool>();
+				if (registerName == L"BusGranted")				_busGranted = (*i)->ExtractData<bool>();
+				else if (registerName == L"PalModeLineState")	_palModeLineState = (*i)->ExtractData<bool>();
+				else if (registerName == L"ResetLineState")		_resetLineState = (*i)->ExtractData<bool>();
+				else if (registerName == L"LineStateIPL")		_lineStateIPL = (*i)->ExtractData<unsigned int>();
+				else if (registerName == L"BusRequestLineState")	_busRequestLineState = (*i)->ExtractData<bool>();
 				//Clock sources
-				else if(registerName == L"ClockMclkCurrent")		_clockMclkCurrent = (*i)->ExtractData<double>();
+				else if (registerName == L"ClockMclkCurrent")		_clockMclkCurrent = (*i)->ExtractData<double>();
 				//Physical registers and memory buffers
-				else if(registerName == L"Status")				_status = (*i)->ExtractHexData<unsigned int>();
-				else if(registerName == L"HCounter")			_hcounter = (*i)->ExtractHexData<unsigned int>();
-				else if(registerName == L"VCounter")			_vcounter = (*i)->ExtractHexData<unsigned int>();
-				else if(registerName == L"HCounterLatchedData")	_hcounterLatchedData = (*i)->ExtractHexData<unsigned int>();
-				else if(registerName == L"VCounterLatchedData")	_vcounterLatchedData = (*i)->ExtractHexData<unsigned int>();
-				else if(registerName == L"HIntCounter")			_hintCounter = (*i)->ExtractHexData<unsigned int>();
-				else if(registerName == L"VIntPending")			_vintPending = (*i)->ExtractData<bool>();
-				else if(registerName == L"HIntPending")			_hintPending = (*i)->ExtractData<bool>();
-				else if(registerName == L"EXIntPending")		_exintPending = (*i)->ExtractData<bool>();
+				else if (registerName == L"Status")				_status = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"HCounter")			_hcounter = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"VCounter")			_vcounter = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"HCounterLatchedData")	_hcounterLatchedData = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"VCounterLatchedData")	_vcounterLatchedData = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"HIntCounter")			_hintCounter = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"VIntPending")			_vintPending = (*i)->ExtractData<bool>();
+				else if (registerName == L"HIntPending")			_hintPending = (*i)->ExtractData<bool>();
+				else if (registerName == L"EXIntPending")		_exintPending = (*i)->ExtractData<bool>();
 				//Active register settings
-				else if(registerName == L"InterlaceEnabled")	_interlaceEnabled = (*i)->ExtractData<bool>();
-				else if(registerName == L"InterlaceDouble")		_interlaceDouble = (*i)->ExtractData<bool>();
-				else if(registerName == L"ScreenModeRS0")		_screenModeRS0 = (*i)->ExtractData<bool>();
-				else if(registerName == L"ScreenModeRS1")		_screenModeRS1 = (*i)->ExtractData<bool>();
-				else if(registerName == L"ScreenModeV30")		_screenModeV30 = (*i)->ExtractData<bool>();
-				else if(registerName == L"PalMode")				_palMode = (*i)->ExtractData<bool>();
+				else if (registerName == L"InterlaceEnabled")	_interlaceEnabled = (*i)->ExtractData<bool>();
+				else if (registerName == L"InterlaceDouble")		_interlaceDouble = (*i)->ExtractData<bool>();
+				else if (registerName == L"ScreenModeRS0")		_screenModeRS0 = (*i)->ExtractData<bool>();
+				else if (registerName == L"ScreenModeRS1")		_screenModeRS1 = (*i)->ExtractData<bool>();
+				else if (registerName == L"ScreenModeV30")		_screenModeV30 = (*i)->ExtractData<bool>();
+				else if (registerName == L"PalMode")				_palMode = (*i)->ExtractData<bool>();
 				//FIFO buffer registers
-				else if(registerName == L"FIFONextReadEntry")			_fifoNextReadEntry = (*i)->ExtractHexData<unsigned int>();
-				else if(registerName == L"FIFONextWriteEntry")			_fifoNextWriteEntry = (*i)->ExtractHexData<unsigned int>();
-				else if(registerName == L"ReadBuffer")					_readBuffer = (*i)->ExtractHexData<unsigned int>();
-				else if(registerName == L"ReadDataAvailable")			_readDataAvailable = (*i)->ExtractData<bool>();
-				else if(registerName == L"ReadDataHalfCached")			_readDataHalfCached = (*i)->ExtractData<bool>();
-				else if(registerName == L"DMAFillOperationRunning")		_dmaFillOperationRunning = (*i)->ExtractData<bool>();
-				else if(registerName == L"VSRAMLastRenderReadCache")	_vsramLastRenderReadCache = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"FIFONextReadEntry")			_fifoNextReadEntry = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"FIFONextWriteEntry")			_fifoNextWriteEntry = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"ReadBuffer")					_readBuffer = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"ReadDataAvailable")			_readDataAvailable = (*i)->ExtractData<bool>();
+				else if (registerName == L"ReadDataHalfCached")			_readDataHalfCached = (*i)->ExtractData<bool>();
+				else if (registerName == L"DMAFillOperationRunning")		_dmaFillOperationRunning = (*i)->ExtractData<bool>();
+				else if (registerName == L"VSRAMLastRenderReadCache")	_vsramLastRenderReadCache = (*i)->ExtractHexData<unsigned int>();
 				//Update state
-				else if(registerName == L"CurrentTimesliceLength")					_currentTimesliceLength = (*i)->ExtractData<double>();
-				else if(registerName == L"LastTimesliceMclkCyclesRemainingTime")	_lastTimesliceMclkCyclesRemainingTime = (*i)->ExtractData<double>();
-				else if(registerName == L"CurrentTimesliceMclkCyclesRemainingTime")	_currentTimesliceMclkCyclesRemainingTime = (*i)->ExtractData<double>();
-				else if(registerName == L"LastTimesliceMclkCyclesOverrun")			_lastTimesliceMclkCyclesOverrun = (*i)->ExtractData<unsigned int>();
-				else if(registerName == L"StateLastUpdateTime")						_stateLastUpdateTime = (*i)->ExtractData<double>();
-				else if(registerName == L"StateLastUpdateMclk")						_stateLastUpdateMclk = (*i)->ExtractData<unsigned int>();
-				else if(registerName == L"StateLastUpdateMclkUnused")				_stateLastUpdateMclkUnused = (*i)->ExtractData<unsigned int>();
-				else if(registerName == L"StateLastUpdateMclkUnusedFromLastTimeslice")	_stateLastUpdateMclkUnusedFromLastTimeslice = (*i)->ExtractData<unsigned int>();
+				else if (registerName == L"CurrentTimesliceLength")					_currentTimesliceLength = (*i)->ExtractData<double>();
+				else if (registerName == L"LastTimesliceMclkCyclesRemainingTime")	_lastTimesliceMclkCyclesRemainingTime = (*i)->ExtractData<double>();
+				else if (registerName == L"CurrentTimesliceMclkCyclesRemainingTime")	_currentTimesliceMclkCyclesRemainingTime = (*i)->ExtractData<double>();
+				else if (registerName == L"LastTimesliceMclkCyclesOverrun")			_lastTimesliceMclkCyclesOverrun = (*i)->ExtractData<unsigned int>();
+				else if (registerName == L"StateLastUpdateTime")						_stateLastUpdateTime = (*i)->ExtractData<double>();
+				else if (registerName == L"StateLastUpdateMclk")						_stateLastUpdateMclk = (*i)->ExtractData<unsigned int>();
+				else if (registerName == L"StateLastUpdateMclkUnused")				_stateLastUpdateMclkUnused = (*i)->ExtractData<unsigned int>();
+				else if (registerName == L"StateLastUpdateMclkUnusedFromLastTimeslice")	_stateLastUpdateMclkUnusedFromLastTimeslice = (*i)->ExtractData<unsigned int>();
 				//Interrupt line rollback data
-				else if(registerName == L"LineStateChangePendingVINT")				_lineStateChangePendingVINT = (*i)->ExtractData<bool>();
-				else if(registerName == L"LineStateChangeVINTMClkCountFromCurrent")	_lineStateChangeVINTMClkCountFromCurrent = (*i)->ExtractData<unsigned int>();
-				else if(registerName == L"LineStateChangeVINTTime")					_lineStateChangeVINTTime = (*i)->ExtractData<double>();
-				else if(registerName == L"LineStateChangePendingHINT")				_lineStateChangePendingHINT = (*i)->ExtractData<bool>();
-				else if(registerName == L"LineStateChangeHINTMClkCountFromCurrent")	_lineStateChangeHINTMClkCountFromCurrent = (*i)->ExtractData<unsigned int>();
-				else if(registerName == L"LineStateChangeHINTTime")					_lineStateChangeHINTTime = (*i)->ExtractData<double>();
-				else if(registerName == L"LineStateChangePendingEXINT")				_lineStateChangePendingEXINT = (*i)->ExtractData<bool>();
-				else if(registerName == L"LineStateChangeEXINTMClkCountFromCurrent")	_lineStateChangeEXINTMClkCountFromCurrent = (*i)->ExtractData<unsigned int>();
-				else if(registerName == L"LineStateChangeEXINTTime")					_lineStateChangeEXINTTime = (*i)->ExtractData<double>();
-				else if(registerName == L"LineStateChangePendingINTAsserted")				_lineStateChangePendingINTAsserted = (*i)->ExtractData<bool>();
-				else if(registerName == L"LineStateChangeINTAssertedMClkCountFromCurrent")	_lineStateChangeINTAssertedMClkCountFromCurrent = (*i)->ExtractData<unsigned int>();
-				else if(registerName == L"LineStateChangeINTAssertedTime")					_lineStateChangeINTAssertedTime = (*i)->ExtractData<double>();
-				else if(registerName == L"LineStateChangePendingINTNegated")				_lineStateChangePendingINTNegated = (*i)->ExtractData<bool>();
-				else if(registerName == L"LineStateChangeINTNegatedMClkCountFromCurrent")	_lineStateChangeINTNegatedMClkCountFromCurrent = (*i)->ExtractData<unsigned int>();
-				else if(registerName == L"LineStateChangeINTNegatedTime")					_lineStateChangeINTNegatedTime = (*i)->ExtractData<double>();
+				else if (registerName == L"LineStateChangePendingVINT")				_lineStateChangePendingVINT = (*i)->ExtractData<bool>();
+				else if (registerName == L"LineStateChangeVINTMClkCountFromCurrent")	_lineStateChangeVINTMClkCountFromCurrent = (*i)->ExtractData<unsigned int>();
+				else if (registerName == L"LineStateChangeVINTTime")					_lineStateChangeVINTTime = (*i)->ExtractData<double>();
+				else if (registerName == L"LineStateChangePendingHINT")				_lineStateChangePendingHINT = (*i)->ExtractData<bool>();
+				else if (registerName == L"LineStateChangeHINTMClkCountFromCurrent")	_lineStateChangeHINTMClkCountFromCurrent = (*i)->ExtractData<unsigned int>();
+				else if (registerName == L"LineStateChangeHINTTime")					_lineStateChangeHINTTime = (*i)->ExtractData<double>();
+				else if (registerName == L"LineStateChangePendingEXINT")				_lineStateChangePendingEXINT = (*i)->ExtractData<bool>();
+				else if (registerName == L"LineStateChangeEXINTMClkCountFromCurrent")	_lineStateChangeEXINTMClkCountFromCurrent = (*i)->ExtractData<unsigned int>();
+				else if (registerName == L"LineStateChangeEXINTTime")					_lineStateChangeEXINTTime = (*i)->ExtractData<double>();
+				else if (registerName == L"LineStateChangePendingINTAsserted")				_lineStateChangePendingINTAsserted = (*i)->ExtractData<bool>();
+				else if (registerName == L"LineStateChangeINTAssertedMClkCountFromCurrent")	_lineStateChangeINTAssertedMClkCountFromCurrent = (*i)->ExtractData<unsigned int>();
+				else if (registerName == L"LineStateChangeINTAssertedTime")					_lineStateChangeINTAssertedTime = (*i)->ExtractData<double>();
+				else if (registerName == L"LineStateChangePendingINTNegated")				_lineStateChangePendingINTNegated = (*i)->ExtractData<bool>();
+				else if (registerName == L"LineStateChangeINTNegatedMClkCountFromCurrent")	_lineStateChangeINTNegatedMClkCountFromCurrent = (*i)->ExtractData<unsigned int>();
+				else if (registerName == L"LineStateChangeINTNegatedTime")					_lineStateChangeINTNegatedTime = (*i)->ExtractData<double>();
 				//Control port registers
-				else if(registerName == L"CodeAndAddressRegistersModifiedSinceLastWrite")	_codeAndAddressRegistersModifiedSinceLastWrite = (*i)->ExtractData<bool>();
-				else if(registerName == L"CommandWritePending")								_commandWritePending = (*i)->ExtractData<bool>();
-				else if(registerName == L"OriginalCommandAddress")							_originalCommandAddress = (*i)->ExtractHexData<unsigned int>();
-				else if(registerName == L"CommandAddress")									_commandAddress = (*i)->ExtractHexData<unsigned int>();
-				else if(registerName == L"CommandCode")										_commandCode = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"CodeAndAddressRegistersModifiedSinceLastWrite")	_codeAndAddressRegistersModifiedSinceLastWrite = (*i)->ExtractData<bool>();
+				else if (registerName == L"CommandWritePending")								_commandWritePending = (*i)->ExtractData<bool>();
+				else if (registerName == L"OriginalCommandAddress")							_originalCommandAddress = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"CommandAddress")									_commandAddress = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"CommandCode")										_commandCode = (*i)->ExtractHexData<unsigned int>();
 				//Digital render data buffers
-				else if(registerName == L"RenderDigitalHCounterPos")					_renderDigitalHCounterPos = (*i)->ExtractHexData<unsigned int>();
-				else if(registerName == L"RenderDigitalVCounterPos")					_renderDigitalVCounterPos = (*i)->ExtractHexData<unsigned int>();
-				else if(registerName == L"RenderDigitalVCounterPosPreviousLine")		_renderDigitalVCounterPosPreviousLine = (*i)->ExtractHexData<unsigned int>();
-				else if(registerName == L"RenderDigitalRemainingMclkCycles")			_renderDigitalRemainingMclkCycles = (*i)->ExtractData<unsigned int>();
-				else if(registerName == L"RenderDigitalScreenModeRS0Active")			_renderDigitalScreenModeRS0Active = (*i)->ExtractData<bool>();
-				else if(registerName == L"RenderDigitalScreenModeRS1Active")			_renderDigitalScreenModeRS1Active = (*i)->ExtractData<bool>();
-				else if(registerName == L"RenderDigitalScreenModeV30Active")			_renderDigitalScreenModeV30Active = (*i)->ExtractData<bool>();
-				else if(registerName == L"RenderDigitalInterlaceEnabledActive")			_renderDigitalInterlaceEnabledActive = (*i)->ExtractData<bool>();
-				else if(registerName == L"RenderDigitalInterlaceDoubleActive")			_renderDigitalInterlaceDoubleActive = (*i)->ExtractData<bool>();
-				else if(registerName == L"RenderDigitalPalModeActive")					_renderDigitalPalModeActive = (*i)->ExtractData<bool>();
-				else if(registerName == L"RenderDigitalOddFlagSet")						_renderDigitalOddFlagSet = (*i)->ExtractData<bool>();
-				else if(registerName == L"RenderLayerAHscrollPatternDisplacement")		_renderLayerAHscrollPatternDisplacement = (*i)->ExtractData<unsigned int>();
-				else if(registerName == L"RenderLayerBHscrollPatternDisplacement")		_renderLayerBHscrollPatternDisplacement = (*i)->ExtractData<unsigned int>();
-				else if(registerName == L"RenderLayerAHscrollMappingDisplacement")		_renderLayerAHscrollMappingDisplacement = (*i)->ExtractData<unsigned int>();
-				else if(registerName == L"RenderLayerBHscrollMappingDisplacement")		_renderLayerBHscrollMappingDisplacement = (*i)->ExtractData<unsigned int>();
-				else if(registerName == L"RenderLayerAVscrollPatternDisplacement")		_renderLayerAVscrollPatternDisplacement = (*i)->ExtractData<unsigned int>();
-				else if(registerName == L"RenderLayerBVscrollPatternDisplacement")		_renderLayerBVscrollPatternDisplacement = (*i)->ExtractData<unsigned int>();
-				else if(registerName == L"RenderLayerAVscrollMappingDisplacement")		_renderLayerAVscrollMappingDisplacement = (*i)->ExtractData<unsigned int>();
-				else if(registerName == L"RenderLayerBVscrollMappingDisplacement")		_renderLayerBVscrollMappingDisplacement = (*i)->ExtractData<unsigned int>();
-				else if(registerName == L"RenderWindowActiveCache")						(*i)->ExtractBinaryData(_renderWindowActiveCache);
-				else if(registerName == L"RenderMappingDataCacheLayerA")				(*i)->ExtractBinaryData(_renderMappingDataCacheLayerA);
-				else if(registerName == L"RenderMappingDataCacheLayerB")				(*i)->ExtractBinaryData(_renderMappingDataCacheLayerB);
-				else if(registerName == L"RenderMappingDataCacheSourceAddressLayerA")	(*i)->ExtractBinaryData(_renderMappingDataCacheSourceAddressLayerA);
-				else if(registerName == L"RenderMappingDataCacheSourceAddressLayerB")	(*i)->ExtractBinaryData(_renderMappingDataCacheSourceAddressLayerB);
-				else if(registerName == L"RenderPatternDataCacheLayerA")				(*i)->ExtractBinaryData(_renderPatternDataCacheLayerA);
-				else if(registerName == L"RenderPatternDataCacheLayerB")				(*i)->ExtractBinaryData(_renderPatternDataCacheLayerB);
-				else if(registerName == L"RenderPatternDataCacheSprite")				(*i)->ExtractBinaryData(_renderPatternDataCacheLayerB);
-				else if(registerName == L"RenderSpriteDisplayCacheEntryCount")			_renderSpriteDisplayCacheEntryCount = (*i)->ExtractData<unsigned int>();
-				else if(registerName == L"RenderSpriteDisplayCacheCurrentIndex")		_renderSpriteDisplayCacheCurrentIndex = (*i)->ExtractData<unsigned int>();
-				else if(registerName == L"RenderSpriteSearchComplete")					_renderSpriteSearchComplete = (*i)->ExtractData<bool>();
-				else if(registerName == L"RenderSpriteOverflow")						_renderSpriteOverflow = (*i)->ExtractData<bool>();
-				else if(registerName == L"RenderSpriteNextAttributeTableEntryToRead")	_renderSpriteNextAttributeTableEntryToRead = (*i)->ExtractData<unsigned int>();
-				else if(registerName == L"RenderSpriteDisplayCellCacheEntryCount")		_renderSpriteDisplayCellCacheEntryCount = (*i)->ExtractData<unsigned int>();
-				else if(registerName == L"RenderSpriteDisplayCellCacheCurrentIndex")	_renderSpriteDisplayCellCacheCurrentIndex = (*i)->ExtractData<unsigned int>();
-				else if(registerName == L"RenderSpriteDotOverflow")						_renderSpriteDotOverflow = (*i)->ExtractData<bool>();
-				else if(registerName == L"RenderSpriteDotOverflowPreviousLine")			_renderSpriteDotOverflowPreviousLine = (*i)->ExtractData<bool>();
-				else if(registerName == L"RenderSpritePixelBufferDigitalRenderPlane")	_renderSpritePixelBufferDigitalRenderPlane = (*i)->ExtractData<unsigned int>();
-				else if(registerName == L"RenderSpritePixelBufferAnalogRenderPlane")	_renderSpritePixelBufferAnalogRenderPlane = (*i)->ExtractData<unsigned int>();
-				else if(registerName == L"NonSpriteMaskCellEncountered")				_nonSpriteMaskCellEncountered = (*i)->ExtractData<bool>();
-				else if(registerName == L"RenderSpriteMaskActive")						_renderSpriteMaskActive = (*i)->ExtractData<bool>();
-				else if(registerName == L"RenderSpriteCollision")						_renderSpriteCollision = (*i)->ExtractData<bool>();
-				else if(registerName == L"RenderVSRAMCachedRead")						_renderVSRAMCachedRead = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"RenderDigitalHCounterPos")					_renderDigitalHCounterPos = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"RenderDigitalVCounterPos")					_renderDigitalVCounterPos = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"RenderDigitalVCounterPosPreviousLine")		_renderDigitalVCounterPosPreviousLine = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"RenderDigitalRemainingMclkCycles")			_renderDigitalRemainingMclkCycles = (*i)->ExtractData<unsigned int>();
+				else if (registerName == L"RenderDigitalScreenModeRS0Active")			_renderDigitalScreenModeRS0Active = (*i)->ExtractData<bool>();
+				else if (registerName == L"RenderDigitalScreenModeRS1Active")			_renderDigitalScreenModeRS1Active = (*i)->ExtractData<bool>();
+				else if (registerName == L"RenderDigitalScreenModeV30Active")			_renderDigitalScreenModeV30Active = (*i)->ExtractData<bool>();
+				else if (registerName == L"RenderDigitalInterlaceEnabledActive")			_renderDigitalInterlaceEnabledActive = (*i)->ExtractData<bool>();
+				else if (registerName == L"RenderDigitalInterlaceDoubleActive")			_renderDigitalInterlaceDoubleActive = (*i)->ExtractData<bool>();
+				else if (registerName == L"RenderDigitalPalModeActive")					_renderDigitalPalModeActive = (*i)->ExtractData<bool>();
+				else if (registerName == L"RenderDigitalOddFlagSet")						_renderDigitalOddFlagSet = (*i)->ExtractData<bool>();
+				else if (registerName == L"RenderLayerAHscrollPatternDisplacement")		_renderLayerAHscrollPatternDisplacement = (*i)->ExtractData<unsigned int>();
+				else if (registerName == L"RenderLayerBHscrollPatternDisplacement")		_renderLayerBHscrollPatternDisplacement = (*i)->ExtractData<unsigned int>();
+				else if (registerName == L"RenderLayerAHscrollMappingDisplacement")		_renderLayerAHscrollMappingDisplacement = (*i)->ExtractData<unsigned int>();
+				else if (registerName == L"RenderLayerBHscrollMappingDisplacement")		_renderLayerBHscrollMappingDisplacement = (*i)->ExtractData<unsigned int>();
+				else if (registerName == L"RenderLayerAVscrollPatternDisplacement")		_renderLayerAVscrollPatternDisplacement = (*i)->ExtractData<unsigned int>();
+				else if (registerName == L"RenderLayerBVscrollPatternDisplacement")		_renderLayerBVscrollPatternDisplacement = (*i)->ExtractData<unsigned int>();
+				else if (registerName == L"RenderLayerAVscrollMappingDisplacement")		_renderLayerAVscrollMappingDisplacement = (*i)->ExtractData<unsigned int>();
+				else if (registerName == L"RenderLayerBVscrollMappingDisplacement")		_renderLayerBVscrollMappingDisplacement = (*i)->ExtractData<unsigned int>();
+				else if (registerName == L"RenderWindowActiveCache")						(*i)->ExtractBinaryData(_renderWindowActiveCache);
+				else if (registerName == L"RenderMappingDataCacheLayerA")				(*i)->ExtractBinaryData(_renderMappingDataCacheLayerA);
+				else if (registerName == L"RenderMappingDataCacheLayerB")				(*i)->ExtractBinaryData(_renderMappingDataCacheLayerB);
+				else if (registerName == L"RenderMappingDataCacheSourceAddressLayerA")	(*i)->ExtractBinaryData(_renderMappingDataCacheSourceAddressLayerA);
+				else if (registerName == L"RenderMappingDataCacheSourceAddressLayerB")	(*i)->ExtractBinaryData(_renderMappingDataCacheSourceAddressLayerB);
+				else if (registerName == L"RenderPatternDataCacheLayerA")				(*i)->ExtractBinaryData(_renderPatternDataCacheLayerA);
+				else if (registerName == L"RenderPatternDataCacheLayerB")				(*i)->ExtractBinaryData(_renderPatternDataCacheLayerB);
+				else if (registerName == L"RenderPatternDataCacheSprite")				(*i)->ExtractBinaryData(_renderPatternDataCacheLayerB);
+				else if (registerName == L"RenderSpriteDisplayCacheEntryCount")			_renderSpriteDisplayCacheEntryCount = (*i)->ExtractData<unsigned int>();
+				else if (registerName == L"RenderSpriteDisplayCacheCurrentIndex")		_renderSpriteDisplayCacheCurrentIndex = (*i)->ExtractData<unsigned int>();
+				else if (registerName == L"RenderSpriteSearchComplete")					_renderSpriteSearchComplete = (*i)->ExtractData<bool>();
+				else if (registerName == L"RenderSpriteOverflow")						_renderSpriteOverflow = (*i)->ExtractData<bool>();
+				else if (registerName == L"RenderSpriteNextAttributeTableEntryToRead")	_renderSpriteNextAttributeTableEntryToRead = (*i)->ExtractData<unsigned int>();
+				else if (registerName == L"RenderSpriteDisplayCellCacheEntryCount")		_renderSpriteDisplayCellCacheEntryCount = (*i)->ExtractData<unsigned int>();
+				else if (registerName == L"RenderSpriteDisplayCellCacheCurrentIndex")	_renderSpriteDisplayCellCacheCurrentIndex = (*i)->ExtractData<unsigned int>();
+				else if (registerName == L"RenderSpriteDotOverflow")						_renderSpriteDotOverflow = (*i)->ExtractData<bool>();
+				else if (registerName == L"RenderSpriteDotOverflowPreviousLine")			_renderSpriteDotOverflowPreviousLine = (*i)->ExtractData<bool>();
+				else if (registerName == L"RenderSpritePixelBufferDigitalRenderPlane")	_renderSpritePixelBufferDigitalRenderPlane = (*i)->ExtractData<unsigned int>();
+				else if (registerName == L"RenderSpritePixelBufferAnalogRenderPlane")	_renderSpritePixelBufferAnalogRenderPlane = (*i)->ExtractData<unsigned int>();
+				else if (registerName == L"NonSpriteMaskCellEncountered")				_nonSpriteMaskCellEncountered = (*i)->ExtractData<bool>();
+				else if (registerName == L"RenderSpriteMaskActive")						_renderSpriteMaskActive = (*i)->ExtractData<bool>();
+				else if (registerName == L"RenderSpriteCollision")						_renderSpriteCollision = (*i)->ExtractData<bool>();
+				else if (registerName == L"RenderVSRAMCachedRead")						_renderVSRAMCachedRead = (*i)->ExtractHexData<unsigned int>();
 				//##TODO## Image buffer
 				//DMA worker thread properties
-				else if(registerName == L"WorkerThreadPaused")	_workerThreadPaused = (*i)->ExtractData<bool>();
+				else if (registerName == L"WorkerThreadPaused")	_workerThreadPaused = (*i)->ExtractData<bool>();
 				//DMA transfer registers
-				else if(registerName == L"DMATransferActive")			_dmaTransferActive = (*i)->ExtractData<bool>();
-				else if(registerName == L"DMATransferReadDataCached")	_dmaTransferReadDataCached = (*i)->ExtractData<bool>();
-				else if(registerName == L"DMATransferReadCache")		_dmaTransferReadCache = (*i)->ExtractHexData<unsigned int>();
-				else if(registerName == L"DMATransferNextReadMclk")		_dmaTransferNextReadMclk = (*i)->ExtractData<unsigned int>();
-				else if(registerName == L"DMATransferLastTimesliceUsedReadDelay")	_dmaTransferLastTimesliceUsedReadDelay = (*i)->ExtractData<unsigned int>();
-				else if(registerName == L"DMATransferInvalidPortWriteCached")	_dmaTransferInvalidPortWriteCached = (*i)->ExtractData<bool>();
-				else if(registerName == L"DMATransferInvalidPortWriteAddressCache")	_dmaTransferInvalidPortWriteAddressCache = (*i)->ExtractHexData<unsigned int>();
-				else if(registerName == L"DMATransferInvalidPortWriteDataCache")	_dmaTransferInvalidPortWriteDataCache = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"DMATransferActive")			_dmaTransferActive = (*i)->ExtractData<bool>();
+				else if (registerName == L"DMATransferReadDataCached")	_dmaTransferReadDataCached = (*i)->ExtractData<bool>();
+				else if (registerName == L"DMATransferReadCache")		_dmaTransferReadCache = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"DMATransferNextReadMclk")		_dmaTransferNextReadMclk = (*i)->ExtractData<unsigned int>();
+				else if (registerName == L"DMATransferLastTimesliceUsedReadDelay")	_dmaTransferLastTimesliceUsedReadDelay = (*i)->ExtractData<unsigned int>();
+				else if (registerName == L"DMATransferInvalidPortWriteCached")	_dmaTransferInvalidPortWriteCached = (*i)->ExtractData<bool>();
+				else if (registerName == L"DMATransferInvalidPortWriteAddressCache")	_dmaTransferInvalidPortWriteAddressCache = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"DMATransferInvalidPortWriteDataCache")	_dmaTransferInvalidPortWriteDataCache = (*i)->ExtractHexData<unsigned int>();
 				//External interrupt settings
-				else if(registerName == L"ExternalInterruptVideoTriggerPointPending")	_externalInterruptVideoTriggerPointPending = (*i)->ExtractData<bool>();
-				else if(registerName == L"ExternalInterruptVideoTriggerPointHCounter")	_externalInterruptVideoTriggerPointHCounter = (*i)->ExtractHexData<unsigned int>();
-				else if(registerName == L"ExternalInterruptVideoTriggerPointVCounter")	_externalInterruptVideoTriggerPointVCounter = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"ExternalInterruptVideoTriggerPointPending")	_externalInterruptVideoTriggerPointPending = (*i)->ExtractData<bool>();
+				else if (registerName == L"ExternalInterruptVideoTriggerPointHCounter")	_externalInterruptVideoTriggerPointHCounter = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"ExternalInterruptVideoTriggerPointVCounter")	_externalInterruptVideoTriggerPointVCounter = (*i)->ExtractHexData<unsigned int>();
 			}
 		}
-		else if((*i)->GetName() == L"FIFOBuffer")
+		else if ((*i)->GetName() == L"FIFOBuffer")
 		{
 			std::list<IHierarchicalStorageNode*> entryList = (*i)->GetChildList();
-			for(std::list<IHierarchicalStorageNode*>::iterator entryNodeIterator = entryList.begin(); entryNodeIterator != entryList.end(); ++entryNodeIterator)
+			for (std::list<IHierarchicalStorageNode*>::iterator entryNodeIterator = entryList.begin(); entryNodeIterator != entryList.end(); ++entryNodeIterator)
 			{
 				IHierarchicalStorageNode* entryNode = *entryNodeIterator;
 				unsigned int entryIndex;
-				if(entryNode->ExtractAttribute(L"index", entryIndex))
+				if (entryNode->ExtractAttribute(L"index", entryIndex))
 				{
-					if(entryIndex < FifoBufferSize)
+					if (entryIndex < FifoBufferSize)
 					{
 						FIFOBufferEntry& entry = _fifoBuffer[entryIndex];
 						entryNode->ExtractAttributeHex(L"codeRegData", entry.codeRegData);
@@ -3423,16 +3423,16 @@ void S315_5313::LoadState(IHierarchicalStorageNode& node)
 				}
 			}
 		}
-		else if((*i)->GetName() == L"RenderSpriteDisplayCache")
+		else if ((*i)->GetName() == L"RenderSpriteDisplayCache")
 		{
 			std::list<IHierarchicalStorageNode*> entryList = (*i)->GetChildList();
-			for(std::list<IHierarchicalStorageNode*>::iterator entryNodeIterator = entryList.begin(); entryNodeIterator != entryList.end(); ++entryNodeIterator)
+			for (std::list<IHierarchicalStorageNode*>::iterator entryNodeIterator = entryList.begin(); entryNodeIterator != entryList.end(); ++entryNodeIterator)
 			{
 				IHierarchicalStorageNode* entryNode = *entryNodeIterator;
 				unsigned int entryIndex;
-				if(entryNode->ExtractAttribute(L"index", entryIndex))
+				if (entryNode->ExtractAttribute(L"index", entryIndex))
 				{
-					if(entryIndex < maxSpriteDisplayCacheSize)
+					if (entryIndex < maxSpriteDisplayCacheSize)
 					{
 						SpriteDisplayCacheEntry& entry = _renderSpriteDisplayCache[entryIndex];
 						entryNode->ExtractAttribute(L"spriteTableIndex", entry.spriteTableIndex);
@@ -3445,16 +3445,16 @@ void S315_5313::LoadState(IHierarchicalStorageNode& node)
 				}
 			}
 		}
-		else if((*i)->GetName() == L"RenderSpriteDisplayCellCache")
+		else if ((*i)->GetName() == L"RenderSpriteDisplayCellCache")
 		{
 			std::list<IHierarchicalStorageNode*> entryList = (*i)->GetChildList();
-			for(std::list<IHierarchicalStorageNode*>::iterator entryNodeIterator = entryList.begin(); entryNodeIterator != entryList.end(); ++entryNodeIterator)
+			for (std::list<IHierarchicalStorageNode*>::iterator entryNodeIterator = entryList.begin(); entryNodeIterator != entryList.end(); ++entryNodeIterator)
 			{
 				IHierarchicalStorageNode* entryNode = *entryNodeIterator;
 				unsigned int entryIndex;
-				if(entryNode->ExtractAttribute(L"index", entryIndex))
+				if (entryNode->ExtractAttribute(L"index", entryIndex))
 				{
-					if(entryIndex < maxSpriteDisplayCellCacheSize)
+					if (entryIndex < maxSpriteDisplayCellCacheSize)
 					{
 						SpriteCellDisplayCacheEntry& entry = _renderSpriteDisplayCellCache[entryIndex];
 						entryNode->ExtractAttribute(L"spriteDisplayCacheIndex", entry.spriteDisplayCacheIndex);
@@ -3467,17 +3467,17 @@ void S315_5313::LoadState(IHierarchicalStorageNode& node)
 				}
 			}
 		}
-		else if((*i)->GetName() == L"SpritePixelBuffer")
+		else if ((*i)->GetName() == L"SpritePixelBuffer")
 		{
 			std::list<IHierarchicalStorageNode*> entryList = (*i)->GetChildList();
-			for(std::list<IHierarchicalStorageNode*>::iterator entryNodeIterator = entryList.begin(); entryNodeIterator != entryList.end(); ++entryNodeIterator)
+			for (std::list<IHierarchicalStorageNode*>::iterator entryNodeIterator = entryList.begin(); entryNodeIterator != entryList.end(); ++entryNodeIterator)
 			{
 				IHierarchicalStorageNode* entryNode = *entryNodeIterator;
 				unsigned int entryIndex;
 				unsigned int renderPlane;
-				if(entryNode->ExtractAttribute(L"index", entryIndex) && entryNode->ExtractAttribute(L"renderPlane", renderPlane))
+				if (entryNode->ExtractAttribute(L"index", entryIndex) && entryNode->ExtractAttribute(L"renderPlane", renderPlane))
 				{
-					if((entryIndex < spritePixelBufferSize) && (renderPlane < renderSpritePixelBufferPlaneCount))
+					if ((entryIndex < spritePixelBufferSize) && (renderPlane < renderSpritePixelBufferPlaneCount))
 					{
 						SpritePixelBufferEntry& entry = _spritePixelBuffer[renderPlane][entryIndex];
 						entryNode->ExtractAttribute(L"paletteLine", entry.paletteLine);
@@ -3530,7 +3530,7 @@ void S315_5313::SaveState(IHierarchicalStorageNode& node) const
 	node.CreateChildHex(L"Register", _fifoNextReadEntry, 1).CreateAttribute(L"name", L"FIFONextReadEntry");
 	node.CreateChildHex(L"Register", _fifoNextWriteEntry, 1).CreateAttribute(L"name", L"FIFONextWriteEntry");
 	IHierarchicalStorageNode& fifoBufferNode = node.CreateChild(L"FIFOBuffer");
-	for(unsigned int i = 0; i < FifoBufferSize; ++i)
+	for (unsigned int i = 0; i < FifoBufferSize; ++i)
 	{
 		IHierarchicalStorageNode& entryNode = fifoBufferNode.CreateChild(L"FIFOBufferEntry");
 		const FIFOBufferEntry& entry = _fifoBuffer[i];
@@ -3606,7 +3606,7 @@ void S315_5313::SaveState(IHierarchicalStorageNode& node) const
 	node.CreateChildBinary(L"Register", _renderPatternDataCacheLayerB, GetFullyQualifiedDeviceInstanceName() + L"RenderPatternDataCacheLayerB").CreateAttribute(L"name", L"RenderPatternDataCacheLayerB");
 	node.CreateChildBinary(L"Register", _renderPatternDataCacheLayerB, GetFullyQualifiedDeviceInstanceName() + L"RenderPatternDataCacheSprite").CreateAttribute(L"name", L"RenderPatternDataCacheSprite");
 	IHierarchicalStorageNode& renderSpriteDisplayCacheNode = node.CreateChild(L"RenderSpriteDisplayCache");
-	for(unsigned int i = 0; i < maxSpriteDisplayCacheSize; ++i)
+	for (unsigned int i = 0; i < maxSpriteDisplayCacheSize; ++i)
 	{
 		IHierarchicalStorageNode& entryNode = renderSpriteDisplayCacheNode.CreateChild(L"RenderSpriteDisplayCacheEntry");
 		const SpriteDisplayCacheEntry& entry = _renderSpriteDisplayCache[i];
@@ -3624,7 +3624,7 @@ void S315_5313::SaveState(IHierarchicalStorageNode& node) const
 	node.CreateChild(L"Register", _renderSpriteOverflow).CreateAttribute(L"name", L"RenderSpriteOverflow");
 	node.CreateChild(L"Register", _renderSpriteNextAttributeTableEntryToRead).CreateAttribute(L"name", L"RenderSpriteNextAttributeTableEntryToRead");
 	IHierarchicalStorageNode& renderSpriteDisplayCellCacheNode = node.CreateChild(L"RenderSpriteDisplayCellCache");
-	for(unsigned int i = 0; i < maxSpriteDisplayCellCacheSize; ++i)
+	for (unsigned int i = 0; i < maxSpriteDisplayCellCacheSize; ++i)
 	{
 		IHierarchicalStorageNode& entryNode = renderSpriteDisplayCellCacheNode.CreateChild(L"RenderSpriteDisplayCellCacheEntry");
 		const SpriteCellDisplayCacheEntry& entry = _renderSpriteDisplayCellCache[i];
@@ -3643,9 +3643,9 @@ void S315_5313::SaveState(IHierarchicalStorageNode& node) const
 	node.CreateChild(L"Register", _renderSpritePixelBufferDigitalRenderPlane).CreateAttribute(L"name", L"RenderSpritePixelBufferDigitalRenderPlane");
 	node.CreateChild(L"Register", _renderSpritePixelBufferAnalogRenderPlane).CreateAttribute(L"name", L"RenderSpritePixelBufferAnalogRenderPlane");
 	IHierarchicalStorageNode& spritePixelBufferNode = node.CreateChild(L"SpritePixelBuffer");
-	for(unsigned int renderPlane = 0; renderPlane < renderSpritePixelBufferPlaneCount; ++renderPlane)
+	for (unsigned int renderPlane = 0; renderPlane < renderSpritePixelBufferPlaneCount; ++renderPlane)
 	{
-		for(unsigned int i = 0; i < spritePixelBufferSize; ++i)
+		for (unsigned int i = 0; i < spritePixelBufferSize; ++i)
 		{
 			IHierarchicalStorageNode& entryNode = spritePixelBufferNode.CreateChild(L"SpritePixelBufferEntry");
 			const SpritePixelBufferEntry& entry = _spritePixelBuffer[renderPlane][i];
@@ -3685,19 +3685,19 @@ void S315_5313::SaveState(IHierarchicalStorageNode& node) const
 void S315_5313::LoadSettingsState(IHierarchicalStorageNode& node)
 {
 	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
-	for(std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	for (std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
 		std::wstring keyName = (*i)->GetName();
-		if(keyName == L"Register")
+		if (keyName == L"Register")
 		{
 			IHierarchicalStorageAttribute* nameAttribute = (*i)->GetAttribute(L"name");
-			if(nameAttribute != 0)
+			if (nameAttribute != 0)
 			{
 				std::wstring registerName = nameAttribute->GetValue();
-				if(registerName == L"VideoSingleBuffering")          _videoSingleBuffering = (*i)->ExtractData<bool>();
-				else if(registerName == L"VideoFixedAspectRatio")    _videoFixedAspectRatio = (*i)->ExtractData<bool>();
-				else if(registerName == L"VideoShowStatusBar")       _videoShowStatusBar = (*i)->ExtractData<bool>();
-				else if(registerName == L"VideoEnableLineSmoothing") _videoEnableLineSmoothing = (*i)->ExtractData<bool>();
+				if (registerName == L"VideoSingleBuffering")          _videoSingleBuffering = (*i)->ExtractData<bool>();
+				else if (registerName == L"VideoFixedAspectRatio")    _videoFixedAspectRatio = (*i)->ExtractData<bool>();
+				else if (registerName == L"VideoShowStatusBar")       _videoShowStatusBar = (*i)->ExtractData<bool>();
+				else if (registerName == L"VideoEnableLineSmoothing") _videoEnableLineSmoothing = (*i)->ExtractData<bool>();
 			}
 		}
 	}
@@ -3720,36 +3720,36 @@ void S315_5313::SaveSettingsState(IHierarchicalStorageNode& node) const
 void S315_5313::LoadDebuggerState(IHierarchicalStorageNode& node)
 {
 	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
-	for(std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	for (std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
 		std::wstring keyName = (*i)->GetName();
-		if(keyName == L"Register")
+		if (keyName == L"Register")
 		{
 			IHierarchicalStorageAttribute* nameAttribute = (*i)->GetAttribute(L"name");
-			if(nameAttribute != 0)
+			if (nameAttribute != 0)
 			{
 				std::wstring registerName = nameAttribute->GetValue();
 				//Debug output
-				if(registerName == L"OutputPortAccessDebugMessages")		_outputPortAccessDebugMessages = (*i)->ExtractData<bool>();
-				else if(registerName == L"OutputTimingDebugMessages")		_outputTimingDebugMessages = (*i)->ExtractData<bool>();
-				else if(registerName == L"OutputRenderSyncMessages")		_outputRenderSyncMessages = (*i)->ExtractData<bool>();
-				else if(registerName == L"OutputInterruptDebugMessages")	_outputInterruptDebugMessages = (*i)->ExtractData<bool>();
-				else if(registerName == L"VideoDisableRenderOutput")		_videoDisableRenderOutput = (*i)->ExtractData<bool>();
-				else if(registerName == L"VideoEnableSpriteBoxing")			_videoEnableSpriteBoxing = (*i)->ExtractData<bool>();
-				else if(registerName == L"VideoHighlightRenderPos")			_videoHighlightRenderPos = (*i)->ExtractData<bool>();
-				else if(registerName == L"VideoShowBoundaryActiveImage")	_videoShowBoundaryActiveImage = (*i)->ExtractData<bool>();
-				else if(registerName == L"VideoShowBoundaryActionSafe")		_videoShowBoundaryActionSafe = (*i)->ExtractData<bool>();
-				else if(registerName == L"VideoShowBoundaryTitleSafe")		_videoShowBoundaryTitleSafe = (*i)->ExtractData<bool>();
-				else if(registerName == L"VideoEnableFullImageBufferInfo")	_videoEnableFullImageBufferInfo = (*i)->ExtractData<bool>();
+				if (registerName == L"OutputPortAccessDebugMessages")		_outputPortAccessDebugMessages = (*i)->ExtractData<bool>();
+				else if (registerName == L"OutputTimingDebugMessages")		_outputTimingDebugMessages = (*i)->ExtractData<bool>();
+				else if (registerName == L"OutputRenderSyncMessages")		_outputRenderSyncMessages = (*i)->ExtractData<bool>();
+				else if (registerName == L"OutputInterruptDebugMessages")	_outputInterruptDebugMessages = (*i)->ExtractData<bool>();
+				else if (registerName == L"VideoDisableRenderOutput")		_videoDisableRenderOutput = (*i)->ExtractData<bool>();
+				else if (registerName == L"VideoEnableSpriteBoxing")			_videoEnableSpriteBoxing = (*i)->ExtractData<bool>();
+				else if (registerName == L"VideoHighlightRenderPos")			_videoHighlightRenderPos = (*i)->ExtractData<bool>();
+				else if (registerName == L"VideoShowBoundaryActiveImage")	_videoShowBoundaryActiveImage = (*i)->ExtractData<bool>();
+				else if (registerName == L"VideoShowBoundaryActionSafe")		_videoShowBoundaryActionSafe = (*i)->ExtractData<bool>();
+				else if (registerName == L"VideoShowBoundaryTitleSafe")		_videoShowBoundaryTitleSafe = (*i)->ExtractData<bool>();
+				else if (registerName == L"VideoEnableFullImageBufferInfo")	_videoEnableFullImageBufferInfo = (*i)->ExtractData<bool>();
 				//Layer removal settings
-				else if(registerName == L"EnableLayerAHigh")		_enableLayerAHigh = (*i)->ExtractData<bool>();
-				else if(registerName == L"EnableLayerALow")			_enableLayerALow = (*i)->ExtractData<bool>();
-				else if(registerName == L"EnableLayerBHigh")		_enableLayerBHigh = (*i)->ExtractData<bool>();
-				else if(registerName == L"EnableLayerBLow")			_enableLayerBLow = (*i)->ExtractData<bool>();
-				else if(registerName == L"EnableWindowHigh")		_enableWindowHigh = (*i)->ExtractData<bool>();
-				else if(registerName == L"EnableWindowLow")			_enableWindowLow = (*i)->ExtractData<bool>();
-				else if(registerName == L"EnableSpriteHigh")		_enableSpriteHigh = (*i)->ExtractData<bool>();
-				else if(registerName == L"EnableSpriteLow")			_enableSpriteLow = (*i)->ExtractData<bool>();
+				else if (registerName == L"EnableLayerAHigh")		_enableLayerAHigh = (*i)->ExtractData<bool>();
+				else if (registerName == L"EnableLayerALow")			_enableLayerALow = (*i)->ExtractData<bool>();
+				else if (registerName == L"EnableLayerBHigh")		_enableLayerBHigh = (*i)->ExtractData<bool>();
+				else if (registerName == L"EnableLayerBLow")			_enableLayerBLow = (*i)->ExtractData<bool>();
+				else if (registerName == L"EnableWindowHigh")		_enableWindowHigh = (*i)->ExtractData<bool>();
+				else if (registerName == L"EnableWindowLow")			_enableWindowLow = (*i)->ExtractData<bool>();
+				else if (registerName == L"EnableSpriteHigh")		_enableSpriteHigh = (*i)->ExtractData<bool>();
+				else if (registerName == L"EnableSpriteLow")			_enableSpriteLow = (*i)->ExtractData<bool>();
 			}
 		}
 	}
@@ -3793,7 +3793,7 @@ bool S315_5313::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 {
 	ApplyGenericDataValueDisplaySettings(dataID, dataValue);
 	AccessTarget accessTarget = AccessTarget().AccessLatest();
-	switch((IS315_5313DataSource)dataID)
+	switch ((IS315_5313DataSource)dataID)
 	{
 	case IS315_5313DataSource::RawRegister:{
 		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
@@ -4082,10 +4082,10 @@ bool S315_5313::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 	ApplyGenericDataValueLimitSettings(dataID, dataValue);
 	IGenericAccessDataValue::DataType dataType = dataValue.GetType();
 	AccessTarget accessTarget = AccessTarget().AccessLatest();
-	switch((IS315_5313DataSource)dataID)
+	switch ((IS315_5313DataSource)dataID)
 	{
 	case IS315_5313DataSource::RawRegister:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
 		Data registerData(8, dataValueAsUInt.GetValue());
@@ -4094,418 +4094,418 @@ bool S315_5313::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 		SetRegisterData(registerDataContext.registerNo, accessTarget, registerData);
 		return true;}
 	case IS315_5313DataSource::RegStatus:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		_status = dataValueAsUInt.GetValue();
 		return true;}
 	case IS315_5313DataSource::FlagFIFOEmpty:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetStatusFlagFIFOEmpty(dataValueAsBool.GetValue());
 		return true;}
 	case IS315_5313DataSource::FlagFIFOFull:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetStatusFlagFIFOEmpty(dataValueAsBool.GetValue());
 		return true;}
 	case IS315_5313DataSource::FlagF:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetStatusFlagF(dataValueAsBool.GetValue());
 		return true;}
 	case IS315_5313DataSource::FlagSpriteOverflow:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetStatusFlagSpriteOverflow(dataValueAsBool.GetValue());
 		return true;}
 	case IS315_5313DataSource::FlagSpriteCollision:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetStatusFlagSpriteCollision(dataValueAsBool.GetValue());
 		return true;}
 	case IS315_5313DataSource::FlagOddInterlaceFrame:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetStatusFlagOddInterlaceFrame(dataValueAsBool.GetValue());
 		return true;}
 	case IS315_5313DataSource::FlagVBlank:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetStatusFlagVBlank(dataValueAsBool.GetValue());
 		return true;}
 	case IS315_5313DataSource::FlagHBlank:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetStatusFlagHBlank(dataValueAsBool.GetValue());
 		return true;}
 	case IS315_5313DataSource::FlagDMA:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetStatusFlagDMA(dataValueAsBool.GetValue());
 		return true;}
 	case IS315_5313DataSource::FlagPAL:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetStatusFlagPAL(dataValueAsBool.GetValue());
 		return true;}
 	case IS315_5313DataSource::RegVSI:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		RegSetVSI(accessTarget, dataValueAsBool.GetValue());
 		return true;}
 	case IS315_5313DataSource::RegHSI:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		RegSetHSI(accessTarget, dataValueAsBool.GetValue());
 		return true;}
 	case IS315_5313DataSource::RegLCB:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		RegSetLCB(accessTarget, dataValueAsBool.GetValue());
 		return true;}
 	case IS315_5313DataSource::RegIE1:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		RegSetIE1(accessTarget, dataValueAsBool.GetValue());
 		_hintEnabled = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::RegSS:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		RegSetSS(accessTarget, dataValueAsBool.GetValue());
 		return true;}
 	case IS315_5313DataSource::RegPS:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		RegSetPS(accessTarget, dataValueAsBool.GetValue());
 		return true;}
 	case IS315_5313DataSource::RegM2:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		RegSetM2(accessTarget, dataValueAsBool.GetValue());
 		_hvCounterLatchEnabled = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::RegES:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		RegSetES(accessTarget, dataValueAsBool.GetValue());
 		return true;}
 	case IS315_5313DataSource::RegEVRAM:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		RegSetEVRAM(accessTarget, dataValueAsBool.GetValue());
 		return true;}
 	case IS315_5313DataSource::RegDisplayEnabled:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		RegSetDisplayEnabled(accessTarget, dataValueAsBool.GetValue());
 		_displayEnabledCached = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::RegIE0:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		RegSetIE0(accessTarget, dataValueAsBool.GetValue());
 		_vintEnabled = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::RegDMAEnabled:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		RegSetDMAEnabled(accessTarget, dataValueAsBool.GetValue());
 		_dmaEnabled = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::RegM3:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		RegSetM3(accessTarget, dataValueAsBool.GetValue());
 		_screenModeV30Cached  = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::RegMode5:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		RegSetMode5(accessTarget, dataValueAsBool.GetValue());
 		_screenModeM5Cached = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::RegSZ:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		RegSetSZ(accessTarget, dataValueAsBool.GetValue());
 		return true;}
 	case IS315_5313DataSource::RegMAG:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		RegSetMAG(accessTarget, dataValueAsBool.GetValue());
 		return true;}
 	case IS315_5313DataSource::RegNameTableBaseA:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		RegSetNameTableBaseScrollA(accessTarget, dataValueAsUInt.GetValue());
 		return true;}
 	case IS315_5313DataSource::RegNameTableBaseWindow:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		RegSetNameTableBaseWindow(accessTarget, dataValueAsUInt.GetValue());
 		return true;}
 	case IS315_5313DataSource::RegNameTableBaseB:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		RegSetNameTableBaseScrollB(accessTarget, dataValueAsUInt.GetValue());
 		return true;}
 	case IS315_5313DataSource::RegNameTableBaseSprite:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		RegSetNameTableBaseSprite(accessTarget, dataValueAsUInt.GetValue(), !RegGetMode5(accessTarget));
 		_spriteAttributeTableBaseAddressDecoded = (dataValueAsUInt.GetValue() << 9);
 		return true;}
 	case IS315_5313DataSource::RegPatternBaseSprite:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		RegSetPatternBaseSprite(accessTarget, dataValueAsUInt.GetValue(), !RegGetMode5(accessTarget));
 		return true;}
 	case IS315_5313DataSource::Reg077:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		RegSet077(accessTarget, dataValueAsBool.GetValue());
 		return true;}
 	case IS315_5313DataSource::Reg076:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		RegSet076(accessTarget, dataValueAsBool.GetValue());
 		return true;}
 	case IS315_5313DataSource::RegBackgroundPaletteRow:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		RegSetBackgroundPaletteRow(accessTarget, dataValueAsUInt.GetValue());
 		return true;}
 	case IS315_5313DataSource::RegBackgroundPaletteColumn:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		RegSetBackgroundPaletteColumn(accessTarget, dataValueAsUInt.GetValue());
 		return true;}
 	case IS315_5313DataSource::RegBackgroundScrollX:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		RegSetBackgroundScrollX(accessTarget, dataValueAsUInt.GetValue());
 		return true;}
 	case IS315_5313DataSource::RegBackgroundScrollY:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		RegSetBackgroundScrollY(accessTarget, dataValueAsUInt.GetValue());
 		return true;}
 	case IS315_5313DataSource::RegHINTData:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		RegSetHInterruptData(accessTarget, dataValueAsUInt.GetValue());
 		_hintCounterReloadValue = dataValueAsUInt.GetValue();
 		return true;}
 	case IS315_5313DataSource::Reg0B7:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		RegSet0B7(accessTarget, dataValueAsBool.GetValue());
 		return true;}
 	case IS315_5313DataSource::Reg0B6:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		RegSet0B6(accessTarget, dataValueAsBool.GetValue());
 		return true;}
 	case IS315_5313DataSource::Reg0B5:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		RegSet0B5(accessTarget, dataValueAsBool.GetValue());
 		return true;}
 	case IS315_5313DataSource::Reg0B4:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		RegSet0B4(accessTarget, dataValueAsBool.GetValue());
 		return true;}
 	case IS315_5313DataSource::RegIE2:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		RegSetIE2(accessTarget, dataValueAsBool.GetValue());
 		_exintEnabled = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::RegVSCR:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		RegSetVSCR(accessTarget, dataValueAsBool.GetValue());
 		_verticalScrollModeCached = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::RegHSCR:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		RegSetHSCR(accessTarget, dataValueAsBool.GetValue());
 		return true;}
 	case IS315_5313DataSource::RegLSCR:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		RegSetLSCR(accessTarget, dataValueAsBool.GetValue());
 		return true;}
 	case IS315_5313DataSource::RegRS0:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		RegSetRS0(accessTarget, dataValueAsBool.GetValue());
 		_screenModeRS0Cached = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::RegU1:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		RegSetU1(accessTarget, dataValueAsBool.GetValue());
 		return true;}
 	case IS315_5313DataSource::RegU2:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		RegSetU2(accessTarget, dataValueAsBool.GetValue());
 		return true;}
 	case IS315_5313DataSource::RegU3:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		RegSetU3(accessTarget, dataValueAsBool.GetValue());
 		return true;}
 	case IS315_5313DataSource::RegSTE:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		RegSetSTE(accessTarget, dataValueAsBool.GetValue());
 		return true;}
 	case IS315_5313DataSource::RegLSM1:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		RegSetLSM1(accessTarget, dataValueAsBool.GetValue());
 		_interlaceDoubleCached = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::RegLSM0:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		RegSetLSM0(accessTarget, dataValueAsBool.GetValue());
 		_interlaceEnabledCached = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::RegRS1:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		RegSetRS1(accessTarget, dataValueAsBool.GetValue());
 		_screenModeRS1Cached = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::RegHScrollDataBase:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		RegSetHScrollDataBase(accessTarget, dataValueAsUInt.GetValue());
 		return true;}
 	case IS315_5313DataSource::Reg0E57:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		RegSet0E57(accessTarget, dataValueAsUInt.GetValue());
 		return true;}
 	case IS315_5313DataSource::RegPatternBaseA:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		RegSetPatternBaseScrollA(accessTarget, dataValueAsUInt.GetValue());
 		return true;}
 	case IS315_5313DataSource::Reg0E13:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		RegSet0E13(accessTarget, dataValueAsUInt.GetValue());
 		return true;}
 	case IS315_5313DataSource::RegPatternBaseB:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		RegSetPatternBaseScrollB(accessTarget, dataValueAsUInt.GetValue());
 		return true;}
 	case IS315_5313DataSource::RegAutoIncrementData:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		RegSetAutoIncrementData(accessTarget, dataValueAsUInt.GetValue());
 		_autoIncrementData = dataValueAsUInt.GetValue();
 		return true;}
 	case IS315_5313DataSource::Reg1067:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		RegSet1067(accessTarget, dataValueAsUInt.GetValue());
 		return true;}
 	case IS315_5313DataSource::RegVSZ:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		RegSetVSZ(accessTarget, dataValueAsUInt.GetValue());
 		return true;}
 	case IS315_5313DataSource::RegVSZ1:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		RegSetVSZ1(accessTarget, dataValueAsBool.GetValue());
 		return true;}
 	case IS315_5313DataSource::RegVSZ0:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		RegSetVSZ0(accessTarget, dataValueAsBool.GetValue());
 		return true;}
 	case IS315_5313DataSource::Reg1023:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		RegSet1023(accessTarget, dataValueAsUInt.GetValue());
 		return true;}
 	case IS315_5313DataSource::RegHSZ:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		RegSetHSZ(accessTarget, dataValueAsUInt.GetValue());
 		return true;}
 	case IS315_5313DataSource::RegHSZ1:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		RegSetHSZ1(accessTarget, dataValueAsBool.GetValue());
 		return true;}
 	case IS315_5313DataSource::RegHSZ0:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		RegSetHSZ0(accessTarget, dataValueAsBool.GetValue());
 		return true;}
 	case IS315_5313DataSource::Reg1156:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		RegSet1156(accessTarget, dataValueAsUInt.GetValue());
 		return true;}
 	case IS315_5313DataSource::RegWindowRight:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		RegSetWindowRightAligned(accessTarget, dataValueAsBool.GetValue());
 		return true;}
 	case IS315_5313DataSource::RegWindowBaseX:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		RegSetWindowBasePointX(accessTarget, dataValueAsUInt.GetValue());
 		return true;}
 	case IS315_5313DataSource::Reg1256:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		RegSet1256(accessTarget, dataValueAsUInt.GetValue());
 		return true;}
 	case IS315_5313DataSource::RegWindowBottom:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		RegSetWindowBottomAligned(accessTarget, dataValueAsBool.GetValue());
 		return true;}
 	case IS315_5313DataSource::RegWindowBaseY:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		RegSetWindowBasePointY(accessTarget, dataValueAsUInt.GetValue());
 		return true;}
 	case IS315_5313DataSource::RegDMALength:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		RegSetDMALengthCounter(accessTarget, dataValueAsUInt.GetValue());
 		_dmaLengthCounter = dataValueAsUInt.GetValue();
 		return true;}
 	case IS315_5313DataSource::RegDMASource:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		RegSetDMASourceAddress(accessTarget, dataValueAsUInt.GetValue());
@@ -4514,312 +4514,312 @@ bool S315_5313::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 		_dmaSourceAddressByte3 = (dataValueAsUInt.GetValue() >> 16) & 0x7F;
 		return true;}
 	case IS315_5313DataSource::RegDMASourceData1:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		RegSetDMASourceAddressByte1(accessTarget, dataValueAsUInt.GetValue());
 		_dmaSourceAddressByte1 = dataValueAsUInt.GetValue();
 		return true;}
 	case IS315_5313DataSource::RegDMASourceData2:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		RegSetDMASourceAddressByte2(accessTarget, dataValueAsUInt.GetValue());
 		_dmaSourceAddressByte2 = dataValueAsUInt.GetValue();
 		return true;}
 	case IS315_5313DataSource::RegDMASourceData3:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		RegSetDMASourceAddressByte3(accessTarget, dataValueAsUInt.GetValue());
 		_dmaSourceAddressByte3 = dataValueAsUInt.GetValue() & 0x7F;
 		return true;}
 	case IS315_5313DataSource::RegDMD1:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		RegSetDMD1(accessTarget, dataValueAsBool.GetValue());
 		_dmd1 = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::RegDMD0:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		RegSetDMD0(accessTarget, dataValueAsBool.GetValue());
 		_dmd0 = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::RegCode:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		_commandCode = dataValueAsUInt.GetValue();
 		return true;}
 	case IS315_5313DataSource::RegAddress:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		_commandAddress = dataValueAsUInt.GetValue();
 		return true;}
 	case IS315_5313DataSource::RegPortWritePending:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		_commandWritePending = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::RegReadBuffer:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		_readBuffer = dataValueAsUInt.GetValue();
 		return true;}
 	case IS315_5313DataSource::RegReadHalfCached:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		_readDataHalfCached = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::RegReadFullyCached:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		_readDataAvailable = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::RegVINTPending:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		_vintPending = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::RegHINTPending:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		_hintPending = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::RegEXINTPending:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		_exintPending = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::RegHCounterInternal:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		_hcounter = dataValueAsUInt.GetValue();
 		return true;}
 	case IS315_5313DataSource::RegVCounterInternal:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		_vcounter = dataValueAsUInt.GetValue();
 		return true;}
 	case IS315_5313DataSource::RegHCounterLatched:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		_hcounterLatchedData = dataValueAsUInt.GetValue();
 		return true;}
 	case IS315_5313DataSource::RegVCounterLatched:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		_vcounterLatchedData = dataValueAsUInt.GetValue();
 		return true;}
 	case IS315_5313DataSource::RegFIFOCode:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		const FIFOEntryDataContext& fifoEntryDataContext = *((FIFOEntryDataContext*)dataContext);
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		_fifoBuffer[fifoEntryDataContext.entryNo].codeRegData = dataValueAsUInt.GetValue();
 		return true;}
 	case IS315_5313DataSource::RegFIFOAddress:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		const FIFOEntryDataContext& fifoEntryDataContext = *((FIFOEntryDataContext*)dataContext);
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		_fifoBuffer[fifoEntryDataContext.entryNo].addressRegData = dataValueAsUInt.GetValue();
 		return true;}
 	case IS315_5313DataSource::RegFIFOData:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		const FIFOEntryDataContext& fifoEntryDataContext = *((FIFOEntryDataContext*)dataContext);
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		_fifoBuffer[fifoEntryDataContext.entryNo].dataPortWriteData = dataValueAsUInt.GetValue();
 		return true;}
 	case IS315_5313DataSource::RegFIFOWritePending:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		const FIFOEntryDataContext& fifoEntryDataContext = *((FIFOEntryDataContext*)dataContext);
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		_fifoBuffer[fifoEntryDataContext.entryNo].pendingDataWrite = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::RegFIFOWriteHalfWritten:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		const FIFOEntryDataContext& fifoEntryDataContext = *((FIFOEntryDataContext*)dataContext);
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		_fifoBuffer[fifoEntryDataContext.entryNo].dataWriteHalfWritten = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::RegNextFIFOReadEntry:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		_fifoNextReadEntry = dataValueAsUInt.GetValue();
 		return true;}
 	case IS315_5313DataSource::RegNextFIFOWriteEntry:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		_fifoNextWriteEntry = dataValueAsUInt.GetValue();
 		return true;}
 	case IS315_5313DataSource::SettingsOutputPortAccessDebugMessages:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		_outputPortAccessDebugMessages = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::SettingsOutputTimingDebugMessages:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		_outputTimingDebugMessages = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::SettingsOutputRenderSyncDebugMessages:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		_outputRenderSyncMessages = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::SettingsOutputInterruptDebugMessages:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		_outputInterruptDebugMessages = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::SettingsVideoDisableRenderOutput:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		_videoDisableRenderOutput = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::SettingsVideoEnableSpriteBoxing:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		_videoEnableSpriteBoxing = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::SettingsVideoHighlightRenderPos:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		_videoHighlightRenderPos = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::SettingsVideoSingleBuffering:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		_videoSingleBuffering = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::SettingsVideoFixedAspectRatio:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		_videoFixedAspectRatio = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::SettingsVideoShowStatusBar:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		_videoShowStatusBar = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::SettingsVideoEnableLineSmoothing:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		_videoEnableLineSmoothing = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::SettingsCurrentRenderPosOnScreen:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		_currentRenderPosOnScreen = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::SettingsCurrentRenderPosScreenX:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		_currentRenderPosScreenX = dataValueAsUInt.GetValue();
 		return true;}
 	case IS315_5313DataSource::SettingsCurrentRenderPosScreenY:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		_currentRenderPosScreenY = dataValueAsUInt.GetValue();
 		return true;}
 	case IS315_5313DataSource::SettingsVideoShowBoundaryActiveImage:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		_videoShowBoundaryActiveImage = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::SettingsVideoShowBoundaryActionSafe:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		_videoShowBoundaryActionSafe = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::SettingsVideoShowBoundaryTitleSafe:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		_videoShowBoundaryTitleSafe = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::SettingsVideoEnableFullImageBufferInfo:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		_videoEnableFullImageBufferInfo = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::SettingsVideoEnableLayerA:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		_enableLayerAHigh = _enableLayerALow = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::SettingsVideoEnableLayerAHigh:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		_enableLayerAHigh = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::SettingsVideoEnableLayerALow:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		_enableLayerALow = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::SettingsVideoEnableLayerB:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		_enableLayerBHigh = _enableLayerBLow = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::SettingsVideoEnableLayerBHigh:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		_enableLayerBHigh = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::SettingsVideoEnableLayerBLow:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		_enableLayerBLow = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::SettingsVideoEnableWindow:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		_enableWindowHigh = _enableWindowLow = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::SettingsVideoEnableWindowHigh:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		_enableWindowHigh = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::SettingsVideoEnableWindowLow:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		_enableWindowLow = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::SettingsVideoEnableSprite:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		_enableSpriteHigh = _enableSpriteLow = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::SettingsVideoEnableSpriteHigh:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		_enableSpriteHigh = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::SettingsVideoEnableSpriteLow:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		_enableSpriteLow = dataValueAsBool.GetValue();
 		return true;}
@@ -4833,7 +4833,7 @@ bool S315_5313::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 bool S315_5313::GetGenericDataLocked(unsigned int dataID, const DataContext* dataContext) const
 {
 	std::unique_lock<std::mutex> lock(_registerLockMutex);
-	switch((IS315_5313DataSource)dataID)
+	switch ((IS315_5313DataSource)dataID)
 	{
 	case IS315_5313DataSource::RawRegister:{
 		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
@@ -4927,7 +4927,7 @@ bool S315_5313::GetGenericDataLocked(unsigned int dataID, const DataContext* dat
 //----------------------------------------------------------------------------------------
 bool S315_5313::SetGenericDataLocked(unsigned int dataID, const DataContext* dataContext, bool state)
 {
-	switch((IS315_5313DataSource)dataID)
+	switch ((IS315_5313DataSource)dataID)
 	{
 	case IS315_5313DataSource::RawRegister:{
 		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
@@ -5015,14 +5015,14 @@ bool S315_5313::SetGenericDataLocked(unsigned int dataID, const DataContext* dat
 	case IS315_5313DataSource::RegDMD1:
 	case IS315_5313DataSource::RegDMD0:{
 		std::unique_lock<std::mutex> lock(_registerLockMutex);
-		if(!state)
+		if (!state)
 		{
 			_lockedRegisterState.erase(dataID);
 		}
-		else if(_lockedRegisterState.find(dataID) == _lockedRegisterState.end())
+		else if (_lockedRegisterState.find(dataID) == _lockedRegisterState.end())
 		{
 			std::wstring lockedDataValue;
-			if(!ReadGenericData(dataID, dataContext, lockedDataValue))
+			if (!ReadGenericData(dataID, dataContext, lockedDataValue))
 			{
 				return false;
 			}

@@ -13,18 +13,18 @@ ROM32Variable::ROM32Variable(const std::wstring& implementationName, const std::
 IBusInterface::AccessResult ROM32Variable::ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	static const unsigned int arrayEntryByteSize = 4;
-	switch(interfaceNumber)
+	switch (interfaceNumber)
 	{
 	default:
 	case 0:{
 		unsigned int dataByteSize = data.GetByteSize();
 		unsigned int currentDataByte = 0;
-		while(currentDataByte < dataByteSize)
+		while (currentDataByte < dataByteSize)
 		{
 			unsigned int baseLocation = (location + currentDataByte) / arrayEntryByteSize;
 			unsigned int firstByteOffsetToExtractFromEntry = (location + currentDataByte) % arrayEntryByteSize;
 			unsigned int lastByteOffsetToExtractFromEntry = ((arrayEntryByteSize - firstByteOffsetToExtractFromEntry) <= (dataByteSize - currentDataByte))? (arrayEntryByteSize - 1): firstByteOffsetToExtractFromEntry + ((dataByteSize - 1) - currentDataByte);
-			for(unsigned int i = firstByteOffsetToExtractFromEntry; i <= lastByteOffsetToExtractFromEntry; ++i)
+			for (unsigned int i = firstByteOffsetToExtractFromEntry; i <= lastByteOffsetToExtractFromEntry; ++i)
 			{
 				data.SetByteFromTopDown(currentDataByte++, (unsigned char)(_memoryArray[baseLocation % _memoryArraySize] >> (((arrayEntryByteSize - 1) - i) * Data::BitsPerByte)));
 			}
@@ -60,19 +60,19 @@ void ROM32Variable::TransparentReadInterface(unsigned int interfaceNumber, unsig
 void ROM32Variable::TransparentWriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, unsigned int accessContext)
 {
 	static const unsigned int arrayEntryByteSize = 4;
-	switch(interfaceNumber)
+	switch (interfaceNumber)
 	{
 	default:
 	case 0:{
 		unsigned int dataByteSize = data.GetByteSize();
 		unsigned int currentDataByte = 0;
-		while(currentDataByte < dataByteSize)
+		while (currentDataByte < dataByteSize)
 		{
 			unsigned int baseLocation = (location + currentDataByte) / arrayEntryByteSize;
 			unsigned int firstByteOffsetToWriteToEntry = (location + currentDataByte) % arrayEntryByteSize;
 			unsigned int lastByteOffsetToWriteToEntry = ((arrayEntryByteSize - firstByteOffsetToWriteToEntry) <= (dataByteSize - currentDataByte))? (arrayEntryByteSize - 1): firstByteOffsetToWriteToEntry + ((dataByteSize - 1) - currentDataByte);
 			Data memoryEntry(arrayEntryByteSize * Data::BitsPerByte, _memoryArray[baseLocation % _memoryArraySize]);
-			for(unsigned int i = firstByteOffsetToWriteToEntry; i <= lastByteOffsetToWriteToEntry; ++i)
+			for (unsigned int i = firstByteOffsetToWriteToEntry; i <= lastByteOffsetToWriteToEntry; ++i)
 			{
 				memoryEntry.SetByteFromTopDown(i, data.GetByteFromTopDown(currentDataByte++));
 			}

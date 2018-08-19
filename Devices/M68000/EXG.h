@@ -32,7 +32,7 @@ public:
 //	|---|---|---|---|-----------|---|-------------------|-----------|
 //	| 1 | 1 | 0 | 0 |Rx REGISTER| 1 |       OP-MODE     |Ry REGISTER|
 //	-----------------------------------------------------------------
-		switch(data.GetDataSegment(3, 5))
+		switch (data.GetDataSegment(3, 5))
 		{
 		case 0x8:	//01000->Exchange between data registers.
 			_source.BuildDataDirect(BITCOUNT_LONG, location + GetInstructionSize(), data.GetDataSegment(9, 3));

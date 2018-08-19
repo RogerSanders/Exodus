@@ -13,7 +13,7 @@ SN76489::SN76489(const std::wstring& implementationName, const std::wstring& ins
 	_outputStream.Open(1, 16, _outputSampleRate, _outputSampleRate/4, _outputSampleRate/20);
 
 	//Initialize the locked register state
-	for(unsigned int i = 0; i < ChannelCount; ++i)
+	for (unsigned int i = 0; i < ChannelCount; ++i)
 	{
 		_channelVolumeRegisterLocked[i] = false;
 		_channelDataRegisterLocked[i] = false;
@@ -49,7 +49,7 @@ bool SN76489::BuildDevice()
 	_wavLoggingEnabled = false;
 	std::wstring wavLoggingFileName = GetDeviceInstanceName() + L".wav";
 	_wavLoggingPath = PathCombinePaths(captureFolder, wavLoggingFileName);
-	for(unsigned int channelNo = 0; channelNo < ChannelCount; ++channelNo)
+	for (unsigned int channelNo = 0; channelNo < ChannelCount; ++channelNo)
 	{
 		_wavLoggingChannelEnabled[channelNo] = false;
 		std::wstringstream wavLoggingChannelFileName;
@@ -181,7 +181,7 @@ void SN76489::Initialize()
 	_remainingRenderTime = 0;
 
 	//Initialize the render data
-	for(unsigned int i = 0; i < ChannelCount; ++i)
+	for (unsigned int i = 0; i < ChannelCount; ++i)
 	{
 		_channelRenderData[i].polarityNegative = false;
 		_channelRenderData[i].remainingToneCycles = 0;
@@ -192,9 +192,9 @@ void SN76489::Initialize()
 
 	//Initialize the register block, and set the correct register sizes for each entry.
 	_reg.Initialize();
-	for(unsigned int i = 0; i < ChannelCount; ++i)
+	for (unsigned int i = 0; i < ChannelCount; ++i)
 	{
-		if(i == NoiseChannelNo)
+		if (i == NoiseChannelNo)
 		{
 			_reg.ReferenceCommitted((i*2) + 0).Resize(VolumeRegisterBitCount);
 			_reg.ReferenceCommitted((i*2) + 1).Resize(NoiseRegisterBitCount);
@@ -209,13 +209,13 @@ void SN76489::Initialize()
 	//According to SN76489.txt by Maxim, SEGA integrated versions of the PSG have the
 	//channels initialized with data all zeros, and volume all ones. This has been
 	//verified through hardware tests.
-	for(unsigned int i = 0; i < ChannelCount; ++i)
+	for (unsigned int i = 0; i < ChannelCount; ++i)
 	{
-		if(!_channelVolumeRegisterLocked[i])
+		if (!_channelVolumeRegisterLocked[i])
 		{
 			SetVolumeRegister(i, Data(VolumeRegisterBitCount, ~0u), AccessTarget().AccessLatest());
 		}
-		if(!_channelDataRegisterLocked[i])
+		if (!_channelDataRegisterLocked[i])
 		{
 			SetToneRegister(i, Data(ToneRegisterBitCount, 0), AccessTarget().AccessLatest());
 		}
@@ -233,7 +233,7 @@ void SN76489::Initialize()
 //----------------------------------------------------------------------------------------
 unsigned int SN76489::GetClockSourceID(const Marshal::In<std::wstring>& clockSourceName) const
 {
-	if(clockSourceName == L"CLOCK")
+	if (clockSourceName == L"CLOCK")
 	{
 		return (unsigned int)ClockID::Clock;
 	}
@@ -243,7 +243,7 @@ unsigned int SN76489::GetClockSourceID(const Marshal::In<std::wstring>& clockSou
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> SN76489::GetClockSourceName(unsigned int clockSourceID) const
 {
-	switch((ClockID)clockSourceID)
+	switch ((ClockID)clockSourceID)
 	{
 	case ClockID::Clock:
 		return L"CLOCK";
@@ -255,7 +255,7 @@ Marshal::Ret<std::wstring> SN76489::GetClockSourceName(unsigned int clockSourceI
 void SN76489::SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	//Apply the input clock rate change
-	if((ClockID)clockInput == ClockID::Clock)
+	if ((ClockID)clockInput == ClockID::Clock)
 	{
 		_externalClockRate = clockRate;
 	}
@@ -269,7 +269,7 @@ void SN76489::SetClockSourceRate(unsigned int clockInput, double clockRate, IDev
 void SN76489::TransparentSetClockSourceRate(unsigned int clockInput, double clockRate)
 {
 	//Apply the input clock rate change
-	if((ClockID)clockInput == ClockID::Clock)
+	if ((ClockID)clockInput == ClockID::Clock)
 	{
 		_externalClockRate = clockRate;
 	}
@@ -297,7 +297,7 @@ void SN76489::SuspendExecution()
 	std::unique_lock<std::mutex> lock(_renderThreadMutex);
 
 	//Suspend the render worker thread
-	if(_renderThreadActive)
+	if (_renderThreadActive)
 	{
 		_renderThreadActive = false;
 		_renderThreadUpdate.notify_all();
@@ -336,10 +336,10 @@ void SN76489::ExecuteTimeslice(double nanoseconds)
 	//If the render thread is lagging, pause here until it has caught up, so we don't
 	//leave the render thread behind with an ever-increasing workload it will never be
 	//able to complete.
-	if(_renderThreadLagging)
+	if (_renderThreadLagging)
 	{
 		std::unique_lock<std::mutex> lock(_timesliceMutex);
-		while(_renderThreadLagging)
+		while (_renderThreadLagging)
 		{
 			_renderThreadLaggingStateChange.wait(lock);
 		}
@@ -371,7 +371,7 @@ void SN76489::ExecuteCommit()
 	//Ensure that a valid latest timeslice exists in all our buffers. We need this check
 	//here, because commits can be triggered by the system at potentially any point in
 	//time, whether a timeslice has been issued or not.
-	if(!_regTimesliceListUncommitted.empty())
+	if (!_regTimesliceListUncommitted.empty())
 	{
 		//Obtain a timeslice lock so we can update the data we feed to the render thread
 		std::unique_lock<std::mutex> lock(_timesliceMutex);
@@ -398,7 +398,7 @@ void SN76489::RenderThread()
 
 	//Start the render loop
 	bool done = false;
-	while(!done)
+	while (!done)
 	{
 		//Obtain a copy of the latest completed timeslice period
 		RandomTimeAccessBuffer<Data, double>::Timeslice regTimesliceCopy;
@@ -407,7 +407,7 @@ void SN76489::RenderThread()
 			std::unique_lock<std::mutex> timesliceLock(_timesliceMutex);
 
 			//If there is at least one render timeslice pending, grab it from the queue.
-			if(!_regTimesliceList.empty())
+			if (!_regTimesliceList.empty())
 			{
 				//Update the lagging state for the render thread
 				--_pendingRenderOperationCount;
@@ -425,12 +425,12 @@ void SN76489::RenderThread()
 
 		//If no render timeslice was available, we need to wait for a thread suspension
 		//request or a new timeslice to be received, then begin the loop again.
-		if(!renderTimesliceObtained)
+		if (!renderTimesliceObtained)
 		{
 			//If the render thread has not already been instructed to stop, suspend this
 			//thread until a timeslice becomes available or this thread is instructed to
 			//stop.
-			if(_renderThreadActive)
+			if (_renderThreadActive)
 			{
 				_renderThreadUpdate.wait(lock);
 			}
@@ -447,7 +447,7 @@ void SN76489::RenderThread()
 		size_t outputBufferPos = _outputBuffer.size();
 		double outputFrequency = _externalClockRate / _externalClockDivider;
 		bool moreSamplesRemaining = true;
-		while(moreSamplesRemaining)
+		while (moreSamplesRemaining)
 		{
 			//Determine the time of the next write. Note that currently, this may be
 			//negative under certain circumstances, in particular when a write occurs past
@@ -462,23 +462,23 @@ void SN76489::RenderThread()
 
 			//If we have one or more output samples to generate before the next settings
 			//change or the end of the target timeslice, generate and output the samples.
-			if((_remainingRenderTime > 0) && (outputSampleCount > 0))
+			if ((_remainingRenderTime > 0) && (outputSampleCount > 0))
 			{
 				//Resize the output buffer to fit the samples we're about to add
 				_outputBuffer.resize(_outputBuffer.size() + outputSampleCount);
 
 				//For each channel, calculate the output data for the elapsed time
 				std::vector<float> channelBuffer[ChannelCount];
-				for(unsigned int channelNo = 0; channelNo < ChannelCount; ++channelNo)
+				for (unsigned int channelNo = 0; channelNo < ChannelCount; ++channelNo)
 				{
 					channelBuffer[channelNo].resize(outputSampleCount);
 					UpdateChannel(channelNo, outputSampleCount, channelBuffer[channelNo]);
 
 					//Output the channel wave log
-					if(_wavLoggingChannelEnabled[channelNo])
+					if (_wavLoggingChannelEnabled[channelNo])
 					{
 						std::unique_lock<std::mutex> lock(_waveLoggingMutex);
-						for(unsigned int i = 0; i < channelBuffer[channelNo].size(); ++i)
+						for (unsigned int i = 0; i < channelBuffer[channelNo].size(); ++i)
 						{
 							short sample = (short)(channelBuffer[channelNo][i] * (32767.0f/ChannelCount));
 							_wavLogChannel[channelNo].WriteData(sample);
@@ -487,10 +487,10 @@ void SN76489::RenderThread()
 				}
 
 				//Mix the output from each channel into a combined output buffer
-				for(unsigned int sampleNo = 0; sampleNo < outputSampleCount; ++sampleNo)
+				for (unsigned int sampleNo = 0; sampleNo < outputSampleCount; ++sampleNo)
 				{
 					float mixedSample = 0.0;
-					for(unsigned int channelNo = 0; channelNo < ChannelCount; ++channelNo)
+					for (unsigned int channelNo = 0; channelNo < ChannelCount; ++channelNo)
 					{
 						mixedSample += channelBuffer[channelNo][sampleNo];
 					}
@@ -499,11 +499,11 @@ void SN76489::RenderThread()
 				}
 
 				RandomTimeAccessBuffer<Data, double>::WriteInfo writeInfo = _reg.GetWriteInfo(0, regTimesliceCopy);
-				if(writeInfo.exists)
+				if (writeInfo.exists)
 				{
 					//If the noise register is being modified, we need to reset the LFSR
 					//to the default for value for the next cycle.
-					if(writeInfo.writeAddress == (NoiseChannelNo * 2) + 1)
+					if (writeInfo.writeAddress == (NoiseChannelNo * 2) + 1)
 					{
 						_noiseShiftRegister = _shiftRegisterDefaultValue;
 					}
@@ -519,7 +519,7 @@ void SN76489::RenderThread()
 		}
 
 		//Output the mixed channel wave log
-		if(_wavLoggingEnabled)
+		if (_wavLoggingEnabled)
 		{
 			std::unique_lock<std::mutex> lock(_waveLoggingMutex);
 			_wavLog.WriteData(_outputBuffer);
@@ -529,12 +529,12 @@ void SN76489::RenderThread()
 		//operations together, ensuring that we only send data to the output audio stream
 		//when we have a significant number of samples to send.
 		size_t minimumSamplesToOutput = (size_t)(outputFrequency / 60.0);
-		if(_outputBuffer.size() >= minimumSamplesToOutput)
+		if (_outputBuffer.size() >= minimumSamplesToOutput)
 		{
 			unsigned int internalSampleCount = (unsigned int)_outputBuffer.size();
 			unsigned int outputSampleCount = (unsigned int)((double)internalSampleCount * ((double)_outputSampleRate / outputFrequency));
 			AudioStream::AudioBuffer* outputBufferFinal = _outputStream.CreateAudioBuffer(outputSampleCount, 1);
-			if(outputBufferFinal != 0)
+			if (outputBufferFinal != 0)
 			{
 				_outputStream.ConvertSampleRate(_outputBuffer, internalSampleCount, 1, outputBufferFinal->buffer, outputSampleCount);
 				_outputStream.PlayBuffer(outputBufferFinal);
@@ -561,7 +561,7 @@ void SN76489::UpdateChannel(unsigned int channelNo, unsigned int outputSampleCou
 	Data volumeRegisterData(GetVolumeRegister(channelNo, AccessTarget().AccessCommitted()));
 	Data toneRegisterData(GetToneRegister(channelNo, AccessTarget().AccessCommitted()));
 	float amplitude = 0.0;
-	if(volumeRegisterData.GetData() < 0xF)
+	if (volumeRegisterData.GetData() < 0xF)
 	{
 		//##NOTE## There is an error in SN76489.txt regarding attenuation. The document
 		//correctly states that each step of the volume register corresponds with 2db of
@@ -581,7 +581,7 @@ void SN76489::UpdateChannel(unsigned int channelNo, unsigned int outputSampleCou
 
 	//If we're updating the noise register, decode the noise register data.
 	bool whiteNoiseSelected = false;
-	if(channelNo == NoiseChannelNo)
+	if (channelNo == NoiseChannelNo)
 	{
 		//Noise register format
 		//	--------------
@@ -592,7 +592,7 @@ void SN76489::UpdateChannel(unsigned int channelNo, unsigned int outputSampleCou
 		//Type:   Noise type (0 = Periodic, 1 = White)
 		//Period: Shift rate (0 = 0x10, 1 = 0x20, 2 = 0x40, 3 = Tone2)
 		whiteNoiseSelected = toneRegisterData.GetBit(2);
-		switch(toneRegisterData.GetDataSegment(0, 2))
+		switch (toneRegisterData.GetDataSegment(0, 2))
 		{
 		case 0:
 			toneRegisterData = 0x10;
@@ -613,14 +613,14 @@ void SN76489::UpdateChannel(unsigned int channelNo, unsigned int outputSampleCou
 	//If we were partway through a cycle on this channel when we rendered the last step,
 	//resume the last cycle.
 	unsigned int samplesWritten = 0;
-	while((renderData->remainingToneCycles > 0) && (samplesWritten < outputSampleCount))
+	while ((renderData->remainingToneCycles > 0) && (samplesWritten < outputSampleCount))
 	{
 		//If we're starting the output on a negative cycle, negate the output data.
 		float writeData = (renderData->polarityNegative)? -amplitude: amplitude;
 
 		//If we're updating the noise register, calculate the output data based on
 		//the shift register.
-		if(channelNo == NoiseChannelNo)
+		if (channelNo == NoiseChannelNo)
 		{
 			//Use the current noise bit to calculate the output data
 			writeData = (_noiseOutputMasked)? 0: amplitude;
@@ -644,13 +644,13 @@ void SN76489::UpdateChannel(unsigned int channelNo, unsigned int outputSampleCou
 	//that "After Burner II" uses a tone value of 0 in all PSG channels for its audio,
 	//causing distorted sound on the system. The PSG sound emulation for this game is
 	//fundamentally inaccurate when we hold the output at +1.
-	if(toneRegisterData == 0)
+	if (toneRegisterData == 0)
 	{
 		toneRegisterData = 1;
 	}
 
 	//Output repeating oscillations of the wave at the target frequency and amplitude
-	while(samplesWritten < outputSampleCount)
+	while (samplesWritten < outputSampleCount)
 	{
 		unsigned int samplesToWrite = toneRegisterData.GetData();
 
@@ -662,13 +662,13 @@ void SN76489::UpdateChannel(unsigned int channelNo, unsigned int outputSampleCou
 
 		//If we're updating the noise register, calculate the output data based on
 		//the shift register.
-		if(channelNo == NoiseChannelNo)
+		if (channelNo == NoiseChannelNo)
 		{
 			unsigned int tappedBitMask = whiteNoiseSelected? _noiseWhiteTappedBitMask: _noisePeriodicTappedBitMask;
 
 			//If the polarity has shifted from -1 to +1, read a new output bit
 			//and adjust the shift register.
-			if(!renderData->polarityNegative)
+			if (!renderData->polarityNegative)
 			{
 				Data shiftRegister(_shiftRegisterBitCount, _noiseShiftRegister);
 				_noiseOutputMasked = !shiftRegister.GetBit(0);
@@ -682,7 +682,7 @@ void SN76489::UpdateChannel(unsigned int channelNo, unsigned int outputSampleCou
 			writeData = (_noiseOutputMasked)? 0: amplitude;
 		}
 
-		if(samplesToWrite > (outputSampleCount - samplesWritten))
+		if (samplesToWrite > (outputSampleCount - samplesWritten))
 		{
 			//If we don't have enough samples remaining in this step to complete
 			//the next cycle, clamp the number of samples to write, and save the
@@ -693,7 +693,7 @@ void SN76489::UpdateChannel(unsigned int channelNo, unsigned int outputSampleCou
 		}
 
 		//Write a block of samples to the output buffer
-		for(unsigned int i = 0; i < samplesToWrite; ++i)
+		for (unsigned int i = 0; i < samplesToWrite; ++i)
 		{
 			outputBuffer[samplesWritten++] = writeData;
 		}
@@ -712,14 +712,14 @@ IBusInterface::AccessResult SN76489::WriteInterface(unsigned int interfaceNumber
 	//Trigger a system rollback if the device has been accessed out of order. This is
 	//required in order to ensure that the register latch settings are correct when each
 	//write occurs.
-	if(accessTime < _lastAccessTime)
+	if (accessTime < _lastAccessTime)
 	{
 		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 	}
 	_lastAccessTime = accessTime;
 
 	//Process the write
-	if(data.MSB())
+	if (data.MSB())
 	{
 		//Latch/Data byte format
 		//----------------------------------
@@ -731,11 +731,11 @@ IBusInterface::AccessResult SN76489::WriteInterface(unsigned int interfaceNumber
 		//Process a latch/data byte
 		_latchedChannel = data.GetDataSegment(5, 2);
 		_latchedVolume = data.GetBit(4);
-		if(_latchedVolume)
+		if (_latchedVolume)
 		{
 			Data temp(GetVolumeRegister(_latchedChannel, accessTarget));
 			temp.SetLowerBits(4, data.GetDataSegment(0, 4));
-			if(!_channelVolumeRegisterLocked[_latchedChannel])
+			if (!_channelVolumeRegisterLocked[_latchedChannel])
 			{
 				SetVolumeRegister(_latchedChannel, temp, accessTarget);
 			}
@@ -744,18 +744,18 @@ IBusInterface::AccessResult SN76489::WriteInterface(unsigned int interfaceNumber
 		{
 			Data temp(GetToneRegister(_latchedChannel, accessTarget));
 			temp.SetLowerBits(4, data.GetDataSegment(0, 4));
-			if(_latchedChannel == NoiseChannelNo)
+			if (_latchedChannel == NoiseChannelNo)
 			{
-				if(_noiseChannelTypeLocked)
+				if (_noiseChannelTypeLocked)
 				{
 					temp.SetBit(2, GetToneRegister(_latchedChannel, accessTarget).GetBit(2));
 				}
-				if(_noiseChannelPeriodLocked)
+				if (_noiseChannelPeriodLocked)
 				{
 					temp.SetDataSegment(0, 2, GetToneRegister(_latchedChannel, accessTarget).GetDataSegment(0, 2));
 				}
 			}
-			if(!_channelDataRegisterLocked[_latchedChannel])
+			if (!_channelDataRegisterLocked[_latchedChannel])
 			{
 				SetToneRegister(_latchedChannel, temp, accessTarget);
 			}
@@ -771,11 +771,11 @@ IBusInterface::AccessResult SN76489::WriteInterface(unsigned int interfaceNumber
 		//---------------------------------
 
 		//Process a data byte
-		if(_latchedVolume)
+		if (_latchedVolume)
 		{
 			Data temp(GetVolumeRegister(_latchedChannel, accessTarget));
 			temp.SetUpperBits(6, data.GetDataSegment(0, 6));
-			if(!_channelVolumeRegisterLocked[_latchedChannel])
+			if (!_channelVolumeRegisterLocked[_latchedChannel])
 			{
 				SetVolumeRegister(_latchedChannel, temp, accessTarget);
 			}
@@ -784,18 +784,18 @@ IBusInterface::AccessResult SN76489::WriteInterface(unsigned int interfaceNumber
 		{
 			Data temp(GetToneRegister(_latchedChannel, accessTarget));
 			temp.SetUpperBits(6, data.GetDataSegment(0, 6));
-			if(_latchedChannel == NoiseChannelNo)
+			if (_latchedChannel == NoiseChannelNo)
 			{
-				if(_noiseChannelTypeLocked)
+				if (_noiseChannelTypeLocked)
 				{
 					temp.SetBit(2, GetToneRegister(_latchedChannel, accessTarget).GetBit(2));
 				}
-				if(_noiseChannelPeriodLocked)
+				if (_noiseChannelPeriodLocked)
 				{
 					temp.SetDataSegment(0, 2, GetToneRegister(_latchedChannel, accessTarget).GetDataSegment(0, 2));
 				}
 			}
-			if(!_channelDataRegisterLocked[_latchedChannel])
+			if (!_channelDataRegisterLocked[_latchedChannel])
 			{
 				SetToneRegister(_latchedChannel, temp, accessTarget);
 			}
@@ -811,56 +811,56 @@ IBusInterface::AccessResult SN76489::WriteInterface(unsigned int interfaceNumber
 void SN76489::LoadState(IHierarchicalStorageNode& node)
 {
 	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
-	for(std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	for (std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
 		//Clock settings
-		if((*i)->GetName() == L"ExternalClockRate")
+		if ((*i)->GetName() == L"ExternalClockRate")
 		{
 			(*i)->ExtractData(_externalClockRate);
 		}
 
 		//Register data
-		else if((*i)->GetName() == L"Registers")
+		else if ((*i)->GetName() == L"Registers")
 		{
 			_reg.LoadState(*(*i));
 		}
 
 		//Register latch settings
-		else if((*i)->GetName() == L"LatchedChannel")
+		else if ((*i)->GetName() == L"LatchedChannel")
 		{
 			(*i)->ExtractData(_latchedChannel);
-			if(_latchedChannel >= ChannelCount)
+			if (_latchedChannel >= ChannelCount)
 			{
 				_latchedChannel = ChannelCount - 1;
 			}
 		}
-		else if((*i)->GetName() == L"VolumeRegisterLatched")
+		else if ((*i)->GetName() == L"VolumeRegisterLatched")
 		{
 			(*i)->ExtractData(_latchedVolume);
 		}
 
 		//Render thread properties
-		else if((*i)->GetName() == L"RemainingRenderTime")
+		else if ((*i)->GetName() == L"RemainingRenderTime")
 		{
 			(*i)->ExtractData(_remainingRenderTime);
 		}
 
 		//Render data
-		else if((*i)->GetName() == L"RenderData")
+		else if ((*i)->GetName() == L"RenderData")
 		{
 			unsigned int channelNo;
-			if((*i)->ExtractAttribute(L"ChannelNo", channelNo) && (channelNo < ChannelCount))
+			if ((*i)->ExtractAttribute(L"ChannelNo", channelNo) && (channelNo < ChannelCount))
 			{
 				(*i)->ExtractAttributeHex(L"InitialToneCycles", _channelRenderData[channelNo].initialToneCycles);
 				(*i)->ExtractAttributeHex(L"RemainingToneCycles", _channelRenderData[channelNo].remainingToneCycles);
 				(*i)->ExtractAttribute(L"PolarityNegative", _channelRenderData[channelNo].polarityNegative);
 			}
 		}
-		else if((*i)->GetName() == L"NoiseShiftRegister")
+		else if ((*i)->GetName() == L"NoiseShiftRegister")
 		{
 			(*i)->ExtractHexData(_noiseShiftRegister);
 		}
-		else if((*i)->GetName() == L"NoiseOutputMasked")
+		else if ((*i)->GetName() == L"NoiseOutputMasked")
 		{
 			(*i)->ExtractData(_noiseOutputMasked);
 		}
@@ -884,7 +884,7 @@ void SN76489::SaveState(IHierarchicalStorageNode& node) const
 	node.CreateChild(L"RemainingRenderTime", _remainingRenderTime);
 
 	//Render data
-	for(unsigned int i = 0; i < ChannelCount; ++i)
+	for (unsigned int i = 0; i < ChannelCount; ++i)
 	{
 		IHierarchicalStorageNode& renderDataState = node.CreateChild(L"RenderData");
 		renderDataState.CreateAttribute(L"ChannelNo", i);
@@ -900,7 +900,7 @@ void SN76489::SaveState(IHierarchicalStorageNode& node) const
 void SN76489::LoadDebuggerState(IHierarchicalStorageNode& node)
 {
 	//Initialize the register locking state
-	for(unsigned int i = 0; i < ChannelCount; ++i)
+	for (unsigned int i = 0; i < ChannelCount; ++i)
 	{
 		_channelVolumeRegisterLocked[i] = false;
 		_channelDataRegisterLocked[i] = false;
@@ -908,20 +908,20 @@ void SN76489::LoadDebuggerState(IHierarchicalStorageNode& node)
 
 	//Load the register locking state
 	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
-	for(std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	for (std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
-		if((*i)->GetName() == L"LockedVolumeRegister")
+		if ((*i)->GetName() == L"LockedVolumeRegister")
 		{
 			unsigned int channelNo;
-			if((*i)->ExtractAttribute(L"ChannelNo", channelNo) && (channelNo < ChannelCount))
+			if ((*i)->ExtractAttribute(L"ChannelNo", channelNo) && (channelNo < ChannelCount))
 			{
 				_channelVolumeRegisterLocked[channelNo] = true;
 			}
 		}
-		else if((*i)->GetName() == L"LockedDataRegister")
+		else if ((*i)->GetName() == L"LockedDataRegister")
 		{
 			unsigned int channelNo;
-			if((*i)->ExtractAttribute(L"ChannelNo", channelNo) && (channelNo < ChannelCount))
+			if ((*i)->ExtractAttribute(L"ChannelNo", channelNo) && (channelNo < ChannelCount))
 			{
 				_channelDataRegisterLocked[channelNo] = true;
 			}
@@ -933,13 +933,13 @@ void SN76489::LoadDebuggerState(IHierarchicalStorageNode& node)
 void SN76489::SaveDebuggerState(IHierarchicalStorageNode& node) const
 {
 	//Save the register locking state
-	for(unsigned int i = 0; i < ChannelCount; ++i)
+	for (unsigned int i = 0; i < ChannelCount; ++i)
 	{
-		if(_channelVolumeRegisterLocked[i])
+		if (_channelVolumeRegisterLocked[i])
 		{
 			node.CreateChild(L"LockedVolumeRegister").CreateAttribute(L"ChannelNo", i);
 		}
-		if(_channelDataRegisterLocked[i])
+		if (_channelDataRegisterLocked[i])
 		{
 			node.CreateChild(L"LockedDataRegister").CreateAttribute(L"ChannelNo", i);
 		}
@@ -952,7 +952,7 @@ void SN76489::SaveDebuggerState(IHierarchicalStorageNode& node) const
 bool SN76489::ReadGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue) const
 {
 	ApplyGenericDataValueDisplaySettings(dataID, dataValue);
-	switch((ISN76489DataSource)dataID)
+	switch ((ISN76489DataSource)dataID)
 	{
 	case ISN76489DataSource::Channel1VolumeRegister:
 		return dataValue.SetValue(GetVolumeRegister(0, AccessTarget().AccessLatest()).GetData());
@@ -1022,10 +1022,10 @@ bool SN76489::WriteGenericData(unsigned int dataID, const DataContext* dataConte
 	//##TODO## Restructure this to be a flat switch statement as per other devices
 	ApplyGenericDataValueLimitSettings(dataID, dataValue);
 	IGenericAccessDataValue::DataType dataType = dataValue.GetType();
-	if(dataType == IGenericAccessDataValue::DataType::UInt)
+	if (dataType == IGenericAccessDataValue::DataType::UInt)
 	{
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
-		switch((ISN76489DataSource)dataID)
+		switch ((ISN76489DataSource)dataID)
 		{
 		case ISN76489DataSource::Channel1VolumeRegister:
 			SetVolumeRegister(0, Data(VolumeRegisterBitCount, dataValueAsUInt.GetValue()), AccessTarget().AccessLatest());
@@ -1065,7 +1065,7 @@ bool SN76489::WriteGenericData(unsigned int dataID, const DataContext* dataConte
 			//Update the maximum allowable values for each data value that depends on the
 			//shift register bit count
 			unsigned int shiftRegisterBitCountMask = (((1 << (_shiftRegisterBitCount - 1)) - 1) << 1) | 1;
-			for(std::list<GenericAccessDataInfo*>::const_iterator i = _genericDataToUpdateOnShiftRegisterBitCountChange.begin(); i != _genericDataToUpdateOnShiftRegisterBitCountChange.end(); ++i)
+			for (std::list<GenericAccessDataInfo*>::const_iterator i = _genericDataToUpdateOnShiftRegisterBitCountChange.begin(); i != _genericDataToUpdateOnShiftRegisterBitCountChange.end(); ++i)
 			{
 				(*i)->SetUIntMaxValue(shiftRegisterBitCountMask);
 			}
@@ -1086,10 +1086,10 @@ bool SN76489::WriteGenericData(unsigned int dataID, const DataContext* dataConte
 			return true;
 		}
 	}
-	else if(dataType == IGenericAccessDataValue::DataType::Bool)
+	else if (dataType == IGenericAccessDataValue::DataType::Bool)
 	{
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
-		switch((ISN76489DataSource)dataID)
+		switch ((ISN76489DataSource)dataID)
 		{
 		case ISN76489DataSource::Channel4NoiseType:
 			SetToneRegister(3, GetToneRegister(3, AccessTarget().AccessLatest()).SetBit(2, dataValueAsBool.GetValue()), AccessTarget().AccessLatest());
@@ -1114,10 +1114,10 @@ bool SN76489::WriteGenericData(unsigned int dataID, const DataContext* dataConte
 			return true;
 		}
 	}
-	else if(dataType == IGenericAccessDataValue::DataType::Double)
+	else if (dataType == IGenericAccessDataValue::DataType::Double)
 	{
 		IGenericAccessDataValueDouble& dataValueAsDouble = (IGenericAccessDataValueDouble&)dataValue;
-		switch((ISN76489DataSource)dataID)
+		switch ((ISN76489DataSource)dataID)
 		{
 		case ISN76489DataSource::ExternalClockRate:
 			_externalClockRate = dataValueAsDouble.GetValue();
@@ -1127,10 +1127,10 @@ bool SN76489::WriteGenericData(unsigned int dataID, const DataContext* dataConte
 			return true;
 		}
 	}
-	else if(dataType == IGenericAccessDataValue::DataType::FilePath)
+	else if (dataType == IGenericAccessDataValue::DataType::FilePath)
 	{
 		IGenericAccessDataValueFilePath& dataValueAsFilePath = (IGenericAccessDataValueFilePath&)dataValue;
-		switch((ISN76489DataSource)dataID)
+		switch ((ISN76489DataSource)dataID)
 		{
 		case ISN76489DataSource::AudioLoggingPath:
 			_wavLoggingPath = dataValueAsFilePath.GetValue();
@@ -1157,7 +1157,7 @@ bool SN76489::WriteGenericData(unsigned int dataID, const DataContext* dataConte
 //----------------------------------------------------------------------------------------
 bool SN76489::GetGenericDataLocked(unsigned int dataID, const DataContext* dataContext) const
 {
-	switch((ISN76489DataSource)dataID)
+	switch ((ISN76489DataSource)dataID)
 	{
 	case ISN76489DataSource::Channel1VolumeRegister:
 		return _channelVolumeRegisterLocked[0];
@@ -1186,7 +1186,7 @@ bool SN76489::GetGenericDataLocked(unsigned int dataID, const DataContext* dataC
 //----------------------------------------------------------------------------------------
 bool SN76489::SetGenericDataLocked(unsigned int dataID, const DataContext* dataContext, bool state)
 {
-	switch((ISN76489DataSource)dataID)
+	switch ((ISN76489DataSource)dataID)
 	{
 	case ISN76489DataSource::Channel1VolumeRegister:
 		_channelVolumeRegisterLocked[0] = state;
@@ -1230,9 +1230,9 @@ bool SN76489::SetGenericDataLocked(unsigned int dataID, const DataContext* dataC
 void SN76489::SetAudioLoggingEnabled(bool state)
 {
 	std::unique_lock<std::mutex> lock(_waveLoggingMutex);
-	if(_wavLoggingEnabled != state)
+	if (_wavLoggingEnabled != state)
 	{
-		if(state)
+		if (state)
 		{
 			double outputFrequency = _externalClockRate / _externalClockDivider;
 			_wavLog.SetDataFormat(1, 16, (unsigned int)outputFrequency);
@@ -1250,9 +1250,9 @@ void SN76489::SetAudioLoggingEnabled(bool state)
 void SN76489::SetChannelAudioLoggingEnabled(unsigned int channelNo, bool state)
 {
 	std::unique_lock<std::mutex> lock(_waveLoggingMutex);
-	if(_wavLoggingChannelEnabled[channelNo] != state)
+	if (_wavLoggingChannelEnabled[channelNo] != state)
 	{
-		if(state)
+		if (state)
 		{
 			double outputFrequency = _externalClockRate / _externalClockDivider;
 			_wavLogChannel[channelNo].SetDataFormat(1, 16, (unsigned int)outputFrequency);

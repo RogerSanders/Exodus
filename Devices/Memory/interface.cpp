@@ -197,14 +197,14 @@ extern "C" __declspec(dllexport) bool GetDeviceEntry(unsigned int entryNo, IDevi
 	std::wstring commentsText;
 	HMODULE moduleHandle = NULL;
 	BOOL getModuleHandleExReturn = GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCWSTR)GetDeviceEntry, &moduleHandle);
-	if(getModuleHandleExReturn != 0)
+	if (getModuleHandleExReturn != 0)
 	{
 		std::wstring modulePath = GetModuleFilePath(moduleHandle);
 		GetModuleVersionInfoString(modulePath, VERSIONINFOPROPERTY_LEGALCOPYRIGHT, copyrightText);
 		GetModuleVersionInfoString(modulePath, VERSIONINFOPROPERTY_COMMENTS, commentsText);
 	}
 
-	switch(entryNo)
+	switch (entryNo)
 	{
 	case 0:
 		entry.SetDeviceSettings(GetROM8, DeleteROM8, L"Memory.ROM", L"ROM8", 1, copyrightText, commentsText);

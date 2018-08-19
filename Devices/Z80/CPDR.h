@@ -68,7 +68,7 @@ public:
 		cpu->SetFlagX(regAResult.GetBit(3));
 
 		//Adjust the PC and return the execution time
-		if((cpu->GetBC() == 0) || cpu->GetFlagZ())
+		if ((cpu->GetBC() == 0) || cpu->GetFlagZ())
 		{
 			cpu->SetPC(location + GetInstructionSize());
 		}

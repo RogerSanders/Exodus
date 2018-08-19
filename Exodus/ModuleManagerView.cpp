@@ -18,7 +18,7 @@ ModuleManagerView::ModuleManagerView(IUIManager& uiManager, ModuleManagerViewPre
 //----------------------------------------------------------------------------------------
 void ModuleManagerView::RefreshModuleList() const
 {
-	if(_windowHandle != NULL)
+	if (_windowHandle != NULL)
 	{
 		SendMessage(_windowHandle, WM_USER, 0, 0);
 	}
@@ -30,7 +30,7 @@ void ModuleManagerView::RefreshModuleList() const
 INT_PTR ModuleManagerView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	WndProcDialogImplementSaveFieldWhenLostFocus(hwnd, msg, wparam, lparam);
-	switch(msg)
+	switch (msg)
 	{
 	case WM_INITDIALOG:
 		return msgWM_INITDIALOG(hwnd, wparam, lparam);
@@ -68,10 +68,10 @@ INT_PTR ModuleManagerView::msgWM_USER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	SendMessage(GetDlgItem(hwnd, IDC_MODULEMANAGER_MODULES_LIST), LB_RESETCONTENT, 0, NULL);
 	ISystemGUIInterface& systemInterface = *_model.GetSystemInterface();
 	std::list<unsigned int> loadedModuleIDs = systemInterface.GetLoadedModuleIDs();
-	for(std::list<unsigned int>::const_iterator i = loadedModuleIDs.begin(); i != loadedModuleIDs.end(); ++i)
+	for (std::list<unsigned int>::const_iterator i = loadedModuleIDs.begin(); i != loadedModuleIDs.end(); ++i)
 	{
 		LoadedModuleInfo moduleInfo;
-		if(systemInterface.GetLoadedModuleInfo(*i, moduleInfo))
+		if (systemInterface.GetLoadedModuleInfo(*i, moduleInfo))
 		{
 			std::wstringstream text;
 			text << moduleInfo.GetModuleDisplayName() << " (" << moduleInfo.GetModuleClassName() << ")";
@@ -91,9 +91,9 @@ INT_PTR ModuleManagerView::msgWM_USER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 //----------------------------------------------------------------------------------------
 INT_PTR ModuleManagerView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	if(HIWORD(wparam) == BN_CLICKED)
+	if (HIWORD(wparam) == BN_CLICKED)
 	{
-		switch(LOWORD(wparam))
+		switch (LOWORD(wparam))
 		{
 		case IDC_MODULEMANAGER_LOAD:
 			_model.LoadModule(_model.GetGlobalPreferencePathModules());
@@ -101,11 +101,11 @@ INT_PTR ModuleManagerView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam
 		case IDC_MODULEMANAGER_UNLOADSELECTED:{
 			//Retrieve the selected list item
 			LRESULT selectedListItem = SendMessage(GetDlgItem(hwnd, IDC_MODULEMANAGER_MODULES_LIST), LB_GETCURSEL, 0, 0);
-			if(selectedListItem != LB_ERR)
+			if (selectedListItem != LB_ERR)
 			{
 				//Retrieve the module ID number of the selected module
 				LRESULT listItemData = SendMessage(GetDlgItem(hwnd, IDC_MODULEMANAGER_MODULES_LIST), LB_GETITEMDATA, selectedListItem, NULL);
-				if(listItemData != LB_ERR)
+				if (listItemData != LB_ERR)
 				{
 					//Unload the selected module
 					unsigned int targetModuleID = (unsigned int)listItemData;

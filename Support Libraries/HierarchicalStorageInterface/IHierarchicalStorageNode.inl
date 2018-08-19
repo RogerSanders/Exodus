@@ -54,7 +54,7 @@ template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::CreateAttr
 template<class T> bool IHierarchicalStorageNode::ExtractAttribute(const std::wstring& name, T& target)
 {
 	IHierarchicalStorageAttribute* attribute = GetAttribute(name);
-	if(attribute == 0)
+	if (attribute == 0)
 	{
 		return false;
 	}
@@ -66,7 +66,7 @@ template<class T> bool IHierarchicalStorageNode::ExtractAttribute(const std::wst
 template<class T> bool IHierarchicalStorageNode::ExtractAttributeHex(const std::wstring& name, T& target)
 {
 	IHierarchicalStorageAttribute* attribute = GetAttribute(name);
-	if(attribute == 0)
+	if (attribute == 0)
 	{
 		return false;
 	}
@@ -213,7 +213,7 @@ template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::InsertBina
 	SetBinaryDataBufferName(bufferName);
 	Stream::IStream& dataStream = GetInternalStream();
 	Stream::ViewBinary bufferView(dataStream);
-	for(size_t i = 0; i < entries; ++i)
+	for (size_t i = 0; i < entries; ++i)
 	{
 		bufferView << *(buffer + i);
 	}

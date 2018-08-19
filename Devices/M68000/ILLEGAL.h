@@ -39,7 +39,7 @@ public:
 		ExecuteTime exceptionTime;
 
 		//Perform the operation
-		if(!cpu->ExceptionDisabled(M68000::Exceptions::IllegalInstruction))
+		if (!cpu->ExceptionDisabled(M68000::Exceptions::IllegalInstruction))
 		{
 			cpu->PushStackFrame(cpu->GetPC(), cpu->GetSR());
 			exceptionTime = cpu->ProcessException(M68000::Exceptions::IllegalInstruction);

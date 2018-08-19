@@ -788,7 +788,7 @@ bool Data::Positive() const
 bool Data::ParityEven() const
 {
 	bool parity = true;
-	for(unsigned int i = 0; i < GetBitCount(); ++i)
+	for (unsigned int i = 0; i < GetBitCount(); ++i)
 	{
 		parity ^= (GetData() >> i) & 0x01;
 	}
@@ -805,9 +805,9 @@ bool Data::ParityOdd() const
 unsigned int Data::GetSetBitCount() const
 {
 	unsigned int setBitCount = 0;
-	for(unsigned int i = 0; i < GetBitCount(); ++i)
+	for (unsigned int i = 0; i < GetBitCount(); ++i)
 	{
-		if(GetBit(i))
+		if (GetBit(i))
 		{
 			++setBitCount;
 		}
@@ -819,7 +819,7 @@ unsigned int Data::GetSetBitCount() const
 bool Data::GetHighestSetBitNumber(unsigned int& bitNumber) const
 {
 	//If the data is zero, return false, since there's no set bits in the data.
-	if(_data == 0)
+	if (_data == 0)
 	{
 		return false;
 	}
@@ -827,7 +827,7 @@ bool Data::GetHighestSetBitNumber(unsigned int& bitNumber) const
 	//Calculate the number of the highest set bit in the data
 	unsigned int searchData = _data;
 	bitNumber = 0;
-	while((searchData >>= 1) != 0)
+	while ((searchData >>= 1) != 0)
 	{
 		++bitNumber;
 	}
@@ -840,7 +840,7 @@ bool Data::GetHighestSetBitNumber(unsigned int& bitNumber) const
 bool Data::GetHighestSetBitMask(unsigned int& bitMask) const
 {
 	//If the data is zero, return false, since there's no set bits in the data.
-	if(_data == 0)
+	if (_data == 0)
 	{
 		return false;
 	}
@@ -848,7 +848,7 @@ bool Data::GetHighestSetBitMask(unsigned int& bitMask) const
 	//Calculate the mask of the highest set bit in the data
 	unsigned int searchData = _data;
 	bitMask = 1;
-	while((searchData >>= 1) != 0)
+	while ((searchData >>= 1) != 0)
 	{
 		bitMask <<= 1;
 	}
@@ -861,14 +861,14 @@ bool Data::GetHighestSetBitMask(unsigned int& bitMask) const
 bool Data::GetLowestSetBitNumber(unsigned int& bitNumber) const
 {
 	//If the data is zero, return false, since there's no set bits in the data.
-	if(_data == 0)
+	if (_data == 0)
 	{
 		return false;
 	}
 
 	//Calculate the number of the lowest set bit in the data
 	bitNumber = 0;
-	while((_data & (1 << bitNumber)) == 0)
+	while ((_data & (1 << bitNumber)) == 0)
 	{
 		++bitNumber;
 	}
@@ -881,14 +881,14 @@ bool Data::GetLowestSetBitNumber(unsigned int& bitNumber) const
 bool Data::GetLowestSetBitMask(unsigned int& bitMask) const
 {
 	//If the data is zero, return false, since there's no set bits in the data.
-	if(_data == 0)
+	if (_data == 0)
 	{
 		return false;
 	}
 
 	//Calculate the mask of the lowest set bit in the data
 	bitMask = 1;
-	while((_data & bitMask) == 0)
+	while ((_data & bitMask) == 0)
 	{
 		bitMask <<= 1;
 	}
@@ -916,7 +916,7 @@ Stream::ViewText& operator<<(Stream::ViewText& stream, const Data& object)
 //----------------------------------------------------------------------------------------
 Stream::ViewBinary& operator>>(Stream::ViewBinary& stream, Data& object)
 {
-	for(unsigned int i = 0; i < object.GetByteSize(); ++i)
+	for (unsigned int i = 0; i < object.GetByteSize(); ++i)
 	{
 		unsigned char data;
 		stream >> data;
@@ -928,7 +928,7 @@ Stream::ViewBinary& operator>>(Stream::ViewBinary& stream, Data& object)
 //----------------------------------------------------------------------------------------
 Stream::ViewBinary& operator<<(Stream::ViewBinary& stream, const Data& object)
 {
-	for(unsigned int i = 0; i < object.GetByteSize(); ++i)
+	for (unsigned int i = 0; i < object.GetByteSize(); ++i)
 	{
 		stream << object.GetByteFromTopDown(i);
 	}

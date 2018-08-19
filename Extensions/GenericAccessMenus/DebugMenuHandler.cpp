@@ -14,10 +14,10 @@ DebugMenuHandler::DebugMenuHandler(GenericAccessMenus& owner, const IDevice& mod
 void DebugMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) const
 {
 	unsigned int pageCount = _model.GetGenericAccessPageCount();
-	for(unsigned int i = 0; i < pageCount; ++i)
+	for (unsigned int i = 0; i < pageCount; ++i)
 	{
 		const IGenericAccessPage* page = _model.GetGenericAccessPage(i);
-		if(page->GetPageType() == IGenericAccessPage::Type::Debug)
+		if (page->GetPageType() == IGenericAccessPage::Type::Debug)
 		{
 			menuItems.push_back(MenuItemDefinition((int)i, page->GetName(), page->GetTitle(), true, true));
 		}

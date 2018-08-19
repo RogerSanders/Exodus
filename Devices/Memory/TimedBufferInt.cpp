@@ -27,7 +27,7 @@ TimedBufferInt::DataType TimedBufferInt::Read(unsigned int address, const Access
 //----------------------------------------------------------------------------------------
 void TimedBufferInt::Write(unsigned int address, const DataType& data, const AccessTarget& accessTarget)
 {
-	if(!IsByteLocked(address) || (accessTarget.target == AccessTarget::TARGET_LATEST))
+	if (!IsByteLocked(address) || (accessTarget.target == AccessTarget::TARGET_LATEST))
 	{
 		_memory.Write(address, data, accessTarget);
 	}
@@ -42,7 +42,7 @@ TimedBufferInt::DataType TimedBufferInt::Read(unsigned int address, TimesliceTyp
 //----------------------------------------------------------------------------------------
 void TimedBufferInt::Write(unsigned int address, TimesliceType writeTime, const DataType& data)
 {
-	if(!IsByteLocked(address))
+	if (!IsByteLocked(address))
 	{
 		_memory.Write(address, writeTime, data);
 	}
@@ -183,7 +183,7 @@ void TimedBufferInt::BeginAdvanceSession(AdvanceSession& advanceSession, const T
 //----------------------------------------------------------------------------------------
 void TimedBufferInt::LockMemoryBlock(unsigned int location, unsigned int size, bool state)
 {
-	for(unsigned int i = 0; i < size; ++i)
+	for (unsigned int i = 0; i < size; ++i)
 	{
 		_memoryLocked[location + i] = state;
 	}
@@ -215,7 +215,7 @@ void TimedBufferInt::LoadDebuggerState(IHierarchicalStorageNode& node)
 	size_t memorySize = _memoryLocked.size();
 	Stream::IStream::SizeType readCount = (node.GetBinaryDataBufferStream().Size() / (Stream::IStream::SizeType)sizeof(unsigned char));
 	node.ExtractBinaryData(_memoryLocked);
-	for(size_t i = readCount; i < memorySize; ++i)
+	for (size_t i = readCount; i < memorySize; ++i)
 	{
 		_memoryLocked[i] = 0;
 	}

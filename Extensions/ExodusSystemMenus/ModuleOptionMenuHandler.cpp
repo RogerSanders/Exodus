@@ -11,7 +11,7 @@ ModuleOptionMenuHandler::ModuleOptionMenuHandler(ExodusSystemMenus& owner, ISyst
 //----------------------------------------------------------------------------------------
 ModuleOptionMenuHandler::~ModuleOptionMenuHandler()
 {
-	for(std::map<unsigned int, SettingEntry*>::const_iterator i = _moduleSettings.begin(); i != _moduleSettings.end(); ++i)
+	for (std::map<unsigned int, SettingEntry*>::const_iterator i = _moduleSettings.begin(); i != _moduleSettings.end(); ++i)
 	{
 		delete i->second;
 	}
@@ -31,7 +31,7 @@ unsigned int ModuleOptionMenuHandler::GetIMenuHandlerVersion() const
 void ModuleOptionMenuHandler::AddMenuItems(IMenuSegment& menuSegment)
 {
 	//Build the settings list for the target module if it isn't already built
-	if(!_builtModuleSettingsList)
+	if (!_builtModuleSettingsList)
 	{
 		//Build a list of settings in the target module
 		_moduleSettings = BuildModuleSettingsList();
@@ -43,7 +43,7 @@ void ModuleOptionMenuHandler::AddMenuItems(IMenuSegment& menuSegment)
 	//Add menu items for each system option defined in this module
 	_menuOptions.clear();
 	int nextMenuItemID = 0;
-	for(std::map<unsigned int, SettingEntry*>::iterator moduleSettingsIterator = _moduleSettings.begin(); moduleSettingsIterator != _moduleSettings.end(); ++moduleSettingsIterator)
+	for (std::map<unsigned int, SettingEntry*>::iterator moduleSettingsIterator = _moduleSettings.begin(); moduleSettingsIterator != _moduleSettings.end(); ++moduleSettingsIterator)
 	{
 		//Retrieve the index of the currently selected option for the target module
 		//setting
@@ -52,7 +52,7 @@ void ModuleOptionMenuHandler::AddMenuItems(IMenuSegment& menuSegment)
 		bool foundSelectedOptionIndex = _model.GetModuleSettingActiveOptionIndex(_moduleID, settingEntry.settingID, selectedOptionIndex);
 
 		//Build the menu for this module setting
-		if(settingEntry.toggleSetting)
+		if (settingEntry.toggleSetting)
 		{
 			//Add a menu item for this toggle setting
 			int menuItemID = nextMenuItemID++;
@@ -66,7 +66,7 @@ void ModuleOptionMenuHandler::AddMenuItems(IMenuSegment& menuSegment)
 			//Add menu item entries for each option in this setting
 			IMenuSubmenu& settingSubmenu = menuSegment.AddMenuItemSubmenu(settingEntry.displayName);
 			IMenuSegment& menuSegmentForSettingSubmenu = settingSubmenu.AddMenuItemSegment(false, IMenuSegment::SORTMODE_TITLE);
-			for(unsigned int optionIndex = 0; optionIndex < (unsigned int)settingEntry.options.size(); ++optionIndex)
+			for (unsigned int optionIndex = 0; optionIndex < (unsigned int)settingEntry.options.size(); ++optionIndex)
 			{
 				int menuItemID = nextMenuItemID++;
 				OptionEntry& optionEntry = settingEntry.options[optionIndex];
@@ -85,12 +85,12 @@ std::map<unsigned int, ModuleOptionMenuHandler::SettingEntry*> ModuleOptionMenuH
 	//Build a list of all settings in the target module
 	std::map<unsigned int, SettingEntry*> moduleSettingsList;
 	std::list<unsigned int> moduleSettingIDList = _model.GetModuleSettingIDs(_moduleID);
-	for(std::list<unsigned int>::const_iterator moduleSettingIterator = moduleSettingIDList.begin(); moduleSettingIterator != moduleSettingIDList.end(); ++moduleSettingIterator)
+	for (std::list<unsigned int>::const_iterator moduleSettingIterator = moduleSettingIDList.begin(); moduleSettingIterator != moduleSettingIDList.end(); ++moduleSettingIterator)
 	{
 		//Retrieve info for this module setting
 		unsigned int settingID = *moduleSettingIterator;
 		ModuleSettingInfo moduleSettingInfo;
-		if(!_model.GetModuleSettingInfo(_moduleID, settingID, moduleSettingInfo))
+		if (!_model.GetModuleSettingInfo(_moduleID, settingID, moduleSettingInfo))
 		{
 			continue;
 		}
@@ -104,15 +104,15 @@ std::map<unsigned int, ModuleOptionMenuHandler::SettingEntry*> ModuleOptionMenuH
 
 		//If the target module setting isn't a toggle setting, record information on
 		//each of its options.
-		if(!settingEntry->toggleSetting)
+		if (!settingEntry->toggleSetting)
 		{
 			//Retrieve information on each option for this toggle setting
 			unsigned int optionCount = moduleSettingInfo.GetOptionCount();
-			for(unsigned int i = 0; i < optionCount; ++i)
+			for (unsigned int i = 0; i < optionCount; ++i)
 			{
 				//Retrieve info for this setting option
 				ModuleSettingOptionInfo moduleSettingOptionInfo;
-				if(!_model.GetModuleSettingOptionInfo(_moduleID, settingID, i, moduleSettingOptionInfo))
+				if (!_model.GetModuleSettingOptionInfo(_moduleID, settingID, i, moduleSettingOptionInfo))
 				{
 					continue;
 				}
@@ -125,7 +125,7 @@ std::map<unsigned int, ModuleOptionMenuHandler::SettingEntry*> ModuleOptionMenuH
 			}
 
 			//If no options were found for this toggle setting, skip it.
-			if(settingEntry->options.empty())
+			if (settingEntry->options.empty())
 			{
 				delete settingEntry;
 				continue;
@@ -145,7 +145,7 @@ void ModuleOptionMenuHandler::RefreshActiveMenuSettingOption(unsigned int settin
 {
 	//Locate the referenced module setting
 	std::map<unsigned int, SettingEntry*>::iterator moduleSettingsIterator = _moduleSettings.find(settingID);
-	if(moduleSettingsIterator == _moduleSettings.end())
+	if (moduleSettingsIterator == _moduleSettings.end())
 	{
 		return;
 	}
@@ -153,19 +153,19 @@ void ModuleOptionMenuHandler::RefreshActiveMenuSettingOption(unsigned int settin
 
 	//Retrieve the index of the currently selected option for the target module setting
 	unsigned int selectedOptionIndex;
-	if(!_model.GetModuleSettingActiveOptionIndex(_moduleID, settingEntry.settingID, selectedOptionIndex))
+	if (!_model.GetModuleSettingActiveOptionIndex(_moduleID, settingEntry.settingID, selectedOptionIndex))
 	{
 		return;
 	}
 
 	//Update the checked state of each menu item for this setting
-	if(settingEntry.toggleSetting)
+	if (settingEntry.toggleSetting)
 	{
 		settingEntry.menuItemEntry->SetCheckedState(selectedOptionIndex == settingEntry.toggleSettingOnOptionIndex);
 	}
 	else
 	{
-		for(unsigned int optionIndex = 0; optionIndex < (unsigned int)settingEntry.options.size(); ++optionIndex)
+		for (unsigned int optionIndex = 0; optionIndex < (unsigned int)settingEntry.options.size(); ++optionIndex)
 		{
 			OptionEntry& optionEntry = settingEntry.options[optionIndex];
 			optionEntry.menuItemEntry->SetCheckedState(selectedOptionIndex == optionIndex);
@@ -180,7 +180,7 @@ void ModuleOptionMenuHandler::HandleMenuItemSelect(int menuItemID)
 {
 	//Retrieve the menu setting associated with this menu item
 	std::map<int, MenuOption>::const_iterator menuOptionIterator = _menuOptions.find(menuItemID);
-	if(menuOptionIterator == _menuOptions.end())
+	if (menuOptionIterator == _menuOptions.end())
 	{
 		return;
 	}
@@ -188,7 +188,7 @@ void ModuleOptionMenuHandler::HandleMenuItemSelect(int menuItemID)
 
 	//Locate the referenced module setting
 	std::map<unsigned int, SettingEntry*>::const_iterator moduleSettingsIterator = _moduleSettings.find(menuOption.settingID);
-	if(moduleSettingsIterator == _moduleSettings.end())
+	if (moduleSettingsIterator == _moduleSettings.end())
 	{
 		return;
 	}
@@ -197,14 +197,14 @@ void ModuleOptionMenuHandler::HandleMenuItemSelect(int menuItemID)
 	//Select the new target option to be applied as a result of this menu item selection
 	//event
 	unsigned int targetOption;
-	if(!settingEntry.toggleSetting)
+	if (!settingEntry.toggleSetting)
 	{
 		targetOption = menuOption.optionID;
 	}
 	else
 	{
 		unsigned int activeOptionIndex;
-		if(!_model.GetModuleSettingActiveOptionIndex(_moduleID, settingEntry.settingID, activeOptionIndex))
+		if (!_model.GetModuleSettingActiveOptionIndex(_moduleID, settingEntry.settingID, activeOptionIndex))
 		{
 			return;
 		}

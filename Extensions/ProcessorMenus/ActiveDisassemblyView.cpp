@@ -17,7 +17,7 @@ ActiveDisassemblyView::ActiveDisassemblyView(IUIManager& uiManager, ActiveDisass
 INT_PTR ActiveDisassemblyView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	WndProcDialogImplementSaveFieldWhenLostFocus(hwnd, msg, wparam, lparam);
-	switch(msg)
+	switch (msg)
 	{
 	case WM_INITDIALOG:
 		return msgWM_INITDIALOG(hwnd, wparam, lparam);
@@ -66,24 +66,24 @@ INT_PTR ActiveDisassemblyView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lpar
 	CheckDlgButton(hwnd, IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_DETECTDATA, _model.GetActiveDisassemblyDetectData()? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_DETECTDATAARRAYS, _model.GetActiveDisassemblyDetectDataArrays()? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_DETECTTEXTDATA, _model.GetActiveDisassemblyDetectTextData()? BST_CHECKED: BST_UNCHECKED);
-	if(_currentControlFocus != IDC_PROCESSOR_ACTIVEDISASSEMBLY_START)  UpdateDlgItemHex(hwnd, IDC_PROCESSOR_ACTIVEDISASSEMBLY_START, _model.GetAddressBusCharWidth(), _model.GetActiveDisassemblyStartLocation());
-	if(_currentControlFocus != IDC_PROCESSOR_ACTIVEDISASSEMBLY_END)    UpdateDlgItemHex(hwnd, IDC_PROCESSOR_ACTIVEDISASSEMBLY_END, _model.GetAddressBusCharWidth(), _model.GetActiveDisassemblyEndLocation());
-	if(_currentControlFocus != IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_START)  UpdateDlgItemHex(hwnd, IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_START, _model.GetAddressBusCharWidth(), _model.GetActiveDisassemblyAnalysisStartLocation());
-	if(_currentControlFocus != IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_END)    UpdateDlgItemHex(hwnd, IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_END, _model.GetAddressBusCharWidth(), _model.GetActiveDisassemblyAnalysisEndLocation());
-	if(_currentControlFocus != IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_OFFSETARRAYINCREASETOLERANCE)  UpdateDlgItemDouble(hwnd, IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_OFFSETARRAYINCREASETOLERANCE, _model.GetActiveDisassemblyOffsetArrayIncreaseTolerance());
-	if(_currentControlFocus != IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_MINIMUMARRAYENTRYCOUNT)  UpdateDlgItemBin(hwnd, IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_MINIMUMARRAYENTRYCOUNT, _model.GetActiveDisassemblyMinimumArrayEntryCount());
-	if(_currentControlFocus != IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_OFFSETARRAYTOLERANCE)  UpdateDlgItemHex(hwnd, IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_OFFSETARRAYTOLERANCE, _model.GetAddressBusCharWidth(), _model.GetActiveDisassemblyOffsetArrayDistanceTolerance());
-	if(_currentControlFocus != IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_JUMPTABLETOLERANCE)  UpdateDlgItemHex(hwnd, IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_JUMPTABLETOLERANCE, _model.GetAddressBusCharWidth(), _model.GetActiveDisassemblyJumpTableDistanceTolerance());
+	if (_currentControlFocus != IDC_PROCESSOR_ACTIVEDISASSEMBLY_START)  UpdateDlgItemHex(hwnd, IDC_PROCESSOR_ACTIVEDISASSEMBLY_START, _model.GetAddressBusCharWidth(), _model.GetActiveDisassemblyStartLocation());
+	if (_currentControlFocus != IDC_PROCESSOR_ACTIVEDISASSEMBLY_END)    UpdateDlgItemHex(hwnd, IDC_PROCESSOR_ACTIVEDISASSEMBLY_END, _model.GetAddressBusCharWidth(), _model.GetActiveDisassemblyEndLocation());
+	if (_currentControlFocus != IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_START)  UpdateDlgItemHex(hwnd, IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_START, _model.GetAddressBusCharWidth(), _model.GetActiveDisassemblyAnalysisStartLocation());
+	if (_currentControlFocus != IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_END)    UpdateDlgItemHex(hwnd, IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_END, _model.GetAddressBusCharWidth(), _model.GetActiveDisassemblyAnalysisEndLocation());
+	if (_currentControlFocus != IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_OFFSETARRAYINCREASETOLERANCE)  UpdateDlgItemDouble(hwnd, IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_OFFSETARRAYINCREASETOLERANCE, _model.GetActiveDisassemblyOffsetArrayIncreaseTolerance());
+	if (_currentControlFocus != IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_MINIMUMARRAYENTRYCOUNT)  UpdateDlgItemBin(hwnd, IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_MINIMUMARRAYENTRYCOUNT, _model.GetActiveDisassemblyMinimumArrayEntryCount());
+	if (_currentControlFocus != IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_OFFSETARRAYTOLERANCE)  UpdateDlgItemHex(hwnd, IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_OFFSETARRAYTOLERANCE, _model.GetAddressBusCharWidth(), _model.GetActiveDisassemblyOffsetArrayDistanceTolerance());
+	if (_currentControlFocus != IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_JUMPTABLETOLERANCE)  UpdateDlgItemHex(hwnd, IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_JUMPTABLETOLERANCE, _model.GetAddressBusCharWidth(), _model.GetActiveDisassemblyJumpTableDistanceTolerance());
 
-	if(_currentControlFocus != IDC_PROCESSOR_ACTIVEDISASSEMBLY_SIZE)   UpdateDlgItemBin(hwnd, IDC_PROCESSOR_ACTIVEDISASSEMBLY_SIZE, _model.GetActiveDisassemblyRecordedItemCount());
-	if(_currentControlFocus != IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_OBSERVEDCODE)   UpdateDlgItemBin(hwnd, IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_OBSERVEDCODE, _model.GetActiveDisassemblyAnalysisCodeEntryCount());
-	if(_currentControlFocus != IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_OBSERVEDOFFSETS)   UpdateDlgItemBin(hwnd, IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_OBSERVEDOFFSETS, _model.GetActiveDisassemblyAnalysisOffsetEntryCount());
-	if(_currentControlFocus != IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_OBSERVEDDATA)   UpdateDlgItemBin(hwnd, IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_OBSERVEDDATA, _model.GetActiveDisassemblyAnalysisDataEntryCount());
-	if(_currentControlFocus != IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_OBSERVEDLABELTARGETS)   UpdateDlgItemBin(hwnd, IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_OBSERVEDLABELTARGETS, _model.GetActiveDisassemblyAnalysisLabelEntryCount());
-	if(_currentControlFocus != IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_DETECTEDCODE)   UpdateDlgItemBin(hwnd, IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_DETECTEDCODE, _model.GetActiveDisassemblyAnalysisPredictedCodeEntryCount());
-	if(_currentControlFocus != IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_DETECTEDOFFSETS)   UpdateDlgItemBin(hwnd, IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_DETECTEDOFFSETS, _model.GetActiveDisassemblyAnalysisPredictedOffsetEntryCount());
-	if(_currentControlFocus != IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_DETECTEDDATA)   UpdateDlgItemBin(hwnd, IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_DETECTEDDATA, _model.GetActiveDisassemblyAnalysisPredictedDataEntryCount());
-	if(_currentControlFocus != IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_DETECTEDLABELTARGETS)   UpdateDlgItemBin(hwnd, IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_DETECTEDLABELTARGETS, _model.GetActiveDisassemblyAnalysisPredictedLabelEntryCount());
+	if (_currentControlFocus != IDC_PROCESSOR_ACTIVEDISASSEMBLY_SIZE)   UpdateDlgItemBin(hwnd, IDC_PROCESSOR_ACTIVEDISASSEMBLY_SIZE, _model.GetActiveDisassemblyRecordedItemCount());
+	if (_currentControlFocus != IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_OBSERVEDCODE)   UpdateDlgItemBin(hwnd, IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_OBSERVEDCODE, _model.GetActiveDisassemblyAnalysisCodeEntryCount());
+	if (_currentControlFocus != IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_OBSERVEDOFFSETS)   UpdateDlgItemBin(hwnd, IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_OBSERVEDOFFSETS, _model.GetActiveDisassemblyAnalysisOffsetEntryCount());
+	if (_currentControlFocus != IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_OBSERVEDDATA)   UpdateDlgItemBin(hwnd, IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_OBSERVEDDATA, _model.GetActiveDisassemblyAnalysisDataEntryCount());
+	if (_currentControlFocus != IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_OBSERVEDLABELTARGETS)   UpdateDlgItemBin(hwnd, IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_OBSERVEDLABELTARGETS, _model.GetActiveDisassemblyAnalysisLabelEntryCount());
+	if (_currentControlFocus != IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_DETECTEDCODE)   UpdateDlgItemBin(hwnd, IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_DETECTEDCODE, _model.GetActiveDisassemblyAnalysisPredictedCodeEntryCount());
+	if (_currentControlFocus != IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_DETECTEDOFFSETS)   UpdateDlgItemBin(hwnd, IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_DETECTEDOFFSETS, _model.GetActiveDisassemblyAnalysisPredictedOffsetEntryCount());
+	if (_currentControlFocus != IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_DETECTEDDATA)   UpdateDlgItemBin(hwnd, IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_DETECTEDDATA, _model.GetActiveDisassemblyAnalysisPredictedDataEntryCount());
+	if (_currentControlFocus != IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_DETECTEDLABELTARGETS)   UpdateDlgItemBin(hwnd, IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_DETECTEDLABELTARGETS, _model.GetActiveDisassemblyAnalysisPredictedLabelEntryCount());
 
 	return TRUE;
 }
@@ -91,24 +91,24 @@ INT_PTR ActiveDisassemblyView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lpar
 //----------------------------------------------------------------------------------------
 INT_PTR ActiveDisassemblyView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	if((HIWORD(wparam) == EN_SETFOCUS) && _initializedDialog)
+	if ((HIWORD(wparam) == EN_SETFOCUS) && _initializedDialog)
 	{
 		_previousText = GetDlgItemString(hwnd, LOWORD(wparam));
 		_currentControlFocus = LOWORD(wparam);
 	}
-	else if((HIWORD(wparam) == EN_KILLFOCUS) && _initializedDialog)
+	else if ((HIWORD(wparam) == EN_KILLFOCUS) && _initializedDialog)
 	{
 		std::wstring newText = GetDlgItemString(hwnd, LOWORD(wparam));
-		if(newText != _previousText)
+		if (newText != _previousText)
 		{
-			switch(LOWORD(wparam))
+			switch (LOWORD(wparam))
 			{
 			case IDC_PROCESSOR_ACTIVEDISASSEMBLY_START:{
 				unsigned int newActiveDisassemblyStartLocation = GetDlgItemHex(hwnd, LOWORD(wparam));
 				unsigned int currentActiveDisassemblyStartLocation = _model.GetActiveDisassemblyStartLocation();
-				if(newActiveDisassemblyStartLocation != currentActiveDisassemblyStartLocation)
+				if (newActiveDisassemblyStartLocation != currentActiveDisassemblyStartLocation)
 				{
-					if(_model.GetActiveDisassemblyAnalysisStartLocation() == currentActiveDisassemblyStartLocation)
+					if (_model.GetActiveDisassemblyAnalysisStartLocation() == currentActiveDisassemblyStartLocation)
 					{
 						_model.SetActiveDisassemblyAnalysisStartLocation(newActiveDisassemblyStartLocation);
 					}
@@ -118,9 +118,9 @@ INT_PTR ActiveDisassemblyView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lp
 			case IDC_PROCESSOR_ACTIVEDISASSEMBLY_END:{
 				unsigned int newActiveDisassemblyEndLocation = GetDlgItemHex(hwnd, LOWORD(wparam));
 				unsigned int currentActiveDisassemblyEndLocation = _model.GetActiveDisassemblyEndLocation();
-				if(newActiveDisassemblyEndLocation != currentActiveDisassemblyEndLocation)
+				if (newActiveDisassemblyEndLocation != currentActiveDisassemblyEndLocation)
 				{
-					if(_model.GetActiveDisassemblyAnalysisEndLocation() == currentActiveDisassemblyEndLocation)
+					if (_model.GetActiveDisassemblyAnalysisEndLocation() == currentActiveDisassemblyEndLocation)
 					{
 						_model.SetActiveDisassemblyAnalysisEndLocation(newActiveDisassemblyEndLocation);
 					}
@@ -148,12 +148,12 @@ INT_PTR ActiveDisassemblyView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lp
 			}
 		}
 	}
-	else if(HIWORD(wparam) == BN_CLICKED)
+	else if (HIWORD(wparam) == BN_CLICKED)
 	{
-		switch(LOWORD(wparam))
+		switch (LOWORD(wparam))
 		{
 		case IDC_PROCESSOR_ACTIVEDISASSEMBLY_ENABLED:
-			if(IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED)
+			if (IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED)
 			{
 				_model.EnableActiveDisassembly();
 			}
@@ -213,21 +213,21 @@ INT_PTR ActiveDisassemblyView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lp
 
 		case IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_EXPORTTOASM:{
 			std::wstring selectedFilePath;
-			if(SelectNewFile(hwnd, L"Assembly files|asm", L"asm", L"", L"", selectedFilePath))
+			if (SelectNewFile(hwnd, L"Assembly files|asm", L"asm", L"", L"", selectedFilePath))
 			{
 				_model.ActiveDisassemblyExportAnalysisToASMFile(selectedFilePath);
 			}
 			break;}
 		case IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_EXPORTTOTEXT:{
 			std::wstring selectedFilePath;
-			if(SelectNewFile(hwnd, L"Text files|txt", L"txt", L"", L"", selectedFilePath))
+			if (SelectNewFile(hwnd, L"Text files|txt", L"txt", L"", L"", selectedFilePath))
 			{
 				_model.ActiveDisassemblyExportAnalysisToTextFile(selectedFilePath);
 			}
 			break;}
 		case IDC_PROCESSOR_ACTIVEDISASSEMBLY_ANALYSIS_EXPORTTOIDC:{
 			std::wstring selectedFilePath;
-			if(SelectNewFile(hwnd, L"IDC script files|idc", L"idc", L"", L"", selectedFilePath))
+			if (SelectNewFile(hwnd, L"IDC script files|idc", L"idc", L"", L"", selectedFilePath))
 			{
 				_model.ActiveDisassemblyExportAnalysisToIDCFile(selectedFilePath);
 			}

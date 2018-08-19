@@ -20,7 +20,7 @@ ExceptionsView::ExceptionsView(IUIManager& uiManager, ExceptionsViewPresenter& p
 INT_PTR ExceptionsView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	WndProcDialogImplementSaveFieldWhenLostFocus(hwnd, msg, wparam, lparam);
-	switch(msg)
+	switch (msg)
 	{
 	case WM_INITDIALOG:
 		return msgWM_INITDIALOG(hwnd, wparam, lparam);
@@ -60,11 +60,11 @@ INT_PTR ExceptionsView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	//Check if we need to refresh the exception debug list
 	std::list<IM68000::ExceptionDebuggingEntry> currentExceptionList = _model.GetExceptionDebugEntries();
 	bool refreshExceptionList = (_cachedExceptionList.size() != currentExceptionList.size());
-	if(!refreshExceptionList)
+	if (!refreshExceptionList)
 	{
 		std::list<IM68000::ExceptionDebuggingEntry>::const_iterator currentExceptionListIterator = currentExceptionList.begin();
 		std::list<IM68000::ExceptionDebuggingEntry>::const_iterator cachedExceptionListIterator = _cachedExceptionList.begin();
-		while(!refreshExceptionList && (currentExceptionListIterator != currentExceptionList.end()) && (cachedExceptionListIterator != _cachedExceptionList.end()))
+		while (!refreshExceptionList && (currentExceptionListIterator != currentExceptionList.end()) && (cachedExceptionListIterator != _cachedExceptionList.end()))
 		{
 			refreshExceptionList |= (currentExceptionListIterator->vectorNumber != cachedExceptionListIterator->vectorNumber);
 			++currentExceptionListIterator;
@@ -73,7 +73,7 @@ INT_PTR ExceptionsView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	}
 
 	//Refresh the exception debug list if it has changed
-	if(refreshExceptionList)
+	if (refreshExceptionList)
 	{
 		//Save the new exception debug list
 		_cachedExceptionList = currentExceptionList;
@@ -82,7 +82,7 @@ INT_PTR ExceptionsView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		SendMessage(GetDlgItem(hwnd, IDC_M68000_EXCEPTIONS_LIST), WM_SETREDRAW, FALSE, 0);
 		LRESULT top = SendMessage(GetDlgItem(hwnd, IDC_M68000_EXCEPTIONS_LIST), LB_GETTOPINDEX, 0, 0);
 		SendMessage(GetDlgItem(hwnd, IDC_M68000_EXCEPTIONS_LIST), LB_RESETCONTENT, 0, NULL);
-		for(std::list<IM68000::ExceptionDebuggingEntry>::iterator i = _cachedExceptionList.begin(); i != _cachedExceptionList.end(); ++i)
+		for (std::list<IM68000::ExceptionDebuggingEntry>::iterator i = _cachedExceptionList.begin(); i != _cachedExceptionList.end(); ++i)
 		{
 			std::wstring exceptionName = BuildExceptionName((*i).vectorNumber);
 			SendMessage(GetDlgItem(hwnd, IDC_M68000_EXCEPTIONS_LIST), LB_ADDSTRING, 0, (LPARAM)exceptionName.c_str());
@@ -101,17 +101,17 @@ INT_PTR ExceptionsView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 //----------------------------------------------------------------------------------------
 INT_PTR ExceptionsView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	if((HIWORD(wparam) == EN_SETFOCUS) && _initializedDialog)
+	if ((HIWORD(wparam) == EN_SETFOCUS) && _initializedDialog)
 	{
 		_previousText = GetDlgItemString(hwnd, LOWORD(wparam));
 		_currentControlFocus = LOWORD(wparam);
 	}
-	else if((HIWORD(wparam) == EN_KILLFOCUS) && _initializedDialog)
+	else if ((HIWORD(wparam) == EN_KILLFOCUS) && _initializedDialog)
 	{
 		std::wstring newText = GetDlgItemString(hwnd, LOWORD(wparam));
-		if(newText != _previousText)
+		if (newText != _previousText)
 		{
-			switch(LOWORD(wparam))
+			switch (LOWORD(wparam))
 			{
 			case IDC_M68000_EXCEPTIONS_VECTORNUMBER:
 				_exceptionEntry.vectorNumber = (IM68000::Exceptions)GetDlgItemHex(hwnd, LOWORD(wparam));
@@ -125,9 +125,9 @@ INT_PTR ExceptionsView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			UpdateDlgItemString(hwnd, IDC_M68000_EXCEPTIONS_VECTORNAME, _model.GetExceptionName(_exceptionEntry.vectorNumber));
 		}
 	}
-	else if(HIWORD(wparam) == BN_CLICKED)
+	else if (HIWORD(wparam) == BN_CLICKED)
 	{
-		switch(LOWORD(wparam))
+		switch (LOWORD(wparam))
 		{
 		case IDC_M68000_EXCEPTIONS_LOG:
 			_exceptionEntry.enableLogging = IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED;
@@ -160,13 +160,13 @@ INT_PTR ExceptionsView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			break;
 		case IDC_M68000_EXCEPTIONS_SAVE:{
 			std::wstring exceptionName = BuildExceptionName(_exceptionEntry.vectorNumber);
-			if(_exceptionListIndex != -1)
+			if (_exceptionListIndex != -1)
 			{
 				int exceptionIndex = 0;
 				std::list<IM68000::ExceptionDebuggingEntry>::iterator cachedExceptionListIterator = _cachedExceptionList.begin();
-				while(cachedExceptionListIterator != _cachedExceptionList.end())
+				while (cachedExceptionListIterator != _cachedExceptionList.end())
 				{
-					if(exceptionIndex == _exceptionListIndex)
+					if (exceptionIndex == _exceptionListIndex)
 					{
 						SendMessage(GetDlgItem(hwnd, IDC_M68000_EXCEPTIONS_LIST), LB_DELETESTRING, _exceptionListIndex, NULL);
 						SendMessage(GetDlgItem(hwnd, IDC_M68000_EXCEPTIONS_LIST), LB_INSERTSTRING, _exceptionListIndex, (LPARAM)exceptionName.c_str());
@@ -188,18 +188,18 @@ INT_PTR ExceptionsView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			SendMessage(GetDlgItem(hwnd, IDC_M68000_EXCEPTIONS_LIST), LB_SETCURSEL, _exceptionListIndex, NULL);
 			break;}
 		case IDC_M68000_EXCEPTIONS_DELETE:
-			if(_exceptionListIndex != -1)
+			if (_exceptionListIndex != -1)
 			{
 				int exceptionIndex = 0;
 				std::list<IM68000::ExceptionDebuggingEntry>::iterator cachedExceptionListIterator = _cachedExceptionList.begin();
-				while(cachedExceptionListIterator != _cachedExceptionList.end())
+				while (cachedExceptionListIterator != _cachedExceptionList.end())
 				{
-					if(exceptionIndex == _exceptionListIndex)
+					if (exceptionIndex == _exceptionListIndex)
 					{
 						_cachedExceptionList.erase(cachedExceptionListIterator);
 						_model.SetExceptionDebugEntries(_cachedExceptionList);
 						SendMessage(GetDlgItem(hwnd, IDC_M68000_EXCEPTIONS_LIST), LB_DELETESTRING, _exceptionListIndex, NULL);
-						if(_exceptionListIndex >= (int)_cachedExceptionList.size())
+						if (_exceptionListIndex >= (int)_cachedExceptionList.size())
 						{
 							_exceptionListIndex -= 1;
 						}
@@ -225,19 +225,19 @@ INT_PTR ExceptionsView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			break;}
 		}
 	}
-	else if(HIWORD(wparam) == LBN_SELCHANGE)
+	else if (HIWORD(wparam) == LBN_SELCHANGE)
 	{
-		switch(LOWORD(wparam))
+		switch (LOWORD(wparam))
 		{
 		case IDC_M68000_EXCEPTIONS_LIST:
 			int selectedItem = (int)SendMessage(GetDlgItem(hwnd, IDC_M68000_EXCEPTIONS_LIST), LB_GETCURSEL, 0, NULL);
-			if(selectedItem != LB_ERR)
+			if (selectedItem != LB_ERR)
 			{
 				int exceptionIndex = 0;
 				std::list<IM68000::ExceptionDebuggingEntry>::const_iterator cachedExceptionListIterator = _cachedExceptionList.begin();
-				while(cachedExceptionListIterator != _cachedExceptionList.end())
+				while (cachedExceptionListIterator != _cachedExceptionList.end())
 				{
-					if(exceptionIndex == _exceptionListIndex)
+					if (exceptionIndex == _exceptionListIndex)
 					{
 						_exceptionListIndex = selectedItem;
 						UpdateExceptionEntry(hwnd, _exceptionEntry);

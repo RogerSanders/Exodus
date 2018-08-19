@@ -29,7 +29,7 @@ public:
 	{
 		std::wstring argumentDisassembly;
 
-		if(_dr == 0)
+		if (_dr == 0)
 		{
 			//MOVE	An,USP
 			argumentDisassembly = _source.Disassemble(labelSettings) + L", USP";
@@ -63,7 +63,7 @@ public:
 		M68000Long result;
 
 		//Perform the operation
-		if(_dr == 0)
+		if (_dr == 0)
 		{
 		//MOVE	An,USP
 			additionalTime += _source.Read(cpu, result, GetInstructionRegister());

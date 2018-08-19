@@ -12,11 +12,11 @@ void ExecutionManager::AddDevice(DeviceContext* device)
 {
 	//Add the specified device to the device arrays
 	_deviceArray.push_back(device);
-	if(device->UsesExecuteSuspend())
+	if (device->UsesExecuteSuspend())
 	{
 		_suspendDeviceArray.push_back(device);
 	}
-	if(device->UsesTransientExecution())
+	if (device->UsesTransientExecution())
 	{
 		_transientDeviceArray.push_back(device);
 	}
@@ -41,9 +41,9 @@ void ExecutionManager::RemoveDevice(DeviceContext* device)
 	//Remove the specified device from the device array
 	done = false;
 	i = _deviceArray.begin();
-	while(!done && (i != _deviceArray.end()))
+	while (!done && (i != _deviceArray.end()))
 	{
-		if(*i == device)
+		if (*i == device)
 		{
 			_deviceArray.erase(i);
 			done = true;
@@ -57,9 +57,9 @@ void ExecutionManager::RemoveDevice(DeviceContext* device)
 	//Remove the specified device from the suspend device array
 	done = false;
 	i = _suspendDeviceArray.begin();
-	while(!done && (i != _suspendDeviceArray.end()))
+	while (!done && (i != _suspendDeviceArray.end()))
 	{
-		if(*i == device)
+		if (*i == device)
 		{
 			_suspendDeviceArray.erase(i);
 			done = true;
@@ -73,9 +73,9 @@ void ExecutionManager::RemoveDevice(DeviceContext* device)
 	//Remove the specified device from the transient device array
 	done = false;
 	i = _transientDeviceArray.begin();
-	while(!done && (i != _transientDeviceArray.end()))
+	while (!done && (i != _transientDeviceArray.end()))
 	{
-		if(*i == device)
+		if (*i == device)
 		{
 			_transientDeviceArray.erase(i);
 			done = true;
@@ -121,7 +121,7 @@ void ExecutionManager::NotifyUpcomingTimeslice(double nanoseconds)
 	std::unique_lock<std::mutex> lock(_commandMutex);
 	_command.type = DeviceContext::DeviceContextCommand::TYPE_NOTIFYUPCOMINGTIMESLICE;
 	_command.timeslice = nanoseconds;
-	if(_totalDeviceCount > 0)
+	if (_totalDeviceCount > 0)
 	{
 		_pendingDeviceCount = _totalDeviceCount;
 		_commandSent.notify_all();
@@ -135,7 +135,7 @@ void ExecutionManager::NotifyBeforeExecuteCalled()
 	std::unique_lock<std::mutex> lock(_commandMutex);
 	_command.type = DeviceContext::DeviceContextCommand::TYPE_NOTIFYBEFOREEXECUTECALLED;
 	_pendingDeviceCount = _totalDeviceCount;
-	if(_totalDeviceCount > 0)
+	if (_totalDeviceCount > 0)
 	{
 		_commandSent.notify_all();
 		_commandProcessed.wait(lock);
@@ -148,7 +148,7 @@ void ExecutionManager::NotifyAfterExecuteCalled()
 	std::unique_lock<std::mutex> lock(_commandMutex);
 	_command.type = DeviceContext::DeviceContextCommand::TYPE_NOTIFYAFTEREXECUTECALLED;
 	_pendingDeviceCount = _totalDeviceCount;
-	if(_totalDeviceCount > 0)
+	if (_totalDeviceCount > 0)
 	{
 		_commandSent.notify_all();
 		_commandProcessed.wait(lock);
@@ -167,7 +167,7 @@ void ExecutionManager::ExecuteTimeslice(double nanoseconds)
 	_command.type = DeviceContext::DeviceContextCommand::TYPE_EXECUTETIMESLICE;
 	_command.timeslice = nanoseconds;
 	_suspendedThreadCount = 0;
-	if(_totalDeviceCount > 0)
+	if (_totalDeviceCount > 0)
 	{
 		_pendingDeviceCount = _totalDeviceCount;
 		_commandSent.notify_all();
@@ -176,7 +176,7 @@ void ExecutionManager::ExecuteTimeslice(double nanoseconds)
 
 	//Wait for all devices to finish executing the timeslice
 	_command.type = DeviceContext::DeviceContextCommand::TYPE_WAITFOREXECUTECOMPLETE;
-	if(_totalDeviceCount > 0)
+	if (_totalDeviceCount > 0)
 	{
 		_pendingDeviceCount = _totalDeviceCount;
 		_commandSent.notify_all();
@@ -194,7 +194,7 @@ void ExecutionManager::Commit()
 {
 	std::unique_lock<std::mutex> lock(_commandMutex);
 	_command.type = DeviceContext::DeviceContextCommand::TYPE_COMMIT;
-	if(_totalDeviceCount > 0)
+	if (_totalDeviceCount > 0)
 	{
 		_pendingDeviceCount = _totalDeviceCount;
 		_commandSent.notify_all();
@@ -207,7 +207,7 @@ void ExecutionManager::Rollback()
 {
 	std::unique_lock<std::mutex> lock(_commandMutex);
 	_command.type = DeviceContext::DeviceContextCommand::TYPE_ROLLBACK;
-	if(_totalDeviceCount > 0)
+	if (_totalDeviceCount > 0)
 	{
 		_pendingDeviceCount = _totalDeviceCount;
 		_commandSent.notify_all();
@@ -225,7 +225,7 @@ void ExecutionManager::Initialize()
 	//device is currently suspended, we can't send this command in parallel to each
 	//device, as the command worker thread for each device is also suspended, so we
 	//initialize each device serially on the one thread here.
-	for(size_t i = 0; i < _deviceCount; ++i)
+	for (size_t i = 0; i < _deviceCount; ++i)
 	{
 		_deviceArray[i]->Initialize();
 	}
@@ -234,7 +234,7 @@ void ExecutionManager::Initialize()
 //----------------------------------------------------------------------------------------
 void ExecutionManager::AssertCurrentOutputLineState()
 {
-	for(size_t i = 0; i < _deviceCount; ++i)
+	for (size_t i = 0; i < _deviceCount; ++i)
 	{
 		_deviceArray[i]->GetTargetDevice().AssertCurrentOutputLineState();
 	}
@@ -243,7 +243,7 @@ void ExecutionManager::AssertCurrentOutputLineState()
 //----------------------------------------------------------------------------------------
 void ExecutionManager::NegateCurrentOutputLineState()
 {
-	for(size_t i = 0; i < _deviceCount; ++i)
+	for (size_t i = 0; i < _deviceCount; ++i)
 	{
 		_deviceArray[i]->GetTargetDevice().NegateCurrentOutputLineState();
 	}
@@ -256,7 +256,7 @@ double ExecutionManager::GetNextTimingPoint(double maximumTimeslice, DeviceConte
 {
 	std::unique_lock<std::mutex> lock(_commandMutex);
 	_command.type = DeviceContext::DeviceContextCommand::TYPE_GETNEXTTIMINGPOINT;
-	if(_totalDeviceCount > 0)
+	if (_totalDeviceCount > 0)
 	{
 		_pendingDeviceCount = _totalDeviceCount;
 		_commandSent.notify_all();
@@ -267,10 +267,10 @@ double ExecutionManager::GetNextTimingPoint(double maximumTimeslice, DeviceConte
 	//next timing point
 	double timeslice = maximumTimeslice;
 	nextDeviceStep = 0;
-	for(size_t i = 0; i < _deviceCount; ++i)
+	for (size_t i = 0; i < _deviceCount; ++i)
 	{
 		double deviceTimingPoint = _command.timesliceResult[i];
-		if((deviceTimingPoint < timeslice) && (deviceTimingPoint >= 0))
+		if ((deviceTimingPoint < timeslice) && (deviceTimingPoint >= 0))
 		{
 			timeslice = deviceTimingPoint;
 			nextDeviceStep = _deviceArray[i];
@@ -287,7 +287,7 @@ double ExecutionManager::GetNextTimingPoint(double maximumTimeslice, DeviceConte
 void ExecutionManager::BeginExecution()
 {
 	_pendingDeviceCount = _totalDeviceCount;
-	for(size_t i = 0; i < _deviceCount; ++i)
+	for (size_t i = 0; i < _deviceCount; ++i)
 	{
 		_deviceArray[i]->BeginExecution(i, _pendingDeviceCount, _suspendedThreadCount, _commandMutex, _commandSent, _commandProcessed, this, _command);
 	}
@@ -298,7 +298,7 @@ void ExecutionManager::SuspendExecution()
 {
 	std::unique_lock<std::mutex> lock(_commandMutex);
 	_command.type = DeviceContext::DeviceContextCommand::TYPE_SUSPENDEXECUTION;
-	if(_totalDeviceCount > 0)
+	if (_totalDeviceCount > 0)
 	{
 		_pendingDeviceCount = _totalDeviceCount;
 		_commandSent.notify_all();

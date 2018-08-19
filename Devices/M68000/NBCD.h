@@ -36,7 +36,7 @@ public:
 		_target.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), BITCOUNT_BYTE, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
 		AddInstructionSize(_target.ExtensionSize());
 
-		if((_target.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect) || (_target.GetAddressMode() == EffectiveAddress::Mode::AddRegDirect))
+		if ((_target.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect) || (_target.GetAddressMode() == EffectiveAddress::Mode::AddRegDirect))
 		{
 			AddExecuteCycleCount(ExecuteTime(6, 1, 0));
 		}
@@ -63,7 +63,7 @@ public:
 
 		M68000Byte resultBase10Temp = result;
 		bool carry = false;
-		if(resultBase10Temp > 99)
+		if (resultBase10Temp > 99)
 		{
 			resultBase10Temp += 100;
 			carry = true;

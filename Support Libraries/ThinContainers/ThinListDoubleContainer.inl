@@ -30,7 +30,7 @@ template<class T> typename ThinListDoubleContainer<T>::Element* ThinListDoubleCo
 //----------------------------------------------------------------------------------------
 template<class T> void ThinListDoubleContainer<T>::PushToFront(const T& entry)
 {
-	if(first != 0)
+	if (first != 0)
 	{
 		first->InsertBefore(entry);
 		first = first->previous;
@@ -46,7 +46,7 @@ template<class T> void ThinListDoubleContainer<T>::PushToFront(const T& entry)
 //----------------------------------------------------------------------------------------
 template<class T> void ThinListDoubleContainer<T>::PushToBack(const T& entry)
 {
-	if(last != 0)
+	if (last != 0)
 	{
 		last->InsertAfter(entry);
 		last = last->next;
@@ -63,7 +63,7 @@ template<class T> void ThinListDoubleContainer<T>::PushToBack(const T& entry)
 template<class T> void ThinListDoubleContainer<T>::InsertBefore(Element* element, const T& entry)
 {
 	element->InsertBefore(entry);
-	if(element == first)
+	if (element == first)
 	{
 		first = first->previous;
 	}
@@ -73,7 +73,7 @@ template<class T> void ThinListDoubleContainer<T>::InsertBefore(Element* element
 template<class T> void ThinListDoubleContainer<T>::InsertAfter(Element* element, const T& entry)
 {
 	element->InsertAfter(entry);
-	if(element == last)
+	if (element == last)
 	{
 		last = last->next;
 	}
@@ -84,11 +84,11 @@ template<class T> void ThinListDoubleContainer<T>::InsertAfter(Element* element,
 //----------------------------------------------------------------------------------------
 template<class T> void ThinListDoubleContainer<T>::EraseFromFrontToElement(Element* targetElement)
 {
-	if(targetElement != first)
+	if (targetElement != first)
 	{
 		Element* deleteStart = first;
 		first = targetElement;
-		if(targetElement->previous != 0)
+		if (targetElement->previous != 0)
 		{
 			targetElement->previous->next = 0;
 			targetElement->previous = 0;

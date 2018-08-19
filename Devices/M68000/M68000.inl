@@ -292,7 +292,7 @@ void M68000::SetCCR(const M68000Byte& data)
 //----------------------------------------------------------------------------------------
 M68000Long M68000::GetSP() const
 {
-	if(GetSR_S())
+	if (GetSR_S())
 	{
 		return GetSSP();
 	}
@@ -305,7 +305,7 @@ M68000Long M68000::GetSP() const
 //----------------------------------------------------------------------------------------
 void M68000::GetSP(Data& data) const
 {
-	if(GetSR_S())
+	if (GetSR_S())
 	{
 		GetSSP(data);
 	}
@@ -318,7 +318,7 @@ void M68000::GetSP(Data& data) const
 //----------------------------------------------------------------------------------------
 void M68000::SetSP(const M68000Long& data)
 {
-	if(GetSR_S())
+	if (GetSR_S())
 	{
 		SetSSP(data);
 	}
@@ -367,7 +367,7 @@ void M68000::SetUSP(const M68000Long& data)
 //----------------------------------------------------------------------------------------
 M68000Long M68000::GetA(unsigned int index) const
 {
-	if(index == SP)
+	if (index == SP)
 	{
 		return GetSP();
 	}
@@ -380,7 +380,7 @@ M68000Long M68000::GetA(unsigned int index) const
 //----------------------------------------------------------------------------------------
 void M68000::GetA(unsigned int index, Data& data) const
 {
-	if(index == SP)
+	if (index == SP)
 	{
 		GetSP(data);
 	}
@@ -393,7 +393,7 @@ void M68000::GetA(unsigned int index, Data& data) const
 //----------------------------------------------------------------------------------------
 void M68000::SetA(unsigned int index, const M68000Long& data)
 {
-	if(index == SP)
+	if (index == SP)
 	{
 		SetSP(data);
 	}

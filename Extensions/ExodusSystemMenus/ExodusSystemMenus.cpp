@@ -15,22 +15,22 @@ ExodusSystemMenus::ExodusSystemMenus(const std::wstring& implementationName, con
 ExodusSystemMenus::~ExodusSystemMenus()
 {
 	//Delete all menu handlers
-	if(_debugMenuHandler != 0)
+	if (_debugMenuHandler != 0)
 	{
 		_debugMenuHandler->ClearMenuItems();
 		delete _debugMenuHandler;
 	}
-	if(_settingsMenuHandler != 0)
+	if (_settingsMenuHandler != 0)
 	{
 		_settingsMenuHandler->ClearMenuItems();
 		delete _settingsMenuHandler;
 	}
-	if(_systemMenuHandler != 0)
+	if (_systemMenuHandler != 0)
 	{
 		_systemMenuHandler->ClearMenuItems();
 		delete _systemMenuHandler;
 	}
-	for(std::map<unsigned int, ModuleOptionMenuHandler*>::const_iterator i = _moduleOptionMenuHandlers.begin(); i != _moduleOptionMenuHandlers.end(); ++i)
+	for (std::map<unsigned int, ModuleOptionMenuHandler*>::const_iterator i = _moduleOptionMenuHandlers.begin(); i != _moduleOptionMenuHandlers.end(); ++i)
 	{
 		ModuleOptionMenuHandler* entry = i->second;
 		delete entry;
@@ -68,7 +68,7 @@ bool ExodusSystemMenus::RegisterModuleMenuHandler(unsigned int moduleID)
 void ExodusSystemMenus::UnregisterModuleMenuHandler(unsigned int moduleID)
 {
 	std::map<unsigned int, ModuleOptionMenuHandler*>::iterator moduleOptionMenuHandlerIterator = _moduleOptionMenuHandlers.find(moduleID);
-	if(moduleOptionMenuHandlerIterator != _moduleOptionMenuHandlers.end())
+	if (moduleOptionMenuHandlerIterator != _moduleOptionMenuHandlers.end())
 	{
 		ModuleOptionMenuHandler* entry = moduleOptionMenuHandlerIterator->second;
 		delete entry;
@@ -79,7 +79,7 @@ void ExodusSystemMenus::UnregisterModuleMenuHandler(unsigned int moduleID)
 //----------------------------------------------------------------------------------------
 void ExodusSystemMenus::AddSystemMenuItems(SystemMenu systemMenu, IMenuSegment& menuSegment)
 {
-	switch(systemMenu)
+	switch (systemMenu)
 	{
 	case IExtension::SystemMenu::Debug:
 		_debugMenuHandler->AddMenuItems(menuSegment);
@@ -96,7 +96,7 @@ void ExodusSystemMenus::AddSystemMenuItems(SystemMenu systemMenu, IMenuSegment& 
 //----------------------------------------------------------------------------------------
 void ExodusSystemMenus::AddModuleMenuItems(ModuleMenu moduleMenu, IMenuSegment& menuSegment, unsigned int moduleID)
 {
-	if(moduleMenu == IExtension::ModuleMenu::Settings)
+	if (moduleMenu == IExtension::ModuleMenu::Settings)
 	{
 		ModuleOptionMenuHandler& menuHandler = *_moduleOptionMenuHandlers[moduleID];
 		menuHandler.AddMenuItems(menuSegment);

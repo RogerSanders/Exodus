@@ -37,10 +37,10 @@ void InputMappingDetailsViewPresenter::SetTargetDevice(IDevice* targetDevice)
 {
 	_targetDevice = targetDevice;
 	IView* viewBase = GetOpenView();
-	if(viewBase != 0)
+	if (viewBase != 0)
 	{
 		InputMappingDetailsView* view = dynamic_cast<InputMappingDetailsView*>(viewBase);
-		if(view != 0)
+		if (view != 0)
 		{
 			view->SetTargetDevice(_targetDevice);
 		}

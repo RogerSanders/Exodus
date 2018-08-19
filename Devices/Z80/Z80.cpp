@@ -26,15 +26,15 @@ Z80::~Z80()
 	delete _opcodeBuffer;
 
 	//Delete all objects stored in the opcode lists
-	for(std::list<Z80Instruction*>::const_iterator i = _opcodeList.begin(); i != _opcodeList.end(); ++i)
+	for (std::list<Z80Instruction*>::const_iterator i = _opcodeList.begin(); i != _opcodeList.end(); ++i)
 	{
 		delete *i;
 	}
-	for(std::list<Z80Instruction*>::const_iterator i = _opcodeListCB.begin(); i != _opcodeListCB.end(); ++i)
+	for (std::list<Z80Instruction*>::const_iterator i = _opcodeListCB.begin(); i != _opcodeListCB.end(); ++i)
 	{
 		delete *i;
 	}
-	for(std::list<Z80Instruction*>::const_iterator i = _opcodeListED.begin(); i != _opcodeListED.end(); ++i)
+	for (std::list<Z80Instruction*>::const_iterator i = _opcodeListED.begin(); i != _opcodeListED.end(); ++i)
 	{
 		delete *i;
 	}
@@ -55,7 +55,7 @@ bool Z80::Construct(IHierarchicalStorageNode& node)
 {
 	bool result = Processor::Construct(node);
 	IHierarchicalStorageAttribute* suspendWhenBusReleasedAttribute = node.GetAttribute(L"SuspendWhenBusReleased");
-	if(suspendWhenBusReleasedAttribute != 0)
+	if (suspendWhenBusReleasedAttribute != 0)
 	{
 		_suspendWhenBusReleased = suspendWhenBusReleasedAttribute->ExtractValue<bool>();
 	}
@@ -73,15 +73,15 @@ bool Z80::BuildDevice()
 	_opcodeTableCB.InitializeOpcodeTable();
 
 	//Delete all objects stored in the opcode lists
-	for(std::list<Z80Instruction*>::const_iterator i = _opcodeList.begin(); i != _opcodeList.end(); ++i)
+	for (std::list<Z80Instruction*>::const_iterator i = _opcodeList.begin(); i != _opcodeList.end(); ++i)
 	{
 		delete *i;
 	}
-	for(std::list<Z80Instruction*>::const_iterator i = _opcodeListCB.begin(); i != _opcodeListCB.end(); ++i)
+	for (std::list<Z80Instruction*>::const_iterator i = _opcodeListCB.begin(); i != _opcodeListCB.end(); ++i)
 	{
 		delete *i;
 	}
-	for(std::list<Z80Instruction*>::const_iterator i = _opcodeListED.begin(); i != _opcodeListED.end(); ++i)
+	for (std::list<Z80Instruction*>::const_iterator i = _opcodeListED.begin(); i != _opcodeListED.end(); ++i)
 	{
 		delete *i;
 	}
@@ -194,11 +194,11 @@ bool Z80::BuildDevice()
 
 	//Register each constructed opcode object in the opcode table, and update the size of
 	//the largest opcode object.
-	for(std::list<Z80Instruction*>::const_iterator i = _opcodeList.begin(); i != _opcodeList.end(); ++i)
+	for (std::list<Z80Instruction*>::const_iterator i = _opcodeList.begin(); i != _opcodeList.end(); ++i)
 	{
 		//Register this opcode in the opcode table
 		Z80Instruction* opcodeObject = *i;
-		if(!opcodeObject->RegisterOpcode(_opcodeTable))
+		if (!opcodeObject->RegisterOpcode(_opcodeTable))
 		{
 			//Log the event
 			LogEntry logEntry(LogEntry::EventLevel::Critical);
@@ -214,11 +214,11 @@ bool Z80::BuildDevice()
 
 	//Register each constructed CB opcode object in the CB opcode table, and update the
 	//size of the largest opcode object.
-	for(std::list<Z80Instruction*>::const_iterator i = _opcodeListCB.begin(); i != _opcodeListCB.end(); ++i)
+	for (std::list<Z80Instruction*>::const_iterator i = _opcodeListCB.begin(); i != _opcodeListCB.end(); ++i)
 	{
 		//Register this opcode in the opcode table
 		Z80Instruction* opcodeObject = *i;
-		if(!opcodeObject->RegisterOpcode(_opcodeTableCB))
+		if (!opcodeObject->RegisterOpcode(_opcodeTableCB))
 		{
 			//Log the event
 			LogEntry logEntry(LogEntry::EventLevel::Critical);
@@ -234,11 +234,11 @@ bool Z80::BuildDevice()
 
 	//Register each constructed ED opcode object in the ED opcode table, and update the
 	//size of the largest opcode object.
-	for(std::list<Z80Instruction*>::const_iterator i = _opcodeListED.begin(); i != _opcodeListED.end(); ++i)
+	for (std::list<Z80Instruction*>::const_iterator i = _opcodeListED.begin(); i != _opcodeListED.end(); ++i)
 	{
 		//Register this opcode in the opcode table
 		Z80Instruction* opcodeObject = *i;
-		if(!opcodeObject->RegisterOpcode(_opcodeTableED))
+		if (!opcodeObject->RegisterOpcode(_opcodeTableED))
 		{
 			//Log the event
 			LogEntry logEntry(LogEntry::EventLevel::Critical);
@@ -478,7 +478,7 @@ bool Z80::AddReference(const Marshal::In<std::wstring>& referenceName, IBusInter
 {
 	bool result = false;
 	_externalReferenceLock.ObtainWriteLock();
-	if(referenceName == L"BusInterface")
+	if (referenceName == L"BusInterface")
 	{
 		_memoryBus = target;
 		result = true;
@@ -491,7 +491,7 @@ bool Z80::AddReference(const Marshal::In<std::wstring>& referenceName, IBusInter
 void Z80::RemoveReference(IBusInterface* target)
 {
 	_externalReferenceLock.ObtainWriteLock();
-	if(_memoryBus == target)
+	if (_memoryBus == target)
 	{
 		_memoryBus = 0;
 	}
@@ -516,7 +516,7 @@ double Z80::ExecuteStep()
 
 	//If we have any pending line state changes waiting, apply any which we have now
 	//reached.
-	if(_lineAccessPending)
+	if (_lineAccessPending)
 	{
 		//##DEBUG##
 //		std::wcout << "Z80 line access pending\n";
@@ -524,13 +524,13 @@ double Z80::ExecuteStep()
 		std::unique_lock<std::mutex> lock(_lineMutex);
 		double currentTimesliceProgress = GetCurrentTimesliceProgress();
 		bool done = false;
-		while(!done)
+		while (!done)
 		{
 			//Remove the next line access that we've reached from the front of the line
 			//access buffer. Note that our lineMutex lock may be released while applying
 			//some line state changes, so we can't keep active reference to an iterator.
 			std::list<LineAccess>::iterator i = _lineAccessBuffer.begin();
-			if((i == _lineAccessBuffer.end()) || (i->accessTime > currentTimesliceProgress))
+			if ((i == _lineAccessBuffer.end()) || (i->accessTime > currentTimesliceProgress))
 			{
 				done = true;
 				continue;
@@ -547,7 +547,7 @@ double Z80::ExecuteStep()
 			//std::wcout << "Z80 Line state change: " << std::setprecision(16) << lineAccess.accessTime << '\t' << currentTimesliceProgress << '\n';
 
 			//Apply the line state change
-			if(lineAccess.clockRateChange)
+			if (lineAccess.clockRateChange)
 			{
 				ApplyClockStateChange(lineAccess.lineID, lineAccess.clockRate);
 			}
@@ -562,13 +562,13 @@ double Z80::ExecuteStep()
 	//If no line access is pending, and we've decided to suspend until another line state
 	//change is received, suspend execution waiting for another line state change to be
 	//received, unless execution suspension has now been disabled.
-	if(!_lineAccessPending && _suspendUntilLineStateChangeReceived && !GetDeviceContext()->TimesliceSuspensionDisabled())
+	if (!_lineAccessPending && _suspendUntilLineStateChangeReceived && !GetDeviceContext()->TimesliceSuspensionDisabled())
 	{
 		//Check lineAccessPending again after taking a lock on lineMutex. This will ensure
 		//we never enter a suspend state when there are actually line access events
 		//sitting in the buffer.
 		std::unique_lock<std::mutex> lock(_lineMutex);
-		if(!_lineAccessPending)
+		if (!_lineAccessPending)
 		{
 			//Suspend timeslice execution, release the lock on lineMutex, then wait until
 			//execution is resumed. It is essential to perform these steps, in this order.
@@ -589,9 +589,9 @@ double Z80::ExecuteStep()
 
 	//Apply any active effects from input lines to the processor
 	bool processorNotExecuting = _resetLineState || _busreqLineState || !GetDeviceContext()->DeviceEnabled();
-	if(processorNotExecuting)
+	if (processorNotExecuting)
 	{
-		if(_resetLineState && !_resetLastStep)
+		if (_resetLineState && !_resetLastStep)
 		{
 			//Note that we remember when we reset on the last step as an optimization.
 			//Since we execute a step every cycle when the reset line is held asserted,
@@ -616,11 +616,11 @@ double Z80::ExecuteStep()
 	//executed. We also use the maskInterruptsNextOpcode flag when we encounter
 	//consecutive DD or FD prefix bytes during the decode process, where we use this flag
 	//to mask interrupts until the end of the series is reached.
-	if(!_maskInterruptsNextOpcode && (_nmiLineState || (_intLineState && GetIFF1())))
+	if (!_maskInterruptsNextOpcode && (_nmiLineState || (_intLineState && GetIFF1())))
 	{
 		//Clear the stopped state
 		_processorStopped = false;
-		if(_nmiLineState)
+		if (_nmiLineState)
 		{
 			//Process a non-maskable interrupt
 			//##NOTE## Contrary to official documentation, according to "The Undocumented
@@ -640,13 +640,13 @@ double Z80::ExecuteStep()
 			AddRefresh(1);
 			_nmiLineState = false;
 		}
-		else if(_intLineState)
+		else if (_intLineState)
 		{
 			//Process a maskable interrupt
 			//Negate both IFF flags
 			SetIFF1(false);
 			SetIFF2(false);
-			if(GetInterruptMode() == 0)
+			if (GetInterruptMode() == 0)
 			{
 				//##TODO## Implement this interrupt mode
 				//##DEBUG##
@@ -655,7 +655,7 @@ double Z80::ExecuteStep()
 
 				cyclesExecuted = 13;
 			}
-			else if(GetInterruptMode() == 1)
+			else if (GetInterruptMode() == 1)
 			{
 				//##DEBUG##
 				//std::wcout << "Z80 executed interrupt mode 1\n";
@@ -670,7 +670,7 @@ double Z80::ExecuteStep()
 
 				cyclesExecuted = 13;
 			}
-			else if(GetInterruptMode() == 2)
+			else if (GetInterruptMode() == 2)
 			{
 				//##TODO## Implement this interrupt mode
 				//##DEBUG##
@@ -693,7 +693,7 @@ double Z80::ExecuteStep()
 	_maskInterruptsNextOpcode = false;
 
 	//If the processor isn't stopped, fetch the next opcode
-	if(!_processorStopped)
+	if (!_processorStopped)
 	{
 		//Update the trace log, and test for breakpoints
 		RecordTrace(GetPC().GetData());
@@ -713,14 +713,14 @@ double Z80::ExecuteStep()
 		additionalTime += ReadMemory(readLocation++, opcode, false);
 		++instructionSize;
 		//If the first byte is a prefix byte, process it, and read the second byte.
-		if((opcode == 0xDD) || (opcode == 0xFD))
+		if ((opcode == 0xDD) || (opcode == 0xFD))
 		{
 			AddRefresh(1);
-			if(opcode == 0xDD)
+			if (opcode == 0xDD)
 			{
 				indexState = EffectiveAddress::IndexState::IX;
 			}
-			else if(opcode == 0xFD)
+			else if (opcode == 0xFD)
 			{
 				indexState = EffectiveAddress::IndexState::IY;
 			}
@@ -737,7 +737,7 @@ double Z80::ExecuteStep()
 		}
 		//If we've encountered two prefix bytes back to back, force the opcode to a NOP
 		//instruction.
-		if((opcode == 0xDD) || (opcode == 0xFD))
+		if ((opcode == 0xDD) || (opcode == 0xFD))
 		{
 			opcode = 0;
 			//We set this flag here to prevent interrupts being accepted when we start
@@ -748,9 +748,9 @@ double Z80::ExecuteStep()
 		}
 
 		//Select the decode table to use, and extract the opcode
-		if(opcode == 0xCB)
+		if (opcode == 0xCB)
 		{
-			if(indexState != EffectiveAddress::IndexState::None)
+			if (indexState != EffectiveAddress::IndexState::None)
 			{
 				//Decode a DDCB or an FDCB opcode. These opcodes include a mandatory index
 				//displacement value as the third byte of the opcode.
@@ -773,7 +773,7 @@ double Z80::ExecuteStep()
 			++instructionSize;
 			nextOpcodeType = _opcodeTableCB.GetInstruction(opcode.GetData());
 		}
-		else if(opcode == 0xED)
+		else if (opcode == 0xED)
 		{
 			//Override any DD or FD prefix. The DD and FD prefix bytes are ignored for ED
 			//prefixed opcodes.
@@ -803,7 +803,7 @@ double Z80::ExecuteStep()
 		AddRefresh(1);
 
 		//Process the opcode
-		if(nextOpcodeType != 0)
+		if (nextOpcodeType != 0)
 		{
 			Z80Instruction* nextOpcode = 0;
 //			nextOpcode = nextOpcode->Clone();
@@ -887,7 +887,7 @@ void Z80::ExecuteCommit()
 	_bprocessorStopped = _processorStopped;
 
 	_blastTimesliceLength = _lastTimesliceLength;
-	if(_lineAccessPending)
+	if (_lineAccessPending)
 	{
 		_blineAccessBuffer = _lineAccessBuffer;
 	}
@@ -918,7 +918,7 @@ void Z80::NotifyUpcomingTimeslice(double nanoseconds)
 	//Reset lastLineCheckTime for the beginning of the new timeslice, and force any
 	//remaining line state changes to be evaluated at the start of the new timeslice.
 	_lastLineCheckTime = 0;
-	for(std::list<LineAccess>::iterator i = _lineAccessBuffer.begin(); i != _lineAccessBuffer.end(); ++i)
+	for (std::list<LineAccess>::iterator i = _lineAccessBuffer.begin(); i != _lineAccessBuffer.end(); ++i)
 	{
 		//We rebase accessTime here to the start of the new time block, in order to allow
 		//line state changes to be flagged ahead of the time they actually take effect.
@@ -934,23 +934,23 @@ void Z80::NotifyUpcomingTimeslice(double nanoseconds)
 //----------------------------------------------------------------------------------------
 unsigned int Z80::GetLineID(const Marshal::In<std::wstring>& lineName) const
 {
-	if(lineName == L"RESET")
+	if (lineName == L"RESET")
 	{
 		return (unsigned int)LineID::Reset;
 	}
-	else if(lineName == L"BUSREQ")
+	else if (lineName == L"BUSREQ")
 	{
 		return (unsigned int)LineID::BusReq;
 	}
-	else if(lineName == L"BUSACK")
+	else if (lineName == L"BUSACK")
 	{
 		return (unsigned int)LineID::BusAck;
 	}
-	else if(lineName == L"INT")
+	else if (lineName == L"INT")
 	{
 		return (unsigned int)LineID::Int;
 	}
-	else if(lineName == L"NMI")
+	else if (lineName == L"NMI")
 	{
 		return (unsigned int)LineID::Nmi;
 	}
@@ -960,7 +960,7 @@ unsigned int Z80::GetLineID(const Marshal::In<std::wstring>& lineName) const
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> Z80::GetLineName(unsigned int lineID) const
 {
-	switch((LineID)lineID)
+	switch ((LineID)lineID)
 	{
 	case LineID::Reset:
 		return L"RESET";
@@ -979,7 +979,7 @@ Marshal::Ret<std::wstring> Z80::GetLineName(unsigned int lineID) const
 //----------------------------------------------------------------------------------------
 unsigned int Z80::GetLineWidth(unsigned int lineID) const
 {
-	switch((LineID)lineID)
+	switch ((LineID)lineID)
 	{
 	case LineID::Reset:
 		return 1;
@@ -1010,7 +1010,7 @@ void Z80::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceCon
 
 	//Read the time at which this access is being made, and trigger a rollback if we've
 	//already passed that time.
-	if(_lastLineCheckTime > accessTime)
+	if (_lastLineCheckTime > accessTime)
 	{
 		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 	}
@@ -1018,7 +1018,7 @@ void Z80::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceCon
 	//Insert the line access into the buffer. Note that entries in the buffer are sorted
 	//by access time from lowest to highest.
 	std::list<LineAccess>::reverse_iterator i = _lineAccessBuffer.rbegin();
-	while((i != _lineAccessBuffer.rend()) && (i->accessTime > accessTime))
+	while ((i != _lineAccessBuffer.rend()) && (i->accessTime > accessTime))
 	{
 		++i;
 	}
@@ -1026,7 +1026,7 @@ void Z80::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceCon
 
 	//Resume the main execution thread if it is currently suspended waiting for a line
 	//state change to be received.
-	if(_suspendUntilLineStateChangeReceived)
+	if (_suspendUntilLineStateChangeReceived)
 	{
 		GetDeviceContext()->ResumeTimesliceExecution();
 	}
@@ -1045,7 +1045,7 @@ void Z80::RevokeSetLineState(unsigned int targetLine, const Data& lineData, doub
 
 	//Read the time at which this access is being made, and trigger a rollback if we've
 	//already passed that time.
-	if(_lastLineCheckTime > accessTime)
+	if (_lastLineCheckTime > accessTime)
 	{
 		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 	}
@@ -1053,9 +1053,9 @@ void Z80::RevokeSetLineState(unsigned int targetLine, const Data& lineData, doub
 	//Find the matching line state change entry in the line access buffer
 	std::list<LineAccess>::reverse_iterator i = _lineAccessBuffer.rbegin();
 	bool foundTargetEntry = false;
-	while(!foundTargetEntry && (i != _lineAccessBuffer.rend()))
+	while (!foundTargetEntry && (i != _lineAccessBuffer.rend()))
 	{
-		if((i->lineID == targetLine) && (i->state == lineData) && (i->accessTime == reportedTime))
+		if ((i->lineID == targetLine) && (i->state == lineData) && (i->accessTime == reportedTime))
 		{
 			foundTargetEntry = true;
 			continue;
@@ -1064,7 +1064,7 @@ void Z80::RevokeSetLineState(unsigned int targetLine, const Data& lineData, doub
 	}
 
 	//Erase the target line state change entry from the line access buffer
-	if(foundTargetEntry)
+	if (foundTargetEntry)
 	{
 		_lineAccessBuffer.erase((++i).base());
 	}
@@ -1081,18 +1081,18 @@ void Z80::RevokeSetLineState(unsigned int targetLine, const Data& lineData, doub
 //----------------------------------------------------------------------------------------
 void Z80::AssertCurrentOutputLineState() const
 {
-	if(_memoryBus != 0)
+	if (_memoryBus != 0)
 	{
-		if(_busackLineState) _memoryBus->SetLineState((unsigned int)LineID::BusAck, Data(GetLineWidth((unsigned int)LineID::BusAck), 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if (_busackLineState) _memoryBus->SetLineState((unsigned int)LineID::BusAck, Data(GetLineWidth((unsigned int)LineID::BusAck), 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::NegateCurrentOutputLineState() const
 {
-	if(_memoryBus != 0)
+	if (_memoryBus != 0)
 	{
-		if(_busackLineState) _memoryBus->SetLineState((unsigned int)LineID::BusAck, Data(GetLineWidth((unsigned int)LineID::BusAck), 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if (_busackLineState) _memoryBus->SetLineState((unsigned int)LineID::BusAck, Data(GetLineWidth((unsigned int)LineID::BusAck), 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
 }
 
@@ -1104,14 +1104,14 @@ void Z80::ApplyLineStateChange(unsigned int targetLine, const Data& lineData, st
 //	message << "Z80 line state change applied\t" << targetLine << '\t' << lineData.GetData() << "\n";
 //	std::wcout << message.str();
 
-	switch(targetLine)
+	switch (targetLine)
 	{
 	case LineID::Reset:
 		_resetLineState = lineData.NonZero();
 		break;
 	case LineID::BusReq:{
 		bool newState = lineData.NonZero();
-		if(_busreqLineState != newState)
+		if (_busreqLineState != newState)
 		{
 			_busreqLineState = newState;
 
@@ -1154,7 +1154,7 @@ void Z80::ApplyLineStateChange(unsigned int targetLine, const Data& lineData, st
 //----------------------------------------------------------------------------------------
 unsigned int Z80::GetClockSourceID(const Marshal::In<std::wstring>& clockSourceName) const
 {
-	if(clockSourceName == L"CLK")
+	if (clockSourceName == L"CLK")
 	{
 		return (unsigned int)ClockID::Clk;
 	}
@@ -1164,7 +1164,7 @@ unsigned int Z80::GetClockSourceID(const Marshal::In<std::wstring>& clockSourceN
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> Z80::GetClockSourceName(unsigned int clockSourceID) const
 {
-	switch((ClockID)clockSourceID)
+	switch ((ClockID)clockSourceID)
 	{
 	case ClockID::Clk:
 		return L"CLK";
@@ -1189,7 +1189,7 @@ void Z80::SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceC
 
 	//Read the time at which this access is being made, and trigger a rollback if we've
 	//already passed that time.
-	if(_lastLineCheckTime > accessTime)
+	if (_lastLineCheckTime > accessTime)
 	{
 		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 	}
@@ -1197,7 +1197,7 @@ void Z80::SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceC
 	//Insert the line access into the buffer. Note that entries in the buffer are sorted
 	//by access time from lowest to highest.
 	std::list<LineAccess>::reverse_iterator i = _lineAccessBuffer.rbegin();
-	while((i != _lineAccessBuffer.rend()) && (i->accessTime > accessTime))
+	while ((i != _lineAccessBuffer.rend()) && (i->accessTime > accessTime))
 	{
 		++i;
 	}
@@ -1205,7 +1205,7 @@ void Z80::SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceC
 
 	//Resume the main execution thread if it is currently suspended waiting for a line
 	//state change to be received.
-	if(_suspendUntilLineStateChangeReceived)
+	if (_suspendUntilLineStateChangeReceived)
 	{
 		GetDeviceContext()->ResumeTimesliceExecution();
 	}
@@ -1221,7 +1221,7 @@ void Z80::TransparentSetClockSourceRate(unsigned int clockInput, double clockRat
 void Z80::ApplyClockStateChange(unsigned int targetClock, double clockRate)
 {
 	//Apply the input clock rate change
-	if((ClockID)targetClock == ClockID::Clk)
+	if ((ClockID)targetClock == ClockID::Clk)
 	{
 		SetClockSpeed(clockRate);
 	}
@@ -1275,7 +1275,7 @@ unsigned int Z80::GetMinimumDataByteSize() const
 unsigned int Z80::GetMemorySpaceByte(unsigned int location) const
 {
 	_externalReferenceLock.ObtainReadLock();
-	if(_memoryBus == 0)
+	if (_memoryBus == 0)
 	{
 		_externalReferenceLock.ReleaseReadLock();
 		return 0;
@@ -1291,7 +1291,7 @@ unsigned int Z80::GetMemorySpaceByte(unsigned int location) const
 void Z80::SetMemorySpaceByte(unsigned int location, unsigned int data)
 {
 	_externalReferenceLock.ObtainReadLock();
-	if(_memoryBus == 0)
+	if (_memoryBus == 0)
 	{
 		_externalReferenceLock.ReleaseReadLock();
 		return;
@@ -1306,7 +1306,7 @@ void Z80::SetMemorySpaceByte(unsigned int location, unsigned int data)
 bool Z80::GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const
 {
 	_externalReferenceLock.ObtainReadLock();
-	if(_memoryBus == 0)
+	if (_memoryBus == 0)
 	{
 		_externalReferenceLock.ReleaseReadLock();
 		return false;
@@ -1327,13 +1327,13 @@ bool Z80::GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const
 	ReadMemory(readLocation++, opcode, true);
 	++instructionSize;
 	//If the first byte is a prefix byte, process it, and read the second byte.
-	if((opcode == 0xDD) || (opcode == 0xFD))
+	if ((opcode == 0xDD) || (opcode == 0xFD))
 	{
-		if(opcode == 0xDD)
+		if (opcode == 0xDD)
 		{
 			indexState = EffectiveAddress::IndexState::IX;
 		}
-		else if(opcode == 0xFD)
+		else if (opcode == 0xFD)
 		{
 			indexState = EffectiveAddress::IndexState::IY;
 		}
@@ -1344,15 +1344,15 @@ bool Z80::GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const
 	}
 	//If we've encountered two prefix bytes back to back, force the opcode to a NOP
 	//instruction.
-	if((opcode == 0xDD) || (opcode == 0xFD))
+	if ((opcode == 0xDD) || (opcode == 0xFD))
 	{
 		opcode = 0;
 	}
 
 	//Select the decode table to use, and extract the opcode
-	if(opcode == 0xCB)
+	if (opcode == 0xCB)
 	{
-		if(indexState != EffectiveAddress::IndexState::None)
+		if (indexState != EffectiveAddress::IndexState::None)
 		{
 			//Decode a DDCB or an FDCB opcode. These opcodes include a mandatory index
 			//displacement value as the third byte of the opcode.
@@ -1364,7 +1364,7 @@ bool Z80::GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const
 		++instructionSize;
 		nextOpcodeType = _opcodeTableCB.GetInstruction(opcode.GetData());
 	}
-	else if(opcode == 0xED)
+	else if (opcode == 0xED)
 	{
 		//Override any DD or FD prefix. The DD and FD prefix bytes are ignored for ED
 		//prefixed opcodes.
@@ -1380,7 +1380,7 @@ bool Z80::GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const
 	}
 
 	//Process the opcode
-	if(nextOpcodeType != 0)
+	if (nextOpcodeType != 0)
 	{
 		Z80Instruction* nextOpcode = nextOpcodeType->Clone();
 
@@ -1416,17 +1416,17 @@ double Z80::ReadMemory(const Z80Word& location, Data& data, bool transparent) co
 {
 	IBusInterface::AccessResult result;
 
-	if(!transparent)
+	if (!transparent)
 	{
 		CheckMemoryRead(location.GetData(), data.GetData());
 	}
 
-	switch(data.GetBitCount())
+	switch (data.GetBitCount())
 	{
 	case BITCOUNT_BYTE:{
 		Z80Byte temp;
 		CalculateCELineStateContext ceLineStateContext(true, false);
-		if(transparent)
+		if (transparent)
 		{
 			_memoryBus->TransparentReadMemory(location.GetData(), temp, GetDeviceContext(), 0, (void*)&ceLineStateContext);
 		}
@@ -1440,7 +1440,7 @@ double Z80::ReadMemory(const Z80Word& location, Data& data, bool transparent) co
 		Z80Byte byteLow;
 		Z80Byte byteHigh;
 		CalculateCELineStateContext ceLineStateContext(true, false);
-		if(transparent)
+		if (transparent)
 		{
 			_memoryBus->TransparentReadMemory(location.GetData(), byteLow, GetDeviceContext(), 0, (void*)&ceLineStateContext);
 			_memoryBus->TransparentReadMemory((location + 1).GetData(), byteHigh, GetDeviceContext(), 0, (void*)&ceLineStateContext);
@@ -1465,16 +1465,16 @@ double Z80::WriteMemory(const Z80Word& location, const Data& data, bool transpar
 {
 	IBusInterface::AccessResult result;
 
-	if(!transparent)
+	if (!transparent)
 	{
 		CheckMemoryWrite(location.GetData(), data.GetData());
 	}
 
-	switch(data.GetBitCount())
+	switch (data.GetBitCount())
 	{
 	case BITCOUNT_BYTE:{
 		CalculateCELineStateContext ceLineStateContext(false, true);
-		if(transparent)
+		if (transparent)
 		{
 			_memoryBus->TransparentWriteMemory(location.GetData(), data, GetDeviceContext(), 0, (void*)&ceLineStateContext);
 		}
@@ -1485,7 +1485,7 @@ double Z80::WriteMemory(const Z80Word& location, const Data& data, bool transpar
 		break;}
 	case BITCOUNT_WORD:{
 		CalculateCELineStateContext ceLineStateContext(false, true);
-		if(transparent)
+		if (transparent)
 		{
 			Z80Byte byte1(data.GetLowerBits(BITCOUNT_BYTE));
 			Z80Byte byte2(data.GetUpperBits(BITCOUNT_BYTE));
@@ -1512,11 +1512,11 @@ double Z80::WriteMemory(const Z80Word& location, const Data& data, bool transpar
 //----------------------------------------------------------------------------------------
 unsigned int Z80::GetCELineID(const Marshal::In<std::wstring>& lineName, bool inputLine) const
 {
-	if(lineName == L"RD")
+	if (lineName == L"RD")
 	{
 		return (unsigned int)CELineID::RD;
 	}
-	else if(lineName == L"WR")
+	else if (lineName == L"WR")
 	{
 		return (unsigned int)CELineID::WR;
 	}
@@ -1526,7 +1526,7 @@ unsigned int Z80::GetCELineID(const Marshal::In<std::wstring>& lineName, bool in
 //----------------------------------------------------------------------------------------
 void Z80::SetCELineOutput(unsigned int lineID, bool lineMapped, unsigned int lineStartBitNumber)
 {
-	switch((CELineID)lineID)
+	switch ((CELineID)lineID)
 	{
 	case CELineID::RD:
 		_ceLineMaskRD = !lineMapped? 0: 1 << lineStartBitNumber;
@@ -1541,7 +1541,7 @@ void Z80::SetCELineOutput(unsigned int lineID, bool lineMapped, unsigned int lin
 unsigned int Z80::CalculateCELineStateMemory(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext, double accessTime) const
 {
 	unsigned int ceLineState = 0;
-	if((caller == GetDeviceContext()) && (calculateCELineStateContext != 0))
+	if ((caller == GetDeviceContext()) && (calculateCELineStateContext != 0))
 	{
 		CalculateCELineStateContext& ceLineStateContext = *((CalculateCELineStateContext*)calculateCELineStateContext);
 		ceLineState |= ceLineStateContext.lineRD? _ceLineMaskRD: 0x0;
@@ -1562,59 +1562,59 @@ unsigned int Z80::CalculateCELineStateMemoryTransparent(unsigned int location, c
 void Z80::LoadState(IHierarchicalStorageNode& node)
 {
 	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
-	for(std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	for (std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
-		if((*i)->GetName() == L"Register")
+		if ((*i)->GetName() == L"Register")
 		{
 			IHierarchicalStorageAttribute* nameAttribute = (*i)->GetAttribute(L"name");
-			if(nameAttribute != 0)
+			if (nameAttribute != 0)
 			{
 				std::wstring registerName = nameAttribute->GetValue();
-				if(registerName == L"AF")		_afreg = (*i)->ExtractHexData<unsigned int>();
-				else if(registerName == L"BC")	_bcreg = (*i)->ExtractHexData<unsigned int>();
-				else if(registerName == L"DE")	_dereg = (*i)->ExtractHexData<unsigned int>();
-				else if(registerName == L"HL")	_hlreg = (*i)->ExtractHexData<unsigned int>();
-				else if(registerName == L"AF2")	_af2reg = (*i)->ExtractHexData<unsigned int>();
-				else if(registerName == L"BC2")	_bc2reg = (*i)->ExtractHexData<unsigned int>();
-				else if(registerName == L"DE2")	_de2reg = (*i)->ExtractHexData<unsigned int>();
-				else if(registerName == L"HL2")	_hl2reg = (*i)->ExtractHexData<unsigned int>();
+				if (registerName == L"AF")		_afreg = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"BC")	_bcreg = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"DE")	_dereg = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"HL")	_hlreg = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"AF2")	_af2reg = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"BC2")	_bc2reg = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"DE2")	_de2reg = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"HL2")	_hl2reg = (*i)->ExtractHexData<unsigned int>();
 
-				else if(registerName == L"I")	_ireg = (*i)->ExtractHexData<unsigned int>();
-				else if(registerName == L"R")	_rreg = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"I")	_ireg = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"R")	_rreg = (*i)->ExtractHexData<unsigned int>();
 
-				else if(registerName == L"IX")	_ixreg = (*i)->ExtractHexData<unsigned int>();
-				else if(registerName == L"IY")	_iyreg = (*i)->ExtractHexData<unsigned int>();
-				else if(registerName == L"SP")	_spreg = (*i)->ExtractHexData<unsigned int>();
-				else if(registerName == L"PC")	_pcreg = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"IX")	_ixreg = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"IY")	_iyreg = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"SP")	_spreg = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"PC")	_pcreg = (*i)->ExtractHexData<unsigned int>();
 
-				else if(registerName == L"InterruptMode")	_interruptMode = (*i)->ExtractData<unsigned int>();
-				else if(registerName == L"IFF1")			_iff1 = (*i)->ExtractData<bool>();
-				else if(registerName == L"IFF2")			_iff2 = (*i)->ExtractData<bool>();
-				else if(registerName == L"MaskInterruptsNextOpcode")	_maskInterruptsNextOpcode = (*i)->ExtractData<bool>();
-				else if(registerName == L"ProcessorStopped")		_processorStopped = (*i)->ExtractData<bool>();
+				else if (registerName == L"InterruptMode")	_interruptMode = (*i)->ExtractData<unsigned int>();
+				else if (registerName == L"IFF1")			_iff1 = (*i)->ExtractData<bool>();
+				else if (registerName == L"IFF2")			_iff2 = (*i)->ExtractData<bool>();
+				else if (registerName == L"MaskInterruptsNextOpcode")	_maskInterruptsNextOpcode = (*i)->ExtractData<bool>();
+				else if (registerName == L"ProcessorStopped")		_processorStopped = (*i)->ExtractData<bool>();
 
-				else if(registerName == L"LastTimesliceLength")		_lastTimesliceLength = (*i)->ExtractData<double>();
-				else if(registerName == L"SuspendUntilLineStateChangeReceived")		_suspendUntilLineStateChangeReceived = (*i)->ExtractData<bool>();
-				else if(registerName == L"ResetLineState")			_resetLineState = (*i)->ExtractData<bool>();
-				else if(registerName == L"BusreqLineState")			_busreqLineState = (*i)->ExtractData<bool>();
-				else if(registerName == L"INTLineState")			_intLineState = (*i)->ExtractData<bool>();
-				else if(registerName == L"NMILineState")			_nmiLineState = (*i)->ExtractData<bool>();
+				else if (registerName == L"LastTimesliceLength")		_lastTimesliceLength = (*i)->ExtractData<double>();
+				else if (registerName == L"SuspendUntilLineStateChangeReceived")		_suspendUntilLineStateChangeReceived = (*i)->ExtractData<bool>();
+				else if (registerName == L"ResetLineState")			_resetLineState = (*i)->ExtractData<bool>();
+				else if (registerName == L"BusreqLineState")			_busreqLineState = (*i)->ExtractData<bool>();
+				else if (registerName == L"INTLineState")			_intLineState = (*i)->ExtractData<bool>();
+				else if (registerName == L"NMILineState")			_nmiLineState = (*i)->ExtractData<bool>();
 			}
 		}
 		//Restore the lineAccessBuffer state
-		else if((*i)->GetName() == L"LineAccessBuffer")
+		else if ((*i)->GetName() == L"LineAccessBuffer")
 		{
 			_lineAccessBuffer.clear();
 			IHierarchicalStorageNode& lineAccessBufferNode = *(*i);
 			std::list<IHierarchicalStorageNode*> lineAccessBufferChildList = lineAccessBufferNode.GetChildList();
-			for(std::list<IHierarchicalStorageNode*>::iterator lineAccessBufferEntry = lineAccessBufferChildList.begin(); lineAccessBufferEntry != lineAccessBufferChildList.end(); ++lineAccessBufferEntry)
+			for (std::list<IHierarchicalStorageNode*>::iterator lineAccessBufferEntry = lineAccessBufferChildList.begin(); lineAccessBufferEntry != lineAccessBufferChildList.end(); ++lineAccessBufferEntry)
 			{
-				if((*lineAccessBufferEntry)->GetName() == L"LineAccess")
+				if ((*lineAccessBufferEntry)->GetName() == L"LineAccess")
 				{
 					IHierarchicalStorageAttribute* lineNameAttribute = (*lineAccessBufferEntry)->GetAttribute(L"LineName");
 					IHierarchicalStorageAttribute* clockRateChangeAttribute = (*lineAccessBufferEntry)->GetAttribute(L"ClockRateChange");
 					IHierarchicalStorageAttribute* accessTimeAttribute = (*lineAccessBufferEntry)->GetAttribute(L"AccessTime");
-					if((lineNameAttribute != 0) && (clockRateChangeAttribute != 0) && (accessTimeAttribute != 0))
+					if ((lineNameAttribute != 0) && (clockRateChangeAttribute != 0) && (accessTimeAttribute != 0))
 					{
 						//Extract the entry from the XML stream
 						LineAccess lineAccess(0, 0.0, 0.0);
@@ -1622,13 +1622,13 @@ void Z80::LoadState(IHierarchicalStorageNode& node)
 						std::wstring lineName = lineNameAttribute->ExtractValue<std::wstring>();
 						bool clockRateChange = clockRateChangeAttribute->ExtractValue<bool>();
 						double accessTime = accessTimeAttribute->ExtractValue<double>();
-						if(clockRateChange)
+						if (clockRateChange)
 						{
 							IHierarchicalStorageAttribute* clockRateAttribute = (*lineAccessBufferEntry)->GetAttribute(L"ClockRate");
-							if(clockRateAttribute != 0)
+							if (clockRateAttribute != 0)
 							{
 								unsigned int lineID = GetClockSourceID(lineName.c_str());
-								if(lineID != 0)
+								if (lineID != 0)
 								{
 									double clockRate;
 									clockRateAttribute->ExtractValue(clockRate);
@@ -1640,10 +1640,10 @@ void Z80::LoadState(IHierarchicalStorageNode& node)
 						else
 						{
 							IHierarchicalStorageAttribute* lineStateAttribute = (*lineAccessBufferEntry)->GetAttribute(L"LineState");
-							if(lineStateAttribute != 0)
+							if (lineStateAttribute != 0)
 							{
 								unsigned int lineID = GetLineID(lineName.c_str());
-								if(lineID != 0)
+								if (lineID != 0)
 								{
 									Data lineState(GetLineWidth(lineID));
 									lineStateAttribute->ExtractValue(lineState);
@@ -1656,10 +1656,10 @@ void Z80::LoadState(IHierarchicalStorageNode& node)
 
 						//Find the correct location in the list to insert the entry. The
 						//list must be sorted from earliest to latest.
-						if(lineAccessDefined)
+						if (lineAccessDefined)
 						{
 							std::list<LineAccess>::reverse_iterator j = _lineAccessBuffer.rbegin();
-							while((j != _lineAccessBuffer.rend()) && (j->accessTime > lineAccess.accessTime))
+							while ((j != _lineAccessBuffer.rend()) && (j->accessTime > lineAccess.accessTime))
 							{
 								++j;
 							}
@@ -1716,14 +1716,14 @@ void Z80::SaveState(IHierarchicalStorageNode& node) const
 	node.CreateChild(L"Register", _nmiLineState).CreateAttribute(L"name", L"NMILineState");
 
 	//Save the lineAccessBuffer state
-	if(_lineAccessPending)
+	if (_lineAccessPending)
 	{
 		IHierarchicalStorageNode& lineAccessState = node.CreateChild(L"LineAccessBuffer");
-		for(std::list<LineAccess>::const_iterator i = _lineAccessBuffer.begin(); i != _lineAccessBuffer.end(); ++i)
+		for (std::list<LineAccess>::const_iterator i = _lineAccessBuffer.begin(); i != _lineAccessBuffer.end(); ++i)
 		{
 			IHierarchicalStorageNode& lineAccessEntry = lineAccessState.CreateChild(L"LineAccess");
 			lineAccessEntry.CreateAttribute(L"ClockRateChange", i->clockRateChange);
-			if(i->clockRateChange)
+			if (i->clockRateChange)
 			{
 				lineAccessEntry.CreateAttribute(L"LineName", GetClockSourceName(i->lineID));
 				lineAccessEntry.CreateAttribute(L"ClockRate", i->clockRate);
@@ -1746,7 +1746,7 @@ void Z80::SaveState(IHierarchicalStorageNode& node) const
 bool Z80::ReadGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue) const
 {
 	ApplyGenericDataValueDisplaySettings(dataID, dataValue);
-	switch((IZ80DataSource)dataID)
+	switch ((IZ80DataSource)dataID)
 	{
 	case IZ80DataSource::RegisterA:
 		return dataValue.SetValue(GetA().GetData());
@@ -1847,230 +1847,230 @@ bool Z80::WriteGenericData(unsigned int dataID, const DataContext* dataContext, 
 {
 	ApplyGenericDataValueLimitSettings(dataID, dataValue);
 	IGenericAccessDataValue::DataType dataType = dataValue.GetType();
-	switch((IZ80DataSource)dataID)
+	switch ((IZ80DataSource)dataID)
 	{
 	case IZ80DataSource::RegisterA:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetA(dataValueAsUInt.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterF:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetF(dataValueAsUInt.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterB:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetB(dataValueAsUInt.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterC:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetC(dataValueAsUInt.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterD:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetD(dataValueAsUInt.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterE:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetE(dataValueAsUInt.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterH:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetH(dataValueAsUInt.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterL:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetL(dataValueAsUInt.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterAF:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetAF(dataValueAsUInt.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterBC:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetBC(dataValueAsUInt.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterDE:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetDE(dataValueAsUInt.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterHL:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetHL(dataValueAsUInt.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterA2:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetA2(dataValueAsUInt.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterF2:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetF2(dataValueAsUInt.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterB2:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetB2(dataValueAsUInt.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterC2:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetC2(dataValueAsUInt.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterD2:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetD2(dataValueAsUInt.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterE2:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetE2(dataValueAsUInt.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterH2:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetH2(dataValueAsUInt.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterL2:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetL2(dataValueAsUInt.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterAF2:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetAF2(dataValueAsUInt.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterBC2:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetBC2(dataValueAsUInt.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterDE2:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetDE2(dataValueAsUInt.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterHL2:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetHL2(dataValueAsUInt.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterIXHigh:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetIXHigh(dataValueAsUInt.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterIXLow:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetIXLow(dataValueAsUInt.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterIYHigh:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetIYHigh(dataValueAsUInt.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterIYLow:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetIYLow(dataValueAsUInt.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterI:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetI(dataValueAsUInt.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterR:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetR(dataValueAsUInt.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterIX:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetIX(dataValueAsUInt.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterIY:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetIY(dataValueAsUInt.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterSP:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetSP(dataValueAsUInt.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterPC:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetPC(dataValueAsUInt.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterIM:{
-		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
+		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetInterruptMode(dataValueAsUInt.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterIFF1:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetIFF1(dataValueAsBool.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterIFF2:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetIFF2(dataValueAsBool.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterFlagS:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetFlagS(dataValueAsBool.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterFlagZ:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetFlagZ(dataValueAsBool.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterFlagY:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetFlagY(dataValueAsBool.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterFlagH:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetFlagH(dataValueAsBool.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterFlagX:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetFlagX(dataValueAsBool.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterFlagPV:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetFlagPV(dataValueAsBool.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterFlagN:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetFlagN(dataValueAsBool.GetValue());
 		return true;}
 	case IZ80DataSource::RegisterFlagC:{
-		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetFlagC(dataValueAsBool.GetValue());
 		return true;}
@@ -2083,7 +2083,7 @@ bool Z80::WriteGenericData(unsigned int dataID, const DataContext* dataContext, 
 //----------------------------------------------------------------------------------------
 bool Z80::GetGenericDataHighlightState(unsigned int dataID, const DataContext* dataContext) const
 {
-	switch((IZ80DataSource)dataID)
+	switch ((IZ80DataSource)dataID)
 	{
 	case IZ80DataSource::RegisterA:
 		return (_regChangedA != GetA().GetData());

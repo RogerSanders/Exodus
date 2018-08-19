@@ -20,7 +20,7 @@ AboutView::AboutView(IUIManager& uiManager, AboutViewPresenter& presenter, Exodu
 //----------------------------------------------------------------------------------------
 LRESULT AboutView::WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
-	switch(msg)
+	switch (msg)
 	{
 	case WM_CREATE:
 		return msgWM_CREATE(hwnd, wparam, lparam);
@@ -92,7 +92,7 @@ LRESULT AboutView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	std::vector<std::wstring> deviceColumnDataVersion(registeredDeviceCount);
 	std::vector<std::wstring> deviceColumnDataComments(registeredDeviceCount);
 	unsigned int deviceColumnIndexNo = 0;
-	for(std::list<ExodusInterface::RegisteredDeviceInfo>::const_iterator i = registeredDevices.begin(); i != registeredDevices.end(); ++i)
+	for (std::list<ExodusInterface::RegisteredDeviceInfo>::const_iterator i = registeredDevices.begin(); i != registeredDevices.end(); ++i)
 	{
 		const ExodusInterface::RegisteredDeviceInfo& deviceInfo = *i;
 		deviceColumnDataName[deviceColumnIndexNo] = deviceInfo.info.GetDeviceImplementationName();
@@ -130,7 +130,7 @@ LRESULT AboutView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	std::vector<std::wstring> extensionColumnDataVersion(registeredExtensionCount);
 	std::vector<std::wstring> extensionColumnDataComments(registeredExtensionCount);
 	unsigned int extensionColumnIndexNo = 0;
-	for(std::list<ExodusInterface::RegisteredExtensionInfo>::const_iterator i = registeredExtensions.begin(); i != registeredExtensions.end(); ++i)
+	for (std::list<ExodusInterface::RegisteredExtensionInfo>::const_iterator i = registeredExtensions.begin(); i != registeredExtensions.end(); ++i)
 	{
 		const ExodusInterface::RegisteredExtensionInfo& extensionInfo = *i;
 		extensionColumnDataName[extensionColumnIndexNo] = extensionInfo.info.GetExtensionImplementationName();
@@ -236,7 +236,7 @@ INT_PTR CALLBACK AboutView::WndProcPanelStatic(HWND hwnd, UINT msg, WPARAM wpara
 	AboutView* state = (AboutView*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
 	//Process the message
-	switch(msg)
+	switch (msg)
 	{
 	case WM_INITDIALOG:
 		//Set the object pointer
@@ -244,13 +244,13 @@ INT_PTR CALLBACK AboutView::WndProcPanelStatic(HWND hwnd, UINT msg, WPARAM wpara
 		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)(state));
 
 		//Pass this message on to the member window procedure function
-		if(state != 0)
+		if (state != 0)
 		{
 			return state->WndProcPanel(hwnd, msg, wparam, lparam);
 		}
 		break;
 	case WM_DESTROY:
-		if(state != 0)
+		if (state != 0)
 		{
 			//Pass this message on to the member window procedure function
 			INT_PTR result = state->WndProcPanel(hwnd, msg, wparam, lparam);
@@ -266,7 +266,7 @@ INT_PTR CALLBACK AboutView::WndProcPanelStatic(HWND hwnd, UINT msg, WPARAM wpara
 
 	//Pass this message on to the member window procedure function
 	INT_PTR result = FALSE;
-	if(state != 0)
+	if (state != 0)
 	{
 		result = state->WndProcPanel(hwnd, msg, wparam, lparam);
 	}
@@ -278,7 +278,7 @@ INT_PTR AboutView::WndProcPanel(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lpara
 {
 	WndProcDialogImplementSaveFieldWhenLostFocus(hwnd, msg, wparam, lparam);
 	WndProcDialogImplementGiveFocusToChildWindowOnClick(hwnd, msg, wparam, lparam);
-	switch(msg)
+	switch (msg)
 	{
 	case WM_INITDIALOG:
 		return msgPanelWM_INITDIALOG(hwnd, wparam, lparam);
@@ -313,24 +313,24 @@ INT_PTR AboutView::msgPanelWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam
 	int iconRegionWidth = DPIScaleWidth(48);
 	int iconRegionHeight = DPIScaleHeight(48);
 	if     ((iconRegionWidth >= 128) && (iconRegionHeight >= 128)) { iconWidth = 128; iconHeight = 128; }
-	else if((iconRegionWidth >=  84) && (iconRegionHeight >=  84)) { iconWidth =  84; iconHeight =  84; }
-	else if((iconRegionWidth >=  72) && (iconRegionHeight >=  72)) { iconWidth =  72; iconHeight =  72; }
-	else if((iconRegionWidth >=  60) && (iconRegionHeight >=  60)) { iconWidth =  60; iconHeight =  60; }
-	else if((iconRegionWidth >=  56) && (iconRegionHeight >=  56)) { iconWidth =  56; iconHeight =  56; }
-	else if((iconRegionWidth >=  48) && (iconRegionHeight >=  48)) { iconWidth =  48; iconHeight =  48; }
-	else if((iconRegionWidth >=  40) && (iconRegionHeight >=  40)) { iconWidth =  40; iconHeight =  40; }
-	else if((iconRegionWidth >=  32) && (iconRegionHeight >=  32)) { iconWidth =  32; iconHeight =  32; }
-	else if((iconRegionWidth >=  28) && (iconRegionHeight >=  28)) { iconWidth =  28; iconHeight =  28; }
-	else if((iconRegionWidth >=  24) && (iconRegionHeight >=  24)) { iconWidth =  24; iconHeight =  24; }
-	else if((iconRegionWidth >=  20) && (iconRegionHeight >=  20)) { iconWidth =  20; iconHeight =  20; }
-	else if((iconRegionWidth >=  16) && (iconRegionHeight >=  16)) { iconWidth =  16; iconHeight =  16; }
+	else if ((iconRegionWidth >=  84) && (iconRegionHeight >=  84)) { iconWidth =  84; iconHeight =  84; }
+	else if ((iconRegionWidth >=  72) && (iconRegionHeight >=  72)) { iconWidth =  72; iconHeight =  72; }
+	else if ((iconRegionWidth >=  60) && (iconRegionHeight >=  60)) { iconWidth =  60; iconHeight =  60; }
+	else if ((iconRegionWidth >=  56) && (iconRegionHeight >=  56)) { iconWidth =  56; iconHeight =  56; }
+	else if ((iconRegionWidth >=  48) && (iconRegionHeight >=  48)) { iconWidth =  48; iconHeight =  48; }
+	else if ((iconRegionWidth >=  40) && (iconRegionHeight >=  40)) { iconWidth =  40; iconHeight =  40; }
+	else if ((iconRegionWidth >=  32) && (iconRegionHeight >=  32)) { iconWidth =  32; iconHeight =  32; }
+	else if ((iconRegionWidth >=  28) && (iconRegionHeight >=  28)) { iconWidth =  28; iconHeight =  28; }
+	else if ((iconRegionWidth >=  24) && (iconRegionHeight >=  24)) { iconWidth =  24; iconHeight =  24; }
+	else if ((iconRegionWidth >=  20) && (iconRegionHeight >=  20)) { iconWidth =  20; iconHeight =  20; }
+	else if ((iconRegionWidth >=  16) && (iconRegionHeight >=  16)) { iconWidth =  16; iconHeight =  16; }
 
 	//Set the program icon image
-	if((iconWidth > 0) && (iconHeight > 0))
+	if ((iconWidth > 0) && (iconHeight > 0))
 	{
 		HWND logoControl = GetDlgItem(hwnd, IDC_ABOUT_LOGO);
 		HANDLE programIconHandle = LoadImage(GetAssemblyHandle(), MAKEINTRESOURCE(IDI_PROGRAM), IMAGE_ICON, iconWidth, iconHeight, LR_SHARED);
-		if(programIconHandle != NULL)
+		if (programIconHandle != NULL)
 		{
 			SendMessage(logoControl, STM_SETIMAGE, IMAGE_ICON, (LPARAM)programIconHandle);
 		}
@@ -343,13 +343,13 @@ INT_PTR AboutView::msgPanelWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam
 INT_PTR AboutView::msgPanelWM_NOTIFY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	LPNMHDR message = (LPNMHDR)lparam;
-	switch(message->code)
+	switch (message->code)
 	{
 	case NM_CLICK:
 	case NM_RETURN:{
 		//If the user has clicked a hyperlink, open the target in the default browser.
 		HWND linkControl = GetDlgItem(hwnd, IDC_ABOUT_URL);
-		if(message->hwndFrom == linkControl)
+		if (message->hwndFrom == linkControl)
 		{
 			PNMLINK linkInfo = (PNMLINK)message;
 			ShellExecute(hwnd, L"open", linkInfo->item.szUrl, NULL, NULL, SW_SHOW);
@@ -362,7 +362,7 @@ INT_PTR AboutView::msgPanelWM_NOTIFY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 //----------------------------------------------------------------------------------------
 INT_PTR AboutView::msgPanelWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	if(LOWORD(wparam) == IDOK)
+	if (LOWORD(wparam) == IDOK)
 	{
 		CloseView();
 	}

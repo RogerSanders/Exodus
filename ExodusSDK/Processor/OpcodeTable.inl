@@ -27,20 +27,20 @@ template<class T> bool OpcodeTable<T>::AllocateRegionToOpcode(const T* opcode, c
 
 	//Find the next unhandled substitution character
 	p1 = definition.find_first_not_of(L"01");
-	if(p1 != std::wstring::npos)
+	if (p1 != std::wstring::npos)
 	{
 		p2 = definition.find_first_not_of(definition[p1], p1);
-		if(p2 == std::wstring::npos)
+		if (p2 == std::wstring::npos)
 		{
 			p2 = definition.length();
 		}
 		std::wstring replace = definition.substr(p1, p2 - p1);
 
 		std::vector<std::wstring> dataSet;
-		if(replace[0] == '*')
+		if (replace[0] == '*')
 		{
 			//Wildcard replace
-			for(unsigned int i = 0; i < ((unsigned int)1 << (unsigned int)replace.length()); ++i)
+			for (unsigned int i = 0; i < ((unsigned int)1 << (unsigned int)replace.length()); ++i)
 			{
 				std::wstring entry;
 				IntToStringBase2(i, entry, (int)replace.length(), false);
@@ -54,13 +54,13 @@ template<class T> bool OpcodeTable<T>::AllocateRegionToOpcode(const T* opcode, c
 			size_t temp2;
 
 			temp1 = substitutions.find(replace);
-			if(temp1 == std::wstring::npos)
+			if (temp1 == std::wstring::npos)
 			{
 				return false;
 			}
 			temp1 += replace.length() + 1;
 			temp2 = substitutions.find_first_of(L"\t ", temp1);
-			if(temp2 == std::wstring::npos)
+			if (temp2 == std::wstring::npos)
 			{
 				temp2 = substitutions.length();
 			}
@@ -68,16 +68,16 @@ template<class T> bool OpcodeTable<T>::AllocateRegionToOpcode(const T* opcode, c
 
 			std::vector<std::wstring> operations = TokenizeString(operationString, L",");
 
-			for(unsigned int i = 0; i < operations.size(); ++i)
+			for (unsigned int i = 0; i < operations.size(); ++i)
 			{
-				if(operations[i].length() > replace.length())
+				if (operations[i].length() > replace.length())
 				{
 					unsigned int start;
 					StringToIntBase2(operations[i].substr(0, replace.length()), start);
 					unsigned int end;
 					StringToIntBase2(operations[i].substr(replace.length() + 1), end);
 
-					for(unsigned int j = start; j <= end; ++j)
+					for (unsigned int j = start; j <= end; ++j)
 					{
 						std::wstring entry;
 						IntToStringBase2(j, entry, (int)replace.length(), false);
@@ -93,23 +93,23 @@ template<class T> bool OpcodeTable<T>::AllocateRegionToOpcode(const T* opcode, c
 
 		//Make recursive call with each valid substitution
 		bool finalSubstitution = false;
-		if(definition.find_first_not_of(L"01", p2) == std::wstring::npos)
+		if (definition.find_first_not_of(L"01", p2) == std::wstring::npos)
 		{
 			finalSubstitution = true;
 		}
-		for(unsigned int i = 0; i < dataSet.size(); ++i)
+		for (unsigned int i = 0; i < dataSet.size(); ++i)
 		{
 			std::wstring newDefinition = definition;
-			for(unsigned int j = 0; j < replace.size(); ++j)
+			for (unsigned int j = 0; j < replace.size(); ++j)
 			{
 				newDefinition[p1 + j] = dataSet[i][j];
 			}
 
-			if(finalSubstitution)
+			if (finalSubstitution)
 			{
 				unsigned int opcodeIndex;
 				StringToIntBase2(newDefinition, opcodeIndex);
-				if(_opcodeArray[opcodeIndex] != 0)
+				if (_opcodeArray[opcodeIndex] != 0)
 				{
 					return false;
 				}
@@ -117,7 +117,7 @@ template<class T> bool OpcodeTable<T>::AllocateRegionToOpcode(const T* opcode, c
 			}
 			else
 			{
-				if(!AllocateRegionToOpcode(opcode, newDefinition, substitutions))
+				if (!AllocateRegionToOpcode(opcode, newDefinition, substitutions))
 				{
 					return false;
 				}
@@ -129,7 +129,7 @@ template<class T> bool OpcodeTable<T>::AllocateRegionToOpcode(const T* opcode, c
 		//If there are no remaining substitution characters, add resolved entry
 		unsigned int opcodeIndex;
 		StringToIntBase2(definition, opcodeIndex);
-		if(_opcodeArray[opcodeIndex] != 0)
+		if (_opcodeArray[opcodeIndex] != 0)
 		{
 			return false;
 		}

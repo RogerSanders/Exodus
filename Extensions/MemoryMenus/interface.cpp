@@ -24,14 +24,14 @@ extern "C" __declspec(dllexport) bool GetExtensionEntry(unsigned int entryNo, IE
 	std::wstring commentsText;
 	HMODULE moduleHandle = NULL;
 	BOOL getModuleHandleExReturn = GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCWSTR)GetExtensionEntry, &moduleHandle);
-	if(getModuleHandleExReturn != 0)
+	if (getModuleHandleExReturn != 0)
 	{
 		std::wstring modulePath = GetModuleFilePath(moduleHandle);
 		GetModuleVersionInfoString(modulePath, VERSIONINFOPROPERTY_LEGALCOPYRIGHT, copyrightText);
 		GetModuleVersionInfoString(modulePath, VERSIONINFOPROPERTY_COMMENTS, commentsText);
 	}
 
-	switch(entryNo)
+	switch (entryNo)
 	{
 	case 0:
 		entry.SetExtensionSettings(GetMemoryMenus, DeleteMemoryMenus, L"Memory.Menus", L"MemoryMenus", 1, copyrightText, commentsText, true);

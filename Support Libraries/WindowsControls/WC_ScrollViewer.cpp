@@ -66,11 +66,11 @@ bool WC_ScrollViewer::UnregisterWindowClass(HINSTANCE moduleHandle)
 //----------------------------------------------------------------------------------------
 LRESULT CALLBACK WC_ScrollViewer::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	switch(message)
+	switch (message)
 	{
 	default:{
 		WC_ScrollViewer* object = (WC_ScrollViewer*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-		if(object != 0)
+		if (object != 0)
 		{
 			return object->WndProcPrivate(message, wParam, lParam);
 		}
@@ -82,7 +82,7 @@ LRESULT CALLBACK WC_ScrollViewer::WndProc(HWND hwnd, UINT message, WPARAM wParam
 		return object->WndProcPrivate(message, wParam, lParam);}
 	case WM_DESTROY:{
 		WC_ScrollViewer* object = (WC_ScrollViewer*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-		if(object != 0)
+		if (object != 0)
 		{
 			LPARAM result = object->WndProcPrivate(message, wParam, lParam);
 			SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)0);
@@ -98,7 +98,7 @@ LRESULT CALLBACK WC_ScrollViewer::WndProc(HWND hwnd, UINT message, WPARAM wParam
 //----------------------------------------------------------------------------------------
 LRESULT WC_ScrollViewer::WndProcPrivate(UINT message, WPARAM wParam, LPARAM lParam)
 {
-	switch(message)
+	switch (message)
 	{
 	case WM_CREATE:
 		return msgWM_CREATE(wParam, lParam);
@@ -151,7 +151,7 @@ LRESULT WC_ScrollViewer::msgWM_SIZE(WPARAM wParam, LPARAM lParam)
 	int newClientHeight = (int)(rect.bottom - rect.top);
 
 	//Handle this size changed event
-	if((_currentControlWidth != newClientWidth) || (_currentControlHeight != newClientHeight))
+	if ((_currentControlWidth != newClientWidth) || (_currentControlHeight != newClientHeight))
 	{
 		UpdateScrollbarState(newClientWidth, newClientHeight);
 	}
@@ -167,7 +167,7 @@ LRESULT WC_ScrollViewer::msgWM_ERASEBKGND(WPARAM wParam, LPARAM lParam)
 	//containing window to use the WS_EX_COMPOSITED style in order to achieve the desired
 	//effect. If the WS_EX_TRANSPARENT style has not been specified, we pass this message
 	//on to DefWindowProc.
-	if(((unsigned int)GetWindowLongPtr(_hwnd, GWL_EXSTYLE) & WS_EX_TRANSPARENT) != 0)
+	if (((unsigned int)GetWindowLongPtr(_hwnd, GWL_EXSTYLE) & WS_EX_TRANSPARENT) != 0)
 	{
 		return TRUE;
 	}
@@ -200,16 +200,16 @@ LRESULT WC_ScrollViewer::msgWM_NOTIFY(WPARAM wParam, LPARAM lParam)
 LRESULT WC_ScrollViewer::msgWM_BOUNCE(WPARAM wParam, LPARAM lParam)
 {
 	BounceMessage* bounceMessage = (BounceMessage*)lParam;
-	if(bounceMessage->uMsg == WM_SIZE)
+	if (bounceMessage->uMsg == WM_SIZE)
 	{
 		//If the size of a hosted window has changed, update the scrollbar state.
 		std::map<HWND, HostedWindowInfo>::iterator hostedWindowsIterator = _hostedWindows.find(bounceMessage->hwnd);
-		if(hostedWindowsIterator != _hostedWindows.end())
+		if (hostedWindowsIterator != _hostedWindows.end())
 		{
 			HostedWindowInfo& windowInfo = hostedWindowsIterator->second;
 			RECT rect;
 			GetClientRect(windowInfo.windowHandle, &rect);
-			if((windowInfo.currentSizeX  != rect.right) || (windowInfo.currentSizeY != rect.bottom))
+			if ((windowInfo.currentSizeX  != rect.right) || (windowInfo.currentSizeY != rect.bottom))
 			{
 				windowInfo.currentSizeX = rect.right;
 				windowInfo.currentSizeY = rect.bottom;
@@ -224,7 +224,7 @@ LRESULT WC_ScrollViewer::msgWM_BOUNCE(WPARAM wParam, LPARAM lParam)
 LRESULT WC_ScrollViewer::msgWM_HSCROLL(WPARAM wParam, LPARAM lParam)
 {
 	static const unsigned int arrowStepCount = 25;
-	switch(LOWORD(wParam))
+	switch (LOWORD(wParam))
 	{
 	case SB_THUMBTRACK:{
 		SCROLLINFO scrollInfo;
@@ -259,7 +259,7 @@ LRESULT WC_ScrollViewer::msgWM_HSCROLL(WPARAM wParam, LPARAM lParam)
 LRESULT WC_ScrollViewer::msgWM_VSCROLL(WPARAM wParam, LPARAM lParam)
 {
 	static const unsigned int arrowStepCount = 25;
-	switch(LOWORD(wParam))
+	switch (LOWORD(wParam))
 	{
 	case SB_THUMBTRACK:{
 		SCROLLINFO scrollInfo;
@@ -313,7 +313,7 @@ void WC_ScrollViewer::AddWindow(HWND windowHandle)
 {
 	//Ensure this window isn't currently hosted in our control
 	std::map<HWND, HostedWindowInfo>::iterator hostedWindowsIterator = _hostedWindows.find(windowHandle);
-	if(hostedWindowsIterator != _hostedWindows.end())
+	if (hostedWindowsIterator != _hostedWindows.end())
 	{
 		return;
 	}
@@ -348,7 +348,7 @@ void WC_ScrollViewer::RemoveWindow(HWND windowHandle)
 {
 	//Attempt to retrieve info on the target hosted window
 	std::map<HWND, HostedWindowInfo>::iterator hostedWindowsIterator = _hostedWindows.find(windowHandle);
-	if(hostedWindowsIterator == _hostedWindows.end())
+	if (hostedWindowsIterator == _hostedWindows.end())
 	{
 		return;
 	}
@@ -372,7 +372,7 @@ void WC_ScrollViewer::UpdateScrollbarState(int newControlWidth, int newControlHe
 	//Calculate the total required width and height of the scroll region
 	int totalScrollWidth = 0;
 	int totalScrollHeight = 0;
-	for(std::map<HWND, HostedWindowInfo>::const_iterator i = _hostedWindows.begin(); i != _hostedWindows.end(); ++i)
+	for (std::map<HWND, HostedWindowInfo>::const_iterator i = _hostedWindows.begin(); i != _hostedWindows.end(); ++i)
 	{
 		const HostedWindowInfo& windowInfo = i->second;
 		totalScrollWidth = (windowInfo.currentSizeX > totalScrollWidth)? windowInfo.currentSizeX: totalScrollWidth;
@@ -388,7 +388,7 @@ void WC_ScrollViewer::UpdateScrollbarState(int newControlWidth, int newControlHe
 	int newEffectiveScrollHeight = (_currentScrollPosY > totalScrollHeight)? _currentScrollPosY: totalScrollHeight;
 
 	//Update the horizontal scrollbar settings if required
-	if((_currentControlWidth != newControlWidth) || (_effectiveScrollWidth != newEffectiveScrollWidth))
+	if ((_currentControlWidth != newControlWidth) || (_effectiveScrollWidth != newEffectiveScrollWidth))
 	{
 		//Update the stored horizontal scroll info
 		_currentControlWidth = newControlWidth;
@@ -407,7 +407,7 @@ void WC_ScrollViewer::UpdateScrollbarState(int newControlWidth, int newControlHe
 	}
 
 	//Update the vertical scrollbar settings if required
-	if((_currentControlHeight != newControlHeight) || (_effectiveScrollHeight != newEffectiveScrollHeight))
+	if ((_currentControlHeight != newControlHeight) || (_effectiveScrollHeight != newEffectiveScrollHeight))
 	{
 		//Update the stored vertical scroll info
 		_currentControlHeight = newControlHeight;
@@ -438,7 +438,7 @@ void WC_ScrollViewer::UpdateHorizontalScrollPos(int newScrollPos)
 
 	//Calculate the total required width of the scroll region
 	int totalScrollWidth = 0;
-	for(std::map<HWND, HostedWindowInfo>::const_iterator i = _hostedWindows.begin(); i != _hostedWindows.end(); ++i)
+	for (std::map<HWND, HostedWindowInfo>::const_iterator i = _hostedWindows.begin(); i != _hostedWindows.end(); ++i)
 	{
 		const HostedWindowInfo& windowInfo = i->second;
 		totalScrollWidth = (windowInfo.currentSizeX > totalScrollWidth)? windowInfo.currentSizeX: totalScrollWidth;
@@ -467,7 +467,7 @@ void WC_ScrollViewer::UpdateHorizontalScrollPos(int newScrollPos)
 	HDWP deferWindowPosSession = BeginDeferWindowPos((int)_hostedWindows.size());
 
 	//Reposition all our child windows to take the new scroll position into account
-	for(std::map<HWND, HostedWindowInfo>::const_iterator i = _hostedWindows.begin(); i != _hostedWindows.end(); ++i)
+	for (std::map<HWND, HostedWindowInfo>::const_iterator i = _hostedWindows.begin(); i != _hostedWindows.end(); ++i)
 	{
 		const HostedWindowInfo& windowInfo = i->second;
 		DeferWindowPos(deferWindowPosSession, windowInfo.windowHandle, NULL, -_currentScrollPosX, -_currentScrollPosY, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE);
@@ -489,7 +489,7 @@ void WC_ScrollViewer::UpdateVerticalScrollPos(int newScrollPos)
 
 	//Calculate the total required height of the scroll region
 	int totalScrollHeight = 0;
-	for(std::map<HWND, HostedWindowInfo>::const_iterator i = _hostedWindows.begin(); i != _hostedWindows.end(); ++i)
+	for (std::map<HWND, HostedWindowInfo>::const_iterator i = _hostedWindows.begin(); i != _hostedWindows.end(); ++i)
 	{
 		const HostedWindowInfo& windowInfo = i->second;
 		totalScrollHeight = (windowInfo.currentSizeY > totalScrollHeight)? windowInfo.currentSizeY: totalScrollHeight;
@@ -518,7 +518,7 @@ void WC_ScrollViewer::UpdateVerticalScrollPos(int newScrollPos)
 	HDWP deferWindowPosSession = BeginDeferWindowPos((int)_hostedWindows.size());
 
 	//Reposition all our child windows to take the new scroll position into account
-	for(std::map<HWND, HostedWindowInfo>::const_iterator i = _hostedWindows.begin(); i != _hostedWindows.end(); ++i)
+	for (std::map<HWND, HostedWindowInfo>::const_iterator i = _hostedWindows.begin(); i != _hostedWindows.end(); ++i)
 	{
 		const HostedWindowInfo& windowInfo = i->second;
 		DeferWindowPos(deferWindowPosSession, windowInfo.windowHandle, NULL, -_currentScrollPosX, -_currentScrollPosY, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE);

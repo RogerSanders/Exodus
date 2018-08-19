@@ -18,7 +18,7 @@ wchar_t HexNybbleToWChar(unsigned int nybble)
 //----------------------------------------------------------------------------------------
 unsigned int HexCharToNybble(char nybble)
 {
-	switch(nybble)
+	switch (nybble)
 	{
 	case '0':
 		return 0x0;
@@ -65,7 +65,7 @@ unsigned int HexCharToNybble(char nybble)
 //----------------------------------------------------------------------------------------
 unsigned int HexWCharToNybble(wchar_t nybble)
 {
-	switch(nybble)
+	switch (nybble)
 	{
 	case L'0':
 		return 0x0;
@@ -116,10 +116,10 @@ std::vector<std::string> TokenizeString(const std::string& str, const std::strin
 
 	size_t p0 = 0;
 	size_t p1 = std::string::npos;
-	while(p0 != std::string::npos)
+	while (p0 != std::string::npos)
 	{
 		p1 = str.find_first_of(delim, p0);
-		if(p1 != p0)
+		if (p1 != p0)
 		{
 			std::string token = str.substr(p0, p1 - p0);
 			tokens.push_back(token);
@@ -137,10 +137,10 @@ std::vector<std::wstring> TokenizeString(const std::wstring& str, const std::wst
 
 	size_t p0 = 0;
 	size_t p1 = std::wstring::npos;
-	while(p0 != std::wstring::npos)
+	while (p0 != std::wstring::npos)
 	{
 		p1 = str.find_first_of(delim, p0);
-		if(p1 != p0)
+		if (p1 != p0)
 		{
 			std::wstring token = str.substr(p0, p1 - p0);
 			tokens.push_back(token);
@@ -155,7 +155,7 @@ std::vector<std::wstring> TokenizeString(const std::wstring& str, const std::wst
 template<class T> bool IntToString(T data, std::wstring& string, unsigned int stringBase)
 {
 	//Attempt to convert the number to a string using the specified base
-	switch(stringBase)
+	switch (stringBase)
 	{
 	case 16:
 		IntToStringBase16(data, string, 0, true);
@@ -192,7 +192,7 @@ template<class T> void IntToStringBase16(T data, std::wstring& string, unsigned 
 	//guaranteed by the C++ standard, but is a pretty safe assumption now and into the
 	//future.
 	bool negative = false;
-	if(data < 0)
+	if (data < 0)
 	{
 		negative = true;
 		data = 0 - data;
@@ -214,23 +214,23 @@ template<class T> void IntToStringBase16(T data, std::wstring& string, unsigned 
 		data >>= bitsInChar;
 		++chars;
 	}
-	while(data != 0);
+	while (data != 0);
 
 	//Pad out the resulting string to the requested minimum character length
-	for(unsigned int i = chars; i < charLength; ++i)
+	for (unsigned int i = chars; i < charLength; ++i)
 	{
 		reverseString.push_back(L'0');
 	}
 
 	//Apply a prefix to the string if requested
-	if(encodeType)
+	if (encodeType)
 	{
 		reverseString.push_back(prefixChar);
 		reverseString.push_back(L'0');
 	}
 
 	//Add the negative sign to the string if required
-	if(negative)
+	if (negative)
 	{
 		reverseString.push_back(L'-');
 	}
@@ -254,7 +254,7 @@ template<class T> void IntToStringBase10(T data, std::wstring& string, unsigned 
 	//guaranteed by the C++ standard, but is a pretty safe assumption now and into the
 	//future.
 	bool negative = false;
-	if(data < 0)
+	if (data < 0)
 	{
 		negative = true;
 		data = 0 - data;
@@ -276,23 +276,23 @@ template<class T> void IntToStringBase10(T data, std::wstring& string, unsigned 
 		data /= 10;
 		++chars;
 	}
-	while(data != 0);
+	while (data != 0);
 
 	//Pad out the resulting string to the requested minimum character length
-	for(unsigned int i = chars; i < charLength; ++i)
+	for (unsigned int i = chars; i < charLength; ++i)
 	{
 		reverseString.push_back(L'0');
 	}
 
 	//Apply a prefix to the string if requested
-	if(encodeType)
+	if (encodeType)
 	{
 		reverseString.push_back(prefixChar);
 		reverseString.push_back(L'0');
 	}
 
 	//Add the negative sign to the string if required
-	if(negative)
+	if (negative)
 	{
 		reverseString.push_back(L'-');
 	}
@@ -318,7 +318,7 @@ template<class T> void IntToStringBase8(T data, std::wstring& string, unsigned i
 	//guaranteed by the C++ standard, but is a pretty safe assumption now and into the
 	//future.
 	bool negative = false;
-	if(data < 0)
+	if (data < 0)
 	{
 		negative = true;
 		data = 0 - data;
@@ -340,23 +340,23 @@ template<class T> void IntToStringBase8(T data, std::wstring& string, unsigned i
 		data >>= bitsInChar;
 		++chars;
 	}
-	while(data != 0);
+	while (data != 0);
 
 	//Pad out the resulting string to the requested minimum character length
-	for(unsigned int i = chars; i < charLength; ++i)
+	for (unsigned int i = chars; i < charLength; ++i)
 	{
 		reverseString.push_back(L'0');
 	}
 
 	//Apply a prefix to the string if requested
-	if(encodeType)
+	if (encodeType)
 	{
 		reverseString.push_back(prefixChar);
 		reverseString.push_back(L'0');
 	}
 
 	//Add the negative sign to the string if required
-	if(negative)
+	if (negative)
 	{
 		reverseString.push_back(L'-');
 	}
@@ -382,7 +382,7 @@ template<class T> void IntToStringBase2(T data, std::wstring& string, unsigned i
 	//guaranteed by the C++ standard, but is a pretty safe assumption now and into the
 	//future.
 	bool negative = false;
-	if(data < 0)
+	if (data < 0)
 	{
 		negative = true;
 		data = 0 - data;
@@ -404,23 +404,23 @@ template<class T> void IntToStringBase2(T data, std::wstring& string, unsigned i
 		data >>= bitsInChar;
 		++chars;
 	}
-	while(data != 0);
+	while (data != 0);
 
 	//Pad out the resulting string to the requested minimum character length
-	for(unsigned int i = chars; i < charLength; ++i)
+	for (unsigned int i = chars; i < charLength; ++i)
 	{
 		reverseString.push_back(L'0');
 	}
 
 	//Apply a prefix to the string if requested
-	if(encodeType)
+	if (encodeType)
 	{
 		reverseString.push_back(prefixChar);
 		reverseString.push_back(L'0');
 	}
 
 	//Add the negative sign to the string if required
-	if(negative)
+	if (negative)
 	{
 		reverseString.push_back(L'-');
 	}
@@ -434,17 +434,17 @@ template<class T> bool StringToInt(const std::wstring& string, T& data, unsigned
 {
 	//Abort if the string is empty
 	size_t stringLength = string.length();
-	if(stringLength <= 0)
+	if (stringLength <= 0)
 	{
 		return false;
 	}
 
 	//Check for a prefix, and parse the string as the indicated type if present.
 	size_t startPos = (string[0] == L'-')? 1: 0;
-	if(((startPos + 2) < stringLength) && (string[startPos] == L'0'))
+	if (((startPos + 2) < stringLength) && (string[startPos] == L'0'))
 	{
 		wchar_t typePrefix = CharToLower(string[startPos + 1]);
-		switch(typePrefix)
+		switch (typePrefix)
 		{
 		case L'x':
 		case L'h':
@@ -460,7 +460,7 @@ template<class T> bool StringToInt(const std::wstring& string, T& data, unsigned
 	}
 
 	//Attempt to parse the string with the specified default base
-	switch(defaultBase)
+	switch (defaultBase)
 	{
 	case 16:
 		return StringToIntBase16(string, data);
@@ -481,7 +481,7 @@ template<class T> bool StringToIntBase16(const std::wstring& string, T& data)
 {
 	//Abort if the string is empty
 	size_t stringLength = string.length();
-	if(stringLength <= 0)
+	if (stringLength <= 0)
 	{
 		return false;
 	}
@@ -489,10 +489,10 @@ template<class T> bool StringToIntBase16(const std::wstring& string, T& data)
 	//Extract any prefix on the data
 	bool negative = (string[0] == L'-');
 	size_t startPos = (negative)? 1: 0;
-	if(((startPos + 2) < stringLength) && (string[startPos] == L'0'))
+	if (((startPos + 2) < stringLength) && (string[startPos] == L'0'))
 	{
 		wchar_t typePrefix = CharToLower(string[startPos + 1]);
-		if((typePrefix == L'h') || (typePrefix == L'x'))
+		if ((typePrefix == L'h') || (typePrefix == L'x'))
 		{
 			startPos += 2;
 		}
@@ -501,12 +501,12 @@ template<class T> bool StringToIntBase16(const std::wstring& string, T& data)
 	//Decode the data
 	T decodedData = 0;
 	static const unsigned int bitsInChar = 4;
-	for(size_t i = startPos; i < stringLength; ++i)
+	for (size_t i = startPos; i < stringLength; ++i)
 	{
 		//Decode this digit from the string
 		wchar_t nextChar = string[i];
 		T digit = (T)HexWCharToNybble(nextChar);
-		if(digit > 0xF)
+		if (digit > 0xF)
 		{
 			return false;
 		}
@@ -516,7 +516,7 @@ template<class T> bool StringToIntBase16(const std::wstring& string, T& data)
 	}
 
 	//If this number was prefixed with a minus sign, negate the result.
-	if(negative)
+	if (negative)
 	{
 		decodedData = T(0) - decodedData;
 	}
@@ -531,7 +531,7 @@ template<class T> bool StringToIntBase10(const std::wstring& string, T& data)
 {
 	//Abort if the string is empty
 	size_t stringLength = string.length();
-	if(stringLength <= 0)
+	if (stringLength <= 0)
 	{
 		return false;
 	}
@@ -539,10 +539,10 @@ template<class T> bool StringToIntBase10(const std::wstring& string, T& data)
 	//Extract any prefix on the data
 	bool negative = (string[0] == L'-');
 	size_t startPos = (negative)? 1: 0;
-	if(((startPos + 2) < stringLength) && (string[startPos] == L'0'))
+	if (((startPos + 2) < stringLength) && (string[startPos] == L'0'))
 	{
 		wchar_t typePrefix = CharToLower(string[startPos + 1]);
-		if(typePrefix == L'd')
+		if (typePrefix == L'd')
 		{
 			startPos += 2;
 		}
@@ -550,12 +550,12 @@ template<class T> bool StringToIntBase10(const std::wstring& string, T& data)
 
 	//Decode the data
 	T decodedData = 0;
-	for(size_t i = startPos; i < stringLength; ++i)
+	for (size_t i = startPos; i < stringLength; ++i)
 	{
 		//Decode this digit from the string
 		wchar_t nextChar = string[i];
 		T digit = (T)HexWCharToNybble(nextChar);
-		if(digit > 9)
+		if (digit > 9)
 		{
 			return false;
 		}
@@ -565,7 +565,7 @@ template<class T> bool StringToIntBase10(const std::wstring& string, T& data)
 	}
 
 	//If this number was prefixed with a minus sign, negate the result.
-	if(negative)
+	if (negative)
 	{
 		decodedData = T(0) - decodedData;
 	}
@@ -580,7 +580,7 @@ template<class T> bool StringToIntBase8(const std::wstring& string, T& data)
 {
 	//Abort if the string is empty
 	size_t stringLength = string.length();
-	if(stringLength <= 0)
+	if (stringLength <= 0)
 	{
 		return false;
 	}
@@ -588,10 +588,10 @@ template<class T> bool StringToIntBase8(const std::wstring& string, T& data)
 	//Extract any prefix on the data
 	bool negative = (string[0] == L'-');
 	size_t startPos = (negative)? 1: 0;
-	if(((startPos + 2) < stringLength) && (string[startPos] == L'0'))
+	if (((startPos + 2) < stringLength) && (string[startPos] == L'0'))
 	{
 		wchar_t typePrefix = CharToLower(string[startPos + 1]);
-		if((typePrefix == L'o') || (typePrefix == L'q'))
+		if ((typePrefix == L'o') || (typePrefix == L'q'))
 		{
 			startPos += 2;
 		}
@@ -600,12 +600,12 @@ template<class T> bool StringToIntBase8(const std::wstring& string, T& data)
 	//Decode the data
 	T decodedData = 0;
 	static const unsigned int bitsInChar = 3;
-	for(size_t i = startPos; i < stringLength; ++i)
+	for (size_t i = startPos; i < stringLength; ++i)
 	{
 		//Decode this digit from the string
 		wchar_t nextChar = string[i];
 		T digit = (T)HexWCharToNybble(nextChar);
-		if(digit > 7)
+		if (digit > 7)
 		{
 			return false;
 		}
@@ -615,7 +615,7 @@ template<class T> bool StringToIntBase8(const std::wstring& string, T& data)
 	}
 
 	//If this number was prefixed with a minus sign, negate the result.
-	if(negative)
+	if (negative)
 	{
 		decodedData = T(0) - decodedData;
 	}
@@ -630,7 +630,7 @@ template<class T> bool StringToIntBase2(const std::wstring& string, T& data)
 {
 	//Abort if the string is empty
 	size_t stringLength = string.length();
-	if(stringLength <= 0)
+	if (stringLength <= 0)
 	{
 		return false;
 	}
@@ -638,10 +638,10 @@ template<class T> bool StringToIntBase2(const std::wstring& string, T& data)
 	//Extract any prefix on the data
 	bool negative = (string[0] == L'-');
 	size_t startPos = (negative)? 1: 0;
-	if(((startPos + 2) < stringLength) && (string[startPos] == L'0'))
+	if (((startPos + 2) < stringLength) && (string[startPos] == L'0'))
 	{
 		wchar_t typePrefix = CharToLower(string[startPos + 1]);
-		if(typePrefix == L'b')
+		if (typePrefix == L'b')
 		{
 			startPos += 2;
 		}
@@ -650,12 +650,12 @@ template<class T> bool StringToIntBase2(const std::wstring& string, T& data)
 	//Decode the data
 	T decodedData = 0;
 	static const unsigned int bitsInChar = 1;
-	for(size_t i = startPos; i < stringLength; ++i)
+	for (size_t i = startPos; i < stringLength; ++i)
 	{
 		//Decode this digit from the string
 		wchar_t nextChar = string[i];
 		T digit = (T)HexWCharToNybble(nextChar);
-		if(digit > 1)
+		if (digit > 1)
 		{
 			return false;
 		}
@@ -665,7 +665,7 @@ template<class T> bool StringToIntBase2(const std::wstring& string, T& data)
 	}
 
 	//If this number was prefixed with a minus sign, negate the result.
-	if(negative)
+	if (negative)
 	{
 		decodedData = T(0) - decodedData;
 	}
@@ -686,7 +686,7 @@ template<class T> void PointerToString(T* pointer, std::wstring& string)
 //----------------------------------------------------------------------------------------
 void BoolToString(bool data, std::wstring& string, bool numericForm)
 {
-	if(numericForm)
+	if (numericForm)
 	{
 		string = (data)? L"1": L"0";
 	}
@@ -700,19 +700,19 @@ void BoolToString(bool data, std::wstring& string, bool numericForm)
 bool StringToBool(const std::wstring& string, bool& data)
 {
 	std::wstring stringAsLower = StringToLower(string);
-	if(string == L"1")
+	if (string == L"1")
 	{
 		data = true;
 	}
-	else if(string == L"0")
+	else if (string == L"0")
 	{
 		data = false;
 	}
-	else if(stringAsLower == L"true")
+	else if (stringAsLower == L"true")
 	{
 		data = true;
 	}
-	else if(stringAsLower == L"false")
+	else if (stringAsLower == L"false")
 	{
 		data = false;
 	}
@@ -751,17 +751,17 @@ void FloatToString(float data, std::wstring& string, bool scientificNotation, un
 
 	std::wstringstream stringStream;
 	stringStream << std::showpoint;
-	if(scientificNotation)
+	if (scientificNotation)
 	{
 		stringStream << std::scientific;
 	}
 	else
 	{
 		stringStream << std::fixed;
-		if(fractionalNumberCharLength > 0)
+		if (fractionalNumberCharLength > 0)
 		{
 			stringStream << std::setprecision(fractionalNumberCharLength);
-			if(wholeNumberCharLength > 0)
+			if (wholeNumberCharLength > 0)
 			{
 				unsigned int totalDisplayWidth = wholeNumberCharLength + fractionalNumberCharLength + 1 + ((data < 0.0f)? 1: 0);
 				stringStream << std::setfill(L'0') << std::setw(totalDisplayWidth);
@@ -777,7 +777,7 @@ bool StringToFloat(const std::wstring& string, float& data)
 {
 	wchar_t* endPtr = 0;
 	double result = wcstod(string.c_str(), &endPtr);
-	if(*endPtr != L'\0')
+	if (*endPtr != L'\0')
 	{
 		return false;
 	}
@@ -819,17 +819,17 @@ void DoubleToString(double data, std::wstring& string, bool scientificNotation, 
 	//##TODO## Write a completely custom float/double to string method
 	std::wstringstream stringStream;
 	stringStream << std::showpoint;
-	if(scientificNotation)
+	if (scientificNotation)
 	{
 		stringStream << std::scientific;
 	}
 	else
 	{
 		stringStream << std::fixed;
-		if(fractionalNumberCharLength > 0)
+		if (fractionalNumberCharLength > 0)
 		{
 			stringStream << std::setprecision(fractionalNumberCharLength);
-			if(wholeNumberCharLength > 0)
+			if (wholeNumberCharLength > 0)
 			{
 				unsigned int totalDisplayWidth = wholeNumberCharLength + fractionalNumberCharLength + 1 + ((data < 0.0)? 1: 0);
 				stringStream << std::setfill(L'0') << std::setw(totalDisplayWidth);
@@ -845,7 +845,7 @@ bool StringToDouble(const std::wstring& string, double& data)
 {
 	wchar_t* endPtr = 0;
 	double result = wcstod(string.c_str(), &endPtr);
-	if(*endPtr != L'\0')
+	if (*endPtr != L'\0')
 	{
 		return false;
 	}
@@ -887,7 +887,7 @@ std::string StringToLower(const std::string& string)
 	std::string result;
 	size_t stringLength = string.length();
 	result.resize(stringLength);
-	for(size_t i = 0; i < stringLength; ++i)
+	for (size_t i = 0; i < stringLength; ++i)
 	{
 		result[i] = CharToLower(string[i]);
 	}
@@ -900,7 +900,7 @@ std::wstring StringToLower(const std::wstring& string)
 	std::wstring result;
 	size_t stringLength = string.length();
 	result.resize(stringLength);
-	for(size_t i = 0; i < stringLength; ++i)
+	for (size_t i = 0; i < stringLength; ++i)
 	{
 		result[i] = CharToLower(string[i]);
 	}
@@ -913,7 +913,7 @@ std::string StringToUpper(const std::string& string)
 	std::string result;
 	size_t stringLength = string.length();
 	result.resize(stringLength);
-	for(size_t i = 0; i < stringLength; ++i)
+	for (size_t i = 0; i < stringLength; ++i)
 	{
 		result[i] = CharToUpper(string[i]);
 	}
@@ -926,7 +926,7 @@ std::wstring StringToUpper(const std::wstring& string)
 	std::wstring result;
 	size_t stringLength = string.length();
 	result.resize(stringLength);
-	for(size_t i = 0; i < stringLength; ++i)
+	for (size_t i = 0; i < stringLength; ++i)
 	{
 		result[i] = CharToUpper(string[i]);
 	}

@@ -22,7 +22,7 @@ public:
 
 	virtual Disassembly M68000Disassemble(const M68000::LabelSubstitutionSettings& labelSettings) const
 	{
-		if(labelSettings.enableSubstitution)
+		if (labelSettings.enableSubstitution)
 		{
 			return Disassembly(GetOpcodeName() + L"." + DisassembleSize(_size), _target.DisassembleImmediateAsPCDisplacement(labelSettings));
 		}
@@ -43,7 +43,7 @@ public:
 //	-----------------------------------------------------------------
 
 		//BRA	<label>
-		if(data.GetDataSegment(0, 8) != 0)
+		if (data.GetDataSegment(0, 8) != 0)
 		{
 			_size = BITCOUNT_BYTE;
 			_target.BuildImmediateData(location + GetInstructionSize(), M68000Byte(data.GetDataSegment(0, 8)));

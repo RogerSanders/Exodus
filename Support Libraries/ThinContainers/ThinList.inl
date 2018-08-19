@@ -14,7 +14,7 @@ template<class T> ThinList<T>::ThinList(const T& aobject, ThinList<T>* anext)
 template<class T> ThinList<T>::ThinList(const ThinList<T>& source)
 :next(0), object(source.object)
 {
-	if(source.next != 0)
+	if (source.next != 0)
 	{
 		next = new ThinList<T>(*source.next);
 	}
@@ -31,7 +31,7 @@ template<class T> ThinList<T>::~ThinList()
 //----------------------------------------------------------------------------------------
 template<class T> void ThinList<T>::PushToBack(const T& entry)
 {
-	if(next == 0)
+	if (next == 0)
 	{
 		next = new ThinList<T>(entry);
 	}

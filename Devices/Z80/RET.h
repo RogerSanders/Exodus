@@ -25,7 +25,7 @@ public:
 
 	virtual Disassembly Z80Disassemble(const Z80::LabelSubstitutionSettings& labelSettings) const
 	{
-		if(_conditionCode == ConditionCode::None)
+		if (_conditionCode == ConditionCode::None)
 		{
 			return Disassembly(GetOpcodeName(), L"");
 		}
@@ -40,7 +40,7 @@ public:
 		_target.SetIndexState(GetIndexState(), GetIndexOffset());
 		_conditionCode = ConditionCode::None;
 
-		if(data.GetBit(0))
+		if (data.GetBit(0))
 		{
 			//RET		//11001001
 		}
@@ -62,7 +62,7 @@ public:
 		ExecuteTime additionalCycles;
 
 		//Test the condition code
-		if(ConditionCodeTrue(cpu, _conditionCode))
+		if (ConditionCodeTrue(cpu, _conditionCode))
 		{
 			//If the condition is true, restore the PC from the stack.
 			Z80Word oldPC;

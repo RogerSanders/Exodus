@@ -22,7 +22,7 @@ MDControl6::MDControl6(const std::wstring& implementationName, const std::wstrin
 //----------------------------------------------------------------------------------------
 void MDControl6::Initialize()
 {
-	for(unsigned int i = 0; i < buttonCount; ++i)
+	for (unsigned int i = 0; i < buttonCount; ++i)
 	{
 		_buttonPressed[i] = false;
 	}
@@ -31,7 +31,7 @@ void MDControl6::Initialize()
 	_bankswitchingDisabled = false;
 	_bankswitchCounter = 0;
 	_bankswitchCounterToggleLastRisingEdge = 0;
-	for(unsigned int i = 0; i < outputLineCount; ++i)
+	for (unsigned int i = 0; i < outputLineCount; ++i)
 	{
 		LineID lineID = (LineID)((unsigned int)LineID::D0 + i);
 		_outputLineState[i].asserted = GetDesiredLineState(_bankswitchCounter, _lineInputStateTH, _buttonPressed, lineID);
@@ -51,7 +51,7 @@ bool MDControl6::ValidateDevice()
 //----------------------------------------------------------------------------------------
 bool MDControl6::AddReference(const Marshal::In<std::wstring>& referenceName, IBusInterface* target)
 {
-	if(referenceName == L"BusInterface")
+	if (referenceName == L"BusInterface")
 	{
 		_memoryBus = target;
 	}
@@ -65,7 +65,7 @@ bool MDControl6::AddReference(const Marshal::In<std::wstring>& referenceName, IB
 //----------------------------------------------------------------------------------------
 void MDControl6::RemoveReference(IBusInterface* target)
 {
-	if(_memoryBus == target)
+	if (_memoryBus == target)
 	{
 		_memoryBus = 0;
 	}
@@ -88,10 +88,10 @@ void MDControl6::NotifyUpcomingTimeslice(double nanoseconds)
 	//case we need to update the internal state of this device to reflect the new line
 	//state after the timeout, or we need to rebase the timeout time values to be relative
 	//to the start of the new timeslice.
-	if(_bankswitchCounter > 0)
+	if (_bankswitchCounter > 0)
 	{
 		double elapsedTimeSinceLastTHLineStateChange = nanoseconds - _bankswitchCounterToggleLastRisingEdge;
-		if(elapsedTimeSinceLastTHLineStateChange >= _bankswitchTimeoutInterval)
+		if (elapsedTimeSinceLastTHLineStateChange >= _bankswitchTimeoutInterval)
 		{
 			//Reset the bankswitch counter back to zero
 			_bankswitchCounter = 0;
@@ -101,12 +101,12 @@ void MDControl6::NotifyUpcomingTimeslice(double nanoseconds)
 			//asserted state for our lines to the state we changed to after the timeout
 			//was reached, and clear the flags indicating there is a timeout currently
 			//flagged for our output lines.
-			for(unsigned int i = 0; i < outputLineCount; ++i)
+			for (unsigned int i = 0; i < outputLineCount; ++i)
 			{
-				if(_outputLineState[i].timeoutFlagged)
+				if (_outputLineState[i].timeoutFlagged)
 				{
 					//##DEBUG##
-					if(_outputLineState[i].timeoutTime > nanoseconds)
+					if (_outputLineState[i].timeoutTime > nanoseconds)
 					{
 						std::wcout << "MDControl6 Timeout reverted before target time reached! " << i << '\t' << _outputLineState[i].timeoutTime << '\t' << nanoseconds << '\n';
 					}
@@ -121,9 +121,9 @@ void MDControl6::NotifyUpcomingTimeslice(double nanoseconds)
 			//Go through each pending line state timeout and adjust the time of the access
 			//here, to rebase them for the start of the new timeslice. We need to do this
 			//so that we can revoke them later if required.
-			for(unsigned int i = 0; i < outputLineCount; ++i)
+			for (unsigned int i = 0; i < outputLineCount; ++i)
 			{
-				if(_outputLineState[i].timeoutFlagged)
+				if (_outputLineState[i].timeoutFlagged)
 				{
 					_outputLineState[i].timeoutTime -= _currentTimesliceLength;
 				}
@@ -131,7 +131,7 @@ void MDControl6::NotifyUpcomingTimeslice(double nanoseconds)
 
 			//Rebase the latched time at which the last input TH line rising edge occurred
 			//to the start of the new timeslice
-			if(_bankswitchCounter > 0)
+			if (_bankswitchCounter > 0)
 			{
 				_bankswitchCounterToggleLastRisingEdge -= _currentTimesliceLength;
 			}
@@ -145,7 +145,7 @@ void MDControl6::NotifyUpcomingTimeslice(double nanoseconds)
 //----------------------------------------------------------------------------------------
 void MDControl6::ExecuteRollback()
 {
-	for(unsigned int i = 0; i < buttonCount; ++i)
+	for (unsigned int i = 0; i < buttonCount; ++i)
 	{
 		_buttonPressed[i] = _bbuttonPressed[i];
 	}
@@ -160,7 +160,7 @@ void MDControl6::ExecuteRollback()
 //----------------------------------------------------------------------------------------
 void MDControl6::ExecuteCommit()
 {
-	for(unsigned int i = 0; i < buttonCount; ++i)
+	for (unsigned int i = 0; i < buttonCount; ++i)
 	{
 		_bbuttonPressed[i] = _buttonPressed[i];
 	}
@@ -177,31 +177,31 @@ void MDControl6::ExecuteCommit()
 //----------------------------------------------------------------------------------------
 unsigned int MDControl6::GetLineID(const Marshal::In<std::wstring>& lineName) const
 {
-	if(lineName == L"D0")
+	if (lineName == L"D0")
 	{
 		return (unsigned int)LineID::D0;
 	}
-	else if(lineName == L"D1")
+	else if (lineName == L"D1")
 	{
 		return (unsigned int)LineID::D1;
 	}
-	else if(lineName == L"D2")
+	else if (lineName == L"D2")
 	{
 		return (unsigned int)LineID::D2;
 	}
-	else if(lineName == L"D3")
+	else if (lineName == L"D3")
 	{
 		return (unsigned int)LineID::D3;
 	}
-	else if(lineName == L"TL")
+	else if (lineName == L"TL")
 	{
 		return (unsigned int)LineID::TL;
 	}
-	else if(lineName == L"TR")
+	else if (lineName == L"TR")
 	{
 		return (unsigned int)LineID::TR;
 	}
-	else if(lineName == L"TH")
+	else if (lineName == L"TH")
 	{
 		return (unsigned int)LineID::TH;
 	}
@@ -211,7 +211,7 @@ unsigned int MDControl6::GetLineID(const Marshal::In<std::wstring>& lineName) co
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> MDControl6::GetLineName(unsigned int lineID) const
 {
-	switch((LineID)lineID)
+	switch ((LineID)lineID)
 	{
 	case LineID::D0:
 		return L"D0";
@@ -234,7 +234,7 @@ Marshal::Ret<std::wstring> MDControl6::GetLineName(unsigned int lineID) const
 //----------------------------------------------------------------------------------------
 unsigned int MDControl6::GetLineWidth(unsigned int lineID) const
 {
-	switch((LineID)lineID)
+	switch ((LineID)lineID)
 	{
 	case LineID::D0:
 	case LineID::D1:
@@ -255,7 +255,7 @@ void MDControl6::SetLineState(unsigned int targetLine, const Data& lineData, IDe
 
 	//Read the time at which this access is being made, and trigger a rollback if the
 	//device has been accessed out of order.
-	if(_lastLineAccessTime > accessTime)
+	if (_lastLineAccessTime > accessTime)
 	{
 		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 	}
@@ -266,10 +266,10 @@ void MDControl6::SetLineState(unsigned int targetLine, const Data& lineData, IDe
 	//output line state would have been reverted already by this point, we're just
 	//correcting the internal digital state to what it would have already been in the real
 	//hardware after the timeout period elapsed.
-	if(_bankswitchCounter > 0)
+	if (_bankswitchCounter > 0)
 	{
 		double elapsedTimeSinceLastTHLineStateChange = accessTime - _bankswitchCounterToggleLastRisingEdge;
-		if(elapsedTimeSinceLastTHLineStateChange >= _bankswitchTimeoutInterval)
+		if (elapsedTimeSinceLastTHLineStateChange >= _bankswitchTimeoutInterval)
 		{
 			//Reset the bankswitch counter back to zero
 			_bankswitchCounter = 0;
@@ -279,12 +279,12 @@ void MDControl6::SetLineState(unsigned int targetLine, const Data& lineData, IDe
 			//asserted state for our lines to the state we changed to after the timeout
 			//was reached, and clear the flags indicating there is a timeout currently
 			//flagged for our output lines.
-			for(unsigned int i = 0; i < outputLineCount; ++i)
+			for (unsigned int i = 0; i < outputLineCount; ++i)
 			{
-				if(_outputLineState[i].timeoutFlagged)
+				if (_outputLineState[i].timeoutFlagged)
 				{
 					//##DEBUG##
-					if(_outputLineState[i].timeoutTime > accessTime)
+					if (_outputLineState[i].timeoutTime > accessTime)
 					{
 						std::wcout << "MDControl6 Timeout reverted before target time reached! " << i << '\t' << _outputLineState[i].timeoutTime << '\t' << accessTime << '\n';
 					}
@@ -305,10 +305,10 @@ void MDControl6::SetLineState(unsigned int targetLine, const Data& lineData, IDe
 	//data is read. We need to emulate that here, with an option to disable this
 	//behaviour.
 	bool timeoutSettingsChanged = false;
-	if((LineID)targetLine == LineID::TH)
+	if ((LineID)targetLine == LineID::TH)
 	{
 		bool newLineState = lineData.GetBit(0);
-		if(_lineInputStateTH != newLineState)
+		if (_lineInputStateTH != newLineState)
 		{
 			//Flag that the bankswitch timeout settings have changed now that a change has
 			//been registered to the input HL line state.
@@ -331,10 +331,10 @@ void MDControl6::SetLineState(unsigned int targetLine, const Data& lineData, IDe
 			//line state is toggled after the timeout, the bank will increment to 1.
 			//Rather, it appears that the bankswitch increment will be missed for this
 			//first time. Actually, on further consideration, this might not be correct.
-			if(_lineInputStateTH)
+			if (_lineInputStateTH)
 			{
 				//Increment the bankswitch counter
-				if(_bankswitchingDisabled)
+				if (_bankswitchingDisabled)
 				{
 					_bankswitchCounter = 0;
 				}
@@ -369,52 +369,52 @@ void MDControl6::TransparentSetLineState(unsigned int targetLine, const Data& li
 //----------------------------------------------------------------------------------------
 void MDControl6::AssertCurrentOutputLineState() const
 {
-	if(_memoryBus == 0)
+	if (_memoryBus == 0)
 	{
 		return;
 	}
 
 	//Assert the current line output state for the output lines
-	if(_outputLineState[0].asserted) _memoryBus->SetLineState((unsigned int)LineID::D0, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-	if(_outputLineState[1].asserted) _memoryBus->SetLineState((unsigned int)LineID::D1, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-	if(_outputLineState[2].asserted) _memoryBus->SetLineState((unsigned int)LineID::D2, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-	if(_outputLineState[3].asserted) _memoryBus->SetLineState((unsigned int)LineID::D3, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-	if(_outputLineState[4].asserted) _memoryBus->SetLineState((unsigned int)LineID::TL, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-	if(_outputLineState[5].asserted) _memoryBus->SetLineState((unsigned int)LineID::TR, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-	if(_outputLineState[6].asserted) _memoryBus->SetLineState((unsigned int)LineID::TH, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if (_outputLineState[0].asserted) _memoryBus->SetLineState((unsigned int)LineID::D0, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if (_outputLineState[1].asserted) _memoryBus->SetLineState((unsigned int)LineID::D1, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if (_outputLineState[2].asserted) _memoryBus->SetLineState((unsigned int)LineID::D2, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if (_outputLineState[3].asserted) _memoryBus->SetLineState((unsigned int)LineID::D3, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if (_outputLineState[4].asserted) _memoryBus->SetLineState((unsigned int)LineID::TL, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if (_outputLineState[5].asserted) _memoryBus->SetLineState((unsigned int)LineID::TR, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if (_outputLineState[6].asserted) _memoryBus->SetLineState((unsigned int)LineID::TH, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 
 	//Re-assert any pending line state timeout changes
-	if(_outputLineState[GetLineIndex(LineID::D0)].timeoutFlagged)
+	if (_outputLineState[GetLineIndex(LineID::D0)].timeoutFlagged)
 	{
 		_memoryBus->RevokeSetLineState((unsigned int)LineID::D0, Data(1, _outputLineState[GetLineIndex(LineID::D0)].timeoutAssertedState), _outputLineState[GetLineIndex(LineID::D0)].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 		_memoryBus->SetLineState((unsigned int)LineID::D0, Data(1, _outputLineState[GetLineIndex(LineID::D0)].timeoutAssertedState), GetDeviceContext(), GetDeviceContext(), _outputLineState[GetLineIndex(LineID::D0)].timeoutTime, 0);
 	}
-	if(_outputLineState[GetLineIndex(LineID::D1)].timeoutFlagged)
+	if (_outputLineState[GetLineIndex(LineID::D1)].timeoutFlagged)
 	{
 		_memoryBus->RevokeSetLineState((unsigned int)LineID::D1, Data(1, _outputLineState[GetLineIndex(LineID::D1)].timeoutAssertedState), _outputLineState[GetLineIndex(LineID::D1)].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 		_memoryBus->SetLineState((unsigned int)LineID::D1, Data(1, _outputLineState[GetLineIndex(LineID::D1)].timeoutAssertedState), GetDeviceContext(), GetDeviceContext(), _outputLineState[GetLineIndex(LineID::D1)].timeoutTime, 0);
 	}
-	if(_outputLineState[GetLineIndex(LineID::D2)].timeoutFlagged)
+	if (_outputLineState[GetLineIndex(LineID::D2)].timeoutFlagged)
 	{
 		_memoryBus->RevokeSetLineState((unsigned int)LineID::D2, Data(1, _outputLineState[GetLineIndex(LineID::D2)].timeoutAssertedState), _outputLineState[GetLineIndex(LineID::D2)].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 		_memoryBus->SetLineState((unsigned int)LineID::D2, Data(1, _outputLineState[GetLineIndex(LineID::D2)].timeoutAssertedState), GetDeviceContext(), GetDeviceContext(), _outputLineState[GetLineIndex(LineID::D2)].timeoutTime, 0);
 	}
-	if(_outputLineState[GetLineIndex(LineID::D3)].timeoutFlagged)
+	if (_outputLineState[GetLineIndex(LineID::D3)].timeoutFlagged)
 	{
 		_memoryBus->RevokeSetLineState((unsigned int)LineID::D3, Data(1, _outputLineState[GetLineIndex(LineID::D3)].timeoutAssertedState), _outputLineState[GetLineIndex(LineID::D3)].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 		_memoryBus->SetLineState((unsigned int)LineID::D3, Data(1, _outputLineState[GetLineIndex(LineID::D3)].timeoutAssertedState), GetDeviceContext(), GetDeviceContext(), _outputLineState[GetLineIndex(LineID::D3)].timeoutTime, 0);
 	}
-	if(_outputLineState[GetLineIndex(LineID::TL)].timeoutFlagged)
+	if (_outputLineState[GetLineIndex(LineID::TL)].timeoutFlagged)
 	{
 		_memoryBus->RevokeSetLineState((unsigned int)LineID::TL, Data(1, _outputLineState[GetLineIndex(LineID::TL)].timeoutAssertedState), _outputLineState[GetLineIndex(LineID::TL)].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 		_memoryBus->SetLineState((unsigned int)LineID::TL, Data(1, _outputLineState[GetLineIndex(LineID::TL)].timeoutAssertedState), GetDeviceContext(), GetDeviceContext(), _outputLineState[GetLineIndex(LineID::TL)].timeoutTime, 0);
 	}
-	if(_outputLineState[GetLineIndex(LineID::TR)].timeoutFlagged)
+	if (_outputLineState[GetLineIndex(LineID::TR)].timeoutFlagged)
 	{
 		_memoryBus->RevokeSetLineState((unsigned int)LineID::TR, Data(1, _outputLineState[GetLineIndex(LineID::TR)].timeoutAssertedState), _outputLineState[GetLineIndex(LineID::TR)].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 		_memoryBus->SetLineState((unsigned int)LineID::TR, Data(1, _outputLineState[GetLineIndex(LineID::TR)].timeoutAssertedState), GetDeviceContext(), GetDeviceContext(), _outputLineState[GetLineIndex(LineID::TR)].timeoutTime, 0);
 	}
-	if(_outputLineState[GetLineIndex(LineID::TH)].timeoutFlagged)
+	if (_outputLineState[GetLineIndex(LineID::TH)].timeoutFlagged)
 	{
 		_memoryBus->RevokeSetLineState((unsigned int)LineID::TH, Data(1, _outputLineState[GetLineIndex(LineID::TH)].timeoutAssertedState), _outputLineState[GetLineIndex(LineID::TH)].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 		_memoryBus->SetLineState((unsigned int)LineID::TH, Data(1, _outputLineState[GetLineIndex(LineID::TH)].timeoutAssertedState), GetDeviceContext(), GetDeviceContext(), _outputLineState[GetLineIndex(LineID::TH)].timeoutTime, 0);
@@ -424,46 +424,46 @@ void MDControl6::AssertCurrentOutputLineState() const
 //----------------------------------------------------------------------------------------
 void MDControl6::NegateCurrentOutputLineState() const
 {
-	if(_memoryBus == 0)
+	if (_memoryBus == 0)
 	{
 		return;
 	}
 
 	//Negate the current line output state for the output lines
-	if(_outputLineState[0].asserted) _memoryBus->SetLineState((unsigned int)LineID::D0, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-	if(_outputLineState[1].asserted) _memoryBus->SetLineState((unsigned int)LineID::D1, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-	if(_outputLineState[2].asserted) _memoryBus->SetLineState((unsigned int)LineID::D2, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-	if(_outputLineState[3].asserted) _memoryBus->SetLineState((unsigned int)LineID::D3, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-	if(_outputLineState[4].asserted) _memoryBus->SetLineState((unsigned int)LineID::TL, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-	if(_outputLineState[5].asserted) _memoryBus->SetLineState((unsigned int)LineID::TR, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-	if(_outputLineState[6].asserted) _memoryBus->SetLineState((unsigned int)LineID::TH, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if (_outputLineState[0].asserted) _memoryBus->SetLineState((unsigned int)LineID::D0, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if (_outputLineState[1].asserted) _memoryBus->SetLineState((unsigned int)LineID::D1, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if (_outputLineState[2].asserted) _memoryBus->SetLineState((unsigned int)LineID::D2, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if (_outputLineState[3].asserted) _memoryBus->SetLineState((unsigned int)LineID::D3, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if (_outputLineState[4].asserted) _memoryBus->SetLineState((unsigned int)LineID::TL, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if (_outputLineState[5].asserted) _memoryBus->SetLineState((unsigned int)LineID::TR, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+	if (_outputLineState[6].asserted) _memoryBus->SetLineState((unsigned int)LineID::TH, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 
 	//Revoke any pending line state timeout changes
-	if(_outputLineState[GetLineIndex(LineID::D0)].timeoutFlagged)
+	if (_outputLineState[GetLineIndex(LineID::D0)].timeoutFlagged)
 	{
 		_memoryBus->RevokeSetLineState((unsigned int)LineID::D0, Data(1, _outputLineState[GetLineIndex(LineID::D0)].timeoutAssertedState), _outputLineState[GetLineIndex(LineID::D0)].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
-	if(_outputLineState[GetLineIndex(LineID::D1)].timeoutFlagged)
+	if (_outputLineState[GetLineIndex(LineID::D1)].timeoutFlagged)
 	{
 		_memoryBus->RevokeSetLineState((unsigned int)LineID::D1, Data(1, _outputLineState[GetLineIndex(LineID::D1)].timeoutAssertedState), _outputLineState[GetLineIndex(LineID::D1)].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
-	if(_outputLineState[GetLineIndex(LineID::D2)].timeoutFlagged)
+	if (_outputLineState[GetLineIndex(LineID::D2)].timeoutFlagged)
 	{
 		_memoryBus->RevokeSetLineState((unsigned int)LineID::D2, Data(1, _outputLineState[GetLineIndex(LineID::D2)].timeoutAssertedState), _outputLineState[GetLineIndex(LineID::D2)].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
-	if(_outputLineState[GetLineIndex(LineID::D3)].timeoutFlagged)
+	if (_outputLineState[GetLineIndex(LineID::D3)].timeoutFlagged)
 	{
 		_memoryBus->RevokeSetLineState((unsigned int)LineID::D3, Data(1, _outputLineState[GetLineIndex(LineID::D3)].timeoutAssertedState), _outputLineState[GetLineIndex(LineID::D3)].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
-	if(_outputLineState[GetLineIndex(LineID::TL)].timeoutFlagged)
+	if (_outputLineState[GetLineIndex(LineID::TL)].timeoutFlagged)
 	{
 		_memoryBus->RevokeSetLineState((unsigned int)LineID::TL, Data(1, _outputLineState[GetLineIndex(LineID::TL)].timeoutAssertedState), _outputLineState[GetLineIndex(LineID::TL)].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
-	if(_outputLineState[GetLineIndex(LineID::TR)].timeoutFlagged)
+	if (_outputLineState[GetLineIndex(LineID::TR)].timeoutFlagged)
 	{
 		_memoryBus->RevokeSetLineState((unsigned int)LineID::TR, Data(1, _outputLineState[GetLineIndex(LineID::TR)].timeoutAssertedState), _outputLineState[GetLineIndex(LineID::TR)].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
-	if(_outputLineState[GetLineIndex(LineID::TH)].timeoutFlagged)
+	if (_outputLineState[GetLineIndex(LineID::TH)].timeoutFlagged)
 	{
 		_memoryBus->RevokeSetLineState((unsigned int)LineID::TH, Data(1, _outputLineState[GetLineIndex(LineID::TH)].timeoutAssertedState), _outputLineState[GetLineIndex(LineID::TH)].timeoutTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
@@ -490,7 +490,7 @@ void MDControl6::UpdateOutputLineStateForLine(LineID lineID, bool revokeAllTimeo
 
 	//Update the target line output state
 	bool lineAssertedNew = GetDesiredLineState(_bankswitchCounter, _lineInputStateTH, _buttonPressed, lineID);
-	if(_outputLineState[lineIndex].asserted != lineAssertedNew)
+	if (_outputLineState[lineIndex].asserted != lineAssertedNew)
 	{
 		_outputLineState[lineIndex].asserted = lineAssertedNew;
 		_memoryBus->SetLineState((unsigned int)lineID, Data(1, (unsigned int)lineAssertedNew), GetDeviceContext(), caller, accessTime, accessContext);
@@ -501,10 +501,10 @@ void MDControl6::UpdateOutputLineStateForLine(LineID lineID, bool revokeAllTimeo
 	bool timeoutLineStateChangeRequired = false;
 	double elapsedTimeSinceLastTHLineStateChange;
 	bool lineAssertedAfterTimeoutNew;
-	if(_bankswitchCounter > 0)
+	if (_bankswitchCounter > 0)
 	{
 		elapsedTimeSinceLastTHLineStateChange = accessTime - _bankswitchCounterToggleLastRisingEdge;
-		if(elapsedTimeSinceLastTHLineStateChange < _bankswitchTimeoutInterval)
+		if (elapsedTimeSinceLastTHLineStateChange < _bankswitchTimeoutInterval)
 		{
 			lineAssertedAfterTimeoutNew = GetDesiredLineState(0, _lineInputStateTH, _buttonPressed, lineID);
 			timeoutLineStateChangeRequired = (lineAssertedNew != lineAssertedAfterTimeoutNew);
@@ -513,21 +513,21 @@ void MDControl6::UpdateOutputLineStateForLine(LineID lineID, bool revokeAllTimeo
 
 	//Revoke an existing timeout line state change if the timeout setting has changed, or
 	//if a line state change is no longer required on timeout.
-	if(_outputLineState[lineIndex].timeoutFlagged && (revokeAllTimeoutStateChanges || !timeoutLineStateChangeRequired))
+	if (_outputLineState[lineIndex].timeoutFlagged && (revokeAllTimeoutStateChanges || !timeoutLineStateChangeRequired))
 	{
 		_memoryBus->RevokeSetLineState((unsigned int)lineID, Data(1, _outputLineState[lineIndex].timeoutAssertedState), _outputLineState[lineIndex].timeoutTime, GetDeviceContext(), caller, accessTime, accessContext);
 		_outputLineState[lineIndex].timeoutFlagged = false;
 	}
 
 	//Raise a target line output state change on bankswitch timeout if required
-	if(timeoutLineStateChangeRequired)
+	if (timeoutLineStateChangeRequired)
 	{
 		//Calculate the time at which a timeout will occur, and the state of the target
 		//line should be altered.
 		double timeoutTime = accessTime + (_bankswitchTimeoutInterval - elapsedTimeSinceLastTHLineStateChange);
 
 		//##DEBUG##
-		if(timeoutTime <= accessTime)
+		if (timeoutTime <= accessTime)
 		{
 			std::wcout << "MDControl6 timeoutTime <= accessTime: " << timeoutTime << '\t' << accessTime << '\t' << (unsigned int)lineID << '\n';
 		}
@@ -545,11 +545,11 @@ void MDControl6::UpdateOutputLineStateForLine(LineID lineID, bool revokeAllTimeo
 //----------------------------------------------------------------------------------------
 bool MDControl6::GetDesiredLineState(unsigned int currentBankswitchCounter, unsigned int currentLineInputStateTH, const std::vector<bool>& currentButtonPressedState, LineID lineID)
 {
-	switch(currentBankswitchCounter)
+	switch (currentBankswitchCounter)
 	{
 	case 0:
 	case 1:
-		if(currentLineInputStateTH)
+		if (currentLineInputStateTH)
 		{
 			//This state is selected when TH is configured as an input and set to 1
 			//D0 = Up
@@ -559,7 +559,7 @@ bool MDControl6::GetDesiredLineState(unsigned int currentBankswitchCounter, unsi
 			//TL = B
 			//TR = C
 			//TH = Null (+5v)
-			switch(lineID)
+			switch (lineID)
 			{
 			case LineID::D0:
 				return !currentButtonPressedState[BUTTONINDEX_UP];
@@ -587,7 +587,7 @@ bool MDControl6::GetDesiredLineState(unsigned int currentBankswitchCounter, unsi
 			//TL = A
 			//TR = Start
 			//TH = Null (+5v)
-			switch(lineID)
+			switch (lineID)
 			{
 			case LineID::D0:
 				return !currentButtonPressedState[BUTTONINDEX_UP];
@@ -607,7 +607,7 @@ bool MDControl6::GetDesiredLineState(unsigned int currentBankswitchCounter, unsi
 		}
 		break;
 	case 2:
-		if(currentLineInputStateTH)
+		if (currentLineInputStateTH)
 		{
 			//D0 = Up
 			//D1 = Down
@@ -616,7 +616,7 @@ bool MDControl6::GetDesiredLineState(unsigned int currentBankswitchCounter, unsi
 			//TL = B
 			//TR = C
 			//TH = Null (+5v)
-			switch(lineID)
+			switch (lineID)
 			{
 			case LineID::D0:
 				return !currentButtonPressedState[BUTTONINDEX_UP];
@@ -643,7 +643,7 @@ bool MDControl6::GetDesiredLineState(unsigned int currentBankswitchCounter, unsi
 			//TL = A
 			//TR = Start
 			//TH = Null (+5v)
-			switch(lineID)
+			switch (lineID)
 			{
 			case LineID::D0:
 				return false;
@@ -663,7 +663,7 @@ bool MDControl6::GetDesiredLineState(unsigned int currentBankswitchCounter, unsi
 		}
 		break;
 	case 3:
-		if(currentLineInputStateTH)
+		if (currentLineInputStateTH)
 		{
 			//D0 = Z
 			//D1 = Y
@@ -672,7 +672,7 @@ bool MDControl6::GetDesiredLineState(unsigned int currentBankswitchCounter, unsi
 			//TL = B
 			//TR = C
 			//TH = Null (+5v)
-			switch(lineID)
+			switch (lineID)
 			{
 			case LineID::D0:
 				return !currentButtonPressedState[BUTTONINDEX_Z];
@@ -699,7 +699,7 @@ bool MDControl6::GetDesiredLineState(unsigned int currentBankswitchCounter, unsi
 			//TL = A
 			//TR = Start
 			//TH = Null (+5v)
-			switch(lineID)
+			switch (lineID)
 			{
 			case LineID::D0:
 				return true;
@@ -736,51 +736,51 @@ unsigned int MDControl6::GetLineIndex(LineID lineID)
 //----------------------------------------------------------------------------------------
 unsigned int MDControl6::GetKeyCodeID(const Marshal::In<std::wstring>& keyCodeName) const
 {
-	if(keyCodeName == L"Up")
+	if (keyCodeName == L"Up")
 	{
 		return BUTTONINDEX_UP+1;
 	}
-	else if(keyCodeName == L"Down")
+	else if (keyCodeName == L"Down")
 	{
 		return BUTTONINDEX_DOWN+1;
 	}
-	else if(keyCodeName == L"Left")
+	else if (keyCodeName == L"Left")
 	{
 		return BUTTONINDEX_LEFT+1;
 	}
-	else if(keyCodeName == L"Right")
+	else if (keyCodeName == L"Right")
 	{
 		return BUTTONINDEX_RIGHT+1;
 	}
-	else if(keyCodeName == L"A")
+	else if (keyCodeName == L"A")
 	{
 		return BUTTONINDEX_A+1;
 	}
-	else if(keyCodeName == L"B")
+	else if (keyCodeName == L"B")
 	{
 		return BUTTONINDEX_B+1;
 	}
-	else if(keyCodeName == L"C")
+	else if (keyCodeName == L"C")
 	{
 		return BUTTONINDEX_C+1;
 	}
-	else if(keyCodeName == L"Start")
+	else if (keyCodeName == L"Start")
 	{
 		return BUTTONINDEX_START+1;
 	}
-	else if(keyCodeName == L"X")
+	else if (keyCodeName == L"X")
 	{
 		return BUTTONINDEX_X+1;
 	}
-	else if(keyCodeName == L"Y")
+	else if (keyCodeName == L"Y")
 	{
 		return BUTTONINDEX_Y+1;
 	}
-	else if(keyCodeName == L"Z")
+	else if (keyCodeName == L"Z")
 	{
 		return BUTTONINDEX_Z+1;
 	}
-	else if(keyCodeName == L"Mode")
+	else if (keyCodeName == L"Mode")
 	{
 		return BUTTONINDEX_MODE+1;
 	}
@@ -790,7 +790,7 @@ unsigned int MDControl6::GetKeyCodeID(const Marshal::In<std::wstring>& keyCodeNa
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> MDControl6::GetKeyCodeName(unsigned int keyCodeID) const
 {
-	switch(keyCodeID)
+	switch (keyCodeID)
 	{
 	case BUTTONINDEX_UP+1:
 		return L"Up";
@@ -840,7 +840,7 @@ void MDControl6::HandleInputKeyDown(unsigned int keyCodeID)
 	//of its exclusive keys to be negated.
 	ButtonIndex keyCode = (ButtonIndex)(keyCodeID-1);
 	bool newButtonPressState = true;
-	if(_buttonPressed[keyCode] != newButtonPressState)
+	if (_buttonPressed[keyCode] != newButtonPressState)
 	{
 		_buttonPressed[keyCode] = newButtonPressState;
 		UpdateLineState(false, GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
@@ -852,7 +852,7 @@ void MDControl6::HandleInputKeyUp(unsigned int keyCodeID)
 {
 	ButtonIndex keyCode = (ButtonIndex)(keyCodeID-1);
 	bool newButtonPressState = false;
-	if(_buttonPressed[keyCode] != newButtonPressState)
+	if (_buttonPressed[keyCode] != newButtonPressState)
 	{
 		_buttonPressed[keyCode] = newButtonPressState;
 		UpdateLineState(false, GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
@@ -865,37 +865,37 @@ void MDControl6::HandleInputKeyUp(unsigned int keyCodeID)
 void MDControl6::LoadState(IHierarchicalStorageNode& node)
 {
 	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
-	for(std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	for (std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
 		IHierarchicalStorageNode& node = *(*i);
 		std::wstring nodeName = node.GetName();
-		if(nodeName == L"CurrentTimesliceLength")
+		if (nodeName == L"CurrentTimesliceLength")
 		{
 			node.ExtractData(_currentTimesliceLength);
 		}
-		else if(nodeName == L"LineInputStateTH")
+		else if (nodeName == L"LineInputStateTH")
 		{
 			node.ExtractData(_lineInputStateTH);
 		}
-		else if(nodeName == L"BankswitchingDisabled")
+		else if (nodeName == L"BankswitchingDisabled")
 		{
 			node.ExtractData(_bankswitchingDisabled);
 		}
-		else if(nodeName == L"BankswitchCounter")
+		else if (nodeName == L"BankswitchCounter")
 		{
 			node.ExtractData(_bankswitchCounter);
 		}
-		else if(nodeName == L"BankswitchCounterToggleLastRisingEdge")
+		else if (nodeName == L"BankswitchCounterToggleLastRisingEdge")
 		{
 			node.ExtractData(_bankswitchCounterToggleLastRisingEdge);
 		}
-		else if(nodeName == L"OutputLineState")
+		else if (nodeName == L"OutputLineState")
 		{
 			IHierarchicalStorageAttribute* lineNumberAttribute = node.GetAttribute(L"LineNo");
-			if(lineNumberAttribute != 0)
+			if (lineNumberAttribute != 0)
 			{
 				unsigned int lineNo = lineNumberAttribute->ExtractValue<unsigned int>();
-				if(lineNo < outputLineCount)
+				if (lineNo < outputLineCount)
 				{
 					node.ExtractAttribute(L"Asserted", _outputLineState[lineNo].asserted);
 					node.ExtractAttribute(L"TimeoutFlagged", _outputLineState[lineNo].timeoutFlagged);
@@ -904,13 +904,13 @@ void MDControl6::LoadState(IHierarchicalStorageNode& node)
 				}
 			}
 		}
-		else if(nodeName == L"ButtonPressed")
+		else if (nodeName == L"ButtonPressed")
 		{
 			IHierarchicalStorageAttribute* buttonNumberAttribute = node.GetAttribute(L"ButtonNo");
-			if(buttonNumberAttribute != 0)
+			if (buttonNumberAttribute != 0)
 			{
 				unsigned int buttonNo = buttonNumberAttribute->ExtractValue<unsigned int>();
-				if(buttonNo < buttonCount)
+				if (buttonNo < buttonCount)
 				{
 					bool state;
 					node.ExtractAttribute(L"Pressed", state);
@@ -930,11 +930,11 @@ void MDControl6::SaveState(IHierarchicalStorageNode& node) const
 	node.CreateChild(L"BankswitchCounter", _bankswitchCounter);
 	node.CreateChild(L"BankswitchCounterToggleLastRisingEdge", _bankswitchCounterToggleLastRisingEdge);
 
-	for(unsigned int i = 0; i < outputLineCount; ++i)
+	for (unsigned int i = 0; i < outputLineCount; ++i)
 	{
 		node.CreateChild(L"OutputLineState").CreateAttribute(L"LineNo", i).CreateAttribute(L"Asserted", _outputLineState[i].asserted).CreateAttribute(L"TimeoutFlagged", _outputLineState[i].timeoutFlagged).CreateAttribute(L"TimeoutAssertedState", _outputLineState[i].timeoutAssertedState).CreateAttribute(L"TimeoutTime", _outputLineState[i].timeoutTime);
 	}
-	for(unsigned int i = 0; i < buttonCount; ++i)
+	for (unsigned int i = 0; i < buttonCount; ++i)
 	{
 		node.CreateChild(L"ButtonPressed").CreateAttribute(L"ButtonNo", i).CreateAttribute(L"Pressed", _buttonPressed[i]);
 	}

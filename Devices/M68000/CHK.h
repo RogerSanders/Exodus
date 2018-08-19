@@ -33,7 +33,7 @@ public:
 //	| 0 | 1 | 0 | 0 |  REGISTER |  SIZE | 0 |    MODE   | REGISTER  |
 //	----------------------------------------=========================
 //	                                        |----------<ea>---------|
-		switch(data.GetDataSegment(7, 2))
+		switch (data.GetDataSegment(7, 2))
 		{
 		case 3:	//11
 			_size = BITCOUNT_WORD;
@@ -68,18 +68,18 @@ public:
 		cpu->SetC(false);
 
 		cpu->SetPC(location + GetInstructionSize());
-		if(op1.Negative())	//If op1 < 0
+		if (op1.Negative())	//If op1 < 0
 		{
-			if(!cpu->ExceptionDisabled(M68000::Exceptions::CHKInstruction))
+			if (!cpu->ExceptionDisabled(M68000::Exceptions::CHKInstruction))
 			{
 				cpu->SetN(true);
 				cpu->PushStackFrame(cpu->GetPC(), cpu->GetSR());
 				exceptionTime = cpu->ProcessException(M68000::Exceptions::CHKInstruction);
 			}
 		}
-		else if(op2.Negative() || (op1.GetData() > op2.GetData()))	//If op2 > op1
+		else if (op2.Negative() || (op1.GetData() > op2.GetData()))	//If op2 > op1
 		{
-			if(!cpu->ExceptionDisabled(M68000::Exceptions::CHKInstruction))
+			if (!cpu->ExceptionDisabled(M68000::Exceptions::CHKInstruction))
 			{
 				cpu->SetN(false);
 				cpu->PushStackFrame(cpu->GetPC(), cpu->GetSR());

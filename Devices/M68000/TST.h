@@ -35,7 +35,7 @@ public:
 //	| 0 | 1 | 0 | 0 | 1 | 0 | 1 | 0 | SIZE  |   MODE    |  REGISTER |
 //	----------------------------------------=========================
 //                                          |----------<ea>---------|
-		switch(data.GetDataSegment(6, 2))
+		switch (data.GetDataSegment(6, 2))
 		{
 		case 0:	//00
 			_size = BITCOUNT_BYTE;

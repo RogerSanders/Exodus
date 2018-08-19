@@ -18,19 +18,19 @@ template<> bool Stream<IStream>::ProcessByteOrderMark()
 	//Read the first two bytes of the file to check for a byte order mark
 	unsigned char byte1;
 	unsigned char byte2;
-	if(!ReadData(byte1) || !ReadData(byte2))
+	if (!ReadData(byte1) || !ReadData(byte2))
 	{
 		SetStreamPos(initialStreamPos);
 		return false;
 	}
 
 	//Check for a UTF-32 big endian mark (00 00 FE FF)
-	if((byte1 == 0x00) && (byte2 == 0x00))
+	if ((byte1 == 0x00) && (byte2 == 0x00))
 	{
 		IStream::SizeType currentStreamPos = GetStreamPos();
 		unsigned char byte3;
 		unsigned char byte4;
-		if(ReadData(byte3) && ReadData(byte4) && (byte3 == 0xFE) && (byte4 == 0xFF))
+		if (ReadData(byte3) && ReadData(byte4) && (byte3 == 0xFE) && (byte4 == 0xFF))
 		{
 			SetTextEncoding(IStream::TextEncoding::UTF32);
 			SetByteOrder(IStream::ByteOrder::BigEndian);
@@ -40,7 +40,7 @@ template<> bool Stream<IStream>::ProcessByteOrderMark()
 	}
 
 	//Check for a UTF-16 big endian mark (FE FF)
-	if((byte1 == 0xFE) && (byte2 == 0xFF))
+	if ((byte1 == 0xFE) && (byte2 == 0xFF))
 	{
 		SetTextEncoding(IStream::TextEncoding::UTF16);
 		SetByteOrder(IStream::ByteOrder::BigEndian);
@@ -48,13 +48,13 @@ template<> bool Stream<IStream>::ProcessByteOrderMark()
 	}
 
 	//Check for a UTF-16 little endian mark (FF FE) or UTF-32 little endian mark (FF FE 00 00)
-	if((byte1 == 0xFF) && (byte2 == 0xFE))
+	if ((byte1 == 0xFF) && (byte2 == 0xFE))
 	{
 		//Check if this actually actually appears to be a UTF-32 mark
 		IStream::SizeType currentStreamPos = GetStreamPos();
 		unsigned char byte3;
 		unsigned char byte4;
-		if(ReadData(byte3) && ReadData(byte4) && (byte3 == 0x00) && (byte4 == 0x00))
+		if (ReadData(byte3) && ReadData(byte4) && (byte3 == 0x00) && (byte4 == 0x00))
 		{
 			SetTextEncoding(IStream::TextEncoding::UTF32);
 			SetByteOrder(IStream::ByteOrder::LittleEndian);
@@ -70,11 +70,11 @@ template<> bool Stream<IStream>::ProcessByteOrderMark()
 	}
 
 	//Check for UTF-8 mark (EF BB BF)
-	if((byte1 == 0xEF) && (byte2 == 0xBB))
+	if ((byte1 == 0xEF) && (byte2 == 0xBB))
 	{
 		IStream::SizeType currentStreamPos = GetStreamPos();
 		unsigned char byte3;
-		if(ReadData(byte3) && (byte3 == 0xBF))
+		if (ReadData(byte3) && (byte3 == 0xBF))
 		{
 			SetTextEncoding(IStream::TextEncoding::UTF8);
 			return true;
@@ -94,13 +94,13 @@ template<> bool Stream<IStreamNonSeekable>::ProcessByteOrderMark()
 	unsigned char byte2;
 	unsigned char byte3;
 	unsigned char byte4;
-	if(!ReadData(byte1) || !ReadData(byte2) || !ReadData(byte3) || !ReadData(byte4))
+	if (!ReadData(byte1) || !ReadData(byte2) || !ReadData(byte3) || !ReadData(byte4))
 	{
 		return false;
 	}
 
 	//Check for a UTF-32 big endian mark (00 00 FE FF)
-	if((byte1 == 0x00) && (byte2 == 0x00) && (byte3 == 0xFE) && (byte4 == 0xFF))
+	if ((byte1 == 0x00) && (byte2 == 0x00) && (byte3 == 0xFE) && (byte4 == 0xFF))
 	{
 		SetTextEncoding(IStream::TextEncoding::UTF32);
 		SetByteOrder(IStream::ByteOrder::BigEndian);
@@ -108,7 +108,7 @@ template<> bool Stream<IStreamNonSeekable>::ProcessByteOrderMark()
 	}
 
 	//Check for a UTF-16 big endian mark (FE FF)
-	if((byte1 == 0xFE) && (byte2 == 0xFF))
+	if ((byte1 == 0xFE) && (byte2 == 0xFF))
 	{
 		SetTextEncoding(IStream::TextEncoding::UTF16);
 		SetByteOrder(IStream::ByteOrder::BigEndian);
@@ -116,10 +116,10 @@ template<> bool Stream<IStreamNonSeekable>::ProcessByteOrderMark()
 	}
 
 	//Check for a UTF-16 little endian mark (FF FE) or UTF-32 little endian mark (FF FE 00 00)
-	if((byte1 == 0xFF) && (byte2 == 0xFE))
+	if ((byte1 == 0xFF) && (byte2 == 0xFE))
 	{
 		//Check if this actually actually appears to be a UTF-32 mark
-		if((byte3 == 0x00) && (byte4 == 0x00))
+		if ((byte3 == 0x00) && (byte4 == 0x00))
 		{
 			SetTextEncoding(IStream::TextEncoding::UTF32);
 			SetByteOrder(IStream::ByteOrder::LittleEndian);
@@ -134,7 +134,7 @@ template<> bool Stream<IStreamNonSeekable>::ProcessByteOrderMark()
 	}
 
 	//Check for UTF-8 mark (EF BB BF)
-	if((byte1 == 0xEF) && (byte2 == 0xBB) && (byte3 == 0xBF))
+	if ((byte1 == 0xEF) && (byte2 == 0xBB) && (byte3 == 0xBF))
 	{
 		SetTextEncoding(IStream::TextEncoding::UTF8);
 		return true;
@@ -146,7 +146,7 @@ template<> bool Stream<IStreamNonSeekable>::ProcessByteOrderMark()
 //----------------------------------------------------------------------------------------
 template<class B> void Stream<B>::InsertByteOrderMark()
 {
-	switch(_textEncoding)
+	switch (_textEncoding)
 	{
 	case B::TextEncoding::UTF8:{
 		unsigned char byte1 = 0xEF;
@@ -770,7 +770,7 @@ template<class B> bool Stream<B>::ReadDataLittleEndian(long double& data)
 template<class B> bool Stream<B>::ReadData(bool* data, typename B::SizeType length)
 {
 	bool result = true;
-	for(unsigned int i = 0; i < length; ++i)
+	for (unsigned int i = 0; i < length; ++i)
 	{
 		unsigned char temp;
 		result &= ReadDataInternal(temp);
@@ -873,7 +873,7 @@ template<class B> bool Stream<B>::ReadData(long double* data, typename B::SizeTy
 template<class B> bool Stream<B>::ReadDataBigEndian(bool* data, typename B::SizeType length)
 {
 	bool result = true;
-	for(unsigned int i = 0; i < length; ++i)
+	for (unsigned int i = 0; i < length; ++i)
 	{
 		unsigned char temp;
 		result &= ReadDataInternalBigEndian(temp);
@@ -976,7 +976,7 @@ template<class B> bool Stream<B>::ReadDataBigEndian(long double* data, typename 
 template<class B> bool Stream<B>::ReadDataLittleEndian(bool* data, typename B::SizeType length)
 {
 	bool result = true;
-	for(unsigned int i = 0; i < length; ++i)
+	for (unsigned int i = 0; i < length; ++i)
 	{
 		unsigned char temp;
 		result &= ReadDataInternalLittleEndian(temp);
@@ -1806,7 +1806,7 @@ template<class B> bool Stream<B>::WriteDataLittleEndian(long double data)
 template<class B> bool Stream<B>::WriteData(const bool* data, typename B::SizeType length)
 {
 	bool result = true;
-	for(unsigned int i = 0; i < length; ++i)
+	for (unsigned int i = 0; i < length; ++i)
 	{
 		result &= WriteDataInternal(BoolToByte(data[i]));
 	}
@@ -1907,7 +1907,7 @@ template<class B> bool Stream<B>::WriteData(const long double* data, typename B:
 template<class B> bool Stream<B>::WriteDataBigEndian(const bool* data, typename B::SizeType length)
 {
 	bool result = true;
-	for(unsigned int i = 0; i < length; ++i)
+	for (unsigned int i = 0; i < length; ++i)
 	{
 		result &= WriteDataInternalBigEndian(BoolToByte(data[i]));
 	}
@@ -2008,7 +2008,7 @@ template<class B> bool Stream<B>::WriteDataBigEndian(const long double* data, ty
 template<class B> bool Stream<B>::WriteDataLittleEndian(const bool* data, typename B::SizeType length)
 {
 	bool result = true;
-	for(unsigned int i = 0; i < length; ++i)
+	for (unsigned int i = 0; i < length; ++i)
 	{
 		result &= WriteDataInternalLittleEndian(BoolToByte(data[i]));
 	}
@@ -2127,7 +2127,7 @@ template<class B> void Stream<B>::ConvertUTF16ToUnicodeCodePoint(unsigned short 
 template<class B> void Stream<B>::ConvertUTF32ToUnicodeCodePoint(unsigned int source, typename B::UnicodeCodePoint& target)
 {
 	//##TODO## Handle platforms where wchar_t uses UTF32 encoding
-	if((source & 0xFFFF0000) == 0)
+	if ((source & 0xFFFF0000) == 0)
 	{
 		target.surrogatePair = false;
 		target.codeUnit1 = (wchar_t)source;
@@ -2153,7 +2153,7 @@ template<class B> void Stream<B>::ConvertUnicodeCodePointToUTF16(const typename 
 template<class B> void Stream<B>::ConvertUnicodeCodePointToUTF32(const typename B::UnicodeCodePoint& source, unsigned int& target)
 {
 	//##TODO## Handle platforms where wchar_t uses UTF32 encoding
-	if(!source.surrogatePair)
+	if (!source.surrogatePair)
 	{
 		target = (unsigned int)((unsigned short)source.codeUnit1);
 	}
@@ -2174,7 +2174,7 @@ template<class B> bool Stream<B>::ConvertCharToUnicodeCodePoint(char source, typ
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::ConvertWCharTToUnicodeCodePoint(const wchar_t* source, typename B::UnicodeCodePoint& target, typename B::SizeType bufferSize, typename B::SizeType& codeUnitsRead)
 {
-	if((bufferSize - codeUnitsRead) <= 0)
+	if ((bufferSize - codeUnitsRead) <= 0)
 	{
 		return false;
 	}
@@ -2184,7 +2184,7 @@ template<class B> bool Stream<B>::ConvertWCharTToUnicodeCodePoint(const wchar_t*
 
 	//If this is the second half of a surrogate pair, the data is invalid. Abort the
 	//read.
-	if((codeUnit1 & 0xFC00) == 0xDC00)
+	if ((codeUnit1 & 0xFC00) == 0xDC00)
 	{
 		return false;
 	}
@@ -2192,10 +2192,10 @@ template<class B> bool Stream<B>::ConvertWCharTToUnicodeCodePoint(const wchar_t*
 	//If this is the first half of a surrogate pair, read in the second half.
 	bool surrogatePair = false;
 	unsigned short codeUnit2 = 0;
-	if((codeUnit1 & 0xFC00) == 0xD800)
+	if ((codeUnit1 & 0xFC00) == 0xD800)
 	{
 		//Ensure that code units are available in the buffer
-		if((bufferSize - codeUnitsRead) <= 0)
+		if ((bufferSize - codeUnitsRead) <= 0)
 		{
 			return false;
 		}
@@ -2207,7 +2207,7 @@ template<class B> bool Stream<B>::ConvertWCharTToUnicodeCodePoint(const wchar_t*
 
 		//If this is isn't the second half of a surrogate pair, the data is invalid.
 		//Abort the read.
-		if((codeUnit2 & 0xFC00) != 0xDC00)
+		if ((codeUnit2 & 0xFC00) != 0xDC00)
 		{
 			return false;
 		}
@@ -2227,15 +2227,15 @@ template<class B> bool Stream<B>::ConvertUnicodeCodePointToChar(const typename B
 //----------------------------------------------------------------------------------------
 template<class B> bool Stream<B>::ConvertUnicodeCodePointToWCharT(const typename B::UnicodeCodePoint& source, wchar_t* target, typename B::SizeType bufferSize, typename B::SizeType& codeUnitsWritten)
 {
-	if((bufferSize - codeUnitsWritten) <= 0)
+	if ((bufferSize - codeUnitsWritten) <= 0)
 	{
 		return false;
 	}
 	*target = source.codeUnit1;
 	++codeUnitsWritten;
-	if(source.surrogatePair)
+	if (source.surrogatePair)
 	{
-		if((bufferSize - codeUnitsWritten) <= 0)
+		if ((bufferSize - codeUnitsWritten) <= 0)
 		{
 			return false;
 		}

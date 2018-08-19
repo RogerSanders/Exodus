@@ -36,7 +36,7 @@ public:
 //	| 0 | 1 | 0 | 1 |    DATA   | 0 | SIZE  |    MODE   |  REGISTER |
 //	----------------------------------------=========================
 //                              |--<opmode>-|----------<ea>---------|
-		switch(data.GetDataSegment(6, 2))
+		switch (data.GetDataSegment(6, 2))
 		{
 		case 0:	//00
 			_size = BITCOUNT_BYTE;
@@ -54,9 +54,9 @@ public:
 		_target.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), _size, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
 		AddInstructionSize(_target.ExtensionSize());
 
-		if(_target.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect)
+		if (_target.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect)
 		{
-			if(_size != BITCOUNT_LONG)
+			if (_size != BITCOUNT_LONG)
 			{
 				AddExecuteCycleCount(ExecuteTime(4, 1, 0));
 			}
@@ -65,13 +65,13 @@ public:
 				AddExecuteCycleCount(ExecuteTime(8, 1, 0));
 			}
 		}
-		else if(_target.GetAddressMode() == EffectiveAddress::Mode::AddRegDirect)
+		else if (_target.GetAddressMode() == EffectiveAddress::Mode::AddRegDirect)
 		{
 			AddExecuteCycleCount(ExecuteTime(8, 1, 0));
 		}
 		else
 		{
-			if(_size != BITCOUNT_LONG)
+			if (_size != BITCOUNT_LONG)
 			{
 				AddExecuteCycleCount(ExecuteTime(8, 1, 1));
 			}
@@ -95,7 +95,7 @@ public:
 		//this behaviour. We do this test here instead of the decode function so that the
 		//disassembly correctly shows the specified size of the operation, even if it has
 		//no meaning on an address register.
-		if(_target.GetAddressMode() == EffectiveAddress::Mode::AddRegDirect)
+		if (_target.GetAddressMode() == EffectiveAddress::Mode::AddRegDirect)
 		{
 			op1.Resize(BITCOUNT_LONG);
 			op2.Resize(BITCOUNT_LONG);
@@ -109,7 +109,7 @@ public:
 		additionalTime += _target.Write(cpu, result, GetInstructionRegister());
 
 		//Set the flag results
-		if(_target.GetAddressMode() != EffectiveAddress::Mode::AddRegDirect)
+		if (_target.GetAddressMode() != EffectiveAddress::Mode::AddRegDirect)
 		{
 			bool carry = (op1.MSB() && op2.MSB()) || (!result.MSB() && (op1.MSB() || op2.MSB())) ;
 			bool overflow = (op1.MSB() == op2.MSB()) && (result.MSB() != (op1.MSB() && op2.MSB()));

@@ -22,7 +22,7 @@ public:
 
 	virtual Disassembly Z80Disassemble(const Z80::LabelSubstitutionSettings& labelSettings) const
 	{
-		if(_conditionCode == ConditionCode::None)
+		if (_conditionCode == ConditionCode::None)
 		{
 			return Disassembly(GetOpcodeName(), _source.Disassemble(), _source.DisassembleImmediateAsPCDisplacement(GetInstructionLocation() + GetInstructionSize()));
 		}
@@ -38,7 +38,7 @@ public:
 
 		//JR e			00011000 eeeeeeee
 		_conditionCode = ConditionCode::None;
-		if(data.GetDataSegment(3, 3) != 3)
+		if (data.GetDataSegment(3, 3) != 3)
 		{
 			//JR NZ,e		00100000 eeeeeeee
 			//JR Z,e		00101000 eeeeeeee
@@ -61,7 +61,7 @@ public:
 		ExecuteTime additionalCycles;
 
 		//Test the condition code
-		if(ConditionCodeTrue(cpu, _conditionCode))
+		if (ConditionCodeTrue(cpu, _conditionCode))
 		{
 			//If the condition is true, jump to the _target location.
 			additionalTime += _source.Read(cpu, location, offset);

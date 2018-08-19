@@ -16,7 +16,7 @@ MDControl3::MDControl3(const std::wstring& implementationName, const std::wstrin
 //----------------------------------------------------------------------------------------
 void MDControl3::Initialize()
 {
-	for(unsigned int i = 0; i < buttonCount; ++i)
+	for (unsigned int i = 0; i < buttonCount; ++i)
 	{
 		_buttonPressed[i] = false;
 	}
@@ -43,7 +43,7 @@ bool MDControl3::ValidateDevice()
 //----------------------------------------------------------------------------------------
 bool MDControl3::AddReference(const Marshal::In<std::wstring>& referenceName, IBusInterface* target)
 {
-	if(referenceName == L"BusInterface")
+	if (referenceName == L"BusInterface")
 	{
 		_memoryBus = target;
 	}
@@ -57,7 +57,7 @@ bool MDControl3::AddReference(const Marshal::In<std::wstring>& referenceName, IB
 //----------------------------------------------------------------------------------------
 void MDControl3::RemoveReference(IBusInterface* target)
 {
-	if(_memoryBus == target)
+	if (_memoryBus == target)
 	{
 		_memoryBus = 0;
 	}
@@ -81,7 +81,7 @@ void MDControl3::NotifyUpcomingTimeslice(double nanoseconds)
 //----------------------------------------------------------------------------------------
 void MDControl3::ExecuteRollback()
 {
-	for(unsigned int i = 0; i < buttonCount; ++i)
+	for (unsigned int i = 0; i < buttonCount; ++i)
 	{
 		_buttonPressed[i] = _bbuttonPressed[i];
 	}
@@ -99,7 +99,7 @@ void MDControl3::ExecuteRollback()
 //----------------------------------------------------------------------------------------
 void MDControl3::ExecuteCommit()
 {
-	for(unsigned int i = 0; i < buttonCount; ++i)
+	for (unsigned int i = 0; i < buttonCount; ++i)
 	{
 		_bbuttonPressed[i] = _buttonPressed[i];
 	}
@@ -119,31 +119,31 @@ void MDControl3::ExecuteCommit()
 //----------------------------------------------------------------------------------------
 unsigned int MDControl3::GetLineID(const Marshal::In<std::wstring>& lineName) const
 {
-	if(lineName == L"D0")
+	if (lineName == L"D0")
 	{
 		return (unsigned int)LineID::D0;
 	}
-	else if(lineName == L"D1")
+	else if (lineName == L"D1")
 	{
 		return (unsigned int)LineID::D1;
 	}
-	else if(lineName == L"D2")
+	else if (lineName == L"D2")
 	{
 		return (unsigned int)LineID::D2;
 	}
-	else if(lineName == L"D3")
+	else if (lineName == L"D3")
 	{
 		return (unsigned int)LineID::D3;
 	}
-	else if(lineName == L"TL")
+	else if (lineName == L"TL")
 	{
 		return (unsigned int)LineID::TL;
 	}
-	else if(lineName == L"TR")
+	else if (lineName == L"TR")
 	{
 		return (unsigned int)LineID::TR;
 	}
-	else if(lineName == L"TH")
+	else if (lineName == L"TH")
 	{
 		return (unsigned int)LineID::TH;
 	}
@@ -153,7 +153,7 @@ unsigned int MDControl3::GetLineID(const Marshal::In<std::wstring>& lineName) co
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> MDControl3::GetLineName(unsigned int lineID) const
 {
-	switch((LineID)lineID)
+	switch ((LineID)lineID)
 	{
 	case LineID::D0:
 		return L"D0";
@@ -176,7 +176,7 @@ Marshal::Ret<std::wstring> MDControl3::GetLineName(unsigned int lineID) const
 //----------------------------------------------------------------------------------------
 unsigned int MDControl3::GetLineWidth(unsigned int lineID) const
 {
-	switch((LineID)lineID)
+	switch ((LineID)lineID)
 	{
 	case LineID::D0:
 	case LineID::D1:
@@ -197,14 +197,14 @@ void MDControl3::SetLineState(unsigned int targetLine, const Data& lineData, IDe
 
 	//Read the time at which this access is being made, and trigger a rollback if the
 	//device has been accessed out of order.
-	if(_lastLineAccessTime > accessTime)
+	if (_lastLineAccessTime > accessTime)
 	{
 		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 	}
 	_lastLineAccessTime = accessTime;
 
 	//If the TH line has been toggled, select the currently enabled bank.
-	if(targetLine == LineID::TH)
+	if (targetLine == LineID::TH)
 	{
 		_lineInputStateTH = lineData.GetBit(0);
 	}
@@ -228,30 +228,30 @@ void MDControl3::TransparentSetLineState(unsigned int targetLine, const Data& li
 //----------------------------------------------------------------------------------------
 void MDControl3::AssertCurrentOutputLineState() const
 {
-	if(_memoryBus != 0)
+	if (_memoryBus != 0)
 	{
-		if(_lineAssertedD0) _memoryBus->SetLineState((unsigned int)LineID::D0, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-		if(_lineAssertedD1) _memoryBus->SetLineState((unsigned int)LineID::D1, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-		if(_lineAssertedD2) _memoryBus->SetLineState((unsigned int)LineID::D2, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-		if(_lineAssertedD3) _memoryBus->SetLineState((unsigned int)LineID::D3, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-		if(_lineAssertedTL) _memoryBus->SetLineState((unsigned int)LineID::TL, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-		if(_lineAssertedTR) _memoryBus->SetLineState((unsigned int)LineID::TR, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-		if(_lineAssertedTH) _memoryBus->SetLineState((unsigned int)LineID::TH, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if (_lineAssertedD0) _memoryBus->SetLineState((unsigned int)LineID::D0, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if (_lineAssertedD1) _memoryBus->SetLineState((unsigned int)LineID::D1, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if (_lineAssertedD2) _memoryBus->SetLineState((unsigned int)LineID::D2, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if (_lineAssertedD3) _memoryBus->SetLineState((unsigned int)LineID::D3, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if (_lineAssertedTL) _memoryBus->SetLineState((unsigned int)LineID::TL, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if (_lineAssertedTR) _memoryBus->SetLineState((unsigned int)LineID::TR, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if (_lineAssertedTH) _memoryBus->SetLineState((unsigned int)LineID::TH, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
 }
 
 //----------------------------------------------------------------------------------------
 void MDControl3::NegateCurrentOutputLineState() const
 {
-	if(_memoryBus != 0)
+	if (_memoryBus != 0)
 	{
-		if(_lineAssertedD0) _memoryBus->SetLineState((unsigned int)LineID::D0, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-		if(_lineAssertedD1) _memoryBus->SetLineState((unsigned int)LineID::D1, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-		if(_lineAssertedD2) _memoryBus->SetLineState((unsigned int)LineID::D2, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-		if(_lineAssertedD3) _memoryBus->SetLineState((unsigned int)LineID::D3, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-		if(_lineAssertedTL) _memoryBus->SetLineState((unsigned int)LineID::TL, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-		if(_lineAssertedTR) _memoryBus->SetLineState((unsigned int)LineID::TR, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-		if(_lineAssertedTH) _memoryBus->SetLineState((unsigned int)LineID::TH, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if (_lineAssertedD0) _memoryBus->SetLineState((unsigned int)LineID::D0, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if (_lineAssertedD1) _memoryBus->SetLineState((unsigned int)LineID::D1, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if (_lineAssertedD2) _memoryBus->SetLineState((unsigned int)LineID::D2, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if (_lineAssertedD3) _memoryBus->SetLineState((unsigned int)LineID::D3, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if (_lineAssertedTL) _memoryBus->SetLineState((unsigned int)LineID::TL, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if (_lineAssertedTR) _memoryBus->SetLineState((unsigned int)LineID::TR, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if (_lineAssertedTH) _memoryBus->SetLineState((unsigned int)LineID::TH, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
 }
 
@@ -259,43 +259,43 @@ void MDControl3::NegateCurrentOutputLineState() const
 void MDControl3::UpdateLineState(IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	bool newLineStateD0 = GetDesiredLineState(_lineInputStateTH, _buttonPressed, LineID::D0);
-	if(_lineAssertedD0 != newLineStateD0)
+	if (_lineAssertedD0 != newLineStateD0)
 	{
 		_lineAssertedD0 = newLineStateD0;
 		_memoryBus->SetLineState(LineID::D0, Data(1, (unsigned int)_lineAssertedD0), GetDeviceContext(), caller, accessTime, accessContext);
 	}
 	bool newLineStateD1 = GetDesiredLineState(_lineInputStateTH, _buttonPressed, LineID::D1);
-	if(_lineAssertedD1 != newLineStateD1)
+	if (_lineAssertedD1 != newLineStateD1)
 	{
 		_lineAssertedD1 = newLineStateD1;
 		_memoryBus->SetLineState(LineID::D1, Data(1, (unsigned int)_lineAssertedD1), GetDeviceContext(), caller, accessTime, accessContext);
 	}
 	bool newLineStateD2 = GetDesiredLineState(_lineInputStateTH, _buttonPressed, LineID::D2);
-	if(_lineAssertedD2 != newLineStateD2)
+	if (_lineAssertedD2 != newLineStateD2)
 	{
 		_lineAssertedD2 = newLineStateD2;
 		_memoryBus->SetLineState(LineID::D2, Data(1, (unsigned int)_lineAssertedD2), GetDeviceContext(), caller, accessTime, accessContext);
 	}
 	bool newLineStateD3 = GetDesiredLineState(_lineInputStateTH, _buttonPressed, LineID::D3);
-	if(_lineAssertedD3 != newLineStateD3)
+	if (_lineAssertedD3 != newLineStateD3)
 	{
 		_lineAssertedD3 = newLineStateD3;
 		_memoryBus->SetLineState(LineID::D3, Data(1, (unsigned int)_lineAssertedD3), GetDeviceContext(), caller, accessTime, accessContext);
 	}
 	bool newLineStateTL = GetDesiredLineState(_lineInputStateTH, _buttonPressed, LineID::TL);
-	if(_lineAssertedTL != newLineStateTL)
+	if (_lineAssertedTL != newLineStateTL)
 	{
 		_lineAssertedTL = newLineStateTL;
 		_memoryBus->SetLineState(LineID::TL, Data(1, (unsigned int)_lineAssertedTL), GetDeviceContext(), caller, accessTime, accessContext);
 	}
 	bool newLineStateTR = GetDesiredLineState(_lineInputStateTH, _buttonPressed, LineID::TR);
-	if(_lineAssertedTR != newLineStateTR)
+	if (_lineAssertedTR != newLineStateTR)
 	{
 		_lineAssertedTR = newLineStateTR;
 		_memoryBus->SetLineState(LineID::TR, Data(1, (unsigned int)_lineAssertedTR), GetDeviceContext(), caller, accessTime, accessContext);
 	}
 	bool newLineStateTH = GetDesiredLineState(_lineInputStateTH, _buttonPressed, LineID::TH);
-	if(_lineAssertedTH != newLineStateTH)
+	if (_lineAssertedTH != newLineStateTH)
 	{
 		_lineAssertedTH = newLineStateTH;
 		_memoryBus->SetLineState(LineID::TH, Data(1, (unsigned int)_lineAssertedTH), GetDeviceContext(), caller, accessTime, accessContext);
@@ -305,7 +305,7 @@ void MDControl3::UpdateLineState(IDeviceContext* caller, double accessTime, unsi
 //----------------------------------------------------------------------------------------
 bool MDControl3::GetDesiredLineState(unsigned int currentLineInputStateTH, const std::vector<bool>& currentButtonPressedState, LineID lineID)
 {
-	if(currentLineInputStateTH)
+	if (currentLineInputStateTH)
 	{
 		//This state is selected when TH is configured as an input and set to 1
 		//D0 = Up
@@ -315,7 +315,7 @@ bool MDControl3::GetDesiredLineState(unsigned int currentLineInputStateTH, const
 		//TL = B
 		//TR = C
 		//TH = Null (+5v)
-		switch(lineID)
+		switch (lineID)
 		{
 		case LineID::D0:
 			return !currentButtonPressedState[BUTTONINDEX_UP];
@@ -343,7 +343,7 @@ bool MDControl3::GetDesiredLineState(unsigned int currentLineInputStateTH, const
 		//TL = A
 		//TR = Start
 		//TH = Null (+5v)
-		switch(lineID)
+		switch (lineID)
 		{
 		case LineID::D0:
 			return !currentButtonPressedState[BUTTONINDEX_UP];
@@ -372,35 +372,35 @@ bool MDControl3::GetDesiredLineState(unsigned int currentLineInputStateTH, const
 //----------------------------------------------------------------------------------------
 unsigned int MDControl3::GetKeyCodeID(const Marshal::In<std::wstring>& keyCodeName) const
 {
-	if(keyCodeName == L"Up")
+	if (keyCodeName == L"Up")
 	{
 		return BUTTONINDEX_UP+1;
 	}
-	else if(keyCodeName == L"Down")
+	else if (keyCodeName == L"Down")
 	{
 		return BUTTONINDEX_DOWN+1;
 	}
-	else if(keyCodeName == L"Left")
+	else if (keyCodeName == L"Left")
 	{
 		return BUTTONINDEX_LEFT+1;
 	}
-	else if(keyCodeName == L"Right")
+	else if (keyCodeName == L"Right")
 	{
 		return BUTTONINDEX_RIGHT+1;
 	}
-	else if(keyCodeName == L"A")
+	else if (keyCodeName == L"A")
 	{
 		return BUTTONINDEX_A+1;
 	}
-	else if(keyCodeName == L"B")
+	else if (keyCodeName == L"B")
 	{
 		return BUTTONINDEX_B+1;
 	}
-	else if(keyCodeName == L"C")
+	else if (keyCodeName == L"C")
 	{
 		return BUTTONINDEX_C+1;
 	}
-	else if(keyCodeName == L"Start")
+	else if (keyCodeName == L"Start")
 	{
 		return BUTTONINDEX_START+1;
 	}
@@ -410,7 +410,7 @@ unsigned int MDControl3::GetKeyCodeID(const Marshal::In<std::wstring>& keyCodeNa
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> MDControl3::GetKeyCodeName(unsigned int keyCodeID) const
 {
-	switch(keyCodeID)
+	switch (keyCodeID)
 	{
 	case BUTTONINDEX_UP+1:
 		return L"Up";
@@ -454,49 +454,49 @@ void MDControl3::HandleInputKeyUp(unsigned int keyCodeID)
 void MDControl3::LoadState(IHierarchicalStorageNode& node)
 {
 	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
-	for(std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	for (std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
 		IHierarchicalStorageNode& node = *(*i);
 		std::wstring nodeName = node.GetName();
-		if(nodeName == L"LineInputStateTH")
+		if (nodeName == L"LineInputStateTH")
 		{
 			node.ExtractData(_lineInputStateTH);
 		}
-		else if(nodeName == L"LineAssertedD0")
+		else if (nodeName == L"LineAssertedD0")
 		{
 			node.ExtractData(_lineAssertedD0);
 		}
-		else if(nodeName == L"LineAssertedD1")
+		else if (nodeName == L"LineAssertedD1")
 		{
 			node.ExtractData(_lineAssertedD1);
 		}
-		else if(nodeName == L"LineAssertedD2")
+		else if (nodeName == L"LineAssertedD2")
 		{
 			node.ExtractData(_lineAssertedD2);
 		}
-		else if(nodeName == L"LineAssertedD3")
+		else if (nodeName == L"LineAssertedD3")
 		{
 			node.ExtractData(_lineAssertedD3);
 		}
-		else if(nodeName == L"LineAssertedTL")
+		else if (nodeName == L"LineAssertedTL")
 		{
 			node.ExtractData(_lineAssertedTL);
 		}
-		else if(nodeName == L"LineAssertedTR")
+		else if (nodeName == L"LineAssertedTR")
 		{
 			node.ExtractData(_lineAssertedTR);
 		}
-		else if(nodeName == L"LineAssertedTH")
+		else if (nodeName == L"LineAssertedTH")
 		{
 			node.ExtractData(_lineAssertedTH);
 		}
-		else if(nodeName == L"ButtonPressed")
+		else if (nodeName == L"ButtonPressed")
 		{
 			IHierarchicalStorageAttribute* buttonNumberAttribute = node.GetAttribute(L"ButtonNo");
-			if(buttonNumberAttribute != 0)
+			if (buttonNumberAttribute != 0)
 			{
 				unsigned int buttonNo = buttonNumberAttribute->ExtractValue<unsigned int>();
-				if(buttonNo < buttonCount)
+				if (buttonNo < buttonCount)
 				{
 					bool state;
 					node.ExtractAttribute(L"Pressed", state);
@@ -504,7 +504,7 @@ void MDControl3::LoadState(IHierarchicalStorageNode& node)
 				}
 			}
 		}
-		else if(nodeName == L"CurrentTimesliceLength")
+		else if (nodeName == L"CurrentTimesliceLength")
 		{
 			node.ExtractData(_currentTimesliceLength);
 		}
@@ -522,7 +522,7 @@ void MDControl3::SaveState(IHierarchicalStorageNode& node) const
 	node.CreateChild(L"LineAssertedTL", _lineAssertedTL);
 	node.CreateChild(L"LineAssertedTR", _lineAssertedTR);
 	node.CreateChild(L"LineAssertedTH", _lineAssertedTH);
-	for(unsigned int i = 0; i < buttonCount; ++i)
+	for (unsigned int i = 0; i < buttonCount; ++i)
 	{
 		node.CreateChild(L"ButtonPressed").CreateAttribute(L"ButtonNo", i).CreateAttribute(L"Pressed", _buttonPressed[i]);
 	}

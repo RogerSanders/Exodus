@@ -75,7 +75,7 @@ void GenericAccessDataValueFolderPath::SetMaxLength(unsigned int state)
 //----------------------------------------------------------------------------------------
 void GenericAccessDataValueFolderPath::ApplyLimitSettingsToCurrentValue()
 {
-	if((_maxLength > 0) && (_dataValue.length() > (size_t)_maxLength))
+	if ((_maxLength > 0) && (_dataValue.length() > (size_t)_maxLength))
 	{
 		_dataValue.resize((size_t)_maxLength);
 	}

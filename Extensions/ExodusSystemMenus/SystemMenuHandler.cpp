@@ -19,7 +19,7 @@ void SystemMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) c
 //----------------------------------------------------------------------------------------
 IViewPresenter* SystemMenuHandler::CreateViewForItem(int menuItemID, const std::wstring& viewName)
 {
-	switch(menuItemID)
+	switch (menuItemID)
 	{
 	case MENUITEM_EVENTLOG:
 		return new EventLogViewPresenter(GetMenuHandlerName(), viewName, MENUITEM_EVENTLOG, _owner, _model);

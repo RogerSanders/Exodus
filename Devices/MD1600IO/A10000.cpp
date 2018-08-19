@@ -77,7 +77,7 @@ void A10000::Initialize()
 	//resistors attached to these input lines. Pull-up resistors are mapped through the
 	//system XML mappings in our emulator, so we shouldn't initialize these values here
 	//assuming that these pull-up resistors exist, since they could be removed.
-	for(unsigned int i = 0; i < ControlPortCount; ++i)
+	for (unsigned int i = 0; i < ControlPortCount; ++i)
 	{
 		_inputLineState[i].lineAssertedD0 = false;
 		_inputLineState[i].lineAssertedD1 = false;
@@ -94,11 +94,11 @@ void A10000::Initialize()
 //----------------------------------------------------------------------------------------
 bool A10000::AddReference(const Marshal::In<std::wstring>& referenceName, IBusInterface* target)
 {
-	if(referenceName == L"BusInterface")
+	if (referenceName == L"BusInterface")
 	{
 		_memoryBus = target;
 	}
-	else if(referenceName == L"ControlPortBus")
+	else if (referenceName == L"ControlPortBus")
 	{
 		_controlPortBus = target;
 	}
@@ -112,11 +112,11 @@ bool A10000::AddReference(const Marshal::In<std::wstring>& referenceName, IBusIn
 //----------------------------------------------------------------------------------------
 void A10000::RemoveReference(IBusInterface* target)
 {
-	if(_memoryBus == target)
+	if (_memoryBus == target)
 	{
 		_memoryBus = 0;
 	}
-	else if(_controlPortBus == target)
+	else if (_controlPortBus == target)
 	{
 		_controlPortBus = 0;
 	}
@@ -139,7 +139,7 @@ void A10000::NotifyUpcomingTimeslice(double nanoseconds)
 	//Reset lastLineCheckTime for the beginning of the new timeslice, and force any
 	//remaining line state changes to be evaluated at the start of the new timeslice.
 	_lastLineCheckTime = 0;
-	for(std::list<LineAccess>::iterator i = _lineAccessBuffer.begin(); i != _lineAccessBuffer.end(); ++i)
+	for (std::list<LineAccess>::iterator i = _lineAccessBuffer.begin(); i != _lineAccessBuffer.end(); ++i)
 	{
 		//We rebase accessTime here to the start of the new time block, in order to allow
 		//line state changes to be flagged ahead of the time they actually take effect.
@@ -196,7 +196,7 @@ void A10000::ExecuteCommit()
 	_bcurrentHLLineState = _currentHLLineState;
 
 	_blastTimesliceLength = _lastTimesliceLength;
-	if(_lineAccessPending)
+	if (_lineAccessPending)
 	{
 		_blineAccessBuffer = _lineAccessBuffer;
 	}
@@ -211,110 +211,110 @@ void A10000::ExecuteCommit()
 //----------------------------------------------------------------------------------------
 unsigned int A10000::GetLineID(const Marshal::In<std::wstring>& lineName) const
 {
-	if(lineName == L"PORT1_D0")
+	if (lineName == L"PORT1_D0")
 	{
 		return (unsigned int)LineID::LINE_PORT1_D0;
 	}
-	else if(lineName == L"PORT1_D1")
+	else if (lineName == L"PORT1_D1")
 	{
 		return (unsigned int)LineID::LINE_PORT1_D1;
 	}
-	else if(lineName == L"PORT1_D2")
+	else if (lineName == L"PORT1_D2")
 	{
 		return (unsigned int)LineID::LINE_PORT1_D2;
 	}
-	else if(lineName == L"PORT1_D3")
+	else if (lineName == L"PORT1_D3")
 	{
 		return (unsigned int)LineID::LINE_PORT1_D3;
 	}
-	else if(lineName == L"PORT1_TL")
+	else if (lineName == L"PORT1_TL")
 	{
 		return (unsigned int)LineID::LINE_PORT1_TL;
 	}
-	else if(lineName == L"PORT1_TR")
+	else if (lineName == L"PORT1_TR")
 	{
 		return (unsigned int)LineID::LINE_PORT1_TR;
 	}
-	else if(lineName == L"PORT1_TH")
+	else if (lineName == L"PORT1_TH")
 	{
 		return (unsigned int)LineID::LINE_PORT1_TH;
 	}
 
-	else if(lineName == L"PORT2_D0")
+	else if (lineName == L"PORT2_D0")
 	{
 		return (unsigned int)LineID::LINE_PORT2_D0;
 	}
-	else if(lineName == L"PORT2_D1")
+	else if (lineName == L"PORT2_D1")
 	{
 		return (unsigned int)LineID::LINE_PORT2_D1;
 	}
-	else if(lineName == L"PORT2_D2")
+	else if (lineName == L"PORT2_D2")
 	{
 		return (unsigned int)LineID::LINE_PORT2_D2;
 	}
-	else if(lineName == L"PORT2_D3")
+	else if (lineName == L"PORT2_D3")
 	{
 		return (unsigned int)LineID::LINE_PORT2_D3;
 	}
-	else if(lineName == L"PORT2_TL")
+	else if (lineName == L"PORT2_TL")
 	{
 		return (unsigned int)LineID::LINE_PORT2_TL;
 	}
-	else if(lineName == L"PORT2_TR")
+	else if (lineName == L"PORT2_TR")
 	{
 		return (unsigned int)LineID::LINE_PORT2_TR;
 	}
-	else if(lineName == L"PORT2_TH")
+	else if (lineName == L"PORT2_TH")
 	{
 		return (unsigned int)LineID::LINE_PORT2_TH;
 	}
 
-	else if(lineName == L"PORT3_D0")
+	else if (lineName == L"PORT3_D0")
 	{
 		return (unsigned int)LineID::LINE_PORT3_D0;
 	}
-	else if(lineName == L"PORT3_D1")
+	else if (lineName == L"PORT3_D1")
 	{
 		return (unsigned int)LineID::LINE_PORT3_D1;
 	}
-	else if(lineName == L"PORT3_D2")
+	else if (lineName == L"PORT3_D2")
 	{
 		return (unsigned int)LineID::LINE_PORT3_D2;
 	}
-	else if(lineName == L"PORT3_D3")
+	else if (lineName == L"PORT3_D3")
 	{
 		return (unsigned int)LineID::LINE_PORT3_D3;
 	}
-	else if(lineName == L"PORT3_TL")
+	else if (lineName == L"PORT3_TL")
 	{
 		return (unsigned int)LineID::LINE_PORT3_TL;
 	}
-	else if(lineName == L"PORT3_TR")
+	else if (lineName == L"PORT3_TR")
 	{
 		return (unsigned int)LineID::LINE_PORT3_TR;
 	}
-	else if(lineName == L"PORT3_TH")
+	else if (lineName == L"PORT3_TH")
 	{
 		return (unsigned int)LineID::LINE_PORT3_TH;
 	}
 
-	else if(lineName == L"JAP")
+	else if (lineName == L"JAP")
 	{
 		return (unsigned int)LineID::LINE_JAP;
 	}
-	else if(lineName == L"NTSC")
+	else if (lineName == L"NTSC")
 	{
 		return (unsigned int)LineID::LINE_NTSC;
 	}
-	else if(lineName == L"DISK")
+	else if (lineName == L"DISK")
 	{
 		return (unsigned int)LineID::LINE_DISK;
 	}
-	else if(lineName == L"HL")
+	else if (lineName == L"HL")
 	{
 		return (unsigned int)LineID::LINE_HL;
 	}
-	else if(lineName == L"HWVersion")
+	else if (lineName == L"HWVersion")
 	{
 		return (unsigned int)LineID::LINE_HWVERSION;
 	}
@@ -324,7 +324,7 @@ unsigned int A10000::GetLineID(const Marshal::In<std::wstring>& lineName) const
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> A10000::GetLineName(unsigned int lineID) const
 {
-	switch((LineID)lineID)
+	switch ((LineID)lineID)
 	{
 	case LineID::LINE_PORT1_D0:
 		return L"PORT1_D0";
@@ -388,7 +388,7 @@ Marshal::Ret<std::wstring> A10000::GetLineName(unsigned int lineID) const
 //----------------------------------------------------------------------------------------
 unsigned int A10000::GetLineWidth(unsigned int lineID) const
 {
-	switch((LineID)lineID)
+	switch ((LineID)lineID)
 	{
 	case LineID::LINE_PORT1_D0:
 	case LineID::LINE_PORT1_D1:
@@ -439,14 +439,14 @@ void A10000::SetLineState(unsigned int targetLine, const Data& lineData, IDevice
 
 	//Read the time at which this access is being made, and trigger a rollback if we've
 	//already passed that time.
-	if(_lastLineCheckTime > accessTime)
+	if (_lastLineCheckTime > accessTime)
 	{
 		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 	}
 
 	//If this is a line state change which needs to be processed immediately, apply it now
 	//and return.
-	switch((LineID)targetLine)
+	switch ((LineID)targetLine)
 	{
 	case LineID::LINE_HWVERSION:
 		_inputHardwareVersion = lineData.GetData();
@@ -466,7 +466,7 @@ void A10000::SetLineState(unsigned int targetLine, const Data& lineData, IDevice
 	//Insert the line access into the buffer. Note that entries in the buffer are sorted
 	//by access time from lowest to highest.
 	std::list<LineAccess>::reverse_iterator i = _lineAccessBuffer.rbegin();
-	while((i != _lineAccessBuffer.rend()) && (i->accessTime > accessTime))
+	while ((i != _lineAccessBuffer.rend()) && (i->accessTime > accessTime))
 	{
 		++i;
 	}
@@ -502,7 +502,7 @@ void A10000::RevokeSetLineState(unsigned int targetLine, const Data& lineData, d
 
 	//Read the time at which this access is being made, and trigger a rollback if we've
 	//already passed that time.
-	if(_lastLineCheckTime > accessTime)
+	if (_lastLineCheckTime > accessTime)
 	{
 		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 	}
@@ -510,9 +510,9 @@ void A10000::RevokeSetLineState(unsigned int targetLine, const Data& lineData, d
 	//Find the matching line state change entry in the line access buffer
 	std::list<LineAccess>::reverse_iterator i = _lineAccessBuffer.rbegin();
 	bool foundTargetEntry = false;
-	while(!foundTargetEntry && (i != _lineAccessBuffer.rend()))
+	while (!foundTargetEntry && (i != _lineAccessBuffer.rend()))
 	{
-		if((i->lineID == (LineID)targetLine) && (i->state == lineData) && (i->accessTime == reportedTime))
+		if ((i->lineID == (LineID)targetLine) && (i->state == lineData) && (i->accessTime == reportedTime))
 		{
 			foundTargetEntry = true;
 			continue;
@@ -521,7 +521,7 @@ void A10000::RevokeSetLineState(unsigned int targetLine, const Data& lineData, d
 	}
 
 	//Erase the target line state change entry from the line access buffer
-	if(foundTargetEntry)
+	if (foundTargetEntry)
 	{
 		_lineAccessBuffer.erase((++i).base());
 	}
@@ -529,7 +529,7 @@ void A10000::RevokeSetLineState(unsigned int targetLine, const Data& lineData, d
 	{
 		//##DEBUG##
 		std::wcout << "Failed to find matching line state change in RevokeSetLineState! " << GetLineName(targetLine) << '\t' << lineData.GetData() << '\t' << reportedTime << '\t' << accessTime << '\n';
-		for(std::list<LineAccess>::iterator i = _lineAccessBuffer.begin(); i != _lineAccessBuffer.end(); ++i)
+		for (std::list<LineAccess>::iterator i = _lineAccessBuffer.begin(); i != _lineAccessBuffer.end(); ++i)
 		{
 			std::wcout << "-" << GetLineName((unsigned int)i->lineID) << '\t' << i->state.GetData() << '\t' << i->accessTime << '\n';
 		}
@@ -542,55 +542,55 @@ void A10000::RevokeSetLineState(unsigned int targetLine, const Data& lineData, d
 //----------------------------------------------------------------------------------------
 void A10000::AssertCurrentOutputLineState() const
 {
-	if(_memoryBus != 0)
+	if (_memoryBus != 0)
 	{
 		AssertCurrentOutputLineStateForPort(Ports::Port1);
 		AssertCurrentOutputLineStateForPort(Ports::Port2);
 		AssertCurrentOutputLineStateForPort(Ports::Port3);
-		if(_currentHLLineState) _memoryBus->SetLineState((unsigned int)LineID::LINE_HL, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if (_currentHLLineState) _memoryBus->SetLineState((unsigned int)LineID::LINE_HL, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
 }
 
 //----------------------------------------------------------------------------------------
 void A10000::NegateCurrentOutputLineState() const
 {
-	if(_memoryBus != 0)
+	if (_memoryBus != 0)
 	{
 		NegateCurrentOutputLineStateForPort(Ports::Port1);
 		NegateCurrentOutputLineStateForPort(Ports::Port2);
 		NegateCurrentOutputLineStateForPort(Ports::Port3);
-		if(_currentHLLineState) _memoryBus->SetLineState((unsigned int)LineID::LINE_HL, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if (_currentHLLineState) _memoryBus->SetLineState((unsigned int)LineID::LINE_HL, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
 }
 
 //----------------------------------------------------------------------------------------
 void A10000::AssertCurrentOutputLineStateForPort(Ports portNo) const
 {
-	if(GetControlRegisterD0(portNo) && GetDataRegisterD0(portNo))
+	if (GetControlRegisterD0(portNo) && GetDataRegisterD0(portNo))
 	{
 		_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::D0), Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
-	if(GetControlRegisterD1(portNo) && GetDataRegisterD1(portNo))
+	if (GetControlRegisterD1(portNo) && GetDataRegisterD1(portNo))
 	{
 		_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::D1), Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
-	if(GetControlRegisterD2(portNo) && GetDataRegisterD2(portNo))
+	if (GetControlRegisterD2(portNo) && GetDataRegisterD2(portNo))
 	{
 		_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::D2), Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
-	if(GetControlRegisterD3(portNo) && GetDataRegisterD3(portNo))
+	if (GetControlRegisterD3(portNo) && GetDataRegisterD3(portNo))
 	{
 		_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::D3), Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
-	if(GetControlRegisterTL(portNo) && GetDataRegisterTL(portNo))
+	if (GetControlRegisterTL(portNo) && GetDataRegisterTL(portNo))
 	{
 		_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::TL), Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
-	if(GetControlRegisterTR(portNo) && GetDataRegisterTR(portNo))
+	if (GetControlRegisterTR(portNo) && GetDataRegisterTR(portNo))
 	{
 		_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::TR), Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
-	if(GetControlRegisterTH(portNo) && GetDataRegisterTH(portNo))
+	if (GetControlRegisterTH(portNo) && GetDataRegisterTH(portNo))
 	{
 		_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::TH), Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
@@ -599,31 +599,31 @@ void A10000::AssertCurrentOutputLineStateForPort(Ports portNo) const
 //----------------------------------------------------------------------------------------
 void A10000::NegateCurrentOutputLineStateForPort(Ports portNo) const
 {
-	if(GetControlRegisterD0(portNo) && GetDataRegisterD0(portNo))
+	if (GetControlRegisterD0(portNo) && GetDataRegisterD0(portNo))
 	{
 		_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::D0), Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
-	if(GetControlRegisterD1(portNo) && GetDataRegisterD1(portNo))
+	if (GetControlRegisterD1(portNo) && GetDataRegisterD1(portNo))
 	{
 		_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::D1), Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
-	if(GetControlRegisterD2(portNo) && GetDataRegisterD2(portNo))
+	if (GetControlRegisterD2(portNo) && GetDataRegisterD2(portNo))
 	{
 		_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::D2), Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
-	if(GetControlRegisterD3(portNo) && GetDataRegisterD3(portNo))
+	if (GetControlRegisterD3(portNo) && GetDataRegisterD3(portNo))
 	{
 		_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::D3), Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
-	if(GetControlRegisterTL(portNo) && GetDataRegisterTL(portNo))
+	if (GetControlRegisterTL(portNo) && GetDataRegisterTL(portNo))
 	{
 		_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::TL), Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
-	if(GetControlRegisterTR(portNo) && GetDataRegisterTR(portNo))
+	if (GetControlRegisterTR(portNo) && GetDataRegisterTR(portNo))
 	{
 		_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::TR), Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
-	if(GetControlRegisterTH(portNo) && GetDataRegisterTH(portNo))
+	if (GetControlRegisterTH(portNo) && GetDataRegisterTH(portNo))
 	{
 		_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::TH), Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
@@ -632,54 +632,54 @@ void A10000::NegateCurrentOutputLineStateForPort(Ports portNo) const
 //----------------------------------------------------------------------------------------
 void A10000::ApplyLineStateChange(LineID targetLine, const Data& lineData)
 {
-	switch(targetLine)
+	switch (targetLine)
 	{
 	//Control port 1 interface
 	case LineID::LINE_PORT1_TH:
 		_inputLineState[GetPortIndexForPort(Ports::Port1)].lineAssertedTH = lineData.GetBit(0);
-		if(!GetControlRegisterTH(Ports::Port1))
+		if (!GetControlRegisterTH(Ports::Port1))
 		{
 			SetDataRegisterTH(Ports::Port1, lineData.GetBit(0));
 		}
 		break;
 	case LineID::LINE_PORT1_TR:
 		_inputLineState[GetPortIndexForPort(Ports::Port1)].lineAssertedTR = lineData.GetBit(0);
-		if(!GetControlRegisterTR(Ports::Port1))
+		if (!GetControlRegisterTR(Ports::Port1))
 		{
 			SetDataRegisterTR(Ports::Port1, lineData.GetBit(0));
 		}
 		break;
 	case LineID::LINE_PORT1_TL:
 		_inputLineState[GetPortIndexForPort(Ports::Port1)].lineAssertedTL = lineData.GetBit(0);
-		if(!GetControlRegisterTL(Ports::Port1))
+		if (!GetControlRegisterTL(Ports::Port1))
 		{
 			SetDataRegisterTL(Ports::Port1, lineData.GetBit(0));
 		}
 		break;
 	case LineID::LINE_PORT1_D3:
 		_inputLineState[GetPortIndexForPort(Ports::Port1)].lineAssertedD3 = lineData.GetBit(0);
-		if(!GetControlRegisterD3(Ports::Port1))
+		if (!GetControlRegisterD3(Ports::Port1))
 		{
 			SetDataRegisterD3(Ports::Port1, lineData.GetBit(0));
 		}
 		break;
 	case LineID::LINE_PORT1_D2:
 		_inputLineState[GetPortIndexForPort(Ports::Port1)].lineAssertedD2 = lineData.GetBit(0);
-		if(!GetControlRegisterD2(Ports::Port1))
+		if (!GetControlRegisterD2(Ports::Port1))
 		{
 			SetDataRegisterD2(Ports::Port1, lineData.GetBit(0));
 		}
 		break;
 	case LineID::LINE_PORT1_D1:
 		_inputLineState[GetPortIndexForPort(Ports::Port1)].lineAssertedD1 = lineData.GetBit(0);
-		if(!GetControlRegisterD1(Ports::Port1))
+		if (!GetControlRegisterD1(Ports::Port1))
 		{
 			SetDataRegisterD1(Ports::Port1, lineData.GetBit(0));
 		}
 		break;
 	case LineID::LINE_PORT1_D0:
 		_inputLineState[GetPortIndexForPort(Ports::Port1)].lineAssertedD0 = lineData.GetBit(0);
-		if(!GetControlRegisterD0(Ports::Port1))
+		if (!GetControlRegisterD0(Ports::Port1))
 		{
 			SetDataRegisterD0(Ports::Port1, lineData.GetBit(0));
 		}
@@ -688,49 +688,49 @@ void A10000::ApplyLineStateChange(LineID targetLine, const Data& lineData)
 	//Control port 2 interface
 	case LineID::LINE_PORT2_TH:
 		_inputLineState[GetPortIndexForPort(Ports::Port2)].lineAssertedTH = lineData.GetBit(0);
-		if(!GetControlRegisterTH(Ports::Port2))
+		if (!GetControlRegisterTH(Ports::Port2))
 		{
 			SetDataRegisterTH(Ports::Port2, lineData.GetBit(0));
 		}
 		break;
 	case LineID::LINE_PORT2_TR:
 		_inputLineState[GetPortIndexForPort(Ports::Port2)].lineAssertedTR = lineData.GetBit(0);
-		if(!GetControlRegisterTR(Ports::Port2))
+		if (!GetControlRegisterTR(Ports::Port2))
 		{
 			SetDataRegisterTR(Ports::Port2, lineData.GetBit(0));
 		}
 		break;
 	case LineID::LINE_PORT2_TL:
 		_inputLineState[GetPortIndexForPort(Ports::Port2)].lineAssertedTL = lineData.GetBit(0);
-		if(!GetControlRegisterTL(Ports::Port2))
+		if (!GetControlRegisterTL(Ports::Port2))
 		{
 			SetDataRegisterTL(Ports::Port2, lineData.GetBit(0));
 		}
 		break;
 	case LineID::LINE_PORT2_D3:
 		_inputLineState[GetPortIndexForPort(Ports::Port2)].lineAssertedD3 = lineData.GetBit(0);
-		if(!GetControlRegisterD3(Ports::Port2))
+		if (!GetControlRegisterD3(Ports::Port2))
 		{
 			SetDataRegisterD3(Ports::Port2, lineData.GetBit(0));
 		}
 		break;
 	case LineID::LINE_PORT2_D2:
 		_inputLineState[GetPortIndexForPort(Ports::Port2)].lineAssertedD2 = lineData.GetBit(0);
-		if(!GetControlRegisterD2(Ports::Port2))
+		if (!GetControlRegisterD2(Ports::Port2))
 		{
 			SetDataRegisterD2(Ports::Port2, lineData.GetBit(0));
 		}
 		break;
 	case LineID::LINE_PORT2_D1:
 		_inputLineState[GetPortIndexForPort(Ports::Port2)].lineAssertedD1 = lineData.GetBit(0);
-		if(!GetControlRegisterD1(Ports::Port2))
+		if (!GetControlRegisterD1(Ports::Port2))
 		{
 			SetDataRegisterD1(Ports::Port2, lineData.GetBit(0));
 		}
 		break;
 	case LineID::LINE_PORT2_D0:
 		_inputLineState[GetPortIndexForPort(Ports::Port2)].lineAssertedD0 = lineData.GetBit(0);
-		if(!GetControlRegisterD0(Ports::Port2))
+		if (!GetControlRegisterD0(Ports::Port2))
 		{
 			SetDataRegisterD0(Ports::Port2, lineData.GetBit(0));
 		}
@@ -739,49 +739,49 @@ void A10000::ApplyLineStateChange(LineID targetLine, const Data& lineData)
 	//Control port 3 interface
 	case LineID::LINE_PORT3_TH:
 		_inputLineState[GetPortIndexForPort(Ports::Port3)].lineAssertedTH = lineData.GetBit(0);
-		if(!GetControlRegisterTH(Ports::Port3))
+		if (!GetControlRegisterTH(Ports::Port3))
 		{
 			SetDataRegisterTH(Ports::Port3, lineData.GetBit(0));
 		}
 		break;
 	case LineID::LINE_PORT3_TR:
 		_inputLineState[GetPortIndexForPort(Ports::Port3)].lineAssertedTR = lineData.GetBit(0);
-		if(!GetControlRegisterTR(Ports::Port3))
+		if (!GetControlRegisterTR(Ports::Port3))
 		{
 			SetDataRegisterTR(Ports::Port3, lineData.GetBit(0));
 		}
 		break;
 	case LineID::LINE_PORT3_TL:
 		_inputLineState[GetPortIndexForPort(Ports::Port3)].lineAssertedTL = lineData.GetBit(0);
-		if(!GetControlRegisterTL(Ports::Port3))
+		if (!GetControlRegisterTL(Ports::Port3))
 		{
 			SetDataRegisterTL(Ports::Port3, lineData.GetBit(0));
 		}
 		break;
 	case LineID::LINE_PORT3_D3:
 		_inputLineState[GetPortIndexForPort(Ports::Port3)].lineAssertedD3 = lineData.GetBit(0);
-		if(!GetControlRegisterD3(Ports::Port3))
+		if (!GetControlRegisterD3(Ports::Port3))
 		{
 			SetDataRegisterD3(Ports::Port3, lineData.GetBit(0));
 		}
 		break;
 	case LineID::LINE_PORT3_D2:
 		_inputLineState[GetPortIndexForPort(Ports::Port3)].lineAssertedD2 = lineData.GetBit(0);
-		if(!GetControlRegisterD2(Ports::Port3))
+		if (!GetControlRegisterD2(Ports::Port3))
 		{
 			SetDataRegisterD2(Ports::Port3, lineData.GetBit(0));
 		}
 		break;
 	case LineID::LINE_PORT3_D1:
 		_inputLineState[GetPortIndexForPort(Ports::Port3)].lineAssertedD1 = lineData.GetBit(0);
-		if(!GetControlRegisterD1(Ports::Port3))
+		if (!GetControlRegisterD1(Ports::Port3))
 		{
 			SetDataRegisterD1(Ports::Port3, lineData.GetBit(0));
 		}
 		break;
 	case LineID::LINE_PORT3_D0:
 		_inputLineState[GetPortIndexForPort(Ports::Port3)].lineAssertedD0 = lineData.GetBit(0);
-		if(!GetControlRegisterD0(Ports::Port3))
+		if (!GetControlRegisterD0(Ports::Port3))
 		{
 			SetDataRegisterD0(Ports::Port3, lineData.GetBit(0));
 		}
@@ -804,15 +804,15 @@ void A10000::ApplyPendingLineStateChanges(double currentTimesliceProgress)
 {
 	//If we have any pending line state changes waiting, apply any which we have now
 	//reached.
-	if(_lineAccessPending)
+	if (_lineAccessPending)
 	{
 		bool done = false;
-		while(!done)
+		while (!done)
 		{
 			//Remove the next line access that we've reached from the front of the line
 			//access buffer
 			std::list<LineAccess>::iterator i = _lineAccessBuffer.begin();
-			if((i == _lineAccessBuffer.end()) || (i->accessTime > currentTimesliceProgress))
+			if ((i == _lineAccessBuffer.end()) || (i->accessTime > currentTimesliceProgress))
 			{
 				done = true;
 				continue;
@@ -831,7 +831,7 @@ void A10000::ApplyPendingLineStateChanges(double currentTimesliceProgress)
 A10000::LineID A10000::GetLineIDForPort(Ports portNo, PortLine portLine)
 {
 	LineID basePortLineID;
-	switch(portNo)
+	switch (portNo)
 	{
 	default:
 	case Ports::Port1:
@@ -856,7 +856,7 @@ void A10000::UpdateHLInterruptState(IDeviceContext* caller, double accessTime, u
 	bool newHLLineState = (GetControlRegisterHL(Ports::Port1) && !GetControlRegisterTH(Ports::Port1) && GetDataRegisterTH(Ports::Port1))
 	                   || (GetControlRegisterHL(Ports::Port2) && !GetControlRegisterTH(Ports::Port2) && GetDataRegisterTH(Ports::Port2))
 	                   || (GetControlRegisterHL(Ports::Port3) && !GetControlRegisterTH(Ports::Port3) && GetDataRegisterTH(Ports::Port3));
-	if(newHLLineState != _currentHLLineState)
+	if (newHLLineState != _currentHLLineState)
 	{
 		_currentHLLineState = newHLLineState;
 		_memoryBus->SetLineState((unsigned int)LineID::LINE_HL, Data(1, _currentHLLineState), GetDeviceContext(), caller, accessTime, accessContext);
@@ -872,7 +872,7 @@ IBusInterface::AccessResult A10000::ReadInterface(unsigned int interfaceNumber, 
 
 	//Trigger a system rollback if the device has been accessed out of order
 	std::unique_lock<std::mutex> lineLock(_lineMutex);
-	if(_lastLineCheckTime > accessTime)
+	if (_lastLineCheckTime > accessTime)
 	{
 		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 	}
@@ -885,7 +885,7 @@ IBusInterface::AccessResult A10000::ReadInterface(unsigned int interfaceNumber, 
 	lineLock.unlock();
 
 	//Process the read
-	switch(location)
+	switch (location)
 	{
 	case 0x00:
 		data = GetVersionRegister();
@@ -965,7 +965,7 @@ IBusInterface::AccessResult A10000::WriteInterface(unsigned int interfaceNumber,
 
 	//Trigger a system rollback if the device has been accessed out of order
 	std::unique_lock<std::mutex> lineLock(_lineMutex);
-	if(_lastLineCheckTime > accessTime)
+	if (_lastLineCheckTime > accessTime)
 	{
 		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 	}
@@ -978,7 +978,7 @@ IBusInterface::AccessResult A10000::WriteInterface(unsigned int interfaceNumber,
 	lineLock.unlock();
 
 	//Process the write
-	switch(location)
+	switch (location)
 	{
 	case 0x00:
 		//Writes to the version register are ignored
@@ -1060,37 +1060,37 @@ void A10000::WriteDataRegister(IDeviceContext* caller, double accessTime, unsign
 	bool newDataRegisterStateTR = data.GetBit(5);
 	bool newDataRegisterStateTH = data.GetBit(6);
 	bool newDataRegisterStateHL = data.GetBit(7);
-	if(GetControlRegisterD0(portNo) && (newDataRegisterStateD0 != GetDataRegisterD0(portNo)))
+	if (GetControlRegisterD0(portNo) && (newDataRegisterStateD0 != GetDataRegisterD0(portNo)))
 	{
 		SetDataRegisterD0(portNo, newDataRegisterStateD0);
 		_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::D0), Data(1, (unsigned int)newDataRegisterStateD0), GetDeviceContext(), caller, accessTime, accessContext);
 	}
-	if(GetControlRegisterD1(portNo) && (newDataRegisterStateD1 != GetDataRegisterD1(portNo)))
+	if (GetControlRegisterD1(portNo) && (newDataRegisterStateD1 != GetDataRegisterD1(portNo)))
 	{
 		SetDataRegisterD1(portNo, newDataRegisterStateD1);
 		_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::D1), Data(1, (unsigned int)newDataRegisterStateD1), GetDeviceContext(), caller, accessTime, accessContext);
 	}
-	if(GetControlRegisterD2(portNo) && (newDataRegisterStateD2 != GetDataRegisterD2(portNo)))
+	if (GetControlRegisterD2(portNo) && (newDataRegisterStateD2 != GetDataRegisterD2(portNo)))
 	{
 		SetDataRegisterD2(portNo, newDataRegisterStateD2);
 		_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::D2), Data(1, (unsigned int)newDataRegisterStateD2), GetDeviceContext(), caller, accessTime, accessContext);
 	}
-	if(GetControlRegisterD3(portNo) && (newDataRegisterStateD3 != GetDataRegisterD3(portNo)))
+	if (GetControlRegisterD3(portNo) && (newDataRegisterStateD3 != GetDataRegisterD3(portNo)))
 	{
 		SetDataRegisterD3(portNo, newDataRegisterStateD3);
 		_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::D3), Data(1, (unsigned int)newDataRegisterStateD3), GetDeviceContext(), caller, accessTime, accessContext);
 	}
-	if(GetControlRegisterTL(portNo) && (newDataRegisterStateTL != GetDataRegisterTL(portNo)))
+	if (GetControlRegisterTL(portNo) && (newDataRegisterStateTL != GetDataRegisterTL(portNo)))
 	{
 		SetDataRegisterTL(portNo, newDataRegisterStateTL);
 		_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::TL), Data(1, (unsigned int)newDataRegisterStateTL), GetDeviceContext(), caller, accessTime, accessContext);
 	}
-	if(GetControlRegisterTR(portNo) && (newDataRegisterStateTR != GetDataRegisterTR(portNo)))
+	if (GetControlRegisterTR(portNo) && (newDataRegisterStateTR != GetDataRegisterTR(portNo)))
 	{
 		SetDataRegisterTR(portNo, newDataRegisterStateTR);
 		_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::TR), Data(1, (unsigned int)newDataRegisterStateTR), GetDeviceContext(), caller, accessTime, accessContext);
 	}
-	if(GetControlRegisterTH(portNo) && (newDataRegisterStateTH != GetDataRegisterTH(portNo)))
+	if (GetControlRegisterTH(portNo) && (newDataRegisterStateTH != GetDataRegisterTH(portNo)))
 	{
 		SetDataRegisterTH(portNo, newDataRegisterStateTH);
 		_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::TH), Data(1, (unsigned int)newDataRegisterStateTH), GetDeviceContext(), caller, accessTime, accessContext);
@@ -1125,13 +1125,13 @@ void A10000::WriteControlRegister(IDeviceContext* caller, double accessTime, uns
 	bool newControlRegisterStateTR = data.GetBit(5);
 	bool newControlRegisterStateTH = data.GetBit(6);
 	bool newControlRegisterStateHL = data.GetBit(7);
-	if(newControlRegisterStateD0 != GetControlRegisterD0(portNo))
+	if (newControlRegisterStateD0 != GetControlRegisterD0(portNo))
 	{
 		SetControlRegisterD0(portNo, newControlRegisterStateD0);
-		if(!newControlRegisterStateD0)
+		if (!newControlRegisterStateD0)
 		{
 			//If we were previously asserting this output line, negate it.
-			if(GetDataRegisterD0(portNo))
+			if (GetDataRegisterD0(portNo))
 			{
 				_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::D0), Data(1, 0), GetDeviceContext(), caller, accessTime, accessContext);
 			}
@@ -1143,19 +1143,19 @@ void A10000::WriteControlRegister(IDeviceContext* caller, double accessTime, uns
 		else
 		{
 			//if we're currently set to assert this output line, assert it now.
-			if(GetDataRegisterD0(portNo))
+			if (GetDataRegisterD0(portNo))
 			{
 				_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::D0), Data(1, 1), GetDeviceContext(), caller, accessTime, accessContext);
 			}
 		}
 	}
-	if(newControlRegisterStateD1 != GetControlRegisterD1(portNo))
+	if (newControlRegisterStateD1 != GetControlRegisterD1(portNo))
 	{
 		SetControlRegisterD1(portNo, newControlRegisterStateD1);
-		if(!newControlRegisterStateD1)
+		if (!newControlRegisterStateD1)
 		{
 			//If we were previously asserting this output line, negate it.
-			if(GetDataRegisterD1(portNo))
+			if (GetDataRegisterD1(portNo))
 			{
 				_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::D1), Data(1, 0), GetDeviceContext(), caller, accessTime, accessContext);
 			}
@@ -1167,19 +1167,19 @@ void A10000::WriteControlRegister(IDeviceContext* caller, double accessTime, uns
 		else
 		{
 			//if we're currently set to assert this output line, assert it now.
-			if(GetDataRegisterD1(portNo))
+			if (GetDataRegisterD1(portNo))
 			{
 				_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::D1), Data(1, 1), GetDeviceContext(), caller, accessTime, accessContext);
 			}
 		}
 	}
-	if(newControlRegisterStateD2 != GetControlRegisterD2(portNo))
+	if (newControlRegisterStateD2 != GetControlRegisterD2(portNo))
 	{
 		SetControlRegisterD2(portNo, newControlRegisterStateD2);
-		if(!newControlRegisterStateD2)
+		if (!newControlRegisterStateD2)
 		{
 			//If we were previously asserting this output line, negate it.
-			if(GetDataRegisterD2(portNo))
+			if (GetDataRegisterD2(portNo))
 			{
 				_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::D2), Data(1, 0), GetDeviceContext(), caller, accessTime, accessContext);
 			}
@@ -1191,19 +1191,19 @@ void A10000::WriteControlRegister(IDeviceContext* caller, double accessTime, uns
 		else
 		{
 			//if we're currently set to assert this output line, assert it now.
-			if(GetDataRegisterD2(portNo))
+			if (GetDataRegisterD2(portNo))
 			{
 				_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::D2), Data(1, 1), GetDeviceContext(), caller, accessTime, accessContext);
 			}
 		}
 	}
-	if(newControlRegisterStateD3 != GetControlRegisterD3(portNo))
+	if (newControlRegisterStateD3 != GetControlRegisterD3(portNo))
 	{
 		SetControlRegisterD3(portNo, newControlRegisterStateD3);
-		if(!newControlRegisterStateD3)
+		if (!newControlRegisterStateD3)
 		{
 			//If we were previously asserting this output line, negate it.
-			if(GetDataRegisterD3(portNo))
+			if (GetDataRegisterD3(portNo))
 			{
 				_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::D3), Data(1, 0), GetDeviceContext(), caller, accessTime, accessContext);
 			}
@@ -1215,19 +1215,19 @@ void A10000::WriteControlRegister(IDeviceContext* caller, double accessTime, uns
 		else
 		{
 			//if we're currently set to assert this output line, assert it now.
-			if(GetDataRegisterD3(portNo))
+			if (GetDataRegisterD3(portNo))
 			{
 				_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::D3), Data(1, 1), GetDeviceContext(), caller, accessTime, accessContext);
 			}
 		}
 	}
-	if(newControlRegisterStateTL != GetControlRegisterTL(portNo))
+	if (newControlRegisterStateTL != GetControlRegisterTL(portNo))
 	{
 		SetControlRegisterTL(portNo, newControlRegisterStateTL);
-		if(!newControlRegisterStateTL)
+		if (!newControlRegisterStateTL)
 		{
 			//If we were previously asserting this output line, negate it.
-			if(GetDataRegisterTL(portNo))
+			if (GetDataRegisterTL(portNo))
 			{
 				_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::TL), Data(1, 0), GetDeviceContext(), caller, accessTime, accessContext);
 			}
@@ -1239,19 +1239,19 @@ void A10000::WriteControlRegister(IDeviceContext* caller, double accessTime, uns
 		else
 		{
 			//if we're currently set to assert this output line, assert it now.
-			if(GetDataRegisterTL(portNo))
+			if (GetDataRegisterTL(portNo))
 			{
 				_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::TL), Data(1, 1), GetDeviceContext(), caller, accessTime, accessContext);
 			}
 		}
 	}
-	if(newControlRegisterStateTR != GetControlRegisterTR(portNo))
+	if (newControlRegisterStateTR != GetControlRegisterTR(portNo))
 	{
 		SetControlRegisterTR(portNo, newControlRegisterStateTR);
-		if(!newControlRegisterStateTR)
+		if (!newControlRegisterStateTR)
 		{
 			//If we were previously asserting this output line, negate it.
-			if(GetDataRegisterTR(portNo))
+			if (GetDataRegisterTR(portNo))
 			{
 				_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::TR), Data(1, 0), GetDeviceContext(), caller, accessTime, accessContext);
 			}
@@ -1263,19 +1263,19 @@ void A10000::WriteControlRegister(IDeviceContext* caller, double accessTime, uns
 		else
 		{
 			//if we're currently set to assert this output line, assert it now.
-			if(GetDataRegisterTR(portNo))
+			if (GetDataRegisterTR(portNo))
 			{
 				_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::TR), Data(1, 1), GetDeviceContext(), caller, accessTime, accessContext);
 			}
 		}
 	}
-	if(newControlRegisterStateTH != GetControlRegisterTH(portNo))
+	if (newControlRegisterStateTH != GetControlRegisterTH(portNo))
 	{
 		SetControlRegisterTH(portNo, newControlRegisterStateTH);
-		if(!newControlRegisterStateTH)
+		if (!newControlRegisterStateTH)
 		{
 			//If we were previously asserting this output line, negate it.
-			if(GetDataRegisterTH(portNo))
+			if (GetDataRegisterTH(portNo))
 			{
 				_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::TH), Data(1, 0), GetDeviceContext(), caller, accessTime, accessContext);
 			}
@@ -1287,7 +1287,7 @@ void A10000::WriteControlRegister(IDeviceContext* caller, double accessTime, uns
 		else
 		{
 			//if we're currently set to assert this output line, assert it now.
-			if(GetDataRegisterTH(portNo))
+			if (GetDataRegisterTH(portNo))
 			{
 				_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::TH), Data(1, 1), GetDeviceContext(), caller, accessTime, accessContext);
 			}
@@ -1364,67 +1364,67 @@ void A10000::WriteRxDataRegister(IDeviceContext* caller, double accessTime, unsi
 void A10000::LoadState(IHierarchicalStorageNode& node)
 {
 	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
-	for(std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	for (std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
 		IHierarchicalStorageAttribute* portNumberAttribute = (*i)->GetAttribute(L"PortNumber");
-		if(portNumberAttribute != 0)
+		if (portNumberAttribute != 0)
 		{
 			unsigned int portNoAsInteger;
 			portNumberAttribute->ExtractHexValue(portNoAsInteger);
-			if(portNoAsInteger < ControlPortCount)
+			if (portNoAsInteger < ControlPortCount)
 			{
 				Ports portNo = (Ports)portNoAsInteger;
-				if((*i)->GetName() == L"DataRegister")
+				if ((*i)->GetName() == L"DataRegister")
 				{
 					SetDataRegister(portNo, Data(8, (*i)->ExtractHexData<unsigned int>()));
 				}
-				else if((*i)->GetName() == L"ControlRegister")
+				else if ((*i)->GetName() == L"ControlRegister")
 				{
 					SetControlRegister(portNo, Data(8, (*i)->ExtractHexData<unsigned int>()));
 				}
-				else if((*i)->GetName() == L"SerialControlRegister")
+				else if ((*i)->GetName() == L"SerialControlRegister")
 				{
 					SetSerialControlRegister(portNo, Data(8, (*i)->ExtractHexData<unsigned int>()));
 				}
-				else if((*i)->GetName() == L"TxDataRegister")
+				else if ((*i)->GetName() == L"TxDataRegister")
 				{
 					SetTxDataRegister(portNo, Data(8, (*i)->ExtractHexData<unsigned int>()));
 				}
-				else if((*i)->GetName() == L"TxDataRegister")
+				else if ((*i)->GetName() == L"TxDataRegister")
 				{
 					SetRxDataRegister(portNo, Data(8, (*i)->ExtractHexData<unsigned int>()));
 				}
-				else if((*i)->GetName() == L"LineAsserted")
+				else if ((*i)->GetName() == L"LineAsserted")
 				{
 					IHierarchicalStorageAttribute* lineNameAttribute = (*i)->GetAttribute(L"LineName");
-					if(lineNameAttribute != 0)
+					if (lineNameAttribute != 0)
 					{
 						std::wstring lineName = lineNameAttribute->GetValue();
-						if(lineName == L"D0")
+						if (lineName == L"D0")
 						{
 							(*i)->ExtractData(_inputLineState[GetPortIndexForPort(portNo)].lineAssertedD0);
 						}
-						else if(lineName == L"D1")
+						else if (lineName == L"D1")
 						{
 							(*i)->ExtractData(_inputLineState[GetPortIndexForPort(portNo)].lineAssertedD1);
 						}
-						else if(lineName == L"D2")
+						else if (lineName == L"D2")
 						{
 							(*i)->ExtractData(_inputLineState[GetPortIndexForPort(portNo)].lineAssertedD2);
 						}
-						else if(lineName == L"D3")
+						else if (lineName == L"D3")
 						{
 							(*i)->ExtractData(_inputLineState[GetPortIndexForPort(portNo)].lineAssertedD3);
 						}
-						else if(lineName == L"TL")
+						else if (lineName == L"TL")
 						{
 							(*i)->ExtractData(_inputLineState[GetPortIndexForPort(portNo)].lineAssertedTL);
 						}
-						else if(lineName == L"TR")
+						else if (lineName == L"TR")
 						{
 							(*i)->ExtractData(_inputLineState[GetPortIndexForPort(portNo)].lineAssertedTR);
 						}
-						else if(lineName == L"TH")
+						else if (lineName == L"TH")
 						{
 							(*i)->ExtractData(_inputLineState[GetPortIndexForPort(portNo)].lineAssertedTH);
 						}
@@ -1432,42 +1432,42 @@ void A10000::LoadState(IHierarchicalStorageNode& node)
 				}
 			}
 		}
-		else if((*i)->GetName() == L"VersionRegister")
+		else if ((*i)->GetName() == L"VersionRegister")
 		{
 			_versionRegister = (*i)->ExtractHexData<unsigned int>();
 		}
-		else if((*i)->GetName() == L"InputHardwareVersion")
+		else if ((*i)->GetName() == L"InputHardwareVersion")
 		{
 			_inputHardwareVersion = (*i)->ExtractHexData<unsigned int>();
 		}
-		else if((*i)->GetName() == L"HLLineState")
+		else if ((*i)->GetName() == L"HLLineState")
 		{
 			_currentHLLineState = (*i)->ExtractData<bool>();
 		}
-		else if((*i)->GetName() == L"LastTimesliceLength")
+		else if ((*i)->GetName() == L"LastTimesliceLength")
 		{
 			_lastTimesliceLength = (*i)->ExtractData<bool>();
 		}
 		//Restore the lineAccessBuffer state
-		else if((*i)->GetName() == L"LineAccessBuffer")
+		else if ((*i)->GetName() == L"LineAccessBuffer")
 		{
 			_lineAccessBuffer.clear();
 			IHierarchicalStorageNode& lineAccessBufferNode = *(*i);
 			std::list<IHierarchicalStorageNode*> lineAccessBufferChildList = lineAccessBufferNode.GetChildList();
-			for(std::list<IHierarchicalStorageNode*>::iterator lineAccessBufferEntry = lineAccessBufferChildList.begin(); lineAccessBufferEntry != lineAccessBufferChildList.end(); ++lineAccessBufferEntry)
+			for (std::list<IHierarchicalStorageNode*>::iterator lineAccessBufferEntry = lineAccessBufferChildList.begin(); lineAccessBufferEntry != lineAccessBufferChildList.end(); ++lineAccessBufferEntry)
 			{
-				if((*lineAccessBufferEntry)->GetName() == L"LineAccess")
+				if ((*lineAccessBufferEntry)->GetName() == L"LineAccess")
 				{
 					IHierarchicalStorageAttribute* lineNameAttribute = (*lineAccessBufferEntry)->GetAttribute(L"LineName");
 					IHierarchicalStorageAttribute* lineStateAttribute = (*lineAccessBufferEntry)->GetAttribute(L"LineState");
 					IHierarchicalStorageAttribute* accessTimeAttribute = (*lineAccessBufferEntry)->GetAttribute(L"AccessTime");
-					if((lineNameAttribute != 0) && (lineStateAttribute != 0) && (accessTimeAttribute != 0))
+					if ((lineNameAttribute != 0) && (lineStateAttribute != 0) && (accessTimeAttribute != 0))
 					{
 						//Extract the entry from the XML stream
 						std::wstring lineName = lineNameAttribute->ExtractValue<std::wstring>();
 						double accessTime = accessTimeAttribute->ExtractValue<double>();
 						unsigned int lineIDAsInteger = GetLineID(lineName.c_str());
-						if(lineIDAsInteger != 0)
+						if (lineIDAsInteger != 0)
 						{
 							LineID lineID = (LineID)lineIDAsInteger;
 							Data lineState(GetLineWidth((unsigned int)lineID));
@@ -1477,7 +1477,7 @@ void A10000::LoadState(IHierarchicalStorageNode& node)
 							//Find the correct location in the list to insert the entry. The
 							//list must be sorted from earliest to latest.
 							std::list<LineAccess>::reverse_iterator j = _lineAccessBuffer.rbegin();
-							while((j != _lineAccessBuffer.rend()) && (j->accessTime > lineAccess.accessTime))
+							while ((j != _lineAccessBuffer.rend()) && (j->accessTime > lineAccess.accessTime))
 							{
 								++j;
 							}
@@ -1494,7 +1494,7 @@ void A10000::LoadState(IHierarchicalStorageNode& node)
 //----------------------------------------------------------------------------------------
 void A10000::SaveState(IHierarchicalStorageNode& node) const
 {
-	for(unsigned int i = 0; i < ControlPortCount; ++i)
+	for (unsigned int i = 0; i < ControlPortCount; ++i)
 	{
 		Ports portNo = (Ports)i;
 		node.CreateChildHex(L"DataRegister", GetDataRegister(portNo).GetData(), GetDataRegister(portNo).GetHexCharCount()).CreateAttribute(L"PortNumber", i);
@@ -1517,10 +1517,10 @@ void A10000::SaveState(IHierarchicalStorageNode& node) const
 	node.CreateChild(L"LastTimesliceLength", _lastTimesliceLength);
 
 	//Save the lineAccessBuffer state
-	if(_lineAccessPending)
+	if (_lineAccessPending)
 	{
 		IHierarchicalStorageNode& lineAccessState = node.CreateChild(L"LineAccessBuffer");
-		for(std::list<LineAccess>::const_iterator i = _lineAccessBuffer.begin(); i != _lineAccessBuffer.end(); ++i)
+		for (std::list<LineAccess>::const_iterator i = _lineAccessBuffer.begin(); i != _lineAccessBuffer.end(); ++i)
 		{
 			IHierarchicalStorageNode& lineAccessEntry = lineAccessState.CreateChild(L"LineAccess");
 			lineAccessEntry.CreateAttribute(L"LineName", GetLineName((unsigned int)i->lineID));

@@ -53,11 +53,11 @@ void GenericAccessGroupCollectionEntry::SetParent(IGenericAccessGroup* parent)
 //----------------------------------------------------------------------------------------
 const IGenericAccess::DataContext* GenericAccessGroupCollectionEntry::GetDataContext() const
 {
-	if(_dataContext != 0)
+	if (_dataContext != 0)
 	{
 		return _dataContext;
 	}
-	else if(_parent != 0)
+	else if (_parent != 0)
 	{
 		return _parent->GetDataContext();
 	}
@@ -99,7 +99,7 @@ unsigned int GenericAccessGroupCollectionEntry::GetEntryCount() const
 Marshal::Ret<std::list<IGenericAccessGroupEntry*>> GenericAccessGroupCollectionEntry::GetEntries() const
 {
 	std::list<IGenericAccessGroupEntry*> entryList;
-	for(std::list<GenericAccessGroupCollectionEntry::CollectionEntry>::const_iterator i = _entries.begin(); i != _entries.end(); ++i)
+	for (std::list<GenericAccessGroupCollectionEntry::CollectionEntry>::const_iterator i = _entries.begin(); i != _entries.end(); ++i)
 	{
 		entryList.push_back(i->value);
 	}
@@ -117,9 +117,9 @@ IGenericAccessGroupEntry* GenericAccessGroupCollectionEntry::GetCollectionEntry(
 {
 	//##TODO## Consider using a key map to make these lookups more efficient
 	std::wstring keyResolved = key.Get();
-	for(std::list<CollectionEntry>::const_iterator i = _entries.begin(); i != _entries.end(); ++i)
+	for (std::list<CollectionEntry>::const_iterator i = _entries.begin(); i != _entries.end(); ++i)
 	{
-		if(i->key->GetValueString() == keyResolved)
+		if (i->key->GetValueString() == keyResolved)
 		{
 			return i->value;
 		}

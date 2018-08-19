@@ -31,7 +31,7 @@ void Buffer::SetStreamPos(SizeType position)
 bool Buffer::SkipBytes(SizeType byteCount)
 {
 	//Return false if there are less than the requested number of bytes left in the buffer
-	if((_streamPos + byteCount) > _bufferSize)
+	if ((_streamPos + byteCount) > _bufferSize)
 	{
 		return false;
 	}

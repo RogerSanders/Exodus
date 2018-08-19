@@ -13,12 +13,12 @@ ROM8Variable::ROM8Variable(const std::wstring& implementationName, const std::ws
 IBusInterface::AccessResult ROM8Variable::ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	static const unsigned int arrayEntryByteSize = 1;
-	switch(interfaceNumber)
+	switch (interfaceNumber)
 	{
 	default:
 	case 0:{
 		unsigned int dataByteSize = data.GetByteSize();
-		for(unsigned int i = 0; i < dataByteSize; ++i)
+		for (unsigned int i = 0; i < dataByteSize; ++i)
 		{
 			data.SetByteFromTopDown(i, _memoryArray[(location + i) % _memoryArraySize]);
 		}
@@ -54,12 +54,12 @@ void ROM8Variable::TransparentReadInterface(unsigned int interfaceNumber, unsign
 void ROM8Variable::TransparentWriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, unsigned int accessContext)
 {
 	static const unsigned int arrayEntryByteSize = 1;
-	switch(interfaceNumber)
+	switch (interfaceNumber)
 	{
 	default:
 	case 0:{
 		unsigned int dataByteSize = data.GetByteSize();
-		for(unsigned int i = 0; i < dataByteSize; ++i)
+		for (unsigned int i = 0; i < dataByteSize; ++i)
 		{
 			_memoryArray[(location + i) % _memoryArraySize] = data.GetByteFromTopDown(i);
 		}

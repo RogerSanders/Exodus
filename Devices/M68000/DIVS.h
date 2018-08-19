@@ -62,12 +62,12 @@ public:
 		additionalTime += _target.ReadWithoutAdjustingAddress(cpu, op2, GetInstructionRegister());
 
 		//Check for divide by zero
-		if(op1 == 0)
+		if (op1 == 0)
 		{
 			//UNDEFINED N
 			//UNDEFINED Z
 			//UNDEFINED V
-			if(cpu->ExceptionDisabled(M68000::Exceptions::ZeroDivide))
+			if (cpu->ExceptionDisabled(M68000::Exceptions::ZeroDivide))
 			{
 				return GetExecuteCycleCount(additionalTime);
 			}
@@ -82,11 +82,11 @@ public:
 		//Translate operands into unsigned form
 		bool op1Negative = op1.Negative();
 		bool op2Negative = op2.Negative();
-		if(op1Negative)
+		if (op1Negative)
 		{
 			op1 = (M68000Long(0) - op1);
 		}
-		if(op2Negative)
+		if (op2Negative)
 		{
 			op2 = (M68000Long(0) - op2);
 		}
@@ -98,18 +98,18 @@ public:
 		//the maximum number which can be stored in the result. Note that in the case of
 		//the signed divide used in this opcode, the maximum size of the final quotient
 		//is only 15 bits, due to the presence of the sign bit.
-		if((op2 / op1) <= (quotient.GetMaxValue() >> 1))
+		if ((op2 / op1) <= (quotient.GetMaxValue() >> 1))
 		{
 			//The operation didn't overflow. Commit the results.
 			quotient = M68000Word(op2 / op1);
 			remainder = M68000Word(op2 % op1);
 
 			//Translate result operands into signed form
-			if(op1Negative ^ op2Negative)
+			if (op1Negative ^ op2Negative)
 			{
 				quotient = M68000Word(0) - quotient;
 			}
-			if(op2Negative)
+			if (op2Negative)
 			{
 				remainder = M68000Word(0) - remainder;
 			}

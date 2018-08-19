@@ -102,7 +102,7 @@ void ClearSTLContainer(std::unordered_multimap<KeyType, ElementType, Hash, Pred,
 template<class ElementType, class Container>
 void ClearSTLContainer(std::stack<ElementType, Container>& element)
 {
-	while(!element.empty())
+	while (!element.empty())
 	{
 		element.pop();
 	}
@@ -112,7 +112,7 @@ void ClearSTLContainer(std::stack<ElementType, Container>& element)
 template<class ElementType, class Container>
 void ClearSTLContainer(std::queue<ElementType, Container>& element)
 {
-	while(!element.empty())
+	while (!element.empty())
 	{
 		element.pop();
 	}
@@ -122,7 +122,7 @@ void ClearSTLContainer(std::queue<ElementType, Container>& element)
 template<class ElementType, class Container, class Compare>
 void ClearSTLContainer(std::priority_queue<ElementType, Container, Compare>& element)
 {
-	while(!element.empty())
+	while (!element.empty())
 	{
 		element.pop();
 	}

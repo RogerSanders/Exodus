@@ -27,7 +27,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 	size_t containerEntryCount = element.size();
 	elementSizeArray[elementSizeArrayIndex++] = containerEntryCount;
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-	if(!has_marshal_constructor<ElementType>::value && std::is_trivial<ElementType>::value)
+	if (!has_marshal_constructor<ElementType>::value && std::is_trivial<ElementType>::value)
 	{
 		ElementType* itemArrayWithType = (ElementType*)itemArray;
 		memcpy((void*)&itemArrayWithType[elementArrayIndex], (const void*)element.data(), containerEntryCount * sizeof(ElementType));
@@ -36,7 +36,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 	else
 #endif
 	{
-		for(size_t i = 0; i < containerEntryCount; ++i)
+		for (size_t i = 0; i < containerEntryCount; ++i)
 		{
 			DecomposeSTLContainer(itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, element[i]);
 		}
@@ -50,7 +50,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 {
 	size_t containerEntryCount = element.size();
 	elementSizeArray[elementSizeArrayIndex++] = containerEntryCount;
-	if(!has_marshal_constructor<ElementType>::value && std::is_trivial<ElementType>::value)
+	if (!has_marshal_constructor<ElementType>::value && std::is_trivial<ElementType>::value)
 	{
 		ElementType* itemArrayWithType = (ElementType*)itemArray;
 		memcpy((void*)&itemArrayWithType[elementArrayIndex], (const void*)element.data(), containerEntryCount * sizeof(ElementType));
@@ -58,7 +58,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 	}
 	else
 	{
-		for(size_t i = 0; i < containerEntryCount; ++i)
+		for (size_t i = 0; i < containerEntryCount; ++i)
 		{
 			DecomposeSTLContainer(itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, std::move(element[i]));
 		}
@@ -77,7 +77,7 @@ inline void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], IN
 	size_t containerEntryCount = element.size();
 	elementSizeArray[elementSizeArrayIndex++] = containerEntryCount;
 	bool* itemArrayWithType = (bool*)itemArray;
-	for(size_t i = 0; i < containerEntryCount; ++i)
+	for (size_t i = 0; i < containerEntryCount; ++i)
 	{
 		itemArrayWithType[elementArrayIndex++] = element[i];
 	}
@@ -88,7 +88,7 @@ inline void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], IN
 template<class ElementType, size_t ArraySize>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, const std::array<ElementType, ArraySize>& element)
 {
-	if(!has_marshal_constructor<ElementType>::value && std::is_trivial<ElementType>::value)
+	if (!has_marshal_constructor<ElementType>::value && std::is_trivial<ElementType>::value)
 	{
 		ElementType* itemArrayWithType = (ElementType*)itemArray;
 		memcpy((void*)&itemArrayWithType[elementArrayIndex], (const void*)element.data(), ArraySize * sizeof(ElementType));
@@ -96,7 +96,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 	}
 	else
 	{
-		for(size_t i = 0; i < ArraySize; ++i)
+		for (size_t i = 0; i < ArraySize; ++i)
 		{
 			DecomposeSTLContainer(itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, element[i]);
 		}
@@ -107,7 +107,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 template<class ElementType, size_t ArraySize>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::array<ElementType, ArraySize>&& element)
 {
-	if(!has_marshal_constructor<ElementType>::value && std::is_trivial<ElementType>::value)
+	if (!has_marshal_constructor<ElementType>::value && std::is_trivial<ElementType>::value)
 	{
 		ElementType* itemArrayWithType = (ElementType*)itemArray;
 		memcpy((void*)&itemArrayWithType[elementArrayIndex], (const void*)element.data(), ArraySize * sizeof(ElementType));
@@ -115,7 +115,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 	}
 	else
 	{
-		for(size_t i = 0; i < ArraySize; ++i)
+		for (size_t i = 0; i < ArraySize; ++i)
 		{
 			DecomposeSTLContainer(itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, std::move(element[i]));
 		}
@@ -129,7 +129,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 {
 	size_t elementSizeArrayIndexForContainer = elementSizeArrayIndex++;
 	size_t containerEntryCount = 0;
-	for(typename std::list<ElementType, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
+	for (typename std::list<ElementType, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
 	{
 		DecomposeSTLContainer(itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, *i);
 		++containerEntryCount;
@@ -144,7 +144,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 {
 	size_t elementSizeArrayIndexForContainer = elementSizeArrayIndex++;
 	size_t containerEntryCount = 0;
-	for(typename std::list<ElementType, Alloc>::iterator i = element.begin(); i != element.end(); ++i)
+	for (typename std::list<ElementType, Alloc>::iterator i = element.begin(); i != element.end(); ++i)
 	{
 		DecomposeSTLContainer(itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, std::move(*i));
 		++containerEntryCount;
@@ -158,7 +158,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 {
 	size_t elementSizeArrayIndexForContainer = elementSizeArrayIndex++;
 	size_t containerEntryCount = 0;
-	for(typename std::forward_list<ElementType, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
+	for (typename std::forward_list<ElementType, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
 	{
 		DecomposeSTLContainer(itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, *i);
 		++containerEntryCount;
@@ -172,7 +172,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 {
 	size_t elementSizeArrayIndexForContainer = elementSizeArrayIndex++;
 	size_t containerEntryCount = 0;
-	for(typename std::forward_list<ElementType, Alloc>::iterator i = element.begin(); i != element.end(); ++i)
+	for (typename std::forward_list<ElementType, Alloc>::iterator i = element.begin(); i != element.end(); ++i)
 	{
 		DecomposeSTLContainer(itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, std::move(*i));
 		++containerEntryCount;
@@ -187,7 +187,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 {
 	size_t elementSizeArrayIndexForContainer = elementSizeArrayIndex++;
 	size_t containerEntryCount = 0;
-	for(typename std::deque<ElementType, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
+	for (typename std::deque<ElementType, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
 	{
 		DecomposeSTLContainer(itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, *i);
 		++containerEntryCount;
@@ -202,7 +202,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 {
 	size_t elementSizeArrayIndexForContainer = elementSizeArrayIndex++;
 	size_t containerEntryCount = 0;
-	for(typename std::deque<ElementType, Alloc>::iterator i = element.begin(); i != element.end(); ++i)
+	for (typename std::deque<ElementType, Alloc>::iterator i = element.begin(); i != element.end(); ++i)
 	{
 		DecomposeSTLContainer(itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, std::move(*i));
 		++containerEntryCount;
@@ -217,7 +217,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 {
 	size_t elementSizeArrayIndexForContainer = elementSizeArrayIndex++;
 	size_t containerEntryCount = 0;
-	for(typename std::set<ElementType, Compare, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
+	for (typename std::set<ElementType, Compare, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
 	{
 		DecomposeSTLContainer(itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, *i);
 		++containerEntryCount;
@@ -232,7 +232,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 {
 	size_t elementSizeArrayIndexForContainer = elementSizeArrayIndex++;
 	size_t containerEntryCount = 0;
-	for(typename std::set<ElementType, Compare, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
+	for (typename std::set<ElementType, Compare, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
 	{
 		//Note that we can't use a non-const iterator and move the elements from this
 		//container, because as per the C++ standard 23.2.4/6 iterator and const_iterator
@@ -251,7 +251,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 {
 	size_t elementSizeArrayIndexForContainer = elementSizeArrayIndex++;
 	size_t containerEntryCount = 0;
-	for(typename std::multiset<ElementType, Compare, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
+	for (typename std::multiset<ElementType, Compare, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
 	{
 		DecomposeSTLContainer(itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, *i);
 		++containerEntryCount;
@@ -266,7 +266,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 {
 	size_t elementSizeArrayIndexForContainer = elementSizeArrayIndex++;
 	size_t containerEntryCount = 0;
-	for(typename std::multiset<ElementType, Compare, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
+	for (typename std::multiset<ElementType, Compare, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
 	{
 		//Note that we can't use a non-const iterator and move the elements from this
 		//container, because as per the C++ standard 23.2.4/6 iterator and const_iterator
@@ -284,7 +284,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 {
 	size_t elementSizeArrayIndexForContainer = elementSizeArrayIndex++;
 	size_t containerEntryCount = 0;
-	for(typename std::unordered_set<ElementType, Hash, Pred, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
+	for (typename std::unordered_set<ElementType, Hash, Pred, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
 	{
 		DecomposeSTLContainer(itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, *i);
 		++containerEntryCount;
@@ -298,7 +298,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 {
 	size_t elementSizeArrayIndexForContainer = elementSizeArrayIndex++;
 	size_t containerEntryCount = 0;
-	for(typename std::unordered_set<ElementType, Hash, Pred, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
+	for (typename std::unordered_set<ElementType, Hash, Pred, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
 	{
 		//Note that we can't use a non-const iterator and move the elements from this
 		//container, because as per the C++ standard 23.2.4/6 iterator and const_iterator
@@ -316,7 +316,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 {
 	size_t elementSizeArrayIndexForContainer = elementSizeArrayIndex++;
 	size_t containerEntryCount = 0;
-	for(typename std::unordered_multiset<ElementType, Hash, Pred, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
+	for (typename std::unordered_multiset<ElementType, Hash, Pred, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
 	{
 		DecomposeSTLContainer(itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, *i);
 		++containerEntryCount;
@@ -330,7 +330,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 {
 	size_t elementSizeArrayIndexForContainer = elementSizeArrayIndex++;
 	size_t containerEntryCount = 0;
-	for(typename std::unordered_multiset<ElementType, Hash, Pred, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
+	for (typename std::unordered_multiset<ElementType, Hash, Pred, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
 	{
 		//Note that we can't use a non-const iterator and move the elements from this
 		//container, because as per the C++ standard 23.2.4/6 iterator and const_iterator
@@ -350,7 +350,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 	size_t elementSize = element.size();
 	elementSizeArray[elementSizeArrayIndex++] = elementSize;
 	NestedMarshaller<KeyType>* keyWrapper = (NestedMarshaller<KeyType>*)nestedMarshallerArray[nestedMarshallerArrayIndex];
-	for(typename std::map<KeyType, ElementType, Compare, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
+	for (typename std::map<KeyType, ElementType, Compare, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
 	{
 		keyWrapper->AddKey(i->first);
 		DecomposeSTLContainer(itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, i->second);
@@ -365,7 +365,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 	size_t elementSize = element.size();
 	elementSizeArray[elementSizeArrayIndex++] = elementSize;
 	NestedMarshaller<KeyType>* keyWrapper = (NestedMarshaller<KeyType>*)nestedMarshallerArray[nestedMarshallerArrayIndex];
-	for(typename std::map<KeyType, ElementType, Compare, Alloc>::iterator i = element.begin(); i != element.end(); ++i)
+	for (typename std::map<KeyType, ElementType, Compare, Alloc>::iterator i = element.begin(); i != element.end(); ++i)
 	{
 		keyWrapper->AddKey(i->first);
 		DecomposeSTLContainer(itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, std::move(i->second));
@@ -380,7 +380,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 	size_t elementSize = element.size();
 	elementSizeArray[elementSizeArrayIndex++] = elementSize;
 	NestedMarshaller<KeyType>* keyWrapper = (NestedMarshaller<KeyType>*)nestedMarshallerArray[nestedMarshallerArrayIndex];
-	for(typename std::multimap<KeyType, ElementType, Compare, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
+	for (typename std::multimap<KeyType, ElementType, Compare, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
 	{
 		keyWrapper->AddKey(i->first);
 		DecomposeSTLContainer(itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, i->second);
@@ -395,7 +395,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 	size_t elementSize = element.size();
 	elementSizeArray[elementSizeArrayIndex++] = elementSize;
 	NestedMarshaller<KeyType>* keyWrapper = (NestedMarshaller<KeyType>*)nestedMarshallerArray[nestedMarshallerArrayIndex];
-	for(typename std::multimap<KeyType, ElementType, Compare, Alloc>::iterator i = element.begin(); i != element.end(); ++i)
+	for (typename std::multimap<KeyType, ElementType, Compare, Alloc>::iterator i = element.begin(); i != element.end(); ++i)
 	{
 		keyWrapper->AddKey(i->first);
 		DecomposeSTLContainer(itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, std::move(i->second));
@@ -409,7 +409,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 	size_t elementSize = element.size();
 	elementSizeArray[elementSizeArrayIndex++] = elementSize;
 	NestedMarshaller<KeyType>* keyWrapper = (NestedMarshaller<KeyType>*)nestedMarshallerArray[nestedMarshallerArrayIndex];
-	for(typename std::unordered_map<KeyType, ElementType, Hash, Pred, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
+	for (typename std::unordered_map<KeyType, ElementType, Hash, Pred, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
 	{
 		keyWrapper->AddKey(i->first);
 		DecomposeSTLContainer(itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, i->second);
@@ -423,7 +423,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 	size_t elementSize = element.size();
 	elementSizeArray[elementSizeArrayIndex++] = elementSize;
 	NestedMarshaller<KeyType>* keyWrapper = (NestedMarshaller<KeyType>*)nestedMarshallerArray[nestedMarshallerArrayIndex];
-	for(typename std::unordered_map<KeyType, ElementType, Hash, Pred, Alloc>::iterator i = element.begin(); i != element.end(); ++i)
+	for (typename std::unordered_map<KeyType, ElementType, Hash, Pred, Alloc>::iterator i = element.begin(); i != element.end(); ++i)
 	{
 		keyWrapper->AddKey(i->first);
 		DecomposeSTLContainer(itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, std::move(i->second));
@@ -437,7 +437,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 	size_t elementSize = element.size();
 	elementSizeArray[elementSizeArrayIndex++] = elementSize;
 	NestedMarshaller<KeyType>* keyWrapper = (NestedMarshaller<KeyType>*)nestedMarshallerArray[nestedMarshallerArrayIndex];
-	for(typename std::unordered_multimap<KeyType, ElementType, Hash, Pred, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
+	for (typename std::unordered_multimap<KeyType, ElementType, Hash, Pred, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
 	{
 		keyWrapper->AddKey(i->first);
 		DecomposeSTLContainer(itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, i->second);
@@ -451,7 +451,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 	size_t elementSize = element.size();
 	elementSizeArray[elementSizeArrayIndex++] = elementSize;
 	NestedMarshaller<KeyType>* keyWrapper = (NestedMarshaller<KeyType>*)nestedMarshallerArray[nestedMarshallerArrayIndex];
-	for(typename std::unordered_multimap<KeyType, ElementType, Hash, Pred, Alloc>::iterator i = element.begin(); i != element.end(); ++i)
+	for (typename std::unordered_multimap<KeyType, ElementType, Hash, Pred, Alloc>::iterator i = element.begin(); i != element.end(); ++i)
 	{
 		keyWrapper->AddKey(i->first);
 		DecomposeSTLContainer(itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, std::move(i->second));
@@ -468,12 +468,12 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 	std::stack<ElementType, Container> elementCopy(element);
 	std::vector<ElementType> elementContents;
 	elementContents.reserve(elementSize);
-	for(size_t i = 0; i < elementSize; ++i)
+	for (size_t i = 0; i < elementSize; ++i)
 	{
 		elementContents.push_back(MARSHALSUPPORT_MOVE(elementCopy.top()));
 		elementCopy.pop();
 	}
-	for(size_t i = 0; i < elementSize; ++i)
+	for (size_t i = 0; i < elementSize; ++i)
 	{
 		size_t elementIndexNo = (elementSize - 1) - i;
 		ElementType& entry = elementContents[elementIndexNo];
@@ -490,12 +490,12 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 	elementSizeArray[elementSizeArrayIndex++] = elementSize;
 	std::vector<ElementType> elementContents;
 	elementContents.reserve(elementSize);
-	for(size_t i = 0; i < elementSize; ++i)
+	for (size_t i = 0; i < elementSize; ++i)
 	{
 		elementContents.push_back(std::move(element.top()));
 		element.pop();
 	}
-	for(size_t i = 0; i < elementSize; ++i)
+	for (size_t i = 0; i < elementSize; ++i)
 	{
 		size_t elementIndexNo = (elementSize - 1) - i;
 		ElementType& entry = elementContents[elementIndexNo];
@@ -511,7 +511,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 	size_t elementSize = element.size();
 	elementSizeArray[elementSizeArrayIndex++] = elementSize;
 	std::queue<ElementType, Container> elementCopy(element);
-	for(size_t i = 0; i < elementSize; ++i)
+	for (size_t i = 0; i < elementSize; ++i)
 	{
 		ElementType& entry = elementCopy.front();
 		DecomposeSTLContainer(itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, MARSHALSUPPORT_MOVE(entry));
@@ -526,7 +526,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 {
 	size_t elementSize = element.size();
 	elementSizeArray[elementSizeArrayIndex++] = elementSize;
-	for(size_t i = 0; i < elementSize; ++i)
+	for (size_t i = 0; i < elementSize; ++i)
 	{
 		ElementType& entry = element.front();
 		DecomposeSTLContainer(itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, std::move(entry));
@@ -542,7 +542,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 	size_t elementSize = element.size();
 	elementSizeArray[elementSizeArrayIndex++] = elementSize;
 	std::priority_queue<ElementType, Container, Compare> elementCopy(element);
-	for(size_t i = 0; i < elementSize; ++i)
+	for (size_t i = 0; i < elementSize; ++i)
 	{
 		//Note that the double copy here sucks, but due to an oversight in the current design of std::priority_queue,
 		//there's no defined way to move an item off the queue. We could do a const cast here, and based on the very
@@ -562,7 +562,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 {
 	size_t elementSize = element.size();
 	elementSizeArray[elementSizeArrayIndex++] = elementSize;
-	for(size_t i = 0; i < elementSize; ++i)
+	for (size_t i = 0; i < elementSize; ++i)
 	{
 		const ElementType& entry = element.top();
 		DecomposeSTLContainer(itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, entry);
@@ -578,7 +578,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 	size_t containerEntryCount = element.size();
 	elementSizeArray[elementSizeArrayIndex++] = containerEntryCount;
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-	if(!has_marshal_constructor<ElementType>::value && std::is_trivial<ElementType>::value)
+	if (!has_marshal_constructor<ElementType>::value && std::is_trivial<ElementType>::value)
 	{
 		ElementType* itemArrayWithType = (ElementType*)itemArray;
 		memcpy((void*)&itemArrayWithType[elementArrayIndex], (const void*)element.data(), containerEntryCount * sizeof(ElementType));
@@ -587,7 +587,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 	else
 #endif
 	{
-		for(size_t i = 0; i < containerEntryCount; ++i)
+		for (size_t i = 0; i < containerEntryCount; ++i)
 		{
 			DecomposeSTLContainer(itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, element[i]);
 		}
@@ -601,7 +601,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 {
 	size_t containerEntryCount = element.size();
 	elementSizeArray[elementSizeArrayIndex++] = containerEntryCount;
-	if(!has_marshal_constructor<ElementType>::value && std::is_trivial<ElementType>::value)
+	if (!has_marshal_constructor<ElementType>::value && std::is_trivial<ElementType>::value)
 	{
 		ElementType* itemArrayWithType = (ElementType*)itemArray;
 		memcpy((void*)&itemArrayWithType[elementArrayIndex], (const void*)element.data(), containerEntryCount * sizeof(ElementType));
@@ -609,7 +609,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 	}
 	else
 	{
-		for(size_t i = 0; i < containerEntryCount; ++i)
+		for (size_t i = 0; i < containerEntryCount; ++i)
 		{
 			DecomposeSTLContainer(itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, std::move(element[i]));
 		}

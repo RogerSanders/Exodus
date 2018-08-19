@@ -34,7 +34,7 @@ WAVFile::WAVFile()
 bool WAVFile::GetDataFormat(unsigned int& channelCount, unsigned int& bitsPerSample, unsigned int& samplesPerSec) const
 {
 	//Ensure that the wave header has been populated
-	if(!_waveHeaderLoaded)
+	if (!_waveHeaderLoaded)
 	{
 		return false;
 	}
@@ -75,7 +75,7 @@ WAVFile::SizeType WAVFile::GetSavedSampleCount() const
 bool WAVFile::Open(const std::wstring& filename, OpenMode openMode, CreateMode createMode, SizeType bufferSize)
 {
 	//If a file handle is currently open, close it.
-	if(IsOpen())
+	if (IsOpen())
 	{
 		Close();
 	}
@@ -86,7 +86,7 @@ bool WAVFile::Open(const std::wstring& filename, OpenMode openMode, CreateMode c
 	DWORD creationDisposition;
 
 	//Process the openMode parameter
-	switch(openMode)
+	switch (openMode)
 	{
 	case OpenMode::ReadOnly:
 		desiredAccess = GENERIC_READ;
@@ -106,7 +106,7 @@ bool WAVFile::Open(const std::wstring& filename, OpenMode openMode, CreateMode c
 
 	//Process the createMode parameter
 	bool openExistingFile = false;
-	switch(createMode)
+	switch (createMode)
 	{
 	case CreateMode::Open: //Open an existing file. Fails if the file doesn't exist.
 		openExistingFile = true;
@@ -130,7 +130,7 @@ bool WAVFile::Open(const std::wstring& filename, OpenMode openMode, CreateMode c
 	//path contains a plus ('+') character, due to the possibility of extra parameters
 	//being encoded into the file path.
 	HANDLE fileHandle = CreateFile(filename.c_str(), desiredAccess, shareMode, NULL, creationDisposition, 0, NULL);
-	if(fileHandle == INVALID_HANDLE_VALUE)
+	if (fileHandle == INVALID_HANDLE_VALUE)
 	{
 		return false;
 	}
@@ -144,20 +144,20 @@ bool WAVFile::Open(const std::wstring& filename, OpenMode openMode, CreateMode c
 
 	//Open an MMIO file handle for the target file we've already loaded
 	_mmioHandle = mmioOpen(NULL, &mmioInfo, 0);
-	if(_mmioHandle == NULL)
+	if (_mmioHandle == NULL)
 	{
 		return false;
 	}
 
 	//Either read or write the management structures in the target file, depending on
 	//whether we're opening an existing file or creating a new file.
-	if(openExistingFile)
+	if (openExistingFile)
 	{
 		//Attempt to load the RIFF chunk as a WAVE type
 		ZeroMemory(&_riffChunk, sizeof(_riffChunk));
 		_riffChunk.fccType = mmioFOURCC('W', 'A', 'V', 'E');
 		MMRESULT mmioDescendReturn = mmioDescend(_mmioHandle, &_riffChunk, NULL, MMIO_FINDRIFF);
-		if(mmioDescendReturn != MMSYSERR_NOERROR)
+		if (mmioDescendReturn != MMSYSERR_NOERROR)
 		{
 			mmioClose(_mmioHandle, 0);
 			return false;
@@ -167,7 +167,7 @@ bool WAVFile::Open(const std::wstring& filename, OpenMode openMode, CreateMode c
 		ZeroMemory(&_fmtChunk, sizeof(_fmtChunk));
 		_fmtChunk.ckid = mmioFOURCC('f', 'm', 't', ' ');
 		mmioDescendReturn = mmioDescend(_mmioHandle, &_fmtChunk, &_riffChunk, MMIO_FINDCHUNK);
-		if(mmioDescendReturn != MMSYSERR_NOERROR)
+		if (mmioDescendReturn != MMSYSERR_NOERROR)
 		{
 			mmioClose(_mmioHandle, 0);
 			return false;
@@ -175,7 +175,7 @@ bool WAVFile::Open(const std::wstring& filename, OpenMode openMode, CreateMode c
 
 		//Ensure the format chunk is large enough to hold our required parameters
 		unsigned int waveHeaderSize = sizeof(_waveHeader.wFormatTag) + sizeof(_waveHeader.nChannels) + sizeof(_waveHeader.nSamplesPerSec) + sizeof(_waveHeader.nBlockAlign) + sizeof(_waveHeader.nAvgBytesPerSec) + sizeof(_waveHeader.wBitsPerSample);
-		if(_fmtChunk.cksize < (DWORD)waveHeaderSize)
+		if (_fmtChunk.cksize < (DWORD)waveHeaderSize)
 		{
 			mmioClose(_mmioHandle, 0);
 			return false;
@@ -197,7 +197,7 @@ bool WAVFile::Open(const std::wstring& filename, OpenMode openMode, CreateMode c
 		mmioReadReturn = mmioRead(_mmioHandle, (char*)&_waveHeader.wBitsPerSample, sizeof(_waveHeader.wBitsPerSample));
 		mmioReadSucceeded &= (mmioReadReturn != -1);
 		_waveHeader.cbSize = 0;
-		if(!mmioReadSucceeded)
+		if (!mmioReadSucceeded)
 		{
 			mmioClose(_mmioHandle, 0);
 			return false;
@@ -210,7 +210,7 @@ bool WAVFile::Open(const std::wstring& filename, OpenMode openMode, CreateMode c
 		//Ascend out of the format chunk
 		MMRESULT mmioAscendReturn;
 		mmioAscendReturn = mmioAscend(_mmioHandle, &_fmtChunk, 0);
-		if(mmioAscendReturn != MMSYSERR_NOERROR)
+		if (mmioAscendReturn != MMSYSERR_NOERROR)
 		{
 			mmioClose(_mmioHandle, 0);
 			return false;
@@ -220,7 +220,7 @@ bool WAVFile::Open(const std::wstring& filename, OpenMode openMode, CreateMode c
 		ZeroMemory(&_dataChunk, sizeof(_dataChunk));
 		_dataChunk.ckid = mmioFOURCC('d', 'a', 't', 'a');
 		mmioDescendReturn = mmioDescend(_mmioHandle, &_dataChunk, &_riffChunk, MMIO_FINDCHUNK);
-		if(mmioDescendReturn != MMSYSERR_NOERROR)
+		if (mmioDescendReturn != MMSYSERR_NOERROR)
 		{
 			mmioClose(_mmioHandle, 0);
 			return false;
@@ -233,7 +233,7 @@ bool WAVFile::Open(const std::wstring& filename, OpenMode openMode, CreateMode c
 	else
 	{
 		//Ensure that the wave header has been loaded
-		if(!_waveHeaderLoaded)
+		if (!_waveHeaderLoaded)
 		{
 			mmioClose(_mmioHandle, 0);
 			return false;
@@ -244,7 +244,7 @@ bool WAVFile::Open(const std::wstring& filename, OpenMode openMode, CreateMode c
 		_riffChunk.fccType = mmioFOURCC('W', 'A', 'V', 'E');
 		MMRESULT mmioCreateChunkReturn;
 		mmioCreateChunkReturn = mmioCreateChunk(_mmioHandle, &_riffChunk, MMIO_CREATERIFF);
-		if(mmioCreateChunkReturn != MMSYSERR_NOERROR)
+		if (mmioCreateChunkReturn != MMSYSERR_NOERROR)
 		{
 			mmioClose(_mmioHandle, 0);
 			return false;
@@ -254,7 +254,7 @@ bool WAVFile::Open(const std::wstring& filename, OpenMode openMode, CreateMode c
 		ZeroMemory(&_fmtChunk, sizeof(_fmtChunk));
 		_fmtChunk.ckid = mmioFOURCC('f', 'm', 't', ' ');
 		mmioCreateChunkReturn = mmioCreateChunk(_mmioHandle, &_fmtChunk, 0);
-		if(mmioCreateChunkReturn != MMSYSERR_NOERROR)
+		if (mmioCreateChunkReturn != MMSYSERR_NOERROR)
 		{
 			mmioClose(_mmioHandle, 0);
 			return false;
@@ -282,7 +282,7 @@ bool WAVFile::Open(const std::wstring& filename, OpenMode openMode, CreateMode c
 		mmioWriteSucceeded &= (mmioWriteReturn != -1);
 		mmioWriteReturn = mmioWrite(_mmioHandle, (const char*)&_waveHeader.wBitsPerSample, sizeof(_waveHeader.wBitsPerSample));
 		mmioWriteSucceeded &= (mmioWriteReturn != -1);
-		if(!mmioWriteSucceeded)
+		if (!mmioWriteSucceeded)
 		{
 			mmioClose(_mmioHandle, 0);
 			return false;
@@ -291,7 +291,7 @@ bool WAVFile::Open(const std::wstring& filename, OpenMode openMode, CreateMode c
 		//Ascend out of the format chunk
 		MMRESULT mmioAscendReturn;
 		mmioAscendReturn = mmioAscend(_mmioHandle, &_fmtChunk, 0);
-		if(mmioAscendReturn != MMSYSERR_NOERROR)
+		if (mmioAscendReturn != MMSYSERR_NOERROR)
 		{
 			mmioClose(_mmioHandle, 0);
 			return false;
@@ -301,7 +301,7 @@ bool WAVFile::Open(const std::wstring& filename, OpenMode openMode, CreateMode c
 		ZeroMemory(&_dataChunk, sizeof(_dataChunk));
 		_dataChunk.ckid = mmioFOURCC('d', 'a', 't', 'a');
 		mmioCreateChunkReturn = mmioCreateChunk(_mmioHandle, &_dataChunk, 0);
-		if(mmioCreateChunkReturn != MMSYSERR_NOERROR)
+		if (mmioCreateChunkReturn != MMSYSERR_NOERROR)
 		{
 			mmioClose(_mmioHandle, 0);
 			return false;
@@ -309,7 +309,7 @@ bool WAVFile::Open(const std::wstring& filename, OpenMode openMode, CreateMode c
 	}
 
 	//Initialize the buffer for the file
-	if(_bufferSize != bufferSize)
+	if (_bufferSize != bufferSize)
 	{
 		_bufferSize = bufferSize;
 		delete[] _fileBuffer;
@@ -326,7 +326,7 @@ bool WAVFile::Open(const std::wstring& filename, OpenMode openMode, CreateMode c
 //----------------------------------------------------------------------------------------
 void WAVFile::Close()
 {
-	if(_fileOpen)
+	if (_fileOpen)
 	{
 		//Write any buffered contents to the file
 		EmptyDataBuffer();
@@ -356,7 +356,7 @@ bool WAVFile::IsOpen() const
 //----------------------------------------------------------------------------------------
 bool WAVFile::ReadBinary(void* rawData, SizeType bytesToRead)
 {
-	if(!_fileOpen)
+	if (!_fileOpen)
 	{
 		return false;
 	}
@@ -380,14 +380,14 @@ bool WAVFile::ReadBinary(void* rawData, SizeType bytesToRead)
 bool WAVFile::WriteBinary(const void* rawData, SizeType bytesToWrite)
 {
 	//Ensure that a file is currently open
-	if(!_fileOpen)
+	if (!_fileOpen)
 	{
 		return false;
 	}
 
 	//Perform the write operation to the file
 	bool result = true;
-	if(bytesToWrite > _bufferSize)
+	if (bytesToWrite > _bufferSize)
 	{
 		//If the size of the operation exceeds the maximum data buffer size for the file,
 		//empty any current contents from the buffer, and perform the operation
@@ -411,7 +411,7 @@ bool WAVFile::WriteBinary(const void* rawData, SizeType bytesToWrite)
 		//Reload the data buffer if necessary, and write any remaining data to be written
 		//to the buffer.
 		SizeType bytesRemainingToWrite = bytesToWrite - bytesToWriteToBuffer;
-		if(bytesRemainingToWrite > 0)
+		if (bytesRemainingToWrite > 0)
 		{
 			//Set the data buffer to write mode
 			result &= EmptyDataBuffer();
@@ -429,7 +429,7 @@ bool WAVFile::WriteBinary(const void* rawData, SizeType bytesToWrite)
 //----------------------------------------------------------------------------------------
 bool WAVFile::WriteBinaryUnbuffered(const void* rawData, SizeType bytesToWrite)
 {
-	if(!_fileOpen)
+	if (!_fileOpen)
 	{
 		return false;
 	}
@@ -450,7 +450,7 @@ bool WAVFile::EmptyDataBuffer()
 	bool result = true;
 
 	//If the buffer contains written data, write the buffer contents to the file.
-	if(_bufferPosOffset > 0)
+	if (_bufferPosOffset > 0)
 	{
 		result &= WriteBinaryUnbuffered((void*)_fileBuffer, _bufferPosOffset);
 	}

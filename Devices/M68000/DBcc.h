@@ -51,14 +51,14 @@ public:
 		bool result = ConditionCodeTrue(cpu, _conditionCode);
 
 		ExecuteTime additionalCycles;
-		if(!result)
+		if (!result)
 		{
 			//If the condition is false, prepare for another loop
 			M68000Word counter;
 			additionalTime += _source.Read(cpu, counter, GetInstructionRegister());
 			--counter;
 			additionalTime += _source.Write(cpu, counter, GetInstructionRegister());
-			if(counter != counter.GetMaxValue())
+			if (counter != counter.GetMaxValue())
 			{
 				//The counter has been decremented and no overflow has occurred. Branch
 				//to the _target location and run the loop again.

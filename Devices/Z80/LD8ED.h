@@ -30,7 +30,7 @@ public:
 		_source.SetIndexState(GetIndexState(), GetIndexOffset());
 		_target.SetIndexState(GetIndexState(), GetIndexOffset());
 
-		switch(data.GetDataSegment(3, 2))
+		switch (data.GetDataSegment(3, 2))
 		{
 		case 0:
 			//LD I,A		11101101 01000111
@@ -69,7 +69,7 @@ public:
 		additionalTime += _target.Write(cpu, location, result);
 
 		//Set the flag results
-		if(_target.GetMode() == EffectiveAddress::Mode::A)
+		if (_target.GetMode() == EffectiveAddress::Mode::A)
 		{
 			cpu->SetFlagS(result.MSB());
 			cpu->SetFlagZ(result.Zero());

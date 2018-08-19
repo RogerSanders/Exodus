@@ -32,7 +32,7 @@ public:
 //	|---|---|---|---|-----------|---|-------|---|---|---|-----------|
 //	| 1 | 0 | 0 | 1 |    Rx     | 1 | SIZE  | 0 | 0 |R/M|    Ry     |
 //	-----------------------------------------------------------------
-		switch(data.GetDataSegment(6, 2))
+		switch (data.GetDataSegment(6, 2))
 		{
 		case 0:	//00
 			_size = BITCOUNT_BYTE;
@@ -45,12 +45,12 @@ public:
 			break;
 		}
 
-		if(!data.GetBit(3))
+		if (!data.GetBit(3))
 		{
 			//SUBX	Dy,Dx
 			_source.BuildDataDirect(_size, location + GetInstructionSize(), data.GetDataSegment(0, 3));
 			_target.BuildDataDirect(_size, location + GetInstructionSize(), data.GetDataSegment(9, 3));
-			if(_size != BITCOUNT_LONG)
+			if (_size != BITCOUNT_LONG)
 			{
 				AddExecuteCycleCount(ExecuteTime(4, 1, 0));
 			}
@@ -64,7 +64,7 @@ public:
 			//SUBX	-(Ay),-(Ax)
 			_source.BuildAddressPredec(_size, location + GetInstructionSize(), data.GetDataSegment(0, 3));
 			_target.BuildAddressPredec(_size, location + GetInstructionSize(), data.GetDataSegment(9, 3));
-			if(_size != BITCOUNT_LONG)
+			if (_size != BITCOUNT_LONG)
 			{
 				AddExecuteCycleCount(ExecuteTime(18, 3, 1));
 			}

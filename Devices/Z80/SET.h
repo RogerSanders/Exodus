@@ -30,7 +30,7 @@ public:
 		_target.SetIndexState(GetIndexState(), GetIndexOffset());
 		_doubleOutput = false;
 
-		if(_target.Decode8BitRegister(data.GetDataSegment(0, 3)))
+		if (_target.Decode8BitRegister(data.GetDataSegment(0, 3)))
 		{
 			//SET b,r		11001011 11bbbrrr
 			AddExecuteCycleCount(4);
@@ -43,7 +43,7 @@ public:
 			_target.SetMode(EffectiveAddress::Mode::HLIndirect);
 			AddExecuteCycleCount(11);
 
-			if(GetIndexState() != EffectiveAddress::IndexState::None)
+			if (GetIndexState() != EffectiveAddress::IndexState::None)
 			{
 				_doubleOutput = true;
 				_targetHL.SetIndexState(GetIndexState(), GetIndexOffset());
@@ -63,7 +63,7 @@ public:
 		Z80Byte op1;
 
 		//Perform the operation
-		if(_doubleOutput)
+		if (_doubleOutput)
 		{
 			additionalTime += _targetHL.Read(cpu, location, op1);
 		}
@@ -74,7 +74,7 @@ public:
 		Z80Byte bitNumber;
 		additionalTime += _source.Read(cpu, location, bitNumber);
 		op1.SetBit(bitNumber.GetData(), true);
-		if(_doubleOutput)
+		if (_doubleOutput)
 		{
 			additionalTime += _targetHL.Write(cpu, location, op1);
 		}

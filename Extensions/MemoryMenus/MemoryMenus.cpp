@@ -12,7 +12,7 @@ MemoryMenus::MemoryMenus(const std::wstring& implementationName, const std::wstr
 MemoryMenus::~MemoryMenus()
 {
 	//Delete all menu handlers
-	for(std::map<IDevice*, DebugMenuHandler*>::const_iterator i = _debugMenuHandlers.begin(); i != _debugMenuHandlers.end(); ++i)
+	for (std::map<IDevice*, DebugMenuHandler*>::const_iterator i = _debugMenuHandlers.begin(); i != _debugMenuHandlers.end(); ++i)
 	{
 		i->second->ClearMenuItems();
 		delete i->second;
@@ -26,7 +26,7 @@ bool MemoryMenus::RegisterDeviceMenuHandler(IDevice* targetDevice)
 {
 	//Attempt to cast the supplied device to the correct type
 	IMemory* targetDeviceAsIMemory = dynamic_cast<IMemory*>(targetDevice);
-	if(targetDeviceAsIMemory == 0)
+	if (targetDeviceAsIMemory == 0)
 	{
 		return false;
 	}
@@ -50,7 +50,7 @@ void MemoryMenus::UnregisterDeviceMenuHandler(IDevice* targetDevice)
 //----------------------------------------------------------------------------------------
 void MemoryMenus::AddDeviceMenuItems(DeviceMenu deviceMenu, IMenuSegment& menuSegment, IDevice* targetDevice)
 {
-	if(deviceMenu == IExtension::DeviceMenu::Debug)
+	if (deviceMenu == IExtension::DeviceMenu::Debug)
 	{
 		_debugMenuHandlers[targetDevice]->AddMenuItems(menuSegment);
 	}

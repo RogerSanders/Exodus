@@ -33,7 +33,7 @@ public:
 //	| 1 | 0 | 1 | 1 |Ax REGISTER| 1 | SIZE  | 0 | 0 | 1 |Ay REGISTER|
 //	----------------------------------------=========================
 //	                                        |----------<ea>---------|
-		switch(data.GetDataSegment(6, 2))
+		switch (data.GetDataSegment(6, 2))
 		{
 		case 0:	//00
 			_size = BITCOUNT_BYTE;
@@ -50,7 +50,7 @@ public:
 		_source.BuildAddressPostinc(_size, location + GetInstructionSize(), data.GetDataSegment(0, 3));
 		_target.BuildAddressPostinc(_size, location + GetInstructionSize(), data.GetDataSegment(9, 3));
 
-		if(_size != BITCOUNT_LONG)
+		if (_size != BITCOUNT_LONG)
 		{
 			AddExecuteCycleCount(ExecuteTime(12, 3, 0));
 		}

@@ -38,7 +38,7 @@ public:
 		//BSR	<label>
 		_target.BuildAddressPredec(BITCOUNT_LONG, location + GetInstructionSize(), M68000::SP);
 
-		if(data.GetDataSegment(0, 8) != 0)
+		if (data.GetDataSegment(0, 8) != 0)
 		{
 			_size = BITCOUNT_BYTE;
 			_source.BuildImmediateData(location + GetInstructionSize(), M68000Byte(data.GetDataSegment(0, 8)));

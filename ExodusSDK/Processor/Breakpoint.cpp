@@ -76,7 +76,7 @@ void Breakpoint::SetName(const Marshal::In<std::wstring>& name)
 Marshal::Ret<std::wstring> Breakpoint::GenerateName() const
 {
 	std::wstring newName;
-	switch(_locationCondition)
+	switch (_locationCondition)
 	{
 	case Condition::Equal:{
 		std::wstring locationData1AsString;
@@ -171,7 +171,7 @@ bool Breakpoint::PassesLocationCondition(unsigned int location)
 {
 	bool result = true;
 	unsigned int locationMasked = (location & _locationMask);
-	switch(GetLocationCondition())
+	switch (GetLocationCondition())
 	{
 	case Condition::Equal:
 		result = (locationMasked == GetLocationConditionData1());
@@ -232,9 +232,9 @@ void Breakpoint::SetBreakCounter(unsigned int breakCounter)
 bool Breakpoint::CheckHitCounter()
 {
 	IncrementHitCounter();
-	if(GetBreakOnCounter())
+	if (GetBreakOnCounter())
 	{
-		if((GetLiveHitCounter() % GetBreakCounter()) != 0)
+		if ((GetLiveHitCounter() % GetBreakCounter()) != 0)
 		{
 			return false;
 		}

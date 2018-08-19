@@ -15,13 +15,13 @@ void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elem
 {
 	++elementSizeArrayIndex;
 	size_t containerEntryCount = element.size();
-	if(is_last_nested_container_element<ElementType>::value)
+	if (is_last_nested_container_element<ElementType>::value)
 	{
 		elementArrayIndex += containerEntryCount;
 	}
 	else
 	{
-		for(size_t i = 0; i < containerEntryCount; ++i)
+		for (size_t i = 0; i < containerEntryCount; ++i)
 		{
 			CalculateDecomposedSTLContainerSize(elementArrayIndex, elementSizeArrayIndex, element[i]);
 		}
@@ -33,13 +33,13 @@ void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elem
 template<class ElementType, size_t ArraySize>
 void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const std::array<ElementType, ArraySize>& element)
 {
-	if(is_last_nested_container_element<ElementType>::value)
+	if (is_last_nested_container_element<ElementType>::value)
 	{
 		elementArrayIndex += ArraySize;
 	}
 	else
 	{
-		for(size_t i = 0; i < ArraySize; ++i)
+		for (size_t i = 0; i < ArraySize; ++i)
 		{
 			CalculateDecomposedSTLContainerSize(elementArrayIndex, elementSizeArrayIndex, element[i]);
 		}
@@ -52,13 +52,13 @@ template<class ElementType, class Alloc>
 void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const std::list<ElementType, Alloc>& element)
 {
 	++elementSizeArrayIndex;
-	if(is_last_nested_container_element<ElementType>::value)
+	if (is_last_nested_container_element<ElementType>::value)
 	{
 		elementArrayIndex += element.size();
 	}
 	else
 	{
-		for(typename std::list<ElementType, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
+		for (typename std::list<ElementType, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
 		{
 			CalculateDecomposedSTLContainerSize(elementArrayIndex, elementSizeArrayIndex, *i);
 		}
@@ -71,7 +71,7 @@ template<class ElementType, class Alloc>
 void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const std::forward_list<ElementType, Alloc>& element)
 {
 	++elementSizeArrayIndex;
-	for(typename std::forward_list<ElementType, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
+	for (typename std::forward_list<ElementType, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
 	{
 		CalculateDecomposedSTLContainerSize(elementArrayIndex, elementSizeArrayIndex, *i);
 	}
@@ -83,13 +83,13 @@ template<class ElementType, class Alloc>
 void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const std::deque<ElementType, Alloc>& element)
 {
 	++elementSizeArrayIndex;
-	if(is_last_nested_container_element<ElementType>::value)
+	if (is_last_nested_container_element<ElementType>::value)
 	{
 		elementArrayIndex += element.size();
 	}
 	else
 	{
-		for(typename std::deque<ElementType, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
+		for (typename std::deque<ElementType, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
 		{
 			CalculateDecomposedSTLContainerSize(elementArrayIndex, elementSizeArrayIndex, *i);
 		}
@@ -101,13 +101,13 @@ template<class ElementType, class Compare, class Alloc>
 void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const std::set<ElementType, Compare, Alloc>& element)
 {
 	++elementSizeArrayIndex;
-	if(is_last_nested_container_element<ElementType>::value)
+	if (is_last_nested_container_element<ElementType>::value)
 	{
 		elementArrayIndex += element.size();
 	}
 	else
 	{
-		for(typename std::set<ElementType, Compare, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
+		for (typename std::set<ElementType, Compare, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
 		{
 			CalculateDecomposedSTLContainerSize(elementArrayIndex, elementSizeArrayIndex, *i);
 		}
@@ -119,13 +119,13 @@ template<class ElementType, class Compare, class Alloc>
 void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const std::multiset<ElementType, Compare, Alloc>& element)
 {
 	++elementSizeArrayIndex;
-	if(is_last_nested_container_element<ElementType>::value)
+	if (is_last_nested_container_element<ElementType>::value)
 	{
 		elementArrayIndex += element.size();
 	}
 	else
 	{
-		for(typename std::multiset<ElementType, Compare, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
+		for (typename std::multiset<ElementType, Compare, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
 		{
 			CalculateDecomposedSTLContainerSize(elementArrayIndex, elementSizeArrayIndex, *i);
 		}
@@ -138,13 +138,13 @@ template<class ElementType, class Hash, class Pred, class Alloc>
 void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const std::unordered_set<ElementType, Hash, Pred, Alloc>& element)
 {
 	++elementSizeArrayIndex;
-	if(is_last_nested_container_element<ElementType>::value)
+	if (is_last_nested_container_element<ElementType>::value)
 	{
 		elementArrayIndex += element.size();
 	}
 	else
 	{
-		for(typename std::unordered_set<ElementType, Hash, Pred, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
+		for (typename std::unordered_set<ElementType, Hash, Pred, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
 		{
 			CalculateDecomposedSTLContainerSize(elementArrayIndex, elementSizeArrayIndex, *i);
 		}
@@ -156,13 +156,13 @@ template<class ElementType, class Hash, class Pred, class Alloc>
 void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const std::unordered_multiset<ElementType, Hash, Pred, Alloc>& element)
 {
 	++elementSizeArrayIndex;
-	if(is_last_nested_container_element<ElementType>::value)
+	if (is_last_nested_container_element<ElementType>::value)
 	{
 		elementArrayIndex += element.size();
 	}
 	else
 	{
-		for(typename std::unordered_multiset<ElementType, Hash, Pred, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
+		for (typename std::unordered_multiset<ElementType, Hash, Pred, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
 		{
 			CalculateDecomposedSTLContainerSize(elementArrayIndex, elementSizeArrayIndex, *i);
 		}
@@ -175,13 +175,13 @@ template<class KeyType, class ElementType, class Compare, class Alloc>
 void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const std::map<KeyType, ElementType, Compare, Alloc>& element)
 {
 	++elementSizeArrayIndex;
-	if(is_last_nested_container_element<ElementType>::value)
+	if (is_last_nested_container_element<ElementType>::value)
 	{
 		elementArrayIndex += element.size();
 	}
 	else
 	{
-		for(typename std::map<KeyType, ElementType, Compare, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
+		for (typename std::map<KeyType, ElementType, Compare, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
 		{
 			CalculateDecomposedSTLContainerSize(elementArrayIndex, elementSizeArrayIndex, i->second);
 		}
@@ -193,13 +193,13 @@ template<class KeyType, class ElementType, class Compare, class Alloc>
 void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const std::multimap<KeyType, ElementType, Compare, Alloc>& element)
 {
 	++elementSizeArrayIndex;
-	if(is_last_nested_container_element<ElementType>::value)
+	if (is_last_nested_container_element<ElementType>::value)
 	{
 		elementArrayIndex += element.size();
 	}
 	else
 	{
-		for(typename std::multimap<KeyType, ElementType, Compare, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
+		for (typename std::multimap<KeyType, ElementType, Compare, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
 		{
 			CalculateDecomposedSTLContainerSize(elementArrayIndex, elementSizeArrayIndex, i->second);
 		}
@@ -212,13 +212,13 @@ template<class KeyType, class ElementType, class Hash, class Pred, class Alloc>
 void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const std::unordered_map<KeyType, ElementType, Hash, Pred, Alloc>& element)
 {
 	++elementSizeArrayIndex;
-	if(is_last_nested_container_element<ElementType>::value)
+	if (is_last_nested_container_element<ElementType>::value)
 	{
 		elementArrayIndex += element.size();
 	}
 	else
 	{
-		for(typename std::unordered_map<KeyType, ElementType, Hash, Pred, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
+		for (typename std::unordered_map<KeyType, ElementType, Hash, Pred, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
 		{
 			CalculateDecomposedSTLContainerSize(elementArrayIndex, elementSizeArrayIndex, i->second);
 		}
@@ -230,13 +230,13 @@ template<class KeyType, class ElementType, class Hash, class Pred, class Alloc>
 void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const std::unordered_multimap<KeyType, ElementType, Hash, Pred, Alloc>& element)
 {
 	++elementSizeArrayIndex;
-	if(is_last_nested_container_element<ElementType>::value)
+	if (is_last_nested_container_element<ElementType>::value)
 	{
 		elementArrayIndex += element.size();
 	}
 	else
 	{
-		for(typename std::unordered_multimap<KeyType, ElementType, Hash, Pred, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
+		for (typename std::unordered_multimap<KeyType, ElementType, Hash, Pred, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
 		{
 			CalculateDecomposedSTLContainerSize(elementArrayIndex, elementSizeArrayIndex, i->second);
 		}
@@ -249,14 +249,14 @@ template<class ElementType, class Container>
 void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const std::stack<ElementType, Container>& element)
 {
 	++elementSizeArrayIndex;
-	if(is_last_nested_container_element<ElementType>::value)
+	if (is_last_nested_container_element<ElementType>::value)
 	{
 		elementArrayIndex += element.size();
 	}
 	else
 	{
 		std::stack<ElementType, Container> elementCopy = element;
-		while(!elementCopy.empty())
+		while (!elementCopy.empty())
 		{
 			CalculateDecomposedSTLContainerSize(elementArrayIndex, elementSizeArrayIndex, elementCopy.top());
 			elementCopy.pop();
@@ -269,14 +269,14 @@ template<class ElementType, class Container>
 void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const std::queue<ElementType, Container>& element)
 {
 	++elementSizeArrayIndex;
-	if(is_last_nested_container_element<ElementType>::value)
+	if (is_last_nested_container_element<ElementType>::value)
 	{
 		elementArrayIndex += element.size();
 	}
 	else
 	{
 		std::queue<ElementType, Container> elementCopy = element;
-		while(!elementCopy.empty())
+		while (!elementCopy.empty())
 		{
 			CalculateDecomposedSTLContainerSize(elementArrayIndex, elementSizeArrayIndex, elementCopy.front());
 			elementCopy.pop();
@@ -289,14 +289,14 @@ template<class ElementType, class Container, class Compare>
 void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const std::priority_queue<ElementType, Container, Compare>& element)
 {
 	++elementSizeArrayIndex;
-	if(is_last_nested_container_element<ElementType>::value)
+	if (is_last_nested_container_element<ElementType>::value)
 	{
 		elementArrayIndex += element.size();
 	}
 	else
 	{
 		std::priority_queue<ElementType, Container, Compare> elementCopy = element;
-		while(!elementCopy.empty())
+		while (!elementCopy.empty())
 		{
 			CalculateDecomposedSTLContainerSize(elementArrayIndex, elementSizeArrayIndex, elementCopy.top());
 			elementCopy.pop();
@@ -310,13 +310,13 @@ void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elem
 {
 	++elementSizeArrayIndex;
 	size_t containerEntryCount = element.size();
-	if(is_last_nested_container_element<ElementType>::value)
+	if (is_last_nested_container_element<ElementType>::value)
 	{
 		elementArrayIndex += containerEntryCount;
 	}
 	else
 	{
-		for(size_t i = 0; i < containerEntryCount; ++i)
+		for (size_t i = 0; i < containerEntryCount; ++i)
 		{
 			CalculateDecomposedSTLContainerSize(elementArrayIndex, elementSizeArrayIndex, element[i]);
 		}

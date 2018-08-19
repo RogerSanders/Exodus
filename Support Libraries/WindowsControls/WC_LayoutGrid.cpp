@@ -76,11 +76,11 @@ bool WC_LayoutGrid::UnregisterWindowClass(HINSTANCE moduleHandle)
 //----------------------------------------------------------------------------------------
 LRESULT CALLBACK WC_LayoutGrid::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	switch(message)
+	switch (message)
 	{
 	default:{
 		WC_LayoutGrid* object = (WC_LayoutGrid*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-		if(object != 0)
+		if (object != 0)
 		{
 			return object->WndProcPrivate(message, wParam, lParam);
 		}
@@ -92,7 +92,7 @@ LRESULT CALLBACK WC_LayoutGrid::WndProc(HWND hwnd, UINT message, WPARAM wParam, 
 		return object->WndProcPrivate(message, wParam, lParam);}
 	case WM_DESTROY:{
 		WC_LayoutGrid* object = (WC_LayoutGrid*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-		if(object != 0)
+		if (object != 0)
 		{
 			LPARAM result = object->WndProcPrivate(message, wParam, lParam);
 			SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)0);
@@ -108,7 +108,7 @@ LRESULT CALLBACK WC_LayoutGrid::WndProc(HWND hwnd, UINT message, WPARAM wParam, 
 //----------------------------------------------------------------------------------------
 LRESULT WC_LayoutGrid::WndProcPrivate(UINT message, WPARAM wParam, LPARAM lParam)
 {
-	switch(message)
+	switch (message)
 	{
 	case WM_CREATE:
 		return msgWM_CREATE(wParam, lParam);
@@ -165,7 +165,7 @@ LRESULT WC_LayoutGrid::msgWM_SIZE(WPARAM wParam, LPARAM lParam)
 	int newClientHeight = (int)(rect.bottom - rect.top);
 
 	//Handle this size changed event
-	if((_currentControlWidth != newClientWidth) || (_currentControlHeight != newClientHeight))
+	if ((_currentControlWidth != newClientWidth) || (_currentControlHeight != newClientHeight))
 	{
 		HandleSizeChanged(newClientWidth, newClientHeight);
 	}
@@ -181,7 +181,7 @@ LRESULT WC_LayoutGrid::msgWM_ERASEBKGND(WPARAM wParam, LPARAM lParam)
 	//containing window to use the WS_EX_COMPOSITED style in order to achieve the desired
 	//effect. If the WS_EX_TRANSPARENT style has not been specified, we pass this message
 	//on to DefWindowProc.
-	if(((unsigned int)GetWindowLongPtr(_hwnd, GWL_EXSTYLE) & WS_EX_TRANSPARENT) != 0)
+	if (((unsigned int)GetWindowLongPtr(_hwnd, GWL_EXSTYLE) & WS_EX_TRANSPARENT) != 0)
 	{
 		return TRUE;
 	}
@@ -214,17 +214,17 @@ LRESULT WC_LayoutGrid::msgWM_NOTIFY(WPARAM wParam, LPARAM lParam)
 LRESULT WC_LayoutGrid::msgWM_BOUNCE(WPARAM wParam, LPARAM lParam)
 {
 	BounceMessage* bounceMessage = (BounceMessage*)lParam;
-	if(bounceMessage->uMsg == WM_SIZE)
+	if (bounceMessage->uMsg == WM_SIZE)
 	{
 		//If the size of a hosted window has changed, update the size of all child
 		//windows.
 		std::map<HWND, HostedWindowInfo>::iterator hostedWindowsIterator = _hostedWindows.find(bounceMessage->hwnd);
-		if(hostedWindowsIterator != _hostedWindows.end())
+		if (hostedWindowsIterator != _hostedWindows.end())
 		{
 			HostedWindowInfo& windowInfo = hostedWindowsIterator->second;
 			RECT rect;
 			GetClientRect(windowInfo.windowHandle, &rect);
-			if((windowInfo.currentSizeX  != rect.right) || (windowInfo.currentSizeY != rect.bottom))
+			if ((windowInfo.currentSizeX  != rect.right) || (windowInfo.currentSizeY != rect.bottom))
 			{
 				windowInfo.currentSizeX = rect.right;
 				windowInfo.currentSizeY = rect.bottom;
@@ -334,7 +334,7 @@ void WC_LayoutGrid::AddRow(int minHeight, int maxHeight, SizeMode sizeMode, doub
 
 	//Add the row to our list of rows, replacing the default entry if it is currently
 	//present.
-	if((_rows.size() == 1) && (_rows[0].defaultEntry))
+	if ((_rows.size() == 1) && (_rows[0].defaultEntry))
 	{
 		_rows[0] = rowInfo;
 	}
@@ -362,7 +362,7 @@ void WC_LayoutGrid::AddColumn(int minWidth, int maxWidth, SizeMode sizeMode, dou
 
 	//Add the column to our list of column, replacing the default entry if it is currently
 	//present.
-	if((_columns.size() == 1) && (_columns[0].defaultEntry))
+	if ((_columns.size() == 1) && (_columns[0].defaultEntry))
 	{
 		_columns[0] = columnInfo;
 	}
@@ -382,7 +382,7 @@ void WC_LayoutGrid::AddWindow(const HostedWindowInfo& windowInfo)
 {
 	//Ensure this window isn't currently hosted in our control
 	std::map<HWND, HostedWindowInfo>::iterator hostedWindowsIterator = _hostedWindows.find(windowInfo.windowHandle);
-	if(hostedWindowsIterator != _hostedWindows.end())
+	if (hostedWindowsIterator != _hostedWindows.end())
 	{
 		return;
 	}
@@ -405,7 +405,7 @@ void WC_LayoutGrid::RemoveWindow(HWND windowHandle)
 {
 	//Attempt to retrieve info on the target hosted window
 	std::map<HWND, HostedWindowInfo>::iterator hostedWindowsIterator = _hostedWindows.find(windowHandle);
-	if(hostedWindowsIterator == _hostedWindows.end())
+	if (hostedWindowsIterator == _hostedWindows.end())
 	{
 		return;
 	}
@@ -423,7 +423,7 @@ void WC_LayoutGrid::UpdateWindowSizes(const UpdateWindowSizesParams& params)
 {
 	//Attempt to retrieve info on the target hosted window
 	std::map<HWND, HostedWindowInfo>::iterator hostedWindowsIterator = _hostedWindows.find(params.windowHandle);
-	if(hostedWindowsIterator == _hostedWindows.end())
+	if (hostedWindowsIterator == _hostedWindows.end())
 	{
 		return;
 	}
@@ -469,14 +469,14 @@ void WC_LayoutGrid::UpdateChildWindowSizes()
 	//Build maps of all hosted windows, grouped by row and column.
 	std::map<unsigned int, std::set<HWND>> windowsByRow;
 	std::map<unsigned int, std::set<HWND>> windowsByColumn;
-	for(std::map<HWND, HostedWindowInfo>::const_iterator i = _hostedWindows.begin(); i != _hostedWindows.end(); ++i)
+	for (std::map<HWND, HostedWindowInfo>::const_iterator i = _hostedWindows.begin(); i != _hostedWindows.end(); ++i)
 	{
 		const HostedWindowInfo& windowInfo = i->second;
-		for(unsigned int rowNo = windowInfo.rowNo; rowNo < (windowInfo.rowNo + windowInfo.rowSpan); ++rowNo)
+		for (unsigned int rowNo = windowInfo.rowNo; rowNo < (windowInfo.rowNo + windowInfo.rowSpan); ++rowNo)
 		{
 			windowsByRow[rowNo].insert(windowInfo.windowHandle);
 		}
-		for(unsigned int columnNo = windowInfo.columnNo; columnNo < (windowInfo.columnNo + windowInfo.columnSpan); ++columnNo)
+		for (unsigned int columnNo = windowInfo.columnNo; columnNo < (windowInfo.columnNo + windowInfo.columnSpan); ++columnNo)
 		{
 			windowsByColumn[columnNo].insert(windowInfo.windowHandle);
 		}
@@ -486,10 +486,10 @@ void WC_LayoutGrid::UpdateChildWindowSizes()
 	//build a list of all proportional size rows.
 	int usedControlHeightForFixedRows = 0;
 	std::set<unsigned int> proportionalRows;
-	for(unsigned int rowNo = 0; rowNo < (unsigned int)_rows.size(); ++rowNo)
+	for (unsigned int rowNo = 0; rowNo < (unsigned int)_rows.size(); ++rowNo)
 	{
 		RowInfo& rowInfo = _rows[rowNo];
-		switch(rowInfo.sizeMode)
+		switch (rowInfo.sizeMode)
 		{
 		case SizeMode::Fixed:
 			usedControlHeightForFixedRows += rowInfo.currentHeight;
@@ -503,10 +503,10 @@ void WC_LayoutGrid::UpdateChildWindowSizes()
 			//point, as they are relative to the size of the row, and we calculate the
 			//size of the rows before the windows.
 			int newRowHeight = -1;
-			for(std::set<HWND>::const_iterator i = windowsByRow[rowNo].begin(); i != windowsByRow[rowNo].end(); ++i)
+			for (std::set<HWND>::const_iterator i = windowsByRow[rowNo].begin(); i != windowsByRow[rowNo].end(); ++i)
 			{
 				const HostedWindowInfo& windowInfo = _hostedWindows[*i];
-				if(windowInfo.verticalSizeMode == WindowSizeMode::Fixed)
+				if (windowInfo.verticalSizeMode == WindowSizeMode::Fixed)
 				{
 					double rowProportion = (windowInfo.rowNo == rowNo)? windowInfo.rowProportionStart: (((windowInfo.rowNo + (windowInfo.rowSpan - 1)) == rowNo)? windowInfo.rowProportionEnd: 1.0);
 					int heightForWindowInRow = (int)((double)(windowInfo.currentSizeY + windowInfo.paddingTop + windowInfo.paddingBottom) * rowProportion);
@@ -525,7 +525,7 @@ void WC_LayoutGrid::UpdateChildWindowSizes()
 	//##TODO## Update this comment
 	int combinedRowMinHeight = 0;
 	double summedRowProportion = 0.0;
-	for(std::set<unsigned int>::const_iterator i = proportionalRows.begin(); i != proportionalRows.end(); ++i)
+	for (std::set<unsigned int>::const_iterator i = proportionalRows.begin(); i != proportionalRows.end(); ++i)
 	{
 		RowInfo& rowInfo = _rows[*i];
 		summedRowProportion += rowInfo.proportionalRatio;
@@ -538,7 +538,7 @@ void WC_LayoutGrid::UpdateChildWindowSizes()
 	//##TODO## Process minimum requirements first. Those requirements must be met, and
 	//will allow us to calculate a minimum total allocated size.
 	int initialRemainingControlHeight = (usedControlHeightForFixedRows < _currentControlHeight)? _currentControlHeight - usedControlHeightForFixedRows: 0;
-	for(std::set<unsigned int>::const_iterator i = proportionalRows.begin(); i != proportionalRows.end(); ++i)
+	for (std::set<unsigned int>::const_iterator i = proportionalRows.begin(); i != proportionalRows.end(); ++i)
 	{
 		RowInfo& rowInfo = _rows[*i];
 		double proportionForRow = rowInfo.proportionalRatio / summedRowProportion;
@@ -549,7 +549,7 @@ void WC_LayoutGrid::UpdateChildWindowSizes()
 
 	//Update the calculated position of each row
 	int nextRowPosY = 0;
-	for(unsigned int rowNo = 0; rowNo < (unsigned int)_rows.size(); ++rowNo)
+	for (unsigned int rowNo = 0; rowNo < (unsigned int)_rows.size(); ++rowNo)
 	{
 		RowInfo& rowInfo = _rows[rowNo];
 		rowInfo.currentPosY = nextRowPosY;
@@ -560,10 +560,10 @@ void WC_LayoutGrid::UpdateChildWindowSizes()
 	//of all proportional size columns.
 	int usedControlWidthForFixedColumns = 0;
 	std::set<unsigned int> proportionalColumns;
-	for(unsigned int columnNo = 0; columnNo < (unsigned int)_columns.size(); ++columnNo)
+	for (unsigned int columnNo = 0; columnNo < (unsigned int)_columns.size(); ++columnNo)
 	{
 		ColumnInfo& columnInfo = _columns[columnNo];
-		switch(columnInfo.sizeMode)
+		switch (columnInfo.sizeMode)
 		{
 		case SizeMode::Fixed:
 			usedControlWidthForFixedColumns += columnInfo.currentWidth;
@@ -577,10 +577,10 @@ void WC_LayoutGrid::UpdateChildWindowSizes()
 			//point, as they are relative to the size of the column, and we calculate the
 			//size of the columns before the windows.
 			int newRowWidth = -1;
-			for(std::set<HWND>::const_iterator i = windowsByColumn[columnNo].begin(); i != windowsByColumn[columnNo].end(); ++i)
+			for (std::set<HWND>::const_iterator i = windowsByColumn[columnNo].begin(); i != windowsByColumn[columnNo].end(); ++i)
 			{
 				const HostedWindowInfo& windowInfo = _hostedWindows[*i];
-				if(windowInfo.horizontalSizeMode == WindowSizeMode::Fixed)
+				if (windowInfo.horizontalSizeMode == WindowSizeMode::Fixed)
 				{
 					double rowProportion = (windowInfo.columnNo == columnNo)? windowInfo.columnProportionStart: (((windowInfo.columnNo + (windowInfo.columnSpan - 1)) == columnNo)? windowInfo.columnProportionEnd: 1.0);
 					int widthForWindowInColumn = (int)((double)(windowInfo.currentSizeX + windowInfo.paddingLeft + windowInfo.paddingRight) * rowProportion);
@@ -597,14 +597,14 @@ void WC_LayoutGrid::UpdateChildWindowSizes()
 	//Calculate the sum of all the proportion numbers for each proportional column in this
 	//grid
 	double summedColumnProportion = 0.0;
-	for(std::set<unsigned int>::const_iterator i = proportionalColumns.begin(); i != proportionalColumns.end(); ++i)
+	for (std::set<unsigned int>::const_iterator i = proportionalColumns.begin(); i != proportionalColumns.end(); ++i)
 	{
 		summedColumnProportion += _columns[*i].proportionalRatio;
 	}
 
 	//Update the width for each proportional column
 	int initialRemainingControlWidth = (usedControlWidthForFixedColumns < _currentControlWidth)? _currentControlWidth - usedControlWidthForFixedColumns: 0;
-	for(std::set<unsigned int>::const_iterator i = proportionalColumns.begin(); i != proportionalColumns.end(); ++i)
+	for (std::set<unsigned int>::const_iterator i = proportionalColumns.begin(); i != proportionalColumns.end(); ++i)
 	{
 		ColumnInfo& columnInfo = _columns[*i];
 		double proportionForRow = columnInfo.proportionalRatio / summedColumnProportion;
@@ -615,7 +615,7 @@ void WC_LayoutGrid::UpdateChildWindowSizes()
 
 	//Update the calculated position of each column
 	int nextColumnPosX = 0;
-	for(unsigned int columnNo = 0; columnNo < (unsigned int)_columns.size(); ++columnNo)
+	for (unsigned int columnNo = 0; columnNo < (unsigned int)_columns.size(); ++columnNo)
 	{
 		ColumnInfo& columnInfo = _columns[columnNo];
 		columnInfo.currentPosX = nextColumnPosX;
@@ -623,20 +623,20 @@ void WC_LayoutGrid::UpdateChildWindowSizes()
 	}
 
 	//Position and size each window in the grid
-	for(std::map<HWND, HostedWindowInfo>::iterator i = _hostedWindows.begin(); i != _hostedWindows.end(); ++i)
+	for (std::map<HWND, HostedWindowInfo>::iterator i = _hostedWindows.begin(); i != _hostedWindows.end(); ++i)
 	{
 		//Retrieve info for the target window, and its associated row and column.
 		HostedWindowInfo& windowInfo = i->second;
 
 		//Calculate the new height of this window
 		int newWindowSizeY = 0;
-		switch(windowInfo.verticalSizeMode)
+		switch (windowInfo.verticalSizeMode)
 		{
 		case WindowSizeMode::Fixed:
 			newWindowSizeY = windowInfo.currentSizeY;
 			break;
 		case WindowSizeMode::Proportional:
-			for(unsigned int rowNo = windowInfo.rowNo; rowNo < (windowInfo.rowNo + windowInfo.rowSpan); ++rowNo)
+			for (unsigned int rowNo = windowInfo.rowNo; rowNo < (windowInfo.rowNo + windowInfo.rowSpan); ++rowNo)
 			{
 				const RowInfo& rowInfo = _rows[rowNo];
 				double totalProportion = (windowInfo.rowSpan > 1)? windowInfo.rowProportionStart + windowInfo.rowProportionEnd + ((double)(windowInfo.rowSpan - 2) * 1.0): windowInfo.rowProportionStart;
@@ -649,7 +649,7 @@ void WC_LayoutGrid::UpdateChildWindowSizes()
 
 		//Calculate the combined height of all rows that this window is a member of
 		int combinedRowHeight = 0;
-		for(unsigned int rowNo = windowInfo.rowNo; rowNo < (windowInfo.rowNo + windowInfo.rowSpan); ++rowNo)
+		for (unsigned int rowNo = windowInfo.rowNo; rowNo < (windowInfo.rowNo + windowInfo.rowSpan); ++rowNo)
 		{
 			combinedRowHeight += _rows[rowNo].currentHeight;
 		}
@@ -660,13 +660,13 @@ void WC_LayoutGrid::UpdateChildWindowSizes()
 
 		//Calculate the new width of this window
 		int newWindowSizeX = 0;
-		switch(windowInfo.horizontalSizeMode)
+		switch (windowInfo.horizontalSizeMode)
 		{
 		case WindowSizeMode::Fixed:
 			newWindowSizeX = windowInfo.currentSizeX;
 			break;
 		case WindowSizeMode::Proportional:
-			for(unsigned int columnNo = windowInfo.columnNo; columnNo < (windowInfo.columnNo + windowInfo.columnSpan); ++columnNo)
+			for (unsigned int columnNo = windowInfo.columnNo; columnNo < (windowInfo.columnNo + windowInfo.columnSpan); ++columnNo)
 			{
 				const ColumnInfo& columnInfo = _columns[columnNo];
 				double totalProportion = (windowInfo.columnSpan > 1)? windowInfo.columnProportionStart + windowInfo.columnProportionEnd + ((double)(windowInfo.columnSpan - 2) * 1.0): windowInfo.columnProportionStart;
@@ -679,7 +679,7 @@ void WC_LayoutGrid::UpdateChildWindowSizes()
 
 		//Calculate the combined width of all columns that this window is a member of
 		int combinedColumnWidth = 0;
-		for(unsigned int columnNo = windowInfo.columnNo; columnNo < (windowInfo.columnNo + windowInfo.columnSpan); ++columnNo)
+		for (unsigned int columnNo = windowInfo.columnNo; columnNo < (windowInfo.columnNo + windowInfo.columnSpan); ++columnNo)
 		{
 			combinedColumnWidth += _columns[columnNo].currentWidth;
 		}
@@ -690,7 +690,7 @@ void WC_LayoutGrid::UpdateChildWindowSizes()
 
 		//If the size or position of this docked window has changed, add it to the update
 		//session.
-		if((newWindowPosX != windowInfo.currentPosX) || (newWindowPosY != windowInfo.currentPosY) || (newWindowSizeX != windowInfo.currentSizeX) || (newWindowSizeY != windowInfo.currentSizeY))
+		if ((newWindowPosX != windowInfo.currentPosX) || (newWindowPosY != windowInfo.currentPosY) || (newWindowSizeX != windowInfo.currentSizeX) || (newWindowSizeY != windowInfo.currentSizeY))
 		{
 			UINT deferWindowPosFlags = SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE;
 			deferWindowPosFlags |= ((newWindowPosX != windowInfo.currentPosX) || (newWindowPosY != windowInfo.currentPosY))? 0: SWP_NOREPOSITION;

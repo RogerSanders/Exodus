@@ -45,7 +45,7 @@ public:
 		//MOVE	SR,<ea>
 		_target.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), BITCOUNT_WORD, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
 		AddInstructionSize(_target.ExtensionSize());
-		if((_target.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect) || (_target.GetAddressMode() == EffectiveAddress::Mode::AddRegDirect))
+		if ((_target.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect) || (_target.GetAddressMode() == EffectiveAddress::Mode::AddRegDirect))
 		{
 			AddExecuteCycleCount(ExecuteTime(8, 1, 1));
 			AddExecuteCycleCount(_target.DecodeTime());

@@ -82,9 +82,9 @@ public:
 		ExecuteTime additionalCycles;
 		unsigned int bitChanges = 0;
 		bool lastBit = false;
-		for(unsigned int i = 0; i < (unsigned int)_size; ++i)
+		for (unsigned int i = 0; i < (unsigned int)_size; ++i)
 		{
-			if(op1.GetBit(i) != lastBit)
+			if (op1.GetBit(i) != lastBit)
 			{
 				++bitChanges;
 				lastBit = op1.GetBit(i);

@@ -33,14 +33,14 @@ public:
 		_source.SetIndexState(GetIndexState(), GetIndexOffset());
 		_target.SetIndexState(GetIndexState(), GetIndexOffset());
 
-		if(!data.GetBit(0))
+		if (!data.GetBit(0))
 		{
 			//EX AF,AF'		00001000
 			_source.SetMode(EffectiveAddress::Mode::AF);
 			_target.SetMode(EffectiveAddress::Mode::AF2);
 			AddExecuteCycleCount(4);
 		}
-		else if(data.GetBit(3))
+		else if (data.GetBit(3))
 		{
 			//EX DE,HL		11101011
 			_source.SetMode(EffectiveAddress::Mode::DE);

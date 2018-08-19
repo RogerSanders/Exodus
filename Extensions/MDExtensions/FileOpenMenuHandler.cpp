@@ -31,7 +31,7 @@ void MegaDriveROMLoader::FileOpenMenuHandler::DeleteViewForItem(int menuItemID, 
 //----------------------------------------------------------------------------------------
 void MegaDriveROMLoader::FileOpenMenuHandler::HandleMenuItemSelectNonView(int menuItemID, IViewManager& viewManager)
 {
-	switch(menuItemID)
+	switch (menuItemID)
 	{
 	case MENUITEM_OPENMEGADRIVEROM:
 		_extension.LoadROMFile();

@@ -70,32 +70,32 @@ bool ViewBase::OpenView(IHierarchicalStorageNode* viewState)
 	//Create the native window for this view. Note that the window will initially appear
 	//hidden.
 	_hwndInternal = NULL;
-	if(_dialogSettingsCaptured)
+	if (_dialogSettingsCaptured)
 	{
 		_hwndInternal = _uiManager.CreateDialogWindow(*this, _viewPresenter, (HINSTANCE)_assemblyHandle, WndProcDialogInternal, _templateName);
 	}
-	else if(_windowSettingsCaptured)
+	else if (_windowSettingsCaptured)
 	{
 		_hwndInternal = _uiManager.CreateNativeWindow(*this, _viewPresenter, (HINSTANCE)_viewPresenter.GetAssemblyHandle(), WndProcWindowInternal, _windowStyle, _extendedWindowStyle);
 	}
-	if(_hwndInternal == NULL)
+	if (_hwndInternal == NULL)
 	{
 		return false;
 	}
 
 	//If we're opening a native window rather than a dialog, resize the window to the
 	//requested window size.
-	if(!_dialogSettingsCaptured && _windowSettingsCaptured)
+	if (!_dialogSettingsCaptured && _windowSettingsCaptured)
 	{
 		_uiManager.ResizeWindowToTargetClientSize(*this, _viewPresenter, _hwndInternal, _originalWindowWidth, _originalWindowHeight);
 	}
 
 	//If a view state has been defined to restore, load it now, otherwise show the window.
-	if(viewState != 0)
+	if (viewState != 0)
 	{
 		//Attempt to load the state for this view. This will also show the view with the
 		//saved state for the window.
-		if(!LoadViewState(*viewState))
+		if (!LoadViewState(*viewState))
 		{
 			_uiManager.CloseWindow(*this, _viewPresenter, _hwndInternal);
 			return false;
@@ -104,7 +104,7 @@ bool ViewBase::OpenView(IHierarchicalStorageNode* viewState)
 	else
 	{
 		//Request the UI manager to show this view for the first time
-		if(!_uiManager.ShowWindowFirstTime(*this, _viewPresenter, _hwndInternal, _initialWindowTitle))
+		if (!_uiManager.ShowWindowFirstTime(*this, _viewPresenter, _hwndInternal, _initialWindowTitle))
 		{
 			_uiManager.CloseWindow(*this, _viewPresenter, _hwndInternal);
 			return false;
@@ -119,7 +119,7 @@ bool ViewBase::OpenView(IHierarchicalStorageNode* viewState)
 //----------------------------------------------------------------------------------------
 void ViewBase::CloseView()
 {
-	if(_hwndInternal != NULL)
+	if (_hwndInternal != NULL)
 	{
 		_uiManager.CloseWindow(*this, _viewPresenter, _hwndInternal);
 	}
@@ -128,7 +128,7 @@ void ViewBase::CloseView()
 //----------------------------------------------------------------------------------------
 void ViewBase::ShowView()
 {
-	if(_hwndInternal != NULL)
+	if (_hwndInternal != NULL)
 	{
 		_uiManager.ShowWindow(*this, _viewPresenter, _hwndInternal);
 	}
@@ -137,7 +137,7 @@ void ViewBase::ShowView()
 //----------------------------------------------------------------------------------------
 void ViewBase::HideView()
 {
-	if(_hwndInternal != NULL)
+	if (_hwndInternal != NULL)
 	{
 		_uiManager.HideWindow(*this, _viewPresenter, _hwndInternal);
 	}
@@ -146,7 +146,7 @@ void ViewBase::HideView()
 //----------------------------------------------------------------------------------------
 void ViewBase::ActivateView()
 {
-	if(_hwndInternal != NULL)
+	if (_hwndInternal != NULL)
 	{
 		_uiManager.ActivateWindow(*this, _viewPresenter, _hwndInternal);
 	}
@@ -158,16 +158,16 @@ void ViewBase::ActivateView()
 bool ViewBase::LoadViewState(IHierarchicalStorageNode& viewState)
 {
 	//Ensure the window has been created
-	if(_hwndInternal == NULL)
+	if (_hwndInternal == NULL)
 	{
 		return false;
 	}
 
 	//Load the window state for this view if present
 	IHierarchicalStorageNode* windowState = viewState.GetChild(L"WindowState");
-	if(!_windowShownForFirstTime)
+	if (!_windowShownForFirstTime)
 	{
-		if(!_uiManager.ShowWindowFirstTime(*this, _viewPresenter, _hwndInternal, _initialWindowTitle, windowState))
+		if (!_uiManager.ShowWindowFirstTime(*this, _viewPresenter, _hwndInternal, _initialWindowTitle, windowState))
 		{
 			return false;
 		}
@@ -175,9 +175,9 @@ bool ViewBase::LoadViewState(IHierarchicalStorageNode& viewState)
 	}
 	else
 	{
-		if(windowState != 0)
+		if (windowState != 0)
 		{
-			if(!_uiManager.LoadWindowState(*this, _viewPresenter, _hwndInternal, *windowState))
+			if (!_uiManager.LoadWindowState(*this, _viewPresenter, _hwndInternal, *windowState))
 			{
 				return false;
 			}
@@ -192,7 +192,7 @@ bool ViewBase::LoadViewState(IHierarchicalStorageNode& viewState)
 bool ViewBase::SaveViewState(IHierarchicalStorageNode& viewState) const
 {
 	//Ensure the window has been created
-	if(_hwndInternal == NULL)
+	if (_hwndInternal == NULL)
 	{
 		return false;
 	}
@@ -278,7 +278,7 @@ LRESULT ViewBase::WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lpara
 //----------------------------------------------------------------------------------------
 void ViewBase::WndProcDialogImplementSaveFieldWhenLostFocus(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
-	switch(msg)
+	switch (msg)
 	{
 	//Make sure no textbox is selected on startup, and remove focus from textboxes when
 	//the user clicks an unused area of the window.
@@ -293,10 +293,10 @@ void ViewBase::WndProcDialogImplementSaveFieldWhenLostFocus(HWND hwnd, UINT msg,
 //----------------------------------------------------------------------------------------
 void ViewBase::WndProcDialogImplementGiveFocusToChildWindowOnClick(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
-	switch(msg)
+	switch (msg)
 	{
 	case WM_PARENTNOTIFY:
-		switch(LOWORD(wparam))
+		switch (LOWORD(wparam))
 		{
 		case WM_LBUTTONDOWN:{
 			//If the user has clicked on a child window within our window region, ensure that
@@ -305,7 +305,7 @@ void ViewBase::WndProcDialogImplementGiveFocusToChildWindowOnClick(HWND hwnd, UI
 			mousePos.x = (short)LOWORD(lparam);
 			mousePos.y = (short)HIWORD(lparam);
 			HWND targetWindow = ChildWindowFromPoint(hwnd, mousePos);
-			if((targetWindow != NULL) && (targetWindow != hwnd))
+			if ((targetWindow != NULL) && (targetWindow != hwnd))
 			{
 				SetFocus(targetWindow);
 			}
@@ -357,7 +357,7 @@ INT_PTR CALLBACK ViewBase::WndProcChildDialog(HWND hwnd, UINT msg, WPARAM wparam
 	ChildDialogState* state = (ChildDialogState*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
 	//Process the message
-	switch(msg)
+	switch (msg)
 	{
 	case WM_INITDIALOG:
 		//Set the object pointer
@@ -367,7 +367,7 @@ INT_PTR CALLBACK ViewBase::WndProcChildDialog(HWND hwnd, UINT msg, WPARAM wparam
 		//Pass this message on to the member window procedure function
 		return state->windowProcedureMethod(hwnd, msg, wparam, lparam);
 	case WM_DESTROY:
-		if(state != 0)
+		if (state != 0)
 		{
 			//Pass this message on to the member window procedure function
 			INT_PTR result = state->windowProcedureMethod(hwnd, msg, wparam, lparam);
@@ -383,13 +383,13 @@ INT_PTR CALLBACK ViewBase::WndProcChildDialog(HWND hwnd, UINT msg, WPARAM wparam
 	case WM_ACTIVATE:{
 		//Notify the UI manager of changes to the activation state of this dialog, so that
 		//special dialog messages such as tab key presses can be correctly processed.
-		if(state != 0)
+		if (state != 0)
 		{
-			if(LOWORD(wparam) == WA_ACTIVE)
+			if (LOWORD(wparam) == WA_ACTIVE)
 			{
 				state->view->_uiManager.NotifyDialogActivated(hwnd);
 			}
-			else if(LOWORD(wparam) == WA_INACTIVE)
+			else if (LOWORD(wparam) == WA_INACTIVE)
 			{
 				state->view->_uiManager.NotifyDialogDeactivated(hwnd);
 			}
@@ -399,7 +399,7 @@ INT_PTR CALLBACK ViewBase::WndProcChildDialog(HWND hwnd, UINT msg, WPARAM wparam
 
 	//Pass this message on to the member window procedure function
 	INT_PTR result = FALSE;
-	if(state != 0)
+	if (state != 0)
 	{
 		result = state->windowProcedureMethod(hwnd, msg, wparam, lparam);
 	}
@@ -413,7 +413,7 @@ LRESULT CALLBACK ViewBase::WndProcChildWindow(HWND hwnd, UINT msg, WPARAM wparam
 	std::function<LRESULT(HWND, UINT, WPARAM, LPARAM)>* windowProcedureMethod = (std::function<LRESULT(HWND, UINT, WPARAM, LPARAM)>*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
 	//Process the message
-	switch(msg)
+	switch (msg)
 	{
 	case WM_CREATE:
 		//Set the object pointer
@@ -421,13 +421,13 @@ LRESULT CALLBACK ViewBase::WndProcChildWindow(HWND hwnd, UINT msg, WPARAM wparam
 		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)(windowProcedureMethod));
 
 		//Pass this message on to the member window procedure function
-		if(windowProcedureMethod != 0)
+		if (windowProcedureMethod != 0)
 		{
 			return (*windowProcedureMethod)(hwnd, msg, wparam, lparam);
 		}
 		break;
 	case WM_DESTROY:
-		if(windowProcedureMethod != 0)
+		if (windowProcedureMethod != 0)
 		{
 			//Pass this message on to the member window procedure function
 			LRESULT result = (*windowProcedureMethod)(hwnd, msg, wparam, lparam);
@@ -443,7 +443,7 @@ LRESULT CALLBACK ViewBase::WndProcChildWindow(HWND hwnd, UINT msg, WPARAM wparam
 	}
 
 	//Pass this message on to the member window procedure function
-	if(windowProcedureMethod != 0)
+	if (windowProcedureMethod != 0)
 	{
 		return (*windowProcedureMethod)(hwnd, msg, wparam, lparam);
 	}
@@ -457,7 +457,7 @@ INT_PTR CALLBACK ViewBase::WndProcDialogInternal(HWND hwnd, UINT msg, WPARAM wpa
 	ViewBase* state = (ViewBase*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
 	//Process the message
-	switch(msg)
+	switch (msg)
 	{
 	case WM_INITDIALOG:
 		//Set the object pointer
@@ -465,13 +465,13 @@ INT_PTR CALLBACK ViewBase::WndProcDialogInternal(HWND hwnd, UINT msg, WPARAM wpa
 		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)(state));
 
 		//Pass this message on to the member window procedure function
-		if(state != 0)
+		if (state != 0)
 		{
 			return state->WndProcDialog(hwnd, msg, wparam, lparam);
 		}
 		break;
 	case WM_CLOSE:
-		if(state != 0)
+		if (state != 0)
 		{
 			//Pass this message on to the member window procedure function
 			INT_PTR result = state->WndProcDialog(hwnd, msg, wparam, lparam);
@@ -483,7 +483,7 @@ INT_PTR CALLBACK ViewBase::WndProcDialogInternal(HWND hwnd, UINT msg, WPARAM wpa
 			//by the UI manager by calling the CloseWindow method, so that it is able to
 			//correctly remove this window from the interface, and perform any necessary
 			//cleanup.
-			if(result == FALSE)
+			if (result == FALSE)
 			{
 				state->_uiManager.CloseWindow(*state, state->_viewPresenter, hwnd);
 			}
@@ -495,7 +495,7 @@ INT_PTR CALLBACK ViewBase::WndProcDialogInternal(HWND hwnd, UINT msg, WPARAM wpa
 		}
 		break;
 	case WM_DESTROY:
-		if(state != 0)
+		if (state != 0)
 		{
 			//Notify the UI manager that the window has been destroyed. Note that we need
 			//to do this for any window that the UI manager created for us.
@@ -518,7 +518,7 @@ INT_PTR CALLBACK ViewBase::WndProcDialogInternal(HWND hwnd, UINT msg, WPARAM wpa
 
 	//Pass this message on to the member window procedure function
 	INT_PTR result = FALSE;
-	if(state != 0)
+	if (state != 0)
 	{
 		result = state->WndProcDialog(hwnd, msg, wparam, lparam);
 	}
@@ -532,7 +532,7 @@ LRESULT CALLBACK ViewBase::WndProcWindowInternal(HWND hwnd, UINT msg, WPARAM wpa
 	ViewBase* state = (ViewBase*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
 	//Process the message
-	switch(msg)
+	switch (msg)
 	{
 	case WM_CREATE:
 		//Set the object pointer
@@ -540,13 +540,13 @@ LRESULT CALLBACK ViewBase::WndProcWindowInternal(HWND hwnd, UINT msg, WPARAM wpa
 		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)(state));
 
 		//Pass this message on to the member window procedure function
-		if(state != 0)
+		if (state != 0)
 		{
 			return state->WndProcWindow(hwnd, msg, wparam, lparam);
 		}
 		break;
 	case WM_DESTROY:
-		if(state != 0)
+		if (state != 0)
 		{
 			//Notify the UI manager that the window has been destroyed. Note that we need
 			//to do this for any window that the UI manager created for us.
@@ -568,7 +568,7 @@ LRESULT CALLBACK ViewBase::WndProcWindowInternal(HWND hwnd, UINT msg, WPARAM wpa
 	}
 
 	//Pass this message on to the member window procedure function
-	if(state != 0)
+	if (state != 0)
 	{
 		return state->WndProcWindow(hwnd, msg, wparam, lparam);
 	}

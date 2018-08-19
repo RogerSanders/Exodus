@@ -54,22 +54,22 @@ template<class T> bool ViewText::Read(T& data)
 	//Buffer text from the stream until we hit the end of the stream, or we reach a
 	//newline or null terminator.
 	bool done = false;
-	while(!done && !_stream.IsAtEnd())
+	while (!done && !_stream.IsAtEnd())
 	{
 		IStream::UnicodeCodePoint codePoint;
-		if(!_stream.ReadChar(_byteOrder, codePoint))
+		if (!_stream.ReadChar(_byteOrder, codePoint))
 		{
 			_noErrorState = false;
 			return false;
 		}
-		if(!codePoint.surrogatePair && ((codePoint.codeUnit1 == L'\0') || (codePoint.codeUnit1 == L'\n')))
+		if (!codePoint.surrogatePair && ((codePoint.codeUnit1 == L'\0') || (codePoint.codeUnit1 == L'\n')))
 		{
 			done = true;
 			continue;
 		}
 		//##FIX## Use a stream provided conversion function
 		_wcharStream << codePoint.codeUnit1;
-		if(codePoint.surrogatePair)
+		if (codePoint.surrogatePair)
 		{
 			_wcharStream << codePoint.codeUnit2;
 		}
@@ -84,10 +84,10 @@ template<class T> bool ViewText::Read(T& data)
 
 	//Advance the stream forward by the actual number of characters that were used
 	IStream::SizeType charsInData = (IStream::SizeType)_wcharStream.tellg();
-	for(IStream::SizeType i = 0; i < charsInData; ++i)
+	for (IStream::SizeType i = 0; i < charsInData; ++i)
 	{
 		IStream::UnicodeCodePoint codePoint;
-		if(!_stream.ReadChar(_byteOrder, codePoint))
+		if (!_stream.ReadChar(_byteOrder, codePoint))
 		{
 			_noErrorState = false;
 			return false;
@@ -108,25 +108,25 @@ template<> bool ViewText::Read(bool& data)
 	bool readingFalseString = false;
 	bool result = false;
 	bool completedRead = false;
-	while(!completedRead)
+	while (!completedRead)
 	{
 		//Attempt to read the next character from the stream
 		IStream::UnicodeCodePoint codePoint;
-		if(!_stream.ReadChar(_byteOrder, codePoint))
+		if (!_stream.ReadChar(_byteOrder, codePoint))
 		{
 			completedRead = true;
 		}
 
 		//If this character defined a surrogate pair, it definitely isn't one we support.
 		//Return false in this case.
-		if(codePoint.surrogatePair)
+		if (codePoint.surrogatePair)
 		{
 			completedRead = true;
 		}
 
 		//If this is the first character we've tried to read, and it defines either a 0 or
 		//a 1, convert the numeric value into a boolean value.
-		if((stringCharIndex == 0) && ((codePoint.codeUnit1 == L'0') || (codePoint.codeUnit1 == L'1')))
+		if ((stringCharIndex == 0) && ((codePoint.codeUnit1 == L'0') || (codePoint.codeUnit1 == L'1')))
 		{
 			data = (codePoint.codeUnit1 == L'1');
 			result = true;
@@ -136,11 +136,11 @@ template<> bool ViewText::Read(bool& data)
 		//If this character appears to be part of a string representation of a boolean,
 		//read and validate the next character from the string. If we reach the end of the
 		//string, set the data value to the appropriate value, and return true.
-		if((!readingFalseString || (stringCharIndex == 0)) && (trueString[stringCharIndex] == (wchar_t)tolower((int)codePoint.codeUnit1)))
+		if ((!readingFalseString || (stringCharIndex == 0)) && (trueString[stringCharIndex] == (wchar_t)tolower((int)codePoint.codeUnit1)))
 		{
 			readingFalseString = false;
 			++stringCharIndex;
-			if(stringCharIndex == trueStringLength)
+			if (stringCharIndex == trueStringLength)
 			{
 				data = true;
 				result = true;
@@ -148,11 +148,11 @@ template<> bool ViewText::Read(bool& data)
 			}
 			continue;
 		}
-		if((readingFalseString || (stringCharIndex == 0)) && (falseString[stringCharIndex] == (wchar_t)tolower((int)codePoint.codeUnit1)))
+		if ((readingFalseString || (stringCharIndex == 0)) && (falseString[stringCharIndex] == (wchar_t)tolower((int)codePoint.codeUnit1)))
 		{
 			readingFalseString = true;
 			++stringCharIndex;
-			if(stringCharIndex == falseStringLength)
+			if (stringCharIndex == falseStringLength)
 			{
 				data = true;
 				result = true;
@@ -165,7 +165,7 @@ template<> bool ViewText::Read(bool& data)
 		//false.
 		completedRead = true;
 	}
-	if(!result)
+	if (!result)
 	{
 		_noErrorState = true;
 	}
@@ -192,7 +192,7 @@ template<> bool ViewText::Read(std::wstring& data)
 template<> bool ViewText::Read(char& data)
 {
 	IStream::UnicodeCodePoint codePoint;
-	if(!_stream.ReadChar(_byteOrder, codePoint))
+	if (!_stream.ReadChar(_byteOrder, codePoint))
 	{
 		_noErrorState = false;
 		return false;
@@ -206,12 +206,12 @@ template<> bool ViewText::Read(char& data)
 template<> bool ViewText::Read(wchar_t& data)
 {
 	IStream::UnicodeCodePoint codePoint;
-	if(!_stream.ReadChar(_byteOrder, codePoint))
+	if (!_stream.ReadChar(_byteOrder, codePoint))
 	{
 		_noErrorState = false;
 		return false;
 	}
-	if(codePoint.surrogatePair)
+	if (codePoint.surrogatePair)
 	{
 		_noErrorState = false;
 		return false;
@@ -343,7 +343,7 @@ template<> bool ViewText::Write(const wchar_t* const& data)
 template<size_t S> bool ViewText::Write(const char(&data)[S])
 {
 	IStream::SizeType stringLength = GetStringLength(data, S);
-	if(stringLength <= 0)
+	if (stringLength <= 0)
 	{
 		return true;
 	}
@@ -356,7 +356,7 @@ template<size_t S> bool ViewText::Write(const char(&data)[S])
 template<size_t S> bool ViewText::Write(const wchar_t(&data)[S])
 {
 	IStream::SizeType stringLength = GetStringLength(data, S);
-	if(stringLength <= 0)
+	if (stringLength <= 0)
 	{
 		return true;
 	}
@@ -412,15 +412,15 @@ bool ViewText::ReadTextString(std::string& data, bool stopAtNewline)
 	//or null terminator.
 	data.clear();
 	bool done = false;
-	while(!done && !_stream.IsAtEnd())
+	while (!done && !_stream.IsAtEnd())
 	{
 		IStream::UnicodeCodePoint codePoint;
-		if(!_stream.ReadChar(_byteOrder, codePoint))
+		if (!_stream.ReadChar(_byteOrder, codePoint))
 		{
 			_noErrorState = false;
 			return false;
 		}
-		if(!codePoint.surrogatePair && ((codePoint.codeUnit1 == L'\0') || (codePoint.codeUnit1 == L'\n')))
+		if (!codePoint.surrogatePair && ((codePoint.codeUnit1 == L'\0') || (codePoint.codeUnit1 == L'\n')))
 		{
 			done = true;
 			continue;
@@ -438,22 +438,22 @@ bool ViewText::ReadTextString(std::wstring& data, bool stopAtNewline)
 	//or null terminator.
 	data.clear();
 	bool done = false;
-	while(!done && !_stream.IsAtEnd())
+	while (!done && !_stream.IsAtEnd())
 	{
 		IStream::UnicodeCodePoint codePoint;
-		if(!_stream.ReadChar(_byteOrder, codePoint))
+		if (!_stream.ReadChar(_byteOrder, codePoint))
 		{
 			_noErrorState = false;
 			return false;
 		}
-		if(!codePoint.surrogatePair && ((codePoint.codeUnit1 == L'\0') || (stopAtNewline && (codePoint.codeUnit1 == L'\n'))))
+		if (!codePoint.surrogatePair && ((codePoint.codeUnit1 == L'\0') || (stopAtNewline && (codePoint.codeUnit1 == L'\n'))))
 		{
 			done = true;
 			continue;
 		}
 		//##FIX## Use a stream provided conversion function
 		data.push_back(codePoint.codeUnit1);
-		if(codePoint.surrogatePair)
+		if (codePoint.surrogatePair)
 		{
 			data.push_back(codePoint.codeUnit2);
 		}
@@ -483,7 +483,7 @@ template<class T> ViewText& ViewText::operator<<(const T& data)
 IStream::SizeType ViewText::GetStringLength(const char* data)
 {
 	IStream::SizeType size = 0;
-	while(data[size] != '\0')
+	while (data[size] != '\0')
 	{
 		++size;
 	}
@@ -494,7 +494,7 @@ IStream::SizeType ViewText::GetStringLength(const char* data)
 IStream::SizeType ViewText::GetStringLength(const wchar_t* data)
 {
 	IStream::SizeType size = 0;
-	while(data[size] != L'\0')
+	while (data[size] != L'\0')
 	{
 		++size;
 	}
@@ -505,7 +505,7 @@ IStream::SizeType ViewText::GetStringLength(const wchar_t* data)
 IStream::SizeType ViewText::GetStringLength(const char* data, size_t bufferSize)
 {
 	IStream::SizeType size = 0;
-	while((size < (IStream::SizeType)bufferSize) && (data[size] != '\0'))
+	while ((size < (IStream::SizeType)bufferSize) && (data[size] != '\0'))
 	{
 		++size;
 	}
@@ -516,7 +516,7 @@ IStream::SizeType ViewText::GetStringLength(const char* data, size_t bufferSize)
 IStream::SizeType ViewText::GetStringLength(const wchar_t* data, size_t bufferSize)
 {
 	IStream::SizeType size = 0;
-	while((size < (IStream::SizeType)bufferSize) && (data[size] != L'\0'))
+	while ((size < (IStream::SizeType)bufferSize) && (data[size] != L'\0'))
 	{
 		++size;
 	}

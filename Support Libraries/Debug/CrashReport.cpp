@@ -51,14 +51,14 @@ bool GenerateMinidump(_EXCEPTION_POINTERS* exceptionPointers, MINIDUMP_TYPE mini
 	//Set the attributes for the minidump file. If we're intending to compress the
 	//minidump, we mark the file as temporary to increase efficiency.
 	DWORD fileAttributes = FILE_ATTRIBUTE_NORMAL;
-	if(compress)
+	if (compress)
 	{
 		fileAttributes |= FILE_ATTRIBUTE_TEMPORARY;
 	}
 
 	//Create the empty minidump file
 	HANDLE fileHandle = CreateFile(minidumpFilePath.c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, fileAttributes, NULL);
-	if((fileHandle == NULL) || (fileHandle == INVALID_HANDLE_VALUE))
+	if ((fileHandle == NULL) || (fileHandle == INVALID_HANDLE_VALUE))
 	{
 		return false;
 	}
@@ -71,7 +71,7 @@ bool GenerateMinidump(_EXCEPTION_POINTERS* exceptionPointers, MINIDUMP_TYPE mini
 	MINIDUMP_EXCEPTION_INFORMATION* exceptionParam = (exceptionPointers != 0)? &exceptionInformation: 0;
 
 	//Write the minidump to the file
-	if(!MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), fileHandle, minidumpType, exceptionParam, NULL, NULL))
+	if (!MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), fileHandle, minidumpType, exceptionParam, NULL, NULL))
 	{
 		CloseHandle(fileHandle);
 		return false;
@@ -79,7 +79,7 @@ bool GenerateMinidump(_EXCEPTION_POINTERS* exceptionPointers, MINIDUMP_TYPE mini
 
 	//Get the total size of the minidump file
 	DWORD fileSize = GetFileSize(fileHandle, NULL);
-	if(fileSize == INVALID_FILE_SIZE)
+	if (fileSize == INVALID_FILE_SIZE)
 	{
 		CloseHandle(fileHandle);
 		return false;
@@ -88,7 +88,7 @@ bool GenerateMinidump(_EXCEPTION_POINTERS* exceptionPointers, MINIDUMP_TYPE mini
 	//If compression was requested, and the filesize is smaller than 5MB, proceed with
 	//file compression for the minidump.
 	const unsigned int maxSizeForCompression = (5*1024*1024);
-	if(compress && (fileSize <= maxSizeForCompression))
+	if (compress && (fileSize <= maxSizeForCompression))
 	{
 		//Seek to the start of the minidump file
 		SetFilePointer(fileHandle, 0, NULL, FILE_BEGIN);
@@ -97,7 +97,7 @@ bool GenerateMinidump(_EXCEPTION_POINTERS* exceptionPointers, MINIDUMP_TYPE mini
 		Stream::Buffer fileBuffer(fileSize);
 		DWORD bytesRead;
 		BOOL readFileReturn = ReadFile(fileHandle, fileBuffer.GetRawBuffer(), fileSize, &bytesRead, NULL);
-		if(readFileReturn == 0)
+		if (readFileReturn == 0)
 		{
 			CloseHandle(fileHandle);
 			return false;
@@ -107,7 +107,7 @@ bool GenerateMinidump(_EXCEPTION_POINTERS* exceptionPointers, MINIDUMP_TYPE mini
 		ZIPArchive archive;
 		ZIPFileEntry entry;
 		entry.SetFileName(minidumpFileName + L".dmp");
-		if(!entry.Compress(fileBuffer))
+		if (!entry.Compress(fileBuffer))
 		{
 			CloseHandle(fileHandle);
 			return false;
@@ -119,12 +119,12 @@ bool GenerateMinidump(_EXCEPTION_POINTERS* exceptionPointers, MINIDUMP_TYPE mini
 
 		//Create the zip file
 		Stream::File target;
-		if(!target.Open(minidumpZipFilePath, Stream::File::OpenMode::ReadAndWrite, Stream::File::CreateMode::Create))
+		if (!target.Open(minidumpZipFilePath, Stream::File::OpenMode::ReadAndWrite, Stream::File::CreateMode::Create))
 		{
 			CloseHandle(fileHandle);
 			return false;
 		}
-		if(!archive.SaveToStream(target))
+		if (!archive.SaveToStream(target))
 		{
 			CloseHandle(fileHandle);
 			return false;
@@ -176,7 +176,7 @@ LONG WINAPI MinidumpExceptionHandler(_EXCEPTION_POINTERS* exceptionPointers)
 	minidumpType |= MiniDumpWithHandleData; //Save info about all current win32 handles
 	minidumpType |= MiniDumpWithUnloadedModules; //Include info about recently unloaded modules
 	minidumpType |= MiniDumpWithIndirectlyReferencedMemory; //Include snippets of data from the heap and other areas of memory which are referenced by pointers in registers or on the stack
-	if(largeMinidump)
+	if (largeMinidump)
 	{
 		minidumpType |= MiniDumpWithDataSegs; //Include writeable sections of loaded modules. This preserves static variables and arrays. Can be quite large if big static arrays are allocated.
 		minidumpType |= MiniDumpWithPrivateReadWriteMemory; //Include all private read/write pages of memory. This will not preserve static variables and arrays, but should fully preserve the heap (unless part of it has been marked as read-only). Can be quite large if a lot of data has been allocated off the heap.
@@ -184,7 +184,7 @@ LONG WINAPI MinidumpExceptionHandler(_EXCEPTION_POINTERS* exceptionPointers)
 
 	//Build the filename for the minidump
 	std::wstring minidumpFileNameFinal = minidumpFileName;
-	if(largeMinidump)
+	if (largeMinidump)
 	{
 		minidumpFileNameFinal += L" - Large";
 	}
@@ -205,7 +205,7 @@ bool RegisterMinidumpExceptionHandler(const std::wstring& minidumpName, const st
 {
 	//Make sure the target directory is a fully qualified path
 	std::wstring minidumpPathFull = minidumpPath;
-	if(PathIsRelativePath(minidumpPathFull))
+	if (PathIsRelativePath(minidumpPathFull))
 	{
 		//Get the current working directory
 		std::wstring currentDirectory = PathGetCurrentWorkingDirectory();

@@ -13,7 +13,7 @@ M68000Instruction::~M68000Instruction()
 //----------------------------------------------------------------------------------------
 bool M68000Instruction::ConditionCodeTrue(M68000* cpu, ConditionCode code)
 {
-	switch(code)
+	switch (code)
 	{
 	case ConditionCode::T:  //True             1
 		return true;
@@ -92,7 +92,7 @@ void M68000Instruction::GetResultantPCLocations(std::set<unsigned int>& resultan
 //----------------------------------------------------------------------------------------
 std::wstring M68000Instruction::DisassembleConditionCode(ConditionCode code)
 {
-	switch(code)
+	switch (code)
 	{
 	case ConditionCode::T:  //True             1
 		return L"T";
@@ -134,7 +134,7 @@ std::wstring M68000Instruction::DisassembleConditionCode(ConditionCode code)
 //----------------------------------------------------------------------------------------
 std::wstring M68000Instruction::DisassembleSize(Bitcount size)
 {
-	switch(size)
+	switch (size)
 	{
 	case BITCOUNT_BYTE:
 		return L"b";

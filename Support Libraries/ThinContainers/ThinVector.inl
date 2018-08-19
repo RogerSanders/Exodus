@@ -17,7 +17,7 @@ template<class T, size_t S> void ThinVector<T,S>::InitializeData()
 //----------------------------------------------------------------------------------------
 template<class T, size_t S> void ThinVector<T,S>::CopyData(const T* sourceDataArray, size_t sourceDataArraySize)
 {
-	if(sourceDataArraySize < arraySize)
+	if (sourceDataArraySize < arraySize)
 	{
 		memcpy((void*)&array[0], (const void*)sourceDataArray, sourceDataArraySize*sizeof(T));
 		memset((void*)&array[sourceDataArraySize], 0, (arraySize-sourceDataArraySize)*sizeof(T));

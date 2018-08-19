@@ -30,7 +30,7 @@ public:
 		_source.SetIndexState(GetIndexState(), GetIndexOffset());
 		_target.SetIndexState(GetIndexState(), GetIndexOffset());
 
-		if(data.GetBit(3))
+		if (data.GetBit(3))
 		{
 			//LD dd,(nn)	11101101 01dd1011 nnnnnnnn nnnnnnnn
 			_source.BuildAbsoluteAddress(location + GetInstructionSize(), cpu, transparent);

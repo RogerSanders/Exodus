@@ -22,7 +22,7 @@ bool MemoryRead::Construct(IHierarchicalStorageNode& node)
 {
 	//Read interface size
 	IHierarchicalStorageAttribute* memoryEntryCountAttribute = node.GetAttribute(L"MemoryEntryCount");
-	if(memoryEntryCountAttribute != 0)
+	if (memoryEntryCountAttribute != 0)
 	{
 		SetMemoryEntryCount(memoryEntryCountAttribute->ExtractHexValue<unsigned int>());
 	}

@@ -12,7 +12,7 @@ GenericAccessGroupSingleSelectionList::~GenericAccessGroupSingleSelectionList()
 	delete _dataContext;
 
 	//Delete any key/value pairs we've been given ownership of
-	for(std::list<std::pair<const IGenericAccessDataValue*, const IGenericAccessDataValue*>>::const_iterator i = _selectionList.begin(); i != _selectionList.end(); ++i)
+	for (std::list<std::pair<const IGenericAccessDataValue*, const IGenericAccessDataValue*>>::const_iterator i = _selectionList.begin(); i != _selectionList.end(); ++i)
 	{
 		delete i->first;
 		delete i->second;

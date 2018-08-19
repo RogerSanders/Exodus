@@ -7,7 +7,7 @@ bool DeflateCompress(Stream::IStream& source, Stream::IStream& target, unsigned 
 {
 	//If no input cache size was specified, set the input cache size to 1MB, and create
 	//our input buffer.
-	if(inputCacheSize <= 0)
+	if (inputCacheSize <= 0)
 	{
 		inputCacheSize = (1024*1024);
 	}
@@ -15,7 +15,7 @@ bool DeflateCompress(Stream::IStream& source, Stream::IStream& target, unsigned 
 
 	//If no output cache size was specified, set the output cache size to 1MB, and create
 	//our output buffer.
-	if(outputCacheSize <= 0)
+	if (outputCacheSize <= 0)
 	{
 		outputCacheSize = (1024*1024);
 	}
@@ -43,7 +43,7 @@ bool DeflateCompress(Stream::IStream& source, Stream::IStream& target, unsigned 
 	//footer to the compressed data stream. There must be no zlib header on the data in
 	//order for the compressed stream to be used in a zip file.
 	deflateInitResult = deflateInit2(&strm, Z_DEFAULT_COMPRESSION, Z_DEFLATED, -15, 9, Z_DEFAULT_STRATEGY);
-	if(deflateInitResult != Z_OK)
+	if (deflateInitResult != Z_OK)
 	{
 		return false;
 	}
@@ -55,10 +55,10 @@ bool DeflateCompress(Stream::IStream& source, Stream::IStream& target, unsigned 
 	strm.avail_in = 0;
 	strm.avail_out = 0;
 	int deflateResult = Z_OK;
-	while(deflateResult == Z_OK)
+	while (deflateResult == Z_OK)
 	{
 		//Reset the output buffer if required
-		if(strm.avail_out <= 0)
+		if (strm.avail_out <= 0)
 		{
 			strm.avail_out = outputCacheSize;
 			strm.next_out = &outputCache[0];
@@ -66,22 +66,22 @@ bool DeflateCompress(Stream::IStream& source, Stream::IStream& target, unsigned 
 
 		//Read more data into the source buffer if required
 		int flushParam = Z_NO_FLUSH;
-		if(strm.avail_in <= 0)
+		if (strm.avail_in <= 0)
 		{
 			//Grab enough data from the source to either fill our buffer, or reach the end
 			//of the stream.
 			Stream::IStream::SizeType remainingSourceData = (source.Size() - source.GetStreamPos());
-			if(remainingSourceData < 0)
+			if (remainingSourceData < 0)
 			{
 				remainingSourceData = 0;
 			}
 			strm.avail_in = (uInt)inputCache.size();
-			if((uInt)remainingSourceData <= strm.avail_in)
+			if ((uInt)remainingSourceData <= strm.avail_in)
 			{
 				strm.avail_in = (uInt)remainingSourceData;
 				flushParam = Z_FINISH;
 			}
-			if(!source.ReadData(&inputCache[0], strm.avail_in))
+			if (!source.ReadData(&inputCache[0], strm.avail_in))
 			{
 				//If an error occurred while reading from the source stream, clean up and
 				//return an error.
@@ -99,13 +99,13 @@ bool DeflateCompress(Stream::IStream& source, Stream::IStream& target, unsigned 
 
 		//If we've reached the end of the input stream, or the output buffer is full,
 		//flush the output buffer to the target.
-		if((deflateResult == Z_STREAM_END) || ((deflateResult == Z_OK) && (strm.avail_out <= 0)))
+		if ((deflateResult == Z_STREAM_END) || ((deflateResult == Z_OK) && (strm.avail_out <= 0)))
 		{
 			//Calculate the amount of data in the output buffer
 			unsigned int usedBufferSize = (outputCacheSize - strm.avail_out);
 
 			//Write the used portion of the output buffer to the stream
-			if(!target.WriteData(&outputCache[0], usedBufferSize))
+			if (!target.WriteData(&outputCache[0], usedBufferSize))
 			{
 				//If an error occurred while writing to the target stream, clean up and
 				//return an error.
@@ -120,14 +120,14 @@ bool DeflateCompress(Stream::IStream& source, Stream::IStream& target, unsigned 
 	}
 
 	//If an error occurred during compression, clean up and return an error.
-	if(deflateResult != Z_STREAM_END)
+	if (deflateResult != Z_STREAM_END)
 	{
 		deflateEnd(&strm);
 		return false;
 	}
 
 	//Clean up zlib
-	if(deflateEnd(&strm) != Z_OK)
+	if (deflateEnd(&strm) != Z_OK)
 	{
 		return false;
 	}
@@ -143,7 +143,7 @@ bool DeflateDecompress(Stream::IStream& source, Stream::IStream& target, unsigne
 {
 	//If no input cache size was specified, set the input cache size to 1MB, and create
 	//our input buffer.
-	if(inputCacheSize <= 0)
+	if (inputCacheSize <= 0)
 	{
 		inputCacheSize = (1024*1024);
 	}
@@ -151,7 +151,7 @@ bool DeflateDecompress(Stream::IStream& source, Stream::IStream& target, unsigne
 
 	//If no output cache size was specified, set the output cache size to 1MB, and create
 	//our output buffer.
-	if(outputCacheSize <= 0)
+	if (outputCacheSize <= 0)
 	{
 		outputCacheSize = (1024*1024);
 	}
@@ -170,7 +170,7 @@ bool DeflateDecompress(Stream::IStream& source, Stream::IStream& target, unsigne
 	//in a zip file, as zip has its own header structures. We only want to process the
 	//raw deflate stream.
 	inflateInitResult = inflateInit2(&strm, -15);
-	if(inflateInitResult != Z_OK)
+	if (inflateInitResult != Z_OK)
 	{
 		return false;
 	}
@@ -182,31 +182,31 @@ bool DeflateDecompress(Stream::IStream& source, Stream::IStream& target, unsigne
 	strm.avail_in = 0;
 	strm.avail_out = 0;
 	int inflateResult = Z_OK;
-	while(inflateResult == Z_OK)
+	while (inflateResult == Z_OK)
 	{
 		//Reset the output buffer if required
-		if(strm.avail_out <= 0)
+		if (strm.avail_out <= 0)
 		{
 			strm.avail_out = outputCacheSize;
 			strm.next_out = &outputCache[0];
 		}
 
 		//Read more data into the source buffer if required
-		if(strm.avail_in <= 0)
+		if (strm.avail_in <= 0)
 		{
 			//Grab enough data from the source to either fill our buffer, or reach the end
 			//of the stream.
 			Stream::IStream::SizeType remainingSourceData = (source.Size() - source.GetStreamPos());
-			if(remainingSourceData < 0)
+			if (remainingSourceData < 0)
 			{
 				remainingSourceData = 0;
 			}
 			strm.avail_in = (uInt)inputCache.size();
-			if((uInt)remainingSourceData <= strm.avail_in)
+			if ((uInt)remainingSourceData <= strm.avail_in)
 			{
 				strm.avail_in = (uInt)remainingSourceData;
 			}
-			if(!source.ReadData(&inputCache[0], strm.avail_in))
+			if (!source.ReadData(&inputCache[0], strm.avail_in))
 			{
 				//If an error occurred while reading from the source stream, clean up and
 				//return an error.
@@ -221,7 +221,7 @@ bool DeflateDecompress(Stream::IStream& source, Stream::IStream& target, unsigne
 
 		//If we've reached the end of the input stream, or the output buffer is full,
 		//flush the output buffer to the target.
-		if((inflateResult == Z_STREAM_END) || ((inflateResult == Z_OK) && (strm.avail_out <= 0)))
+		if ((inflateResult == Z_STREAM_END) || ((inflateResult == Z_OK) && (strm.avail_out <= 0)))
 		{
 			//Calculate the amount of data in the output buffer
 			unsigned int usedBufferSize = (outputCacheSize - strm.avail_out);
@@ -230,7 +230,7 @@ bool DeflateDecompress(Stream::IStream& source, Stream::IStream& target, unsigne
 			crc = crc32(crc, &outputCache[0], usedBufferSize);
 
 			//Write the used portion of the output buffer to the stream
-			if(!target.WriteData(&outputCache[0], usedBufferSize))
+			if (!target.WriteData(&outputCache[0], usedBufferSize))
 			{
 				//If an error occurred while writing to the target stream, clean up and
 				//return an error.
@@ -245,14 +245,14 @@ bool DeflateDecompress(Stream::IStream& source, Stream::IStream& target, unsigne
 	}
 
 	//If an error occurred during decompression, clean up and return an error.
-	if(inflateResult != Z_STREAM_END)
+	if (inflateResult != Z_STREAM_END)
 	{
 		inflateEnd(&strm);
 		return false;
 	}
 
 	//Clean up zlib
-	if(inflateEnd(&strm) != Z_OK)
+	if (inflateEnd(&strm) != Z_OK)
 	{
 		return false;
 	}

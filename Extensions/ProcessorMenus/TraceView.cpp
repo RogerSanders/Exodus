@@ -25,7 +25,7 @@ TraceView::TraceView(IUIManager& uiManager, TraceViewPresenter& presenter, IProc
 LRESULT TraceView::WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	WndProcDialogImplementGiveFocusToChildWindowOnClick(hwnd, msg, wparam, lparam);
-	switch(msg)
+	switch (msg)
 	{
 	case WM_CREATE:
 		return msgWM_CREATE(hwnd, wparam, lparam);
@@ -112,7 +112,7 @@ LRESULT TraceView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	//If the trace log hasn't changed since the last refresh, abort any further
 	//processing.
 	unsigned int newLogLastModifiedToken = _model.GetTraceLogLastModifiedToken();
-	if(newLogLastModifiedToken == _logLastModifiedToken)
+	if (newLogLastModifiedToken == _logLastModifiedToken)
 	{
 		return 0;
 	}
@@ -123,7 +123,7 @@ LRESULT TraceView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 
 	//Delete any extra rows from the data grid that are no longer required
 	unsigned int currentRowCount = (unsigned int)SendMessage(_hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::GetRowCount, 0, 0);
-	if((unsigned int)traceList.size() < currentRowCount)
+	if ((unsigned int)traceList.size() < currentRowCount)
 	{
 		unsigned int rowCountToRemove = currentRowCount - (unsigned int)traceList.size();
 		WC_DataGrid::Grid_DeleteRows deleteRowsInfo;
@@ -136,7 +136,7 @@ LRESULT TraceView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	std::map<unsigned int, std::map<unsigned int, std::wstring>> rowText;
 	unsigned int pcLength = _model.GetPCCharWidth();
 	unsigned int currentRow = 0;
-	for(std::list<IProcessor::TraceLogEntry>::const_iterator i = traceList.begin(); i != traceList.end(); ++i)
+	for (std::list<IProcessor::TraceLogEntry>::const_iterator i = traceList.begin(); i != traceList.end(); ++i)
 	{
 		const IProcessor::TraceLogEntry& entry = *i;
 		std::map<unsigned int, std::wstring>& columnText = rowText[currentRow++];
@@ -208,7 +208,7 @@ INT_PTR CALLBACK TraceView::WndProcPanelStatic(HWND hwnd, UINT msg, WPARAM wpara
 	TraceView* state = (TraceView*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
 	//Process the message
-	switch(msg)
+	switch (msg)
 	{
 	case WM_INITDIALOG:
 		//Set the object pointer
@@ -216,13 +216,13 @@ INT_PTR CALLBACK TraceView::WndProcPanelStatic(HWND hwnd, UINT msg, WPARAM wpara
 		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)(state));
 
 		//Pass this message on to the member window procedure function
-		if(state != 0)
+		if (state != 0)
 		{
 			return state->WndProcPanel(hwnd, msg, wparam, lparam);
 		}
 		break;
 	case WM_DESTROY:
-		if(state != 0)
+		if (state != 0)
 		{
 			//Pass this message on to the member window procedure function
 			INT_PTR result = state->WndProcPanel(hwnd, msg, wparam, lparam);
@@ -238,7 +238,7 @@ INT_PTR CALLBACK TraceView::WndProcPanelStatic(HWND hwnd, UINT msg, WPARAM wpara
 
 	//Pass this message on to the member window procedure function
 	INT_PTR result = FALSE;
-	if(state != 0)
+	if (state != 0)
 	{
 		result = state->WndProcPanel(hwnd, msg, wparam, lparam);
 	}
@@ -249,7 +249,7 @@ INT_PTR CALLBACK TraceView::WndProcPanelStatic(HWND hwnd, UINT msg, WPARAM wpara
 INT_PTR TraceView::WndProcPanel(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	WndProcDialogImplementSaveFieldWhenLostFocus(hwnd, msg, wparam, lparam);
-	switch(msg)
+	switch (msg)
 	{
 	case WM_INITDIALOG:
 		return msgPanelWM_INITDIALOG(hwnd, wparam, lparam);
@@ -275,7 +275,7 @@ INT_PTR TraceView::msgPanelWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	_initializedDialog = true;
 	CheckDlgButton(hwnd, IDC_PROCESSOR_TRACE_ENABLED, (_model.GetTraceEnabled())? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_PROCESSOR_TRACE_DISASSEMBLE, (_model.GetTraceDisassemble())? BST_CHECKED: BST_UNCHECKED);
-	if(_currentControlFocus != IDC_PROCESSOR_TRACE_LENGTH) UpdateDlgItemBin(hwnd, IDC_PROCESSOR_TRACE_LENGTH, _model.GetTraceLength());
+	if (_currentControlFocus != IDC_PROCESSOR_TRACE_LENGTH) UpdateDlgItemBin(hwnd, IDC_PROCESSOR_TRACE_LENGTH, _model.GetTraceLength());
 
 	return TRUE;
 }
@@ -283,17 +283,17 @@ INT_PTR TraceView::msgPanelWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 //----------------------------------------------------------------------------------------
 INT_PTR TraceView::msgPanelWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	if((HIWORD(wparam) == EN_SETFOCUS) && _initializedDialog)
+	if ((HIWORD(wparam) == EN_SETFOCUS) && _initializedDialog)
 	{
 		_previousText = GetDlgItemString(hwnd, LOWORD(wparam));
 		_currentControlFocus = LOWORD(wparam);
 	}
-	else if((HIWORD(wparam) == EN_KILLFOCUS) && _initializedDialog)
+	else if ((HIWORD(wparam) == EN_KILLFOCUS) && _initializedDialog)
 	{
 		std::wstring newText = GetDlgItemString(hwnd, LOWORD(wparam));
-		if(newText != _previousText)
+		if (newText != _previousText)
 		{
-			switch(LOWORD(wparam))
+			switch (LOWORD(wparam))
 			{
 			case IDC_PROCESSOR_TRACE_LENGTH:
 				_model.SetTraceLength(GetDlgItemBin(hwnd, LOWORD(wparam)));
@@ -301,9 +301,9 @@ INT_PTR TraceView::msgPanelWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			}
 		}
 	}
-	else if(HIWORD(wparam) == BN_CLICKED)
+	else if (HIWORD(wparam) == BN_CLICKED)
 	{
-		switch(LOWORD(wparam))
+		switch (LOWORD(wparam))
 		{
 		case IDC_PROCESSOR_TRACE_ENABLED:{
 			_model.SetTraceEnabled(IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED);

@@ -488,7 +488,7 @@ private:
 		assert(Internal::IsSTLContainerNestedElementMarshallableOrSameSize(elementByteSize, (ContainerType*)0));
 
 		//Marshal the object, performing a move, copy, or invoking a marshal constructor as required.
-		if(sourceDataMovable && AllowMove)
+		if (sourceDataMovable && AllowMove)
 		{
 			return Internal::MarshalObjectHelper<ContainerType>::MarshalObjectToNewObject(MARSHALSUPPORT_MOVE(const_cast<ContainerType&>(*sourceData)));
 		}
@@ -511,7 +511,7 @@ private:
 		assert(Internal::IsSTLContainerNestedElementMarshallableOrSameSize(elementByteSize, (ContainerType*)0));
 
 		//Marshal the object, performing a move, copy, or invoking a marshal constructor as required.
-		if(sourceDataMovable && AllowMove)
+		if (sourceDataMovable && AllowMove)
 		{
 			Internal::MarshalObjectHelper<ContainerType>::MarshalObjectToExistingObject(MARSHALSUPPORT_MOVE(const_cast<ContainerType&>(*sourceData)), targetObject);
 		}
@@ -668,7 +668,7 @@ private:
 
 		//If the target element type has a custom marshaller, marshal the elements one by one, otherwise copy the
 		//contents of the source container directly into the target object.
-		if(Internal::has_marshal_constructor<ElementType>::value)
+		if (Internal::has_marshal_constructor<ElementType>::value)
 		{
 			//Ensure the target vector is empty, with enough space reserved for the number of elements we're about to
 			//insert in it.
@@ -681,9 +681,9 @@ private:
 			//differ from that of the sender. To account for this, we calculate the address of each object in the array
 			//using the object byte size specified by the sender.
 			const ElementType* nextSourceObject = sourceData;
-			if(sourceDataMovable && AllowMove)
+			if (sourceDataMovable && AllowMove)
 			{
-				for(size_t i = 0; i < sourceDataLength; ++i)
+				for (size_t i = 0; i < sourceDataLength; ++i)
 				{
 					Internal::MarshalObjectHelper<std::vector<ElementType, Alloc>>::MarshalObjectToContainer(MARSHALSUPPORT_MOVE(const_cast<ElementType&>(*nextSourceObject)), targetObject);
 					nextSourceObject = reinterpret_cast<const ElementType*>(reinterpret_cast<const unsigned char*>(nextSourceObject) + elementByteSize);
@@ -691,7 +691,7 @@ private:
 			}
 			else
 			{
-				for(size_t i = 0; i < sourceDataLength; ++i)
+				for (size_t i = 0; i < sourceDataLength; ++i)
 				{
 					Internal::MarshalObjectHelper<std::vector<ElementType, Alloc>>::MarshalObjectToContainer(*nextSourceObject, targetObject);
 					nextSourceObject = reinterpret_cast<const ElementType*>(reinterpret_cast<const unsigned char*>(nextSourceObject) + elementByteSize);
@@ -707,7 +707,7 @@ private:
 			//in VS2013 it was observed that the move iterator wrappers prevent this optimization occurring. We avoid
 			//using move iterators in this case to achieve maximum efficiency.
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-			if(!std::is_trivial<ElementType>::value && sourceDataMovable && AllowMove)
+			if (!std::is_trivial<ElementType>::value && sourceDataMovable && AllowMove)
 			{
 				targetObject.assign(std::make_move_iterator(const_cast<ElementType*>(sourceData)), std::make_move_iterator(const_cast<ElementType*>(sourceData) + sourceDataLength));
 			}
@@ -782,7 +782,7 @@ private:
 
 		//If the target element type has a custom marshaller, marshal the elements one by one, otherwise copy the
 		//contents of the source container directly into the target object.
-		if(Internal::has_marshal_constructor<ElementType>::value)
+		if (Internal::has_marshal_constructor<ElementType>::value)
 		{
 			//Ensure the target vector is empty, with enough space reserved for the number of elements we're about to
 			//insert in it.
@@ -795,7 +795,7 @@ private:
 			//differ from that of the sender. To account for this, we calculate the address of each object in the array
 			//using the object byte size specified by the sender.
 			ElementType* nextSourceObject = sourceData;
-			for(size_t i = 0; i < sourceDataLength; ++i)
+			for (size_t i = 0; i < sourceDataLength; ++i)
 			{
 				Internal::MarshalObjectHelper<std::vector<ElementType, Alloc>>::MarshalObjectToContainer(std::move(*nextSourceObject), targetObject);
 				nextSourceObject = reinterpret_cast<ElementType*>(reinterpret_cast<unsigned char*>(nextSourceObject) + elementByteSize);
@@ -923,7 +923,7 @@ public:
 		//that of the sender. To account for this, we calculate the address of each object in the array using the object
 		//byte size specified by the sender.
 		const ElementType* sourceElement = reinterpret_cast<const ElementType*>(reinterpret_cast<const unsigned char*>(sourceData) + (elementByteSize * index));
-		if(sourceDataMovable && AllowMove)
+		if (sourceDataMovable && AllowMove)
 		{
 			Internal::MarshalObjectHelper<ElementType>::MarshalObjectToExistingObject(std::move(const_cast<ElementType&>(*sourceElement)), element);
 		}
@@ -957,7 +957,7 @@ private:
 
 		//If the target element type has a custom marshaller, marshal the elements one by one, otherwise copy the
 		//contents of the source container directly into the target object.
-		if(Internal::has_marshal_constructor<ElementType>::value)
+		if (Internal::has_marshal_constructor<ElementType>::value)
 		{
 			//Marshal the object. Note that since the object has a custom marshal constructor, it's possible the size
 			//and layout of the object differs on each side of the boundary. We've received a pointer to an array of
@@ -965,9 +965,9 @@ private:
 			//differ from that of the sender. To account for this, we calculate the address of each object in the array
 			//using the object byte size specified by the sender.
 			const ElementType* nextSourceObject = sourceData;
-			if(sourceDataMovable && AllowMove)
+			if (sourceDataMovable && AllowMove)
 			{
-				for(size_t i = 0; i < ArraySize; ++i)
+				for (size_t i = 0; i < ArraySize; ++i)
 				{
 					Internal::MarshalObjectHelper<ElementType>::MarshalObjectToExistingObject(std::move(const_cast<ElementType&>(*nextSourceObject)), targetObject[(typename std::array<ElementType, ArraySize>::size_type)i]);
 					nextSourceObject = reinterpret_cast<const ElementType*>(reinterpret_cast<const unsigned char*>(nextSourceObject) + elementByteSize);
@@ -975,7 +975,7 @@ private:
 			}
 			else
 			{
-				for(size_t i = 0; i < ArraySize; ++i)
+				for (size_t i = 0; i < ArraySize; ++i)
 				{
 					Internal::MarshalObjectHelper<ElementType>::MarshalObjectToExistingObject(*nextSourceObject, targetObject[(typename std::array<ElementType, ArraySize>::size_type)i]);
 					nextSourceObject = reinterpret_cast<const ElementType*>(reinterpret_cast<const unsigned char*>(nextSourceObject) + elementByteSize);
@@ -986,20 +986,20 @@ private:
 		{
 			//Directly initialize the target array with the supplied array of data, performing a direct memory copy if
 			//safe, or performing a move operation if one is available and permitted.
-			if(std::is_trivial<ElementType>::value)
+			if (std::is_trivial<ElementType>::value)
 			{
 				memcpy((void*)targetObject.data(), (const void*)sourceData, ArraySize * sizeof(ElementType));
 			}
-			else if(sourceDataMovable && AllowMove)
+			else if (sourceDataMovable && AllowMove)
 			{
-				for(size_t i = 0; i < ArraySize; ++i)
+				for (size_t i = 0; i < ArraySize; ++i)
 				{
 					Internal::MarshalObjectHelper<ElementType>::MarshalObjectToExistingObject(std::move(const_cast<ElementType&>(sourceData[i])), targetObject[(typename std::array<ElementType, ArraySize>::size_type)i]);
 				}
 			}
 			else
 			{
-				for(size_t i = 0; i < ArraySize; ++i)
+				for (size_t i = 0; i < ArraySize; ++i)
 				{
 					Internal::MarshalObjectHelper<ElementType>::MarshalObjectToExistingObject(sourceData[i], targetObject[(typename std::array<ElementType, ArraySize>::size_type)i]);
 				}
@@ -1080,7 +1080,7 @@ private:
 
 		//If the target element type has a custom marshaller, marshal the elements one by one, otherwise copy the
 		//contents of the source container directly into the target object.
-		if(Internal::has_marshal_constructor<ElementType>::value)
+		if (Internal::has_marshal_constructor<ElementType>::value)
 		{
 			//Marshal the object. Note that since the object has a custom marshal constructor, it's possible the size
 			//and layout of the object differs on each side of the boundary. We've received a pointer to an array of
@@ -1088,7 +1088,7 @@ private:
 			//differ from that of the sender. To account for this, we calculate the address of each object in the array
 			//using the object byte size specified by the sender.
 			ElementType* nextSourceObject = sourceData;
-			for(size_t i = 0; i < ArraySize; ++i)
+			for (size_t i = 0; i < ArraySize; ++i)
 			{
 				Internal::MarshalObjectHelper<ElementType>::MarshalObjectToExistingObject(std::move(*nextSourceObject), targetObject[(typename std::array<ElementType, ArraySize>::size_type)i]);
 				nextSourceObject = reinterpret_cast<ElementType*>(reinterpret_cast<unsigned char*>(nextSourceObject) + elementByteSize);
@@ -1097,7 +1097,7 @@ private:
 		else
 		{
 			//Directly initialize the target array with the supplied array of data
-			for(size_t i = 0; i < ArraySize; ++i)
+			for (size_t i = 0; i < ArraySize; ++i)
 			{
 				Internal::MarshalObjectHelper<ElementType>::MarshalObjectToExistingObject(std::move(sourceData[i]), targetObject[(typename std::array<ElementType, ArraySize>::size_type)i]);
 			}
@@ -1158,7 +1158,7 @@ private:
 
 		//If the target element type has a custom marshaller, marshal the elements one by one, otherwise copy the
 		//contents of the source container directly into the target object.
-		if(Internal::has_marshal_constructor<ElementType>::value)
+		if (Internal::has_marshal_constructor<ElementType>::value)
 		{
 			//Ensure the target vector is empty, with enough space reserved for the number of elements we're about to
 			//insert in it.
@@ -1171,9 +1171,9 @@ private:
 			//differ from that of the sender. To account for this, we calculate the address of each object in the array
 			//using the object byte size specified by the sender.
 			const ElementType* nextSourceObject = sourceData;
-			if(sourceDataMovable && AllowMove)
+			if (sourceDataMovable && AllowMove)
 			{
-				for(size_t i = 0; i < sourceDataLength; ++i)
+				for (size_t i = 0; i < sourceDataLength; ++i)
 				{
 					Internal::MarshalObjectHelper<std::basic_string<ElementType, traits, Alloc>>::MarshalObjectToContainer(MARSHALSUPPORT_MOVE(const_cast<ElementType&>(*nextSourceObject)), targetObject);
 					nextSourceObject = reinterpret_cast<const ElementType*>(reinterpret_cast<const unsigned char*>(nextSourceObject) + elementByteSize);
@@ -1181,7 +1181,7 @@ private:
 			}
 			else
 			{
-				for(size_t i = 0; i < sourceDataLength; ++i)
+				for (size_t i = 0; i < sourceDataLength; ++i)
 				{
 					Internal::MarshalObjectHelper<std::basic_string<ElementType, traits, Alloc>>::MarshalObjectToContainer(*nextSourceObject, targetObject);
 					nextSourceObject = reinterpret_cast<const ElementType*>(reinterpret_cast<const unsigned char*>(nextSourceObject) + elementByteSize);
@@ -1197,7 +1197,7 @@ private:
 			//in VS2013 it was observed that the move iterator wrappers prevent this optimization occurring. We avoid
 			//using move iterators in this case to achieve maximum efficiency.
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-			if(!std::is_trivial<ElementType>::value && sourceDataMovable && AllowMove)
+			if (!std::is_trivial<ElementType>::value && sourceDataMovable && AllowMove)
 			{
 				targetObject.assign(std::make_move_iterator(const_cast<ElementType*>(sourceData)), std::make_move_iterator(const_cast<ElementType*>(sourceData) + sourceDataLength));
 			}

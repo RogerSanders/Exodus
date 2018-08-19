@@ -24,11 +24,11 @@ public:
 		InterlockedVar32 currentThreadID = (InterlockedVar32)GetCurrentThreadId();
 
 		//Obtain a lock for this thread
-		while(PerformanceInterlockedCompareExchangeAcquire(&_threadIDMutex, LockAcquireOrReleaseInProgress, 0) != 0)
+		while (PerformanceInterlockedCompareExchangeAcquire(&_threadIDMutex, LockAcquireOrReleaseInProgress, 0) != 0)
 		{
 			//If this mutex is already locked by the current thread, increment the lock
 			//count, and return.
-			if(PerformanceInterlockedCompareExchangeAcquire(&_threadIDMutex, LockAcquireOrReleaseInProgress, currentThreadID) == currentThreadID)
+			if (PerformanceInterlockedCompareExchangeAcquire(&_threadIDMutex, LockAcquireOrReleaseInProgress, currentThreadID) == currentThreadID)
 			{
 				//Increment the lock count for this thread
 				++_lockCount;
@@ -95,7 +95,7 @@ public:
 		//Wait until we manage to grab an exclusive lock on the mutex for this thread.
 		//Note that if the current thread doesn't have a lock on the mutex, this will loop
 		//forever.
-		while(PerformanceInterlockedCompareExchangeAcquire(&_threadIDMutex, LockAcquireOrReleaseInProgress, currentThreadID) != currentThreadID)
+		while (PerformanceInterlockedCompareExchangeAcquire(&_threadIDMutex, LockAcquireOrReleaseInProgress, currentThreadID) != currentThreadID)
 		{}
 
 		//Decrement the lock count for this thread, and flag that we should now release

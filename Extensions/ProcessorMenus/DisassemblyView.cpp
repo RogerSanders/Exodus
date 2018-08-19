@@ -34,7 +34,7 @@ DisassemblyView::DisassemblyView(IUIManager& uiManager, DisassemblyViewPresenter
 LRESULT DisassemblyView::WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	WndProcDialogImplementGiveFocusToChildWindowOnClick(hwnd, msg, wparam, lparam);
-	switch(msg)
+	switch (msg)
 	{
 	case WM_CREATE:
 		return msgWM_CREATE(hwnd, wparam, lparam);
@@ -145,7 +145,7 @@ LRESULT DisassemblyView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	_currentPCLocation = newPC;
 
 	//Determine if we need to scroll the window to make the PC location visible
-	if(((pcCounterChanged && _track) || _forcePCSync)
+	if (((pcCounterChanged && _track) || _forcePCSync)
 	&& ((_currentPCLocation < _firstVisibleValueLocation) || (_currentPCLocation > _lastVisibleValueLocation)))
 	{
 		//Set the first visible location on the disassembly window to be the same as the
@@ -155,7 +155,7 @@ LRESULT DisassemblyView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		//Obtain the address of the first opcode in the buffer
 		unsigned int minimumOpcodeByteSize = _model.GetMinimumOpcodeByteSize();
 		unsigned int upperReadPosition = (_readAbove > _firstVisibleValueLocation)? 0: _firstVisibleValueLocation - _readAbove;
-		if(upperReadPosition < _startLocation)
+		if (upperReadPosition < _startLocation)
 		{
 			upperReadPosition = _startLocation + (_firstVisibleValueLocation % minimumOpcodeByteSize);
 		}
@@ -164,7 +164,7 @@ LRESULT DisassemblyView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		//within the buffer region
 		std::list<unsigned int> leadingRowsPC;
 		unsigned int offset = 0;
-		while((upperReadPosition + offset) < _firstVisibleValueLocation)
+		while ((upperReadPosition + offset) < _firstVisibleValueLocation)
 		{
 			//Record the address of this opcode
 			leadingRowsPC.push_back(upperReadPosition + offset);
@@ -172,7 +172,7 @@ LRESULT DisassemblyView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			//Read the opcode info
 			OpcodeInfo opcodeInfo;
 			unsigned int opcodeSize = minimumOpcodeByteSize;
-			if(_model.GetOpcodeInfo(upperReadPosition + offset, opcodeInfo) && opcodeInfo.GetIsValidOpcode())
+			if (_model.GetOpcodeInfo(upperReadPosition + offset, opcodeInfo) && opcodeInfo.GetIsValidOpcode())
 			{
 				opcodeSize = opcodeInfo.GetOpcodeSize();
 			}
@@ -186,7 +186,7 @@ LRESULT DisassemblyView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		unsigned int leadingRowCount = _visibleRows / 3;
 		unsigned int currentLeadingRowNo = 0;
 		std::list<unsigned int>::const_reverse_iterator leadingRowsPCIterator = leadingRowsPC.rbegin();
-		while((leadingRowsPCIterator != leadingRowsPC.rend()) && (currentLeadingRowNo < leadingRowCount))
+		while ((leadingRowsPCIterator != leadingRowsPC.rend()) && (currentLeadingRowNo < leadingRowCount))
 		{
 			_firstVisibleValueLocation = *leadingRowsPCIterator;
 			++currentLeadingRowNo;
@@ -204,17 +204,17 @@ LRESULT DisassemblyView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		//If the current location is outside the previous start and end location
 		//boundaries, extend the boundaries to include the current address.
 		unsigned int extensionSize = (_visibleRows * _model.GetMinimumOpcodeByteSize() * 2);
-		if(_currentPCLocation > _endLocation)
+		if (_currentPCLocation > _endLocation)
 		{
 			_endLocation = _currentPCLocation + extensionSize;
-			if(_endLocation > _model.GetAddressBusMask())
+			if (_endLocation > _model.GetAddressBusMask())
 			{
 				_endLocation = _model.GetAddressBusMask();
 			}
 		}
-		if(_currentPCLocation < _startLocation)
+		if (_currentPCLocation < _startLocation)
 		{
-			if(_currentPCLocation <= extensionSize)
+			if (_currentPCLocation <= extensionSize)
 			{
 				_startLocation = 0;
 			}
@@ -240,23 +240,23 @@ LRESULT DisassemblyView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 //----------------------------------------------------------------------------------------
 LRESULT DisassemblyView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	if(LOWORD(wparam) == CTL_DATAGRID)
+	if (LOWORD(wparam) == CTL_DATAGRID)
 	{
 		WC_DataGrid::WindowNotifications notification = (WC_DataGrid::WindowNotifications)HIWORD(wparam);
-		if(notification == WC_DataGrid::WindowNotifications::NewRowCount)
+		if (notification == WC_DataGrid::WindowNotifications::NewRowCount)
 		{
 			WC_DataGrid::Grid_NewVisibleRowCount* newRowCountInfo = (WC_DataGrid::Grid_NewVisibleRowCount*)lparam;
 			_visibleRows = newRowCountInfo->visibleRows;
 			UpdateDisassembly();
 		}
-		else if(notification == WC_DataGrid::WindowNotifications::ShiftRowsUp)
+		else if (notification == WC_DataGrid::WindowNotifications::ShiftRowsUp)
 		{
 			WC_DataGrid::Grid_ShiftRowsUp* info = (WC_DataGrid::Grid_ShiftRowsUp*)lparam;
 			unsigned int shiftCount = 0;
-			while(shiftCount < info->shiftCount)
+			while (shiftCount < info->shiftCount)
 			{
 				unsigned int initialPosition = _firstVisibleValueLocation;
-				while(((_firstVisibleValueLocation + _firstVisibleOpcodeSize) > initialPosition) //The first opcode in the window is below or contains the address of the previous first opcode in the window
+				while (((_firstVisibleValueLocation + _firstVisibleOpcodeSize) > initialPosition) //The first opcode in the window is below or contains the address of the previous first opcode in the window
 					&& (_firstVisibleValueLocation >= _lastBufferedOpcodeSize) //We're not going to shift above 0
 					&& ((_firstVisibleValueLocation - _lastBufferedOpcodeSize) >= _startLocation)) //We're not going to shift past the start location
 				{
@@ -266,11 +266,11 @@ LRESULT DisassemblyView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 				++shiftCount;
 			}
 		}
-		else if(notification == WC_DataGrid::WindowNotifications::ShiftRowsDown)
+		else if (notification == WC_DataGrid::WindowNotifications::ShiftRowsDown)
 		{
 			WC_DataGrid::Grid_ShiftRowsDown* info = (WC_DataGrid::Grid_ShiftRowsDown*)lparam;
 			unsigned int shiftCount = 0;
-			while((shiftCount < info->shiftCount)
+			while ((shiftCount < info->shiftCount)
 				&& ((_firstVisibleValueLocation + _firstVisibleOpcodeSize) < _endLocation))
 			{
 				_firstVisibleValueLocation += _firstVisibleOpcodeSize;
@@ -278,7 +278,7 @@ LRESULT DisassemblyView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 				++shiftCount;
 			}
 		}
-		else if(notification == WC_DataGrid::WindowNotifications::NewScrollPosition)
+		else if (notification == WC_DataGrid::WindowNotifications::NewScrollPosition)
 		{
 			//Move the window to an absolute address as a result of a command from
 			//the list control. We align the absolute address to the minimum opcode
@@ -288,14 +288,14 @@ LRESULT DisassemblyView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			_firstVisibleValueLocation = info->scrollPos - (info->scrollPos % _model.GetMinimumOpcodeByteSize());
 			UpdateDisassembly();
 		}
-		else if(notification == WC_DataGrid::WindowNotifications::SelectionEvent)
+		else if (notification == WC_DataGrid::WindowNotifications::SelectionEvent)
 		{
 			WC_DataGrid::Grid_SelectionEvent* info = (WC_DataGrid::Grid_SelectionEvent*)lparam;
 
 			//If the CTRL key was pressed when the row selection was made, toggle a
 			//breakpoint at the opcode being displayed on the target row. If the shift key
 			//was also pressed, just toggle the enable/disable state of the breakpoint.
-			if(info->rowSelected && info->keyPressedCtrl)
+			if (info->rowSelected && info->keyPressedCtrl)
 			{
 				ToggleBreakpointStateAtRow(info->selectedRowNo, info->keyPressedShift);
 
@@ -374,14 +374,14 @@ LRESULT DisassemblyView::msgWM_PAINT(HWND hwnd, WPARAM wparam, LPARAM lparam)
 LRESULT DisassemblyView::msgWM_BOUNCE(HWND hwnd, WPARAM wParam, LPARAM lParam)
 {
 	BounceMessage* bounceMessage = (BounceMessage*)lParam;
-	if((bounceMessage->uMsg == WM_KEYDOWN) && (bounceMessage->wParam == VK_F11))
+	if ((bounceMessage->uMsg == WM_KEYDOWN) && (bounceMessage->wParam == VK_F11))
 	{
 		//Step a single opcode
 		_model.GetDevice()->GetDeviceContext()->StopSystem();
 		_model.GetDevice()->GetDeviceContext()->ExecuteDeviceStep();
 		bounceMessage->caught = true;
 	}
-	else if((bounceMessage->uMsg == WM_SYSKEYDOWN) && (bounceMessage->wParam == VK_F10))
+	else if ((bounceMessage->uMsg == WM_SYSKEYDOWN) && (bounceMessage->wParam == VK_F10))
 	{
 		//Step over the current opcode
 		_model.GetDevice()->GetDeviceContext()->StopSystem();
@@ -401,7 +401,7 @@ INT_PTR CALLBACK DisassemblyView::WndProcPanelStatic(HWND hwnd, UINT msg, WPARAM
 	DisassemblyView* state = (DisassemblyView*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
 	//Process the message
-	switch(msg)
+	switch (msg)
 	{
 	case WM_INITDIALOG:
 		//Set the object pointer
@@ -409,13 +409,13 @@ INT_PTR CALLBACK DisassemblyView::WndProcPanelStatic(HWND hwnd, UINT msg, WPARAM
 		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)(state));
 
 		//Pass this message on to the member window procedure function
-		if(state != 0)
+		if (state != 0)
 		{
 			return state->WndProcPanel(hwnd, msg, wparam, lparam);
 		}
 		break;
 	case WM_DESTROY:
-		if(state != 0)
+		if (state != 0)
 		{
 			//Pass this message on to the member window procedure function
 			INT_PTR result = state->WndProcPanel(hwnd, msg, wparam, lparam);
@@ -431,7 +431,7 @@ INT_PTR CALLBACK DisassemblyView::WndProcPanelStatic(HWND hwnd, UINT msg, WPARAM
 
 	//Pass this message on to the member window procedure function
 	INT_PTR result = FALSE;
-	if(state != 0)
+	if (state != 0)
 	{
 		result = state->WndProcPanel(hwnd, msg, wparam, lparam);
 	}
@@ -442,7 +442,7 @@ INT_PTR CALLBACK DisassemblyView::WndProcPanelStatic(HWND hwnd, UINT msg, WPARAM
 INT_PTR DisassemblyView::WndProcPanel(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	WndProcDialogImplementSaveFieldWhenLostFocus(hwnd, msg, wparam, lparam);
-	switch(msg)
+	switch (msg)
 	{
 	case WM_INITDIALOG:
 		return msgPanelWM_INITDIALOG(hwnd, wparam, lparam);
@@ -484,9 +484,9 @@ INT_PTR DisassemblyView::msgPanelWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lpa
 //----------------------------------------------------------------------------------------
 INT_PTR DisassemblyView::msgPanelWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	if(_currentControlFocus != IDC_PROCESSOR_DISASSEMBLY_PANEL_CURRENT)	UpdateDlgItemHex(hwnd, IDC_PROCESSOR_DISASSEMBLY_PANEL_CURRENT, _model.GetAddressBusCharWidth(), _firstVisibleValueLocation);
-	if(_currentControlFocus != IDC_PROCESSOR_DISASSEMBLY_PANEL_START)	UpdateDlgItemHex(hwnd, IDC_PROCESSOR_DISASSEMBLY_PANEL_START, _model.GetAddressBusCharWidth(), _startLocation);
-	if(_currentControlFocus != IDC_PROCESSOR_DISASSEMBLY_PANEL_END)	UpdateDlgItemHex(hwnd, IDC_PROCESSOR_DISASSEMBLY_PANEL_END, _model.GetAddressBusCharWidth(), _endLocation);
+	if (_currentControlFocus != IDC_PROCESSOR_DISASSEMBLY_PANEL_CURRENT)	UpdateDlgItemHex(hwnd, IDC_PROCESSOR_DISASSEMBLY_PANEL_CURRENT, _model.GetAddressBusCharWidth(), _firstVisibleValueLocation);
+	if (_currentControlFocus != IDC_PROCESSOR_DISASSEMBLY_PANEL_START)	UpdateDlgItemHex(hwnd, IDC_PROCESSOR_DISASSEMBLY_PANEL_START, _model.GetAddressBusCharWidth(), _startLocation);
+	if (_currentControlFocus != IDC_PROCESSOR_DISASSEMBLY_PANEL_END)	UpdateDlgItemHex(hwnd, IDC_PROCESSOR_DISASSEMBLY_PANEL_END, _model.GetAddressBusCharWidth(), _endLocation);
 
 	return TRUE;
 }
@@ -494,17 +494,17 @@ INT_PTR DisassemblyView::msgPanelWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lpara
 //----------------------------------------------------------------------------------------
 INT_PTR DisassemblyView::msgPanelWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	if((HIWORD(wparam) == EN_SETFOCUS) && _initializedDialog)
+	if ((HIWORD(wparam) == EN_SETFOCUS) && _initializedDialog)
 	{
 		_previousText = GetDlgItemString(hwnd, LOWORD(wparam));
 		_currentControlFocus = LOWORD(wparam);
 	}
-	else if((HIWORD(wparam) == EN_KILLFOCUS) && _initializedDialog)
+	else if ((HIWORD(wparam) == EN_KILLFOCUS) && _initializedDialog)
 	{
 		std::wstring newText = GetDlgItemString(hwnd, LOWORD(wparam));
-		if(newText != _previousText)
+		if (newText != _previousText)
 		{
-			switch(LOWORD(wparam))
+			switch (LOWORD(wparam))
 			{
 			case IDC_PROCESSOR_DISASSEMBLY_PANEL_START:
 				_startLocation = GetDlgItemHex(hwnd, LOWORD(wparam)) & _model.GetAddressBusMask();
@@ -528,9 +528,9 @@ INT_PTR DisassemblyView::msgPanelWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lpa
 			UpdateDisassembly();
 		}
 	}
-	else if(HIWORD(wparam) == BN_CLICKED)
+	else if (HIWORD(wparam) == BN_CLICKED)
 	{
-		switch(LOWORD(wparam))
+		switch (LOWORD(wparam))
 		{
 		case IDC_PROCESSOR_DISASSEMBLY_PANEL_TRACK:
 			_track = !_track;
@@ -572,19 +572,19 @@ void DisassemblyView::UpdateDisassembly()
 	//Obtain the address of the first opcode in the buffer
 	unsigned int minimumOpcodeByteSize = _model.GetMinimumOpcodeByteSize();
 	unsigned int upperReadPosition = (_readAbove > _firstVisibleValueLocation)? 0: _firstVisibleValueLocation - _readAbove;
-	if(upperReadPosition < _startLocation)
+	if (upperReadPosition < _startLocation)
 	{
 		upperReadPosition = _startLocation + (_firstVisibleValueLocation % minimumOpcodeByteSize);
 	}
 
 	//Skip all opcodes in the buffer which occur before the visible region of the buffer
 	unsigned int offset = 0;
-	while((upperReadPosition + offset) < _firstVisibleValueLocation)
+	while ((upperReadPosition + offset) < _firstVisibleValueLocation)
 	{
 		//Read the opcode info
 		OpcodeInfo opcodeInfo;
 		unsigned int opcodeSize = minimumOpcodeByteSize;
-		if(_model.GetOpcodeInfo(upperReadPosition + offset, opcodeInfo) && opcodeInfo.GetIsValidOpcode())
+		if (_model.GetOpcodeInfo(upperReadPosition + offset, opcodeInfo) && opcodeInfo.GetIsValidOpcode())
 		{
 			opcodeSize = opcodeInfo.GetOpcodeSize();
 		}
@@ -599,7 +599,7 @@ void DisassemblyView::UpdateDisassembly()
 
 	//If there are no buffered opcodes, set the size of the last buffered opcode to the
 	//minimum opcode size.
-	if(offset == 0)
+	if (offset == 0)
 	{
 		_lastBufferedOpcodeSize = minimumOpcodeByteSize;
 	}
@@ -611,13 +611,13 @@ void DisassemblyView::UpdateDisassembly()
 	std::vector<std::wstring> columnDataArgs(_visibleRows);
 	std::vector<std::wstring> columnDataComment(_visibleRows);
 	std::vector<std::wstring> columnDataBinary(_visibleRows);
-	for(unsigned int i = 0; (i < _visibleRows) && ((upperReadPosition + offset) < _endLocation); ++i)
+	for (unsigned int i = 0; (i < _visibleRows) && ((upperReadPosition + offset) < _endLocation); ++i)
 	{
 		unsigned int rowPCLocation = (upperReadPosition + offset);
 
 		//Set the color for this row
 		WC_DataGrid::Grid_SetRowColor setRowColor;
-		if(rowPCLocation == _currentPCLocation)
+		if (rowPCLocation == _currentPCLocation)
 		{
 			//If this row is the same as the current PC location, shade the location in
 			//green.
@@ -633,7 +633,7 @@ void DisassemblyView::UpdateDisassembly()
 			bool breakpointAtLocation = false;
 			bool breakpointEnabled = false;
 			std::list<IBreakpoint*>::const_iterator breakpointIterator = breakpointList.begin();
-			while(!breakpointAtLocation && (breakpointIterator != breakpointList.end()))
+			while (!breakpointAtLocation && (breakpointIterator != breakpointList.end()))
 			{
 				breakpointAtLocation = (*breakpointIterator)->PassesLocationCondition(rowPCLocation);
 				breakpointEnabled = (*breakpointIterator)->GetEnabled();
@@ -641,7 +641,7 @@ void DisassemblyView::UpdateDisassembly()
 			}
 
 			//If a breakpoint triggers at this address, shade the location in red.
-			if(breakpointAtLocation)
+			if (breakpointAtLocation)
 			{
 				setRowColor.backgroundColorDefined = true;
 				setRowColor.colorBackground = breakpointEnabled? WinColor(255, 128, 128): WinColor(192, 0, 0);
@@ -655,13 +655,13 @@ void DisassemblyView::UpdateDisassembly()
 		//Read the opcode info
 		OpcodeInfo opcodeInfo;
 		unsigned int opcodeSize = minimumOpcodeByteSize;
-		if(!_model.GetOpcodeInfo(rowPCLocation, opcodeInfo))
+		if (!_model.GetOpcodeInfo(rowPCLocation, opcodeInfo))
 		{
 			//If the target processor doesn't support disassembly, we output a generic
 			//message.
 			opcodeInfo.SetOpcodeNameDisassembly(L"UNSUPPORTED");
 		}
-		else if(!opcodeInfo.GetIsValidOpcode())
+		else if (!opcodeInfo.GetIsValidOpcode())
 		{
 			//If the target address doesn't reference a valid opcode, we output a generic
 			//message.
@@ -679,18 +679,18 @@ void DisassemblyView::UpdateDisassembly()
 		columnDataOpcode[i] = opcodeInfo.GetOpcodeNameDisassembly();
 		columnDataArgs[i] = opcodeInfo.GetOpcodeArgumentsDisassembly();
 		std::wstring disassemblyComment = opcodeInfo.GetDisassemblyComment();
-		if(!disassemblyComment.empty())
+		if (!disassemblyComment.empty())
 		{
 			columnDataComment[i] = L";" + disassemblyComment;
 		}
 
 		//Build the machine code disassembly output
 		std::wstring binaryString;
-		for(unsigned int byteNo = 0; byteNo < opcodeInfo.GetOpcodeSize(); ++byteNo)
+		for (unsigned int byteNo = 0; byteNo < opcodeInfo.GetOpcodeSize(); ++byteNo)
 		{
 			_model.GetByteBitCount();
 			unsigned int rawData = _model.GetMemorySpaceByte(rowPCLocation + byteNo);
-			if(byteNo > 0)
+			if (byteNo > 0)
 			{
 				binaryString += L' ';
 			}
@@ -701,7 +701,7 @@ void DisassemblyView::UpdateDisassembly()
 		columnDataBinary[i] = binaryString;
 
 		//If this is the first visible opcode, record the size
-		if(i == 0)
+		if (i == 0)
 		{
 			_firstVisibleOpcodeSize = opcodeSize;
 		}
@@ -728,7 +728,7 @@ void DisassemblyView::UpdateDisassembly()
 void DisassemblyView::ToggleBreakpointStateAtRow(unsigned int visibleRowNo, bool toggleEnableState)
 {
 	//Validate the specified row number
-	if(visibleRowNo >= _visibleRows)
+	if (visibleRowNo >= _visibleRows)
 	{
 		return;
 	}
@@ -736,19 +736,19 @@ void DisassemblyView::ToggleBreakpointStateAtRow(unsigned int visibleRowNo, bool
 	//Obtain the address of the first opcode in the buffer
 	unsigned int minimumOpcodeByteSize = _model.GetMinimumOpcodeByteSize();
 	unsigned int upperReadPosition = (_readAbove > _firstVisibleValueLocation)? 0: _firstVisibleValueLocation - _readAbove;
-	if(upperReadPosition < _startLocation)
+	if (upperReadPosition < _startLocation)
 	{
 		upperReadPosition = _startLocation + (_firstVisibleValueLocation % minimumOpcodeByteSize);
 	}
 
 	//Skip all opcodes in the buffer which occur before the visible region of the buffer
 	unsigned int offset = 0;
-	while((upperReadPosition + offset) < _firstVisibleValueLocation)
+	while ((upperReadPosition + offset) < _firstVisibleValueLocation)
 	{
 		//Read the opcode info
 		OpcodeInfo opcodeInfo;
 		unsigned int opcodeSize = minimumOpcodeByteSize;
-		if(_model.GetOpcodeInfo(upperReadPosition + offset, opcodeInfo) && opcodeInfo.GetIsValidOpcode())
+		if (_model.GetOpcodeInfo(upperReadPosition + offset, opcodeInfo) && opcodeInfo.GetIsValidOpcode())
 		{
 			opcodeSize = opcodeInfo.GetOpcodeSize();
 		}
@@ -759,12 +759,12 @@ void DisassemblyView::ToggleBreakpointStateAtRow(unsigned int visibleRowNo, bool
 
 	//Locate the opcode which was selected in the disassembly window
 	unsigned int currentVisibleRowNo = 0;
-	while((currentVisibleRowNo < visibleRowNo) && ((upperReadPosition + offset) < _endLocation))
+	while ((currentVisibleRowNo < visibleRowNo) && ((upperReadPosition + offset) < _endLocation))
 	{
 		//Read the opcode info
 		OpcodeInfo opcodeInfo;
 		unsigned int opcodeSize = minimumOpcodeByteSize;
-		if(_model.GetOpcodeInfo(upperReadPosition + offset, opcodeInfo) && opcodeInfo.GetIsValidOpcode())
+		if (_model.GetOpcodeInfo(upperReadPosition + offset, opcodeInfo) && opcodeInfo.GetIsValidOpcode())
 		{
 			opcodeSize = opcodeInfo.GetOpcodeSize();
 		}
@@ -773,7 +773,7 @@ void DisassemblyView::ToggleBreakpointStateAtRow(unsigned int visibleRowNo, bool
 		offset += opcodeSize;
 		++currentVisibleRowNo;
 	}
-	if(currentVisibleRowNo != visibleRowNo)
+	if (currentVisibleRowNo != visibleRowNo)
 	{
 		return;
 	}
@@ -793,9 +793,9 @@ void DisassemblyView::ToggleBreakpointStateAtAddress(unsigned int pcLocation, bo
 	IBreakpoint* targetBreakpoint = 0;
 	std::list<IBreakpoint*> breakpointList = _model.GetBreakpointList();
 	std::list<IBreakpoint*>::const_iterator breakpointIterator = breakpointList.begin();
-	while(!breakpointAtLocation && (breakpointIterator != breakpointList.end()))
+	while (!breakpointAtLocation && (breakpointIterator != breakpointList.end()))
 	{
-		if((*breakpointIterator)->PassesLocationCondition(pcLocation))
+		if ((*breakpointIterator)->PassesLocationCondition(pcLocation))
 		{
 			breakpointAtLocation = true;
 			targetBreakpoint = *breakpointIterator;
@@ -805,12 +805,12 @@ void DisassemblyView::ToggleBreakpointStateAtAddress(unsigned int pcLocation, bo
 	}
 
 	//Perform the requested operation
-	if(toggleEnableState)
+	if (toggleEnableState)
 	{
 		//Toggle the enable state for a breakpoint at the target address
-		if(breakpointAtLocation)
+		if (breakpointAtLocation)
 		{
-			if(_model.LockBreakpoint(targetBreakpoint))
+			if (_model.LockBreakpoint(targetBreakpoint))
 			{
 				targetBreakpoint->SetEnabled(!targetBreakpoint->GetEnabled());
 				_model.UnlockBreakpoint(targetBreakpoint);
@@ -820,14 +820,14 @@ void DisassemblyView::ToggleBreakpointStateAtAddress(unsigned int pcLocation, bo
 	else
 	{
 		//Either add or remove a breakpoint for the target address
-		if(breakpointAtLocation)
+		if (breakpointAtLocation)
 		{
 			_model.DeleteBreakpoint(targetBreakpoint);
 		}
 		else
 		{
 			targetBreakpoint = _model.CreateBreakpoint();
-			if(_model.LockBreakpoint(targetBreakpoint))
+			if (_model.LockBreakpoint(targetBreakpoint))
 			{
 				targetBreakpoint->SetLocationConditionData1(pcLocation);
 				targetBreakpoint->SetName(targetBreakpoint->GenerateName());

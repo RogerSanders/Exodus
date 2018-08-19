@@ -14,10 +14,10 @@ SettingsMenuHandler::SettingsMenuHandler(GenericAccessMenus& owner, const IDevic
 void SettingsMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) const
 {
 	unsigned int pageCount = _model.GetGenericAccessPageCount();
-	for(unsigned int i = 0; i < pageCount; ++i)
+	for (unsigned int i = 0; i < pageCount; ++i)
 	{
 		const IGenericAccessPage* page = _model.GetGenericAccessPage(i);
-		if(page->GetPageType() == IGenericAccessPage::Type::Settings)
+		if (page->GetPageType() == IGenericAccessPage::Type::Settings)
 		{
 			menuItems.push_back(MenuItemDefinition((int)i, page->GetName(), page->GetTitle(), true, true));
 		}

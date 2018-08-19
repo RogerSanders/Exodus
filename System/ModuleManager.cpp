@@ -13,7 +13,7 @@
 //bool ModuleManager::OpenDatabase(const std::wstring& databaseFilename)
 //{
 //	//Close the database if it is already open
-//	if(openedDatabase)
+//	if (openedDatabase)
 //	{
 //		CloseDatabase();
 //	}
@@ -22,7 +22,7 @@
 //	//L"PRAGMA encoding = UTF-16;"
 //
 //	//Attempt to open a connection to the database
-//	if(sqlite3_open16(databaseFilename.c_str(), &databaseConnection) != 0)
+//	if (sqlite3_open16(databaseFilename.c_str(), &databaseConnection) != 0)
 //	{
 //		sqlite3_close(databaseConnection);
 //		databaseConnection = 0;
@@ -37,7 +37,7 @@
 //void ModuleManager::CloseDatabase()
 //{
 //	//Close the database if it is open
-//	if(openedDatabase)
+//	if (openedDatabase)
 //	{
 //		sqlite3_close(databaseConnection);
 //		databaseConnection = 0;
@@ -54,7 +54,7 @@
 //	int statementPrepareReturn;
 //	int bytesInStatementIncludingTerminator = (int)((sqlStatement.size() + 1) * sizeof(wchar_t));
 //	statementPrepareReturn = sqlite3_prepare16_v2(databaseConnection, sqlStatement.c_str(), bytesInStatementIncludingTerminator, &statement, &unusedStatement);
-//	if(statementPrepareReturn != SQLITE_OK)
+//	if (statementPrepareReturn != SQLITE_OK)
 //	{
 //		sqlite3_finalize(statement);
 //		return false;
