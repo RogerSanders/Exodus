@@ -2,9 +2,9 @@
 #include "resource.h"
 #include "DataConversion/DataConversion.pkg"
 
-//----------------------------------------------------------------------------------------
-//Constructors
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Constructors
+//----------------------------------------------------------------------------------------------------------------------
 ExceptionsView::ExceptionsView(IUIManager& uiManager, ExceptionsViewPresenter& presenter, IM68000& model)
 :ViewBase(uiManager, presenter), _presenter(presenter), _model(model), _initializedDialog(false), _currentControlFocus(0)
 {
@@ -14,9 +14,9 @@ ExceptionsView::ExceptionsView(IUIManager& uiManager, ExceptionsViewPresenter& p
 	SetDialogViewType();
 }
 
-//----------------------------------------------------------------------------------------
-//Member window procedure
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Member window procedure
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR ExceptionsView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	WndProcDialogImplementSaveFieldWhenLostFocus(hwnd, msg, wparam, lparam);
@@ -34,9 +34,9 @@ INT_PTR ExceptionsView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM
 	return FALSE;
 }
 
-//----------------------------------------------------------------------------------------
-//Event handlers
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Event handlers
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR ExceptionsView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	SetTimer(hwnd, 1, 100, NULL);
@@ -45,19 +45,19 @@ INT_PTR ExceptionsView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR ExceptionsView::msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	KillTimer(hwnd, 1);
 	return FALSE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR ExceptionsView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	_initializedDialog = true;
 
-	//Check if we need to refresh the exception debug list
+	// Check if we need to refresh the exception debug list
 	std::list<IM68000::ExceptionDebuggingEntry> currentExceptionList = _model.GetExceptionDebugEntries();
 	bool refreshExceptionList = (_cachedExceptionList.size() != currentExceptionList.size());
 	if (!refreshExceptionList)
@@ -72,13 +72,13 @@ INT_PTR ExceptionsView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		}
 	}
 
-	//Refresh the exception debug list if it has changed
+	// Refresh the exception debug list if it has changed
 	if (refreshExceptionList)
 	{
-		//Save the new exception debug list
+		// Save the new exception debug list
 		_cachedExceptionList = currentExceptionList;
 
-		//Refresh the list of exception debug entries
+		// Refresh the list of exception debug entries
 		SendMessage(GetDlgItem(hwnd, IDC_M68000_EXCEPTIONS_LIST), WM_SETREDRAW, FALSE, 0);
 		LRESULT top = SendMessage(GetDlgItem(hwnd, IDC_M68000_EXCEPTIONS_LIST), LB_GETTOPINDEX, 0, 0);
 		SendMessage(GetDlgItem(hwnd, IDC_M68000_EXCEPTIONS_LIST), LB_RESETCONTENT, 0, NULL);
@@ -98,7 +98,7 @@ INT_PTR ExceptionsView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR ExceptionsView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	if ((HIWORD(wparam) == EN_SETFOCUS) && _initializedDialog)
@@ -218,7 +218,7 @@ INT_PTR ExceptionsView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			_cachedExceptionList.clear();
 			_model.SetExceptionDebugEntries(_cachedExceptionList);
 
-			//Clear the current exception info
+			// Clear the current exception info
 			_exceptionEntry = IM68000::ExceptionDebuggingEntry();
 			UpdateExceptionEntry(hwnd, _exceptionEntry);
 			_exceptionListIndex = -1;
@@ -254,9 +254,9 @@ INT_PTR ExceptionsView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
-//Exception functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Exception functions
+//----------------------------------------------------------------------------------------------------------------------
 void ExceptionsView::UpdateExceptionEntry(HWND hwnd, const IM68000::ExceptionDebuggingEntry& targetExceptionEntry)
 {
 	CheckDlgButton(hwnd, IDC_M68000_EXCEPTIONS_LOG, (targetExceptionEntry.enableLogging)? BST_CHECKED: BST_UNCHECKED);
@@ -268,7 +268,7 @@ void ExceptionsView::UpdateExceptionEntry(HWND hwnd, const IM68000::ExceptionDeb
 	UpdateDlgItemString(hwnd, IDC_M68000_EXCEPTIONS_VECTORNAME, _model.GetExceptionName(targetExceptionEntry.vectorNumber));
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::wstring ExceptionsView::BuildExceptionName(IM68000::Exceptions vectorNumber) const
 {
 	std::wstring vectorNumberAsString;

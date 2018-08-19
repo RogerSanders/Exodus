@@ -43,7 +43,7 @@ public:
 //	-----------------------------------------------------------------
 		_conditionCode = (ConditionCode)data.GetDataSegment(8, 4);
 
-		//Bcc	<label>
+		// Bcc	<label>
 		if (data.GetDataSegment(0, 8) != 0x00)
 		{
 			_size = BITCOUNT_BYTE;
@@ -62,14 +62,14 @@ public:
 		double additionalTime = 0;
 		M68000Long newPC;
 
-		//Test the condition code
+		// Test the condition code
 		bool result = ConditionCodeTrue(cpu, _conditionCode);
 
 		ExecuteTime additionalCycles;
 		if (result)
 		{
-			//If the condition is true, branch to the _target location and run the loop
-			//again.
+			// If the condition is true, branch to the _target location and run the loop
+			// again.
 			Data offset(_size);
 			additionalTime += _target.Read(cpu, offset, GetInstructionRegister());
 			newPC = _target.GetSavedPC() + M68000Long(offset.SignExtend(BITCOUNT_LONG));
@@ -77,8 +77,8 @@ public:
 		}
 		else
 		{
-			//If the condition is false, skip the branch, and continue execution at the
-			//next instruction.
+			// If the condition is false, skip the branch, and continue execution at the
+			// next instruction.
 			newPC = location + GetInstructionSize();
 			if (_size == BITCOUNT_BYTE)
 			{
@@ -91,15 +91,15 @@ public:
 		}
 		cpu->SetPC(newPC);
 
-		//Return the execution time
+		// Return the execution time
 		return GetExecuteCycleCount(additionalTime) + additionalCycles;
 	}
 
 	virtual void GetResultantPCLocations(std::set<unsigned int>& resultantPCLocations, bool& undeterminedResultantPCLocation) const
 	{
-		//Return the address directly after this opcode, and the possible branch location
-		//from executing this opcode, as the possible resultant PC locations from
-		//executing this opcode.
+		// Return the address directly after this opcode, and the possible branch location
+		// from executing this opcode, as the possible resultant PC locations from
+		// executing this opcode.
 		undeterminedResultantPCLocation = false;
 		unsigned int nextOpcodeAddress = GetInstructionLocation().GetData() + GetInstructionSize();
 		unsigned int branchOpcodeAddress = (_target.GetSavedPC() + _target.ExtractProcessedImmediateData()).GetData();
@@ -119,5 +119,5 @@ private:
 	EffectiveAddress _target;
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #endif

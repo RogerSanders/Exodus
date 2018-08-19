@@ -1,22 +1,22 @@
 #include "DebugMenuHandler.h"
 #include "DeviceControlViewPresenter.h"
 
-//----------------------------------------------------------------------------------------
-//Constructors
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Constructors
+//----------------------------------------------------------------------------------------------------------------------
 DebugMenuHandler::DebugMenuHandler(ExodusSystemMenus& owner, ISystemGUIInterface& model)
 :MenuHandlerBase(L"SystemDebugMenu", owner.GetViewManager()), _owner(owner), _model(model)
 {}
 
-//----------------------------------------------------------------------------------------
-//Management functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Management functions
+//----------------------------------------------------------------------------------------------------------------------
 void DebugMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) const
 {
 	menuItems.push_back(MenuItemDefinition(MENUITEM_DEVICECONTROL, L"DeviceControl", DeviceControlViewPresenter::GetUnqualifiedViewTitle(), true, true));
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 IViewPresenter* DebugMenuHandler::CreateViewForItem(int menuItemID, const std::wstring& viewName)
 {
 	switch (menuItemID)
@@ -27,7 +27,7 @@ IViewPresenter* DebugMenuHandler::CreateViewForItem(int menuItemID, const std::w
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void DebugMenuHandler::DeleteViewForItem(int menuItemID, IViewPresenter* viewPresenter)
 {
 	delete viewPresenter;

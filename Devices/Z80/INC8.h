@@ -31,14 +31,14 @@ public:
 
 		if (_target.Decode8BitRegister(data.GetDataSegment(3, 3)))
 		{
-			//INC r		00rrr100
+			// INC r		00rrr100
 			AddExecuteCycleCount(4);
 		}
 		else
 		{
-			//INC (HL)		00110100
-			//INC (IX + d)	11011101 00110100 dddddddd
-			//INC (IY + d)	11111101 00110100 dddddddd
+			// INC (HL)		00110100
+			// INC (IX + d)	11011101 00110100 dddddddd
+			// INC (IY + d)	11111101 00110100 dddddddd
 			_target.SetMode(EffectiveAddress::Mode::HLIndirect);
 			if (GetIndexState() == EffectiveAddress::IndexState::None)
 			{
@@ -60,12 +60,12 @@ public:
 		Z80Byte op1;
 		Z80Byte result;
 
-		//Perform the operation
+		// Perform the operation
 		additionalTime += _target.Read(cpu, location, op1);
 		result = op1 + 1;
 		additionalTime += _target.Write(cpu, location, result);
 
-		//Set the flag results
+		// Set the flag results
 		cpu->SetFlagS(result.Negative());
 		cpu->SetFlagZ(result.Zero());	
 		cpu->SetFlagY(result.GetBit(5));
@@ -74,7 +74,7 @@ public:
 		cpu->SetFlagPV(!op1.Negative() && result.Negative());
 		cpu->SetFlagN(false);
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -83,5 +83,5 @@ private:
 	EffectiveAddress _target;
 };
 
-} //Close namespace Z80
+} // Close namespace Z80
 #endif

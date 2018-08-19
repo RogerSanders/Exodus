@@ -26,16 +26,16 @@ Things to do:
 class WC_DataGrid
 {
 public:
-	//Enumerations
+	// Enumerations
 	enum class WindowMessages :unsigned int;
 	enum class WindowNotifications :unsigned int;
 	enum class CellControlType;
 	enum class TextEllipsisMode;
 	enum class ColumnSizeMode;
 
-	//Message parameter structures
+	// Message parameter structures
 	//##TODO## Remove the "Grid_" prefixes from these structures, and consider adding a
-	//standard postfix identifying these as message parameter structures.
+	// standard postfix identifying these as message parameter structures.
 	struct Grid_InsertColumn;
 	struct Grid_InsertRows;
 	struct Grid_DeleteRows;
@@ -56,23 +56,23 @@ public:
 	struct Grid_CellButtonClickEvent;
 	struct Grid_TreeEntryExpandEvent;
 
-	//Constants
+	// Constants
 	static const wchar_t* WindowClassName;
 
 public:
-	//Constructors
+	// Constructors
 	WC_DataGrid(HINSTANCE moduleHandle, HWND hwnd);
 	~WC_DataGrid();
 
-	//Class registration
+	// Class registration
 	static bool RegisterWindowClass(HINSTANCE moduleHandle);
 	static bool UnregisterWindowClass(HINSTANCE moduleHandle);
 
-	//Message handlers
+	// Message handlers
 	static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 private:
-	//Internal structures
+	// Internal structures
 	struct ColumnData;
 	struct CustomColorData
 	{
@@ -93,14 +93,14 @@ private:
 	};
 	struct CellControlInfo;
 
-	//Constants
+	// Constants
 	static const long long HeaderControlID = 0x101;
 
 private:
-	//Header functions
+	// Header functions
 	void RebuildHeaderOrder();
 
-	//Window size functions
+	// Window size functions
 	unsigned int GetTotalRowWidth() const;
 	void UpdateWindowSize();
 	unsigned int CalculateLargestColumnDataArraySize();
@@ -109,7 +109,7 @@ private:
 	void ForceControlRedraw();
 	void RecalculateColumnWidths();
 
-	//Edit functions
+	// Edit functions
 	bool IsCellEditingActive() const;
 	bool BeginCellEditing(int cursorPosInPixels);
 	void UpdateCellEditingPos(int cursorPosInPixels);
@@ -119,18 +119,18 @@ private:
 	static size_t PerformWordSearchForNextBoundary(size_t searchStartPos, size_t searchEndPos, const std::wstring& text);
 	void ForceEditCellIntoView();
 
-	//Drag selection functions
+	// Drag selection functions
 	void UpdateDragSelectPos(int newSelectPosSigned);
 	unsigned int GetDragSelectPos() const;
 	void StartDragSelect();
 	void StopDragSelect();
 	bool DragSelectActive() const;
 
-	//Clipboard functions
+	// Clipboard functions
 	bool CopyToClipboard();
 	bool PasteFromClipboard();
 
-	//Message handlers
+	// Message handlers
 	LRESULT WndProcPrivate(UINT message, WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_CREATE(WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_SIZE(WPARAM wParam, LPARAM lParam);
@@ -174,11 +174,11 @@ private:
 	LRESULT msgGRID_GETVISIBLEROWCOUNT(WPARAM wParam, LPARAM lParam);
 	LRESULT msgGRID_SETVSCROLLINFO(WPARAM wParam, LPARAM lParam);
 
-	//Subclass window procedures
+	// Subclass window procedures
 	static LRESULT CALLBACK ChildControlClickHandlerSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
 
 private:
-	//Typedefs
+	// Typedefs
 	typedef std::list<ColumnData>::iterator ColumnDataIterator;
 	typedef std::list<ColumnData>::const_iterator ColumnDataConstIterator;
 	typedef std::pair<int, ColumnData*> ColumnIndexEntry;
@@ -189,7 +189,7 @@ private:
 	typedef std::map<int, ColumnData*>::iterator ColumnIDIndexIterator;
 
 private:
-	//Window metrics
+	// Window metrics
 	int _controlWidth;
 	int _controlHeight;
 	int _headerWidth;
@@ -199,7 +199,7 @@ private:
 	unsigned int _visibleRows;
 	unsigned int _fullyVisibleRows;
 
-	//Scroll settings
+	// Scroll settings
 	bool _autoScrollingManagement;
 	int _vscrollMin;
 	int _vscrollMax;
@@ -208,7 +208,7 @@ private:
 	int _vscrollValuesPerPage;
 	int _currentScrollHOffset;
 
-	//Handles
+	// Handles
 	HINSTANCE _moduleHandle;
 	HWND _hwnd;
 	HWND _hwndHeader;
@@ -232,18 +232,18 @@ private:
 	std::set<HWND> _childControlSet;
 	std::map<HWND, CellMapping> _childControlMapping;
 
-	//Color settings
+	// Color settings
 	CustomColorData _defaultColorData;
 	CustomColorData _userColorData;
 	std::vector<CustomColorData> _rowColorDataArray;
 	std::map<unsigned int, std::map<unsigned int, CustomColorData>> _cellCustomColorData;
 
-	//Font metrics
+	// Font metrics
 	int _fontWidth;
 	int _fontHeight;
 	int _marginSize;
 
-	//Selection info
+	// Selection info
 	bool _rowSelected;
 	bool _columnSelected;
 	unsigned int _selectedRowNo;
@@ -258,13 +258,13 @@ private:
 	std::wstring _editBuffer;
 	unsigned int _editCellHorizontalPixelOffset;
 
-	//Drag-select info
+	// Drag-select info
 	bool _mouseButtonDown;
 	bool _dragSelectActive;
 	unsigned int _dragSelectStartPos;
 	unsigned int _dragSelectEndPos;
 
-	//Column data
+	// Column data
 	unsigned int _largestColumnDataArraySize;
 	std::list<ColumnData> _columnData;
 	std::map<int, ColumnData*> _columnIndex;

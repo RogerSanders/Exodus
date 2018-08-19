@@ -5,25 +5,25 @@
 class Data
 {
 public:
-	//Constants
+	// Constants
 	static const unsigned int BitsPerByte = 8;
 
 public:
-	//Constructors
+	// Constructors
 	explicit inline Data(unsigned int bitCount);
 	inline Data(unsigned int bitCount, unsigned int data);
 
-	//Management functions
+	// Management functions
 	inline void Resize(unsigned int bitCount);
 
-	//Container size properties
+	// Container size properties
 	inline unsigned int GetBitMask() const;
 	inline unsigned int GetMaxValue() const;
 	inline unsigned int GetByteSize() const;
 	inline unsigned int GetHexCharCount() const;
 	inline unsigned int GetBitCount() const;
 
-	//Integer operators
+	// Integer operators
 	inline Data operator+(unsigned int target) const;
 	inline Data operator-(unsigned int target) const;
 	inline Data operator*(unsigned int target) const;
@@ -54,7 +54,7 @@ public:
 	inline bool operator>=(unsigned int target) const;
 	inline bool operator<=(unsigned int target) const;
 
-	//Data operators
+	// Data operators
 	inline Data operator+(const Data& target) const;
 	inline Data operator-(const Data& target) const;
 	inline Data operator*(const Data& target) const;
@@ -85,18 +85,18 @@ public:
 	inline bool operator>=(const Data& target) const;
 	inline bool operator<=(const Data& target) const;
 
-	//Unary operators
+	// Unary operators
 	inline Data operator~() const;
 	inline Data& operator++();
 	inline Data& operator--();
 	inline Data operator++(int);
 	inline Data operator--(int);
 
-	//Data conversion
+	// Data conversion
 	inline Data Convert(unsigned int bitCount) const;
 	inline Data SignExtend(unsigned int bitCount) const;
 
-	//Data segment extraction/insertion
+	// Data segment extraction/insertion
 	inline unsigned int GetData() const;
 	inline Data& SetData(unsigned int data);
 	inline bool MSB() const;
@@ -112,7 +112,7 @@ public:
 	inline unsigned int GetDataSegment(unsigned int bitStart, unsigned int bitCount) const;
 	inline Data& SetDataSegment(unsigned int bitStart, unsigned int bitCount, unsigned int data);
 
-	//Upper/Lower half functions
+	// Upper/Lower half functions
 	inline unsigned int GetUpperHalf() const;
 	inline unsigned int GetLowerHalf() const;
 	inline void GetUpperHalf(Data& target) const;
@@ -122,7 +122,7 @@ public:
 	inline void SetUpperHalf(const Data& target);
 	inline void SetLowerHalf(const Data& target);
 
-	//Upper/Lower bit functions
+	// Upper/Lower bit functions
 	inline unsigned int GetUpperBits(unsigned int bitCount) const;
 	inline unsigned int GetLowerBits(unsigned int bitCount) const;
 	inline void GetUpperBits(Data& target) const;
@@ -132,7 +132,7 @@ public:
 	inline void SetUpperBits(const Data& target);
 	inline void SetLowerBits(const Data& target);
 
-	//Data properties
+	// Data properties
 	inline bool Even() const;
 	inline bool Odd() const;
 	inline bool Zero() const;
@@ -147,7 +147,7 @@ public:
 	inline bool GetLowestSetBitNumber(unsigned int& bitNumber) const;
 	inline bool GetLowestSetBitMask(unsigned int& bitMask) const;
 
-	//Stream operators
+	// Stream operators
 	friend inline Stream::ViewText& operator>>(Stream::ViewText& stream, Data& object);
 	friend inline Stream::ViewText& operator<<(Stream::ViewText& stream, const Data& object);
 	friend inline Stream::ViewBinary& operator>>(Stream::ViewBinary& stream, Data& object);
@@ -155,15 +155,15 @@ public:
 
 //##TODO## Eliminate all inheritance from this type, and mark this as private.
 protected:
-	//Management functions
+	// Management functions
 	inline void MaskData();
 
 protected:
 	//##TODO## Evaluate if there is any way we can make this structure support 64-bit
-	//types without hurting performance for 32-bit values. At the very least, we should be
-	//able to come up with a way for our platform to support 64-bit register widths for
-	//processors without breaking compatibility with existing devices, or requiring 64-bit
-	//wide registers on the emulating system.
+	// types without hurting performance for 32-bit values. At the very least, we should be
+	// able to come up with a way for our platform to support 64-bit register widths for
+	// processors without breaking compatibility with existing devices, or requiring 64-bit
+	// wide registers on the emulating system.
 	unsigned int _data;
 	unsigned int _bitMask;
 	unsigned char _bitCount;

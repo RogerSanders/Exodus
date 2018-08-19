@@ -37,26 +37,26 @@ public:
 //	|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 //	| 0 | 1 | 0 | 0 | 1 | 1 | 1 | 0 | 0 | 1 | 1 | 1 | 0 | 0 | 0 | 0 |
 //	-----------------------------------------------------------------
-		//The RESET opcode takes 4 cycles to execute, plus another 128 cycles for the
-		//length of time during which the RESET line is asserted, giving a total duration
-		//of 132 cycles. We add the 128 reset cycles to the total execution time during
-		//the execution stage.
+		// The RESET opcode takes 4 cycles to execute, plus another 128 cycles for the
+		// length of time during which the RESET line is asserted, giving a total duration
+		// of 132 cycles. We add the 128 reset cycles to the total execution time during
+		// the execution stage.
 		AddExecuteCycleCount(ExecuteTime(4, 1, 0));
 	}
 
 	virtual ExecuteTime M68000Execute(M68000* cpu, const M68000Long& location) const
 	{
-		//Calculate the exact time periods when the reset line is asserted and negated
+		// Calculate the exact time periods when the reset line is asserted and negated
 		unsigned int resetLineAssertCycles = 128;
 		double resetBeginTime = cpu->CalculateExecutionTime(GetExecuteCycleCount().cycles) + cpu->GetCurrentTimesliceProgress();
 		double resetEndTime = cpu->CalculateExecutionTime(GetExecuteCycleCount().cycles + resetLineAssertCycles) + cpu->GetCurrentTimesliceProgress();
 		ExecuteTime additionalCycles;
 		additionalCycles.cycles = resetLineAssertCycles;
 
-		//Toggle the external RESET line state, to reset external devices.
+		// Toggle the external RESET line state, to reset external devices.
 		cpu->TriggerExternalReset(resetBeginTime, resetEndTime);
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount() + additionalCycles;
 	}
@@ -65,5 +65,5 @@ public:
 	{ }
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #endif

@@ -1,7 +1,7 @@
 #ifndef __Z80OPCODES_PKG__
 #define __Z80OPCODES_PKG__
 
-//8-Bit Arithmetic Instructions
+// 8-Bit Arithmetic Instructions
 #include "ADD8.h"
 #include "AND8.h"
 #include "CP8.h"
@@ -13,36 +13,36 @@
 #include "ADC8.h"
 #include "SBC8.h"
 
-//16-bit Arithmetic Instructions
+// 16-bit Arithmetic Instructions
 #include "ADD16.h"
 #include "DEC16.h"
 #include "INC16.h"
 #include "ADC16.h"
 #include "SBC16.h"
 
-//8-Bit Load Instructions
+// 8-Bit Load Instructions
 #include "LD8.h"
 #include "LD8ED.h"
 
-//16-Bit Load Instructions
+// 16-Bit Load Instructions
 #include "LD16.h"
 #include "LD16ED.h"
 #include "POP.h"
 #include "PUSH.h"
 
-//Jump Instructions
+// Jump Instructions
 #include "JP.h"
 #include "JR.h"
 #include "DJNZ.h"
 
-//Call and Return Instructions
+// Call and Return Instructions
 #include "CALL.h"
 #include "RET.h"
 #include "RST.h"
 #include "RETI.h"
 #include "RETN.h"
 
-//Exchange, Block Transfer, and Search Instructions
+// Exchange, Block Transfer, and Search Instructions
 #include "EX.h"
 #include "EXX.h"
 #include "LDI.h"
@@ -54,7 +54,7 @@
 #include "CPD.h"
 #include "CPDR.h"
 
-//General-Purpose Arithmetic and CPU Control Instructions
+// General-Purpose Arithmetic and CPU Control Instructions
 #include "CPL.h"
 #include "CCF.h"
 #include "SCF.h"
@@ -66,7 +66,7 @@
 #include "IM.h"
 #include "DAA.h"
 
-//Rotate and Shift Instructions
+// Rotate and Shift Instructions
 #include "RLCA.h"
 #include "RLA.h"
 #include "RRCA.h"
@@ -82,7 +82,7 @@
 #include "RLD.h"
 #include "RRD.h"
 
-//Bit Set, Reset, and Test
+// Bit Set, Reset, and Test
 #include "BIT.h"
 #include "SET.h"
 #include "RES.h"

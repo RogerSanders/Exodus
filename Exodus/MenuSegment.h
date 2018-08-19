@@ -6,32 +6,32 @@
 class MenuSegment :public IMenuSegment
 {
 public:
-	//Constructors
+	// Constructors
 	MenuSegment(bool surroundWithSeparators, SortMode sortMode);
 	virtual ~MenuSegment();
 
-	//Interface version functions
+	// Interface version functions
 	virtual unsigned int GetIMenuItemVersion() const;
 	virtual unsigned int GetIMenuSegmentVersion() const;
 
-	//Type functions
+	// Type functions
 	virtual Type GetType() const;
 
-	//Menu title functions
+	// Menu title functions
 	virtual Marshal::Ret<std::wstring> GetMenuSortTitle() const;
 
-	//Sort mode functions
+	// Sort mode functions
 	virtual SortMode GetSortMode() const;
 
-	//Separator functions
+	// Separator functions
 	virtual bool GetSurroundWithSeparators() const;
 
-	//Item management functions
+	// Item management functions
 	virtual bool NoMenuItemsExist() const;
 	virtual Marshal::Ret<std::list<IMenuItem*>> GetMenuItems() const;
 	virtual Marshal::Ret<std::list<IMenuItem*>> GetSortedMenuItems() const;
 
-	//Menu item creation and deletion
+	// Menu item creation and deletion
 	virtual IMenuSegment& AddMenuItemSegment(bool surroundWithSeparators = true, IMenuSegment::SortMode sortMode = IMenuSegment::SORTMODE_ADDITIONORDER);
 	virtual IMenuSubmenu& AddMenuItemSubmenu(const Marshal::In<std::wstring>& title);
 	virtual IMenuSelectableOption& AddMenuItemSelectableOption(IMenuHandler& menuHandler, int menuItemID, const Marshal::In<std::wstring>& title);

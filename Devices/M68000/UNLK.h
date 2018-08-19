@@ -44,15 +44,15 @@ public:
 		M68000Long originalSP;
 		M68000Long originalData;
 
-		//Read _source register, and write it into SP
+		// Read _source register, and write it into SP
 		additionalTime += _source.Read(cpu, originalSP, GetInstructionRegister());
 		additionalTime += _stackPointer.Write(cpu, originalSP, GetInstructionRegister());
 
-		//Load original register contents
+		// Load original register contents
 		additionalTime += _target.Read(cpu, originalData, GetInstructionRegister());
 		additionalTime += _source.Write(cpu, originalData, GetInstructionRegister());
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -66,5 +66,5 @@ private:
 	EffectiveAddress _stackPointer;
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #endif

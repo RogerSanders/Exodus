@@ -7,13 +7,13 @@
 class RegistersViewPresenter :public ViewPresenterBase
 {
 public:
-	//Constructors
+	// Constructors
 	RegistersViewPresenter(const std::wstring& viewGroupName, const std::wstring& viewName, int viewID, YM2612Menus& owner, const IDevice& modelInstanceKey, IYM2612& model);
 
-	//View title functions
+	// View title functions
 	static std::wstring GetUnqualifiedViewTitle();
 
-	//View creation and deletion
+	// View creation and deletion
 	virtual IView* CreateView(IUIManager& uiManager);
 	virtual void DeleteView(IView* view);
 

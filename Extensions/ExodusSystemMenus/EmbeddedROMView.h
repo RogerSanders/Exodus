@@ -7,15 +7,15 @@
 class EmbeddedROMView :public ViewBase
 {
 public:
-	//Constructors
+	// Constructors
 	EmbeddedROMView(IUIManager& uiManager, EmbeddedROMViewPresenter& presenter, ISystemGUIInterface& model);
 
 protected:
-	//Member window procedure
+	// Member window procedure
 	virtual INT_PTR WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
 private:
-	//Event handlers
+	// Event handlers
 	INT_PTR msgWM_INITDIALOG(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgWM_TIMER(HWND hwnd, WPARAM wParam, LPARAM lParam);

@@ -7,18 +7,18 @@ using namespace MarshalSupport::Operators;
 class IBreakpoint
 {
 public:
-	//Enumerations
+	// Enumerations
 	enum class Condition;
 
 public:
-	//Constructors
+	// Constructors
 	virtual ~IBreakpoint() = 0 {}
 
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisIBreakpointVersion() { return 1; }
 	virtual unsigned int GetIBreakpointVersion() const = 0;
 
-	//Breakpoint event triggers
+	// Breakpoint event triggers
 	virtual bool GetEnabled() const = 0;
 	virtual void SetEnabled(bool state) = 0;
 	virtual bool GetLogEvent() const = 0;
@@ -26,12 +26,12 @@ public:
 	virtual bool GetBreakEvent() const = 0;
 	virtual void SetBreakEvent(bool state) = 0;
 
-	//Name functions
+	// Name functions
 	virtual Marshal::Ret<std::wstring> GetName() const = 0;
 	virtual void SetName(const Marshal::In<std::wstring>& name) = 0;
 	virtual Marshal::Ret<std::wstring> GenerateName() const = 0;
 
-	//Location condition functions
+	// Location condition functions
 	virtual bool GetLocationConditionNot() const = 0;
 	virtual void SetLocationConditionNot(bool state) = 0;
 	virtual Condition GetLocationCondition() const = 0;
@@ -44,7 +44,7 @@ public:
 	virtual void SetLocationMask(unsigned int data) = 0;
 	virtual bool PassesLocationCondition(unsigned int location) = 0;
 
-	//Hit counter functions
+	// Hit counter functions
 	virtual unsigned int GetHitCounter() const = 0;
 	virtual void SetHitCounter(unsigned int hitCounter) = 0;
 	virtual bool GetBreakOnCounter() const = 0;

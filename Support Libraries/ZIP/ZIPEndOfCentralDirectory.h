@@ -6,16 +6,16 @@
 struct ZIPChunkEndOfCentralDirectory
 {
 public:
-	//Constructors
+	// Constructors
 	inline ZIPChunkEndOfCentralDirectory();
 	inline void Initialize();
 
-	//Serialization functions
+	// Serialization functions
 	inline bool LoadFromStream(Stream::IStream& stream);
 	inline bool SaveToStream(Stream::IStream& stream) const;
 
 public:
-	//Constants
+	// Constants
 	static const unsigned int ValidSignature = 0x06054B50;
 
 public:

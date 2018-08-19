@@ -1,6 +1,6 @@
 #include "ReferenceCounter.h"
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 ReferenceCounterType ReferenceCounterIncrement(volatile ReferenceCounterType& referenceCounter)
 {
 	ReferenceCounterType referenceCounterOriginal;
@@ -14,7 +14,7 @@ ReferenceCounterType ReferenceCounterIncrement(volatile ReferenceCounterType& re
 	return referenceCounterModified;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 ReferenceCounterType ReferenceCounterDecrement(volatile ReferenceCounterType& referenceCounter)
 {
 	ReferenceCounterType referenceCounterOriginal;

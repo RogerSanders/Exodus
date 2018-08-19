@@ -3,9 +3,9 @@
 #include "resource.h"
 #include <functional>
 
-//----------------------------------------------------------------------------------------
-//Constructors
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Constructors
+//----------------------------------------------------------------------------------------------------------------------
 ModuleManagerView::ModuleManagerView(IUIManager& uiManager, ModuleManagerViewPresenter& presenter, ExodusInterface& model)
 :ViewBase(uiManager, presenter), _presenter(presenter), _model(model), _windowHandle(NULL)
 {
@@ -13,9 +13,9 @@ ModuleManagerView::ModuleManagerView(IUIManager& uiManager, ModuleManagerViewPre
 	SetDialogViewType(DialogMode::Modeless);
 }
 
-//----------------------------------------------------------------------------------------
-//Refresh methods
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Refresh methods
+//----------------------------------------------------------------------------------------------------------------------
 void ModuleManagerView::RefreshModuleList() const
 {
 	if (_windowHandle != NULL)
@@ -24,9 +24,9 @@ void ModuleManagerView::RefreshModuleList() const
 	}
 }
 
-//----------------------------------------------------------------------------------------
-//Member window procedure
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Member window procedure
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR ModuleManagerView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	WndProcDialogImplementSaveFieldWhenLostFocus(hwnd, msg, wparam, lparam);
@@ -42,23 +42,23 @@ INT_PTR ModuleManagerView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPA
 	return FALSE;
 }
 
-//----------------------------------------------------------------------------------------
-//Event handlers
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Event handlers
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR ModuleManagerView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	//Subscribe to change notifications for the loaded module list
+	// Subscribe to change notifications for the loaded module list
 	_loadedModulesChangeSubscription.SetBoundCallback(std::bind(std::mem_fn(&ModuleManagerView::RefreshModuleList), this));
 	ISystemGUIInterface& systemInterface = *_model.GetSystemInterface();
 	systemInterface.LoadedModulesChangeNotifyRegister(_loadedModulesChangeSubscription);
 
-	//Refresh our module list
+	// Refresh our module list
 	_windowHandle = hwnd;
 	RefreshModuleList();
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR ModuleManagerView::msgWM_USER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	SendMessage(GetDlgItem(hwnd, IDC_MODULEMANAGER_MODULES_LIST), WM_SETREDRAW, FALSE, 0);
@@ -88,7 +88,7 @@ INT_PTR ModuleManagerView::msgWM_USER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR ModuleManagerView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	if (HIWORD(wparam) == BN_CLICKED)
@@ -99,22 +99,22 @@ INT_PTR ModuleManagerView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam
 			_model.LoadModule(_model.GetGlobalPreferencePathModules());
 			break;
 		case IDC_MODULEMANAGER_UNLOADSELECTED:{
-			//Retrieve the selected list item
+			// Retrieve the selected list item
 			LRESULT selectedListItem = SendMessage(GetDlgItem(hwnd, IDC_MODULEMANAGER_MODULES_LIST), LB_GETCURSEL, 0, 0);
 			if (selectedListItem != LB_ERR)
 			{
-				//Retrieve the module ID number of the selected module
+				// Retrieve the module ID number of the selected module
 				LRESULT listItemData = SendMessage(GetDlgItem(hwnd, IDC_MODULEMANAGER_MODULES_LIST), LB_GETITEMDATA, selectedListItem, NULL);
 				if (listItemData != LB_ERR)
 				{
-					//Unload the selected module
+					// Unload the selected module
 					unsigned int targetModuleID = (unsigned int)listItemData;
 					_model.UnloadModule(targetModuleID);
 				}
 			}
 			break;}
 		case IDC_MODULEMANAGER_UNLOADALL:
-			//Clear all loaded modules
+			// Clear all loaded modules
 			_model.UnloadAllModules();
 			break;
 		}

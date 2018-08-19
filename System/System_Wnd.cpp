@@ -1,11 +1,11 @@
 #include "System.h"
 
-//----------------------------------------------------------------------------------------
-//View functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// View functions
+//----------------------------------------------------------------------------------------------------------------------
 void System::BuildFileOpenMenu(IMenuSubmenu& menuSubmenu) const
 {
-	//Add all file open menu item entries from the set of registered system menu handlers
+	// Add all file open menu item entries from the set of registered system menu handlers
 	IMenuSegment& menuSegmentForSystemMenuHandlers = menuSubmenu.AddMenuItemSegment(true, IMenuSegment::SORTMODE_TITLE);
 	for (std::set<IExtension*>::const_iterator menuHandlerIterator = _systemMenuHandlers.begin(); menuHandlerIterator != _systemMenuHandlers.end(); ++menuHandlerIterator)
 	{
@@ -13,10 +13,10 @@ void System::BuildFileOpenMenu(IMenuSubmenu& menuSubmenu) const
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::BuildSystemMenu(IMenuSubmenu& menuSubmenu) const
 {
-	//Add all system menu item entries from the set of registered system menu handlers
+	// Add all system menu item entries from the set of registered system menu handlers
 	IMenuSegment& menuSegmentForSystemMenuHandlers = menuSubmenu.AddMenuItemSegment(true, IMenuSegment::SORTMODE_TITLE);
 	for (std::set<IExtension*>::const_iterator menuHandlerIterator = _systemMenuHandlers.begin(); menuHandlerIterator != _systemMenuHandlers.end(); ++menuHandlerIterator)
 	{
@@ -24,18 +24,18 @@ void System::BuildSystemMenu(IMenuSubmenu& menuSubmenu) const
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::BuildSettingsMenu(IMenuSubmenu& menuSubmenu) const
 {
-	//Add all system menu item entries from the set of registered system menu handlers
+	// Add all system menu item entries from the set of registered system menu handlers
 	IMenuSegment& menuSegmentForSystemMenuHandlers = menuSubmenu.AddMenuItemSegment(true, IMenuSegment::SORTMODE_TITLE);
 	for (std::set<IExtension*>::const_iterator menuHandlerIterator = _systemMenuHandlers.begin(); menuHandlerIterator != _systemMenuHandlers.end(); ++menuHandlerIterator)
 	{
 		(*menuHandlerIterator)->AddSystemMenuItems(IExtension::SystemMenu::Settings, menuSegmentForSystemMenuHandlers);
 	}
 
-	//Add all extension settings menu item entries for each loaded global extension from
-	//the list of registered menu handlers for this extension
+	// Add all extension settings menu item entries for each loaded global extension from
+	// the list of registered menu handlers for this extension
 	IMenuSegment& menuSegmentForGlobalExtensionsMenuHandlers = menuSubmenu.AddMenuItemSegment(true, IMenuSegment::SORTMODE_TITLE);
 	for (LoadedGlobalExtensionInfoList::const_iterator loadedGlobalExtensionIterator = _globalExtensionInfoList.begin(); loadedGlobalExtensionIterator != _globalExtensionInfoList.end(); ++loadedGlobalExtensionIterator)
 	{
@@ -52,25 +52,25 @@ void System::BuildSettingsMenu(IMenuSubmenu& menuSubmenu) const
 		}
 	}
 
-	//Build our module submenus
+	// Build our module submenus
 	IMenuSegment& menuSegmentForModules = menuSubmenu.AddMenuItemSegment(true, IMenuSegment::SORTMODE_TITLE);
 	for (LoadedModuleInfoMap::const_iterator loadedModuleIterator = _loadedModuleInfoMap.begin(); loadedModuleIterator != _loadedModuleInfoMap.end(); ++loadedModuleIterator)
 	{
 		const LoadedModuleInfoInternal& loadedModuleInfo = loadedModuleIterator->second;
 
-		//Create a submenu for this module
+		// Create a submenu for this module
 		IMenuSubmenu& moduleSubmenu = menuSegmentForModules.AddMenuItemSubmenu(loadedModuleInfo.displayName);
 
-		//Add all module settings menu item entries from the set of registered menu
-		//handlers for this module
+		// Add all module settings menu item entries from the set of registered menu
+		// handlers for this module
 		IMenuSegment& menuSegmentForModuleMenuHandlers = moduleSubmenu.AddMenuItemSegment(true, IMenuSegment::SORTMODE_TITLE);
 		for (std::set<IExtension*>::const_iterator menuHandlerIterator = loadedModuleInfo.menuHandlers.begin(); menuHandlerIterator != loadedModuleInfo.menuHandlers.end(); ++menuHandlerIterator)
 		{
 			(*menuHandlerIterator)->AddModuleMenuItems(IExtension::ModuleMenu::Settings, menuSegmentForModuleMenuHandlers, loadedModuleInfo.moduleID);
 		}
 
-		//Add all device settings menu item entries for each device in this module from
-		//the list of registered menu handlers for this device
+		// Add all device settings menu item entries for each device in this module from
+		// the list of registered menu handlers for this device
 		IMenuSegment& menuSegmentForDeviceSettings = moduleSubmenu.AddMenuItemSegment(true, IMenuSegment::SORTMODE_TITLE);
 		for (LoadedDeviceInfoList::const_iterator deviceInfo = _loadedDeviceInfoList.begin(); deviceInfo != _loadedDeviceInfoList.end(); ++deviceInfo)
 		{
@@ -89,8 +89,8 @@ void System::BuildSettingsMenu(IMenuSubmenu& menuSubmenu) const
 			}
 		}
 
-		//Add all extension settings menu item entries for each extension in this module
-		//from the list of registered menu handlers for this extension
+		// Add all extension settings menu item entries for each extension in this module
+		// from the list of registered menu handlers for this extension
 		IMenuSegment& menuSegmentForExtensionSettings = moduleSubmenu.AddMenuItemSegment(true, IMenuSegment::SORTMODE_TITLE);
 		for (LoadedExtensionInfoList::const_iterator extensionInfo = _loadedExtensionInfoList.begin(); extensionInfo != _loadedExtensionInfoList.end(); ++extensionInfo)
 		{
@@ -111,18 +111,18 @@ void System::BuildSettingsMenu(IMenuSubmenu& menuSubmenu) const
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::BuildDebugMenu(IMenuSubmenu& menuSubmenu) const
 {
-	//Add all system menu item entries from the set of registered system menu handlers
+	// Add all system menu item entries from the set of registered system menu handlers
 	IMenuSegment& menuSegmentForSystemMenuHandlers = menuSubmenu.AddMenuItemSegment(true, IMenuSegment::SORTMODE_TITLE);
 	for (std::set<IExtension*>::const_iterator menuHandlerIterator = _systemMenuHandlers.begin(); menuHandlerIterator != _systemMenuHandlers.end(); ++menuHandlerIterator)
 	{
 		(*menuHandlerIterator)->AddSystemMenuItems(IExtension::SystemMenu::Debug, menuSegmentForSystemMenuHandlers);
 	}
 
-	//Add all extension settings menu item entries for each loaded global extension from
-	//the list of registered menu handlers for this extension
+	// Add all extension settings menu item entries for each loaded global extension from
+	// the list of registered menu handlers for this extension
 	IMenuSegment& menuSegmentForGlobalExtensionsMenuHandlers = menuSubmenu.AddMenuItemSegment(true, IMenuSegment::SORTMODE_TITLE);
 	for (LoadedGlobalExtensionInfoList::const_iterator loadedGlobalExtensionIterator = _globalExtensionInfoList.begin(); loadedGlobalExtensionIterator != _globalExtensionInfoList.end(); ++loadedGlobalExtensionIterator)
 	{
@@ -139,25 +139,25 @@ void System::BuildDebugMenu(IMenuSubmenu& menuSubmenu) const
 		}
 	}
 
-	//Build our module submenus
+	// Build our module submenus
 	IMenuSegment& menuSegmentForModules = menuSubmenu.AddMenuItemSegment(true, IMenuSegment::SORTMODE_TITLE);
 	for (LoadedModuleInfoMap::const_iterator loadedModuleIterator = _loadedModuleInfoMap.begin(); loadedModuleIterator != _loadedModuleInfoMap.end(); ++loadedModuleIterator)
 	{
 		const LoadedModuleInfoInternal& loadedModuleInfo = loadedModuleIterator->second;
 
-		//Create a submenu for this module
+		// Create a submenu for this module
 		IMenuSubmenu& moduleSubmenu = menuSegmentForModules.AddMenuItemSubmenu(loadedModuleInfo.displayName);
 
-		//Add all module debug menu item entries from the set of registered menu handlers
-		//for this module
+		// Add all module debug menu item entries from the set of registered menu handlers
+		// for this module
 		IMenuSegment& menuSegmentForModuleMenuHandlers = moduleSubmenu.AddMenuItemSegment(true, IMenuSegment::SORTMODE_TITLE);
 		for (std::set<IExtension*>::const_iterator menuHandlerIterator = loadedModuleInfo.menuHandlers.begin(); menuHandlerIterator != loadedModuleInfo.menuHandlers.end(); ++menuHandlerIterator)
 		{
 			(*menuHandlerIterator)->AddModuleMenuItems(IExtension::ModuleMenu::Debug, menuSegmentForModuleMenuHandlers, loadedModuleInfo.moduleID);
 		}
 
-		//Add all device debug menu item entries for each device in this module from the
-		//list of registered menu handlers for this device
+		// Add all device debug menu item entries for each device in this module from the
+		// list of registered menu handlers for this device
 		IMenuSegment& menuSegmentForDeviceSettings = moduleSubmenu.AddMenuItemSegment(true, IMenuSegment::SORTMODE_TITLE);
 		for (LoadedDeviceInfoList::const_iterator deviceInfo = _loadedDeviceInfoList.begin(); deviceInfo != _loadedDeviceInfoList.end(); ++deviceInfo)
 		{
@@ -176,8 +176,8 @@ void System::BuildDebugMenu(IMenuSubmenu& menuSubmenu) const
 			}
 		}
 
-		//Add all extension debug menu item entries for each extension in this module from
-		//the list of registered menu handlers for this extension
+		// Add all extension debug menu item entries for each extension in this module from
+		// the list of registered menu handlers for this extension
 		IMenuSegment& menuSegmentForExtensionSettings = moduleSubmenu.AddMenuItemSegment(true, IMenuSegment::SORTMODE_TITLE);
 		for (LoadedExtensionInfoList::const_iterator extensionInfo = _loadedExtensionInfoList.begin(); extensionInfo != _loadedExtensionInfoList.end(); ++extensionInfo)
 		{
@@ -198,7 +198,7 @@ void System::BuildDebugMenu(IMenuSubmenu& menuSubmenu) const
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::RestoreViewStateForSystem(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter) const
 {
 	std::wstring viewGroupNameCached = viewGroupName.Get();
@@ -211,7 +211,7 @@ bool System::RestoreViewStateForSystem(const Marshal::In<std::wstring>& viewGrou
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::RestoreViewStateForModule(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, unsigned int moduleID) const
 {
 	std::wstring viewGroupNameCached = viewGroupName.Get();
@@ -229,7 +229,7 @@ bool System::RestoreViewStateForModule(const Marshal::In<std::wstring>& viewGrou
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::RestoreViewStateForDevice(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, unsigned int moduleID, const Marshal::In<std::wstring>& deviceInstanceName) const
 {
 	std::wstring viewGroupNameCached = viewGroupName.Get();
@@ -253,7 +253,7 @@ bool System::RestoreViewStateForDevice(const Marshal::In<std::wstring>& viewGrou
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::RestoreViewStateForExtension(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, const Marshal::In<std::wstring>& extensionInstanceName) const
 {
 	std::wstring viewGroupNameCached = viewGroupName.Get();
@@ -278,7 +278,7 @@ bool System::RestoreViewStateForExtension(const Marshal::In<std::wstring>& viewG
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::RestoreViewStateForExtension(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, unsigned int moduleID, const Marshal::In<std::wstring>& extensionInstanceName) const
 {
 	std::wstring viewGroupNameCached = viewGroupName.Get();

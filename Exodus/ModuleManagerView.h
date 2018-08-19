@@ -9,18 +9,18 @@
 class ModuleManagerView :public ViewBase
 {
 public:
-	//Constructors
+	// Constructors
 	ModuleManagerView(IUIManager& uiManager, ModuleManagerViewPresenter& presenter, ExodusInterface& model);
 
 protected:
-	//Member window procedure
+	// Member window procedure
 	virtual INT_PTR WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
 private:
-	//Refresh methods
+	// Refresh methods
 	void RefreshModuleList() const;
 
-	//Event handlers
+	// Event handlers
 	INT_PTR msgWM_INITDIALOG(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgWM_USER(HWND hwnd, WPARAM wparam, LPARAM lparam);
 	INT_PTR msgWM_COMMAND(HWND hwnd, WPARAM wParam, LPARAM lParam);

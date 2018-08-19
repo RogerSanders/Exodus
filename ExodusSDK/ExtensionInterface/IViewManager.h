@@ -6,14 +6,14 @@
 class IViewManager
 {
 public:
-	//Constructors
+	// Constructors
 	virtual ~IViewManager() = 0 {}
 
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisIViewManagerVersion() { return 1; }
 	virtual unsigned int GetIViewManagerVersion() const = 0;
 
-	//View management functions
+	// View management functions
 	virtual bool OpenView(IViewPresenter& viewPresenter, bool waitToClose = true) = 0;
 	virtual bool OpenView(IViewPresenter& viewPresenter, IHierarchicalStorageNode& viewState, bool waitToClose = true) = 0;
 	virtual void CloseView(IViewPresenter& viewPresenter, bool waitToClose = true) = 0;

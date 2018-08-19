@@ -1,18 +1,18 @@
 #ifndef __MARSHALPREPROCESSORMACROS_H__
 #define __MARSHALPREPROCESSORMACROS_H__
 
-//Detect the level of C++11 support provided by the current compiler
+// Detect the level of C++11 support provided by the current compiler
 #ifndef MARSHALSUPPORT_CPP11SUPPORTED
 #if __cplusplus >= 201103L
 #define MARSHALSUPPORT_CPP11SUPPORTED
-#elif defined(_MSC_VER) && (_MSC_VER >= 1900) //VS2015 and higher
-//Note that although still in development at this time, CTP builds of Visual Studio 2015 support constexpr for
-//non-member functions, which is sufficient for our current use to consider constexpr supported by this compiler.
+#elif defined(_MSC_VER) && (_MSC_VER >= 1900) // VS2015 and higher
+// Note that although still in development at this time, CTP builds of Visual Studio 2015 support constexpr for
+// non-member functions, which is sufficient for our current use to consider constexpr supported by this compiler.
 #define MARSHALSUPPORT_CPP11SUPPORTED
-#elif defined(_MSC_VER) && (_MSC_VER >= 1800) //VS2013
+#elif defined(_MSC_VER) && (_MSC_VER >= 1800) // VS2013
 #define MARSHALSUPPORT_CPP11SUPPORTED
 #define MARSHALSUPPORT_NOCONSTEXPR
-#elif defined(_MSC_VER) && (_MSC_VER >= 1600) //VS2010 - VS2012
+#elif defined(_MSC_VER) && (_MSC_VER >= 1600) // VS2010 - VS2012
 #define MARSHALSUPPORT_CPP11SUPPORTED
 #define MARSHALSUPPORT_NOCONSTEXPR
 #define MARSHALSUPPORT_NODELETE
@@ -20,19 +20,19 @@
 #endif
 #endif
 
-//Set the calling convention to use for our virtual member functions based on the target platform
+// Set the calling convention to use for our virtual member functions based on the target platform
 #if defined(_WIN32) && !defined(_WIN64)
 #define MARSHALSUPPORT_CALLINGCONVENTION __stdcall
 #else
 #define MARSHALSUPPORT_CALLINGCONVENTION
 #endif
 
-//Include the utility header for std::forward and std::move if C++11 is supported
+// Include the utility header for std::forward and std::move if C++11 is supported
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
 #include <utility>
 #endif
 
-//Define macros for various C++11 features based on whether C++11 is supported or not
+// Define macros for various C++11 features based on whether C++11 is supported or not
 #if defined(MARSHALSUPPORT_CPP11SUPPORTED) && !defined(MARSHALSUPPORT_NOCONSTEXPR)
 #define MARSHALSUPPORT_CONSTEXPR constexpr
 #else

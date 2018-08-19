@@ -7,18 +7,18 @@ using namespace MarshalSupport::Operators;
 class IConnectorInfo
 {
 public:
-	//Constructors
+	// Constructors
 	virtual ~IConnectorInfo() = 0 {}
 
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisIConnectorInfoVersion(){ return 1; }
 	virtual unsigned int GetIConnectorInfoVersion() const = 0;
 
-	//Internal data
+	// Internal data
 	virtual unsigned int GetConnectorID() const = 0;
 	virtual void SetConnectorID(unsigned int connectorID) = 0;
 
-	//Exporting module info
+	// Exporting module info
 	virtual unsigned int GetExportingModuleID() const = 0;
 	virtual void SetExportingModuleID(unsigned int exportingModuleID) = 0;
 	virtual Marshal::Ret<std::wstring> GetConnectorClassName() const = 0;
@@ -28,7 +28,7 @@ public:
 	virtual Marshal::Ret<std::wstring> GetSystemClassName() const = 0;
 	virtual void SetSystemClassName(const Marshal::In<std::wstring>& systemClassName) = 0;
 
-	//Importing module info
+	// Importing module info
 	virtual bool GetIsConnectorUsed() const = 0;
 	virtual void SetIsConnectorUsed(bool connectorUser) = 0;
 	virtual unsigned int GetImportingModuleID() const = 0;

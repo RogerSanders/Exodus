@@ -9,26 +9,26 @@ using namespace MarshalSupport::Operators;
 class IUIManager
 {
 public:
-	//Enumerations
+	// Enumerations
 	enum class WindowType;
 	enum class InitialDockingLocation;
 
 public:
-	//Constructors
+	// Constructors
 	virtual ~IUIManager() = 0 {}
 
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisIUIManagerVersion() { return 1; }
 	virtual unsigned int GetIUIManagerVersion() const = 0;
 
-	//Main window functions
+	// Main window functions
 	virtual HWND GetMainWindow() const = 0;
 
-	//Native window creation functions
+	// Native window creation functions
 	virtual HWND CreateDialogWindow(IView& view, IViewPresenter& viewPresenter, HINSTANCE assemblyHandle, DLGPROC windowProcedure, LPCWSTR templateName) = 0;
 	virtual HWND CreateNativeWindow(IView& view, IViewPresenter& viewPresenter, HINSTANCE assemblyHandle, WNDPROC windowProcedure, DWORD windowStyle, DWORD extendedWindowStyle) = 0;
 
-	//Window management functions
+	// Window management functions
 	virtual bool ShowWindowFirstTime(IView& view, IViewPresenter& viewPresenter, HWND windowHandle, const Marshal::In<std::wstring>& windowTitle, IHierarchicalStorageNode* windowState = 0) = 0;
 	virtual void CloseWindow(IView& view, IViewPresenter& viewPresenter, HWND windowHandle) = 0;
 	virtual void ShowWindow(IView& view, IViewPresenter& viewPresenter, HWND windowHandle) = 0;
@@ -36,17 +36,17 @@ public:
 	virtual void ActivateWindow(IView& view, IViewPresenter& viewPresenter, HWND windowHandle) = 0;
 	virtual void NotifyWindowDestroyed(IView& view, IViewPresenter& viewPresenter, HWND windowHandle) = 0;
 
-	//Window state functions
+	// Window state functions
 	virtual bool LoadWindowState(IView& view, IViewPresenter& viewPresenter, HWND windowHandle, IHierarchicalStorageNode& windowState) = 0;
 	virtual bool SaveWindowState(const IView& view, const IViewPresenter& viewPresenter, HWND windowHandle, IHierarchicalStorageNode& windowState) const = 0;
 
-	//Window size functions
+	// Window size functions
 	virtual void ResizeWindowToTargetClientSize(IView& view, IViewPresenter& viewPresenter, HWND windowHandle, unsigned int windowClientWidth, unsigned int windowClientHeight) = 0;
 
-	//Window title functions
+	// Window title functions
 	virtual void UpdateWindowTitle(IView& view, IViewPresenter& viewPresenter, HWND windowHandle, const Marshal::In<std::wstring>& windowTitle) = 0;
 
-	//Dialog management functions
+	// Dialog management functions
 	virtual void NotifyDialogActivated(HWND dialogWindow) = 0;
 	virtual void NotifyDialogDeactivated(HWND dialogWindow) = 0;
 };

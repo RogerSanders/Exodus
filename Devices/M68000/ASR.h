@@ -49,13 +49,13 @@ public:
 		{
 			switch (data.GetDataSegment(6, 2))
 			{
-			case 0:	//00
+			case 0:	// 00
 				_size = BITCOUNT_BYTE;
 				break;
-			case 1:	//01
+			case 1:	// 01
 				_size = BITCOUNT_WORD;
 				break;
-			case 2:	//10
+			case 2:	// 10
 				_size = BITCOUNT_LONG;
 				break;
 			}
@@ -106,23 +106,23 @@ public:
 		Data op2(_size);
 		Data result(_size);
 
-		//Perform the operation
+		// Perform the operation
 		additionalTime += _source.Read(cpu, op1, GetInstructionRegister());
 		additionalTime += _target.ReadWithoutAdjustingAddress(cpu, op2, GetInstructionRegister());
 		op1 %= 64;
 		//##NOTE## Doing a shift on an x86 platform effectively does a modulus by 32 to
-		//the shift count before performing the operation. Since the M68000 platform
-		//works up to 64, we zero the _target operand to simulate a shift greater than
-		//31 places.
+		// the shift count before performing the operation. Since the M68000 platform
+		// works up to 64, we zero the _target operand to simulate a shift greater than
+		// 31 places.
 		if (op1.GetData() >= 32)
 		{
 			op2 = 0;
 		}
 		result = op2 >> op1;
-		//Sign extend the result. What we do here is construct a temporary data object,
-		//but we set the maximum bitcount of the temp data to the number of bits which
-		//were NOT discarded in the _source as a result of the shift. We can then sign
-		//extend this data to get the final result.
+		// Sign extend the result. What we do here is construct a temporary data object,
+		// but we set the maximum bitcount of the temp data to the number of bits which
+		// were NOT discarded in the _source as a result of the shift. We can then sign
+		// extend this data to get the final result.
 		unsigned int remainingBitCount = 0;
 		if (op1 < op2.GetBitCount())
 		{
@@ -132,13 +132,13 @@ public:
 		result = remainingBits.SignExtend(_size);
 		additionalTime += _target.Write(cpu, result, GetInstructionRegister());
 
-		//Set the flag results
+		// Set the flag results
 		cpu->SetN(result.Negative());
 		cpu->SetZ(result.Zero());
 		//##NOTE## Even though the official documentation lumps this in with ASL and says
-		//the V flag should be set if the MSB changes during the operation, an arithmetic
-		//shift sign extends the result. Since we're shifting to the right, the MSB never
-		//changes, so we simply need to clear this flag.
+		// the V flag should be set if the MSB changes during the operation, an arithmetic
+		// shift sign extends the result. Since we're shifting to the right, the MSB never
+		// changes, so we simply need to clear this flag.
 		cpu->SetV(false);
 		if (!op1.Zero())
 		{
@@ -158,14 +158,14 @@ public:
 			cpu->SetC(false);
 		}
 
-		//Calculate the additional execution time
+		// Calculate the additional execution time
 		ExecuteTime additionalCycles;
 		if (_target.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect)
 		{
 			additionalCycles.Set(2 * op1.GetData(), 0, 0);
 		}
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime) + additionalCycles;
 	}
@@ -182,5 +182,5 @@ private:
 	Bitcount _size;
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #endif

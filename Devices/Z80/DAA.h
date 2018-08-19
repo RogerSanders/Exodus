@@ -184,7 +184,7 @@ public:
 		Z80Byte result;
 		Z80Byte diff;
 
-		//Perform the operation
+		// Perform the operation
 		additionalTime += _target.Read(cpu, location, op1);
 		diff = GetDiffValue(cpu->GetFlagC(), op1.GetUpperHalf(), cpu->GetFlagH(), op1.GetLowerHalf());
 		if (!cpu->GetFlagN())
@@ -197,7 +197,7 @@ public:
 		}
 		additionalTime += _target.Write(cpu, location, result);
 
-		//Set the flag results
+		// Set the flag results
 		cpu->SetFlagS(result.Negative());
 		cpu->SetFlagZ(result.Zero());
 		cpu->SetFlagY(result.GetBit(5));
@@ -206,7 +206,7 @@ public:
 		cpu->SetFlagPV(result.ParityEven());
 		cpu->SetFlagC(GetNewCF(cpu->GetFlagC(), op1.GetUpperHalf(), op1.GetLowerHalf()));
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -215,5 +215,5 @@ private:
 	EffectiveAddress _target;
 };
 
-} //Close namespace Z80
+} // Close namespace Z80
 #endif

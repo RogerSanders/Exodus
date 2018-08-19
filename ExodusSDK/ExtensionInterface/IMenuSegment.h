@@ -12,7 +12,7 @@ using namespace MarshalSupport::Operators;
 class IMenuSegment :public IMenuItem
 {
 public:
-	//Enumerations
+	// Enumerations
 	enum SortMode
 	{
 		SORTMODE_ADDITIONORDER,
@@ -20,28 +20,28 @@ public:
 	};
 
 public:
-	//Constructors
+	// Constructors
 	virtual ~IMenuSegment() = 0 {}
 
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisIMenuSegmentVersion() { return 1; }
 	virtual unsigned int GetIMenuSegmentVersion() const = 0;
 
-	//Menu title functions
+	// Menu title functions
 	virtual Marshal::Ret<std::wstring> GetMenuSortTitle() const = 0;
 
-	//Sort mode functions
+	// Sort mode functions
 	virtual SortMode GetSortMode() const = 0;
 
-	//Separator functions
+	// Separator functions
 	virtual bool GetSurroundWithSeparators() const = 0;
 
-	//Item management functions
+	// Item management functions
 	virtual bool NoMenuItemsExist() const = 0;
 	virtual Marshal::Ret<std::list<IMenuItem*>> GetMenuItems() const = 0;
 	virtual Marshal::Ret<std::list<IMenuItem*>> GetSortedMenuItems() const = 0;
 
-	//Menu item creation and deletion
+	// Menu item creation and deletion
 	virtual IMenuSegment& AddMenuItemSegment(bool surroundWithSeparators = true, IMenuSegment::SortMode sortMode = IMenuSegment::SORTMODE_ADDITIONORDER) = 0;
 	virtual IMenuSubmenu& AddMenuItemSubmenu(const Marshal::In<std::wstring>& title) = 0;
 	virtual IMenuSelectableOption& AddMenuItemSelectableOption(IMenuHandler& menuHandler, int menuItemID, const Marshal::In<std::wstring>& title) = 0;

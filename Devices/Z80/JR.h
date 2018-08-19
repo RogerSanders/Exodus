@@ -36,14 +36,14 @@ public:
 	{
 		_source.SetIndexState(GetIndexState(), GetIndexOffset());
 
-		//JR e			00011000 eeeeeeee
+		// JR e			00011000 eeeeeeee
 		_conditionCode = ConditionCode::None;
 		if (data.GetDataSegment(3, 3) != 3)
 		{
-			//JR NZ,e		00100000 eeeeeeee
-			//JR Z,e		00101000 eeeeeeee
-			//JR NC,e		00110000 eeeeeeee
-			//JR C,e		00111000 eeeeeeee
+			// JR NZ,e		00100000 eeeeeeee
+			// JR Z,e		00101000 eeeeeeee
+			// JR NC,e		00110000 eeeeeeee
+			// JR C,e		00111000 eeeeeeee
 			_conditionCode = (ConditionCode)data.GetDataSegment(3, 2);
 		}
 		_source.BuildImmediateData(BITCOUNT_BYTE, location + GetInstructionSize(), cpu, transparent);
@@ -60,10 +60,10 @@ public:
 		Z80Word newPC;
 		ExecuteTime additionalCycles;
 
-		//Test the condition code
+		// Test the condition code
 		if (ConditionCodeTrue(cpu, _conditionCode))
 		{
-			//If the condition is true, jump to the _target location.
+			// If the condition is true, jump to the _target location.
 			additionalTime += _source.Read(cpu, location, offset);
 			newPC = location + GetInstructionSize();
 			newPC += Z80Word(offset.SignExtend(BITCOUNT_WORD));
@@ -71,13 +71,13 @@ public:
 		}
 		else
 		{
-			//If the condition is false, skip the jump, and continue execution at the
-			//next instruction.
+			// If the condition is false, skip the jump, and continue execution at the
+			// next instruction.
 			newPC = location + GetInstructionSize();
 		}
 		cpu->SetPC(newPC);
 
-		//Return the execution time
+		// Return the execution time
 		return GetExecuteCycleCount(additionalTime) + additionalCycles;
 	}
 
@@ -86,5 +86,5 @@ private:
 	ConditionCode _conditionCode;
 };
 
-} //Close namespace Z80
+} // Close namespace Z80
 #endif

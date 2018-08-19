@@ -6,15 +6,15 @@
 class FileStreamReference
 {
 public:
-	//Constructors
+	// Constructors
 	inline FileStreamReference(const IGUIExtensionInterface& guiExtensionInterface);
 	inline ~FileStreamReference();
 
-	//File handling functions
+	// File handling functions
 	inline bool OpenExistingFileForRead(const std::wstring& path);
 	inline void CloseFileStream();
 
-	//Dereference operators
+	// Dereference operators
 	inline const Stream::IStream& operator*() const;
 	inline Stream::IStream& operator*();
 	inline const Stream::IStream& operator->() const;

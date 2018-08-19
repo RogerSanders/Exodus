@@ -2,14 +2,14 @@
 namespace MarshalSupport {
 namespace Internal {
 
-//Disable warning about our use of type traits causing conditional expressions to be constant. The code behaves as
-//intended, and the compiler is free to optimize away the dead branch.
+// Disable warning about our use of type traits causing conditional expressions to be constant. The code behaves as
+// intended, and the compiler is free to optimize away the dead branch.
 #ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable:4127)
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Alloc>
 void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const std::vector<ElementType, Alloc>& element)
 {
@@ -29,7 +29,7 @@ void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elem
 }
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, size_t ArraySize>
 void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const std::array<ElementType, ArraySize>& element)
 {
@@ -47,7 +47,7 @@ void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elem
 }
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Alloc>
 void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const std::list<ElementType, Alloc>& element)
 {
@@ -66,7 +66,7 @@ void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elem
 }
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Alloc>
 void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const std::forward_list<ElementType, Alloc>& element)
 {
@@ -78,7 +78,7 @@ void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elem
 }
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Alloc>
 void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const std::deque<ElementType, Alloc>& element)
 {
@@ -96,7 +96,7 @@ void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elem
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Compare, class Alloc>
 void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const std::set<ElementType, Compare, Alloc>& element)
 {
@@ -114,7 +114,7 @@ void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elem
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Compare, class Alloc>
 void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const std::multiset<ElementType, Compare, Alloc>& element)
 {
@@ -133,7 +133,7 @@ void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elem
 }
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Hash, class Pred, class Alloc>
 void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const std::unordered_set<ElementType, Hash, Pred, Alloc>& element)
 {
@@ -151,7 +151,7 @@ void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elem
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Hash, class Pred, class Alloc>
 void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const std::unordered_multiset<ElementType, Hash, Pred, Alloc>& element)
 {
@@ -170,7 +170,7 @@ void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elem
 }
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class KeyType, class ElementType, class Compare, class Alloc>
 void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const std::map<KeyType, ElementType, Compare, Alloc>& element)
 {
@@ -188,7 +188,7 @@ void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elem
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class KeyType, class ElementType, class Compare, class Alloc>
 void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const std::multimap<KeyType, ElementType, Compare, Alloc>& element)
 {
@@ -207,7 +207,7 @@ void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elem
 }
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class KeyType, class ElementType, class Hash, class Pred, class Alloc>
 void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const std::unordered_map<KeyType, ElementType, Hash, Pred, Alloc>& element)
 {
@@ -225,7 +225,7 @@ void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elem
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class KeyType, class ElementType, class Hash, class Pred, class Alloc>
 void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const std::unordered_multimap<KeyType, ElementType, Hash, Pred, Alloc>& element)
 {
@@ -244,7 +244,7 @@ void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elem
 }
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Container>
 void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const std::stack<ElementType, Container>& element)
 {
@@ -264,7 +264,7 @@ void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elem
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Container>
 void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const std::queue<ElementType, Container>& element)
 {
@@ -284,7 +284,7 @@ void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elem
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Container, class Compare>
 void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const std::priority_queue<ElementType, Container, Compare>& element)
 {
@@ -304,7 +304,7 @@ void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elem
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class traits, class Alloc>
 void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const std::basic_string<ElementType, traits, Alloc>& element)
 {
@@ -323,29 +323,29 @@ void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elem
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class T1, class T2>
 void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const std::pair<T1, T2>& element)
 { }
 
 #if defined(MARSHALSUPPORT_CPP11SUPPORTED) && !defined(MARSHALSUPPORT_NOVARIADICTEMPLATES)
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class... Args>
 void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const std::tuple<Args...>& element)
 { }
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType>
 void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const ElementType& element)
 {
 	++elementArrayIndex;
 }
 
-//Restore the disabled warnings
+// Restore the disabled warnings
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
 
-} //Close namespace Internal
-} //Close namespace MarshalSupport
+} // Close namespace Internal
+} // Close namespace MarshalSupport

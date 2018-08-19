@@ -6,7 +6,7 @@
 class MegaDriveROMLoader::FileOpenMenuHandler :public MenuHandlerBase
 {
 public:
-	//Enumerations
+	// Enumerations
 	enum MenuItem
 	{
 		MENUITEM_OPENMEGADRIVEROM,
@@ -14,11 +14,11 @@ public:
 	};
 
 public:
-	//Constructors
+	// Constructors
 	FileOpenMenuHandler(MegaDriveROMLoader& extension);
 
 protected:
-	//Management functions
+	// Management functions
 	virtual void GetMenuItems(std::list<MenuItemDefinition>& menuItems) const;
 	virtual IViewPresenter* CreateViewForItem(int menuItemID, const std::wstring& viewName);
 	virtual void DeleteViewForItem(int menuItemID, IViewPresenter* viewPresenter);

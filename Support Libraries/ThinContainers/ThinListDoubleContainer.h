@@ -4,29 +4,29 @@
 template<class T> struct ThinListDoubleContainer
 {
 public:
-	//Typedefs
+	// Typedefs
 	typedef ThinListDouble<T> Element;
 
-	//Constructors
+	// Constructors
 	ThinListDoubleContainer();
 	~ThinListDoubleContainer();
 
-	//Iteration functions
+	// Iteration functions
 	Element* GetFirstEntry() const;
 	Element* GetLastEntry() const;
 
-	//Insert functions
+	// Insert functions
 	void PushToFront(const T& entry);
 	void PushToBack(const T& entry);
 	void InsertBefore(Element* element, const T& entry);
 	void InsertAfter(Element* element, const T& entry);
 
-	//Erase functions
+	// Erase functions
 	void EraseFromFrontToElement(Element* targetElement);
 	void EraseFromBackToElement(Element* targetElement);
 	void Clear();
 
-	//Query functions
+	// Query functions
 	bool Empty() const;
 
 public:

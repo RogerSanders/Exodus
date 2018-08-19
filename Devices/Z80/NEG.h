@@ -29,7 +29,7 @@ public:
 	{
 		_target.SetIndexState(GetIndexState(), GetIndexOffset());
 
-		//NEG		11101101 01000100
+		// NEG		11101101 01000100
 		_target.SetMode(EffectiveAddress::Mode::A);
 		AddExecuteCycleCount(4);
 
@@ -43,12 +43,12 @@ public:
 		Z80Byte op1;
 		Z80Byte result;
 
-		//Perform the operation
+		// Perform the operation
 		additionalTime += _target.Read(cpu, location, op1);
 		result = 0 - op1.GetData();
 		additionalTime += _target.Write(cpu, location, result);
 
-		//Set the flag results
+		// Set the flag results
 		cpu->SetFlagS(result.Negative());
 		cpu->SetFlagZ(result.Zero());
 		cpu->SetFlagY(result.GetBit(5));
@@ -58,7 +58,7 @@ public:
 		cpu->SetFlagN(true);
 		cpu->SetFlagC(!op1.Zero());
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -67,5 +67,5 @@ private:
 	EffectiveAddress _target;
 };
 
-} //Close namespace Z80
+} // Close namespace Z80
 #endif

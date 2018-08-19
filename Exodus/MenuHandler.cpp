@@ -4,16 +4,16 @@
 #include "ModuleManagerViewPresenter.h"
 #include "CreateDashboardViewPresenter.h"
 
-//----------------------------------------------------------------------------------------
-//Constructors
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Constructors
+//----------------------------------------------------------------------------------------------------------------------
 MenuHandler::MenuHandler(ExodusInterface& owner, ExodusInterface& model)
 :MenuHandlerBase(L"GUIMenus", owner.GetViewManager()), _owner(owner), _model(model)
 {}
 
-//----------------------------------------------------------------------------------------
-//Management functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Management functions
+//----------------------------------------------------------------------------------------------------------------------
 void MenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) const
 {
 	menuItems.push_back(MenuItemDefinition(MENUITEM_ABOUT, L"About", AboutViewPresenter::GetUnqualifiedViewTitle(), true));
@@ -22,7 +22,7 @@ void MenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) const
 	menuItems.push_back(MenuItemDefinition(MENUITEM_CREATEDASHBOARD, L"CreateDashboard", CreateDashboardViewPresenter::GetUnqualifiedViewTitle(), true));
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 IViewPresenter* MenuHandler::CreateViewForItem(int menuItemID, const std::wstring& viewName)
 {
 	switch (menuItemID)
@@ -39,7 +39,7 @@ IViewPresenter* MenuHandler::CreateViewForItem(int menuItemID, const std::wstrin
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void MenuHandler::DeleteViewForItem(int menuItemID, IViewPresenter* viewPresenter)
 {
 	delete viewPresenter;

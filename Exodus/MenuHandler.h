@@ -6,7 +6,7 @@
 class MenuHandler :public MenuHandlerBase
 {
 public:
-	//Enumerations
+	// Enumerations
 	enum MenuItem
 	{
 		MENUITEM_ABOUT,
@@ -15,11 +15,11 @@ public:
 		MENUITEM_CREATEDASHBOARD
 	};
 
-	//Constructors
+	// Constructors
 	MenuHandler(ExodusInterface& owner, ExodusInterface& model);
 
 protected:
-	//Management functions
+	// Management functions
 	virtual void GetMenuItems(std::list<MenuItemDefinition>& menuItems) const;
 	virtual IViewPresenter* CreateViewForItem(int menuItemID, const std::wstring& viewName);
 	virtual void DeleteViewForItem(int menuItemID, IViewPresenter* viewPresenter);

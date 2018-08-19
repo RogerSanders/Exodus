@@ -9,26 +9,26 @@ namespace Stream {
 class File :public Stream<IStream>
 {
 public:
-	//Enumerations
+	// Enumerations
 	enum class OpenMode;
 	enum class CreateMode;
 
-	//Make sure the File object is non-copyable
+	// Make sure the File object is non-copyable
 	protected: File(const File& object) {} public:
 
-	//Constructors
+	// Constructors
 	inline File();
 	inline File(TextEncoding textEncoding);
 	inline File(TextEncoding textEncoding, NewLineEncoding newLineEncoding);
 	inline File(TextEncoding textEncoding, NewLineEncoding newLineEncoding, ByteOrder byteOrder);
 	virtual ~File();
 
-	//File binding
+	// File binding
 	inline bool Open(const std::wstring& filename, OpenMode openMode, CreateMode createMode, SizeType bufferSize = 8192);
 	inline void Close();
 	inline bool IsOpen() const;
 
-	//File position
+	// File position
 	virtual bool IsAtEnd() const;
 	virtual SizeType Size() const;
 	virtual SizeType GetStreamPos() const;
@@ -39,7 +39,7 @@ protected:
 	using Stream::ReadBinaryNativeByteOrder;
 	using Stream::WriteBinaryNativeByteOrder;
 
-	//Native byte order read functions
+	// Native byte order read functions
 	virtual bool ReadBinaryNativeByteOrder(char& data);
 	virtual bool ReadBinaryNativeByteOrder(signed char& data);
 	virtual bool ReadBinaryNativeByteOrder(unsigned char& data);
@@ -56,7 +56,7 @@ protected:
 	virtual bool ReadBinaryNativeByteOrder(double& data);
 	virtual bool ReadBinaryNativeByteOrder(long double& data);
 
-	//Native byte order array read functions
+	// Native byte order array read functions
 	virtual bool ReadBinaryNativeByteOrder(char* data, SizeType length);
 	virtual bool ReadBinaryNativeByteOrder(signed char* data, SizeType length);
 	virtual bool ReadBinaryNativeByteOrder(unsigned char* data, SizeType length);
@@ -73,7 +73,7 @@ protected:
 	virtual bool ReadBinaryNativeByteOrder(double* data, SizeType length);
 	virtual bool ReadBinaryNativeByteOrder(long double* data, SizeType length);
 
-	//Native byte order write functions
+	// Native byte order write functions
 	virtual bool WriteBinaryNativeByteOrder(char data);
 	virtual bool WriteBinaryNativeByteOrder(signed char data);
 	virtual bool WriteBinaryNativeByteOrder(unsigned char data);
@@ -90,7 +90,7 @@ protected:
 	virtual bool WriteBinaryNativeByteOrder(double data);
 	virtual bool WriteBinaryNativeByteOrder(long double data);
 
-	//Native byte order array write functions
+	// Native byte order array write functions
 	virtual bool WriteBinaryNativeByteOrder(const char* data, SizeType length);
 	virtual bool WriteBinaryNativeByteOrder(const signed char* data, SizeType length);
 	virtual bool WriteBinaryNativeByteOrder(const unsigned char* data, SizeType length);
@@ -108,23 +108,23 @@ protected:
 	virtual bool WriteBinaryNativeByteOrder(const long double* data, SizeType length);
 
 private:
-	//Internal read/write functions
+	// Internal read/write functions
 	inline bool ReadBinary(void* rawData, SizeType bytesToRead);
 	inline bool WriteBinary(const void* rawData, SizeType bytesToWrite);
 	inline bool ReadBinaryUnbuffered(void* rawData, SizeType bytesToRead);
 	inline bool WriteBinaryUnbuffered(const void* rawData, SizeType bytesToWrite);
 
-	//Data buffer functions
+	// Data buffer functions
 	inline bool EmptyDataBuffer();
 	inline bool PrepareDataBufferForReads();
 	inline bool PrepareDataBufferForWrites();
 
 private:
-	//File handling
+	// File handling
 	bool _fileOpen;
 	HANDLE _fileHandle;
 
-	//Data buffering
+	// Data buffering
 	unsigned char* _fileBuffer;
 	SizeType _bufferSize;
 	SizeType _bufferPosOffset;
@@ -132,6 +132,6 @@ private:
 	bool _bufferInWriteMode;
 };
 
-} //Close namespace Stream
+} // Close namespace Stream
 #include "File.inl"
 #endif

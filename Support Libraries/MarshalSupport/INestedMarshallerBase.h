@@ -6,11 +6,11 @@ namespace Internal {
 class INestedMarshallerBase
 {
 public:
-	//Constructors
+	// Constructors
 	inline virtual ~INestedMarshallerBase() = 0;
 };
 INestedMarshallerBase::~INestedMarshallerBase() { }
 
-} //Close namespace Internal
-} //Close namespace MarshalSupport
+} // Close namespace Internal
+} // Close namespace MarshalSupport
 #endif

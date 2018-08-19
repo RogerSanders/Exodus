@@ -71,7 +71,7 @@ inline MARSHALSUPPORT_CONSTEXPR size_t CalculateSTLContainerNestingDepth(size_t 
 template<class ElementType>
 inline MARSHALSUPPORT_CONSTEXPR size_t CalculateSTLContainerNestingDepth(size_t currentNestingDepth, const ElementType* elementPointer);
 
-} //Close namespace Internal
-} //Close namespace MarshalSupport
+} // Close namespace Internal
+} // Close namespace MarshalSupport
 #include "CalculateSTLContainerNestingDepth.inl"
 #endif

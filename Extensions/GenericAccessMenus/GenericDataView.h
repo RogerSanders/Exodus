@@ -9,15 +9,15 @@
 class GenericDataView :public ViewBase
 {
 public:
-	//Constructors
+	// Constructors
 	GenericDataView(IUIManager& uiManager, GenericDataViewPresenter& presenter, IGenericAccess& model, const IGenericAccessPage* page);
 
 protected:
-	//Member window procedure
+	// Member window procedure
 	virtual LRESULT WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
 private:
-	//Structures
+	// Structures
 	struct ExpandStateInfo
 	{
 		unsigned int collectionEntryCount;
@@ -54,13 +54,13 @@ private:
 		bool highlightState;
 	};
 
-	//Constants
+	// Constants
 	static const long long DataListControlID = 100;
 	static const unsigned int NameColumnID = 1;
 	static const unsigned int ValueColumnID = 2;
 
 private:
-	//Event handlers
+	// Event handlers
 	LRESULT msgWM_CREATE(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_TIMER(HWND hwnd, WPARAM wParam, LPARAM lParam);
@@ -70,14 +70,14 @@ private:
 	LRESULT msgWM_SETFOCUS(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_KILLFOCUS(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
-	//Data update methods
+	// Data update methods
 	void PopulateDataGrid(const IGenericAccessGroupEntry* entry, unsigned int& currentRow, unsigned int indentLevel, bool addChildrenOnly, bool usePreservedExpandState, bool preservedExpandState, unsigned int preservedExpandStateCollectionEntryCount, std::list<ExpandStateInfo>& preservedExpandStateBuffer, const std::list<ParentCollectionInfo>& parentCollectionInfo, const std::wstring& collectionEntryKey = L"", bool useNameOverride = false, const std::wstring& nameOverride = L"");
 	void DepopulateDataGrid(unsigned int targetRowNo, bool removeChildrenOnly, std::list<ExpandStateInfo>& preservedExpandStateBuffer);
 	void DepopulateDataGrid(unsigned int recursionDepth, unsigned int& targetRowNo, unsigned int& rowsToRemove, bool removeChildrenOnly, std::list<ExpandStateInfo>& preservedExpandStateBuffer);
 	void UpdateDataGrid(unsigned int& currentRow, bool parentLockSucceeded);
 	std::wstring BuildGroupSummaryText(const IGenericAccessGroup* currentNode);
 
-	//Collection locking methods
+	// Collection locking methods
 	bool LockTargetRowEntry(unsigned int rowNo);
 	void UnlockTargetRowEntry(unsigned int rowNo);
 

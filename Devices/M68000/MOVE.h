@@ -9,7 +9,7 @@ public:
 	ExecuteTime GetExecuteTime(EffectiveAddress::Mode _sourceMode, EffectiveAddress::Mode _targetMode, Bitcount operationSize)
 	{
 		static const ExecuteTime executeTimeArray[12][9] = {
-			           //Dn                     An                     (An)                   (An)+                  -(An)                  d(An)                  d(An,ix)               xxx.W                  xxx.L
+			           // Dn                     An                     (An)                   (An)+                  -(An)                  d(An)                  d(An,ix)               xxx.W                  xxx.L
 			/*Dn*/      {ExecuteTime(4, 1, 0),  ExecuteTime(4, 1, 0),  ExecuteTime(8, 1, 1),  ExecuteTime(8, 1, 1),  ExecuteTime(8, 1, 1),  ExecuteTime(12, 2, 1), ExecuteTime(14, 2, 1), ExecuteTime(12, 2, 1), ExecuteTime(16, 3, 1)},
 			/*An*/      {ExecuteTime(4, 1, 0),  ExecuteTime(4, 1, 0),  ExecuteTime(8, 1, 1),  ExecuteTime(8, 1, 1),  ExecuteTime(8, 1, 1),  ExecuteTime(12, 2, 1), ExecuteTime(14, 2, 1), ExecuteTime(12, 2, 1), ExecuteTime(16, 3, 1)},
 			/*(An)*/    {ExecuteTime(8, 2, 0),  ExecuteTime(8, 2, 0),  ExecuteTime(12, 2, 1), ExecuteTime(12, 2, 1), ExecuteTime(12, 2, 1), ExecuteTime(16, 3, 1), ExecuteTime(18, 3, 1), ExecuteTime(16, 3, 1), ExecuteTime(20, 4, 1)},
@@ -23,7 +23,7 @@ public:
 			/*d(PC,ix)*/{ExecuteTime(14, 3, 0), ExecuteTime(14, 3, 0), ExecuteTime(18, 3, 1), ExecuteTime(18, 3, 1), ExecuteTime(18, 3, 1), ExecuteTime(22, 4, 1), ExecuteTime(24, 4, 1), ExecuteTime(22, 4, 1), ExecuteTime(26, 5, 1)},
 			/*#xxx*/    {ExecuteTime(8, 2, 0),  ExecuteTime(8, 2, 0),  ExecuteTime(12, 2, 1), ExecuteTime(12, 2, 1), ExecuteTime(12, 2, 1), ExecuteTime(16, 3, 1), ExecuteTime(18, 3, 1), ExecuteTime(16, 3, 1), ExecuteTime(20, 4, 1)}};
 		static const ExecuteTime executeTimeArrayLong[12][9] = {
-			           //Dn                     An                     (An)                   (An)+                  -(An)                  d(An)                  d(An,ix)               xxx.W                  xxx.L
+			           // Dn                     An                     (An)                   (An)+                  -(An)                  d(An)                  d(An,ix)               xxx.W                  xxx.L
 			/*Dn*/      {ExecuteTime(4, 1, 0),  ExecuteTime(4, 1, 0),  ExecuteTime(12, 1, 2), ExecuteTime(12, 1, 2), ExecuteTime(12, 1, 2), ExecuteTime(16, 2, 2), ExecuteTime(18, 2, 2), ExecuteTime(16, 2, 2), ExecuteTime(20, 3, 2)},
 			/*An*/      {ExecuteTime(4, 1, 0),  ExecuteTime(4, 1, 0),  ExecuteTime(12, 1, 2), ExecuteTime(12, 1, 2), ExecuteTime(12, 1, 2), ExecuteTime(16, 2, 2), ExecuteTime(18, 2, 2), ExecuteTime(16, 2, 2), ExecuteTime(20, 3, 2)},
 			/*(An)*/    {ExecuteTime(12, 3, 0), ExecuteTime(12, 3, 0), ExecuteTime(20, 3, 2), ExecuteTime(20, 3, 2), ExecuteTime(20, 3, 2), ExecuteTime(24, 4, 2), ExecuteTime(26, 4, 2), ExecuteTime(24, 4, 2), ExecuteTime(28, 5, 2)},
@@ -152,13 +152,13 @@ public:
 //	                |----destination <ea>---|------_source <ea>------|
 		switch (data.GetDataSegment(12, 2))
 		{
-		case 1:	//01
+		case 1:	// 01
 			_size = BITCOUNT_BYTE;
 			break;
-		case 3:	//11
+		case 3:	// 11
 			_size = BITCOUNT_WORD;
 			break;
-		case 2:	//10
+		case 2:	// 10
 			_size = BITCOUNT_LONG;
 			break;
 		}
@@ -175,38 +175,38 @@ public:
 		double additionalTime = 0;
 		Data result(_size);
 
-		//Read information about the _source for use in active disassembly
+		// Read information about the _source for use in active disassembly
 		unsigned int _sourceReadFromAddress;
 		bool _sourceIsUnmodifiedFromAddress = _source.IsTargetUnmodifiedFromMemoryRead(cpu, _size, _sourceReadFromAddress);
 		unsigned int _sourceReadFromAddressSize = _source.GetTargetOriginalMemoryReadSize(cpu, _size);
 
-		//Perform the operation
+		// Perform the operation
 		//##NOTE## We need to break long writes into two separate word writes here when
-		//the destination address is pre-decremented. Long word writes are normally
-		//broken up into two separate word writes and we emulate that behaviour, however
-		//due to an undocumented design quirk, when the destination address is using
-		//predec mode in this one instruction, the bytes are written in reverse order.
-		//For other instructions when writing a long of 0x12345678 to a predecremented
-		//address, the writes would occur in the following order:
-		//-Write 0x1234 to (address - 4)
-		//-Write 0x5678 to (address - 2)
-		//For a move.l however, the results are as follows:
-		//-Write 0x5678 to (address - 2)
-		//-Write 0x1234 to (address - 4)
-		//The result is the same when writing to a simple memory buffer, but the order
-		//writes occur in can make a difference when interacting with devices rather than
-		//just memory buffers. Refer to "68000 Undocumented Behavior Notes" by Bart
-		//Trzynadlowski for more info.
+		// the destination address is pre-decremented. Long word writes are normally
+		// broken up into two separate word writes and we emulate that behaviour, however
+		// due to an undocumented design quirk, when the destination address is using
+		// predec mode in this one instruction, the bytes are written in reverse order.
+		// For other instructions when writing a long of 0x12345678 to a predecremented
+		// address, the writes would occur in the following order:
+		// -Write 0x1234 to (address - 4)
+		// -Write 0x5678 to (address - 2)
+		// For a move.l however, the results are as follows:
+		// -Write 0x5678 to (address - 2)
+		// -Write 0x1234 to (address - 4)
+		// The result is the same when writing to a simple memory buffer, but the order
+		// writes occur in can make a difference when interacting with devices rather than
+		// just memory buffers. Refer to "68000 Undocumented Behavior Notes" by Bart
+		// Trzynadlowski for more info.
 
 		//##TODO## Check what happens when the _source address is pre-decremented as well.
-		//Does it actually read one word, write one word, read another word, and write
-		//another word, or does it read both words first, then write both words. Try a
-		//sequence like the following to test:
-		//lea		#$C0000C, A0
-		//lea		#$FF0004, A1
-		//move.l	-(A0),-(A1)
-		//The HV counter will increment between the reads, which will allow the order the
-		//words are read in to be determined.
+		// Does it actually read one word, write one word, read another word, and write
+		// another word, or does it read both words first, then write both words. Try a
+		// sequence like the following to test:
+		// lea		#$C0000C, A0
+		// lea		#$FF0004, A1
+		// move.l	-(A0),-(A1)
+		// The HV counter will increment between the reads, which will allow the order the
+		// words are read in to be determined.
 		additionalTime += _source.Read(cpu, result, GetInstructionRegister());
 		if ((_target.GetAddressMode() == EffectiveAddress::Mode::AddRegIndirectPreDec) && (_size == BITCOUNT_LONG))
 		{
@@ -220,13 +220,13 @@ public:
 			additionalTime += _target.Write(cpu, result, GetInstructionRegister(), false, false, _sourceIsUnmodifiedFromAddress, _sourceReadFromAddress, _sourceReadFromAddressSize);
 		}
 
-		//Set the flag results
+		// Set the flag results
 		cpu->SetN(result.Negative());
 		cpu->SetZ(result.Zero());
 		cpu->SetV(false);
 		cpu->SetC(false);
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -243,5 +243,5 @@ private:
 	Bitcount _size;
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #endif

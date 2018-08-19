@@ -7,7 +7,7 @@ namespace Stream {
 class Buffer :public Stream<IStream>
 {
 public:
-	//Constructors
+	// Constructors
 	inline explicit Buffer(SizeType size = 0);
 	inline Buffer(SizeType size, SizeType sizeIncrement);
 	inline Buffer(TextEncoding textEncoding, SizeType size);
@@ -17,18 +17,18 @@ public:
 	inline Buffer(TextEncoding textEncoding, NewLineEncoding newLineEncoding, ByteOrder byteOrder, SizeType size);
 	inline Buffer(TextEncoding textEncoding, NewLineEncoding newLineEncoding, ByteOrder byteOrder, SizeType size, SizeType sizeIncrement);
 
-	//Buffer position
+	// Buffer position
 	virtual bool IsAtEnd() const;
 	virtual SizeType Size() const;
 	virtual SizeType GetStreamPos() const;
 	virtual void SetStreamPos(SizeType position);
 	virtual bool SkipBytes(SizeType byteCount);
 
-	//Buffer management
+	// Buffer management
 	inline void Resize(SizeType size);
 	inline unsigned char* GetRawBuffer() const;
 
-	//Dereference operators
+	// Dereference operators
 	inline const unsigned char& operator[](SizeType position) const;
 	inline unsigned char& operator[](SizeType position);
 
@@ -36,7 +36,7 @@ protected:
 	using Stream::ReadBinaryNativeByteOrder;
 	using Stream::WriteBinaryNativeByteOrder;
 
-	//Native byte order read functions
+	// Native byte order read functions
 	virtual bool ReadBinaryNativeByteOrder(char& data);
 	virtual bool ReadBinaryNativeByteOrder(signed char& data);
 	virtual bool ReadBinaryNativeByteOrder(unsigned char& data);
@@ -53,7 +53,7 @@ protected:
 	virtual bool ReadBinaryNativeByteOrder(double& data);
 	virtual bool ReadBinaryNativeByteOrder(long double& data);
 
-	//Native byte order array read functions
+	// Native byte order array read functions
 	virtual bool ReadBinaryNativeByteOrder(char* data, SizeType length);
 	virtual bool ReadBinaryNativeByteOrder(signed char* data, SizeType length);
 	virtual bool ReadBinaryNativeByteOrder(unsigned char* data, SizeType length);
@@ -70,7 +70,7 @@ protected:
 	virtual bool ReadBinaryNativeByteOrder(double* data, SizeType length);
 	virtual bool ReadBinaryNativeByteOrder(long double* data, SizeType length);
 
-	//Native byte order write functions
+	// Native byte order write functions
 	virtual bool WriteBinaryNativeByteOrder(char data);
 	virtual bool WriteBinaryNativeByteOrder(signed char data);
 	virtual bool WriteBinaryNativeByteOrder(unsigned char data);
@@ -87,7 +87,7 @@ protected:
 	virtual bool WriteBinaryNativeByteOrder(double data);
 	virtual bool WriteBinaryNativeByteOrder(long double data);
 
-	//Native byte order array write functions
+	// Native byte order array write functions
 	virtual bool WriteBinaryNativeByteOrder(const char* data, SizeType length);
 	virtual bool WriteBinaryNativeByteOrder(const signed char* data, SizeType length);
 	virtual bool WriteBinaryNativeByteOrder(const unsigned char* data, SizeType length);
@@ -105,10 +105,10 @@ protected:
 	virtual bool WriteBinaryNativeByteOrder(const long double* data, SizeType length);
 
 private:
-	//Buffer management
+	// Buffer management
 	inline void CheckBufferSize(SizeType writeSize);
 
-	//Internal read/write functions
+	// Internal read/write functions
 	inline bool ReadBinary(unsigned char* rawData, SizeType bytesToRead);
 	inline bool WriteBinary(const unsigned char* rawData, SizeType bytesToWrite);
 
@@ -119,6 +119,6 @@ private:
 	SizeType _streamPos;
 };
 
-} //Close namespace Stream
+} // Close namespace Stream
 #include "Buffer.inl"
 #endif

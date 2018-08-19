@@ -33,22 +33,22 @@ public:
 		switch (data.GetDataSegment(3, 2))
 		{
 		case 0:
-			//LD I,A		11101101 01000111
+			// LD I,A		11101101 01000111
 			_source.SetMode(EffectiveAddress::Mode::A);
 			_target.SetMode(EffectiveAddress::Mode::I);
 			break;
 		case 1:
-			//LD R,A		11101101 01001111
+			// LD R,A		11101101 01001111
 			_source.SetMode(EffectiveAddress::Mode::A);
 			_target.SetMode(EffectiveAddress::Mode::R);
 			break;
 		case 2:
-			//LD A,I		11101101 01010111
+			// LD A,I		11101101 01010111
 			_source.SetMode(EffectiveAddress::Mode::I);
 			_target.SetMode(EffectiveAddress::Mode::A);
 			break;
 		case 3:
-			//LD A,R		11101101 01011111
+			// LD A,R		11101101 01011111
 			_source.SetMode(EffectiveAddress::Mode::R);
 			_target.SetMode(EffectiveAddress::Mode::A);
 			break;
@@ -64,11 +64,11 @@ public:
 		double additionalTime = 0;
 		Z80Byte result;
 
-		//Perform the operation
+		// Perform the operation
 		additionalTime += _source.Read(cpu, location, result);
 		additionalTime += _target.Write(cpu, location, result);
 
-		//Set the flag results
+		// Set the flag results
 		if (_target.GetMode() == EffectiveAddress::Mode::A)
 		{
 			cpu->SetFlagS(result.MSB());
@@ -80,7 +80,7 @@ public:
 			cpu->SetFlagN(false);
 		}
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -90,5 +90,5 @@ private:
 	EffectiveAddress _target;
 };
 
-} //Close namespace Z80
+} // Close namespace Z80
 #endif

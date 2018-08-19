@@ -44,21 +44,21 @@ public:
 		if (data.GetDataSegment(0, 3) == 0x01)
 		{
 			//##NOTE## This is NOT indirect, despite the notation.
-			//JP (HL)		11101001
-			//JP (IX)		11011101 11101001
-			//JP (IY)		11111101 11101001
+			// JP (HL)		11101001
+			// JP (IX)		11011101 11101001
+			// JP (IY)		11111101 11101001
 			_source.SetMode(EffectiveAddress::Mode::HL);
 			AddExecuteCycleCount(4);
 		}
 		else if (data.GetDataSegment(0, 3) == 0x03)
 		{
-			//JP nn			11000011 nnnnnnnn nnnnnnnn
+			// JP nn			11000011 nnnnnnnn nnnnnnnn
 			_source.BuildImmediateData(BITCOUNT_WORD, location + GetInstructionSize(), cpu, transparent);
 			AddExecuteCycleCount(10);
 		}
 		else
 		{
-			//JP cc,nn		11***010 nnnnnnnn nnnnnnnn
+			// JP cc,nn		11***010 nnnnnnnn nnnnnnnn
 			_source.BuildImmediateData(BITCOUNT_WORD, location + GetInstructionSize(), cpu, transparent);
 			_conditionCode = (ConditionCode)data.GetDataSegment(3, 3);
 			AddExecuteCycleCount(10);
@@ -73,21 +73,21 @@ public:
 		double additionalTime = 0;
 		Z80Word newPC;
 
-		//Test the condition code
+		// Test the condition code
 		if (ConditionCodeTrue(cpu, _conditionCode))
 		{
-			//If the condition is true, jump to the _target location.
+			// If the condition is true, jump to the _target location.
 			additionalTime += _source.Read(cpu, location, newPC);
 		}
 		else
 		{
-			//If the condition is false, skip the jump, and continue execution at the
-			//next instruction.
+			// If the condition is false, skip the jump, and continue execution at the
+			// next instruction.
 			newPC = (location + GetInstructionSize());
 		}
 		cpu->SetPC(newPC);
 
-		//Return the execution time
+		// Return the execution time
 		return GetExecuteCycleCount(additionalTime);
 	}
 
@@ -96,5 +96,5 @@ private:
 	ConditionCode _conditionCode;
 };
 
-} //Close namespace Z80
+} // Close namespace Z80
 #endif

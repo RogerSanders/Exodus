@@ -4,9 +4,9 @@
 #include "WindowsControls/WindowsControls.pkg"
 #include "DataConversion/DataConversion.pkg"
 
-//----------------------------------------------------------------------------------------
-//Constructors
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Constructors
+//----------------------------------------------------------------------------------------------------------------------
 SpriteListView::SpriteListView(IUIManager& uiManager, SpriteListViewPresenter& presenter, IS315_5313& model)
 :ViewBase(uiManager, presenter), _presenter(presenter), _model(model)
 {
@@ -17,9 +17,9 @@ SpriteListView::SpriteListView(IUIManager& uiManager, SpriteListViewPresenter& p
 	SetDockableViewType();
 }
 
-//----------------------------------------------------------------------------------------
-//Member window procedure
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Member window procedure
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT SpriteListView::WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	switch (msg)
@@ -38,12 +38,12 @@ LRESULT SpriteListView::WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARAM
 	return DefWindowProc(hwnd, msg, wparam, lparam);
 }
 
-//----------------------------------------------------------------------------------------
-//Event handlers
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Event handlers
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT SpriteListView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	//Create the default font for this window
+	// Create the default font for this window
 	int fontPointSize = 8;
 	HDC hdc = GetDC(hwnd);
 	int fontnHeight = -MulDiv(fontPointSize, GetDeviceCaps(hdc, LOGPIXELSY), 72);
@@ -51,17 +51,17 @@ LRESULT SpriteListView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	std::wstring fontTypefaceName = L"MS Shell Dlg";
 	_fontHandle = CreateFont(fontnHeight, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FIXED_PITCH | FF_MODERN, &fontTypefaceName[0]);
 
-	//Register the DataGrid window class
+	// Register the DataGrid window class
 	WC_DataGrid::RegisterWindowClass(GetAssemblyHandle());
 
-	//Create the DataGrid child controls
+	// Create the DataGrid child controls
 	_hwndDataGrid = CreateWindowEx(WS_EX_CLIENTEDGE, WC_DataGrid::WindowClassName, L"", WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_VSCROLL | WS_HSCROLL, 0, 0, 0, 0, hwnd, (HMENU)DataListControlID, GetAssemblyHandle(), NULL);
 
-	//Set the default font for the child controls
+	// Set the default font for the child controls
 	SendMessage(_hwndDataGrid, WM_SETFONT, (WPARAM)_fontHandle, (LPARAM)TRUE);
 	SendMessage(_hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::SetDataAreaFont, (WPARAM)_fontHandle, (LPARAM)TRUE);
 
-	//Insert our columns into the data grid
+	// Insert our columns into the data grid
 	SendMessage(_hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&(const WC_DataGrid::Grid_InsertColumn&)WC_DataGrid::Grid_InsertColumn(L"No", COLUMN_NO));
 	SendMessage(_hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&(const WC_DataGrid::Grid_InsertColumn&)WC_DataGrid::Grid_InsertColumn(L"XPos", COLUMN_XPOS, true));
 	SendMessage(_hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&(const WC_DataGrid::Grid_InsertColumn&)WC_DataGrid::Grid_InsertColumn(L"YPos", COLUMN_YPOS, true));
@@ -78,60 +78,60 @@ LRESULT SpriteListView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	SendMessage(_hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&(const WC_DataGrid::Grid_InsertColumn&)WC_DataGrid::Grid_InsertColumn(L"Word3", COLUMN_RAW2, true));
 	SendMessage(_hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&(const WC_DataGrid::Grid_InsertColumn&)WC_DataGrid::Grid_InsertColumn(L"Word4", COLUMN_RAW3, true));
 
-	//Explicitly insert our list of sprite entries into the data grid
+	// Explicitly insert our list of sprite entries into the data grid
 	WC_DataGrid::Grid_InsertRows insertRowsInfo;
 	insertRowsInfo.targetRowNo = 0;
 	insertRowsInfo.rowCount = 80;
 	SendMessage(_hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::InsertRows, 0, (LPARAM)&insertRowsInfo);
 
-	//Register the LayoutGrid window class
+	// Register the LayoutGrid window class
 	WC_LayoutGrid::RegisterWindowClass(GetAssemblyHandle());
 
-	//Create the LayoutGrid child control
+	// Create the LayoutGrid child control
 	_hwndLayoutGrid = CreateWindowEx(WS_EX_TRANSPARENT, WC_LayoutGrid::WindowClassName, L"", WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, hwnd, NULL, GetAssemblyHandle(), NULL);
 
-	//Insert our rows and columns into the layout grid
+	// Insert our rows and columns into the layout grid
 	SendMessage(_hwndLayoutGrid, (UINT)WC_LayoutGrid::WindowMessages::AddColumn, 0, (LPARAM)&(const WC_LayoutGrid::AddColumnParams&)WC_LayoutGrid::AddColumnParams(WC_LayoutGrid::SizeMode::Proportional));
 
-	//Add each child control to the layout grid
+	// Add each child control to the layout grid
 	SendMessage(_hwndLayoutGrid, (UINT)WC_LayoutGrid::WindowMessages::AddWindow, 0, (LPARAM)&(const WC_LayoutGrid::AddWindowParams&)WC_LayoutGrid::AddWindowParams(_hwndDataGrid, 0, 0));
 
-	//Start the refresh timer
+	// Start the refresh timer
 	SetTimer(hwnd, 1, 100, NULL);
 
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT SpriteListView::msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	//Delete the default font object. Note that since our window has been removed from the
-	//screen at this point, it should be safe to delete this object here even though child
-	//controls still hold references to it, as long as we don't attempt to use the font
-	//handle while the window is being destroyed.
+	// Delete the default font object. Note that since our window has been removed from the
+	// screen at this point, it should be safe to delete this object here even though child
+	// controls still hold references to it, as long as we don't attempt to use the font
+	// handle while the window is being destroyed.
 	DeleteObject(_fontHandle);
 	KillTimer(hwnd, 1);
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT SpriteListView::msgWM_SIZE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	//Read the new client size of the window
+	// Read the new client size of the window
 	RECT rect;
 	GetClientRect(hwnd, &rect);
 	int controlWidth = rect.right;
 	int controlHeight = rect.bottom;
 
-	//Resize the layout grid to the desired width and height
+	// Resize the layout grid to the desired width and height
 	SetWindowPos(_hwndLayoutGrid, NULL, 0, 0, controlWidth, controlHeight, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT SpriteListView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	//Update the data grid with the latest text
+	// Update the data grid with the latest text
 	unsigned int spriteMappingBaseAddress = _model.RegGetNameTableBaseSprite();
 	std::map<unsigned int, std::map<unsigned int, std::wstring>> rowText;
 	for (unsigned int i = 0; i < 80; ++i)
@@ -159,7 +159,7 @@ LRESULT SpriteListView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT SpriteListView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	if (LOWORD(wparam) == DataListControlID)

@@ -38,26 +38,26 @@
 ////##TODO## Implement this class, which handles all details of providing lists of available
 ////modules, and the associated metadata for those modules. Some of the requirements of this
 ////class are as follows:
-////-Store cached module information in a database back-end, implemented in SQLite.
-////-Functions to add or remove directories from the cache. Note that by adding a directory
+//// -Store cached module information in a database back-end, implemented in SQLite.
+//// -Functions to add or remove directories from the cache. Note that by adding a directory
 ////path, all files under that directory tree will be cached.
-////-Upon scanning a directory, if a given file exists in the cache of scanned files, only
+//// -Upon scanning a directory, if a given file exists in the cache of scanned files, only
 ////open and re-read file data for files where the last modified timestamp or filesize is
 ////different to the stored values in the database.
-////-Provide synchronous scanning of directories, and progress information on the scan.
-////-Allow the cache to be invalidated, forcing a full re-scan.
-////-Provide a refresh cache function, where cached directories are scanned for added,
+//// -Provide synchronous scanning of directories, and progress information on the scan.
+//// -Allow the cache to be invalidated, forcing a full re-scan.
+//// -Provide a refresh cache function, where cached directories are scanned for added,
 ////removed, or modified files.
-////-Does not store attachments such as screenshots or boxart within database, but does have
+//// -Does not store attachments such as screenshots or boxart within database, but does have
 ////functions which handle the retrieval of these files. The database is queried to obtain a
 ////path or reference to the file, and the file is then opened and provided to the caller.
 ////In this way, as far as the caller is concerned, this class does provide access to these
 ////attachments, but the actual data is not cached in the database in the interests of
 ////keeping the database light weight.
-////-Stores information on exported and imported connectors, to allow system connections to
+//// -Stores information on exported and imported connectors, to allow system connections to
 ////be validated and system designs to be constructed without actually parsing the system
 ////XML file.
-////-Provides an option to check each file for changes before returning any information, to
+//// -Provides an option to check each file for changes before returning any information, to
 ////allow live updates to files to be handled, Eg, so that a system file can be live-edited
 ////in another program, and changes to its connectors will be seen immediately from within
 ////our program.
@@ -113,25 +113,25 @@
 //// -Int: ModuleInfo key
 //// -String[UTF16]: ConnectorClassName
 //// -String[UTF16]: ConnectorInstanceName
-//class ModuleManager
+// class ModuleManager
 //{
-//public:
-//	//Constructors
+// public:
+//	// Constructors
 //	ModuleManager();
 //
-//	//Database functions
+//	// Database functions
 //	bool OpenDatabase(const std::wstring& databaseFilename);
 //	void CloseDatabase();
 //
 //	//##TODO##
 //
-//private:
+// private:
 //	bool IsPlatformLittleEndian() const;
 //
-//	//Database functions
+//	// Database functions
 //	bool ExecuteSQL(const std::wstring& sqlStatement) const;
 //
-//private:
+// private:
 //	bool openedDatabase;
 //	sqlite3* databaseConnection;
 //};

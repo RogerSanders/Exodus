@@ -2,9 +2,9 @@
 #include "resource.h"
 #include <thread>
 
-//----------------------------------------------------------------------------------------
-//Constructors
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Constructors
+//----------------------------------------------------------------------------------------------------------------------
 InputMappingDetailsView::InputMappingDetailsView(IUIManager& uiManager, InputMappingDetailsViewPresenter& presenter, ISystemGUIInterface& model, IDevice* targetDevice)
 :ViewBase(uiManager, presenter), _presenter(presenter), _model(model), _initializedDialog(false), _systemKeyInputFieldInFocus(false), _targetDevice(targetDevice), _joystickWorkerThreadActive(false)
 {
@@ -14,9 +14,9 @@ InputMappingDetailsView::InputMappingDetailsView(IUIManager& uiManager, InputMap
 	SetDialogViewType();
 }
 
-//----------------------------------------------------------------------------------------
-//Target device functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Target device functions
+//----------------------------------------------------------------------------------------------------------------------
 void InputMappingDetailsView::SetTargetDevice(IDevice* targetDevice)
 {
 	_targetDevice = targetDevice;
@@ -26,9 +26,9 @@ void InputMappingDetailsView::SetTargetDevice(IDevice* targetDevice)
 	}
 }
 
-//----------------------------------------------------------------------------------------
-//Member window procedure
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Member window procedure
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR InputMappingDetailsView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	switch (msg)
@@ -47,9 +47,9 @@ INT_PTR InputMappingDetailsView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wpara
 	return FALSE;
 }
 
-//----------------------------------------------------------------------------------------
-//Event handlers
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Event handlers
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR InputMappingDetailsView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	_hwndInternal = hwnd;
@@ -60,7 +60,7 @@ INT_PTR InputMappingDetailsView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPAR
 	SetWindowSubclass(GetDlgItem(hwnd, IDC_INPUTMAPPING_DETAILS_SYSTEMKEY), BounceBackSubclassProc, 0, 0);
 	SetWindowSubclass(GetDlgItem(hwnd, IDC_INPUTMAPPING_DETAILS_AUTOMAPPINGTOGGLE), BounceBackSubclassProc, 0, 0);
 
-	//Start the joystick worker thread
+	// Start the joystick worker thread
 	std::unique_lock<std::mutex> lock(_joystickWorkerThreadMutex);
 	_joystickWorkerThreadActive = true;
 	std::thread workerThread(std::bind(std::mem_fn(&InputMappingDetailsView::JoystickKeyMappingWorkerThread), this));
@@ -69,10 +69,10 @@ INT_PTR InputMappingDetailsView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPAR
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR InputMappingDetailsView::msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	//Stop the joystick worker thread
+	// Stop the joystick worker thread
 	std::unique_lock<std::mutex> lock(_joystickWorkerThreadMutex);
 	_joystickWorkerThreadActive = false;
 	_joystickWorkerThreadStopped.wait(lock);
@@ -80,23 +80,23 @@ INT_PTR InputMappingDetailsView::msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM 
 	return FALSE;
 }
 
-//----------------------------------------------------------------------------------------
-//Entry update functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Entry update functions
+//----------------------------------------------------------------------------------------------------------------------
 void InputMappingDetailsView::UpdateTargetDeviceInputMappingsDisplay(HWND hwnd)
 {
-	//Build a string uniquely identifying this input device in the system
+	// Build a string uniquely identifying this input device in the system
 	std::wstring deviceNameString;
 	_model.GetFullyQualifiedDeviceDisplayName(_targetDevice, deviceNameString);
 
-	//Update the device name field
+	// Update the device name field
 	UpdateDlgItemString(hwnd, IDC_INPUTMAPPING_DETAILS_DEVICENAME, deviceNameString);
 
-	//Obtain the current set of registered inputs for the target device
+	// Obtain the current set of registered inputs for the target device
 	std::list<unsigned int> deviceKeyCodeList = _model.GetDeviceKeyCodeList(_targetDevice);
 	_deviceKeyCodeMap = std::vector<unsigned int>(deviceKeyCodeList.begin(), deviceKeyCodeList.end());
 
-	//Update the list of device keys
+	// Update the list of device keys
 	SendMessage(GetDlgItem(hwnd, IDC_INPUTMAPPING_DETAILS_DEVICEKEY), CB_RESETCONTENT, 0, 0);
 	for (unsigned int i = 0; i < _deviceKeyCodeMap.size(); ++i)
 	{
@@ -106,7 +106,7 @@ void InputMappingDetailsView::UpdateTargetDeviceInputMappingsDisplay(HWND hwnd)
 		SendMessage(GetDlgItem(hwnd, IDC_INPUTMAPPING_DETAILS_DEVICEKEY), CB_SETITEMDATA, newItemIndex, (LPARAM)i);
 	}
 
-	//Update the list of system keys
+	// Update the list of system keys
 	SendMessage(GetDlgItem(hwnd, IDC_INPUTMAPPING_DETAILS_SYSTEMKEY), CB_RESETCONTENT, 0, 0);
 	for (unsigned int i = (unsigned int)ISystemDeviceInterface::KeyCode::None; i < (unsigned int)ISystemDeviceInterface::KeyCode::EndOfList; ++i)
 	{
@@ -116,15 +116,15 @@ void InputMappingDetailsView::UpdateTargetDeviceInputMappingsDisplay(HWND hwnd)
 		SendMessage(GetDlgItem(hwnd, IDC_INPUTMAPPING_DETAILS_SYSTEMKEY), CB_SETITEMDATA, newItemIndex, (LPARAM)systemKeyCode);
 	}
 
-	//Turn off the auto key mapping mode
+	// Turn off the auto key mapping mode
 	_autoKeyMappingActive = false;
 
-	//Initialize the display state of the selected device input mappings
+	// Initialize the display state of the selected device input mappings
 	_selectedInputRegistration = 0;
 	UpdateSelectedInputRegistration(hwnd);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void InputMappingDetailsView::UpdateSelectedInputRegistration(HWND hwnd)
 {
 	bool autoMappingTextSet = false;
@@ -154,7 +154,7 @@ void InputMappingDetailsView::UpdateSelectedInputRegistration(HWND hwnd)
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR InputMappingDetailsView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	if (HIWORD(wparam) == BN_CLICKED)
@@ -216,7 +216,7 @@ INT_PTR InputMappingDetailsView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM 
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR InputMappingDetailsView::msgWM_BOUNCE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	BounceMessage* bounceMessage = (BounceMessage*)lparam;
@@ -277,7 +277,7 @@ INT_PTR InputMappingDetailsView::msgWM_BOUNCE(HWND hwnd, WPARAM wparam, LPARAM l
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR InputMappingDetailsView::msgWM_USER(HWND hwnd, WPARAM wParam, LPARAM lParam)
 {
 	if (_autoKeyMappingActive || _systemKeyInputFieldInFocus)
@@ -305,18 +305,18 @@ INT_PTR InputMappingDetailsView::msgWM_USER(HWND hwnd, WPARAM wParam, LPARAM lPa
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
-//Joystick functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Joystick functions
+//----------------------------------------------------------------------------------------------------------------------
 void InputMappingDetailsView::JoystickKeyMappingWorkerThread()
 {
-	//Calculate the maximum number of joysticks, and the maximum number of buttons and
-	//axis per joystick.
+	// Calculate the maximum number of joysticks, and the maximum number of buttons and
+	// axis per joystick.
 	const unsigned int maxButtonCount = 32;
 	const unsigned int maxAxisCount = 6;
 	UINT maxJoystickCount = joyGetNumDevs();
 
-	//Initialize the button and axis state for each joystick
+	// Initialize the button and axis state for each joystick
 	std::vector<std::vector<bool>> buttonState;
 	std::vector<std::vector<float>> axisState;
 	buttonState.resize(maxJoystickCount);
@@ -327,13 +327,13 @@ void InputMappingDetailsView::JoystickKeyMappingWorkerThread()
 		axisState[i].resize(maxAxisCount);
 	}
 
-	//Process input state changes from joysticks until we're requested to stop
+	// Process input state changes from joysticks until we're requested to stop
 	while (_joystickWorkerThreadActive)
 	{
-		//Latch new values from each joystick
+		// Latch new values from each joystick
 		for (unsigned int i = 0; i < maxJoystickCount; ++i)
 		{
-			//Obtain info on the capabilities of this joystick
+			// Obtain info on the capabilities of this joystick
 			JOYCAPS joystickCapabilities;
 			MMRESULT joyGetDevCapsReturn = joyGetDevCaps(i, &joystickCapabilities, sizeof(joystickCapabilities));
 			if (joyGetDevCapsReturn != JOYERR_NOERROR)
@@ -341,7 +341,7 @@ void InputMappingDetailsView::JoystickKeyMappingWorkerThread()
 				continue;
 			}
 
-			//Obtain info on the current button state for this joystick
+			// Obtain info on the current button state for this joystick
 			JOYINFOEX joystickInfo;
 			joystickInfo.dwSize = sizeof(joystickInfo);
 			joystickInfo.dwFlags = JOY_RETURNALL;
@@ -351,23 +351,23 @@ void InputMappingDetailsView::JoystickKeyMappingWorkerThread()
 				continue;
 			}
 
-			//Latch the new state for each button in this joystick
+			// Latch the new state for each button in this joystick
 			unsigned int activeButtonCount = (joystickCapabilities.wNumButtons > maxButtonCount)? maxButtonCount: joystickCapabilities.wNumButtons;
 			Data buttonData(activeButtonCount, joystickInfo.dwButtons);
 			for (unsigned int buttonNo = 0; buttonNo < activeButtonCount; ++buttonNo)
 			{
-				//If the current button state matches the previous button state, advance
-				//to the next button.
+				// If the current button state matches the previous button state, advance
+				// to the next button.
 				bool buttonStateNew = buttonData.GetBit(buttonNo);
 				if (buttonState[i][buttonNo] == buttonStateNew)
 				{
 					continue;
 				}
 
-				//Latch the new button state
+				// Latch the new button state
 				buttonState[i][buttonNo] = buttonStateNew;
 
-				//Notify the main window of this button press
+				// Notify the main window of this button press
 				ISystemDeviceInterface::KeyCode keyCode;
 				if (_model.TranslateJoystickButton(i, buttonNo, keyCode))
 				{
@@ -378,7 +378,7 @@ void InputMappingDetailsView::JoystickKeyMappingWorkerThread()
 				}
 			}
 
-			//Latch the new state for each axis in this joystick
+			// Latch the new state for each axis in this joystick
 			unsigned int reportedAxesCount = joystickCapabilities.wNumAxes;
 			bool hasAxisZ = (joystickCapabilities.wCaps & JOYCAPS_HASZ) != 0;
 			bool hasAxisR = (joystickCapabilities.wCaps & JOYCAPS_HASR) != 0;
@@ -420,19 +420,19 @@ void InputMappingDetailsView::JoystickKeyMappingWorkerThread()
 			}
 			for (unsigned int axisNo = 0; axisNo < newAxisState.size(); ++axisNo)
 			{
-				//If the current axis state matches the previous axis state, advance to
-				//the next axis.
+				// If the current axis state matches the previous axis state, advance to
+				// the next axis.
 				if (axisState[i][axisNo] == newAxisState[axisNo])
 				{
 					continue;
 				}
 
-				//Latch the new axis state
+				// Latch the new axis state
 				float axisStateNew = newAxisState[axisNo];
 				float axisStateOld = axisState[i][axisNo];
 				axisState[i][axisNo] = axisStateNew;
 
-				//Notify the main window of a button state change linked to this axis
+				// Notify the main window of a button state change linked to this axis
 				if ((axisStateOld < 0.25f) && (axisStateNew >= 0.25f))
 				{
 					ISystemDeviceInterface::KeyCode keyCode;
@@ -452,11 +452,11 @@ void InputMappingDetailsView::JoystickKeyMappingWorkerThread()
 			}
 		}
 
-		//Delay until it's time to latch the joystick input state again
+		// Delay until it's time to latch the joystick input state again
 		Sleep(10);
 	}
 
-	//Since this thread is terminating, notify any waiting threads.
+	// Since this thread is terminating, notify any waiting threads.
 	std::unique_lock<std::mutex> lock(_joystickWorkerThreadMutex);
 	_joystickWorkerThreadStopped.notify_all();
 }

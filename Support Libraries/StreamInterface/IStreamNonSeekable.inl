@@ -1,8 +1,8 @@
 namespace Stream {
 
-//----------------------------------------------------------------------------------------
-//Enumerations
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Enumerations
+//----------------------------------------------------------------------------------------------------------------------
 enum class IStreamNonSeekable::ByteOrder
 {
 	Platform,
@@ -10,7 +10,7 @@ enum class IStreamNonSeekable::ByteOrder
 	BigEndian
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 enum class IStreamNonSeekable::TextEncoding
 {
 	ASCII,
@@ -19,16 +19,16 @@ enum class IStreamNonSeekable::TextEncoding
 	UTF32
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 enum class IStreamNonSeekable::NewLineEncoding
 {
 	Unix,
 	DOS
 };
 
-//----------------------------------------------------------------------------------------
-//Structures
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Structures
+//----------------------------------------------------------------------------------------------------------------------
 struct IStreamNonSeekable::UnicodeCodePoint
 {
 	wchar_t codeUnit1;
@@ -36,9 +36,9 @@ struct IStreamNonSeekable::UnicodeCodePoint
 	bool surrogatePair;
 };
 
-//----------------------------------------------------------------------------------------
-//Text char read functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Text char read functions
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadChar(ByteOrder byteOrder, UnicodeCodePoint& data)
 {
 	switch (byteOrder)
@@ -53,7 +53,7 @@ bool IStreamNonSeekable::ReadChar(ByteOrder byteOrder, UnicodeCodePoint& data)
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadCharAsASCII(ByteOrder byteOrder, UnicodeCodePoint& data)
 {
 	switch (byteOrder)
@@ -68,7 +68,7 @@ bool IStreamNonSeekable::ReadCharAsASCII(ByteOrder byteOrder, UnicodeCodePoint& 
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadCharAsUTF8(ByteOrder byteOrder, UnicodeCodePoint& data)
 {
 	switch (byteOrder)
@@ -83,7 +83,7 @@ bool IStreamNonSeekable::ReadCharAsUTF8(ByteOrder byteOrder, UnicodeCodePoint& d
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadCharAsUTF16(ByteOrder byteOrder, UnicodeCodePoint& data)
 {
 	switch (byteOrder)
@@ -98,7 +98,7 @@ bool IStreamNonSeekable::ReadCharAsUTF16(ByteOrder byteOrder, UnicodeCodePoint& 
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadCharAsUTF32(ByteOrder byteOrder, UnicodeCodePoint& data)
 {
 	switch (byteOrder)
@@ -113,9 +113,9 @@ bool IStreamNonSeekable::ReadCharAsUTF32(ByteOrder byteOrder, UnicodeCodePoint& 
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
-//Fixed length text buffer read functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Fixed length text buffer read functions
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextFixedLengthBufferAsASCII(ByteOrder byteOrder, SizeType codeUnitsInStream, char* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, char paddingChar)
 {
 	switch (byteOrder)
@@ -130,7 +130,7 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsASCII(ByteOrder byteOrder, S
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextFixedLengthBufferAsASCII(ByteOrder byteOrder, SizeType codeUnitsInStream, wchar_t* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, wchar_t paddingChar)
 {
 	switch (byteOrder)
@@ -145,7 +145,7 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsASCII(ByteOrder byteOrder, S
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF8(ByteOrder byteOrder, SizeType codeUnitsInStream, char* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, char paddingChar)
 {
 	switch (byteOrder)
@@ -160,7 +160,7 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF8(ByteOrder byteOrder, Si
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF8(ByteOrder byteOrder, SizeType codeUnitsInStream, wchar_t* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, wchar_t paddingChar)
 {
 	switch (byteOrder)
@@ -175,7 +175,7 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF8(ByteOrder byteOrder, Si
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF16(ByteOrder byteOrder, SizeType codeUnitsInStream, char* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, char paddingChar)
 {
 	switch (byteOrder)
@@ -190,7 +190,7 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF16(ByteOrder byteOrder, S
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF16(ByteOrder byteOrder, SizeType codeUnitsInStream, wchar_t* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, wchar_t paddingChar)
 {
 	switch (byteOrder)
@@ -205,7 +205,7 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF16(ByteOrder byteOrder, S
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF32(ByteOrder byteOrder, SizeType codeUnitsInStream, char* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, char paddingChar)
 {
 	switch (byteOrder)
@@ -220,7 +220,7 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF32(ByteOrder byteOrder, S
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF32(ByteOrder byteOrder, SizeType codeUnitsInStream, wchar_t* memoryBuffer, SizeType codeUnitsInMemory, SizeType& codeUnitsWritten, wchar_t paddingChar)
 {
 	switch (byteOrder)
@@ -235,7 +235,7 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF32(ByteOrder byteOrder, S
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextFixedLengthBufferAsASCII(ByteOrder byteOrder, SizeType codeUnitsInStream, std::string& data, char paddingChar)
 {
 	switch (byteOrder)
@@ -250,7 +250,7 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsASCII(ByteOrder byteOrder, S
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextFixedLengthBufferAsASCII(ByteOrder byteOrder, SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
 {
 	switch (byteOrder)
@@ -265,7 +265,7 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsASCII(ByteOrder byteOrder, S
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF8(ByteOrder byteOrder, SizeType codeUnitsInStream, std::string& data, char paddingChar)
 {
 	switch (byteOrder)
@@ -280,7 +280,7 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF8(ByteOrder byteOrder, Si
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF8(ByteOrder byteOrder, SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
 {
 	switch (byteOrder)
@@ -295,7 +295,7 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF8(ByteOrder byteOrder, Si
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF16(ByteOrder byteOrder, SizeType codeUnitsInStream, std::string& data, char paddingChar)
 {
 	switch (byteOrder)
@@ -310,7 +310,7 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF16(ByteOrder byteOrder, S
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF16(ByteOrder byteOrder, SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
 {
 	switch (byteOrder)
@@ -325,7 +325,7 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF16(ByteOrder byteOrder, S
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF32(ByteOrder byteOrder, SizeType codeUnitsInStream, std::string& data, char paddingChar)
 {
 	switch (byteOrder)
@@ -340,7 +340,7 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF32(ByteOrder byteOrder, S
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF32(ByteOrder byteOrder, SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
 {
 	switch (byteOrder)
@@ -355,7 +355,7 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF32(ByteOrder byteOrder, S
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextFixedLengthBufferAsASCII(SizeType codeUnitsInStream, std::string& data, char paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
@@ -365,7 +365,7 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsASCII(SizeType codeUnitsInSt
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextFixedLengthBufferAsASCII(SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
@@ -375,7 +375,7 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsASCII(SizeType codeUnitsInSt
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, std::string& data, char paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
@@ -385,7 +385,7 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF8(SizeType codeUnitsInStr
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
@@ -395,7 +395,7 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF8(SizeType codeUnitsInStr
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, std::string& data, char paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
@@ -405,7 +405,7 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF16(SizeType codeUnitsInSt
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
@@ -415,7 +415,7 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF16(SizeType codeUnitsInSt
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, std::string& data, char paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
@@ -425,7 +425,7 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF32(SizeType codeUnitsInSt
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
@@ -435,7 +435,7 @@ bool IStreamNonSeekable::ReadTextFixedLengthBufferAsUTF32(SizeType codeUnitsInSt
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextBigEndianFixedLengthBufferAsASCII(SizeType codeUnitsInStream, std::string& data, char paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
@@ -445,7 +445,7 @@ bool IStreamNonSeekable::ReadTextBigEndianFixedLengthBufferAsASCII(SizeType code
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextBigEndianFixedLengthBufferAsASCII(SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
@@ -455,7 +455,7 @@ bool IStreamNonSeekable::ReadTextBigEndianFixedLengthBufferAsASCII(SizeType code
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextBigEndianFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, std::string& data, char paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
@@ -465,7 +465,7 @@ bool IStreamNonSeekable::ReadTextBigEndianFixedLengthBufferAsUTF8(SizeType codeU
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextBigEndianFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
@@ -475,7 +475,7 @@ bool IStreamNonSeekable::ReadTextBigEndianFixedLengthBufferAsUTF8(SizeType codeU
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextBigEndianFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, std::string& data, char paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
@@ -485,7 +485,7 @@ bool IStreamNonSeekable::ReadTextBigEndianFixedLengthBufferAsUTF16(SizeType code
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextBigEndianFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
@@ -495,7 +495,7 @@ bool IStreamNonSeekable::ReadTextBigEndianFixedLengthBufferAsUTF16(SizeType code
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextBigEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, std::string& data, char paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
@@ -505,7 +505,7 @@ bool IStreamNonSeekable::ReadTextBigEndianFixedLengthBufferAsUTF32(SizeType code
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextBigEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
@@ -515,7 +515,7 @@ bool IStreamNonSeekable::ReadTextBigEndianFixedLengthBufferAsUTF32(SizeType code
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextLittleEndianFixedLengthBufferAsASCII(SizeType codeUnitsInStream, std::string& data, char paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
@@ -525,7 +525,7 @@ bool IStreamNonSeekable::ReadTextLittleEndianFixedLengthBufferAsASCII(SizeType c
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextLittleEndianFixedLengthBufferAsASCII(SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
@@ -535,7 +535,7 @@ bool IStreamNonSeekable::ReadTextLittleEndianFixedLengthBufferAsASCII(SizeType c
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextLittleEndianFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, std::string& data, char paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
@@ -545,7 +545,7 @@ bool IStreamNonSeekable::ReadTextLittleEndianFixedLengthBufferAsUTF8(SizeType co
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextLittleEndianFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
@@ -555,7 +555,7 @@ bool IStreamNonSeekable::ReadTextLittleEndianFixedLengthBufferAsUTF8(SizeType co
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextLittleEndianFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, std::string& data, char paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
@@ -565,7 +565,7 @@ bool IStreamNonSeekable::ReadTextLittleEndianFixedLengthBufferAsUTF16(SizeType c
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextLittleEndianFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
@@ -575,7 +575,7 @@ bool IStreamNonSeekable::ReadTextLittleEndianFixedLengthBufferAsUTF16(SizeType c
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextLittleEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, std::string& data, char paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
@@ -585,7 +585,7 @@ bool IStreamNonSeekable::ReadTextLittleEndianFixedLengthBufferAsUTF32(SizeType c
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadTextLittleEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, std::wstring& data, wchar_t paddingChar)
 {
 	data.resize((size_t)(codeUnitsInStream*2)+1);
@@ -595,9 +595,9 @@ bool IStreamNonSeekable::ReadTextLittleEndianFixedLengthBufferAsUTF32(SizeType c
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
-//Data read functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Data read functions
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, bool& data)
 {
 	switch (byteOrder)
@@ -612,7 +612,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, bool& data)
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, char& data)
 {
 	switch (byteOrder)
@@ -627,7 +627,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, char& data)
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, signed char& data)
 {
 	switch (byteOrder)
@@ -642,7 +642,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, signed char& data)
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, unsigned char& data)
 {
 	switch (byteOrder)
@@ -657,7 +657,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, unsigned char& data)
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, wchar_t& data)
 {
 	switch (byteOrder)
@@ -672,7 +672,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, wchar_t& data)
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, short& data)
 {
 	switch (byteOrder)
@@ -687,7 +687,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, short& data)
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, unsigned short& data)
 {
 	switch (byteOrder)
@@ -702,7 +702,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, unsigned short& data)
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, int& data)
 {
 	switch (byteOrder)
@@ -717,7 +717,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, int& data)
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, unsigned int& data)
 {
 	switch (byteOrder)
@@ -732,7 +732,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, unsigned int& data)
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, long& data)
 {
 	switch (byteOrder)
@@ -747,7 +747,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, long& data)
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, unsigned long& data)
 {
 	switch (byteOrder)
@@ -762,7 +762,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, unsigned long& data)
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, long long& data)
 {
 	switch (byteOrder)
@@ -777,7 +777,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, long long& data)
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, unsigned long long& data)
 {
 	switch (byteOrder)
@@ -792,7 +792,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, unsigned long long& data)
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, float& data)
 {
 	switch (byteOrder)
@@ -807,7 +807,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, float& data)
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, double& data)
 {
 	switch (byteOrder)
@@ -822,7 +822,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, double& data)
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, long double& data)
 {
 	switch (byteOrder)
@@ -837,9 +837,9 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, long double& data)
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
-//Array read functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Array read functions
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, bool* data, SizeType length)
 {
 	switch (byteOrder)
@@ -854,7 +854,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, bool* data, SizeType leng
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, char* data, SizeType length)
 {
 	switch (byteOrder)
@@ -869,7 +869,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, char* data, SizeType leng
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, signed char* data, SizeType length)
 {
 	switch (byteOrder)
@@ -884,7 +884,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, signed char* data, SizeTy
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, unsigned char* data, SizeType length)
 {
 	switch (byteOrder)
@@ -899,7 +899,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, unsigned char* data, Size
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, wchar_t* data, SizeType length)
 {
 	switch (byteOrder)
@@ -914,7 +914,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, wchar_t* data, SizeType l
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, short* data, SizeType length)
 {
 	switch (byteOrder)
@@ -929,7 +929,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, short* data, SizeType len
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, unsigned short* data, SizeType length)
 {
 	switch (byteOrder)
@@ -944,7 +944,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, unsigned short* data, Siz
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, int* data, SizeType length)
 {
 	switch (byteOrder)
@@ -959,7 +959,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, int* data, SizeType lengt
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, unsigned int* data, SizeType length)
 {
 	switch (byteOrder)
@@ -974,7 +974,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, unsigned int* data, SizeT
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, long* data, SizeType length)
 {
 	switch (byteOrder)
@@ -989,7 +989,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, long* data, SizeType leng
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, unsigned long* data, SizeType length)
 {
 	switch (byteOrder)
@@ -1004,7 +1004,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, unsigned long* data, Size
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, long long* data, SizeType length)
 {
 	switch (byteOrder)
@@ -1019,7 +1019,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, long long* data, SizeType
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, unsigned long long* data, SizeType length)
 {
 	switch (byteOrder)
@@ -1034,7 +1034,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, unsigned long long* data,
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, float* data, SizeType length)
 {
 	switch (byteOrder)
@@ -1049,7 +1049,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, float* data, SizeType len
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, double* data, SizeType length)
 {
 	switch (byteOrder)
@@ -1064,7 +1064,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, double* data, SizeType le
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, long double* data, SizeType length)
 {
 	switch (byteOrder)
@@ -1079,7 +1079,7 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, long double* data, SizeTy
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, std::vector<T>& data, SizeType length)
 {
 	switch (byteOrder)
@@ -1094,7 +1094,7 @@ template<class T> bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, std::ve
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> bool IStreamNonSeekable::ReadData(std::vector<T>& data, SizeType length)
 {
 	data.resize((std::vector<T>::size_type)length);
@@ -1105,7 +1105,7 @@ template<class T> bool IStreamNonSeekable::ReadData(std::vector<T>& data, SizeTy
 	return ReadData(&data[0], length);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> bool IStreamNonSeekable::ReadDataBigEndian(std::vector<T>& data, SizeType length)
 {
 	data.resize((std::vector<T>::size_type)length);
@@ -1116,7 +1116,7 @@ template<class T> bool IStreamNonSeekable::ReadDataBigEndian(std::vector<T>& dat
 	return ReadDataBigEndian(&data[0], length);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> bool IStreamNonSeekable::ReadDataLittleEndian(std::vector<T>& data, SizeType length)
 {
 	data.resize((std::vector<T>::size_type)length);
@@ -1127,7 +1127,7 @@ template<class T> bool IStreamNonSeekable::ReadDataLittleEndian(std::vector<T>& 
 	return ReadDataLittleEndian(&data[0], length);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadData(std::vector<bool>& data, SizeType length)
 {
 	bool result = true;
@@ -1142,7 +1142,7 @@ bool IStreamNonSeekable::ReadData(std::vector<bool>& data, SizeType length)
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadDataBigEndian(std::vector<bool>& data, SizeType length)
 {
 	bool result = true;
@@ -1157,7 +1157,7 @@ bool IStreamNonSeekable::ReadDataBigEndian(std::vector<bool>& data, SizeType len
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::ReadDataLittleEndian(std::vector<bool>& data, SizeType length)
 {
 	bool result = true;
@@ -1172,9 +1172,9 @@ bool IStreamNonSeekable::ReadDataLittleEndian(std::vector<bool>& data, SizeType 
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
-//Text char write functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Text char write functions
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteChar(ByteOrder byteOrder, const UnicodeCodePoint& data)
 {
 	switch (byteOrder)
@@ -1189,7 +1189,7 @@ bool IStreamNonSeekable::WriteChar(ByteOrder byteOrder, const UnicodeCodePoint& 
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteCharAsASCII(ByteOrder byteOrder, const UnicodeCodePoint& data)
 {
 	switch (byteOrder)
@@ -1204,7 +1204,7 @@ bool IStreamNonSeekable::WriteCharAsASCII(ByteOrder byteOrder, const UnicodeCode
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteCharAsUTF8(ByteOrder byteOrder, const UnicodeCodePoint& data)
 {
 	switch (byteOrder)
@@ -1219,7 +1219,7 @@ bool IStreamNonSeekable::WriteCharAsUTF8(ByteOrder byteOrder, const UnicodeCodeP
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteCharAsUTF16(ByteOrder byteOrder, const UnicodeCodePoint& data)
 {
 	switch (byteOrder)
@@ -1234,7 +1234,7 @@ bool IStreamNonSeekable::WriteCharAsUTF16(ByteOrder byteOrder, const UnicodeCode
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteCharAsUTF32(ByteOrder byteOrder, const UnicodeCodePoint& data)
 {
 	switch (byteOrder)
@@ -1249,9 +1249,9 @@ bool IStreamNonSeekable::WriteCharAsUTF32(ByteOrder byteOrder, const UnicodeCode
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
-//Text string write functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Text string write functions
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteText(ByteOrder byteOrder, const char* data, SizeType bufferSize, char terminator)
 {
 	switch (byteOrder)
@@ -1266,7 +1266,7 @@ bool IStreamNonSeekable::WriteText(ByteOrder byteOrder, const char* data, SizeTy
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteText(ByteOrder byteOrder, const wchar_t* data, SizeType bufferSize, wchar_t terminator)
 {
 	switch (byteOrder)
@@ -1281,7 +1281,7 @@ bool IStreamNonSeekable::WriteText(ByteOrder byteOrder, const wchar_t* data, Siz
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextAsASCII(ByteOrder byteOrder, const char* data, SizeType bufferSize, char terminator)
 {
 	switch (byteOrder)
@@ -1296,7 +1296,7 @@ bool IStreamNonSeekable::WriteTextAsASCII(ByteOrder byteOrder, const char* data,
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextAsASCII(ByteOrder byteOrder, const wchar_t* data, SizeType bufferSize, wchar_t terminator)
 {
 	switch (byteOrder)
@@ -1311,7 +1311,7 @@ bool IStreamNonSeekable::WriteTextAsASCII(ByteOrder byteOrder, const wchar_t* da
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextAsUTF8(ByteOrder byteOrder, const char* data, SizeType bufferSize, char terminator)
 {
 	switch (byteOrder)
@@ -1326,7 +1326,7 @@ bool IStreamNonSeekable::WriteTextAsUTF8(ByteOrder byteOrder, const char* data, 
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextAsUTF8(ByteOrder byteOrder, const wchar_t* data, SizeType bufferSize, wchar_t terminator)
 {
 	switch (byteOrder)
@@ -1341,7 +1341,7 @@ bool IStreamNonSeekable::WriteTextAsUTF8(ByteOrder byteOrder, const wchar_t* dat
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextAsUTF16(ByteOrder byteOrder, const char* data, SizeType bufferSize, char terminator)
 {
 	switch (byteOrder)
@@ -1356,7 +1356,7 @@ bool IStreamNonSeekable::WriteTextAsUTF16(ByteOrder byteOrder, const char* data,
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextAsUTF16(ByteOrder byteOrder, const wchar_t* data, SizeType bufferSize, wchar_t terminator)
 {
 	switch (byteOrder)
@@ -1371,7 +1371,7 @@ bool IStreamNonSeekable::WriteTextAsUTF16(ByteOrder byteOrder, const wchar_t* da
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextAsUTF32(ByteOrder byteOrder, const char* data, SizeType bufferSize, char terminator)
 {
 	switch (byteOrder)
@@ -1386,7 +1386,7 @@ bool IStreamNonSeekable::WriteTextAsUTF32(ByteOrder byteOrder, const char* data,
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextAsUTF32(ByteOrder byteOrder, const wchar_t* data, SizeType bufferSize, wchar_t terminator)
 {
 	switch (byteOrder)
@@ -1401,7 +1401,7 @@ bool IStreamNonSeekable::WriteTextAsUTF32(ByteOrder byteOrder, const wchar_t* da
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteText(ByteOrder byteOrder, const std::string& data)
 {
 	switch (byteOrder)
@@ -1416,7 +1416,7 @@ bool IStreamNonSeekable::WriteText(ByteOrder byteOrder, const std::string& data)
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteText(ByteOrder byteOrder, const std::wstring& data)
 {
 	switch (byteOrder)
@@ -1431,7 +1431,7 @@ bool IStreamNonSeekable::WriteText(ByteOrder byteOrder, const std::wstring& data
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextAsASCII(ByteOrder byteOrder, const std::string& data)
 {
 	switch (byteOrder)
@@ -1446,7 +1446,7 @@ bool IStreamNonSeekable::WriteTextAsASCII(ByteOrder byteOrder, const std::string
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextAsASCII(ByteOrder byteOrder, const std::wstring& data)
 {
 	switch (byteOrder)
@@ -1461,7 +1461,7 @@ bool IStreamNonSeekable::WriteTextAsASCII(ByteOrder byteOrder, const std::wstrin
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextAsUTF8(ByteOrder byteOrder, const std::string& data)
 {
 	switch (byteOrder)
@@ -1476,7 +1476,7 @@ bool IStreamNonSeekable::WriteTextAsUTF8(ByteOrder byteOrder, const std::string&
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextAsUTF8(ByteOrder byteOrder, const std::wstring& data)
 {
 	switch (byteOrder)
@@ -1491,7 +1491,7 @@ bool IStreamNonSeekable::WriteTextAsUTF8(ByteOrder byteOrder, const std::wstring
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextAsUTF16(ByteOrder byteOrder, const std::string& data)
 {
 	switch (byteOrder)
@@ -1506,7 +1506,7 @@ bool IStreamNonSeekable::WriteTextAsUTF16(ByteOrder byteOrder, const std::string
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextAsUTF16(ByteOrder byteOrder, const std::wstring& data)
 {
 	switch (byteOrder)
@@ -1521,7 +1521,7 @@ bool IStreamNonSeekable::WriteTextAsUTF16(ByteOrder byteOrder, const std::wstrin
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextAsUTF32(ByteOrder byteOrder, const std::string& data)
 {
 	switch (byteOrder)
@@ -1536,7 +1536,7 @@ bool IStreamNonSeekable::WriteTextAsUTF32(ByteOrder byteOrder, const std::string
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextAsUTF32(ByteOrder byteOrder, const std::wstring& data)
 {
 	switch (byteOrder)
@@ -1551,153 +1551,153 @@ bool IStreamNonSeekable::WriteTextAsUTF32(ByteOrder byteOrder, const std::wstrin
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteText(const std::string& data)
 {
 	return WriteText(data.c_str(), (SizeType)data.length());
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteText(const std::wstring& data)
 {
 	return WriteText(data.c_str(), (SizeType)data.length());
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextAsUTF8(const std::string& data)
 {
 	return WriteTextAsUTF8(data.c_str(), (SizeType)data.length());
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextAsUTF8(const std::wstring& data)
 {
 	return WriteTextAsUTF8(data.c_str(), (SizeType)data.length());
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextAsUTF16(const std::string& data)
 {
 	return WriteTextAsUTF16(data.c_str(), (SizeType)data.length());
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextAsUTF16(const std::wstring& data)
 {
 	return WriteTextAsUTF16(data.c_str(), (SizeType)data.length());
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextAsUTF32(const std::string& data)
 {
 	return WriteTextAsUTF32(data.c_str(), (SizeType)data.length());
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextAsUTF32(const std::wstring& data)
 {
 	return WriteTextAsUTF32(data.c_str(), (SizeType)data.length());
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextBigEndian(const std::string& data)
 {
 	return WriteTextBigEndian(data.c_str(), (SizeType)data.length());
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextBigEndian(const std::wstring& data)
 {
 	return WriteTextBigEndian(data.c_str(), (SizeType)data.length());
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextBigEndianAsUTF8(const std::string& data)
 {
 	return WriteTextBigEndianAsUTF8(data.c_str(), (SizeType)data.length());
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextBigEndianAsUTF8(const std::wstring& data)
 {
 	return WriteTextBigEndianAsUTF8(data.c_str(), (SizeType)data.length());
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextBigEndianAsUTF16(const std::string& data)
 {
 	return WriteTextBigEndianAsUTF16(data.c_str(), (SizeType)data.length());
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextBigEndianAsUTF16(const std::wstring& data)
 {
 	return WriteTextBigEndianAsUTF16(data.c_str(), (SizeType)data.length());
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextBigEndianAsUTF32(const std::string& data)
 {
 	return WriteTextBigEndianAsUTF32(data.c_str(), (SizeType)data.length());
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextBigEndianAsUTF32(const std::wstring& data)
 {
 	return WriteTextBigEndianAsUTF32(data.c_str(), (SizeType)data.length());
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextLittleEndian(const std::string& data)
 {
 	return WriteTextLittleEndian(data.c_str(), (SizeType)data.length());
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextLittleEndian(const std::wstring& data)
 {
 	return WriteTextLittleEndian(data.c_str(), (SizeType)data.length());
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextLittleEndianAsUTF8(const std::string& data)
 {
 	return WriteTextLittleEndianAsUTF8(data.c_str(), (SizeType)data.length());
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextLittleEndianAsUTF8(const std::wstring& data)
 {
 	return WriteTextLittleEndianAsUTF8(data.c_str(), (SizeType)data.length());
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextLittleEndianAsUTF16(const std::string& data)
 {
 	return WriteTextLittleEndianAsUTF16(data.c_str(), (SizeType)data.length());
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextLittleEndianAsUTF16(const std::wstring& data)
 {
 	return WriteTextLittleEndianAsUTF16(data.c_str(), (SizeType)data.length());
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextLittleEndianAsUTF32(const std::string& data)
 {
 	return WriteTextLittleEndianAsUTF32(data.c_str(), (SizeType)data.length());
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextLittleEndianAsUTF32(const std::wstring& data)
 {
 	return WriteTextLittleEndianAsUTF32(data.c_str(), (SizeType)data.length());
 }
 
-//----------------------------------------------------------------------------------------
-//Fixed length text buffer write functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Fixed length text buffer write functions
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextFixedLengthBufferAsASCII(ByteOrder byteOrder, SizeType codeUnitsInStream, const char* memoryBuffer, SizeType codeUnitsInMemory, char paddingChar)
 {
 	switch (byteOrder)
@@ -1712,7 +1712,7 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsASCII(ByteOrder byteOrder, 
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextFixedLengthBufferAsASCII(ByteOrder byteOrder, SizeType codeUnitsInStream, const wchar_t* memoryBuffer, SizeType codeUnitsInMemory, wchar_t paddingChar)
 {
 	switch (byteOrder)
@@ -1727,7 +1727,7 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsASCII(ByteOrder byteOrder, 
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF8(ByteOrder byteOrder, SizeType codeUnitsInStream, const char* memoryBuffer, SizeType codeUnitsInMemory, char paddingChar)
 {
 	switch (byteOrder)
@@ -1742,7 +1742,7 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF8(ByteOrder byteOrder, S
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF8(ByteOrder byteOrder, SizeType codeUnitsInStream, const wchar_t* memoryBuffer, SizeType codeUnitsInMemory, wchar_t paddingChar)
 {
 	switch (byteOrder)
@@ -1757,7 +1757,7 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF8(ByteOrder byteOrder, S
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF16(ByteOrder byteOrder, SizeType codeUnitsInStream, const char* memoryBuffer, SizeType codeUnitsInMemory, char paddingChar)
 {
 	switch (byteOrder)
@@ -1772,7 +1772,7 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF16(ByteOrder byteOrder, 
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF16(ByteOrder byteOrder, SizeType codeUnitsInStream, const wchar_t* memoryBuffer, SizeType codeUnitsInMemory, wchar_t paddingChar)
 {
 	switch (byteOrder)
@@ -1787,7 +1787,7 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF16(ByteOrder byteOrder, 
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF32(ByteOrder byteOrder, SizeType codeUnitsInStream, const char* memoryBuffer, SizeType codeUnitsInMemory, char paddingChar)
 {
 	switch (byteOrder)
@@ -1802,7 +1802,7 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF32(ByteOrder byteOrder, 
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF32(ByteOrder byteOrder, SizeType codeUnitsInStream, const wchar_t* memoryBuffer, SizeType codeUnitsInMemory, wchar_t paddingChar)
 {
 	switch (byteOrder)
@@ -1817,7 +1817,7 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF32(ByteOrder byteOrder, 
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextFixedLengthBufferAsASCII(ByteOrder byteOrder, SizeType codeUnitsInStream, const std::string& data, char paddingChar)
 {
 	switch (byteOrder)
@@ -1832,7 +1832,7 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsASCII(ByteOrder byteOrder, 
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextFixedLengthBufferAsASCII(ByteOrder byteOrder, SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
 {
 	switch (byteOrder)
@@ -1847,7 +1847,7 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsASCII(ByteOrder byteOrder, 
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF8(ByteOrder byteOrder, SizeType codeUnitsInStream, const std::string& data, char paddingChar)
 {
 	switch (byteOrder)
@@ -1862,7 +1862,7 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF8(ByteOrder byteOrder, S
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF8(ByteOrder byteOrder, SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
 {
 	switch (byteOrder)
@@ -1877,7 +1877,7 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF8(ByteOrder byteOrder, S
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF16(ByteOrder byteOrder, SizeType codeUnitsInStream, const std::string& data, char paddingChar)
 {
 	switch (byteOrder)
@@ -1892,7 +1892,7 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF16(ByteOrder byteOrder, 
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF16(ByteOrder byteOrder, SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
 {
 	switch (byteOrder)
@@ -1907,7 +1907,7 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF16(ByteOrder byteOrder, 
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF32(ByteOrder byteOrder, SizeType codeUnitsInStream, const std::string& data, char paddingChar)
 {
 	switch (byteOrder)
@@ -1922,7 +1922,7 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF32(ByteOrder byteOrder, 
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF32(ByteOrder byteOrder, SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
 {
 	switch (byteOrder)
@@ -1937,153 +1937,153 @@ bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF32(ByteOrder byteOrder, 
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextFixedLengthBufferAsASCII(SizeType codeUnitsInStream, const std::string& data, char paddingChar)
 {
 	return WriteTextFixedLengthBufferAsASCII(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextFixedLengthBufferAsASCII(SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
 {
 	return WriteTextFixedLengthBufferAsASCII(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, const std::string& data, char paddingChar)
 {
 	return WriteTextFixedLengthBufferAsUTF8(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
 {
 	return WriteTextFixedLengthBufferAsUTF8(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, const std::string& data, char paddingChar)
 {
 	return WriteTextFixedLengthBufferAsUTF16(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
 {
 	return WriteTextFixedLengthBufferAsUTF16(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, const std::string& data, char paddingChar)
 {
 	return WriteTextFixedLengthBufferAsUTF32(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
 {
 	return WriteTextFixedLengthBufferAsUTF32(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextBigEndianFixedLengthBufferAsASCII(SizeType codeUnitsInStream, const std::string& data, char paddingChar)
 {
 	return WriteTextBigEndianFixedLengthBufferAsASCII(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextBigEndianFixedLengthBufferAsASCII(SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
 {
 	return WriteTextBigEndianFixedLengthBufferAsASCII(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextBigEndianFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, const std::string& data, char paddingChar)
 {
 	return WriteTextBigEndianFixedLengthBufferAsUTF8(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextBigEndianFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
 {
 	return WriteTextBigEndianFixedLengthBufferAsUTF8(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextBigEndianFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, const std::string& data, char paddingChar)
 {
 	return WriteTextBigEndianFixedLengthBufferAsUTF16(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextBigEndianFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
 {
 	return WriteTextBigEndianFixedLengthBufferAsUTF16(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextBigEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, const std::string& data, char paddingChar)
 {
 	return WriteTextBigEndianFixedLengthBufferAsUTF32(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextBigEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
 {
 	return WriteTextBigEndianFixedLengthBufferAsUTF32(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextLittleEndianFixedLengthBufferAsASCII(SizeType codeUnitsInStream, const std::string& data, char paddingChar)
 {
 	return WriteTextLittleEndianFixedLengthBufferAsASCII(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextLittleEndianFixedLengthBufferAsASCII(SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
 {
 	return WriteTextLittleEndianFixedLengthBufferAsASCII(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextLittleEndianFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, const std::string& data, char paddingChar)
 {
 	return WriteTextLittleEndianFixedLengthBufferAsUTF8(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextLittleEndianFixedLengthBufferAsUTF8(SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
 {
 	return WriteTextLittleEndianFixedLengthBufferAsUTF8(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextLittleEndianFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, const std::string& data, char paddingChar)
 {
 	return WriteTextLittleEndianFixedLengthBufferAsUTF16(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextLittleEndianFixedLengthBufferAsUTF16(SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
 {
 	return WriteTextLittleEndianFixedLengthBufferAsUTF16(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextLittleEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, const std::string& data, char paddingChar)
 {
 	return WriteTextLittleEndianFixedLengthBufferAsUTF32(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextLittleEndianFixedLengthBufferAsUTF32(SizeType codeUnitsInStream, const std::wstring& data, wchar_t paddingChar)
 {
 	return WriteTextLittleEndianFixedLengthBufferAsUTF32(codeUnitsInStream, data.c_str(), (SizeType)data.size(), paddingChar);
 }
 
-//----------------------------------------------------------------------------------------
-//Data write functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Data write functions
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, bool data)
 {
 	switch (byteOrder)
@@ -2098,7 +2098,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, bool data)
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, char data)
 {
 	switch (byteOrder)
@@ -2113,7 +2113,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, char data)
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, signed char data)
 {
 	switch (byteOrder)
@@ -2128,7 +2128,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, signed char data)
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, unsigned char data)
 {
 	switch (byteOrder)
@@ -2143,7 +2143,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, unsigned char data)
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, wchar_t data)
 {
 	switch (byteOrder)
@@ -2158,7 +2158,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, wchar_t data)
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, short data)
 {
 	switch (byteOrder)
@@ -2173,7 +2173,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, short data)
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, unsigned short data)
 {
 	switch (byteOrder)
@@ -2188,7 +2188,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, unsigned short data)
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, int data)
 {
 	switch (byteOrder)
@@ -2203,7 +2203,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, int data)
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, unsigned int data)
 {
 	switch (byteOrder)
@@ -2218,7 +2218,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, unsigned int data)
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, long data)
 {
 	switch (byteOrder)
@@ -2233,7 +2233,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, long data)
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, unsigned long data)
 {
 	switch (byteOrder)
@@ -2248,7 +2248,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, unsigned long data)
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, long long data)
 {
 	switch (byteOrder)
@@ -2263,7 +2263,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, long long data)
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, unsigned long long data)
 {
 	switch (byteOrder)
@@ -2278,7 +2278,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, unsigned long long data)
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, float data)
 {
 	switch (byteOrder)
@@ -2293,7 +2293,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, float data)
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, double data)
 {
 	switch (byteOrder)
@@ -2308,7 +2308,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, double data)
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, long double data)
 {
 	switch (byteOrder)
@@ -2323,9 +2323,9 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, long double data)
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
-//Array write functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Array write functions
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const bool* data, SizeType length)
 {
 	switch (byteOrder)
@@ -2340,7 +2340,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const bool* data, SizeTy
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const char* data, SizeType length)
 {
 	switch (byteOrder)
@@ -2355,7 +2355,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const char* data, SizeTy
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const signed char* data, SizeType length)
 {
 	switch (byteOrder)
@@ -2370,7 +2370,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const signed char* data,
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const unsigned char* data, SizeType length)
 {
 	switch (byteOrder)
@@ -2385,7 +2385,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const unsigned char* dat
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const wchar_t* data, SizeType length)
 {
 	switch (byteOrder)
@@ -2400,7 +2400,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const wchar_t* data, Siz
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const short* data, SizeType length)
 {
 	switch (byteOrder)
@@ -2415,7 +2415,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const short* data, SizeT
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const unsigned short* data, SizeType length)
 {
 	switch (byteOrder)
@@ -2430,7 +2430,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const unsigned short* da
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const int* data, SizeType length)
 {
 	switch (byteOrder)
@@ -2445,7 +2445,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const int* data, SizeTyp
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const unsigned int* data, SizeType length)
 {
 	switch (byteOrder)
@@ -2460,7 +2460,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const unsigned int* data
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const long* data, SizeType length)
 {
 	switch (byteOrder)
@@ -2475,7 +2475,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const long* data, SizeTy
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const unsigned long* data, SizeType length)
 {
 	switch (byteOrder)
@@ -2490,7 +2490,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const unsigned long* dat
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const long long* data, SizeType length)
 {
 	switch (byteOrder)
@@ -2505,7 +2505,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const long long* data, S
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const unsigned long long* data, SizeType length)
 {
 	switch (byteOrder)
@@ -2520,7 +2520,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const unsigned long long
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const float* data, SizeType length)
 {
 	switch (byteOrder)
@@ -2535,7 +2535,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const float* data, SizeT
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const double* data, SizeType length)
 {
 	switch (byteOrder)
@@ -2550,7 +2550,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const double* data, Size
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const long double* data, SizeType length)
 {
 	switch (byteOrder)
@@ -2565,7 +2565,7 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const long double* data,
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const std::vector<T>& data)
 {
 	switch (byteOrder)
@@ -2580,7 +2580,7 @@ template<class T> bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const 
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> bool IStreamNonSeekable::WriteData(const std::vector<T>& data)
 {
 	SizeType length = (SizeType)data.size();
@@ -2591,7 +2591,7 @@ template<class T> bool IStreamNonSeekable::WriteData(const std::vector<T>& data)
 	return WriteData(&data[0], length);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> bool IStreamNonSeekable::WriteDataBigEndian(const std::vector<T>& data)
 {
 	SizeType length = (SizeType)data.size();
@@ -2602,7 +2602,7 @@ template<class T> bool IStreamNonSeekable::WriteDataBigEndian(const std::vector<
 	return WriteDataBigEndian(&data[0], length);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> bool IStreamNonSeekable::WriteDataLittleEndian(const std::vector<T>& data)
 {
 	SizeType length = (SizeType)data.size();
@@ -2613,7 +2613,7 @@ template<class T> bool IStreamNonSeekable::WriteDataLittleEndian(const std::vect
 	return WriteDataLittleEndian(&data[0], length);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteData(const std::vector<bool>& data)
 {
 	bool result = true;
@@ -2625,7 +2625,7 @@ bool IStreamNonSeekable::WriteData(const std::vector<bool>& data)
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteDataBigEndian(const std::vector<bool>& data)
 {
 	bool result = true;
@@ -2637,7 +2637,7 @@ bool IStreamNonSeekable::WriteDataBigEndian(const std::vector<bool>& data)
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteDataLittleEndian(const std::vector<bool>& data)
 {
 	bool result = true;
@@ -2649,7 +2649,7 @@ bool IStreamNonSeekable::WriteDataLittleEndian(const std::vector<bool>& data)
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> bool IStreamNonSeekable::WriteDataMultipleTimes(ByteOrder byteOrder, T data, SizeType count)
 {
 	switch (byteOrder)
@@ -2664,7 +2664,7 @@ template<class T> bool IStreamNonSeekable::WriteDataMultipleTimes(ByteOrder byte
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> bool IStreamNonSeekable::WriteDataMultipleTimes(T data, SizeType count)
 {
 	bool result = true;
@@ -2675,7 +2675,7 @@ template<class T> bool IStreamNonSeekable::WriteDataMultipleTimes(T data, SizeTy
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> bool IStreamNonSeekable::WriteDataBigEndianMultipleTimes(T data, SizeType count)
 {
 	bool result = true;
@@ -2686,7 +2686,7 @@ template<class T> bool IStreamNonSeekable::WriteDataBigEndianMultipleTimes(T dat
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> bool IStreamNonSeekable::WriteDataLittleEndianMultipleTimes(T data, SizeType count)
 {
 	bool result = true;
@@ -2697,4 +2697,4 @@ template<class T> bool IStreamNonSeekable::WriteDataLittleEndianMultipleTimes(T 
 	return result;
 }
 
-} //Close namespace Stream
+} // Close namespace Stream

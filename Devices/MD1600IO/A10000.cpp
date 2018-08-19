@@ -2,16 +2,16 @@
 //##DEBUG##
 #include <iostream>
 
-//----------------------------------------------------------------------------------------
-//Constructors
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Constructors
+//----------------------------------------------------------------------------------------------------------------------
 A10000::A10000(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
 :Device(implementationName, instanceName, moduleID), _versionRegister(8), _bversionRegister(8)
 {
 	_memoryBus = 0;
 	_controlPortBus = 0;
 
-	//Initialize the control port registers
+	// Initialize the control port registers
 	_dataRegisters.resize(ControlPortCount, Data(8));
 	_bdataRegisters.resize(ControlPortCount, Data(8));
 	_controlRegisters.resize(ControlPortCount, Data(8));
@@ -27,18 +27,18 @@ A10000::A10000(const std::wstring& implementationName, const std::wstring& insta
 	_binputLineState.resize(ControlPortCount);
 }
 
-//----------------------------------------------------------------------------------------
-//Initialization functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Initialization functions
+//----------------------------------------------------------------------------------------------------------------------
 bool A10000::ValidateDevice()
 {
 	return (_memoryBus != 0) && (_controlPortBus != 0);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void A10000::Initialize()
 {
-	//Initialize the version register
+	// Initialize the version register
 	_inputHardwareVersion = 0;
 	_versionRegister = 0;
 	SetOverseasFlag(false);
@@ -46,10 +46,10 @@ void A10000::Initialize()
 	SetNoDiskFlag(true);
 	SetHardwareVersion(_inputHardwareVersion);
 
-	//Initialize the control port registers to their correct default values. These
-	//defaults were obtained from Charles MacDonald.
+	// Initialize the control port registers to their correct default values. These
+	// defaults were obtained from Charles MacDonald.
 	//##TODO## Verify these defaults on the hardware. We have seen other documents which
-	//state that the default value for TxData port 3 is initialized to 0xFF, not 0xFB.
+	// state that the default value for TxData port 3 is initialized to 0xFF, not 0xFB.
 	_dataRegisters[0] = 0x7F;
 	_dataRegisters[1] = 0x7F;
 	_dataRegisters[2] = 0x7F;
@@ -62,7 +62,7 @@ void A10000::Initialize()
 	_txDataRegisters[1] = 0xFF;
 	_rxDataRegisters[1] = 0x00;
 	_serialControlRegisters[1] = 0x00;
-	_txDataRegisters[2] = 0xFF; //0xFB
+	_txDataRegisters[2] = 0xFF; // 0xFB
 	_rxDataRegisters[2] = 0x00;
 	_serialControlRegisters[2] = 0x00;
 
@@ -72,11 +72,11 @@ void A10000::Initialize()
 	_lineAccessBuffer.clear();
 	_currentHLLineState = false;
 
-	//Note that we initialize these lines to false, but on the real system, these lines
-	//read as true when no controller is connected. This occurs because there are pull-up
-	//resistors attached to these input lines. Pull-up resistors are mapped through the
-	//system XML mappings in our emulator, so we shouldn't initialize these values here
-	//assuming that these pull-up resistors exist, since they could be removed.
+	// Note that we initialize these lines to false, but on the real system, these lines
+	// read as true when no controller is connected. This occurs because there are pull-up
+	// resistors attached to these input lines. Pull-up resistors are mapped through the
+	// system XML mappings in our emulator, so we shouldn't initialize these values here
+	// assuming that these pull-up resistors exist, since they could be removed.
 	for (unsigned int i = 0; i < ControlPortCount; ++i)
 	{
 		_inputLineState[i].lineAssertedD0 = false;
@@ -89,9 +89,9 @@ void A10000::Initialize()
 	}
 }
 
-//----------------------------------------------------------------------------------------
-//Reference functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Reference functions
+//----------------------------------------------------------------------------------------------------------------------
 bool A10000::AddReference(const Marshal::In<std::wstring>& referenceName, IBusInterface* target)
 {
 	if (referenceName == L"BusInterface")
@@ -109,7 +109,7 @@ bool A10000::AddReference(const Marshal::In<std::wstring>& referenceName, IBusIn
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void A10000::RemoveReference(IBusInterface* target)
 {
 	if (_memoryBus == target)
@@ -122,49 +122,49 @@ void A10000::RemoveReference(IBusInterface* target)
 	}
 }
 
-//----------------------------------------------------------------------------------------
-//Execute functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Execute functions
+//----------------------------------------------------------------------------------------------------------------------
 bool A10000::SendNotifyUpcomingTimeslice() const
 {
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void A10000::NotifyUpcomingTimeslice(double nanoseconds)
 {
 	//##DEBUG##
 //	std::wcout << "A10000Notify: " << nanoseconds << '\n';
 
-	//Reset lastLineCheckTime for the beginning of the new timeslice, and force any
-	//remaining line state changes to be evaluated at the start of the new timeslice.
+	// Reset lastLineCheckTime for the beginning of the new timeslice, and force any
+	// remaining line state changes to be evaluated at the start of the new timeslice.
 	_lastLineCheckTime = 0;
 	for (std::list<LineAccess>::iterator i = _lineAccessBuffer.begin(); i != _lineAccessBuffer.end(); ++i)
 	{
-		//We rebase accessTime here to the start of the new time block, in order to allow
-		//line state changes to be flagged ahead of the time they actually take effect.
-		//This rebasing allows changes flagged ahead of time to safely cross timeslice
-		//boundaries.
+		// We rebase accessTime here to the start of the new time block, in order to allow
+		// line state changes to be flagged ahead of the time they actually take effect.
+		// This rebasing allows changes flagged ahead of time to safely cross timeslice
+		// boundaries.
 		i->accessTime -= _lastTimesliceLength;
 	}
 	_lastTimesliceLength = nanoseconds;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool A10000::SendNotifyAfterExecuteCalled() const
 {
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void A10000::NotifyAfterExecuteCalled()
 {
-	//Ensure that any pending line state changes which we have passed in this timeslice
-	//are applied
+	// Ensure that any pending line state changes which we have passed in this timeslice
+	// are applied
 	ApplyPendingLineStateChanges(_lastTimesliceLength);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void A10000::ExecuteRollback()
 {
 	_versionRegister = _bversionRegister;
@@ -182,7 +182,7 @@ void A10000::ExecuteRollback()
 	_lineAccessPending = !_lineAccessBuffer.empty();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void A10000::ExecuteCommit()
 {
 	_bversionRegister = _versionRegister;
@@ -206,9 +206,9 @@ void A10000::ExecuteCommit()
 	}
 }
 
-//----------------------------------------------------------------------------------------
-//Line functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Line functions
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int A10000::GetLineID(const Marshal::In<std::wstring>& lineName) const
 {
 	if (lineName == L"PORT1_D0")
@@ -321,7 +321,7 @@ unsigned int A10000::GetLineID(const Marshal::In<std::wstring>& lineName) const
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> A10000::GetLineName(unsigned int lineID) const
 {
 	switch ((LineID)lineID)
@@ -385,7 +385,7 @@ Marshal::Ret<std::wstring> A10000::GetLineName(unsigned int lineID) const
 	return L"";
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int A10000::GetLineWidth(unsigned int lineID) const
 {
 	switch ((LineID)lineID)
@@ -432,20 +432,20 @@ unsigned int A10000::GetLineWidth(unsigned int lineID) const
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void A10000::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	std::unique_lock<std::mutex> lock(_lineMutex);
 
-	//Read the time at which this access is being made, and trigger a rollback if we've
-	//already passed that time.
+	// Read the time at which this access is being made, and trigger a rollback if we've
+	// already passed that time.
 	if (_lastLineCheckTime > accessTime)
 	{
 		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 	}
 
-	//If this is a line state change which needs to be processed immediately, apply it now
-	//and return.
+	// If this is a line state change which needs to be processed immediately, apply it now
+	// and return.
 	switch ((LineID)targetLine)
 	{
 	case LineID::LINE_HWVERSION:
@@ -454,17 +454,17 @@ void A10000::SetLineState(unsigned int targetLine, const Data& lineData, IDevice
 		return;
 	}
 
-	//Flag that an entry exists in the buffer. This flag is used to skip the expensive
-	//locking operation in the active thread for this device when no line changes are
-	//pending. Note that we set this flag before we've actually written the entry into
-	//the buffer so that the execution thread is aware of the line state change as soon as
-	//possible, however the lock we've obtained on our line mutex will prevent the
-	//execution thread from attempting to access the line access buffer until the data has
-	//been written.
+	// Flag that an entry exists in the buffer. This flag is used to skip the expensive
+	// locking operation in the active thread for this device when no line changes are
+	// pending. Note that we set this flag before we've actually written the entry into
+	// the buffer so that the execution thread is aware of the line state change as soon as
+	// possible, however the lock we've obtained on our line mutex will prevent the
+	// execution thread from attempting to access the line access buffer until the data has
+	// been written.
 	_lineAccessPending = true;
 
-	//Insert the line access into the buffer. Note that entries in the buffer are sorted
-	//by access time from lowest to highest.
+	// Insert the line access into the buffer. Note that entries in the buffer are sorted
+	// by access time from lowest to highest.
 	std::list<LineAccess>::reverse_iterator i = _lineAccessBuffer.rbegin();
 	while ((i != _lineAccessBuffer.rend()) && (i->accessTime > accessTime))
 	{
@@ -472,42 +472,42 @@ void A10000::SetLineState(unsigned int targetLine, const Data& lineData, IDevice
 	}
 	_lineAccessBuffer.insert(i.base(), LineAccess((LineID)targetLine, lineData, accessTime));
 
-	//We explicitly release our lock on lineMutex here so that we're not blocking access
-	//to SetLineState() on this class before we modify the line state for other devices in
-	//the code that follows. Adhering to this pattern helps to avoid deadlock cases that
-	//could otherwise arise from valid line mappings.
+	// We explicitly release our lock on lineMutex here so that we're not blocking access
+	// to SetLineState() on this class before we modify the line state for other devices in
+	// the code that follows. Adhering to this pattern helps to avoid deadlock cases that
+	// could otherwise arise from valid line mappings.
 	lock.unlock();
 
 	//##TODO## Clean this up
 	//##TODO## Handle changes to the HL interrupt line state. It's possible for an
-	//interrupt line to be flagged here as a result of the TH line changing. What we
-	//probably need to do is actually call SetLineState for this line if appropriate here,
-	//but revoke the line state change later on if the TH line state change is revoked, or
-	//if the control register settings that affect TH line generation are changed. This
-	//means we need to look for changes to the TH line here, and conditionally trigger a
-	//line state change.
-	//UpdateHLInterruptState(caller, accessTime, accessContext);
+	// interrupt line to be flagged here as a result of the TH line changing. What we
+	// probably need to do is actually call SetLineState for this line if appropriate here,
+	// but revoke the line state change later on if the TH line state change is revoked, or
+	// if the control register settings that affect TH line generation are changed. This
+	// means we need to look for changes to the TH line here, and conditionally trigger a
+	// line state change.
+	// UpdateHLInterruptState(caller, accessTime, accessContext);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void A10000::TransparentSetLineState(unsigned int targetLine, const Data& lineData)
 {
 	SetLineState(targetLine, lineData, 0, _lastTimesliceLength, 0);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void A10000::RevokeSetLineState(unsigned int targetLine, const Data& lineData, double reportedTime, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	std::unique_lock<std::mutex> lock(_lineMutex);
 
-	//Read the time at which this access is being made, and trigger a rollback if we've
-	//already passed that time.
+	// Read the time at which this access is being made, and trigger a rollback if we've
+	// already passed that time.
 	if (_lastLineCheckTime > accessTime)
 	{
 		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 	}
 
-	//Find the matching line state change entry in the line access buffer
+	// Find the matching line state change entry in the line access buffer
 	std::list<LineAccess>::reverse_iterator i = _lineAccessBuffer.rbegin();
 	bool foundTargetEntry = false;
 	while (!foundTargetEntry && (i != _lineAccessBuffer.rend()))
@@ -520,7 +520,7 @@ void A10000::RevokeSetLineState(unsigned int targetLine, const Data& lineData, d
 		++i;
 	}
 
-	//Erase the target line state change entry from the line access buffer
+	// Erase the target line state change entry from the line access buffer
 	if (foundTargetEntry)
 	{
 		_lineAccessBuffer.erase((++i).base());
@@ -535,11 +535,11 @@ void A10000::RevokeSetLineState(unsigned int targetLine, const Data& lineData, d
 		}
 	}
 
-	//Update the lineAccessPending flag
+	// Update the lineAccessPending flag
 	_lineAccessPending = !_lineAccessBuffer.empty();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void A10000::AssertCurrentOutputLineState() const
 {
 	if (_memoryBus != 0)
@@ -551,7 +551,7 @@ void A10000::AssertCurrentOutputLineState() const
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void A10000::NegateCurrentOutputLineState() const
 {
 	if (_memoryBus != 0)
@@ -563,7 +563,7 @@ void A10000::NegateCurrentOutputLineState() const
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void A10000::AssertCurrentOutputLineStateForPort(Ports portNo) const
 {
 	if (GetControlRegisterD0(portNo) && GetDataRegisterD0(portNo))
@@ -596,7 +596,7 @@ void A10000::AssertCurrentOutputLineStateForPort(Ports portNo) const
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void A10000::NegateCurrentOutputLineStateForPort(Ports portNo) const
 {
 	if (GetControlRegisterD0(portNo) && GetDataRegisterD0(portNo))
@@ -629,12 +629,12 @@ void A10000::NegateCurrentOutputLineStateForPort(Ports portNo) const
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void A10000::ApplyLineStateChange(LineID targetLine, const Data& lineData)
 {
 	switch (targetLine)
 	{
-	//Control port 1 interface
+	// Control port 1 interface
 	case LineID::LINE_PORT1_TH:
 		_inputLineState[GetPortIndexForPort(Ports::Port1)].lineAssertedTH = lineData.GetBit(0);
 		if (!GetControlRegisterTH(Ports::Port1))
@@ -685,7 +685,7 @@ void A10000::ApplyLineStateChange(LineID targetLine, const Data& lineData)
 		}
 		break;
 
-	//Control port 2 interface
+	// Control port 2 interface
 	case LineID::LINE_PORT2_TH:
 		_inputLineState[GetPortIndexForPort(Ports::Port2)].lineAssertedTH = lineData.GetBit(0);
 		if (!GetControlRegisterTH(Ports::Port2))
@@ -736,7 +736,7 @@ void A10000::ApplyLineStateChange(LineID targetLine, const Data& lineData)
 		}
 		break;
 
-	//Control port 3 interface
+	// Control port 3 interface
 	case LineID::LINE_PORT3_TH:
 		_inputLineState[GetPortIndexForPort(Ports::Port3)].lineAssertedTH = lineData.GetBit(0);
 		if (!GetControlRegisterTH(Ports::Port3))
@@ -799,18 +799,18 @@ void A10000::ApplyLineStateChange(LineID targetLine, const Data& lineData)
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void A10000::ApplyPendingLineStateChanges(double currentTimesliceProgress)
 {
-	//If we have any pending line state changes waiting, apply any which we have now
-	//reached.
+	// If we have any pending line state changes waiting, apply any which we have now
+	// reached.
 	if (_lineAccessPending)
 	{
 		bool done = false;
 		while (!done)
 		{
-			//Remove the next line access that we've reached from the front of the line
-			//access buffer
+			// Remove the next line access that we've reached from the front of the line
+			// access buffer
 			std::list<LineAccess>::iterator i = _lineAccessBuffer.begin();
 			if ((i == _lineAccessBuffer.end()) || (i->accessTime > currentTimesliceProgress))
 			{
@@ -821,13 +821,13 @@ void A10000::ApplyPendingLineStateChanges(double currentTimesliceProgress)
 			_lineAccessBuffer.pop_front();
 			_lineAccessPending = !_lineAccessBuffer.empty();
 
-			//Apply the line state change
+			// Apply the line state change
 			ApplyLineStateChange(lineAccess.lineID, lineAccess.state);
 		}
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 A10000::LineID A10000::GetLineIDForPort(Ports portNo, PortLine portLine)
 {
 	LineID basePortLineID;
@@ -847,12 +847,12 @@ A10000::LineID A10000::GetLineIDForPort(Ports portNo, PortLine portLine)
 	return (LineID)((unsigned int)basePortLineID + ((unsigned int)portLine - (unsigned int)PortLine::D0));
 }
 
-//----------------------------------------------------------------------------------------
-//Interrupt functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Interrupt functions
+//----------------------------------------------------------------------------------------------------------------------
 void A10000::UpdateHLInterruptState(IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
-	//Update the HL interrupt line state
+	// Update the HL interrupt line state
 	bool newHLLineState = (GetControlRegisterHL(Ports::Port1) && !GetControlRegisterTH(Ports::Port1) && GetDataRegisterTH(Ports::Port1))
 	                   || (GetControlRegisterHL(Ports::Port2) && !GetControlRegisterTH(Ports::Port2) && GetDataRegisterTH(Ports::Port2))
 	                   || (GetControlRegisterHL(Ports::Port3) && !GetControlRegisterTH(Ports::Port3) && GetDataRegisterTH(Ports::Port3));
@@ -863,14 +863,14 @@ void A10000::UpdateHLInterruptState(IDeviceContext* caller, double accessTime, u
 	}
 }
 
-//----------------------------------------------------------------------------------------
-//Memory interface functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Memory interface functions
+//----------------------------------------------------------------------------------------------------------------------
 IBusInterface::AccessResult A10000::ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	std::unique_lock<std::mutex> lock(_accessMutex);
 
-	//Trigger a system rollback if the device has been accessed out of order
+	// Trigger a system rollback if the device has been accessed out of order
 	std::unique_lock<std::mutex> lineLock(_lineMutex);
 	if (_lastLineCheckTime > accessTime)
 	{
@@ -878,13 +878,13 @@ IBusInterface::AccessResult A10000::ReadInterface(unsigned int interfaceNumber, 
 	}
 	_lastLineCheckTime = accessTime;
 
-	//Apply any pending line state changes
+	// Apply any pending line state changes
 	ApplyPendingLineStateChanges(accessTime);
 
-	//Release the lock on lineMutex
+	// Release the lock on lineMutex
 	lineLock.unlock();
 
-	//Process the read
+	// Process the read
 	switch (location)
 	{
 	case 0x00:
@@ -938,32 +938,32 @@ IBusInterface::AccessResult A10000::ReadInterface(unsigned int interfaceNumber, 
 	}
 
 	//##DEBUG##
-	//if((location == 1) || (location == 4) || (location == 7) || (location == 8) || (location == 9))
+	// if((location == 1) || (location == 4) || (location == 7) || (location == 8) || (location == 9))
 	//{
 	//	std::wcout << "A10000Read:  " << std::hex << std::uppercase << location << '\t' << data.GetData() << '\t' << accessTime << '\t' << lastLineCheckTime << '\n';
 	//}
 
-	//The 8-bit result is mirrored in both the upper and lower bytes for word-wide reads.
-	//This appears to be done internally, not as part of the bus mapping logic. We emulate
-	//that behaviour here.
+	// The 8-bit result is mirrored in both the upper and lower bytes for word-wide reads.
+	// This appears to be done internally, not as part of the bus mapping logic. We emulate
+	// that behaviour here.
 	data = (data.GetData() | (data.GetData() << 8));
 
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 IBusInterface::AccessResult A10000::WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	std::unique_lock<std::mutex> lock(_accessMutex);
 
 	//##DEBUG##
-	//InputLineState* inputLineStatePointer = &inputLineState[0];
-	//if((location == 1) || (location == 4) || (location == 7) || (location == 8) || (location == 9))
+	// InputLineState* inputLineStatePointer = &inputLineState[0];
+	// if((location == 1) || (location == 4) || (location == 7) || (location == 8) || (location == 9))
 	//{
 	//	std::wcout << "A10000Write: " << std::hex << std::uppercase << location << '\t' << data.GetData() << '\t' << accessTime << '\t' << lastLineCheckTime << '\n';
 	//}
 
-	//Trigger a system rollback if the device has been accessed out of order
+	// Trigger a system rollback if the device has been accessed out of order
 	std::unique_lock<std::mutex> lineLock(_lineMutex);
 	if (_lastLineCheckTime > accessTime)
 	{
@@ -971,17 +971,17 @@ IBusInterface::AccessResult A10000::WriteInterface(unsigned int interfaceNumber,
 	}
 	_lastLineCheckTime = accessTime;
 
-	//Apply any pending line state changes
+	// Apply any pending line state changes
 	ApplyPendingLineStateChanges(accessTime);
 
-	//Release the lock on lineMutex
+	// Release the lock on lineMutex
 	lineLock.unlock();
 
-	//Process the write
+	// Process the write
 	switch (location)
 	{
 	case 0x00:
-		//Writes to the version register are ignored
+		// Writes to the version register are ignored
 		break;
 	case 0x01:
 		WriteDataRegister(caller, accessTime, accessContext, Ports::Port1, data);
@@ -1031,27 +1031,27 @@ IBusInterface::AccessResult A10000::WriteInterface(unsigned int interfaceNumber,
 	}
 
 	//##TODO## Re-implement support for the HL interrupt line
-	//UpdateHLInterruptState(caller, accessTime, accessContext);
+	// UpdateHLInterruptState(caller, accessTime, accessContext);
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
-//Data register access
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Data register access
+//----------------------------------------------------------------------------------------------------------------------
 Data A10000::ReadDataRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, Ports portNo) const
 {
-	//Return the current buffered data for each line
+	// Return the current buffered data for each line
 	return GetDataRegister(portNo);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void A10000::WriteDataRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, Ports portNo, const Data& data)
 {
-	//---------------------------------
-	//| 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-	//|-------------------------------|
-	//|*U |TH |TR |TL |D3 |D2 |D1 |D0 |
-	//---------------------------------
+	// ---------------------------------
+	// | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+	// |-------------------------------|
+	// |*U |TH |TR |TL |D3 |D2 |D1 |D0 |
+	// ---------------------------------
 	bool newDataRegisterStateD0 = data.GetBit(0);
 	bool newDataRegisterStateD1 = data.GetBit(1);
 	bool newDataRegisterStateD2 = data.GetBit(2);
@@ -1099,24 +1099,24 @@ void A10000::WriteDataRegister(IDeviceContext* caller, double accessTime, unsign
 	SetDataRegisterHL(portNo, newDataRegisterStateHL);
 }
 
-//----------------------------------------------------------------------------------------
-//Control register access
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Control register access
+//----------------------------------------------------------------------------------------------------------------------
 Data A10000::ReadControlRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, Ports portNo) const
 {
-	//Reads from the control register always return 0
+	// Reads from the control register always return 0
 	//##TODO## Verify on hardware
 	return Data(8, 0);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void A10000::WriteControlRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, Ports portNo, const Data& data)
 {
-	//---------------------------------
-	//| 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-	//|-------------------------------|
-	//|HL |TH |TR |TL |D3 |D2 |D1 |D0 |
-	//---------------------------------
+	// ---------------------------------
+	// | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+	// |-------------------------------|
+	// |HL |TH |TR |TL |D3 |D2 |D1 |D0 |
+	// ---------------------------------
 	bool newControlRegisterStateD0 = data.GetBit(0);
 	bool newControlRegisterStateD1 = data.GetBit(1);
 	bool newControlRegisterStateD2 = data.GetBit(2);
@@ -1130,19 +1130,19 @@ void A10000::WriteControlRegister(IDeviceContext* caller, double accessTime, uns
 		SetControlRegisterD0(portNo, newControlRegisterStateD0);
 		if (!newControlRegisterStateD0)
 		{
-			//If we were previously asserting this output line, negate it.
+			// If we were previously asserting this output line, negate it.
 			if (GetDataRegisterD0(portNo))
 			{
 				_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::D0), Data(1, 0), GetDeviceContext(), caller, accessTime, accessContext);
 			}
 
-			//Set the contents of the data register for this line to the current input
-			//line state
+			// Set the contents of the data register for this line to the current input
+			// line state
 			SetDataRegisterD0(portNo, _inputLineState[GetPortIndexForPort(portNo)].lineAssertedD0);
 		}
 		else
 		{
-			//if we're currently set to assert this output line, assert it now.
+			// if we're currently set to assert this output line, assert it now.
 			if (GetDataRegisterD0(portNo))
 			{
 				_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::D0), Data(1, 1), GetDeviceContext(), caller, accessTime, accessContext);
@@ -1154,19 +1154,19 @@ void A10000::WriteControlRegister(IDeviceContext* caller, double accessTime, uns
 		SetControlRegisterD1(portNo, newControlRegisterStateD1);
 		if (!newControlRegisterStateD1)
 		{
-			//If we were previously asserting this output line, negate it.
+			// If we were previously asserting this output line, negate it.
 			if (GetDataRegisterD1(portNo))
 			{
 				_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::D1), Data(1, 0), GetDeviceContext(), caller, accessTime, accessContext);
 			}
 
-			//Set the contents of the data register for this line to the current input
-			//line state
+			// Set the contents of the data register for this line to the current input
+			// line state
 			SetDataRegisterD1(portNo, _inputLineState[GetPortIndexForPort(portNo)].lineAssertedD1);
 		}
 		else
 		{
-			//if we're currently set to assert this output line, assert it now.
+			// if we're currently set to assert this output line, assert it now.
 			if (GetDataRegisterD1(portNo))
 			{
 				_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::D1), Data(1, 1), GetDeviceContext(), caller, accessTime, accessContext);
@@ -1178,19 +1178,19 @@ void A10000::WriteControlRegister(IDeviceContext* caller, double accessTime, uns
 		SetControlRegisterD2(portNo, newControlRegisterStateD2);
 		if (!newControlRegisterStateD2)
 		{
-			//If we were previously asserting this output line, negate it.
+			// If we were previously asserting this output line, negate it.
 			if (GetDataRegisterD2(portNo))
 			{
 				_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::D2), Data(1, 0), GetDeviceContext(), caller, accessTime, accessContext);
 			}
 
-			//Set the contents of the data register for this line to the current input
-			//line state
+			// Set the contents of the data register for this line to the current input
+			// line state
 			SetDataRegisterD2(portNo, _inputLineState[GetPortIndexForPort(portNo)].lineAssertedD2);
 		}
 		else
 		{
-			//if we're currently set to assert this output line, assert it now.
+			// if we're currently set to assert this output line, assert it now.
 			if (GetDataRegisterD2(portNo))
 			{
 				_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::D2), Data(1, 1), GetDeviceContext(), caller, accessTime, accessContext);
@@ -1202,19 +1202,19 @@ void A10000::WriteControlRegister(IDeviceContext* caller, double accessTime, uns
 		SetControlRegisterD3(portNo, newControlRegisterStateD3);
 		if (!newControlRegisterStateD3)
 		{
-			//If we were previously asserting this output line, negate it.
+			// If we were previously asserting this output line, negate it.
 			if (GetDataRegisterD3(portNo))
 			{
 				_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::D3), Data(1, 0), GetDeviceContext(), caller, accessTime, accessContext);
 			}
 
-			//Set the contents of the data register for this line to the current input
-			//line state
+			// Set the contents of the data register for this line to the current input
+			// line state
 			SetDataRegisterD3(portNo, _inputLineState[GetPortIndexForPort(portNo)].lineAssertedD3);
 		}
 		else
 		{
-			//if we're currently set to assert this output line, assert it now.
+			// if we're currently set to assert this output line, assert it now.
 			if (GetDataRegisterD3(portNo))
 			{
 				_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::D3), Data(1, 1), GetDeviceContext(), caller, accessTime, accessContext);
@@ -1226,19 +1226,19 @@ void A10000::WriteControlRegister(IDeviceContext* caller, double accessTime, uns
 		SetControlRegisterTL(portNo, newControlRegisterStateTL);
 		if (!newControlRegisterStateTL)
 		{
-			//If we were previously asserting this output line, negate it.
+			// If we were previously asserting this output line, negate it.
 			if (GetDataRegisterTL(portNo))
 			{
 				_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::TL), Data(1, 0), GetDeviceContext(), caller, accessTime, accessContext);
 			}
 
-			//Set the contents of the data register for this line to the current input
-			//line state
+			// Set the contents of the data register for this line to the current input
+			// line state
 			SetDataRegisterTL(portNo, _inputLineState[GetPortIndexForPort(portNo)].lineAssertedTL);
 		}
 		else
 		{
-			//if we're currently set to assert this output line, assert it now.
+			// if we're currently set to assert this output line, assert it now.
 			if (GetDataRegisterTL(portNo))
 			{
 				_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::TL), Data(1, 1), GetDeviceContext(), caller, accessTime, accessContext);
@@ -1250,19 +1250,19 @@ void A10000::WriteControlRegister(IDeviceContext* caller, double accessTime, uns
 		SetControlRegisterTR(portNo, newControlRegisterStateTR);
 		if (!newControlRegisterStateTR)
 		{
-			//If we were previously asserting this output line, negate it.
+			// If we were previously asserting this output line, negate it.
 			if (GetDataRegisterTR(portNo))
 			{
 				_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::TR), Data(1, 0), GetDeviceContext(), caller, accessTime, accessContext);
 			}
 
-			//Set the contents of the data register for this line to the current input
-			//line state
+			// Set the contents of the data register for this line to the current input
+			// line state
 			SetDataRegisterTR(portNo, _inputLineState[GetPortIndexForPort(portNo)].lineAssertedTR);
 		}
 		else
 		{
-			//if we're currently set to assert this output line, assert it now.
+			// if we're currently set to assert this output line, assert it now.
 			if (GetDataRegisterTR(portNo))
 			{
 				_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::TR), Data(1, 1), GetDeviceContext(), caller, accessTime, accessContext);
@@ -1274,19 +1274,19 @@ void A10000::WriteControlRegister(IDeviceContext* caller, double accessTime, uns
 		SetControlRegisterTH(portNo, newControlRegisterStateTH);
 		if (!newControlRegisterStateTH)
 		{
-			//If we were previously asserting this output line, negate it.
+			// If we were previously asserting this output line, negate it.
 			if (GetDataRegisterTH(portNo))
 			{
 				_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::TH), Data(1, 0), GetDeviceContext(), caller, accessTime, accessContext);
 			}
 
-			//Set the contents of the data register for this line to the current input
-			//line state
+			// Set the contents of the data register for this line to the current input
+			// line state
 			SetDataRegisterTH(portNo, _inputLineState[GetPortIndexForPort(portNo)].lineAssertedTH);
 		}
 		else
 		{
-			//if we're currently set to assert this output line, assert it now.
+			// if we're currently set to assert this output line, assert it now.
 			if (GetDataRegisterTH(portNo))
 			{
 				_controlPortBus->SetLineState((unsigned int)GetLineIDForPort(portNo, PortLine::TH), Data(1, 1), GetDeviceContext(), caller, accessTime, accessContext);
@@ -1294,73 +1294,73 @@ void A10000::WriteControlRegister(IDeviceContext* caller, double accessTime, uns
 		}
 	}
 
-	//Update the HL output line enable state
+	// Update the HL output line enable state
 	SetControlRegisterHL(portNo, newControlRegisterStateHL);
 }
 
-//----------------------------------------------------------------------------------------
-//Serial control register access
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Serial control register access
+//----------------------------------------------------------------------------------------------------------------------
 Data A10000::ReadSerialControlRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, Ports portNo) const
 {
 	return GetSerialControlRegister(portNo);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void A10000::WriteSerialControlRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, Ports portNo, const Data& data)
 {
-	//Write to the upper 5 bits of the serial control register. The lower 3 bits are
-	//read-only status flags.
+	// Write to the upper 5 bits of the serial control register. The lower 3 bits are
+	// read-only status flags.
 	SetSerialControlRegister(portNo, GetSerialControlRegister(portNo).SetDataSegment(3, 5, data.GetDataSegment(3, 5)));
 }
 
-//----------------------------------------------------------------------------------------
-//TxData register access
+//----------------------------------------------------------------------------------------------------------------------
+// TxData register access
 //
-//A write to the TxData register will send the written byte over a serial transfer if
-//serial output is enabled.
-//----------------------------------------------------------------------------------------
+// A write to the TxData register will send the written byte over a serial transfer if
+// serial output is enabled.
+//----------------------------------------------------------------------------------------------------------------------
 Data A10000::ReadTxDataRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, Ports portNo) const
 {
-	//According to gen-hw.txt, it would seem that this port returns the last value
-	//written when serial output is not enabled. We have not yet confirmed the correct
-	//behaviour when serial output is enabled.
+	// According to gen-hw.txt, it would seem that this port returns the last value
+	// written when serial output is not enabled. We have not yet confirmed the correct
+	// behaviour when serial output is enabled.
 	//##TODO## Find out what to return when reading this port
 	return GetTxDataRegister(portNo);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void A10000::WriteTxDataRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, Ports portNo, const Data& data)
 {
 	//##TODO## According to Charles MacDonald, "Writing a byte to this register will make
-	//the I/O chip output the data serially through the TL pin, providing it was
-	//configured for serial mode". This raises the following questions:
-	//-What does reading this register do?
-	//-What happens when serial output is not enabled?
+	// the I/O chip output the data serially through the TL pin, providing it was
+	// configured for serial mode". This raises the following questions:
+	// -What does reading this register do?
+	// -What happens when serial output is not enabled?
 	SetTxDataRegister(portNo, data);
 }
 
-//----------------------------------------------------------------------------------------
-//RxData register access
+//----------------------------------------------------------------------------------------------------------------------
+// RxData register access
 //
-//The RxData register can be read to retrieve the last byte received from a serial
-//transfer.
-//----------------------------------------------------------------------------------------
+// The RxData register can be read to retrieve the last byte received from a serial
+// transfer.
+//----------------------------------------------------------------------------------------------------------------------
 Data A10000::ReadRxDataRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, Ports portNo) const
 {
 	return _rxDataRegisters[GetPortIndexForPort(portNo)];
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void A10000::WriteRxDataRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, Ports portNo, const Data& data)
 {
-	//Writes to the RxData register are ignored
+	// Writes to the RxData register are ignored
 	//##TODO## Verify on hardware
 }
 
-//----------------------------------------------------------------------------------------
-//Savestate functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Savestate functions
+//----------------------------------------------------------------------------------------------------------------------
 void A10000::LoadState(IHierarchicalStorageNode& node)
 {
 	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
@@ -1448,7 +1448,7 @@ void A10000::LoadState(IHierarchicalStorageNode& node)
 		{
 			_lastTimesliceLength = (*i)->ExtractData<bool>();
 		}
-		//Restore the lineAccessBuffer state
+		// Restore the lineAccessBuffer state
 		else if ((*i)->GetName() == L"LineAccessBuffer")
 		{
 			_lineAccessBuffer.clear();
@@ -1463,7 +1463,7 @@ void A10000::LoadState(IHierarchicalStorageNode& node)
 					IHierarchicalStorageAttribute* accessTimeAttribute = (*lineAccessBufferEntry)->GetAttribute(L"AccessTime");
 					if ((lineNameAttribute != 0) && (lineStateAttribute != 0) && (accessTimeAttribute != 0))
 					{
-						//Extract the entry from the XML stream
+						// Extract the entry from the XML stream
 						std::wstring lineName = lineNameAttribute->ExtractValue<std::wstring>();
 						double accessTime = accessTimeAttribute->ExtractValue<double>();
 						unsigned int lineIDAsInteger = GetLineID(lineName.c_str());
@@ -1474,8 +1474,8 @@ void A10000::LoadState(IHierarchicalStorageNode& node)
 							lineStateAttribute->ExtractValue(lineState);
 							LineAccess lineAccess(lineID, lineState, accessTime);
 
-							//Find the correct location in the list to insert the entry. The
-							//list must be sorted from earliest to latest.
+							// Find the correct location in the list to insert the entry. The
+							// list must be sorted from earliest to latest.
 							std::list<LineAccess>::reverse_iterator j = _lineAccessBuffer.rbegin();
 							while ((j != _lineAccessBuffer.rend()) && (j->accessTime > lineAccess.accessTime))
 							{
@@ -1491,7 +1491,7 @@ void A10000::LoadState(IHierarchicalStorageNode& node)
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void A10000::SaveState(IHierarchicalStorageNode& node) const
 {
 	for (unsigned int i = 0; i < ControlPortCount; ++i)
@@ -1516,7 +1516,7 @@ void A10000::SaveState(IHierarchicalStorageNode& node) const
 	node.CreateChild(L"HLLineState", _currentHLLineState);
 	node.CreateChild(L"LastTimesliceLength", _lastTimesliceLength);
 
-	//Save the lineAccessBuffer state
+	// Save the lineAccessBuffer state
 	if (_lineAccessPending)
 	{
 		IHierarchicalStorageNode& lineAccessState = node.CreateChild(L"LineAccessBuffer");

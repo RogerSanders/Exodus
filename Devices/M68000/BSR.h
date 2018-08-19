@@ -35,7 +35,7 @@ public:
 //	|            16 BITS OFFSET, IF 8 BITS OFFSET = $00             |
 //	-----------------------------------------------------------------
 
-		//BSR	<label>
+		// BSR	<label>
 		_target.BuildAddressPredec(BITCOUNT_LONG, location + GetInstructionSize(), M68000::SP);
 
 		if (data.GetDataSegment(0, 8) != 0)
@@ -59,23 +59,23 @@ public:
 		M68000Long newPC;
 		M68000Long returnAddress;
 
-		//Perform the operation
+		// Perform the operation
 		additionalTime += _source.Read(cpu, offset, GetInstructionRegister());
 		newPC = _source.GetSavedPC() + M68000Long(offset.SignExtend(BITCOUNT_LONG));
 		returnAddress = location + GetInstructionSize();
 		_target.Write(cpu, returnAddress, GetInstructionRegister());
 		cpu->PushCallStack(cpu->GetPC().GetData(), newPC.GetData(), returnAddress.GetData(), L"BSR");
 
-		//Return the execution time
+		// Return the execution time
 		cpu->SetPC(newPC);
 		return GetExecuteCycleCount(additionalTime);
 	}
 
 	virtual void GetResultantPCLocations(std::set<unsigned int>& resultantPCLocations, bool& undeterminedResultantPCLocation) const
 	{
-		//Return the address directly after this opcode, and the _target jump location from
-		//executing this opcode, as the possible resultant PC locations from executing
-		//this opcode.
+		// Return the address directly after this opcode, and the _target jump location from
+		// executing this opcode, as the possible resultant PC locations from executing
+		// this opcode.
 		undeterminedResultantPCLocation = false;
 		unsigned int nextOpcodeAddress = GetInstructionLocation().GetData() + GetInstructionSize();
 		unsigned int branchOpcodeAddress = (_source.GetSavedPC() + _source.ExtractProcessedImmediateData()).GetData();
@@ -95,5 +95,5 @@ private:
 	EffectiveAddress _target;
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #endif

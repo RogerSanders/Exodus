@@ -30,7 +30,7 @@ public:
 		_source.SetIndexState(GetIndexState(), GetIndexOffset());
 		_target.SetIndexState(GetIndexState(), GetIndexOffset());
 
-		//CPD		11101101 10101001
+		// CPD		11101101 10101001
 		_source.SetMode(EffectiveAddress::Mode::HLPostDec);
 		_target.SetMode(EffectiveAddress::Mode::A);
 		AddExecuteCycleCount(12);
@@ -47,13 +47,13 @@ public:
 		Z80Byte op2;
 		Z80Byte result;
 
-		//Perform the operation
+		// Perform the operation
 		additionalTime += _source.Read(cpu, location, op1);
 		additionalTime += _target.Read(cpu, location, op2);
 		result = op2 - op1;
 		cpu->SetBC(cpu->GetBC() - 1);
 
-		//Set the flag results
+		// Set the flag results
 		cpu->SetFlagS(result.Negative());
 		cpu->SetFlagZ(result.Zero());
 		cpu->SetFlagH(op1.GetDataSegment(0, 4) > op2.GetDataSegment(0, 4));
@@ -65,7 +65,7 @@ public:
 		cpu->SetFlagY(regAResult.GetBit(1));
 		cpu->SetFlagX(regAResult.GetBit(3));
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -75,5 +75,5 @@ private:
 	EffectiveAddress _target;
 };
 
-} //Close namespace Z80
+} // Close namespace Z80
 #endif

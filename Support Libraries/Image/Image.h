@@ -56,15 +56,15 @@ for, which should be supported.
 #include "StreamInterface/StreamInterface.pkg"
 
 //##FIX## Right now the static support libraries we link to for various formats increase
-//the size of any module using this library by around 1MB. We need to eliminate that
-//overhead for uses which don't require this additional format support.
+// the size of any module using this library by around 1MB. We need to eliminate that
+// overhead for uses which don't require this additional format support.
 class Image :public IImage
 {
 public:
-	//Constructors
+	// Constructors
 	inline Image(unsigned int imageWidth = 0, unsigned int imageHeight = 0, PixelFormat pixelFormat = PIXELFORMAT_RGB, DataFormat dataFormat = DATAFORMAT_8BIT);
 
-	//Image format functions
+	// Image format functions
 	virtual unsigned int GetImageWidth() const;
 	virtual unsigned int GetImageHeight() const;
 	virtual PixelFormat GetPixelFormat() const;
@@ -72,7 +72,7 @@ public:
 	virtual unsigned int GetDataPlaneCount() const;
 	virtual void SetImageFormat(unsigned int imageWidth, unsigned int imageHeight, PixelFormat pixelFormat = PIXELFORMAT_RGB, DataFormat dataFormat = DATAFORMAT_8BIT);
 
-	//Pixel data manipulation
+	// Pixel data manipulation
 	virtual void GetRawPixelData(unsigned int posX, unsigned int posY, unsigned int planeNo, PixelData& data) const;
 	virtual void SetRawPixelData(unsigned int posX, unsigned int posY, unsigned int planeNo, PixelData data);
 	virtual void ReadPixelData(unsigned int posX, unsigned int posY, unsigned int planeNo, float& data) const;
@@ -82,73 +82,73 @@ public:
 	virtual void WritePixelData(unsigned int posX, unsigned int posY, unsigned int planeNo, unsigned char data);
 	virtual void WritePixelData(unsigned int posX, unsigned int posY, unsigned int planeNo, unsigned int data, unsigned int bitCount);
 
-	//Generic load functions
+	// Generic load functions
 	virtual bool LoadImageFile(Stream::IStream& stream);
 
-	//PCX functions
+	// PCX functions
 	virtual bool LoadPCXImage(Stream::IStream& stream);
 	virtual bool SavePCXImage(Stream::IStream& stream);
 
-	//TIFF functions
+	// TIFF functions
 	virtual bool LoadTIFFImage(Stream::IStream& stream);
 	//##TODO##
 	virtual bool SaveTIFFImage(Stream::IStream& stream);
 
-	//JPG functions
+	// JPG functions
 	virtual bool LoadJPGImage(Stream::IStream& stream);
 	virtual bool SaveJPGImage(Stream::IStream& stream);
 
-	//TGA functions
+	// TGA functions
 	virtual bool LoadTGAImage(Stream::IStream& stream);
 	virtual bool SaveTGAImage(Stream::IStream& stream);
 
-	//PNG functions
+	// PNG functions
 	virtual bool LoadPNGImage(Stream::IStream& stream);
 	virtual bool SavePNGImage(Stream::IStream& stream);
 
-	//BMP functions
+	// BMP functions
 	virtual bool LoadBMPImage(Stream::IStream& stream);
 	virtual bool SaveBMPImage(Stream::IStream& stream);
 
-	//Win32 DIB functions (Device-Independent Bitmap)
+	// Win32 DIB functions (Device-Independent Bitmap)
 	virtual bool LoadDIBImage(Stream::IStream& stream, const BITMAPINFOHEADER* bitmapHeader);
 	virtual bool SaveDIBImage(Stream::IStream& stream, BITMAPINFOHEADER* bitmapHeader);
 
-	//Resampling functions
+	// Resampling functions
 	virtual void ResampleNearest(unsigned int newWidth, unsigned int newHeight);
 	virtual void ResampleNearest(const IImage& oldImage, unsigned int newWidth, unsigned int newHeight);
 	virtual void ResampleBilinear(unsigned int newWidth, unsigned int newHeight);
 	virtual void ResampleBilinear(const IImage& oldImage, unsigned int newWidth, unsigned int newHeight);
-	//virtual void ResampleBicubic(unsigned int newWidth, unsigned int newHeight);
-	//virtual void ResampleBicubic(Image& newImage, unsigned int newWidth, unsigned int newHeight);
+	// virtual void ResampleBicubic(unsigned int newWidth, unsigned int newHeight);
+	// virtual void ResampleBicubic(Image& newImage, unsigned int newWidth, unsigned int newHeight);
 
 public:
-	//BMP structures
+	// BMP structures
 	struct BITMAPV2INFOHEADER;
 	struct BITMAPV3INFOHEADER;
 
 private:
-	//PCX structures
+	// PCX structures
 	struct PCXFileHeader;
 	enum class PCXImageFormat;
 
-	//TIFF structures
+	// TIFF structures
 	struct TIFFStreamManager;
 
-	//JPG structures
+	// JPG structures
 	struct JPGStreamSourceManager;
 	struct JPGStreamDestinationManager;
 
-	//TGA structures
+	// TGA structures
 	struct TGAFileHeader;
 	struct TGAColorMapEntry;
 	enum class TGAImageType;
 
 private:
-	//Image format functions
+	// Image format functions
 	inline void ResizeBuffer(unsigned int newSize);
 
-	//Pixel data manipulation
+	// Pixel data manipulation
 	inline void GetRawPixelDataInternal(unsigned int posX, unsigned int posY, unsigned int planeNo, PixelData& data) const;
 	inline void SetRawPixelDataInternal(unsigned int posX, unsigned int posY, unsigned int planeNo, PixelData data);
 	inline void ReadPixelDataInternal(unsigned int posX, unsigned int posY, unsigned int planeNo, float& data) const;
@@ -158,21 +158,21 @@ private:
 	inline void WritePixelDataInternal(unsigned int posX, unsigned int posY, unsigned int planeNo, unsigned char data);
 	inline void WritePixelDataInternal(unsigned int posX, unsigned int posY, unsigned int planeNo, unsigned int data, unsigned int bitCount);
 
-	//Bitfield functions
+	// Bitfield functions
 	unsigned int ReadBitfieldData(Stream::IStream& stream, unsigned char& currentBuffer, unsigned int& remainingBitsInBuffer, unsigned int dataBitCount) const;
 	void WriteBitfieldData(Stream::IStream& stream, unsigned char& currentBuffer, unsigned int& remainingBitsInBuffer, unsigned int data, unsigned int dataBitCount) const;
 	void FlushBitfieldData(Stream::IStream& stream, unsigned char& currentBuffer, unsigned int& remainingBitsInBuffer) const;
 
-	//PNG functions
+	// PNG functions
 	static void PNGReadData(png_structp pngStruct, png_bytep data, png_size_t length);
 	static void PNGWriteData(png_structp pngStruct, png_bytep data, png_size_t length);
 	static void PNGFlushData(png_structp pngStruct);
 
-	//Win32 DIB functions (Device-Independent Bitmap)
+	// Win32 DIB functions (Device-Independent Bitmap)
 	unsigned int GetSetBitCount(unsigned int data) const;
 	unsigned int MaskData(unsigned int data, unsigned int bitMask) const;
 
-	//Image verification methods
+	// Image verification methods
 	bool ImageValid() const;
 
 private:
@@ -183,11 +183,11 @@ private:
 	unsigned int _dataPlaneCount;
 	//##TODO## Use a raw array rather than a vector here
 	//##TODO## Don't use the PixelData structure internally, only use it for passing pixel
-	//data externally in a generic way.
+	// data externally in a generic way.
 	//##TODO## Add fast methods to get and set sub-image data, to allow copying and
-	//modifying regions of an image.
+	// modifying regions of an image.
 	//##TODO## When we make this a raw array, add a copy constructor which uses memcpy to
-	//duplicate the elements of the array.
+	// duplicate the elements of the array.
 	std::vector<PixelData> _imageData;
 };
 

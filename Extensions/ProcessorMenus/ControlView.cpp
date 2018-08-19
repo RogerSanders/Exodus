@@ -1,9 +1,9 @@
 #include "ControlView.h"
 #include "resource.h"
 
-//----------------------------------------------------------------------------------------
-//Constructors
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Constructors
+//----------------------------------------------------------------------------------------------------------------------
 ControlView::ControlView(IUIManager& uiManager, ControlViewPresenter& presenter, IProcessor& model)
 :ViewBase(uiManager, presenter), _presenter(presenter), _model(model), _initializedDialog(false), _currentControlFocus(0)
 {
@@ -11,9 +11,9 @@ ControlView::ControlView(IUIManager& uiManager, ControlViewPresenter& presenter,
 	SetDockableViewType();
 }
 
-//----------------------------------------------------------------------------------------
-//Member window procedure
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Member window procedure
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR ControlView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	WndProcDialogImplementSaveFieldWhenLostFocus(hwnd, msg, wparam, lparam);
@@ -31,23 +31,23 @@ INT_PTR ControlView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lp
 	return FALSE;
 }
 
-//----------------------------------------------------------------------------------------
-//Event handlers
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Event handlers
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR ControlView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	SetTimer(hwnd, 1, 100, NULL);
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR ControlView::msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	KillTimer(hwnd, 1);
 	return FALSE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR ControlView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	_initializedDialog = true;
@@ -57,7 +57,7 @@ INT_PTR ControlView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR ControlView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	if ((HIWORD(wparam) == EN_SETFOCUS) && _initializedDialog)
@@ -97,10 +97,10 @@ INT_PTR ControlView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			break;
 		case IDC_PROCESSOR_RUN:
 			_model.GetDevice()->GetDeviceContext()->StopSystem();
-			//This step before running the system allows the user to just keep on hitting
-			//run when stopped at a breakpoint.
+			// This step before running the system allows the user to just keep on hitting
+			// run when stopped at a breakpoint.
 			//##FIX## This assumes that executing a single device step will pass the
-			//breakpoint, which may not be the case.
+			// breakpoint, which may not be the case.
 			_model.GetDevice()->GetDeviceContext()->ExecuteDeviceStep();
 			_model.GetDevice()->GetDeviceContext()->RunSystem();
 			break;

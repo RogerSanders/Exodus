@@ -73,7 +73,7 @@ inline void EnsureSTLContainerKeySizesMatch(INestedMarshallerBase* const nestedM
 template<class ElementType>
 inline void EnsureSTLContainerKeySizesMatch(INestedMarshallerBase* const nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const ElementType* elementPointer);
 
-} //Close namespace Internal
-} //Close namespace MarshalSupport
+} // Close namespace Internal
+} // Close namespace MarshalSupport
 #include "EnsureSTLContainerKeySizesMatch.inl"
 #endif

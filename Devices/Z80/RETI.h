@@ -35,16 +35,16 @@ public:
 	{
 		double additionalTime = 0;
 
-		//Perform the operation
-		//Note that according to "The Undocumented Z80 Documented" by Sean Young, version
-		//0.91, RETI also copies IFF2 into IFF1, like the RETN opcode.
+		// Perform the operation
+		// Note that according to "The Undocumented Z80 Documented" by Sean Young, version
+		// 0.91, RETI also copies IFF2 into IFF1, like the RETN opcode.
 		cpu->SetIFF1(cpu->GetIFF2());
 		Z80Word oldPC;
 		additionalTime += _source.Read(cpu, location + GetInstructionSize(), oldPC);
 		cpu->PopCallStack(oldPC.GetData());
 		cpu->SetPC(oldPC);
 
-		//Return the execution time
+		// Return the execution time
 		return GetExecuteCycleCount(additionalTime);
 	}
 
@@ -52,5 +52,5 @@ private:
 	EffectiveAddress _source;
 };
 
-} //Close namespace Z80
+} // Close namespace Z80
 #endif

@@ -8,15 +8,15 @@
 class SpriteListView :public ViewBase
 {
 public:
-	//Constructors
+	// Constructors
 	SpriteListView(IUIManager& uiManager, SpriteListViewPresenter& presenter, IS315_5313& model);
 
 protected:
-	//Member window procedure
+	// Member window procedure
 	virtual LRESULT WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
 private:
-	//Enumerations
+	// Enumerations
 	enum Columns
 	{
 		COLUMN_NO,
@@ -36,11 +36,11 @@ private:
 		COLUMN_RAW3
 	};
 
-	//Constants
+	// Constants
 	static const long long DataListControlID = 100;
 
 private:
-	//Event handlers
+	// Event handlers
 	LRESULT msgWM_CREATE(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_SIZE(HWND hwnd, WPARAM wParam, LPARAM lParam);

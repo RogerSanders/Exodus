@@ -1,16 +1,16 @@
 #include "SettingsMenuHandler.h"
 #include "GenericDataViewPresenter.h"
 
-//----------------------------------------------------------------------------------------
-//Constructors
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Constructors
+//----------------------------------------------------------------------------------------------------------------------
 SettingsMenuHandler::SettingsMenuHandler(GenericAccessMenus& owner, const IDevice& modelInstanceKey, IGenericAccess& model)
 :MenuHandlerBase(L"GenericAccessSettingsMenu", owner.GetViewManager()), _owner(owner), _modelInstanceKey(modelInstanceKey), _model(model)
 {}
 
-//----------------------------------------------------------------------------------------
-//Management functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Management functions
+//----------------------------------------------------------------------------------------------------------------------
 void SettingsMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) const
 {
 	unsigned int pageCount = _model.GetGenericAccessPageCount();
@@ -24,14 +24,14 @@ void SettingsMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems)
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 IViewPresenter* SettingsMenuHandler::CreateViewForItem(int menuItemID, const std::wstring& viewName)
 {
 	const IGenericAccessPage* page = _model.GetGenericAccessPage((unsigned int)menuItemID);
 	return new GenericDataViewPresenter(GetMenuHandlerName(), viewName, menuItemID, _owner, _modelInstanceKey, _model, page);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void SettingsMenuHandler::DeleteViewForItem(int menuItemID, IViewPresenter* viewPresenter)
 {
 	delete viewPresenter;

@@ -7,7 +7,7 @@
 class DebugMenuHandler :public MenuHandlerBase
 {
 public:
-	//Enumerations
+	// Enumerations
 	enum MenuItem
 	{
 		MENUITEM_CONTROL,
@@ -18,11 +18,11 @@ public:
 		MENUITEM_ACTIVEDISASSEMBLY
 	};
 
-	//Constructors
+	// Constructors
 	DebugMenuHandler(ProcessorMenus& owner, const IDevice& modelInstanceKey, IProcessor& model);
 
 protected:
-	//Management functions
+	// Management functions
 	virtual void GetMenuItems(std::list<MenuItemDefinition>& menuItems) const;
 	virtual IViewPresenter* CreateViewForItem(int menuItemID, const std::wstring& viewName);
 	virtual void DeleteViewForItem(int menuItemID, IViewPresenter* viewPresenter);

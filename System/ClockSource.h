@@ -6,27 +6,27 @@
 class ClockSource :public IClockSource
 {
 public:
-	//Structures
+	// Structures
 	struct ClockSourceParams;
 
 public:
-	//Constructors
+	// Constructors
 	ClockSource();
 	bool Construct(IHierarchicalStorageNode& node);
 	bool Construct(const ClockSourceParams& params);
 	static bool DecodeClockTypeString(const std::wstring& clockTypeString, ClockType& clockType);
 
-	//Interface version functions
+	// Interface version functions
 	virtual unsigned int GetIClockSourceVersion() const;
 
-	//Reference functions
+	// Reference functions
 	bool AddReference(IBusInterface* target);
 	void RemoveReference(IBusInterface* target);
 
-	//Clock type functions
+	// Clock type functions
 	virtual ClockType GetClockType() const;
 
-	//Clock frequency functions
+	// Clock frequency functions
 	double GetClockFrequency() const;
 	double GetClockDivider() const;
 	double GetClockMultiplier() const;
@@ -38,10 +38,10 @@ public:
 	virtual bool TransparentSetClockDivider(double divider);
 	virtual bool TransparentSetClockMultiplier(double multiplier);
 
-	//Clock change notification functions
+	// Clock change notification functions
 	void PublishEffectiveClockFrequency() const;
 
-	//Clock dependency functions
+	// Clock dependency functions
 	bool AddDependentClockSource(ClockSource* clockSource);
 	void RemoveDependentClockSource(ClockSource* clockSource);
 	void RemoveAllDependentClockSources();
@@ -49,7 +49,7 @@ public:
 	void SetInputClockSource(ClockSource* clockSource);
 
 private:
-	//Clock change notification functions
+	// Clock change notification functions
 	void NotifyInputClockRateChange(double newClockRate, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	void TransparentNotifyInputClockRateChange(double newClockRate);
 	void NotifyOutputClockRateChange(double newClockRate, IDeviceContext* caller, double accessTime, unsigned int accessContext) const;

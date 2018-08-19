@@ -9,21 +9,21 @@
 class ExceptionsView :public ViewBase
 {
 public:
-	//Constructors
+	// Constructors
 	ExceptionsView(IUIManager& uiManager, ExceptionsViewPresenter& presenter, IM68000& model);
 
 protected:
-	//Member window procedure
+	// Member window procedure
 	virtual INT_PTR WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
 private:
-	//Event handlers
+	// Event handlers
 	INT_PTR msgWM_INITDIALOG(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgWM_TIMER(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgWM_COMMAND(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
-	//Exception functions
+	// Exception functions
 	void UpdateExceptionEntry(HWND hwnd, const IM68000::ExceptionDebuggingEntry& targetExceptionEntry);
 	std::wstring BuildExceptionName(IM68000::Exceptions vectorNumber) const;
 

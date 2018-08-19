@@ -35,7 +35,7 @@ public:
 //	                                        |----------<ea>---------|
 		switch (data.GetDataSegment(7, 2))
 		{
-		case 3:	//11
+		case 3:	// 11
 			_size = BITCOUNT_WORD;
 			break;
 		}
@@ -54,21 +54,21 @@ public:
 		Data op2(_size);
 		ExecuteTime exceptionTime;
 
-		//Perform the operation
+		// Perform the operation
 		additionalTime += _source.Read(cpu, op1, GetInstructionRegister());
 		additionalTime += _target.Read(cpu, op2, GetInstructionRegister());
 
 		//##NOTE## Although these flags are officially undefined, their behaviour is
-		//described in "68000 Undocumented Behavior Notes" by Bart Trzynadlowski.
+		// described in "68000 Undocumented Behavior Notes" by Bart Trzynadlowski.
 		//##TODO## The state of V and C is not a definite. Run a full battery of tests
-		//to confirm the state of V and C for all possible input values. Also test the
-		//result of N when an exception is not triggered.
+		// to confirm the state of V and C for all possible input values. Also test the
+		// result of N when an exception is not triggered.
 		cpu->SetZ(op1.Negative());
 		cpu->SetV(false);
 		cpu->SetC(false);
 
 		cpu->SetPC(location + GetInstructionSize());
-		if (op1.Negative())	//If op1 < 0
+		if (op1.Negative())	// If op1 < 0
 		{
 			if (!cpu->ExceptionDisabled(M68000::Exceptions::CHKInstruction))
 			{
@@ -77,7 +77,7 @@ public:
 				exceptionTime = cpu->ProcessException(M68000::Exceptions::CHKInstruction);
 			}
 		}
-		else if (op2.Negative() || (op1.GetData() > op2.GetData()))	//If op2 > op1
+		else if (op2.Negative() || (op1.GetData() > op2.GetData()))	// If op2 > op1
 		{
 			if (!cpu->ExceptionDisabled(M68000::Exceptions::CHKInstruction))
 			{
@@ -89,10 +89,10 @@ public:
 		else
 		{
 			//##TODO## N is officially undefined here. Run some tests to determine its
-			//real behaviour.
+			// real behaviour.
 		}
 
-		//Return the execution time
+		// Return the execution time
 		return GetExecuteCycleCount(additionalTime) + exceptionTime;
 	}
 
@@ -108,5 +108,5 @@ private:
 	Bitcount _size;
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #endif

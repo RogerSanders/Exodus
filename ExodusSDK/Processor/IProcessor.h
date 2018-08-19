@@ -13,39 +13,39 @@ using namespace MarshalSupport::Operators;
 class IProcessor :public virtual IGenericAccess
 {
 public:
-	//Enumerations
+	// Enumerations
 	enum class IProcessorDataSource;
 	enum class IProcessorCommand;
 
-	//Structures
+	// Structures
 	struct CallStackEntry;
 	struct TraceLogEntry;
 	struct BreakpointDataContext;
 
 public:
-	//Constructors
+	// Constructors
 	virtual ~IProcessor() = 0 {}
 
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisIProcessorVersion() { return 1; }
 	virtual unsigned int GetIProcessorVersion() const = 0;
 
-	//Device access functions
+	// Device access functions
 	virtual IDevice* GetDevice() = 0;
 
-	//Execute functions
+	// Execute functions
 	virtual void Reset() = 0;
 	virtual void BreakOnCurrentOpcode() const = 0;
 	virtual void BreakOnStepOverCurrentOpcode() = 0;
 	virtual void BreakOnStepOutCurrentOpcode() = 0;
 
-	//Control functions
+	// Control functions
 	virtual double GetClockSpeed() const = 0;
 	virtual void SetClockSpeed(double clockSpeed) = 0;
 	virtual void OverrideClockSpeed(double clockSpeed) = 0;
 	virtual void RestoreClockSpeed() = 0;
 
-	//Instruction functions
+	// Instruction functions
 	virtual unsigned int GetByteBitCount() const = 0;
 	virtual unsigned int GetCurrentPC() const = 0;
 	virtual unsigned int GetPCWidth() const = 0;
@@ -64,28 +64,28 @@ public:
 	virtual void SetMemorySpaceByte(unsigned int location, unsigned int data) = 0;
 	virtual bool GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const = 0;
 
-	//Breakpoint functions
+	// Breakpoint functions
 	virtual Marshal::Ret<std::list<IBreakpoint*>> GetBreakpointList() const = 0;
 	virtual IBreakpoint* CreateBreakpoint() = 0;
 	virtual bool LockBreakpoint(IBreakpoint* breakpoint) const = 0;
 	virtual void UnlockBreakpoint(IBreakpoint* breakpoint) const = 0;
 	virtual void DeleteBreakpoint(IBreakpoint* breakpoint) = 0;
 
-	//Watchpoint functions
+	// Watchpoint functions
 	virtual Marshal::Ret<std::list<IWatchpoint*>> GetWatchpointList() const = 0;
 	virtual IWatchpoint* CreateWatchpoint() = 0;
 	virtual bool LockWatchpoint(IWatchpoint* watchpoint) const = 0;
 	virtual void UnlockWatchpoint(IWatchpoint* watchpoint) const = 0;
 	virtual void DeleteWatchpoint(IWatchpoint* watchpoint) = 0;
 
-	//Call stack functions
+	// Call stack functions
 	virtual bool GetCallStackDisassemble() const = 0;
 	virtual void SetCallStackDisassemble(bool state) = 0;
 	virtual Marshal::Ret<std::list<CallStackEntry>> GetCallStack() const = 0;
 	virtual unsigned int GetCallStackLastModifiedToken() const = 0;
 	virtual void ClearCallStack() = 0;
 
-	//Trace functions
+	// Trace functions
 	virtual bool GetTraceEnabled() const = 0;
 	virtual void SetTraceEnabled(bool state) = 0;
 	virtual bool GetTraceDisassemble() const = 0;
@@ -96,13 +96,13 @@ public:
 	virtual unsigned int GetTraceLogLastModifiedToken() const = 0;
 	virtual void ClearTraceLog() = 0;
 
-	//Active disassembly info functions
+	// Active disassembly info functions
 	//##TODO## Strongly consider shifting all active disassembly properties into separate
-	//object types, one for active disassembly, and another for active disassembly
-	//analysis, where a preferences object is supplied when active disassembly is enabled
-	//or an analysis is performed. This would allow active disassembly to evolve and
-	//change independently from the IProcessor interface, with versioning happening on
-	//these preference objects for active disassembly settings.
+	// object types, one for active disassembly, and another for active disassembly
+	// analysis, where a preferences object is supplied when active disassembly is enabled
+	// or an analysis is performed. This would allow active disassembly to evolve and
+	// change independently from the IProcessor interface, with versioning happening on
+	// these preference objects for active disassembly settings.
 	virtual bool ActiveDisassemblySupported() const = 0;
 	virtual bool ActiveDisassemblyEnabled() const = 0;
 	virtual unsigned int GetActiveDisassemblyStartLocation() const = 0;
@@ -157,12 +157,12 @@ public:
 	virtual unsigned int GetActiveDisassemblyAnalysisPredictedDataEntryCount() const = 0;
 	virtual unsigned int GetActiveDisassemblyAnalysisPredictedLabelEntryCount() const = 0;
 
-	//Active disassembly operation functions
+	// Active disassembly operation functions
 	virtual void EnableActiveDisassembly() = 0;
 	virtual void DisableActiveDisassembly() = 0;
 	virtual void ClearActiveDisassembly() = 0;
 
-	//Active disassembly analysis functions
+	// Active disassembly analysis functions
 	virtual bool PerformActiveDisassemblyAnalysis() = 0;
 	virtual void ClearActiveDisassemblyAnalysis() = 0;
 	virtual bool ActiveDisassemblyExportAnalysisToASMFile(const Marshal::In<std::wstring>& filePath) const = 0;

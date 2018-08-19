@@ -5,13 +5,13 @@
 class ModuleSettingInfo :public IModuleSettingInfo
 {
 public:
-	//Constructors
+	// Constructors
 	ModuleSettingInfo();
 
-	//Interface version functions
+	// Interface version functions
 	virtual unsigned int GetIModuleSettingInfoVersion() const;
 
-	//Getters
+	// Getters
 	virtual Marshal::Ret<std::wstring> GetName() const;
 	virtual Marshal::Ret<std::wstring> GetDisplayName() const;
 	virtual unsigned int GetOptionCount() const;
@@ -20,7 +20,7 @@ public:
 	virtual unsigned int GetToggleSettingOffOptionIndex() const;
 	virtual bool IsToggleSetting() const;
 
-	//Setters
+	// Setters
 	virtual void SetName(const Marshal::In<std::wstring>& name);
 	virtual void SetDisplayName(const Marshal::In<std::wstring>& displayName);
 	virtual void SetOptionCount(unsigned int optionCount);

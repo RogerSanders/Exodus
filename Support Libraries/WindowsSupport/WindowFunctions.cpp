@@ -9,12 +9,12 @@
 #include <vector>
 #include <dwmapi.h>
 
-//----------------------------------------------------------------------------------------
-//Module helper functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Module helper functions
+//----------------------------------------------------------------------------------------------------------------------
 bool GetModuleVersionInfoString(const std::wstring& modulePath, VersionInfoProperty targetProperty, std::wstring& content)
 {
-	//Retrieve the size of the version info table in the target module
+	// Retrieve the size of the version info table in the target module
 	DWORD nullValue;
 	DWORD getFileVersionInfoSizeReturn = GetFileVersionInfoSize(modulePath.c_str(), &nullValue);
 	if (getFileVersionInfoSizeReturn == 0)
@@ -23,7 +23,7 @@ bool GetModuleVersionInfoString(const std::wstring& modulePath, VersionInfoPrope
 	}
 	DWORD fileVersionInfoTableSize = getFileVersionInfoSizeReturn;
 
-	//Read the contents of the file version table in the target module
+	// Read the contents of the file version table in the target module
 	std::vector<unsigned char> fileVersionInfoBuffer(fileVersionInfoTableSize);
 	DWORD getFileVersionInfoReturn = GetFileVersionInfo(modulePath.c_str(), 0, fileVersionInfoTableSize, (LPVOID)&fileVersionInfoBuffer[0]);
 	if (getFileVersionInfoReturn == 0)
@@ -31,8 +31,8 @@ bool GetModuleVersionInfoString(const std::wstring& modulePath, VersionInfoPrope
 		return false;
 	}
 
-	//Obtain text string identifiers for the first language and code page combination
-	//listed in the version info table
+	// Obtain text string identifiers for the first language and code page combination
+	// listed in the version info table
 	LPVOID translationArrayDataLocation = 0;
 	UINT translationArrayCharacterCount = 0;
 	BOOL verQueryValueReturnForLanguage = VerQueryValue(&fileVersionInfoBuffer[0], L"\\VarFileInfo\\Translation", &translationArrayDataLocation, &translationArrayCharacterCount);
@@ -47,7 +47,7 @@ bool GetModuleVersionInfoString(const std::wstring& modulePath, VersionInfoPrope
 	std::wstring codePageString;
 	IntToStringBase16(codePageCode, codePageString, 4, false);
 
-	//Build a string path to the target property within the file version table
+	// Build a string path to the target property within the file version table
 	std::wstring propertyKey;
 	switch (targetProperty)
 	{
@@ -92,7 +92,7 @@ bool GetModuleVersionInfoString(const std::wstring& modulePath, VersionInfoPrope
 	}
 	std::wstring targetPropertyPath = L"\\StringFileInfo\\" + languageCodeString + codePageString + L"\\" + propertyKey;
 
-	//Attempt to retrieve the target property from the version info table
+	// Attempt to retrieve the target property from the version info table
 	LPVOID targetDataLocation = 0;
 	UINT targetCharacterCount = 0;
 	BOOL verQueryValueReturn = VerQueryValue(&fileVersionInfoBuffer[0], targetPropertyPath.c_str(), &targetDataLocation, &targetCharacterCount);
@@ -105,22 +105,22 @@ bool GetModuleVersionInfoString(const std::wstring& modulePath, VersionInfoPrope
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::wstring GetModuleFilePath(HMODULE moduleHandle)
 {
 	std::wstring modulePath;
 
-	//Loop around until we manage to extract the entire path to the target module
+	// Loop around until we manage to extract the entire path to the target module
 	DWORD bufferSize = MAX_PATH;
 	bool aborted = false;
 	bool fileNameRead = false;
 	while (!aborted && !fileNameRead)
 	{
-		//Create a buffer to store the temporary module path output
+		// Create a buffer to store the temporary module path output
 		std::wstring stringBuffer;
 		stringBuffer.resize(bufferSize);
 
-		//Attempt to obtain the full path to the target module
+		// Attempt to obtain the full path to the target module
 		DWORD getModuleFileNameReturn = GetModuleFileName(moduleHandle, &stringBuffer[0], bufferSize);
 		if (getModuleFileNameReturn == 0)
 		{
@@ -128,16 +128,16 @@ std::wstring GetModuleFilePath(HMODULE moduleHandle)
 			continue;
 		}
 
-		//If it appears that the path to the target module was truncated, increase the
-		//buffer size, and attempt to read the path again.
+		// If it appears that the path to the target module was truncated, increase the
+		// buffer size, and attempt to read the path again.
 		if (getModuleFileNameReturn == bufferSize)
 		{
 			bufferSize *= 2;
 			continue;
 		}
 
-		//Save the path to the target module, and flag that we've successfully read the
-		//module file path.
+		// Save the path to the target module, and flag that we've successfully read the
+		// module file path.
 		modulePath = stringBuffer.c_str();
 		fileNameRead = true;
 	}
@@ -145,25 +145,25 @@ std::wstring GetModuleFilePath(HMODULE moduleHandle)
 	return modulePath;
 }
 
-//----------------------------------------------------------------------------------------
-//DPI functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// DPI functions
+//----------------------------------------------------------------------------------------------------------------------
 bool DPIIsScalingActive()
 {
-	//Obtain the current screen DPI settings
+	// Obtain the current screen DPI settings
 	int dpiX;
 	int dpiY;
 	DPIGetScreenSettings(dpiX, dpiY);
 
-	//Return true if the selected DPI mode is different from 96 DPI
+	// Return true if the selected DPI mode is different from 96 DPI
 	bool dpiScalingActive = (dpiX != 96) || (dpiY != 96);
 	return dpiScalingActive;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void DPIGetScreenSettings(int& dpiX, int& dpiY)
 {
-	//Obtain the current screen DPI settings
+	// Obtain the current screen DPI settings
 	dpiX = 96;
 	dpiY = 96;
 	HDC hdc = GetDC(NULL);
@@ -175,25 +175,25 @@ void DPIGetScreenSettings(int& dpiX, int& dpiY)
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void DPIGetScreenScaleFactors(float& dpiScaleX, float& dpiScaleY)
 {
-	//Obtain the current screen DPI settings
+	// Obtain the current screen DPI settings
 	int dpiX;
 	int dpiY;
 	DPIGetScreenSettings(dpiX, dpiY);
 
-	//Calculate a scale value for pixel values based on the current screen DPI settings
+	// Calculate a scale value for pixel values based on the current screen DPI settings
 	dpiScaleX = (float)dpiX / 96.0f;
 	dpiScaleY = (float)dpiY / 96.0f;
 }
 
-//----------------------------------------------------------------------------------------
-//BindStdHandlesToConsole function
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// BindStdHandlesToConsole function
+//----------------------------------------------------------------------------------------------------------------------
 void BindStdHandlesToConsole()
 {
-	//Redirect unbuffered STDIN to the console
+	// Redirect unbuffered STDIN to the console
 	HANDLE stdInHandle = GetStdHandle(STD_INPUT_HANDLE);
 	if (stdInHandle != INVALID_HANDLE_VALUE)
 	{
@@ -209,7 +209,7 @@ void BindStdHandlesToConsole()
 		}
 	}
 
-	//Redirect unbuffered STDOUT to the console
+	// Redirect unbuffered STDOUT to the console
 	HANDLE stdOutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
 	if (stdOutHandle != INVALID_HANDLE_VALUE)
 	{
@@ -225,7 +225,7 @@ void BindStdHandlesToConsole()
 		}
 	}
 
-	//Redirect unbuffered STDERR to the console
+	// Redirect unbuffered STDERR to the console
 	HANDLE stdErrHandle = GetStdHandle(STD_ERROR_HANDLE);
 	if (stdErrHandle != INVALID_HANDLE_VALUE)
 	{
@@ -241,11 +241,11 @@ void BindStdHandlesToConsole()
 		}
 	}
 
-	//Clear the error state for each of the C++ standard stream objects. We need to do this, as
-	//attempts to access the standard streams before they refer to a valid target will cause the
-	//iostream objects to enter an error state. In versions of Visual Studio after 2005, this seems
-	//to always occur during startup regardless of whether anything has been read from or written to
-	//the console or not.
+	// Clear the error state for each of the C++ standard stream objects. We need to do this, as
+	// attempts to access the standard streams before they refer to a valid target will cause the
+	// iostream objects to enter an error state. In versions of Visual Studio after 2005, this seems
+	// to always occur during startup regardless of whether anything has been read from or written to
+	// the console or not.
 	std::wcin.clear();
 	std::cin.clear();
 	std::wcout.clear();
@@ -254,68 +254,68 @@ void BindStdHandlesToConsole()
 	std::cerr.clear();
 }
 
-//----------------------------------------------------------------------------------------
-//Environment variable functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Environment variable functions
+//----------------------------------------------------------------------------------------------------------------------
 bool IsEnvironmentVariableDefined(const std::wstring& name)
 {
 	return (GetEnvironmentVariable(name.c_str(), 0, 0) != 0);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::wstring GetEnvironmentVariableString(const std::wstring& name)
 {
-	//Attempt to retrieve the value of the specified environment variable, until we
-	//succeed in retrieving the value, or a call to GetEnvironmentVariable fails. This
-	//slightly paranoid code is designed to fully handle concurrency, so that attempting
-	//to read and write to the same environment variable simultaneously from different
-	//threads will not cause unexpected failures in this function, even if the length of
-	//the value changes between successive calls to GetEnvironmentVariable.
+	// Attempt to retrieve the value of the specified environment variable, until we
+	// succeed in retrieving the value, or a call to GetEnvironmentVariable fails. This
+	// slightly paranoid code is designed to fully handle concurrency, so that attempting
+	// to read and write to the same environment variable simultaneously from different
+	// threads will not cause unexpected failures in this function, even if the length of
+	// the value changes between successive calls to GetEnvironmentVariable.
 	size_t currentBufferSize = MAX_PATH;
 	bool valueBufferTooSmall;
 	std::wstring value(currentBufferSize, L' ');
 	do
 	{
-		//Attempt to retrieve the value of the specified environment variable, or the
-		//length of the buffer required to store the value if the buffer is not currently
-		//large enough.
+		// Attempt to retrieve the value of the specified environment variable, or the
+		// length of the buffer required to store the value if the buffer is not currently
+		// large enough.
 		DWORD getEnvironmentVariableReturn = GetEnvironmentVariable(name.c_str(), &value[0], (DWORD)currentBufferSize);
 
 		// Determine if the value string was too small to receive the value of the
 		// specified environment variable
 		valueBufferTooSmall = (getEnvironmentVariableReturn >= currentBufferSize);
 
-		//Resize the value string to the required size. If GetEnvironmentVariable
-		//returned 0 indicating failure, we resize the value to an empty string, which is
-		//what we want. If the buffer wasn't large enough and GetEnvironmentVariable
-		//returned the new required buffer size, which includes the null terminator, we
-		//resize the value string to the required size to hold the value here. If the
-		//buffer was large enough and GetEnvironmentVariable stored the value in the
-		//buffer, the return value is the number of characters written to the buffer, not
-		//including the null terminator, in which case, we resize the string to the
-		//correct size for the written value here.
+		// Resize the value string to the required size. If GetEnvironmentVariable
+		// returned 0 indicating failure, we resize the value to an empty string, which is
+		// what we want. If the buffer wasn't large enough and GetEnvironmentVariable
+		// returned the new required buffer size, which includes the null terminator, we
+		// resize the value string to the required size to hold the value here. If the
+		// buffer was large enough and GetEnvironmentVariable stored the value in the
+		// buffer, the return value is the number of characters written to the buffer, not
+		// including the null terminator, in which case, we resize the string to the
+		// correct size for the written value here.
 		currentBufferSize = (size_t)getEnvironmentVariableReturn;
 		value.resize(currentBufferSize);
 	}
 	while (valueBufferTooSmall);
 
-	//Return the value to the caller
+	// Return the value to the caller
 	return value;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void SetEnvironmentVariableString(const std::wstring& name, const std::wstring& value)
 {
 	SetEnvironmentVariable(name.c_str(), value.c_str());
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void RemoveEnvironmentVariable(const std::wstring& name)
 {
 	SetEnvironmentVariable(name.c_str(), NULL);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::map<std::wstring, std::wstring> GetEnvironmentVariableList()
 {
 	std::map<std::wstring, std::wstring> result;
@@ -335,9 +335,9 @@ std::map<std::wstring, std::wstring> GetEnvironmentVariableList()
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
-//Window creation helpers
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Window creation helpers
+//----------------------------------------------------------------------------------------------------------------------
 HWND CreateWindowThread(HINSTANCE hInstance, const std::wstring& windowName, WNDPROC wndproc, unsigned int width, unsigned int height, LPVOID params)
 {
 	volatile bool writtenHandle = false;
@@ -369,7 +369,7 @@ HWND CreateWindowThread(HINSTANCE hInstance, const std::wstring& windowName, WND
 	return hwnd;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 HWND CreateWindowsWindow(HINSTANCE hInstance, const std::wstring& windowName, WNDPROC wndproc, unsigned int width, unsigned int height, LPVOID params)
 {
 	WNDCLASSEX wc;
@@ -401,7 +401,7 @@ HWND CreateWindowsWindow(HINSTANCE hInstance, const std::wstring& windowName, WN
 	return hwnd;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 HGLRC CreateOpenGLWindow(HWND hwnd)
 {
 	PIXELFORMATDESCRIPTOR pfd;
@@ -455,24 +455,24 @@ HGLRC CreateOpenGLWindow(HWND hwnd)
 	return renderingContext;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void GetHiddenBorderDimensions(HWND hwnd, int& borderLeft, int& borderRight, int& borderTop, int& borderBottom)
 {
-	//Set all the border sizes to zero to start with. If we manage to obtain information
-	//about hidden borders, we'll calculate the proper values for these.
+	// Set all the border sizes to zero to start with. If we manage to obtain information
+	// about hidden borders, we'll calculate the proper values for these.
 	borderLeft = 0;
 	borderRight = 0;
 	borderTop = 0;
 	borderBottom = 0;
 
-	//When running under the Aero theme on Windows Vista and up, the GetWindowRect()
-	//function returns incorrect dimensions. The returned dimensions of the window are as
-	//if Aero was not running, and the "Basic" theme was enabled. Reportedly, if our
-	//application is compiled to target Windows version 6 (Vista), GetWindowRect() returns
-	//the true dimensions, but this would cut out XP support from our app, which is
-	//undesirable at this time. To work around this, we need to call the
-	//DwmGetWindowAttribute() function, which explicitly returns the true window
-	//dimensions.
+	// When running under the Aero theme on Windows Vista and up, the GetWindowRect()
+	// function returns incorrect dimensions. The returned dimensions of the window are as
+	// if Aero was not running, and the "Basic" theme was enabled. Reportedly, if our
+	// application is compiled to target Windows version 6 (Vista), GetWindowRect() returns
+	// the true dimensions, but this would cut out XP support from our app, which is
+	// undesirable at this time. To work around this, we need to call the
+	// DwmGetWindowAttribute() function, which explicitly returns the true window
+	// dimensions.
 	if (hwnd != 0)
 	{
 		RECT extendedWindowRect;
@@ -491,21 +491,21 @@ void GetHiddenBorderDimensions(HWND hwnd, int& borderLeft, int& borderRight, int
 	}
 }
 
-//----------------------------------------------------------------------------------------
-//Internal implementation for CreateWindowThread
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Internal implementation for CreateWindowThread
+//----------------------------------------------------------------------------------------------------------------------
 CreateWindowThreadParams* AllocCreateWindowThreadParams()
 {
 	return new CreateWindowThreadParams();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void ReleaseCreateWindowThreadParams(CreateWindowThreadParams* object)
 {
 	delete object;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 DWORD WINAPI CreateWindowThreadFunction(LPVOID params)
 {
 	CreateWindowThreadParams* paramsResolved = (CreateWindowThreadParams*)params;
@@ -523,7 +523,7 @@ DWORD WINAPI CreateWindowThreadFunction(LPVOID params)
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void WindowsMessageLoop(HWND hwnd)
 {
 	if (hwnd != NULL)
@@ -541,69 +541,69 @@ void WindowsMessageLoop(HWND hwnd)
 	return;
 }
 
-//----------------------------------------------------------------------------------------
-//Parent and owner window functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Parent and owner window functions
+//----------------------------------------------------------------------------------------------------------------------
 HWND SetWindowParent(HWND targetWindow, HWND newParent)
 {
-	//Check if we have an existing parent window. Note that we need to use the GetAncestor
-	//function here rather than GetParent, as GetParent returns the owner window instead
-	//of the parent window if it has been defined. Also note that GetAncestor, unlike
-	//GetParent, returns the desktop window as a root parent window for all top-level
-	//windows, where GetParent returns NULL in this case, so we need to test if the
-	//returned parent window is the desktop window to identify top-level windows.
+	// Check if we have an existing parent window. Note that we need to use the GetAncestor
+	// function here rather than GetParent, as GetParent returns the owner window instead
+	// of the parent window if it has been defined. Also note that GetAncestor, unlike
+	// GetParent, returns the desktop window as a root parent window for all top-level
+	// windows, where GetParent returns NULL in this case, so we need to test if the
+	// returned parent window is the desktop window to identify top-level windows.
 	HWND existingParent = GetAncestor(targetWindow, GA_PARENT);
 	HWND desktopWindow = GetDesktopWindow();
 	bool hasExistingParent = ((existingParent != NULL) && (existingParent != desktopWindow));
 
-	//If the target window is currently a top-level window and is about to become a child
-	//window, alter any state which needs to be modified.
+	// If the target window is currently a top-level window and is about to become a child
+	// window, alter any state which needs to be modified.
 	if (!hasExistingParent && (newParent != NULL))
 	{
-		//Remove any current owner window bound to the target window. We need to do this,
-		//because it's apparently invalid for a window to have both an owner and a parent,
-		//but if a window already has an owner and no parent, and then SetParent is called
-		//to assign a parent, the owner window is not removed, and this causes the
-		//GetParent function to actually return the owner window, not the new parent
-		//window. Also note that despite the naming of the GWL_HWNDPARENT flag, this flag
-		//will change the owner window if the target window doesn't currently have a
-		//parent window, otherwise it will change the parent window. Since we've confirmed
-		//there's no parent window currently, we can safely clear it here to remove the
-		//owner.
+		// Remove any current owner window bound to the target window. We need to do this,
+		// because it's apparently invalid for a window to have both an owner and a parent,
+		// but if a window already has an owner and no parent, and then SetParent is called
+		// to assign a parent, the owner window is not removed, and this causes the
+		// GetParent function to actually return the owner window, not the new parent
+		// window. Also note that despite the naming of the GWL_HWNDPARENT flag, this flag
+		// will change the owner window if the target window doesn't currently have a
+		// parent window, otherwise it will change the parent window. Since we've confirmed
+		// there's no parent window currently, we can safely clear it here to remove the
+		// owner.
 		SetWindowLongPtr(targetWindow, GWLP_HWNDPARENT, NULL);
 
-		//Clear the WS_POPUP window style, and set the WS_CHILD window style. MSDN docs
-		//state this should be done before calling SetParent when a previously top-level
-		//window is being assigned as a child window.
+		// Clear the WS_POPUP window style, and set the WS_CHILD window style. MSDN docs
+		// state this should be done before calling SetParent when a previously top-level
+		// window is being assigned as a child window.
 		LONG_PTR currentWindowStyle = GetWindowLongPtr(targetWindow, GWL_STYLE);
 		LONG_PTR newWindowStyle = (currentWindowStyle & ~WS_POPUP) | WS_CHILD;
 		SetWindowLongPtr(targetWindow, GWL_STYLE, newWindowStyle);
 
-		//Since we've changed window style data, trigger a notification of the change to
-		//flush any cached state. This may not be required for these changes, but
-		//documentation isn't clear, and warns that some changes made by SetWindowLongPtr
-		//won't take effect until we trigger this update, so we do it here for safety.
+		// Since we've changed window style data, trigger a notification of the change to
+		// flush any cached state. This may not be required for these changes, but
+		// documentation isn't clear, and warns that some changes made by SetWindowLongPtr
+		// won't take effect until we trigger this update, so we do it here for safety.
 		SetWindowPos(targetWindow, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
 	}
 
-	//Set the new parent window for the target control
+	// Set the new parent window for the target control
 	SetParent(targetWindow, newParent);
 
-	//If the target window is was a child window and has just become a top-level window,
-	//alter any state which needs to be modified.
+	// If the target window is was a child window and has just become a top-level window,
+	// alter any state which needs to be modified.
 	if (hasExistingParent && (newParent == NULL))
 	{
-		//Clear the WS_CHILD window style, and set the WS_POPUP window style. MSDN docs
-		//state this should be done after calling SetParent when what was previously a
-		//child window is becoming a top-level window.
+		// Clear the WS_CHILD window style, and set the WS_POPUP window style. MSDN docs
+		// state this should be done after calling SetParent when what was previously a
+		// child window is becoming a top-level window.
 		LONG_PTR currentWindowStyle = GetWindowLongPtr(targetWindow, GWL_STYLE);
 		LONG_PTR newWindowStyle = (currentWindowStyle & ~WS_CHILD) | WS_POPUP;
 		SetWindowLongPtr(targetWindow, GWL_STYLE, newWindowStyle);
 
-		//Since we've changed window style data, trigger a notification of the change to
-		//flush any cached state. This may not be required for these changes, but
-		//documentation isn't clear, and warns that some changes made by SetWindowLongPtr
-		//won't take effect until we trigger this update, so we do it here for safety.
+		// Since we've changed window style data, trigger a notification of the change to
+		// flush any cached state. This may not be required for these changes, but
+		// documentation isn't clear, and warns that some changes made by SetWindowLongPtr
+		// won't take effect until we trigger this update, so we do it here for safety.
 		SetWindowPos(targetWindow, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
 	}
 
@@ -611,102 +611,102 @@ HWND SetWindowParent(HWND targetWindow, HWND newParent)
 	//"When you change the parent of a window, you should synchronize the UISTATE of both
 	// windows. For more information, see WM_CHANGEUISTATE and WM_UPDATEUISTATE."
 
-	//Return the existing parent of the target window
+	// Return the existing parent of the target window
 	return (hasExistingParent)? existingParent: NULL;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 HWND GetFirstOwnerWindow(HWND targetWindow)
 {
-	//Return the owner of the target window, if present.
+	// Return the owner of the target window, if present.
 	HWND ownerWindow = GetWindow(targetWindow, GW_OWNER);
 	if (ownerWindow != NULL)
 	{
 		return ownerWindow;
 	}
 
-	//Check if we have an existing parent window. Note that we need to use the GetAncestor
-	//function here rather than GetParent, as GetParent returns the owner window instead
-	//of the parent window if it has been defined. Also note that GetAncestor, unlike
-	//GetParent, returns the desktop window as a root parent window for all top-level
-	//windows, where GetParent returns NULL in this case, so we need to test if the
-	//returned parent window is the desktop window to identify top-level windows.
+	// Check if we have an existing parent window. Note that we need to use the GetAncestor
+	// function here rather than GetParent, as GetParent returns the owner window instead
+	// of the parent window if it has been defined. Also note that GetAncestor, unlike
+	// GetParent, returns the desktop window as a root parent window for all top-level
+	// windows, where GetParent returns NULL in this case, so we need to test if the
+	// returned parent window is the desktop window to identify top-level windows.
 	HWND existingParent = GetAncestor(targetWindow, GA_PARENT);
 	HWND desktopWindow = GetDesktopWindow();
 	bool hasExistingParent = ((existingParent != NULL) && (existingParent != desktopWindow));
 
-	//Return the owner of the parent window, if present.
+	// Return the owner of the parent window, if present.
 	if (hasExistingParent)
 	{
 		return GetFirstOwnerWindow(existingParent);
 	}
 
-	//Since no owner window could be found, return NULL;
+	// Since no owner window could be found, return NULL;
 	return NULL;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 HWND GetFirstOwnerWindowOrTopLevelParent(HWND targetWindow)
 {
-	//Return the first owner window at the top of the chain of parent windows for the
-	//target window, if present.
+	// Return the first owner window at the top of the chain of parent windows for the
+	// target window, if present.
 	HWND firstOwnerWindow = GetFirstOwnerWindow(targetWindow);
 	if (firstOwnerWindow != NULL)
 	{
 		return firstOwnerWindow;
 	}
 
-	//If the target window has no owner window at the top of the parent chain, return the
-	//top level parent window of the target window, if present.
+	// If the target window has no owner window at the top of the parent chain, return the
+	// top level parent window of the target window, if present.
 	//##TODO## Confirm if this method returns the target window if there are no parent
-	//windows
+	// windows
 	HWND topLevelParentWindow = GetAncestor(targetWindow, GA_ROOT);
 	if (topLevelParentWindow != NULL)
 	{
 		return topLevelParentWindow;
 	}
 
-	//If the target window has no parent or owner windows, return the target window.
+	// If the target window has no parent or owner windows, return the target window.
 	return targetWindow;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void SetOwnerWindow(HWND targetWindow, HWND newOwnerWindow)
 {
-	//Check if we have an existing parent window. Note that we need to use the GetAncestor
-	//function here rather than GetParent, as GetParent returns the owner window instead
-	//of the parent window if it has been defined. Also note that GetAncestor, unlike
-	//GetParent, returns the desktop window as a root parent window for all top-level
-	//windows, where GetParent returns NULL in this case, so we need to test if the
-	//returned parent window is the desktop window to identify top-level windows.
+	// Check if we have an existing parent window. Note that we need to use the GetAncestor
+	// function here rather than GetParent, as GetParent returns the owner window instead
+	// of the parent window if it has been defined. Also note that GetAncestor, unlike
+	// GetParent, returns the desktop window as a root parent window for all top-level
+	// windows, where GetParent returns NULL in this case, so we need to test if the
+	// returned parent window is the desktop window to identify top-level windows.
 	HWND existingParent = GetAncestor(targetWindow, GA_PARENT);
 	HWND desktopWindow = GetDesktopWindow();
 	bool hasExistingParent = ((existingParent != NULL) && (existingParent != desktopWindow));
 
-	//If the target window doesn't have a parent window, set the owner window for the
-	//target window. We ensure no parent exists first because it's invalid for a window to
-	//have both an owner and a parent, and problems arise when querying parents or testing
-	//if windows are children if a child window ends up with an owner set. Note that
-	//despite the naming of the GWL_HWNDPARENT flag, this flag will change the owner
-	//window if the target window doesn't currently have a parent window, otherwise it
-	//will change the parent window. Since we've confirmed there's no parent window
-	//currently, we can safely set it here to assign the new owner window.
+	// If the target window doesn't have a parent window, set the owner window for the
+	// target window. We ensure no parent exists first because it's invalid for a window to
+	// have both an owner and a parent, and problems arise when querying parents or testing
+	// if windows are children if a child window ends up with an owner set. Note that
+	// despite the naming of the GWL_HWNDPARENT flag, this flag will change the owner
+	// window if the target window doesn't currently have a parent window, otherwise it
+	// will change the parent window. Since we've confirmed there's no parent window
+	// currently, we can safely set it here to assign the new owner window.
 	if (!hasExistingParent)
 	{
 		SetWindowLongPtr(targetWindow, GWLP_HWNDPARENT, (LONG_PTR)newOwnerWindow);
 	}
 }
 
-//----------------------------------------------------------------------------------------
-//General window helper functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// General window helper functions
+//----------------------------------------------------------------------------------------------------------------------
 std::wstring GetClassName(HWND targetWindow)
 {
-	//Retrieve the class name of the target window. Note that according to MSDN, the
-	//maximum supported length of a window class name is 256. Since the GetClassName
-	//function doesn't give us an easy way to determine the actual length of the string,
-	//we use a buffer of this maximum size in order to retrieve the window class name
-	//without truncation.
+	// Retrieve the class name of the target window. Note that according to MSDN, the
+	// maximum supported length of a window class name is 256. Since the GetClassName
+	// function doesn't give us an easy way to determine the actual length of the string,
+	// we use a buffer of this maximum size in order to retrieve the window class name
+	// without truncation.
 	static const unsigned int classNameBufferSize = 256+1;
 	wchar_t classNameBuffer[classNameBufferSize];
 	int getClassNameReturn = GetClassName(targetWindow, &classNameBuffer[0], (int)classNameBufferSize);
@@ -715,13 +715,13 @@ std::wstring GetClassName(HWND targetWindow)
 		return L"";
 	}
 
-	//Return the class name as a string
+	// Return the class name as a string
 	return classNameBuffer;
 }
 
-//----------------------------------------------------------------------------------------
-//Control text helper functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Control text helper functions
+//----------------------------------------------------------------------------------------------------------------------
 void UpdateDlgItemBin(HWND hwnd, int controlID, unsigned int data)
 {
 	const unsigned int maxTextLength = 1024;
@@ -739,7 +739,7 @@ void UpdateDlgItemBin(HWND hwnd, int controlID, unsigned int data)
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int GetDlgItemBin(HWND hwnd, int controlID)
 {
 	unsigned int value = 0;
@@ -757,7 +757,7 @@ unsigned int GetDlgItemBin(HWND hwnd, int controlID)
 	return value;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void UpdateDlgItemHex(HWND hwnd, int controlID, unsigned int width, unsigned int data)
 {
 	const unsigned int maxTextLength = 1024;
@@ -776,7 +776,7 @@ void UpdateDlgItemHex(HWND hwnd, int controlID, unsigned int width, unsigned int
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int GetDlgItemHex(HWND hwnd, int controlID)
 {
 	unsigned int value = 0;
@@ -794,7 +794,7 @@ unsigned int GetDlgItemHex(HWND hwnd, int controlID)
 	return value;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void UpdateDlgItemFloat(HWND hwnd, int controlID, float data)
 {
 	const unsigned int maxTextLength = 1024;
@@ -814,7 +814,7 @@ void UpdateDlgItemFloat(HWND hwnd, int controlID, float data)
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 float GetDlgItemFloat(HWND hwnd, int controlID)
 {
 	float value = 0;
@@ -832,7 +832,7 @@ float GetDlgItemFloat(HWND hwnd, int controlID)
 	return value;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void UpdateDlgItemDouble(HWND hwnd, int controlID, double data)
 {
 	const unsigned int maxTextLength = 1024;
@@ -852,7 +852,7 @@ void UpdateDlgItemDouble(HWND hwnd, int controlID, double data)
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 double GetDlgItemDouble(HWND hwnd, int controlID)
 {
 	double value = 0;
@@ -870,13 +870,13 @@ double GetDlgItemDouble(HWND hwnd, int controlID)
 	return value;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void UpdateDlgItemString(HWND hwnd, int controlID, const std::wstring& data)
 {
 	SetDlgItemText(hwnd, controlID, data.c_str());
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::wstring GetDlgItemString(HWND hwnd, int controlID)
 {
 	std::wstring result;
@@ -892,13 +892,13 @@ std::wstring GetDlgItemString(HWND hwnd, int controlID)
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void SetWindowText(HWND hwnd, const std::wstring& data)
 {
 	SetWindowText(hwnd, data.c_str());
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::wstring GetWindowText(HWND hwnd)
 {
 	int windowTextLength = GetWindowTextLength(hwnd);
@@ -911,16 +911,16 @@ std::wstring GetWindowText(HWND hwnd)
 	return windowText;
 }
 
-//----------------------------------------------------------------------------------------
-//Modal window functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Modal window functions
+//----------------------------------------------------------------------------------------------------------------------
 std::list<HWND> DisableAllEnabledDialogWindows(HWND ownerWindow)
 {
-	//Retrieve the current list of all popup and dialog windows owned by the target window
+	// Retrieve the current list of all popup and dialog windows owned by the target window
 	std::list<HWND> ownedWindowList = GetOwnedDialogWindows(ownerWindow);
 
-	//Disable any owned popup or dialog windows which are currently enabled, and build a
-	//list of all the windows that were actually disabled.
+	// Disable any owned popup or dialog windows which are currently enabled, and build a
+	// list of all the windows that were actually disabled.
 	std::list<HWND> disabledWindows;
 	for (std::list<HWND>::const_iterator i = ownedWindowList.begin(); i != ownedWindowList.end(); ++i)
 	{
@@ -931,14 +931,14 @@ std::list<HWND> DisableAllEnabledDialogWindows(HWND ownerWindow)
 		}
 	}
 
-	//Return the list of windows which were disabled to the caller
+	// Return the list of windows which were disabled to the caller
 	return disabledWindows;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void EnableDialogWindows(const std::list<HWND>& windowList)
 {
-	//Enable all windows in the supplied window list
+	// Enable all windows in the supplied window list
 	for (std::list<HWND>::const_iterator i = windowList.begin(); i != windowList.end(); ++i)
 	{
 		HWND targetWindow = *i;
@@ -946,114 +946,114 @@ void EnableDialogWindows(const std::list<HWND>& windowList)
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 int SafeMessageBox(HWND hwnd, const std::wstring& message, const std::wstring& title, UINT type)
 {
-	//Disable all other popup or dialog windows for the target parent window that are not
-	//currently disabled. We need to do this, because although the modal dialog box will
-	//disable the parent window, it will not disable other popup windows of the parent,
-	//and the user will still be able to interact with them while our dialog is open.
+	// Disable all other popup or dialog windows for the target parent window that are not
+	// currently disabled. We need to do this, because although the modal dialog box will
+	// disable the parent window, it will not disable other popup windows of the parent,
+	// and the user will still be able to interact with them while our dialog is open.
 	std::list<HWND> disabledWindows = DisableAllEnabledDialogWindows(hwnd);
 
-	//Display the message box to the user
+	// Display the message box to the user
 	int messageBoxReturn = MessageBox(hwnd, message.c_str(), title.c_str(), type);
 
-	//Re-enable all other popup or dialog windows which we disabled
+	// Re-enable all other popup or dialog windows which we disabled
 	EnableDialogWindows(disabledWindows);
 
-	//Return the result of the message box to the caller
+	// Return the result of the message box to the caller
 	return messageBoxReturn;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR SafeDialogBox(HINSTANCE hInstance, LPCTSTR lpTemplate, HWND hWndParent, DLGPROC lpDialogFunc)
 {
-	//Disable all other popup or dialog windows for the target parent window that are not
-	//currently disabled. We need to do this, because although the modal dialog box will
-	//disable the parent window, it will not disable other popup windows of the parent,
-	//and the user will still be able to interact with them while our dialog is open.
+	// Disable all other popup or dialog windows for the target parent window that are not
+	// currently disabled. We need to do this, because although the modal dialog box will
+	// disable the parent window, it will not disable other popup windows of the parent,
+	// and the user will still be able to interact with them while our dialog is open.
 	std::list<HWND> disabledWindows = DisableAllEnabledDialogWindows(hWndParent);
 
-	//Display the modal dialog to the user
+	// Display the modal dialog to the user
 	INT_PTR dialogBoxReturn = DialogBox(hInstance, lpTemplate, hWndParent, lpDialogFunc);
 
-	//Re-enable all other popup or dialog windows which we disabled
+	// Re-enable all other popup or dialog windows which we disabled
 	EnableDialogWindows(disabledWindows);
 
-	//Return the result of the dialog to the caller
+	// Return the result of the dialog to the caller
 	return dialogBoxReturn;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR SafeDialogBoxParam(HINSTANCE hInstance, LPCWSTR lpTemplateName, HWND hWndParent, DLGPROC lpDialogFunc, LPARAM dwInitParam)
 {
-	//Disable all other popup or dialog windows for the target parent window that are not
-	//currently disabled. We need to do this, because although the modal dialog box will
-	//disable the parent window, it will not disable other popup windows of the parent,
-	//and the user will still be able to interact with them while our dialog is open.
+	// Disable all other popup or dialog windows for the target parent window that are not
+	// currently disabled. We need to do this, because although the modal dialog box will
+	// disable the parent window, it will not disable other popup windows of the parent,
+	// and the user will still be able to interact with them while our dialog is open.
 	std::list<HWND> disabledWindows = DisableAllEnabledDialogWindows(hWndParent);
 
-	//Display the modal dialog to the user
+	// Display the modal dialog to the user
 	INT_PTR dialogBoxReturn = DialogBoxParam(hInstance, lpTemplateName, hWndParent, lpDialogFunc, dwInitParam);
 
-	//Re-enable all other popup or dialog windows which we disabled
+	// Re-enable all other popup or dialog windows which we disabled
 	EnableDialogWindows(disabledWindows);
 
-	//Return the result of the dialog to the caller
+	// Return the result of the dialog to the caller
 	return dialogBoxReturn;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR SafeDialogBoxIndirect(HINSTANCE hInstance, LPCDLGTEMPLATE lpTemplate, HWND hWndParent, DLGPROC lpDialogFunc)
 {
-	//Disable all other popup or dialog windows for the target parent window that are not
-	//currently disabled. We need to do this, because although the modal dialog box will
-	//disable the parent window, it will not disable other popup windows of the parent,
-	//and the user will still be able to interact with them while our dialog is open.
+	// Disable all other popup or dialog windows for the target parent window that are not
+	// currently disabled. We need to do this, because although the modal dialog box will
+	// disable the parent window, it will not disable other popup windows of the parent,
+	// and the user will still be able to interact with them while our dialog is open.
 	std::list<HWND> disabledWindows = DisableAllEnabledDialogWindows(hWndParent);
 
-	//Display the modal dialog to the user
+	// Display the modal dialog to the user
 	INT_PTR dialogBoxReturn = DialogBoxIndirect(hInstance, lpTemplate, hWndParent, lpDialogFunc);
 
-	//Re-enable all other popup or dialog windows which we disabled
+	// Re-enable all other popup or dialog windows which we disabled
 	EnableDialogWindows(disabledWindows);
 
-	//Return the result of the dialog to the caller
+	// Return the result of the dialog to the caller
 	return dialogBoxReturn;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR SafeDialogBoxIndirectParam(HINSTANCE hInstance, LPCDLGTEMPLATE hDialogTemplate, HWND hWndParent, DLGPROC lpDialogFunc, LPARAM dwInitParam)
 {
-	//Disable all other popup or dialog windows for the target parent window that are not
-	//currently disabled. We need to do this, because although the modal dialog box will
-	//disable the parent window, it will not disable other popup windows of the parent,
-	//and the user will still be able to interact with them while our dialog is open.
+	// Disable all other popup or dialog windows for the target parent window that are not
+	// currently disabled. We need to do this, because although the modal dialog box will
+	// disable the parent window, it will not disable other popup windows of the parent,
+	// and the user will still be able to interact with them while our dialog is open.
 	std::list<HWND> disabledWindows = DisableAllEnabledDialogWindows(hWndParent);
 
-	//Display the modal dialog to the user
+	// Display the modal dialog to the user
 	INT_PTR dialogBoxReturn = DialogBoxIndirectParam(hInstance, hDialogTemplate, hWndParent, lpDialogFunc, dwInitParam);
 
-	//Re-enable all other popup or dialog windows which we disabled
+	// Re-enable all other popup or dialog windows which we disabled
 	EnableDialogWindows(disabledWindows);
 
-	//Return the result of the dialog to the caller
+	// Return the result of the dialog to the caller
 	return dialogBoxReturn;
 }
 
-//----------------------------------------------------------------------------------------
-//Window enumeration
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Window enumeration
+//----------------------------------------------------------------------------------------------------------------------
 struct EnumThreadWindowsCallbackParams
 {
 	std::list<HWND> windowList;
 	HWND ownerWindow;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 BOOL CALLBACK EnumThreadWindowsCallback(HWND hwnd, LPARAM lParam)
 {
-	//If this window has our target window as its owner, add it to the window list.
+	// If this window has our target window as its owner, add it to the window list.
 	EnumThreadWindowsCallbackParams& params = *((EnumThreadWindowsCallbackParams*)lParam);
 	HWND ownerWindow = GetWindow(hwnd, GW_OWNER);
 	if (ownerWindow == params.ownerWindow)
@@ -1063,7 +1063,7 @@ BOOL CALLBACK EnumThreadWindowsCallback(HWND hwnd, LPARAM lParam)
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 BOOL CALLBACK EnumDescendantWindowsCallback(HWND hwnd, LPARAM lParam)
 {
 	std::list<HWND>& descendantWindows = *((std::list<HWND>*)lParam);
@@ -1071,10 +1071,10 @@ BOOL CALLBACK EnumDescendantWindowsCallback(HWND hwnd, LPARAM lParam)
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::list<HWND> GetOwnedDialogWindows(HWND ownerWindow)
 {
-	//Return the list of all windows which are owned by the target window
+	// Return the list of all windows which are owned by the target window
 	EnumThreadWindowsCallbackParams params;
 	params.ownerWindow = ownerWindow;
 	DWORD ownerWindowThreadID = GetWindowThreadProcessId(ownerWindow, NULL);
@@ -1082,21 +1082,21 @@ std::list<HWND> GetOwnedDialogWindows(HWND ownerWindow)
 	return params.windowList;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::list<HWND> GetDescendantWindows(HWND targetWindow)
 {
-	//Return the list of all descendant windows under the target window
+	// Return the list of all descendant windows under the target window
 	std::list<HWND> descendantWindows;
 	EnumChildWindows(targetWindow, EnumDescendantWindowsCallback, (LPARAM)&descendantWindows);
 	return descendantWindows;
 }
 
-//----------------------------------------------------------------------------------------
-//Tooltip functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Tooltip functions
+//----------------------------------------------------------------------------------------------------------------------
 HWND CreateTooltipControl(HINSTANCE moduleHandle, HWND hwndParent, unsigned int maxWidth)
 {
-	//Initialize common controls
+	// Initialize common controls
 	INITCOMMONCONTROLSEX iccex;
 	iccex.dwICC = ICC_BAR_CLASSES;
 	iccex.dwSize = sizeof(INITCOMMONCONTROLSEX);
@@ -1105,7 +1105,7 @@ HWND CreateTooltipControl(HINSTANCE moduleHandle, HWND hwndParent, unsigned int 
 		return NULL;
 	}
 
-	//Create a tooltip window
+	// Create a tooltip window
 	HWND hwndTooltip;
 	hwndTooltip = CreateWindowEx(WS_EX_TOPMOST, TOOLTIPS_CLASS, NULL, WS_POPUP | TTS_NOPREFIX | TTS_ALWAYSTIP | TTS_BALLOON | TTS_NOFADE, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, hwndParent, NULL, moduleHandle, NULL);
 	if (hwndTooltip == NULL)
@@ -1113,27 +1113,27 @@ HWND CreateTooltipControl(HINSTANCE moduleHandle, HWND hwndParent, unsigned int 
 		return NULL;
 	}
 
-	//This little hackaround here allows tooltips to work properly when used around OpenGL
-	//and Direct3D windows. Tooltip windows all have the WS_EX_LAYERED window style
-	//manually set by the tooltip window procedure after creation. This is done to enable
-	//support for fading tooltips, but unfortunately, the window style is always added,
-	//regardless of whether fading is enabled for the tooltip control or not. Layered
-	//windows do not work correctly when they overlap a surface rendered using methods
-	//which bypass the normal Windows GDI interface, in particular, they are fundamentally
-	//incompatible with surfaces which render an image by writing directly to the
-	//framebuffer, as is the case with hardware accelerated interfaces. What happens when
-	//a tooltip window overlaps such as surface is that the tooltip control appears in the
-	//overlapped region for a very brief period, but the next time the surface below
-	//redraws, the region of the tooltip which overlaps the surface is cleared, and the
-	//contents of the surface are displayed in that region instead. To work around this
-	//problem, we have set the TTS_NOFADE window style for the tooltip control, which
-	//removes the need for the WS_EX_LAYERED extended window style. We then read the real
-	//extended window style of the tooltip control after it has been created, and
-	//explicitly clear the WS_EX_LAYERED style. The new extended window style is then
-	//re-applied, and all cached data regarding the old extended window style is cleared
-	//after the SetWindowPos call below. This solution has been tested on Windows XP SP3
-	//and Windows Vista SP1, and solves the problems with tooltips and OpenGL surfaces,
-	//with no apparent side-effects.
+	// This little hackaround here allows tooltips to work properly when used around OpenGL
+	// and Direct3D windows. Tooltip windows all have the WS_EX_LAYERED window style
+	// manually set by the tooltip window procedure after creation. This is done to enable
+	// support for fading tooltips, but unfortunately, the window style is always added,
+	// regardless of whether fading is enabled for the tooltip control or not. Layered
+	// windows do not work correctly when they overlap a surface rendered using methods
+	// which bypass the normal Windows GDI interface, in particular, they are fundamentally
+	// incompatible with surfaces which render an image by writing directly to the
+	// framebuffer, as is the case with hardware accelerated interfaces. What happens when
+	// a tooltip window overlaps such as surface is that the tooltip control appears in the
+	// overlapped region for a very brief period, but the next time the surface below
+	// redraws, the region of the tooltip which overlaps the surface is cleared, and the
+	// contents of the surface are displayed in that region instead. To work around this
+	// problem, we have set the TTS_NOFADE window style for the tooltip control, which
+	// removes the need for the WS_EX_LAYERED extended window style. We then read the real
+	// extended window style of the tooltip control after it has been created, and
+	// explicitly clear the WS_EX_LAYERED style. The new extended window style is then
+	// re-applied, and all cached data regarding the old extended window style is cleared
+	// after the SetWindowPos call below. This solution has been tested on Windows XP SP3
+	// and Windows Vista SP1, and solves the problems with tooltips and OpenGL surfaces,
+	// with no apparent side-effects.
 	LONG_PTR extendedWindowStyle = GetWindowLongPtr(hwndTooltip, GWL_EXSTYLE);
 	if (extendedWindowStyle != 0)
 	{
@@ -1141,13 +1141,13 @@ HWND CreateTooltipControl(HINSTANCE moduleHandle, HWND hwndParent, unsigned int 
 		SetWindowLongPtr(hwndTooltip, GWL_EXSTYLE, extendedWindowStyle);
 	}
 
-	//Set the tooltip window as topmost
+	// Set the tooltip window as topmost
 	SetWindowPos(hwndTooltip, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
 
-	//Set the maximum width for the tooltip window
+	// Set the maximum width for the tooltip window
 	SendMessage(hwndTooltip, TTM_SETMAXTIPWIDTH, 0, (LPARAM)maxWidth);
 
-	//Set the time-out periods for the tooltip window
+	// Set the time-out periods for the tooltip window
 	SendMessage(hwndTooltip, TTM_SETDELAYTIME, (WPARAM)TTDT_AUTOPOP, (LPARAM)MAKELONG(0x7FFF, 0));
 	SendMessage(hwndTooltip, TTM_SETDELAYTIME, (WPARAM)TTDT_INITIAL, (LPARAM)0);
 	SendMessage(hwndTooltip, TTM_SETDELAYTIME, (WPARAM)TTDT_RESHOW, (LPARAM)0);
@@ -1155,10 +1155,10 @@ HWND CreateTooltipControl(HINSTANCE moduleHandle, HWND hwndParent, unsigned int 
 	return hwndTooltip;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 BOOL AddTooltip(HINSTANCE moduleHandle, HWND hwndTooltip, HWND hwndParent, int targetControlID, const std::wstring& text, bool createAnchor, const std::wstring& anchorLink)
 {
-	//Get the handle of the target control
+	// Get the handle of the target control
 	HWND hwndControl = GetDlgItem(hwndParent, targetControlID);
 	if (hwndControl == NULL)
 	{
@@ -1167,7 +1167,7 @@ BOOL AddTooltip(HINSTANCE moduleHandle, HWND hwndTooltip, HWND hwndParent, int t
 
 	if (createAnchor)
 	{
-		//Obtain the client position of the parent window
+		// Obtain the client position of the parent window
 		POINT clientPos;
 		clientPos.x = 0;
 		clientPos.y = 0;
@@ -1176,7 +1176,7 @@ BOOL AddTooltip(HINSTANCE moduleHandle, HWND hwndTooltip, HWND hwndParent, int t
 			return FALSE;
 		}
 
-		//Calculate the dimensions of the target control in client coordinates
+		// Calculate the dimensions of the target control in client coordinates
 		RECT rect;
 		if (GetWindowRect(hwndControl, &rect) == 0)
 		{
@@ -1187,14 +1187,14 @@ BOOL AddTooltip(HINSTANCE moduleHandle, HWND hwndTooltip, HWND hwndParent, int t
 		rect.left -= clientPos.x;
 		rect.right -= clientPos.x;
 
-		//Calculate the initial position and size for the anchor control based on the
-		//dimensions of the target control
+		// Calculate the initial position and size for the anchor control based on the
+		// dimensions of the target control
 		int anchorPosX = (int)rect.left;
 		int anchorPosY = (int)rect.top;
 		int anchorWidth = (int)(rect.right - rect.left);
 		int anchorHeight = (int)(rect.bottom - rect.top);
 
-		//Initialize the SysLink common control
+		// Initialize the SysLink common control
 		INITCOMMONCONTROLSEX iccex;
 		iccex.dwICC = ICC_LINK_CLASS;
 		iccex.dwSize = sizeof(INITCOMMONCONTROLSEX);
@@ -1203,7 +1203,7 @@ BOOL AddTooltip(HINSTANCE moduleHandle, HWND hwndTooltip, HWND hwndParent, int t
 			return FALSE;
 		}
 
-		//Create a SysLink control as an anchor for the tooltip over the target control
+		// Create a SysLink control as an anchor for the tooltip over the target control
 		std::wstring sysLinkTarget = L"<a href=\"" + anchorLink + L"\">[?]</a>";
 		hwndControl = CreateWindowEx(0, WC_LINK, &sysLinkTarget[0], WS_CHILD | WS_TABSTOP, anchorPosX, anchorPosY, anchorWidth, anchorHeight, hwndParent, NULL, moduleHandle, NULL);
 		if (hwndControl == NULL)
@@ -1211,14 +1211,14 @@ BOOL AddTooltip(HINSTANCE moduleHandle, HWND hwndTooltip, HWND hwndParent, int t
 			return FALSE;
 		}
 
-		//Propagate the currently selected font from the parent window to the SysLink
-		//control. Without this step, the text in the anchor will use the default raster
-		//font, which not only looks ugly, it doesn't scale based on the screen DPI
-		//settings.
+		// Propagate the currently selected font from the parent window to the SysLink
+		// control. Without this step, the text in the anchor will use the default raster
+		// font, which not only looks ugly, it doesn't scale based on the screen DPI
+		// settings.
 		HFONT parentWindowFontHandle = (HFONT)SendMessage(hwndParent, WM_GETFONT, 0, 0);
 		SendMessage(hwndControl, WM_SETFONT, (WPARAM)parentWindowFontHandle, (LPARAM)FALSE);
 
-		//Adjust the anchor position and dimensions to ensure the full text is visible
+		// Adjust the anchor position and dimensions to ensure the full text is visible
 		int preferredHeight = (int)SendMessage(hwndControl, LM_GETIDEALHEIGHT, 0, 0);
 		if (anchorHeight < preferredHeight)
 		{
@@ -1227,13 +1227,13 @@ BOOL AddTooltip(HINSTANCE moduleHandle, HWND hwndTooltip, HWND hwndParent, int t
 		}
 		if (anchorWidth < anchorHeight)
 		{
-			//The horizontal adjustment here is... well... a bit of a guess really. The
-			//LM_GETIDEALHEIGHT message above allows us to determine the correct height
-			//for the control, but there's no assistance to calculate an ideal width for
-			//a given string. We aim for a square dimension to the control here, which
-			//works perfectly for the default visual settings on all versions of Windows
-			//tested up to and including Vista, but the proper width for the control is
-			//dependent on the font settings. This may require adjustment in the future.
+			// The horizontal adjustment here is... well... a bit of a guess really. The
+			// LM_GETIDEALHEIGHT message above allows us to determine the correct height
+			// for the control, but there's no assistance to calculate an ideal width for
+			// a given string. We aim for a square dimension to the control here, which
+			// works perfectly for the default visual settings on all versions of Windows
+			// tested up to and including Vista, but the proper width for the control is
+			// dependent on the font settings. This may require adjustment in the future.
 			anchorWidth = anchorHeight;
 		}
 		if (MoveWindow(hwndControl, anchorPosX, anchorPosY, anchorWidth, anchorHeight, FALSE) == 0)
@@ -1241,12 +1241,12 @@ BOOL AddTooltip(HINSTANCE moduleHandle, HWND hwndTooltip, HWND hwndParent, int t
 			return FALSE;
 		}
 
-		//Now that the anchor has been positioned and sized correctly, make the control
-		//visible.
+		// Now that the anchor has been positioned and sized correctly, make the control
+		// visible.
 		ShowWindow(hwndControl, SW_SHOWNORMAL);
 	}
 
-	//Define the properties of the tooltip
+	// Define the properties of the tooltip
 	TOOLINFO toolInfo;
 	toolInfo.cbSize = sizeof(TOOLINFO);
 	toolInfo.lpReserved = 0;
@@ -1256,14 +1256,14 @@ BOOL AddTooltip(HINSTANCE moduleHandle, HWND hwndTooltip, HWND hwndParent, int t
 	toolInfo.uId = (UINT_PTR)hwndControl;
 	toolInfo.lpszText = (LPTSTR)text.c_str();
 
-	//Register the tooltip with the tooltip control
+	// Register the tooltip with the tooltip control
 	BOOL addToolResult = (BOOL)SendMessage(hwndTooltip, TTM_ADDTOOL, 0, (LPARAM)&toolInfo);
 	return addToolResult;
 }
 
-//----------------------------------------------------------------------------------------
-//Child window message bounce back
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Child window message bounce back
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT CALLBACK BounceBackSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
 	BounceMessage params(hwnd, uMsg, wParam, lParam);
@@ -1275,40 +1275,40 @@ LRESULT CALLBACK BounceBackSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPA
 	return DefSubclassProc(hwnd, uMsg, wParam, lParam);
 }
 
-//----------------------------------------------------------------------------------------
-//Edit control extensions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Edit control extensions
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT CALLBACK EditBoxFocusFixSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
 	//##HACK##
-	//There is a bug in the Windows edit control, which is acknowledged by Microsoft and
-	//documented under KB230587. This bug is described in the following article:
-	//http://support.microsoft.com/kb/230587/en-us
-	//Unfortunately this bug will never be fixed, and we need to apply a workaround for it
-	//here. The problem is that due to poor implementation, if an edit control has an
-	//ancestor parent window that is a child window (has the WS_CHILD window style), and
-	//has a caption bar (has the WS_CAPTION window style), the edit control ignores mouse
-	//input events targeted at it. We work around this problem by detecting messages which
-	//would be affected, and temporarily removing the WS_CAPTION window style from any
-	//parent windows which are themselves child windows, and restoring the style after the
-	//message is processed by the edit control, with some extra effort to prevent control
-	//redraw artifacts as much as we can.
+	// There is a bug in the Windows edit control, which is acknowledged by Microsoft and
+	// documented under KB230587. This bug is described in the following article:
+	// http://support.microsoft.com/kb/230587/en-us
+	// Unfortunately this bug will never be fixed, and we need to apply a workaround for it
+	// here. The problem is that due to poor implementation, if an edit control has an
+	// ancestor parent window that is a child window (has the WS_CHILD window style), and
+	// has a caption bar (has the WS_CAPTION window style), the edit control ignores mouse
+	// input events targeted at it. We work around this problem by detecting messages which
+	// would be affected, and temporarily removing the WS_CAPTION window style from any
+	// parent windows which are themselves child windows, and restoring the style after the
+	// message is processed by the edit control, with some extra effort to prevent control
+	// redraw artifacts as much as we can.
 	//
-	//This is an imperfect solution, and OpenGL child windows will still exhibit
-	//flickering on redraw. It is possible that visual artifacts or flickering could occur
-	//on different versions of Windows or with certain child windows. Ideally the root of
-	//the problem would be fixed, and Microsoft would patch their code to only examine the
-	//enabled state of non-child captioned parent windows, but that's never going to
-	//happen. This bug has been known for well over a decade.
+	// This is an imperfect solution, and OpenGL child windows will still exhibit
+	// flickering on redraw. It is possible that visual artifacts or flickering could occur
+	// on different versions of Windows or with certain child windows. Ideally the root of
+	// the problem would be fixed, and Microsoft would patch their code to only examine the
+	// enabled state of non-child captioned parent windows, but that's never going to
+	// happen. This bug has been known for well over a decade.
 	//
-	//For future reference, some more detail about this problem is as follows:
-	//-The offending code is contained within comctl32.dll
-	//-The offending function is named Edit_IsAncestorActive, according to the debug
+	// For future reference, some more detail about this problem is as follows:
+	// -The offending code is contained within comctl32.dll
+	// -The offending function is named Edit_IsAncestorActive, according to the debug
 	// symbols file provided by Microsoft.
-	//-The Edit_IsAncestorActive function is called in two places, both from the
+	// -The Edit_IsAncestorActive function is called in two places, both from the
 	// Edit_WndProc function, one from the WM_CONTEXTMENU handler, and another from the
 	// WM_LBUTTONDOWN handler.
-	//-The approximate code for the offending function from a disassembly analysis is as
+	// -The approximate code for the offending function from a disassembly analysis is as
 	// follows:
 	//	bool Edit_IsAncestorActive(HWND targetWindow)
 	//	{
@@ -1316,8 +1316,8 @@ LRESULT CALLBACK EditBoxFocusFixSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam
 	//		HWND ancestorWindow = targetWindow;
 	//		while (ancestorWindow != NULL)
 	//		{
-	//			//Undocumented value of -1 used as index, unknown internal data structure
-	//			//returned.
+	//			// Undocumented value of -1 used as index, unknown internal data structure
+	//			// returned.
 	//			unsigned char* unknownData = (unsigned char*)GetWindowLongPtr(v1, -1);
 	//			if ((*((unsigned int*)(unknownData + 4)) & 0x200) == 0)
 	//			{
@@ -1327,9 +1327,9 @@ LRESULT CALLBACK EditBoxFocusFixSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam
 	//			{
 	//				break;
 	//			}
-	//			if ((*unknownData & 8) != 0) //If the window has a caption?
+	//			if ((*unknownData & 8) != 0) // If the window has a caption?
 	//			{
-	//				result = (((*unknownData >> 6) & 0x01) != 0); //Return the enabled state of the caption?
+	//				result = (((*unknownData >> 6) & 0x01) != 0); // Return the enabled state of the caption?
 	//				break;
 	//			}
 	//			ancestorWindow = GetParent(ancestorWindow);
@@ -1337,12 +1337,12 @@ LRESULT CALLBACK EditBoxFocusFixSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam
 	//		return result;
 	//	}
 
-	//If this message is one of the messages affected by the disabled captioned parent
-	//window bug, process the message and implement our workaround.
+	// If this message is one of the messages affected by the disabled captioned parent
+	// window bug, process the message and implement our workaround.
 	if ((uMsg == WM_CONTEXTMENU) || (uMsg == WM_LBUTTONDOWN))
 	{
-		//Build a list of parent windows which have the caption window style, and are
-		//child windows themselves.
+		// Build a list of parent windows which have the caption window style, and are
+		// child windows themselves.
 		std::list<HWND> parentChildWindowsWithCaption;
 		HWND parentWindow = GetAncestor(hwnd, GA_PARENT);
 		while (parentWindow != NULL)
@@ -1355,84 +1355,84 @@ LRESULT CALLBACK EditBoxFocusFixSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam
 			parentWindow = GetAncestor(parentWindow, GA_PARENT);
 		}
 
-		//If the window which has focus before processing this mouse event is different to
-		//the target window, and it is an edit control too, flag it for redrawing.
+		// If the window which has focus before processing this mouse event is different to
+		// the target window, and it is an edit control too, flag it for redrawing.
 		HWND previousFocusWindow = GetFocus();
 		bool redrawPreviousFocusWindow = ((previousFocusWindow != hwnd) && (GetClassName(previousFocusWindow) == WC_EDIT));
 
-		//Remove the WS_CAPTION window style from any parent windows which contain it, to
-		//allow the edit control to process this mouse message properly.
+		// Remove the WS_CAPTION window style from any parent windows which contain it, to
+		// allow the edit control to process this mouse message properly.
 		for (std::list<HWND>::const_iterator i = parentChildWindowsWithCaption.begin(); i != parentChildWindowsWithCaption.end(); ++i)
 		{
-			//Disable redrawing on the parent caption window. We do this because we're
-			//about to change the border style, which will prompt a redraw of the client
-			//and non-client region of the window. We want to disable redrawing to prevent
-			//noticeable flicker as the style changes, since we're about to change it back
-			//again almost immediately.
+			// Disable redrawing on the parent caption window. We do this because we're
+			// about to change the border style, which will prompt a redraw of the client
+			// and non-client region of the window. We want to disable redrawing to prevent
+			// noticeable flicker as the style changes, since we're about to change it back
+			// again almost immediately.
 			HWND parentCaptionWindow = *i;
 			SendMessage(parentCaptionWindow, WM_SETREDRAW, FALSE, NULL);
 
-			//Remove the caption window style. This allows edit controls to process mouse
-			//events properly.
+			// Remove the caption window style. This allows edit controls to process mouse
+			// events properly.
 			LONG_PTR currentWindowStyle = GetWindowLongPtr(parentCaptionWindow, GWL_STYLE);
 			LONG_PTR newWindowStyle = (currentWindowStyle & ~WS_CAPTION);
 			SetWindowLongPtr(parentCaptionWindow, GWL_STYLE, newWindowStyle);
 		}
 
-		//Allow the default window procedure to process this message
+		// Allow the default window procedure to process this message
 		LRESULT result = DefSubclassProc(hwnd, uMsg, wParam, lParam);
 
-		//Restore the window style for any affected parent windows
+		// Restore the window style for any affected parent windows
 		for (std::list<HWND>::const_iterator i = parentChildWindowsWithCaption.begin(); i != parentChildWindowsWithCaption.end(); ++i)
 		{
-			//Restore the caption window style
+			// Restore the caption window style
 			HWND parentCaptionWindow = *i;
 			LONG_PTR currentWindowStyle = GetWindowLongPtr(parentCaptionWindow, GWL_STYLE);
 			LONG_PTR newWindowStyle = (currentWindowStyle | WS_CAPTION);
 			SetWindowLongPtr(parentCaptionWindow, GWL_STYLE, newWindowStyle);
 
-			//Now that we've changed the border style, call SetWindowPos to ensure the
-			//change is applied. If the change wasn't inadvertently triggered during the
-			//edit control message processing, this should have no real effect, since the
-			//frame has been restored to what it was before, but if the frame change has
-			//been applied, we need to ensure it is restored correctly.
+			// Now that we've changed the border style, call SetWindowPos to ensure the
+			// change is applied. If the change wasn't inadvertently triggered during the
+			// edit control message processing, this should have no real effect, since the
+			// frame has been restored to what it was before, but if the frame change has
+			// been applied, we need to ensure it is restored correctly.
 			SetWindowPos(parentCaptionWindow, NULL, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOOWNERZORDER | SWP_NOSIZE | SWP_NOZORDER);
 
-			//Re-enable redrawing on the parent caption window
+			// Re-enable redrawing on the parent caption window
 			SendMessage(parentCaptionWindow, WM_SETREDRAW, TRUE, NULL);
 		}
 
-		//Redraw the previous window to have focus, if requested.
+		// Redraw the previous window to have focus, if requested.
 		if (redrawPreviousFocusWindow)
 		{
 			RedrawWindow(previousFocusWindow, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
 		}
 
-		//Return the result returned by the default window procedure
+		// Return the result returned by the default window procedure
 		return result;
 	}
 
-	//If this message is unaffected by the bug, process it normally.
+	// If this message is unaffected by the bug, process it normally.
 	return DefSubclassProc(hwnd, uMsg, wParam, lParam);
 }
 
-//----------------------------------------------------------------------------------------
-//Static control extensions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Static control extensions
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT CALLBACK ResizableStaticControlSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
-	//As a bit of an oversight, the win32 static text control doesn't invalidate its
-	//content region when word wrapping is active, even when the text wrapping position
-	//changes as a result of a window size change. To resolve this problem, after
-	//processing a WM_SIZE event, we invalidate the client region to force the entire
-	//client area to redraw.
+	// As a bit of an oversight, the win32 static text control doesn't invalidate its
+	// content region when word wrapping is active, even when the text wrapping position
+	// changes as a result of a window size change. To resolve this problem, after
+	// processing a WM_SIZE event, we invalidate the client region to force the entire
+	// client area to redraw.
 	LRESULT result = DefSubclassProc(hwnd, uMsg, wParam, lParam);
 	if (uMsg == WM_SIZE)
 	{
-		//Note that the static control doesn't use a full bitmask for its style, but
-		//instead has a set of mutually exclusive "base" styles that use the lower 5 bits
-		//of the window style. We test for each of these styles that applies word
-		//wrapping, and invalidate the content region if one of them is active.
+		// Note that the static control doesn't use a full bitmask for its style, but
+		// instead has a set of mutually exclusive "base" styles that use the lower 5 bits
+		// of the window style. We test for each of these styles that applies word
+		// wrapping, and invalidate the content region if one of them is active.
 		unsigned int windowStyle = (unsigned int)GetWindowLongPtr(hwnd, GWL_STYLE);
 		unsigned int baseStaticControlStyle = (windowStyle & 0x1F);
 		if ((baseStaticControlStyle == SS_LEFT) || (baseStaticControlStyle == SS_RIGHT) || (baseStaticControlStyle == SS_CENTER))
@@ -1443,12 +1443,12 @@ LRESULT CALLBACK ResizableStaticControlSubclassProc(HWND hwnd, UINT uMsg, WPARAM
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
-//Highlight extensions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Highlight extensions
+//----------------------------------------------------------------------------------------------------------------------
 void PaintCheckboxHighlight(HWND hwnd)
 {
-	//Read the dimensions of the control
+	// Read the dimensions of the control
 	RECT rect;
 	if (GetClientRect(hwnd, &rect) == 0)
 	{
@@ -1457,11 +1457,11 @@ void PaintCheckboxHighlight(HWND hwnd)
 	int controlWidth = rect.right;
 	int controlHeight = rect.bottom;
 
-	//Calculate the position and dimensions of the checkbox within the control
+	// Calculate the position and dimensions of the checkbox within the control
 	int checkBoxBorderX = GetSystemMetrics(SM_CXBORDER);
 	int checkBoxBorderY = GetSystemMetrics(SM_CYBORDER);
-	int checkBoxContentSizeX = DPIScaleWidth(11);  //These values are constant and cannot be calculated
-	int checkBoxContentSizeY = DPIScaleHeight(11); //or modified through any known means in Windows XP.
+	int checkBoxContentSizeX = DPIScaleWidth(11);  // These values are constant and cannot be calculated
+	int checkBoxContentSizeY = DPIScaleHeight(11); // or modified through any known means in Windows XP.
 	int checkBoxTotalSizeX = checkBoxContentSizeX + (2 * checkBoxBorderX);
 	int checkBoxTotalSizeY = checkBoxContentSizeY + (2 * checkBoxBorderY);
 	int checkPosStartX = 0;
@@ -1469,7 +1469,7 @@ void PaintCheckboxHighlight(HWND hwnd)
 	int checkBoxEndX = checkPosStartX + checkBoxTotalSizeX;
 	int checkBoxEndY = checkPosStartY + checkBoxTotalSizeY;
 
-	//Create a bitmap we can render the control onto
+	// Create a bitmap we can render the control onto
 	HDC hdcControl = GetDC(hwnd);
 	if (hdcControl == NULL)
 	{
@@ -1497,35 +1497,35 @@ void PaintCheckboxHighlight(HWND hwnd)
 		return;
 	}
 
-	//Send a WM_PRINTCLIENT message to the native control and get it to render into
-	//the bitmap.
+	// Send a WM_PRINTCLIENT message to the native control and get it to render into
+	// the bitmap.
 	SendMessage(hwnd, WM_PRINTCLIENT, (WPARAM)hdcBitmap, PRF_ERASEBKGND | PRF_CLIENT | PRF_NONCLIENT);
 
-	//Calculate the colour of the checkmark in the checkbox. We assume that when the
-	//control is checked, the pixel in the exact centre will be marked, and that all
-	//pixels in the marked region are the same colour.
+	// Calculate the colour of the checkmark in the checkbox. We assume that when the
+	// control is checked, the pixel in the exact centre will be marked, and that all
+	// pixels in the marked region are the same colour.
 //	bool checked = (SendMessage(hwnd, BM_GETCHECK, 0, 0) == BST_CHECKED);
 //	COLORREF checkColor = GetPixel(hdcBitmap, checkPosStartX + (checkBoxTotalSizeX / 2), checkPosStartY + (checkBoxTotalSizeY / 2));
 	//##NOTE## We disabled the checkmark exclusion code, because like we suspected, the
-	//checkmark is not a solid colour on Windows Vista. It doesn't look too bad when we
-	//affect the checkmark anyway, and it's reliable.
+	// checkmark is not a solid colour on Windows Vista. It doesn't look too bad when we
+	// affect the checkmark anyway, and it's reliable.
 
-	//Examine each pixel within the checkbox region of the control, and calculate the
-	//final colour value.
+	// Examine each pixel within the checkbox region of the control, and calculate the
+	// final colour value.
 	for (int x = checkPosStartX + checkBoxBorderX; x < (checkBoxEndX - checkBoxBorderX); ++x)
 	{
 		for (int y = checkPosStartY + checkBoxBorderY; y < (checkBoxEndY - checkBoxBorderY); ++y)
 		{
-			//Read the current colour value from the pixel
+			// Read the current colour value from the pixel
 			COLORREF currentColor = GetPixel(hdcBitmap, x, y);
 
 			if (currentColor != CLR_INVALID)
 			{
-				//Only modify the pixel if it isn't part of a checkmark
+				// Only modify the pixel if it isn't part of a checkmark
 	//			if (!checked || (currentColor != checkColor))
 	//			{
-					//Halve the value in the green and blue channels, and save the
-					//updated pixel back into the bitmap.
+					// Halve the value in the green and blue channels, and save the
+					// updated pixel back into the bitmap.
 					COLORREF newColor = RGB(GetRValue(currentColor), GetGValue(currentColor)/2, GetBValue(currentColor)/2);
 					SetPixel(hdcBitmap, x, y, newColor);
 	//			}
@@ -1533,38 +1533,38 @@ void PaintCheckboxHighlight(HWND hwnd)
 		}
 	}
 
-	//Transfer the final bitmap for the control into the screen buffer
+	// Transfer the final bitmap for the control into the screen buffer
 	BitBlt(hdcControl, 0, 0, controlWidth, controlHeight, hdcBitmap, 0, 0, SRCCOPY);
 
-	//Validate the entire client area of the control. It's REALLY important that we
-	//call this here, otherwise Windows is going to send WM_PAINT messages over and
-	//over again waiting for the region to be validated.
+	// Validate the entire client area of the control. It's REALLY important that we
+	// call this here, otherwise Windows is going to send WM_PAINT messages over and
+	// over again waiting for the region to be validated.
 	ValidateRect(hwnd, NULL);
 
-	//Clean up the allocated handles
+	// Clean up the allocated handles
 	SelectObject(hdcBitmap, hbitmapOriginal);
 	DeleteObject(hbitmap);
 	DeleteDC(hdcBitmap);
 	ReleaseDC(hwnd, hdcControl);
 }
 
-//----------------------------------------------------------------------------------------
-//Icon helper functions
-//-The following structures and types are sourced mainly from the following MSDN article:
+//----------------------------------------------------------------------------------------------------------------------
+// Icon helper functions
+// -The following structures and types are sourced mainly from the following MSDN article:
 // http://msdn.microsoft.com/en-us/library/ms997538.aspx
-//-Some additions and alterations have been made, in particular the addition of the
+// -Some additions and alterations have been made, in particular the addition of the
 // RTCURSORDATA structure, which is key to allow cursor files to be mapped to cursor
 // resources. The layout of this structure is completely undocumented and unmentioned in
 // the public domain as far as has been observed. The layout of this structure was
 // determined by disassembling the CreateIconFromResourceEx function within user32.dll.
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 enum ICONIMAGETYPE
 {
 	ICONIMAGETYPE_ICON = 1,
 	ICONIMAGETYPE_CURSOR = 2
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct ICONDIRENTRY
 {
 	BYTE        bWidth;          // Width, in pixels, of the image
@@ -1585,7 +1585,7 @@ struct ICONDIRENTRY
 	DWORD       dwImageOffset;   // Where in the file is this image?
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct ICONDIR
 {
 	WORD           idReserved;   // Reserved (must be 0)
@@ -1594,7 +1594,7 @@ struct ICONDIR
 	ICONDIRENTRY   idEntries[1]; // An entry for each image (idCount of 'em)
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct ICONIMAGE
 {
 	BITMAPINFOHEADER   icHeader;      // DIB header
@@ -1603,7 +1603,7 @@ struct ICONIMAGE
 	BYTE            icAND[1];      // DIB bits for AND mask
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct GRPICONDIRENTRY //(RT_GROUP_ICON and RT_GROUP_CURSOR resource data)
 {
 	BYTE   bWidth;               // Width, in pixels, of the image
@@ -1624,7 +1624,7 @@ struct GRPICONDIRENTRY //(RT_GROUP_ICON and RT_GROUP_CURSOR resource data)
 	WORD   nID;                  // the ID
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct GRPICONDIR
 {
 	WORD            idReserved;   // Reserved (must be 0)
@@ -1633,13 +1633,13 @@ struct GRPICONDIR
 	GRPICONDIRENTRY   idEntries[1]; // The entries for each image
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct RTICONDATA //(RT_ICON resource data)
 {
 	ICONIMAGE iconImage;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct RTCURSORDATA //(RT_CURSOR resource data)
 {
 	WORD wHotSpotX;
@@ -1647,13 +1647,13 @@ struct RTCURSORDATA //(RT_CURSOR resource data)
 	ICONIMAGE iconImage;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int GetIconFileEntryCount(Stream::IStream& iconFileStream)
 {
-	//Save the original stream seek position
+	// Save the original stream seek position
 	Stream::IStream::SizeType originalSeekPos = iconFileStream.GetStreamPos();
 
-	//Read the icon file header
+	// Read the icon file header
 	bool result = true;
 	ICONDIR iconDir;
 	result &= iconFileStream.ReadDataLittleEndian(iconDir.idReserved);
@@ -1664,17 +1664,17 @@ unsigned int GetIconFileEntryCount(Stream::IStream& iconFileStream)
 		iconDir.idCount = 0;
 	}
 
-	//Restore the original stream seek position
+	// Restore the original stream seek position
 	iconFileStream.SetStreamPos(originalSeekPos);
 
-	//Return the number of directory entries in this icon file
+	// Return the number of directory entries in this icon file
 	return (unsigned int)iconDir.idCount;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool ConvertIconFileToIconResource(Stream::IStream& iconFileStream, Stream::IStream& iconDirectoryData, const std::map<int, Stream::IStream*>& iconResourceData)
 {
-	//Read the icon file header
+	// Read the icon file header
 	bool result = true;
 	ICONDIR iconDir;
 	result &= iconFileStream.ReadDataLittleEndian(iconDir.idReserved);
@@ -1685,13 +1685,13 @@ bool ConvertIconFileToIconResource(Stream::IStream& iconFileStream, Stream::IStr
 		return false;
 	}
 
-	//Convert the icon file header to an icon resource header
+	// Convert the icon file header to an icon resource header
 	GRPICONDIR resourceIconDir;
 	resourceIconDir.idReserved = iconDir.idReserved;
 	resourceIconDir.idType = iconDir.idType;
 	resourceIconDir.idCount = iconDir.idCount;
 
-	//Write the icon resource header to our icon directory resource stream
+	// Write the icon resource header to our icon directory resource stream
 	result &= iconDirectoryData.WriteDataLittleEndian(iconDir.idReserved);
 	result &= iconDirectoryData.WriteDataLittleEndian(iconDir.idType);
 	result &= iconDirectoryData.WriteDataLittleEndian(iconDir.idCount);
@@ -1700,10 +1700,10 @@ bool ConvertIconFileToIconResource(Stream::IStream& iconFileStream, Stream::IStr
 		return false;
 	}
 
-	//Convert each icon entry in the supplied icon file
+	// Convert each icon entry in the supplied icon file
 	for (unsigned int i = 0; i < (unsigned int)iconDir.idCount; ++i)
 	{
-		//Read the next icon file directory entry
+		// Read the next icon file directory entry
 		ICONDIRENTRY iconDirEntry;
 		result &= iconFileStream.ReadDataLittleEndian(iconDirEntry.bWidth);
 		result &= iconFileStream.ReadDataLittleEndian(iconDirEntry.bHeight);
@@ -1718,8 +1718,8 @@ bool ConvertIconFileToIconResource(Stream::IStream& iconFileStream, Stream::IStr
 			return false;
 		}
 
-		//Convert this icon file directory entry structure into an icon resource directory
-		//entry structure
+		// Convert this icon file directory entry structure into an icon resource directory
+		// entry structure
 		GRPICONDIRENTRY resourceIconDirEntry;
 		resourceIconDirEntry.bWidth = iconDirEntry.bWidth;
 		resourceIconDirEntry.bHeight = iconDirEntry.bHeight;
@@ -1730,7 +1730,7 @@ bool ConvertIconFileToIconResource(Stream::IStream& iconFileStream, Stream::IStr
 		resourceIconDirEntry.dwBytesInRes = iconDirEntry.dwBytesInRes;
 		resourceIconDirEntry.nID = (WORD)i;
 
-		//Load this icon file directory entry structure into the icon resource directory
+		// Load this icon file directory entry structure into the icon resource directory
 		result &= iconDirectoryData.WriteDataLittleEndian(resourceIconDirEntry.bWidth);
 		result &= iconDirectoryData.WriteDataLittleEndian(resourceIconDirEntry.bHeight);
 		result &= iconDirectoryData.WriteDataLittleEndian(resourceIconDirEntry.bColorCount);
@@ -1744,18 +1744,18 @@ bool ConvertIconFileToIconResource(Stream::IStream& iconFileStream, Stream::IStr
 			return false;
 		}
 
-		//Ensure this icon entry has a valid location and size specified within the
-		//supplied icon file
+		// Ensure this icon entry has a valid location and size specified within the
+		// supplied icon file
 		if (((size_t)iconDirEntry.dwImageOffset + (size_t)iconDirEntry.dwBytesInRes) > (size_t)iconFileStream.Size())
 		{
 			return false;
 		}
 
-		//Seek to the location of the data for this icon entry
+		// Seek to the location of the data for this icon entry
 		Stream::IStream::SizeType currentSeekLocation = iconFileStream.GetStreamPos();
 		iconFileStream.SetStreamPos(iconDirEntry.dwImageOffset);
 
-		//Retrieve the provided resource stream for this icon entry
+		// Retrieve the provided resource stream for this icon entry
 		std::map<int, Stream::IStream*>::const_iterator iconResourceDataIterator = iconResourceData.find((int)i);
 		if (iconResourceDataIterator == iconResourceData.end())
 		{
@@ -1763,30 +1763,30 @@ bool ConvertIconFileToIconResource(Stream::IStream& iconFileStream, Stream::IStr
 		}
 		Stream::IStream& iconResourceDataStream = *(iconResourceDataIterator->second);
 
-		//Transfer the additional cursor data from a file structure into a resource
-		//structure. Cursor resources have the cursor hotspot X and Y coordinates first,
-		//followed by the ICONIMAGE structure.
+		// Transfer the additional cursor data from a file structure into a resource
+		// structure. Cursor resources have the cursor hotspot X and Y coordinates first,
+		// followed by the ICONIMAGE structure.
 		if (iconDir.idType == ICONIMAGETYPE_CURSOR)
 		{
-			//Build the RTCURSORDATA data structure
+			// Build the RTCURSORDATA data structure
 			RTCURSORDATA cursorData;
 			cursorData.wHotSpotX = iconDirEntry.wHotSpotX;
 			cursorData.wHotSpotY = iconDirEntry.wHotSpotY;
 
-			//Write the RTCURSORDATA data structure to the icon image data
+			// Write the RTCURSORDATA data structure to the icon image data
 			result &= iconResourceDataStream.WriteData(cursorData.wHotSpotX);
 			result &= iconResourceDataStream.WriteData(cursorData.wHotSpotY);
 		}
 
-		//Transfer the ICONIMAGE icon data from a file structure into a resource
-		//structure. This structure is the only data present for an RT_ICON resource type.
-		//Since the two structures are equivalent in this case, we just copy the data.
+		// Transfer the ICONIMAGE icon data from a file structure into a resource
+		// structure. This structure is the only data present for an RT_ICON resource type.
+		// Since the two structures are equivalent in this case, we just copy the data.
 		std::vector<unsigned char> iconResourceDataRaw;
 		result &= iconFileStream.ReadData(iconResourceDataRaw, iconDirEntry.dwBytesInRes);
 		result &= iconResourceDataStream.WriteData(iconResourceDataRaw);
 		iconResourceDataStream.SetStreamPos(0);
 
-		//Restore the seek location back to the end of the icon entry we just processed
+		// Restore the seek location back to the end of the icon entry we just processed
 		iconFileStream.SetStreamPos(currentSeekLocation);
 	}
 

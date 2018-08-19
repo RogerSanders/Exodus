@@ -4,7 +4,7 @@
 namespace MarshalSupport {
 namespace Internal {
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Alloc>
 void DeleteSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::vector<ElementType, Alloc>* elementPointer)
 {
@@ -12,7 +12,7 @@ void DeleteSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArr
 }
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, size_t ArraySize>
 void DeleteSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::array<ElementType, ArraySize>* elementPointer)
 {
@@ -20,7 +20,7 @@ void DeleteSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArr
 }
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Alloc>
 void DeleteSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::list<ElementType, Alloc>* elementPointer)
 {
@@ -28,7 +28,7 @@ void DeleteSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArr
 }
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Alloc>
 void DeleteSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::forward_list<ElementType, Alloc>* elementPointer)
 {
@@ -36,21 +36,21 @@ void DeleteSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArr
 }
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Alloc>
 void DeleteSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::deque<ElementType, Alloc>* elementPointer)
 {
 	DeleteSTLContainerKeyMarshallers(nestedMarshallerArray, nestedMarshallerArrayIndex+1, (const ElementType*)elementPointer);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Compare, class Alloc>
 void DeleteSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::set<ElementType, Compare, Alloc>* elementPointer)
 {
 	DeleteSTLContainerKeyMarshallers(nestedMarshallerArray, nestedMarshallerArrayIndex+1, (const ElementType*)elementPointer);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Compare, class Alloc>
 void DeleteSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::multiset<ElementType, Compare, Alloc>* elementPointer)
 {
@@ -58,14 +58,14 @@ void DeleteSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArr
 }
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Hash, class Pred, class Alloc>
 void DeleteSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::unordered_set<ElementType, Hash, Pred, Alloc>* elementPointer)
 {
 	DeleteSTLContainerKeyMarshallers(nestedMarshallerArray, nestedMarshallerArrayIndex+1, (const ElementType*)elementPointer);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Hash, class Pred, class Alloc>
 void DeleteSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::unordered_multiset<ElementType, Hash, Pred, Alloc>* elementPointer)
 {
@@ -73,7 +73,7 @@ void DeleteSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArr
 }
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class KeyType, class ElementType, class Compare, class Alloc>
 void DeleteSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::map<KeyType, ElementType, Compare, Alloc>* elementPointer)
 {
@@ -81,7 +81,7 @@ void DeleteSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArr
 	DeleteSTLContainerKeyMarshallers(nestedMarshallerArray, nestedMarshallerArrayIndex+1, (const ElementType*)elementPointer);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class KeyType, class ElementType, class Compare, class Alloc>
 void DeleteSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::multimap<KeyType, ElementType, Compare, Alloc>* elementPointer)
 {
@@ -90,7 +90,7 @@ void DeleteSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArr
 }
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class KeyType, class ElementType, class Hash, class Pred, class Alloc>
 void DeleteSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::unordered_map<KeyType, ElementType, Hash, Pred, Alloc>* elementPointer)
 {
@@ -98,7 +98,7 @@ void DeleteSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArr
 	DeleteSTLContainerKeyMarshallers(nestedMarshallerArray, nestedMarshallerArrayIndex+1, (const ElementType*)elementPointer);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class KeyType, class ElementType, class Hash, class Pred, class Alloc>
 void DeleteSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::unordered_multimap<KeyType, ElementType, Hash, Pred, Alloc>* elementPointer)
 {
@@ -107,7 +107,7 @@ void DeleteSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArr
 }
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Container>
 void DeleteSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::stack<ElementType, Container>* elementPointer)
 {
@@ -115,7 +115,7 @@ void DeleteSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArr
 	DeleteSTLContainerKeyMarshallers(nestedMarshallerArray, nestedMarshallerArrayIndex+1, (const ElementType*)elementPointer);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Container>
 void DeleteSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::queue<ElementType, Container>* elementPointer)
 {
@@ -123,21 +123,21 @@ void DeleteSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArr
 	DeleteSTLContainerKeyMarshallers(nestedMarshallerArray, nestedMarshallerArrayIndex+1, (const ElementType*)elementPointer);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Container, class Compare>
 void DeleteSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::priority_queue<ElementType, Container, Compare>* elementPointer)
 {
 	DeleteSTLContainerKeyMarshallers(nestedMarshallerArray, nestedMarshallerArrayIndex+1, (const ElementType*)elementPointer);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class traits, class Alloc>
 void DeleteSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::basic_string<ElementType, traits, Alloc>* elementPointer)
 {
 	DeleteSTLContainerKeyMarshallers(nestedMarshallerArray, nestedMarshallerArrayIndex+1, (const ElementType*)elementPointer);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class T1, class T2>
 void DeleteSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::pair<T1, T2>* elementPointer)
 {
@@ -146,18 +146,18 @@ void DeleteSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArr
 }
 
 #if defined(MARSHALSUPPORT_CPP11SUPPORTED) && !defined(MARSHALSUPPORT_NOVARIADICTEMPLATES)
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void DeleteSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::tuple<>* elementPointer)
 { }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class... Args>
 void DeleteSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::tuple<Args...>* elementPointer)
 {
 	TupleHelper<std::tuple_size<std::tuple<Args...>>::value-1, Args...>::DeleteSTLContainerKeyMarshallers(nestedMarshallerArray, nestedMarshallerArrayIndex, elementPointer);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<size_t TupleElementNo, class... Args>
 void TupleHelper<TupleElementNo, Args...>::DeleteSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::tuple<Args...>* elementPointer)
 {
@@ -165,7 +165,7 @@ void TupleHelper<TupleElementNo, Args...>::DeleteSTLContainerKeyMarshallers(INes
 	TupleHelper<TupleElementNo-1, Args...>::DeleteSTLContainerKeyMarshallers(nestedMarshallerArray, nestedMarshallerArrayIndex+1, elementPointer);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class... Args>
 void TupleHelper<0, Args...>::DeleteSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const std::tuple<Args...>* elementPointer)
 {
@@ -173,10 +173,10 @@ void TupleHelper<0, Args...>::DeleteSTLContainerKeyMarshallers(INestedMarshaller
 }
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType>
 void DeleteSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const ElementType* elementPointer)
 { }
 
-} //Close namespace Internal
-} //Close namespace MarshalSupport
+} // Close namespace Internal
+} // Close namespace MarshalSupport

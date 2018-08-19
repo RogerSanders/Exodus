@@ -38,18 +38,18 @@ conditional, which unlocks the calling thread.
 class DeviceContext :public IDeviceContext
 {
 public:
-	//Structures
+	// Structures
 	struct DeviceContextCommand;
 	struct DeviceDependency;
 
 public:
-	//Constructors
+	// Constructors
 	inline DeviceContext(IDevice& device, ISystemGUIInterface& systemObject);
 
-	//Interface version functions
+	// Interface version functions
 	virtual unsigned int GetIDeviceContextVersion() const;
 
-	//Execute functions
+	// Execute functions
 	inline void NotifyUpcomingTimeslice(double nanoseconds);
 	inline void NotifyBeforeExecuteCalled();
 	inline void NotifyAfterExecuteCalled();
@@ -62,7 +62,7 @@ public:
 	inline void Rollback();
 	inline void Initialize();
 
-	//Timing functions
+	// Timing functions
 	virtual double GetCurrentTimesliceProgress() const;
 	virtual void SetCurrentTimesliceProgress(double executionProgress);
 	inline double GetNextTimingPoint(unsigned int& accessContext) const;
@@ -70,20 +70,20 @@ public:
 	inline double GetInitialRemainingTime() const;
 	inline void ClearRemainingTime();
 
-	//Control functions
+	// Control functions
 	virtual bool DeviceEnabled() const;
 	virtual void SetDeviceEnabled(bool state);
 
-	//Worker thread control
+	// Worker thread control
 	void BeginExecution(size_t deviceIndex, volatile ReferenceCounterType& remainingThreadCount, volatile ReferenceCounterType& suspendedThreadCount, std::mutex& commandMutex, std::condition_variable& commandSent, std::condition_variable& commandProcessed, IExecutionSuspendManager* suspendManager, const DeviceContextCommand& command);
 
-	//Device interface
+	// Device interface
 	virtual IDevice& GetTargetDevice() const;
 	virtual unsigned int GetDeviceIndexNo() const;
 	inline void SetDeviceIndexNo(unsigned int deviceIndexNo);
 	inline bool ActiveDevice() const;
 
-	//System message functions
+	// System message functions
 	virtual void WriteLogEvent(const ILogEntry& entry);
 	virtual void FlagStopSystem();
 	virtual void StopSystem();
@@ -93,7 +93,7 @@ public:
 	virtual Marshal::Ret<std::wstring> GetModuleDisplayName() const;
 	virtual Marshal::Ret<std::wstring> GetModuleInstanceName() const;
 
-	//Suspend functions
+	// Suspend functions
 	virtual bool UsesExecuteSuspend() const;
 	virtual bool UsesTransientExecution() const;
 	virtual bool TimesliceExecutionSuspended() const;
@@ -107,7 +107,7 @@ public:
 	void DisableTimesliceExecutionSuspend();
 	void EnableTimesliceExecutionSuspend();
 
-	//Dependent device functions
+	// Dependent device functions
 	virtual void SetDeviceDependencyEnable(IDeviceContext* targetDevice, bool state);
 	inline void AddDeviceDependency(DeviceContext* targetDevice);
 	inline void RemoveDeviceDependency(DeviceContext* targetDevice);
@@ -115,16 +115,16 @@ public:
 	inline const std::vector<DeviceContext*>& GetDependentDeviceArray() const;
 
 private:
-	//Worker thread control
+	// Worker thread control
 	void SuspendExecution();
 
-	//Command worker thread control
+	// Command worker thread control
 	void StartCommandWorkerThread(size_t deviceIndex, volatile ReferenceCounterType& remainingThreadCount, volatile ReferenceCounterType& suspendedThreadCount, std::mutex& commandMutex, std::condition_variable& commandSent, std::condition_variable& commandProcessed, IExecutionSuspendManager* suspendManager, const DeviceContextCommand& command);
 	void StopCommandWorkerThread();
 	void CommandWorkerThread(size_t deviceIndex, volatile ReferenceCounterType& remainingThreadCount, volatile ReferenceCounterType& suspendedThreadCount, std::mutex& commandMutex, std::condition_variable& commandSent, std::condition_variable& commandProcessed, IExecutionSuspendManager* suspendManager, const DeviceContextCommand& command);
 	void ProcessCommand(size_t deviceIndex, const DeviceContextCommand& command, volatile ReferenceCounterType& remainingThreadCount);
 
-	//Execute worker thread control
+	// Execute worker thread control
 	void StartExecuteWorkerThread();
 	void StopExecuteWorkerThread();
 	void ExecuteWorkerThread();
@@ -135,23 +135,23 @@ private:
 	void ExecuteWorkerThreadTimeslice();
 	void ExecuteWorkerThreadTimesliceWithDependencies();
 
-	//Dependent device functions
+	// Dependent device functions
 	inline void AddDependentDevice(DeviceContext* targetDevice);
 	inline void RemoveDependentDevice(DeviceContext* targetDevice);
 
 private:
-	//Device properties
+	// Device properties
 	IDevice& _device;
 	unsigned int _deviceIndexNo;
 	bool _deviceEnabled;
 	std::vector<DeviceDependency> _deviceDependencies;
 	std::vector<DeviceContext*> _dependentDevices;
 
-	//Command worker thread data
+	// Command worker thread data
 	bool _commandWorkerThreadActive;
 	std::condition_variable _commandThreadReady;
 
-	//Execute worker thread data
+	// Execute worker thread data
 	bool _executeWorkerThreadActive;
 	mutable std::mutex _executeThreadMutex;
 	std::condition_variable _executeTaskSent;
@@ -173,7 +173,7 @@ private:
 	double _remainingTimeBackup;
 	volatile double _currentTimesliceProgress;
 
-	//Combined worker thread data
+	// Combined worker thread data
 	bool _sharingExecuteThread;
 	bool _primarySharedExecuteThreadDevice;
 	DeviceContext* _otherSharedExecuteThreadDevice;
@@ -188,7 +188,7 @@ private:
 	std::condition_variable _sharedExecuteThreadSpinoffStoppedOrPaused;
 	std::condition_variable _sharedExecuteThreadSpinoffTimesliceProcessingBegun;
 
-	//Callback parameters
+	// Callback parameters
 	ISystemGUIInterface& _systemObject;
 };
 

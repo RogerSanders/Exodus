@@ -6,27 +6,27 @@
 class GenericAccessDataValueString :public GenericAccessDataValueBase<IGenericAccessDataValueString>
 {
 public:
-	//Constructors
+	// Constructors
 	GenericAccessDataValueString(const std::wstring& value = L"");
 
-	//Interface version functions
+	// Interface version functions
 	virtual unsigned int GetIGenericAccessDataValueStringVersion() const;
 
-	//Type functions
+	// Type functions
 	virtual DataType GetType() const;
 
-	//Value read functions
+	// Value read functions
 	virtual Marshal::Ret<std::wstring> GetValue() const;
 	virtual Marshal::Ret<std::wstring> GetValueString() const;
 
-	//Value write functions
+	// Value write functions
 	virtual bool SetValueString(const Marshal::In<std::wstring>& value);
 
-	//Value limit functions
+	// Value limit functions
 	virtual unsigned int GetMaxLength() const;
 	virtual void SetMaxLength(unsigned int state);
 
-	//Value limit functions
+	// Value limit functions
 	virtual void ApplyLimitSettingsToCurrentValue();
 
 private:

@@ -8,7 +8,7 @@
 class ITimedBufferInt
 {
 public:
-	//Typedefs
+	// Typedefs
 	typedef unsigned int TimesliceType;
 	typedef unsigned char DataType;
 	typedef ITimedBufferTimeslice<DataType, TimesliceType> Timeslice;
@@ -17,16 +17,16 @@ public:
 	typedef TimedBufferAdvanceSession<DataType, TimesliceType> AdvanceSession;
 
 public:
-	//Make sure the object can't be deleted from this base
+	// Make sure the object can't be deleted from this base
 	protected: virtual ~ITimedBufferInt() = 0 {} public:
 
-	//Size functions
+	// Size functions
 	virtual unsigned int Size() const = 0;
 
-	//Access functions
+	// Access functions
 	virtual DataType Read(unsigned int address, const AccessTarget& accessTarget) const = 0;
 	//##FIX## We have the arguments the opposite way around for the two overloads of the
-	//BufferWrite function
+	// BufferWrite function
 	virtual void Write(unsigned int address, const DataType& data, const AccessTarget& accessTarget) = 0;
 	virtual DataType Read(unsigned int address, TimesliceType readTime) const = 0;
 	virtual void Write(unsigned int address, TimesliceType writeTime, const DataType& data) = 0;
@@ -37,7 +37,7 @@ public:
 	virtual void WriteLatest(unsigned int address, const DataType& data) = 0;
 	inline void GetLatestBufferCopy(std::vector<DataType>& buffer) const;
 
-	//Time management functions
+	// Time management functions
 	virtual void Initialize() = 0;
 	virtual bool DoesLatestTimesliceExist() const = 0;
 	virtual Timeslice* GetLatestTimesliceReference() = 0;
@@ -53,15 +53,15 @@ public:
 	virtual void Rollback() = 0;
 	virtual void AddTimeslice(TimesliceType timeslice) = 0;
 
-	//Session management functions
+	// Session management functions
 	virtual void BeginAdvanceSession(AdvanceSession& advanceSession, const Timeslice* targetTimeslice, bool retrieveWriteInfo) const = 0;
 
-	//Memory locking functions
+	// Memory locking functions
 	virtual void LockMemoryBlock(unsigned int location, unsigned int size, bool state) = 0;
 	virtual bool IsByteLocked(unsigned int location) const = 0;
 
 protected:
-	//Access functions
+	// Access functions
 	virtual void GetLatestBufferCopy(DataType* buffer, unsigned int bufferSize) const = 0;
 };
 

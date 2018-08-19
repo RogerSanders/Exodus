@@ -1,9 +1,9 @@
 #include "WatchpointView.h"
 #include "resource.h"
 
-//----------------------------------------------------------------------------------------
-//Constructors
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Constructors
+//----------------------------------------------------------------------------------------------------------------------
 WatchpointView::WatchpointView(IUIManager& uiManager, WatchpointViewPresenter& presenter, IProcessor& model)
 :ViewBase(uiManager, presenter), _presenter(presenter), _model(model), _initializedDialog(false), _currentControlFocus(0)
 {
@@ -13,9 +13,9 @@ WatchpointView::WatchpointView(IUIManager& uiManager, WatchpointViewPresenter& p
 	SetDialogViewType();
 }
 
-//----------------------------------------------------------------------------------------
-//Member window procedure
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Member window procedure
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR WatchpointView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	WndProcDialogImplementSaveFieldWhenLostFocus(hwnd, msg, wparam, lparam);
@@ -33,9 +33,9 @@ INT_PTR WatchpointView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM
 	return FALSE;
 }
 
-//----------------------------------------------------------------------------------------
-//Event handlers
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Event handlers
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR WatchpointView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	SetTimer(hwnd, 1, 100, NULL);
@@ -44,19 +44,19 @@ INT_PTR WatchpointView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR WatchpointView::msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	KillTimer(hwnd, 1);
 	return FALSE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR WatchpointView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	_initializedDialog = true;
 
-	//Check if the watchpoint list has changed since it was last checked
+	// Check if the watchpoint list has changed since it was last checked
 	std::list<IWatchpoint*> currentWatchpointList = _model.GetWatchpointList();
 	std::list<IWatchpoint*>::const_iterator curentWatchpointListIterator = currentWatchpointList.begin();
 	std::list<IWatchpoint*>::const_iterator cachedWatchpointListIterator = _cachedWatchpointList.begin();
@@ -72,13 +72,13 @@ INT_PTR WatchpointView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		++cachedWatchpointListIterator;
 	}
 
-	//Refresh the watchpoint list if it has changed
+	// Refresh the watchpoint list if it has changed
 	if (watchpointListChanged)
 	{
-		//Save the new watchpoint list
+		// Save the new watchpoint list
 		_cachedWatchpointList = currentWatchpointList;
 
-		//Refresh the list of watchpoints
+		// Refresh the list of watchpoints
 		bool foundSelectedWatchpoint = false;
 		SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), WM_SETREDRAW, FALSE, 0);
 		LRESULT top = SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_GETTOPINDEX, 0, 0);
@@ -110,7 +110,7 @@ INT_PTR WatchpointView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		InvalidateRect(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), NULL, FALSE);
 	}
 
-	//If we currently have a selected watchpoint from the list, update its hit counter.
+	// If we currently have a selected watchpoint from the list, update its hit counter.
 	if (_selectedWatchpoint != 0)
 	{
 		if (_model.LockWatchpoint(_selectedWatchpoint))
@@ -125,7 +125,7 @@ INT_PTR WatchpointView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR WatchpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	if ((HIWORD(wparam) == EN_SETFOCUS) && _initializedDialog)
@@ -352,7 +352,7 @@ INT_PTR WatchpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 				_model.DeleteWatchpoint(watchpoint);
 			}
 
-			//Clear the current watchpoint info
+			// Clear the current watchpoint info
 			_cachedWatchpointList.clear();
 			_selectedWatchpointListIndex = -1;
 			_selectedWatchpoint = 0;
@@ -385,9 +385,9 @@ INT_PTR WatchpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
-//Watchpoint functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Watchpoint functions
+//----------------------------------------------------------------------------------------------------------------------
 void WatchpointView::LoadDataFromWatchpoint(IWatchpoint* watchpoint)
 {
 	_watchpointName = watchpoint->GetName();
@@ -416,7 +416,7 @@ void WatchpointView::LoadDataFromWatchpoint(IWatchpoint* watchpoint)
 	_watchpointCounterInterval = watchpoint->GetBreakCounter();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void WatchpointView::SaveDataToWatchpoint(IWatchpoint* watchpoint)
 {
 	bool generateName = false;
@@ -454,7 +454,7 @@ void WatchpointView::SaveDataToWatchpoint(IWatchpoint* watchpoint)
 	watchpoint->SetName(_watchpointName);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void WatchpointView::ClearWatchpointData()
 {
 	_watchpointName.clear();
@@ -483,7 +483,7 @@ void WatchpointView::ClearWatchpointData()
 	_watchpointCounterInterval = 1;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void WatchpointView::UpdateWatchpointFields(HWND hwnd)
 {
 	unsigned int addressCharWidth = _model.GetAddressBusCharWidth();

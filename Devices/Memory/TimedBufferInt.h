@@ -6,11 +6,11 @@
 class TimedBufferInt :public ITimedBufferInt
 {
 public:
-	//Size functions
+	// Size functions
 	virtual unsigned int Size() const;
 	void Resize(unsigned int bufferSize, bool keepLatestBufferCopy = false);
 
-	//Access functions
+	// Access functions
 	virtual DataType Read(unsigned int address, const AccessTarget& accessTarget) const;
 	virtual void Write(unsigned int address, const DataType& data, const AccessTarget& accessTarget);
 	virtual DataType Read(unsigned int address, TimesliceType readTime) const;
@@ -21,7 +21,7 @@ public:
 	virtual DataType ReadLatest(unsigned int address) const;
 	virtual void WriteLatest(unsigned int address, const DataType& data);
 
-	//Time management functions
+	// Time management functions
 	virtual void Initialize();
 	virtual bool DoesLatestTimesliceExist() const;
 	virtual Timeslice* GetLatestTimesliceReference();
@@ -37,21 +37,21 @@ public:
 	virtual void Rollback();
 	virtual void AddTimeslice(TimesliceType timeslice);
 
-	//Session management functions
+	// Session management functions
 	virtual void BeginAdvanceSession(AdvanceSession& advanceSession, const Timeslice* targetTimeslice, bool retrieveWriteInfo) const;
 
-	//Memory locking functions
+	// Memory locking functions
 	virtual void LockMemoryBlock(unsigned int location, unsigned int size, bool state);
 	virtual bool IsByteLocked(unsigned int location) const;
 
-	//Savestate functions
+	// Savestate functions
 	void LoadState(IHierarchicalStorageNode& node);
 	void SaveState(IHierarchicalStorageNode& node, const std::wstring& bufferName) const;
 	void LoadDebuggerState(IHierarchicalStorageNode& node);
 	void SaveDebuggerState(IHierarchicalStorageNode& node, const std::wstring& bufferName) const;
 
 protected:
-	//Access functions
+	// Access functions
 	virtual void GetLatestBufferCopy(DataType* buffer, unsigned int bufferSize) const;
 
 private:

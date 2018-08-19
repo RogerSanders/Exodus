@@ -29,9 +29,9 @@ public:
 	{
 		_target.SetIndexState(GetIndexState(), GetIndexOffset());
 
-		//INC ss		00ss0011
-		//INC IX		11011101 00ss0011
-		//INC IY		11111101 00ss0011
+		// INC ss		00ss0011
+		// INC IX		11011101 00ss0011
+		// INC IY		11111101 00ss0011
 		_target.Decode16BitRegister(data.GetDataSegment(4, 2));
 
 		AddInstructionSize(GetIndexOffsetSize(_target.UsesIndexOffset()));
@@ -45,12 +45,12 @@ public:
 		Z80Word op1;
 		Z80Word result;
 
-		//Perform the operation
+		// Perform the operation
 		additionalTime += _target.Read(cpu, location, op1);
 		result = op1 + 1;
 		additionalTime += _target.Write(cpu, location, result);
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -59,5 +59,5 @@ private:
 	EffectiveAddress _target;
 };
 
-} //Close namespace Z80
+} // Close namespace Z80
 #endif

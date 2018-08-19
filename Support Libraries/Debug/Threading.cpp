@@ -2,11 +2,11 @@
 #include "DataConversion/DataConversion.pkg"
 #include "WindowsSupport/WindowsSupport.pkg"
 
-//----------------------------------------------------------------------------------------
-//The following code comes from Microsoft. It uses a special custom exception which is
-//recognized by Visual Studio and some other debuggers to set the thread name in the
-//debugger. See the following MSDN article for further information:
-//http://msdn.microsoft.com/en-us/library/xcb2z8hs.aspx
+//----------------------------------------------------------------------------------------------------------------------
+// The following code comes from Microsoft. It uses a special custom exception which is
+// recognized by Visual Studio and some other debuggers to set the thread name in the
+// debugger. See the following MSDN article for further information:
+// http://msdn.microsoft.com/en-us/library/xcb2z8hs.aspx
 const DWORD MS_VC_EXCEPTION = 0x406D1388;
 
 #pragma pack(push, 8)
@@ -36,9 +36,9 @@ void SetThreadName(DWORD dwThreadID, char* threadName)
 	}
 }
 
-//----------------------------------------------------------------------------------------
-//Threading functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Threading functions
+//----------------------------------------------------------------------------------------------------------------------
 void SetCallingThreadName(const std::wstring& threadName)
 {
 	std::string threadNameConverted = WStringToString(threadName);

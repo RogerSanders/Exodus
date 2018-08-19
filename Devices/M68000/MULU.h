@@ -34,7 +34,7 @@ public:
 //	----------------------------------------=========================
 //	                                        |----------<ea>---------|
 
-		//MULU.W	<ea>,Dn		16*16->32
+		// MULU.W	<ea>,Dn		16*16->32
 		_size = BITCOUNT_WORD;
 		_target.BuildDataDirect(_size, location + GetInstructionSize(), data.GetDataSegment(9, 3));
 		_source.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), BITCOUNT_WORD, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
@@ -53,7 +53,7 @@ public:
 		M68000Long op2;
 		M68000Long result;
 
-		//Perform the operation
+		// Perform the operation
 		additionalTime += _source.Read(cpu, temp1, GetInstructionRegister());
 		additionalTime += _target.ReadWithoutAdjustingAddress(cpu, temp2, GetInstructionRegister());
 		op1 = M68000Long(temp1.Convert(BITCOUNT_LONG));
@@ -61,15 +61,15 @@ public:
 		result = op1 * op2;
 		additionalTime += _target.Write(cpu, result, GetInstructionRegister());
 
-		//Set the flag results
+		// Set the flag results
 		cpu->SetN(result.Negative());
 		cpu->SetZ(result.Zero());
 		cpu->SetV(false);
 		cpu->SetC(false);
 
-		//Calculate the additional execution time. According to the M68000 Users Manual,
-		//section 8.3:
-		//MULS, MULU — The multiply algorithm requires 38+2n clocks where n is defined as
+		// Calculate the additional execution time. According to the M68000 Users Manual,
+		// section 8.3:
+		// MULS, MULU — The multiply algorithm requires 38+2n clocks where n is defined as
 		//	MULU: n = the number of ones in the <ea>
 		//	MULS: n=concatenate the <ea> with a zero as the LSB; n is the resultant
 		//	number of 10 or 01 patterns in the 17-bit _source; i.e., worst case happens
@@ -77,7 +77,7 @@ public:
 		ExecuteTime additionalCycles;
 		additionalCycles.cycles = 2 * op1.GetSetBitCount();
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime) + additionalCycles;
 	}
@@ -94,5 +94,5 @@ private:
 	EffectiveAddress _target;
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #endif

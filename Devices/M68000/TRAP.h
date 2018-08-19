@@ -44,7 +44,7 @@ public:
 	{
 		ExecuteTime exceptionTime;
 
-		//Perform the operation
+		// Perform the operation
 		M68000::Exceptions exceptionNo = (M68000::Exceptions)((unsigned int)M68000::Exceptions::InterruptTrap0 + _trapNo);
 		if (!cpu->ExceptionDisabled(exceptionNo))
 		{
@@ -53,7 +53,7 @@ public:
 			exceptionTime = cpu->ProcessException(exceptionNo);
 		}
 
-		//Return the execution time
+		// Return the execution time
 		return GetExecuteCycleCount() + exceptionTime;
 	}
 
@@ -64,5 +64,5 @@ private:
 	unsigned int _trapNo;
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #endif

@@ -4,73 +4,73 @@
 #include <sstream>
 namespace M68000 {
 
-//----------------------------------------------------------------------------------------
-//Extension word size tables
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Extension word size tables
+//----------------------------------------------------------------------------------------------------------------------
 const unsigned int EffectiveAddress::ExtensionSize8[] = {
-	0,	//Mode::DATAREG_DIRECT
-	0,	//Mode::ADDREG_DIRECT
-	0,	//ADDREG_INDIRECT
-	0,	//Mode::ADDREG_INDIRECT_POSTINC
-	0,	//Mode::ADDREG_INDIRECT_PREDEC
-	2,	//Mode::ADDREG_INDIRECT_DISPLACE
-	2, 	//Mode::ADDREG_INDIRECT_INDEX_8BIT
-	2, 	//Mode::PC_INDIRECT_DISPLACE
-	2, 	//Mode::PC_INDIRECT_INDEX_8BIT
-	2, 	//Mode::ABS_WORD
-	4, 	//Mode::ABS_LONG
-	2};	//IMMEDIATE
+	0,	// Mode::DATAREG_DIRECT
+	0,	// Mode::ADDREG_DIRECT
+	0,	// ADDREG_INDIRECT
+	0,	// Mode::ADDREG_INDIRECT_POSTINC
+	0,	// Mode::ADDREG_INDIRECT_PREDEC
+	2,	// Mode::ADDREG_INDIRECT_DISPLACE
+	2, 	// Mode::ADDREG_INDIRECT_INDEX_8BIT
+	2, 	// Mode::PC_INDIRECT_DISPLACE
+	2, 	// Mode::PC_INDIRECT_INDEX_8BIT
+	2, 	// Mode::ABS_WORD
+	4, 	// Mode::ABS_LONG
+	2};	// IMMEDIATE
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 const unsigned int EffectiveAddress::ExtensionSize32[] = {
-	0,	//Mode::DATAREG_DIRECT
-	0,	//Mode::ADDREG_DIRECT
-	0,	//ADDREG_INDIRECT
-	0,	//Mode::ADDREG_INDIRECT_POSTINC
-	0,	//Mode::ADDREG_INDIRECT_PREDEC
-	2,	//Mode::ADDREG_INDIRECT_DISPLACE
-	2, 	//Mode::ADDREG_INDIRECT_INDEX_8BIT
-	2, 	//Mode::PC_INDIRECT_DISPLACE
-	2, 	//Mode::PC_INDIRECT_INDEX_8BIT
-	2, 	//Mode::ABS_WORD
-	4, 	//Mode::ABS_LONG
-	4};	//IMMEDIATE
+	0,	// Mode::DATAREG_DIRECT
+	0,	// Mode::ADDREG_DIRECT
+	0,	// ADDREG_INDIRECT
+	0,	// Mode::ADDREG_INDIRECT_POSTINC
+	0,	// Mode::ADDREG_INDIRECT_PREDEC
+	2,	// Mode::ADDREG_INDIRECT_DISPLACE
+	2, 	// Mode::ADDREG_INDIRECT_INDEX_8BIT
+	2, 	// Mode::PC_INDIRECT_DISPLACE
+	2, 	// Mode::PC_INDIRECT_INDEX_8BIT
+	2, 	// Mode::ABS_WORD
+	4, 	// Mode::ABS_LONG
+	4};	// IMMEDIATE
 
-//----------------------------------------------------------------------------------------
-//Decode time tables
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Decode time tables
+//----------------------------------------------------------------------------------------------------------------------
 const ExecuteTime EffectiveAddress::ExecuteTime8[] = {
-	ExecuteTime(0,  0, 0),	//Mode::DATAREG_DIRECT
-	ExecuteTime(0,  0, 0),	//Mode::ADDREG_DIRECT
-	ExecuteTime(4,  1, 0),	//ADDREG_INDIRECT
-	ExecuteTime(4,  1, 0),	//Mode::ADDREG_INDIRECT_POSTINC
-	ExecuteTime(6,  1, 0),	//Mode::ADDREG_INDIRECT_PREDEC
-	ExecuteTime(8,  2, 0),	//Mode::ADDREG_INDIRECT_DISPLACE
-	ExecuteTime(10, 2, 0), 	//Mode::ADDREG_INDIRECT_INDEX_8BIT
-	ExecuteTime(8,  2, 0), 	//Mode::PC_INDIRECT_DISPLACE
-	ExecuteTime(10, 2, 0), 	//Mode::PC_INDIRECT_INDEX_8BIT
-	ExecuteTime(8,  2, 0), 	//Mode::ABS_WORD
-	ExecuteTime(12, 3, 0), 	//Mode::ABS_LONG
-	ExecuteTime(4,  1, 0)};	//IMMEDIATE
+	ExecuteTime(0,  0, 0),	// Mode::DATAREG_DIRECT
+	ExecuteTime(0,  0, 0),	// Mode::ADDREG_DIRECT
+	ExecuteTime(4,  1, 0),	// ADDREG_INDIRECT
+	ExecuteTime(4,  1, 0),	// Mode::ADDREG_INDIRECT_POSTINC
+	ExecuteTime(6,  1, 0),	// Mode::ADDREG_INDIRECT_PREDEC
+	ExecuteTime(8,  2, 0),	// Mode::ADDREG_INDIRECT_DISPLACE
+	ExecuteTime(10, 2, 0), 	// Mode::ADDREG_INDIRECT_INDEX_8BIT
+	ExecuteTime(8,  2, 0), 	// Mode::PC_INDIRECT_DISPLACE
+	ExecuteTime(10, 2, 0), 	// Mode::PC_INDIRECT_INDEX_8BIT
+	ExecuteTime(8,  2, 0), 	// Mode::ABS_WORD
+	ExecuteTime(12, 3, 0), 	// Mode::ABS_LONG
+	ExecuteTime(4,  1, 0)};	// IMMEDIATE
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 const ExecuteTime EffectiveAddress::ExecuteTime32[] = {
-	ExecuteTime(0,  0, 0),	//Mode::DATAREG_DIRECT
-	ExecuteTime(0,  0, 0),	//Mode::ADDREG_DIRECT
-	ExecuteTime(8,  2, 0),	//ADDREG_INDIRECT
-	ExecuteTime(8,  2, 0),	//Mode::ADDREG_INDIRECT_POSTINC
-	ExecuteTime(10, 2, 0),	//Mode::ADDREG_INDIRECT_PREDEC
-	ExecuteTime(12, 3, 0),	//Mode::ADDREG_INDIRECT_DISPLACE
-	ExecuteTime(14, 3, 0), 	//Mode::ADDREG_INDIRECT_INDEX_8BIT
-	ExecuteTime(12, 3, 0), 	//Mode::PC_INDIRECT_DISPLACE
-	ExecuteTime(14, 3, 0), 	//Mode::PC_INDIRECT_INDEX_8BIT
-	ExecuteTime(12, 3, 0), 	//Mode::ABS_WORD
-	ExecuteTime(16, 4, 0), 	//Mode::ABS_LONG
-	ExecuteTime(8,  2, 0)};	//IMMEDIATE
+	ExecuteTime(0,  0, 0),	// Mode::DATAREG_DIRECT
+	ExecuteTime(0,  0, 0),	// Mode::ADDREG_DIRECT
+	ExecuteTime(8,  2, 0),	// ADDREG_INDIRECT
+	ExecuteTime(8,  2, 0),	// Mode::ADDREG_INDIRECT_POSTINC
+	ExecuteTime(10, 2, 0),	// Mode::ADDREG_INDIRECT_PREDEC
+	ExecuteTime(12, 3, 0),	// Mode::ADDREG_INDIRECT_DISPLACE
+	ExecuteTime(14, 3, 0), 	// Mode::ADDREG_INDIRECT_INDEX_8BIT
+	ExecuteTime(12, 3, 0), 	// Mode::PC_INDIRECT_DISPLACE
+	ExecuteTime(14, 3, 0), 	// Mode::PC_INDIRECT_INDEX_8BIT
+	ExecuteTime(12, 3, 0), 	// Mode::ABS_WORD
+	ExecuteTime(16, 4, 0), 	// Mode::ABS_LONG
+	ExecuteTime(8,  2, 0)};	// IMMEDIATE
 
-//----------------------------------------------------------------------------------------
-//Decode functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Decode functions
+//----------------------------------------------------------------------------------------------------------------------
 void EffectiveAddress::Decode(unsigned int reg, unsigned int mode, Bitcount size, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister)
 {
 	_savedPC = location;
@@ -79,52 +79,52 @@ void EffectiveAddress::Decode(unsigned int reg, unsigned int mode, Bitcount size
 	default:
 		DebugAssert(false);
 		break;
-	case 0:	//000
+	case 0:	// 000
 		BuildDataDirect(size, location, reg);
 		break;
-	case 1:	//001
+	case 1:	// 001
 		BuildAddressDirect(size, location, reg);
 		break;
-	case 2: //010
+	case 2: // 010
 		BuildAddressIndirect(size, location, reg);
 		break;
-	case 3:	//011
+	case 3:	// 011
 		BuildAddressPostinc(size, location, reg);
 		break;
-	case 4:	//100
+	case 4:	// 100
 		BuildAddressPredec(size, location, reg);
 		break;
-	case 5:	//101
+	case 5:	// 101
 		BuildAddressIndirectDisplace(size, location, reg, cpu, transparent, instructionRegister);
 		break;
-	case 6:	//110
+	case 6:	// 110
 		BuildAddressIndirectIndex(size, location, reg, cpu, transparent, instructionRegister);
 		break;
-	case 7:	//111
+	case 7:	// 111
 		switch (reg)
 		{
-		case 0:	//000
+		case 0:	// 000
 			BuildAbsoluteAddressWord(size, location, cpu, transparent, instructionRegister);
 			break;
-		case 1:	//001
+		case 1:	// 001
 			BuildAbsoluteAddressLong(size, location, cpu, transparent, instructionRegister);
 			break;
-		case 2:	//010
+		case 2:	// 010
 			BuildPCIndirectDisplace(size, location, cpu, transparent, instructionRegister);
 			break;
-		case 3:	//011
+		case 3:	// 011
 			BuildPCIndirectIndex(size, location, cpu, transparent, instructionRegister);
 			break;
-		case 4:	//100
+		case 4:	// 100
 			BuildImmediateData(size, location, cpu, transparent, instructionRegister);
 			break;
 		}
 	}
 }
 
-//----------------------------------------------------------------------------------------
-//Address functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Address functions
+//----------------------------------------------------------------------------------------------------------------------
 bool EffectiveAddress::GetAddress(const M68000* cpu, Data& address) const
 {
 	switch (_mode)
@@ -142,7 +142,7 @@ bool EffectiveAddress::GetAddress(const M68000* cpu, Data& address) const
 	case Mode::AddRegIndirectIndex8Bit:{
 		cpu->GetA(_reg, address);
 
-		//Get index value
+		// Get index value
 		Data index(_indexSize);
 		if (!_useAddressRegister)
 		{
@@ -163,7 +163,7 @@ bool EffectiveAddress::GetAddress(const M68000* cpu, Data& address) const
 	case Mode::PCIndirectIndex8Bit:{
 		address = _savedPC;
 
-		//Get index value
+		// Get index value
 		Data index(_indexSize);
 		if (!_useAddressRegister)
 		{
@@ -185,7 +185,7 @@ bool EffectiveAddress::GetAddress(const M68000* cpu, Data& address) const
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool EffectiveAddress::GetAddressTransparent(Data& address) const
 {
 	switch (_mode)
@@ -204,7 +204,7 @@ bool EffectiveAddress::GetAddressTransparent(Data& address) const
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool EffectiveAddress::GetAddressDisplacementTargetNoIndex(M68000* cpu, Data& address) const
 {
 	switch (_mode)
@@ -225,9 +225,9 @@ bool EffectiveAddress::GetAddressDisplacementTargetNoIndex(M68000* cpu, Data& ad
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
-//Data transfer
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Data transfer
+//----------------------------------------------------------------------------------------------------------------------
 double EffectiveAddress::Read(M68000* cpu, Data& target, const M68000Word& instructionRegister, bool rmwCycleInProgress, bool rmwCycleFirstOperation) const
 {
 	double additionalTime = 0;
@@ -275,13 +275,13 @@ double EffectiveAddress::Read(M68000* cpu, Data& target, const M68000Word& instr
 			arrayID = cpu->DisassemblyGetAddressRegisterCurrentArrayID(_reg);
 		}
 		cpu->AddDisassemblyAddressInfoData(address.GetData(), target.GetByteSize(), M68000::DisassemblyDataType::Integer, arrayID);
-		//Adjust the address register. We've got a little bit of code here to prevent
-		//the stack pointer from ending up on an odd address when using byte access.
-		//See the M68000 Programmer's Manual, section 2.6.1 for more info. The
-		//documentation says this alignment happens to maintain "maximum efficiency".
-		//Of course, for the M68000 the real reason is that an address error would be
-		//generated when attempting word or long access on an unaligned address, so
-		//we need to prevent byte access to the stack pointer causing this to occur.
+		// Adjust the address register. We've got a little bit of code here to prevent
+		// the stack pointer from ending up on an odd address when using byte access.
+		// See the M68000 Programmer's Manual, section 2.6.1 for more info. The
+		// documentation says this alignment happens to maintain "maximum efficiency".
+		// Of course, for the M68000 the real reason is that an address error would be
+		// generated when attempting word or long access on an unaligned address, so
+		// we need to prevent byte access to the stack pointer causing this to occur.
 		unsigned int offset;
 		offset = ((_reg == M68000::SP) && (target.GetBitCount() == BITCOUNT_BYTE))? 2: target.GetByteSize();
 		address += offset;
@@ -292,13 +292,13 @@ double EffectiveAddress::Read(M68000* cpu, Data& target, const M68000Word& instr
 	case Mode::AddRegIndirectPreDec:{
 		M68000Long address;
 		cpu->GetA(_reg, address);
-		//Adjust the address register. We've got a little bit of code here to prevent
-		//the stack pointer from ending up on an odd address when using byte access.
-		//See the M68000 Programmer's Manual, section 2.6.1 for more info. The
-		//documentation says this alignment happens to maintain "maximum efficiency".
-		//Of course, for the M68000 the real reason is that an address error would be
-		//generated when attempting word or long access on an unaligned address, so
-		//we need to prevent byte access to the stack pointer causing this to occur.
+		// Adjust the address register. We've got a little bit of code here to prevent
+		// the stack pointer from ending up on an odd address when using byte access.
+		// See the M68000 Programmer's Manual, section 2.6.1 for more info. The
+		// documentation says this alignment happens to maintain "maximum efficiency".
+		// Of course, for the M68000 the real reason is that an address error would be
+		// generated when attempting word or long access on an unaligned address, so
+		// we need to prevent byte access to the stack pointer causing this to occur.
 		unsigned int offset;
 		offset = ((_reg == M68000::SP) && (target.GetBitCount() == BITCOUNT_BYTE))? 2: target.GetByteSize();
 		address -= offset;
@@ -331,7 +331,7 @@ double EffectiveAddress::Read(M68000* cpu, Data& target, const M68000Word& instr
 		M68000Long address;
 		cpu->GetA(_reg, address);
 
-		//Get index value
+		// Get index value
 		Data index(_indexSize);
 		if (!_useAddressRegister)
 		{
@@ -358,7 +358,7 @@ double EffectiveAddress::Read(M68000* cpu, Data& target, const M68000Word& instr
 		M68000Long address;
 		address = _savedPC;
 
-		//Get index value
+		// Get index value
 		Data index(_indexSize);
 		if (!_useAddressRegister)
 		{
@@ -383,15 +383,15 @@ double EffectiveAddress::Read(M68000* cpu, Data& target, const M68000Word& instr
 
 	case Mode::Immediate:
 		//##TODO## I have a feeling this sign extension may not be correct in all cases.
-		//Check which opcodes might be relying on this behaviour, and verify it on the
-		//hardware.
+		// Check which opcodes might be relying on this behaviour, and verify it on the
+		// hardware.
 		target = _data.SignExtend(target.GetBitCount());
 		break;
 	}
 	return additionalTime;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 double EffectiveAddress::Write(M68000* cpu, const Data& target, const M68000Word& instructionRegister, bool rmwCycleInProgress, bool rmwCycleFirstOperation, bool dataUnmodifiedFromMemoryRead, unsigned int sourceMemoryAddress, unsigned int sourceMemorySize) const
 {
 	double additionalTime = 0;
@@ -420,13 +420,13 @@ double EffectiveAddress::Write(M68000* cpu, const Data& target, const M68000Word
 		M68000Long address;
 		cpu->GetA(_reg, address);
 		additionalTime = cpu->WriteMemory(address, target, cpu->GetFunctionCode(false), _savedPC, true, instructionRegister, rmwCycleInProgress, rmwCycleFirstOperation);
-		//Adjust the address register. We've got a little bit of code here to prevent
-		//the stack pointer from ending up on an odd address when using byte access.
-		//See the M68000 Programmer's Manual, section 2.6.1 for more info. The
-		//documentation says this alignment happens to maintain "maximum efficiency".
-		//Of course, for the M68000 the real reason is that an address error would be
-		//generated when attempting word or long access on an unaligned address, so
-		//we need to prevent byte access to the stack pointer causing this to occur.
+		// Adjust the address register. We've got a little bit of code here to prevent
+		// the stack pointer from ending up on an odd address when using byte access.
+		// See the M68000 Programmer's Manual, section 2.6.1 for more info. The
+		// documentation says this alignment happens to maintain "maximum efficiency".
+		// Of course, for the M68000 the real reason is that an address error would be
+		// generated when attempting word or long access on an unaligned address, so
+		// we need to prevent byte access to the stack pointer causing this to occur.
 		unsigned int offset;
 		offset = ((_reg == M68000::SP) && (target.GetBitCount() == BITCOUNT_BYTE))? 2: target.GetByteSize();
 		address += offset;
@@ -436,13 +436,13 @@ double EffectiveAddress::Write(M68000* cpu, const Data& target, const M68000Word
 	case Mode::AddRegIndirectPreDec:{
 		M68000Long address;
 		cpu->GetA(_reg, address);
-		//Adjust the address register. We've got a little bit of code here to prevent
-		//the stack pointer from ending up on an odd address when using byte access.
-		//See the M68000 Programmer's Manual, section 2.6.1 for more info. The
-		//documentation says this alignment happens to maintain "maximum efficiency".
-		//Of course, for the M68000 the real reason is that an address error would be
-		//generated when attempting word or long access on an unaligned address, so
-		//we need to prevent byte access to the stack pointer causing this to occur.
+		// Adjust the address register. We've got a little bit of code here to prevent
+		// the stack pointer from ending up on an odd address when using byte access.
+		// See the M68000 Programmer's Manual, section 2.6.1 for more info. The
+		// documentation says this alignment happens to maintain "maximum efficiency".
+		// Of course, for the M68000 the real reason is that an address error would be
+		// generated when attempting word or long access on an unaligned address, so
+		// we need to prevent byte access to the stack pointer causing this to occur.
 		unsigned int offset;
 		offset = ((_reg == M68000::SP) && (target.GetBitCount() == BITCOUNT_BYTE))? 2: target.GetByteSize();
 		address -= offset;
@@ -461,7 +461,7 @@ double EffectiveAddress::Write(M68000* cpu, const Data& target, const M68000Word
 		M68000Long address;
 		cpu->GetA(_reg, address);
 
-		//Get index value
+		// Get index value
 		Data index(_indexSize);
 		if (!_useAddressRegister)
 		{
@@ -486,7 +486,7 @@ double EffectiveAddress::Write(M68000* cpu, const Data& target, const M68000Word
 		M68000Long address;
 		address = _savedPC;
 
-		//Get index value
+		// Get index value
 		Data index(_indexSize);
 		if (!_useAddressRegister)
 		{
@@ -514,7 +514,7 @@ double EffectiveAddress::Write(M68000* cpu, const Data& target, const M68000Word
 	return additionalTime;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 double EffectiveAddress::ReadWithoutAdjustingAddress(M68000* cpu, Data& target, const M68000Word& instructionRegister, bool rmwCycleInProgress, bool rmwCycleFirstOperation) const
 {
 	double additionalTime = 0;
@@ -528,13 +528,13 @@ double EffectiveAddress::ReadWithoutAdjustingAddress(M68000* cpu, Data& target, 
 	{
 		M68000Long address;
 		cpu->GetA(_reg, address);
-		//Adjust the address register. We've got a little bit of code here to prevent
-		//the stack pointer from ending up on an odd address when using byte access.
-		//See the M68000 Programmer's Manual, section 2.6.1 for more info. The
-		//documentation says this alignment happens to maintain "maximum efficiency".
-		//Of course, for the M68000 the real reason is that an address error would be
-		//generated when attempting word or long access on an unaligned address, so
-		//we need to prevent byte access to the stack pointer causing this to occur.
+		// Adjust the address register. We've got a little bit of code here to prevent
+		// the stack pointer from ending up on an odd address when using byte access.
+		// See the M68000 Programmer's Manual, section 2.6.1 for more info. The
+		// documentation says this alignment happens to maintain "maximum efficiency".
+		// Of course, for the M68000 the real reason is that an address error would be
+		// generated when attempting word or long access on an unaligned address, so
+		// we need to prevent byte access to the stack pointer causing this to occur.
 		unsigned int offset;
 		offset = ((_reg == M68000::SP) && (target.GetBitCount() == BITCOUNT_BYTE))? 2: target.GetByteSize();
 		address -= offset;
@@ -547,7 +547,7 @@ double EffectiveAddress::ReadWithoutAdjustingAddress(M68000* cpu, Data& target, 
 	return additionalTime;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool EffectiveAddress::IsTargetUnmodifiedFromMemoryRead(M68000* cpu, Bitcount readSize, unsigned int& sourceMemoryAddress) const
 {
 	bool targetUnmodified = false;
@@ -572,13 +572,13 @@ bool EffectiveAddress::IsTargetUnmodifiedFromMemoryRead(M68000* cpu, Bitcount re
 	case Mode::AddRegIndirectPreDec:{
 		M68000Long address;
 		cpu->GetA(_reg, address);
-		//Adjust the address register. We've got a little bit of code here to prevent
-		//the stack pointer from ending up on an odd address when using byte access.
-		//See the M68000 Programmer's Manual, section 2.6.1 for more info. The
-		//documentation says this alignment happens to maintain "maximum efficiency".
-		//Of course, for the M68000 the real reason is that an address error would be
-		//generated when attempting word or long access on an unaligned address, so
-		//we need to prevent byte access to the stack pointer causing this to occur.
+		// Adjust the address register. We've got a little bit of code here to prevent
+		// the stack pointer from ending up on an odd address when using byte access.
+		// See the M68000 Programmer's Manual, section 2.6.1 for more info. The
+		// documentation says this alignment happens to maintain "maximum efficiency".
+		// Of course, for the M68000 the real reason is that an address error would be
+		// generated when attempting word or long access on an unaligned address, so
+		// we need to prevent byte access to the stack pointer causing this to occur.
 		unsigned int offset;
 		offset = ((_reg == M68000::SP) && (readSize == BITCOUNT_BYTE))? 2: readSize / 8;
 		address -= offset;
@@ -596,7 +596,7 @@ bool EffectiveAddress::IsTargetUnmodifiedFromMemoryRead(M68000* cpu, Bitcount re
 		M68000Long address;
 		cpu->GetA(_reg, address);
 
-		//Get index value
+		// Get index value
 		Data index(_indexSize);
 		if (!_useAddressRegister)
 		{
@@ -623,7 +623,7 @@ bool EffectiveAddress::IsTargetUnmodifiedFromMemoryRead(M68000* cpu, Bitcount re
 		M68000Long address;
 		address = _savedPC;
 
-		//Get index value
+		// Get index value
 		Data index(_indexSize);
 		if (!_useAddressRegister)
 		{
@@ -649,7 +649,7 @@ bool EffectiveAddress::IsTargetUnmodifiedFromMemoryRead(M68000* cpu, Bitcount re
 	return targetUnmodified;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int EffectiveAddress::GetTargetOriginalMemoryReadSize(M68000* cpu, Bitcount readBitcount) const
 {
 	unsigned int memorySize = ((unsigned int)readBitcount) / 8;
@@ -665,7 +665,7 @@ unsigned int EffectiveAddress::GetTargetOriginalMemoryReadSize(M68000* cpu, Bitc
 	return memorySize;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool EffectiveAddress::IsTargetUnmodifiedFromMemoryReadV2(M68000* cpu, unsigned int& sourceMemoryAddress, bool& dataIsOffset, unsigned int& offsetBaseAddress, unsigned int& dataSize) const
 {
 	bool targetUnmodified = false;
@@ -690,7 +690,7 @@ bool EffectiveAddress::IsTargetUnmodifiedFromMemoryReadV2(M68000* cpu, unsigned 
 		}
 
 		//##TODO## If the address register itself is also unmodified from a memory read,
-		//it needs to be setup as a pointer too.
+		// it needs to be setup as a pointer too.
 		M68000Long address;
 		cpu->GetA(_reg, address);
 		address += M68000Long(_displacement.SignExtend(BITCOUNT_LONG));
@@ -729,9 +729,9 @@ bool EffectiveAddress::IsTargetUnmodifiedFromMemoryReadV2(M68000* cpu, unsigned 
 	return targetUnmodified;
 }
 
-//----------------------------------------------------------------------------------------
-//Disassembly functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Disassembly functions
+//----------------------------------------------------------------------------------------------------------------------
 std::wstring EffectiveAddress::Disassemble(const M68000::LabelSubstitutionSettings& labelSettings) const
 {
 	std::wstringstream stream;
@@ -912,7 +912,7 @@ std::wstring EffectiveAddress::Disassemble(const M68000::LabelSubstitutionSettin
 	return stream.str();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::wstring EffectiveAddress::DisassembleImmediateAsPCDisplacement(const M68000::LabelSubstitutionSettings& labelSettings) const
 {
 	M68000Long targetAddress = _savedPC + M68000Long(_data.SignExtend(BITCOUNT_LONG));
@@ -941,7 +941,7 @@ std::wstring EffectiveAddress::DisassembleImmediateAsPCDisplacement(const M68000
 	return stream.str();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::wstring EffectiveAddress::DisassembleImmediateAsPCDisplacementTargetAddressString() const
 {
 	M68000Long newPC = _savedPC + M68000Long(_data.SignExtend(BITCOUNT_LONG));
@@ -950,7 +950,7 @@ std::wstring EffectiveAddress::DisassembleImmediateAsPCDisplacementTargetAddress
 	return stream.str();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void EffectiveAddress::AddLabelTargetsToSet(std::set<unsigned int>& labelTargetLocations) const
 {
 	switch (_mode)
@@ -969,4 +969,4 @@ void EffectiveAddress::AddLabelTargetsToSet(std::set<unsigned int>& labelTargetL
 	}
 }
 
-} //Close namespace M68000
+} // Close namespace M68000

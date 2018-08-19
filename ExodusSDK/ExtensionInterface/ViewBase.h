@@ -10,31 +10,31 @@
 class ViewBase :public IView
 {
 public:
-	//Constructors
+	// Constructors
 	ViewBase(IUIManager& uiManager, IViewPresenter& viewPresenter);
 
-	//Interface version functions
+	// Interface version functions
 	virtual unsigned int GetIViewVersion() const;
 
-	//Window settings
+	// Window settings
 	void SetWindowSettings(const std::wstring& initialWindowTitle, DWORD windowStyle, DWORD extendedWindowStyle, unsigned int width, unsigned int height);
 	void SetDialogTemplateSettings(const std::wstring& initialWindowTitle, void* assemblyHandle, LPCWSTR templateName);
 	void SetDocumentViewType();
 	void SetDockableViewType(bool initiallyDocked = false, DockPos initialDockPos = DockPos::Left, bool initiallyCollapsed = false, const std::wstring& viewDockingGroup = L"");
 	void SetDialogViewType(DialogMode dialogMode = DialogMode::Modeless, bool dialogResizable = false, DialogPos initialDialogPos = DialogPos::Default);
 
-	//View management functions
+	// View management functions
 	virtual bool OpenView(IHierarchicalStorageNode* viewState);
 	virtual void CloseView();
 	virtual void ShowView();
 	virtual void HideView();
 	virtual void ActivateView();
 
-	//State functions
+	// State functions
 	virtual bool LoadViewState(IHierarchicalStorageNode& viewState);
 	virtual bool SaveViewState(IHierarchicalStorageNode& viewState) const;
 
-	//New window state
+	// New window state
 	virtual Marshal::Ret<std::wstring> GetViewDockingGroup() const;
 	virtual bool IsViewInitiallyDocked() const;
 	virtual bool IsViewInitiallyCollapsed() const;
@@ -45,25 +45,25 @@ public:
 	virtual bool CanResizeDialog() const;
 
 protected:
-	//Helper functions
+	// Helper functions
 	HINSTANCE GetAssemblyHandle() const;
 
-	//Member window procedure
+	// Member window procedure
 	virtual INT_PTR WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 	virtual LRESULT WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
-	//Child window functions
+	// Child window functions
 	HWND CreateChildDialog(HWND parentWindow, void* assemblyHandle, LPCWSTR templateName, const std::function<INT_PTR(HWND, UINT, WPARAM, LPARAM)>& dlgProcHandler);
 	HWND CreateChildWindow(DWORD windowStyle, DWORD extendedWindowStyle, unsigned int posX, unsigned int posY, unsigned int width, unsigned int height, HWND parentWindow, const std::function<INT_PTR(HWND, UINT, WPARAM, LPARAM)>& wndProcHandler);
 	static INT_PTR CALLBACK WndProcChildDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 	static LRESULT CALLBACK WndProcChildWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
-	//Window procedure helper functions
+	// Window procedure helper functions
 	void WndProcDialogImplementSaveFieldWhenLostFocus(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 	void WndProcDialogImplementGiveFocusToChildWindowOnClick(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
 private:
-	//Structures
+	// Structures
 	struct ChildDialogState
 	{
 		ViewBase* view;
@@ -71,7 +71,7 @@ private:
 	};
 
 private:
-	//Static window procedure
+	// Static window procedure
 	static INT_PTR CALLBACK WndProcDialogInternal(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 	static LRESULT CALLBACK WndProcWindowInternal(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
@@ -82,7 +82,7 @@ private:
 	IViewPresenter& _viewPresenter;
 	bool _windowShownForFirstTime;
 
-	//Window settings
+	// Window settings
 	bool _dialogSettingsCaptured;
 	bool _windowSettingsCaptured;
 	std::wstring _initialWindowTitle;
@@ -93,7 +93,7 @@ private:
 	unsigned int _originalWindowWidth;
 	unsigned int _originalWindowHeight;
 
-	//View settings
+	// View settings
 	std::wstring _viewDockingGroup;
 	bool _initiallyDocked;
 	bool _initiallyCollapsed;

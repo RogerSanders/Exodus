@@ -2,7 +2,7 @@
 #define __THREADING_H__
 #include <string>
 
-//Threading functions
+// Threading functions
 void SetCallingThreadName(const std::wstring& threadName);
 
 #endif

@@ -35,15 +35,15 @@ public:
 //                              |--<opmode>-|----------<ea>---------|
 		switch (data.GetDataSegment(7, 2))
 		{
-		case 1:	//01
+		case 1:	// 01
 			_size = BITCOUNT_WORD;
 			break;
-		case 3:	//11
+		case 3:	// 11
 			_size = BITCOUNT_LONG;
 			break;
 		}
 
-		//CMPA	<ea>,An
+		// CMPA	<ea>,An
 		_target.BuildAddressDirect(_size, location + GetInstructionSize(), data.GetDataSegment(9, 3));
 		_source.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), _size, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
 		AddInstructionSize(_source.ExtensionSize());
@@ -60,13 +60,13 @@ public:
 		M68000Long result;
 		Data temp(_size);
 
-		//Perform the operation
+		// Perform the operation
 		additionalTime += _source.Read(cpu, temp, GetInstructionRegister());
 		additionalTime += _target.Read(cpu, op2, GetInstructionRegister());
 		op1 = M68000Long(temp.SignExtend(BITCOUNT_LONG));
 		result = op2 - op1;
 
-		//Set the flag results
+		// Set the flag results
 		bool overflow = (op1.MSB() == result.MSB()) && (op2.MSB() != op1.MSB());
 		bool borrow = (op1.MSB() && result.MSB()) || (!op2.MSB() && (op1.MSB() || result.MSB()));
 		cpu->SetN(result.Negative());
@@ -74,7 +74,7 @@ public:
 		cpu->SetV(overflow);
 		cpu->SetC(borrow);
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -91,5 +91,5 @@ private:
 	Bitcount _size;
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #endif

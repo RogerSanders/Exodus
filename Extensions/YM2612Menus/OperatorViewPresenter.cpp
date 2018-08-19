@@ -1,9 +1,9 @@
 #include "OperatorViewPresenter.h"
 #include "OperatorView.h"
 
-//----------------------------------------------------------------------------------------
-//Constructors
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Constructors
+//----------------------------------------------------------------------------------------------------------------------
 OperatorViewPresenter::OperatorViewPresenter(const std::wstring& viewGroupName, const std::wstring& viewName, int viewID, YM2612Menus& owner, const IDevice& modelInstanceKey, IYM2612& model, unsigned int channelNo, unsigned int operatorNo)
 :ViewPresenterBase(owner.GetAssemblyHandle(), viewGroupName, viewName, viewID, modelInstanceKey.GetDeviceInstanceName(), modelInstanceKey.GetDeviceModuleID(), modelInstanceKey.GetModuleDisplayName()), _owner(owner), _modelInstanceKey(modelInstanceKey), _model(model)
 {
@@ -11,31 +11,31 @@ OperatorViewPresenter::OperatorViewPresenter(const std::wstring& viewGroupName, 
 	_operatorNo = operatorNo;
 }
 
-//----------------------------------------------------------------------------------------
-//View title functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// View title functions
+//----------------------------------------------------------------------------------------------------------------------
 std::wstring OperatorViewPresenter::GetUnqualifiedViewTitle()
 {
 	return L"Operator";
 }
 
-//----------------------------------------------------------------------------------------
-//View creation and deletion
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// View creation and deletion
+//----------------------------------------------------------------------------------------------------------------------
 IView* OperatorViewPresenter::CreateView(IUIManager& uiManager)
 {
 	return new OperatorView(uiManager, *this, _model, _channelNo, _operatorNo);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void OperatorViewPresenter::DeleteView(IView* view)
 {
 	delete view;
 }
 
-//----------------------------------------------------------------------------------------
-//Operator functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Operator functions
+//----------------------------------------------------------------------------------------------------------------------
 void OperatorViewPresenter::SetTargetOperator(unsigned int channelNo, unsigned int operatorNo)
 {
 	_channelNo = channelNo;

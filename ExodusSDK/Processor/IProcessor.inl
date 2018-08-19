@@ -1,15 +1,15 @@
 //Disable warning about the presence of virtual functions without a virtual destructor.
-//Our structures below use virtual functions to create code barriers between assemblies so
-//that they can be marshalled, but they are never derived from, so a virtual destructor is
-//not required.
+// Our structures below use virtual functions to create code barriers between assemblies so
+// that they can be marshalled, but they are never derived from, so a virtual destructor is
+// not required.
 #ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable:4265)
 #endif
 
-//----------------------------------------------------------------------------------------
-//Enumerations
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Enumerations
+//----------------------------------------------------------------------------------------------------------------------
 enum class IProcessor::IProcessorDataSource
 {
 	BreakpointName = 1,
@@ -27,7 +27,7 @@ enum class IProcessor::IProcessorDataSource
 	End = 0x1000
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 enum class IProcessor::IProcessorCommand
 {
 	BreakpointResetHitCounter = 1,
@@ -39,13 +39,13 @@ enum class IProcessor::IProcessorCommand
 	End = 0x1000
 };
 
-//----------------------------------------------------------------------------------------
-//Structures
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Structures
+//----------------------------------------------------------------------------------------------------------------------
 struct IProcessor::CallStackEntry
 {
 public:
-	//Constructors
+	// Constructors
 	CallStackEntry()
 	{}
 	CallStackEntry(unsigned int asourceAddress, unsigned int atargetAddress, unsigned int areturnAddress, const std::wstring& adisassembly)
@@ -57,7 +57,7 @@ public:
 	}
 
 private:
-	//Marshalling methods
+	// Marshalling methods
 	virtual void MarshalToTarget(unsigned int& sourceAddressMarshaller, unsigned int& targetAddressMarshaller, unsigned int& returnAddressMarshaller, const Marshal::Out<std::wstring>& disassemblyMarshaller) const
 	{
 		sourceAddressMarshaller = sourceAddress;
@@ -73,11 +73,11 @@ public:
 	std::wstring disassembly;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct IProcessor::TraceLogEntry
 {
 public:
-	//Constructors
+	// Constructors
 	explicit TraceLogEntry(unsigned int aaddress = 0)
 	:address(aaddress)
 	{}
@@ -87,7 +87,7 @@ public:
 	}
 
 private:
-	//Marshalling methods
+	// Marshalling methods
 	virtual void MarshalToTarget(unsigned int& addressMarshaller, const Marshal::Out<std::wstring>& disassemblyMarshaller) const
 	{
 		addressMarshaller = address;
@@ -99,7 +99,7 @@ public:
 	std::wstring disassembly;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct IProcessor::BreakpointDataContext :public IGenericAccess::DataContext
 {
 	BreakpointDataContext(IBreakpoint* abreakpoint)
@@ -109,7 +109,7 @@ struct IProcessor::BreakpointDataContext :public IGenericAccess::DataContext
 	IBreakpoint* breakpoint;
 };
 
-//Restore the disabled warnings
+// Restore the disabled warnings
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif

@@ -5,23 +5,23 @@ namespace Z80 {
 class ExecuteTime
 {
 public:
-	//Constructors
+	// Constructors
 	inline ExecuteTime();
 	inline ExecuteTime(unsigned int cycles, double additionalTime = 0);
 
-	//Set functions
+	// Set functions
 	inline void Set(unsigned int cycles, double additionalTime = 0);
 
-	//Addition operators
+	// Addition operators
 	inline ExecuteTime operator+(const ExecuteTime& target) const;
 	inline ExecuteTime& operator+=(const ExecuteTime& target);
 
 public:
-	//Data members
+	// Data members
 	unsigned int cycles;
 	double additionalTime;
 };
 
-} //Close namespace Z80
+} // Close namespace Z80
 #include "ExecuteTime.inl"
 #endif

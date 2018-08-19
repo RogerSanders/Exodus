@@ -1,6 +1,6 @@
-//----------------------------------------------------------------------------------------
-//Structures
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Structures
+//----------------------------------------------------------------------------------------------------------------------
 struct MenuHandlerBase::MenuItemDefinition
 {
 	MenuItemDefinition(int amenuItemID, const std::wstring& amenuItemName, const std::wstring& amenuItemTitle, bool amenuItemOpensView, bool aallowOpenViewMultipleTimes = false, bool ahiddenMenuItem = false)
@@ -15,7 +15,7 @@ struct MenuHandlerBase::MenuItemDefinition
 	bool hiddenMenuItem;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct MenuHandlerBase::MenuItemInternal
 {
 	MenuItemInternal(MenuItemDefinition aitemDefinition)

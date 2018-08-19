@@ -1,13 +1,13 @@
-//----------------------------------------------------------------------------------------
-//Structures
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Structures
+//----------------------------------------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> struct RandomTimeAccessValue<DataType, TimesliceType>::TimesliceEntry
 {
 	TimesliceType timesliceLength;
 	bool committed;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> struct RandomTimeAccessValue<DataType, TimesliceType>::WriteEntry
 {
 	WriteEntry()
@@ -24,7 +24,7 @@ template<class DataType, class TimesliceType> struct RandomTimeAccessValue<DataT
 	Timeslice currentTimeslice;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> struct RandomTimeAccessValue<DataType, TimesliceType>::WriteInfo
 {
 	WriteInfo()
@@ -38,7 +38,7 @@ template<class DataType, class TimesliceType> struct RandomTimeAccessValue<DataT
 	DataType newValue;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> struct RandomTimeAccessValue<DataType, TimesliceType>::TimesliceSaveEntry
 {
 	TimesliceSaveEntry(typename const std::list<TimesliceEntry>::const_iterator& atimeslice, unsigned int aid)
@@ -53,7 +53,7 @@ template<class DataType, class TimesliceType> struct RandomTimeAccessValue<DataT
 	TimesliceType timesliceLength;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> struct RandomTimeAccessValue<DataType, TimesliceType>::WriteSaveEntry
 {
 	WriteSaveEntry(TimesliceType awriteTime, const DataType& aoldValue, unsigned int acurrentTimeslice)
@@ -64,39 +64,39 @@ template<class DataType, class TimesliceType> struct RandomTimeAccessValue<DataT
 	unsigned int currentTimeslice;
 };
 
-//----------------------------------------------------------------------------------------
-//Constructors
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Constructors
+//----------------------------------------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> RandomTimeAccessValue<DataType, TimesliceType>::RandomTimeAccessValue()
 {}
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> RandomTimeAccessValue<DataType, TimesliceType>::RandomTimeAccessValue(const DataType& defaultValue)
 :_value(defaultValue)
 {}
 
-//----------------------------------------------------------------------------------------
-//Dereference operators
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Dereference operators
+//----------------------------------------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> const DataType& RandomTimeAccessValue<DataType, TimesliceType>::operator*() const
 {
 	return _value;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> DataType& RandomTimeAccessValue<DataType, TimesliceType>::operator*()
 {
 	return _value;
 }
 
-//----------------------------------------------------------------------------------------
-//Access functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Access functions
+//----------------------------------------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> DataType RandomTimeAccessValue<DataType, TimesliceType>::Read(TimesliceType readTime) const
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 
-	//Search for written values in the current timeslice
+	// Search for written values in the current timeslice
 	std::list<WriteEntry>::const_reverse_iterator i = _writeList.rbegin();
 	while ((i != _writeList.rend()) && (i->currentTimeslice == _latestTimeslice))
 	{
@@ -109,24 +109,24 @@ template<class DataType, class TimesliceType> DataType RandomTimeAccessValue<Dat
 
 	if (i != _writeList.rend())
 	{
-		//Return the latest write from a previous timeslice
+		// Return the latest write from a previous timeslice
 		return i->newValue;
 	}
 	else
 	{
-		//Default to the committed value
+		// Default to the committed value
 		return _value;
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataType, TimesliceType>::Write(TimesliceType writeTime, const DataType& data)
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 	WriteEntry entry(writeTime, data, _latestTimeslice);
 
-	//Find the correct location in the list to insert the new write entry. The writeList
-	//must be sorted from earliest to latest write by time.
+	// Find the correct location in the list to insert the new write entry. The writeList
+	// must be sorted from earliest to latest write by time.
 	std::list<WriteEntry>::reverse_iterator i = _writeList.rbegin();
 	while ((i != _writeList.rend()) && (i->currentTimeslice == _latestTimeslice) && (i->writeTime > writeTime))
 	{
@@ -135,44 +135,44 @@ template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataTyp
 	_writeList.insert(i.base(), entry);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> DataType RandomTimeAccessValue<DataType, TimesliceType>::ReadCommitted() const
 {
 	return _value;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> DataType RandomTimeAccessValue<DataType, TimesliceType>::ReadCommitted(TimesliceType readTime) const
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 	TimesliceType currentTimeBase = 0;
 
-	//Default to the committed value
+	// Default to the committed value
 	DataType foundValue = _value;
 
-	//Search for any buffered writes before the read time
+	// Search for any buffered writes before the read time
 	std::list<TimesliceEntry>::const_iterator currentTimeslice = _timesliceList.begin();
 	std::list<WriteEntry>::const_iterator i = _writeList.begin();
 	bool done = false;
 	while ((i != _writeList.end()) && !done)
 	{
-		//Advance through the timeslice list until we find the timeslice matching the
-		//next buffered write, or we pass the end of this time step.
+		// Advance through the timeslice list until we find the timeslice matching the
+		// next buffered write, or we pass the end of this time step.
 		while ((currentTimeslice != i->currentTimeslice)
 			&& (((currentTimeBase + currentTimeslice->timesliceLength) - _currentTimeOffset) <= readTime))
 		{
 			currentTimeBase += currentTimeslice->timesliceLength;
 			++currentTimeslice;
 		}
-		//If the next buffered write is outside the time step, terminate processing of
-		//buffered writes.
+		// If the next buffered write is outside the time step, terminate processing of
+		// buffered writes.
 		if ((currentTimeslice != i->currentTimeslice) || (((currentTimeBase + i->writeTime) - _currentTimeOffset) > readTime))
 		{
 			done = true;
 			continue;
 		}
-		//Set the found write as the value at the time of the read, and advance to the
-		//next buffered write.
+		// Set the found write as the value at the time of the read, and advance to the
+		// next buffered write.
 		foundValue = i->newValue;
 		++i;
 	}
@@ -180,67 +180,67 @@ template<class DataType, class TimesliceType> DataType RandomTimeAccessValue<Dat
 	return foundValue;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataType, TimesliceType>::WriteCommitted(const DataType& data)
 {
 	_value = data;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> DataType RandomTimeAccessValue<DataType, TimesliceType>::ReadLatest() const
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 
-	//Search for written values in any timeslice
+	// Search for written values in any timeslice
 	std::list<WriteEntry>::const_reverse_iterator i = _writeList.rbegin();
 	if (i != _writeList.rend())
 	{
-		//Return the latest write from any timeslice
+		// Return the latest write from any timeslice
 		return i->newValue;
 	}
 	else
 	{
-		//Default to the committed value
+		// Default to the committed value
 		return _value;
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataType, TimesliceType>::WriteLatest(const DataType& data)
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 
-	//Erase any write entries to this address in any timeslice. We do this to prevent
-	//uncommitted writes from overwriting this change. This write function should make
-	//the new value visible from all access functions.
+	// Erase any write entries to this address in any timeslice. We do this to prevent
+	// uncommitted writes from overwriting this change. This write function should make
+	// the new value visible from all access functions.
 	_writeList.clear();
 
-	//Write the new value directly to the committed state
+	// Write the new value directly to the committed state
 	_value = data;
 }
 
-//----------------------------------------------------------------------------------------
-//Time management functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Time management functions
+//----------------------------------------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataType, TimesliceType>::Initialize()
 {
 	_value = DataType();
 
-	//Initialize buffers
+	// Initialize buffers
 	_writeList.clear();
 	_timesliceList.clear();
 	_currentTimeOffset = 0;
 	_latestTimeslice = _timesliceList.end();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> bool RandomTimeAccessValue<DataType, TimesliceType>::DoesLatestTimesliceExist() const
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 	return !_timesliceList.empty();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> typename RandomTimeAccessValue<DataType, TimesliceType>::Timeslice RandomTimeAccessValue<DataType, TimesliceType>::GetLatestTimeslice()
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
@@ -255,25 +255,25 @@ template<class DataType, class TimesliceType> typename RandomTimeAccessValue<Dat
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataType, TimesliceType>::AdvancePastTimeslice(const Timeslice& targetTimeslice)
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 
-	//Commit buffered writes which we have passed in this step
+	// Commit buffered writes which we have passed in this step
 	std::list<TimesliceEntry>::iterator currentTimeslice = _timesliceList.begin();
 	std::list<WriteEntry>::iterator i = _writeList.begin();
 	bool done = false;
 	while ((i != _writeList.end()) && !done)
 	{
-		//Advance through the timeslice list until we find the timeslice matching the
-		//next buffered write, or we pass the end of this time step.
+		// Advance through the timeslice list until we find the timeslice matching the
+		// next buffered write, or we pass the end of this time step.
 		while ((currentTimeslice != i->currentTimeslice) && (currentTimeslice != targetTimeslice))
 		{
 			++currentTimeslice;
 		}
-		//If the next buffered write is outside the time step, terminate processing of
-		//buffered writes.
+		// If the next buffered write is outside the time step, terminate processing of
+		// buffered writes.
 		if (currentTimeslice != i->currentTimeslice)
 		{
 			done = true;
@@ -282,38 +282,38 @@ template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataTyp
 		_value = i->newValue;
 		++i;
 	}
-	//Check for any remaining timeslices which have expired
+	// Check for any remaining timeslices which have expired
 	while (currentTimeslice != targetTimeslice)
 	{
 		++currentTimeslice;
 	}
-	//Set our current time offset to the end of the target timeslice
+	// Set our current time offset to the end of the target timeslice
 	_currentTimeOffset = targetTimeslice->timesliceLength;
 
-	//Erase buffered writes which have been committed, and timeslices which have expired.
+	// Erase buffered writes which have been committed, and timeslices which have expired.
 	_writeList.erase(_writeList.begin(), i);
 	_timesliceList.erase(_timesliceList.begin(), targetTimeslice);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataType, TimesliceType>::AdvanceToTimeslice(const Timeslice& targetTimeslice)
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 
-	//Commit buffered writes which we have passed in this step
+	// Commit buffered writes which we have passed in this step
 	std::list<TimesliceEntry>::iterator currentTimeslice = _timesliceList.begin();
 	std::list<WriteEntry>::iterator i = _writeList.begin();
 	bool done = false;
 	while ((i != _writeList.end()) && !done)
 	{
-		//Advance through the timeslice list until we find the timeslice matching the
-		//next buffered write, or we pass the end of this time step.
+		// Advance through the timeslice list until we find the timeslice matching the
+		// next buffered write, or we pass the end of this time step.
 		while ((currentTimeslice != i->currentTimeslice) && (currentTimeslice != targetTimeslice))
 		{
 			++currentTimeslice;
 		}
-		//If the next buffered write is outside the time step, terminate processing of
-		//buffered writes.
+		// If the next buffered write is outside the time step, terminate processing of
+		// buffered writes.
 		if ((currentTimeslice != i->currentTimeslice) || (currentTimeslice == targetTimeslice))
 		{
 			done = true;
@@ -322,33 +322,33 @@ template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataTyp
 		_value = i->newValue;
 		++i;
 	}
-	//Check for any remaining timeslices which have expired
+	// Check for any remaining timeslices which have expired
 	while (currentTimeslice != targetTimeslice)
 	{
 		++currentTimeslice;
 	}
-	//Set our current time offset to the start of the target timeslice
+	// Set our current time offset to the start of the target timeslice
 	_currentTimeOffset = 0;
 
-	//Erase buffered writes which have been committed, and timeslices which have expired.
+	// Erase buffered writes which have been committed, and timeslices which have expired.
 	_writeList.erase(_writeList.begin(), i);
 	_timesliceList.erase(_timesliceList.begin(), targetTimeslice);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataType, TimesliceType>::AdvanceByTime(TimesliceType step, const Timeslice& targetTimeslice)
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 	TimesliceType currentTimeBase = 0;
 
-	//Commit buffered writes which we have passed in this step
+	// Commit buffered writes which we have passed in this step
 	std::list<TimesliceEntry>::iterator currentTimeslice = _timesliceList.begin();
 	std::list<WriteEntry>::iterator i = _writeList.begin();
 	bool done = false;
 	while ((i != _writeList.end()) && !done)
 	{
-		//Advance through the timeslice list until we find the timeslice matching the
-		//next buffered write, or we pass the end of this time step.
+		// Advance through the timeslice list until we find the timeslice matching the
+		// next buffered write, or we pass the end of this time step.
 		while ((currentTimeslice != i->currentTimeslice)
 			&& (currentTimeslice != targetTimeslice)
 			&& (((currentTimeBase + currentTimeslice->timesliceLength) - _currentTimeOffset) <= step))
@@ -356,8 +356,8 @@ template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataTyp
 			currentTimeBase += currentTimeslice->timesliceLength;
 			++currentTimeslice;
 		}
-		//If the next buffered write is outside the time step, terminate processing of
-		//buffered writes.
+		// If the next buffered write is outside the time step, terminate processing of
+		// buffered writes.
 		if ((currentTimeslice != i->currentTimeslice) || (((currentTimeBase + i->writeTime) - _currentTimeOffset) > step))
 		{
 			done = true;
@@ -366,23 +366,23 @@ template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataTyp
 		_value = i->newValue;
 		++i;
 	}
-	//Check for any remaining timeslices which have expired
+	// Check for any remaining timeslices which have expired
 	while ((currentTimeslice != targetTimeslice)
 		&& (((currentTimeBase + currentTimeslice->timesliceLength) - _currentTimeOffset) <= step))
 	{
 		currentTimeBase += currentTimeslice->timesliceLength;
 		++currentTimeslice;
 	}
-	//Set the amount of the current timeslice which has been stepped through as the time
-	//offset for the next step operation.
+	// Set the amount of the current timeslice which has been stepped through as the time
+	// offset for the next step operation.
 	_currentTimeOffset = (_currentTimeOffset + step) - currentTimeBase;
 
-	//Erase buffered writes which have been committed, and timeslices which have expired.
+	// Erase buffered writes which have been committed, and timeslices which have expired.
 	_writeList.erase(_writeList.begin(), i);
 	_timesliceList.erase(_timesliceList.begin(), currentTimeslice);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> bool RandomTimeAccessValue<DataType, TimesliceType>::AdvanceByStep(const Timeslice& targetTimeslice)
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
@@ -390,21 +390,21 @@ template<class DataType, class TimesliceType> bool RandomTimeAccessValue<DataTyp
 	TimesliceType writeTime = targetTimeslice->timesliceLength;
 	bool foundWrite = false;
 
-	//Commit buffered writes which we have passed in this step
+	// Commit buffered writes which we have passed in this step
 	std::list<TimesliceEntry>::iterator currentTimeslice = _timesliceList.begin();
 	std::list<WriteEntry>::iterator i = _writeList.begin();
 	if (!_writeList.empty())
 	{
-		//Advance through the timeslice list until we find the timeslice matching the
-		//next buffered write, or we pass the end of this time step.
+		// Advance through the timeslice list until we find the timeslice matching the
+		// next buffered write, or we pass the end of this time step.
 		while ((currentTimeslice != i->currentTimeslice)
 			&& (currentTimeslice != targetTimeslice))
 		{
 			currentTimeBase += currentTimeslice->timesliceLength;
 			++currentTimeslice;
 		}
-		//If the next buffered write is within the time step, save the write time and
-		//commit the data.
+		// If the next buffered write is within the time step, save the write time and
+		// commit the data.
 		if (currentTimeslice == i->currentTimeslice)
 		{
 			foundWrite = true;
@@ -413,7 +413,7 @@ template<class DataType, class TimesliceType> bool RandomTimeAccessValue<DataTyp
 			++i;
 		}
 	}
-	//Check for any remaining timeslices which have expired.
+	// Check for any remaining timeslices which have expired.
 	if (!foundWrite)
 	{
 		while (currentTimeslice != targetTimeslice)
@@ -423,18 +423,18 @@ template<class DataType, class TimesliceType> bool RandomTimeAccessValue<DataTyp
 		}
 	}
 
-	//Set the amount of the current timeslice which has been stepped through as the time
-	//offset for the next step operation.
+	// Set the amount of the current timeslice which has been stepped through as the time
+	// offset for the next step operation.
 	_currentTimeOffset = writeTime;
 
-	//Erase buffered writes which have been committed, and timeslices which have expired.
+	// Erase buffered writes which have been committed, and timeslices which have expired.
 	_writeList.erase(_writeList.begin(), i);
 	_timesliceList.erase(_timesliceList.begin(), currentTimeslice);
 
 	return foundWrite;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> TimesliceType RandomTimeAccessValue<DataType, TimesliceType>::GetNextWriteTime(const Timeslice& targetTimeslice)
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
@@ -442,28 +442,28 @@ template<class DataType, class TimesliceType> TimesliceType RandomTimeAccessValu
 	TimesliceType nextWriteTime = 0;
 	TimesliceType currentTimeBase = 0;
 
-	//Search the write list for the next buffered write inside this time step
+	// Search the write list for the next buffered write inside this time step
 	std::list<TimesliceEntry>::iterator currentTimeslice = _timesliceList.begin();
 	std::list<WriteEntry>::iterator i = _writeList.begin();
 	if (!_writeList.empty())
 	{
-		//Advance through the timeslice list until we find the timeslice matching the
-		//next buffered write, or we pass the end of this time step.
+		// Advance through the timeslice list until we find the timeslice matching the
+		// next buffered write, or we pass the end of this time step.
 		while ((currentTimeslice != i->currentTimeslice)
 			&& (currentTimeslice != targetTimeslice))
 		{
 			currentTimeBase += currentTimeslice->timesliceLength;
 			++currentTimeslice;
 		}
-		//If the next buffered write is within the time step, save the write time.
+		// If the next buffered write is within the time step, save the write time.
 		if (currentTimeslice == i->currentTimeslice)
 		{
 			foundWrite = true;
 			nextWriteTime = ((currentTimeBase + i->writeTime) - _currentTimeOffset);
 		}
 	}
-	//If no write is pending within the time step, output the end of the target timeslice
-	//as the next write time.
+	// If no write is pending within the time step, output the end of the target timeslice
+	// as the next write time.
 	if (!foundWrite)
 	{
 		while (currentTimeslice != targetTimeslice)
@@ -477,7 +477,7 @@ template<class DataType, class TimesliceType> TimesliceType RandomTimeAccessValu
 	return nextWriteTime;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> typename RandomTimeAccessValue<DataType, TimesliceType>::WriteInfo RandomTimeAccessValue<DataType, TimesliceType>::GetWriteInfo(unsigned int index, const Timeslice& targetTimeslice)
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
@@ -486,21 +486,21 @@ template<class DataType, class TimesliceType> typename RandomTimeAccessValue<Dat
 	WriteInfo writeInfo;
 	writeInfo.exists = false;
 
-	//Search the write list for the next buffered write inside this time step
+	// Search the write list for the next buffered write inside this time step
 	std::list<TimesliceEntry>::iterator currentTimeslice = _timesliceList.begin();
 	std::list<WriteEntry>::iterator i = _writeList.begin();
 	bool done = false;
 	while ((i != _writeList.end()) && !done)
 	{
-		//Advance through the timeslice list until we find the timeslice matching the
-		//next buffered write, or we pass the end of this time step.
+		// Advance through the timeslice list until we find the timeslice matching the
+		// next buffered write, or we pass the end of this time step.
 		while ((currentTimeslice != i->currentTimeslice)
 			&& (currentTimeslice != targetTimeslice))
 		{
 			currentTimeBase += currentTimeslice->timesliceLength;
 			++currentTimeslice;
 		}
-		//If the next buffered write is within the time step, output its data
+		// If the next buffered write is within the time step, output its data
 		if (currentTimeslice == i->currentTimeslice)
 		{
 			if (currentIndex == index)
@@ -521,12 +521,12 @@ template<class DataType, class TimesliceType> typename RandomTimeAccessValue<Dat
 	return writeInfo;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataType, TimesliceType>::Commit()
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 
-	//Flag all timeslices as committed
+	// Flag all timeslices as committed
 	std::list<TimesliceEntry>::reverse_iterator i = _timesliceList.rbegin();
 	while ((i != _timesliceList.rend()) && (!i->committed))
 	{
@@ -535,12 +535,12 @@ template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataTyp
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataType, TimesliceType>::Rollback()
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 
-	//Erase non-committed memory writes
+	// Erase non-committed memory writes
 	std::list<WriteEntry>::reverse_iterator i = _writeList.rbegin();
 	while ((i != _writeList.rend()) && (!i->currentTimeslice->committed))
 	{
@@ -548,7 +548,7 @@ template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataTyp
 	}
 	_writeList.erase(i.base(), _writeList.end());
 
-	//Erase non-committed timeslice entries
+	// Erase non-committed timeslice entries
 	std::list<TimesliceEntry>::reverse_iterator j = _timesliceList.rbegin();
 	while ((j != _timesliceList.rend()) && (!j->committed))
 	{
@@ -556,7 +556,7 @@ template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataTyp
 	}
 	_timesliceList.erase(j.base(), _timesliceList.end());
 
-	//Recalculate the latest timeslice
+	// Recalculate the latest timeslice
 	if (_timesliceList.empty())
 	{
 		_latestTimeslice = _timesliceList.end();
@@ -567,33 +567,33 @@ template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataTyp
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataType, TimesliceType>::AddTimeslice(TimesliceType timeslice)
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 
-	//Add the new timeslice entry to the list
+	// Add the new timeslice entry to the list
 	TimesliceEntry entry;
 	entry.timesliceLength = timeslice;
 	entry.committed = false;
 	_timesliceList.push_back(entry);
 
-	//Select the new timeslice entry as the latest timeslice
+	// Select the new timeslice entry as the latest timeslice
 	_latestTimeslice = (++_timesliceList.rbegin()).base();
 }
 
-//----------------------------------------------------------------------------------------
-//Savestate functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Savestate functions
+//----------------------------------------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> bool RandomTimeAccessValue<DataType, TimesliceType>::LoadState(IHierarchicalStorageNode& node)
 {
 	std::list<TimesliceSaveEntry> timesliceSaveList;
 	std::list<WriteSaveEntry> writeSaveList;
 
-	//Load the current time offset
+	// Load the current time offset
 	node.ExtractAttribute(L"CurrentTimeOffset", _currentTimeOffset);
 
-	//Read saved data from the XML tree
+	// Read saved data from the XML tree
 	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
 	for (std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
@@ -613,7 +613,7 @@ template<class DataType, class TimesliceType> bool RandomTimeAccessValue<DataTyp
 		}
 	}
 
-	//Load timeslice list
+	// Load timeslice list
 	_timesliceList.clear();
 	for (std::list<TimesliceSaveEntry>::iterator i = timesliceSaveList.begin(); i != timesliceSaveList.end(); ++i)
 	{
@@ -624,14 +624,14 @@ template<class DataType, class TimesliceType> bool RandomTimeAccessValue<DataTyp
 	}
 	_latestTimeslice = GetLatestTimeslice();
 
-	//Load memory buffer
+	// Load memory buffer
 	IHierarchicalStorageAttribute* valueAttribute = node.GetAttribute(L"Value");
 	if (valueAttribute != 0)
 	{
 		valueAttribute->ExtractValue(_value);
 	}
 
-	//Load write list, and rebuild memory buffer
+	// Load write list, and rebuild memory buffer
 	_writeList.clear();
 	for (std::list<WriteSaveEntry>::reverse_iterator i = writeSaveList.rbegin(); i != writeSaveList.rend(); ++i)
 	{
@@ -654,7 +654,7 @@ template<class DataType, class TimesliceType> bool RandomTimeAccessValue<DataTyp
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> bool RandomTimeAccessValue<DataType, TimesliceType>::LoadTimesliceEntries(IHierarchicalStorageNode& node, std::list<TimesliceSaveEntry>& timesliceSaveList)
 {
 	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
@@ -668,8 +668,8 @@ template<class DataType, class TimesliceType> bool RandomTimeAccessValue<DataTyp
 			{
 				TimesliceSaveEntry entry(timesliceID->ExtractValue<unsigned int>(), timesliceLength->ExtractValue<TimesliceType>());
 
-				//Find the correct location in the list to insert the timeslice entry. The
-				//timeslice list must be sorted from earliest to latest by id.
+				// Find the correct location in the list to insert the timeslice entry. The
+				// timeslice list must be sorted from earliest to latest by id.
 				std::list<TimesliceSaveEntry>::reverse_iterator j = timesliceSaveList.rbegin();
 				while ((j != timesliceSaveList.rend()) && (j->id > entry.id))
 				{
@@ -683,7 +683,7 @@ template<class DataType, class TimesliceType> bool RandomTimeAccessValue<DataTyp
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> bool RandomTimeAccessValue<DataType, TimesliceType>::LoadWriteEntries(IHierarchicalStorageNode& node, std::list<WriteSaveEntry>& writeSaveList)
 {
 	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
@@ -696,12 +696,12 @@ template<class DataType, class TimesliceType> bool RandomTimeAccessValue<DataTyp
 			IHierarchicalStorageAttribute* timesliceID = i->GetAttribute(L"TimesliceID");
 			if ((writeTime != 0) && (oldValue != 0) && (timesliceID != 0))
 			{
-				//Extract the write entry from the XML stream
+				// Extract the write entry from the XML stream
 				WriteSaveEntry entry(writeTime->ExtractValue<TimesliceType>(), _value, timesliceID->ExtractValue<unsigned int>());
 				oldValue->ExtractValue(entry.oldValue);
 
-				//Find the correct location in the list to insert the write entry. The
-				//write list must be sorted from earliest to latest.
+				// Find the correct location in the list to insert the write entry. The
+				// write list must be sorted from earliest to latest.
 				std::list<WriteSaveEntry>::reverse_iterator j = writeSaveList.rbegin();
 				while ((j != writeSaveList.rend()) && ((j->currentTimeslice > entry.currentTimeslice) || ((j->currentTimeslice == entry.currentTimeslice) && (j->writeTime > entry.writeTime))))
 				{
@@ -715,26 +715,26 @@ template<class DataType, class TimesliceType> bool RandomTimeAccessValue<DataTyp
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> bool RandomTimeAccessValue<DataType, TimesliceType>::SaveState(IHierarchicalStorageNode& node) const
 {
 	std::list<TimesliceSaveEntry> timesliceSaveList;
 	DataType saveValue(_value);
 
-	//Save the current time offset
+	// Save the current time offset
 	node.CreateAttribute(L"CurrentTimeOffset", _currentTimeOffset);
 
-	//Take a copy of the current memory buffer. We need to copy the contents rather than
-	//directly dumping the current memory buffer, because we change the direction of the
-	//write history when we save it. Rather than saving the committed state of the
-	//memory, we save the latest volatile state of the memory, and each writeEntry
-	//contains the previous data that was in the memory before that write occurred,
-	//rather than the new value which is being written. We do this to allow easy
-	//modification of the saved data, without having to worry about uncommitted writes
-	//overwriting changes.
+	// Take a copy of the current memory buffer. We need to copy the contents rather than
+	// directly dumping the current memory buffer, because we change the direction of the
+	// write history when we save it. Rather than saving the committed state of the
+	// memory, we save the latest volatile state of the memory, and each writeEntry
+	// contains the previous data that was in the memory before that write occurred,
+	// rather than the new value which is being written. We do this to allow easy
+	// modification of the saved data, without having to worry about uncommitted writes
+	// overwriting changes.
 	saveValue = _value;
 
-	//Build numeric ID's to identify each timeslice, and save the timeslice list state
+	// Build numeric ID's to identify each timeslice, and save the timeslice list state
 	IHierarchicalStorageNode& timesliceListState = node.CreateChild(L"TimesliceList");
 	unsigned int id = 0;
 	for (std::list<TimesliceEntry>::const_iterator i = _timesliceList.begin(); i != _timesliceList.end(); ++i)
@@ -747,7 +747,7 @@ template<class DataType, class TimesliceType> bool RandomTimeAccessValue<DataTyp
 		++id;
 	}
 
-	//Save the writeList state
+	// Save the writeList state
 	IHierarchicalStorageNode& writeListState = node.CreateChild(L"WriteList");
 	std::list<TimesliceSaveEntry>::iterator currentTimeslice = timesliceSaveList.begin();
 	for (std::list<WriteEntry>::const_iterator i = _writeList.begin(); i != _writeList.end(); ++i)
@@ -764,7 +764,7 @@ template<class DataType, class TimesliceType> bool RandomTimeAccessValue<DataTyp
 		saveValue = i->newValue;
 	}
 
-	//Save the latest value
+	// Save the latest value
 	node.CreateAttribute(L"Value", saveValue);
 
 	return true;

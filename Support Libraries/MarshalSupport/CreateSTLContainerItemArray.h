@@ -7,7 +7,7 @@ namespace Internal {
 template<class ElementType>
 inline void* CreateSTLContainerItemArray(size_t itemArrayEntryCount, const ElementType* elementPointer);
 
-} //Close namespace Internal
-} //Close namespace MarshalSupport
+} // Close namespace Internal
+} // Close namespace MarshalSupport
 #include "CreateSTLContainerItemArray.inl"
 #endif

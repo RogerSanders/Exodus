@@ -1,6 +1,6 @@
-//----------------------------------------------------------------------------------------
-//Enumerations
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Enumerations
+//----------------------------------------------------------------------------------------------------------------------
 enum class WC_DataGrid::WindowMessages :unsigned int
 {
 	WMBase = WM_USER + 0x100,
@@ -25,7 +25,7 @@ enum class WC_DataGrid::WindowMessages :unsigned int
 	SetVScrollInfo
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 enum class WC_DataGrid::WindowNotifications :unsigned int
 {
 	NewRowCount = 0x100,
@@ -38,7 +38,7 @@ enum class WC_DataGrid::WindowNotifications :unsigned int
 	TreeEntryExpandEvent
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 enum class WC_DataGrid::CellControlType
 {
 	TextBox,
@@ -47,14 +47,14 @@ enum class WC_DataGrid::CellControlType
 	Button,
 	TreeEntry,
 	//##TODO## Our "TEXTBOXWITHBUTTON" type restricts us to a single right-aligned button
-	//per cell. Consider allowing an optional list of adorner buttons for all column
-	//types, which can be aligned either left or right on a button by button basis, and
-	//stack from the outermost edge to the innermost edge. With this in place, we can then
-	//phase out the "TEXTBOXWITHBUTTON" type.
+	// per cell. Consider allowing an optional list of adorner buttons for all column
+	// types, which can be aligned either left or right on a button by button basis, and
+	// stack from the outermost edge to the innermost edge. With this in place, we can then
+	// phase out the "TEXTBOXWITHBUTTON" type.
 	TextBoxWithButton
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 enum class WC_DataGrid::TextEllipsisMode
 {
 	None,
@@ -62,7 +62,7 @@ enum class WC_DataGrid::TextEllipsisMode
 	Path
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 enum class WC_DataGrid::ColumnSizeMode
 {
 	Absolute,
@@ -70,9 +70,9 @@ enum class WC_DataGrid::ColumnSizeMode
 	Proportional
 };
 
-//----------------------------------------------------------------------------------------
-//Message parameter structures
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Message parameter structures
+//----------------------------------------------------------------------------------------------------------------------
 struct WC_DataGrid::Grid_InsertColumn
 {
 	Grid_InsertColumn(const std::wstring& aname = L"", unsigned int acolumnID = 0, bool aeditingAllowed = false, CellControlType acellType = CellControlType::TextBox)
@@ -90,7 +90,7 @@ struct WC_DataGrid::Grid_InsertColumn
 	int maxWidth;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct WC_DataGrid::Grid_InsertRows
 {
 	Grid_InsertRows(unsigned int atargetRowNo = 0, unsigned int arowCount = 0)
@@ -105,7 +105,7 @@ struct WC_DataGrid::Grid_InsertRows
 	std::vector<std::map<unsigned int, std::wstring>> rowData;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct WC_DataGrid::Grid_DeleteRows
 {
 	Grid_DeleteRows(unsigned int atargetRowNo = 0, unsigned int arowCount = 0)
@@ -116,7 +116,7 @@ struct WC_DataGrid::Grid_DeleteRows
 	unsigned int rowCount;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct WC_DataGrid::Grid_GetColumnInfo
 {
 	std::wstring name;
@@ -126,7 +126,7 @@ struct WC_DataGrid::Grid_GetColumnInfo
 	bool editingAllowed;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct WC_DataGrid::Grid_SetColumnInfo
 {
 	Grid_SetColumnInfo()
@@ -147,7 +147,7 @@ struct WC_DataGrid::Grid_SetColumnInfo
 	int maxWidth;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct WC_DataGrid::Grid_SetCellInfo
 {
 	Grid_SetCellInfo()
@@ -170,7 +170,7 @@ struct WC_DataGrid::Grid_SetCellInfo
 	TextEllipsisMode ellipsisMode;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct WC_DataGrid::Grid_UpdateCellText
 {
 	Grid_UpdateCellText()
@@ -182,7 +182,7 @@ struct WC_DataGrid::Grid_UpdateCellText
 	unsigned int rowNo;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct WC_DataGrid::Grid_SetVScrollInfo
 {
 	Grid_SetVScrollInfo()
@@ -197,7 +197,7 @@ struct WC_DataGrid::Grid_SetVScrollInfo
 	int valuesPerPage;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct WC_DataGrid::Grid_SetControlColor
 {
 	Grid_SetControlColor()
@@ -216,7 +216,7 @@ struct WC_DataGrid::Grid_SetControlColor
 	WinColor colorLine;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct WC_DataGrid::Grid_SetRowColor
 {
 	Grid_SetRowColor()
@@ -233,7 +233,7 @@ struct WC_DataGrid::Grid_SetRowColor
 	WinColor colorEditTextBack;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct WC_DataGrid::Grid_SetCellColor
 {
 	Grid_SetCellColor()
@@ -252,31 +252,31 @@ struct WC_DataGrid::Grid_SetCellColor
 	WinColor colorEditTextBack;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct WC_DataGrid::Grid_NewVisibleRowCount
 {
 	unsigned int visibleRows;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct WC_DataGrid::Grid_ShiftRowsUp
 {
 	unsigned int shiftCount;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct WC_DataGrid::Grid_ShiftRowsDown
 {
 	unsigned int shiftCount;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct WC_DataGrid::Grid_NewScrollPosition
 {
 	unsigned int scrollPos;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct WC_DataGrid::Grid_SelectionEvent
 {
 	bool sameCellAsPrevious;
@@ -289,7 +289,7 @@ struct WC_DataGrid::Grid_SelectionEvent
 	bool ignoreSelectionEvent;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct WC_DataGrid::Grid_CellEditEvent
 {
 	unsigned int targetRowNo;
@@ -297,14 +297,14 @@ struct WC_DataGrid::Grid_CellEditEvent
 	std::wstring newData;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct WC_DataGrid::Grid_CellButtonClickEvent
 {
 	unsigned int targetRowNo;
 	unsigned int targetColumnID;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct WC_DataGrid::Grid_TreeEntryExpandEvent
 {
 	unsigned int targetRowNo;
@@ -312,9 +312,9 @@ struct WC_DataGrid::Grid_TreeEntryExpandEvent
 	bool expand;
 };
 
-//----------------------------------------------------------------------------------------
-//Internal structures
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Internal structures
+//----------------------------------------------------------------------------------------------------------------------
 struct WC_DataGrid::ColumnData
 {
 	ColumnData(const std::wstring& aname, unsigned int acolumnID, bool aeditingAllowed, CellControlType acontrolType)
@@ -337,7 +337,7 @@ struct WC_DataGrid::ColumnData
 	bool manuallySettingColumnWidth;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct WC_DataGrid::CellControlInfo
 {
 	CellControlInfo(CellControlType acontrolType = CellControlType::TextBox)

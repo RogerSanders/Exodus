@@ -27,7 +27,7 @@
 class IPalette
 {
 public:
-    //Nested types
+    // Nested types
     struct Entry
     {
         float r;
@@ -36,14 +36,14 @@ public:
     };
 
 public:
-    //Destructor
+    // Destructor
     inline virtual ~IPalette() = 0;
 
-    //Name methods
+    // Name methods
     virtual std::string GetName() const = 0;
     virtual void SetName(const std::string& name) = 0;
 
-    //Palette entry methods
+    // Palette entry methods
     virtual int GetEntryCount() const = 0;
     virtual bool GetEntry(int entryNo, Entry& entry) const = 0;
     virtual bool SetEntry(int entryNo, Entry entry) = 0;
@@ -67,7 +67,7 @@ using namespace MarshalSupport::Operators;
 class IPalette
 {
 public:
-    //Nested types
+    // Nested types
     struct Entry
     {
         float r;
@@ -76,11 +76,11 @@ public:
     };
 
 public:
-    //Name methods
+    // Name methods
     virtual Marshal::Ret<std::string> GetName() const = 0;
     virtual void SetName(const Marshal::In<std::string>& name) = 0;
 
-    //Palette entry methods
+    // Palette entry methods
     virtual int GetEntryCount() const = 0;
     virtual bool GetEntry(int entryNo, Entry& entry) const = 0;
     virtual bool SetEntry(int entryNo, Entry entry) = 0;
@@ -88,7 +88,7 @@ public:
     virtual bool SetAllEntries(const Marshal::In<std::vector<Entry>>& entries) = 0;
 
 public:
-    //Delete operator
+    // Delete operator
     static void operator delete(void* target)
     {
         if (target != 0)
@@ -98,7 +98,7 @@ public:
     }
 
 protected:
-    //Delete method
+    // Delete method
     virtual void Destroy() = 0;
 };]]></Code>
     <Paragraph>
@@ -140,11 +140,11 @@ protected:
 class Palette :public IPalette
 {
 public:
-    //Name methods
+    // Name methods
     std::string GetName() const override;
     void SetName(const std::string& name) override;
 
-    //Palette entry methods
+    // Palette entry methods
     int GetEntryCount() const override;
     bool GetEntry(int entryNo, Entry& entry) const override;
     bool SetEntry(int entryNo, Entry entry) override;
@@ -160,7 +160,7 @@ private:
     </Paragraph>
     <Code Language="C++"><![CDATA[#include "Palette.h"
 
-//Name methods
+// Name methods
 std::string Palette::GetName() const
 {
     return _name;
@@ -171,7 +171,7 @@ void Palette::SetName(const std::string& name)
     _name = name;
 }
 
-//Palette entry methods
+// Palette entry methods
 int Palette::GetEntryCount() const
 {
     return (int)_entries.size();
@@ -217,11 +217,11 @@ bool Palette::SetAllEntries(const std::vector<Entry>& entries)
 class Palette :public IPalette
 {
 public:
-    //Name methods
+    // Name methods
     Marshal::Ret<std::string> GetName() const override;
     void SetName(const Marshal::In<std::string>& name) override;
 
-    //Palette entry methods
+    // Palette entry methods
     int GetEntryCount() const override;
     bool GetEntry(int entryNo, Entry& entry) const override;
     bool SetEntry(int entryNo, Entry entry) override;
@@ -229,7 +229,7 @@ public:
     bool SetAllEntries(const Marshal::In<std::vector<Entry>>& entries) override;
 
 protected:
-    //Delete method
+    // Delete method
     void Destroy() override;
 
 private:
@@ -242,7 +242,7 @@ private:
     </Paragraph>
     <Code Language="C++"><![CDATA[#include "Palette.h"
 
-//Name methods
+// Name methods
 Marshal::Ret<std::string> Palette::GetName() const
 {
     return _name;
@@ -253,7 +253,7 @@ void Palette::SetName(const Marshal::In<std::string>& name)
     _name = name;
 }
 
-//Palette entry methods
+// Palette entry methods
 int Palette::GetEntryCount() const
 {
     return (int)_entries.size();
@@ -289,7 +289,7 @@ bool Palette::SetAllEntries(const Marshal::In<std::vector<Entry>>& entries)
     _entries = entries;
 }
 
-//Delete method
+// Delete method
 void Palette::Destroy()
 {
     ::operator delete(this);

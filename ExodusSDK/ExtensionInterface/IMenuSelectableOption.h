@@ -9,18 +9,18 @@ using namespace MarshalSupport::Operators;
 class IMenuSelectableOption :public IMenuItem
 {
 public:
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisIMenuSelectableOptionVersion() { return 1; }
 	virtual unsigned int GetIMenuSelectableOptionVersion() const = 0;
 
-	//Menu title functions
+	// Menu title functions
 	virtual Marshal::Ret<std::wstring> GetMenuTitle() const = 0;
 
-	//Menu handler functions
+	// Menu handler functions
 	virtual IMenuHandler& GetMenuHandler() const = 0;
 	virtual int GetMenuItemID() const = 0;
 
-	//Checked state functions
+	// Checked state functions
 	virtual bool GetCheckedState() const = 0;
 	virtual void SetCheckedState(bool checkedState) = 0;
 

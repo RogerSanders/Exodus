@@ -36,20 +36,20 @@ public:
 
 		if (_source.Decode8BitRegister(data.GetDataSegment(0, 3)))
 		{
-			//SBC A,r		10001rrr
+			// SBC A,r		10001rrr
 			AddExecuteCycleCount(4);
 		}
 		else if (data.GetBit(6))
 		{
-			//SBC A,n		11001110 nnnnnnnn
+			// SBC A,n		11001110 nnnnnnnn
 			_source.BuildImmediateData(BITCOUNT_BYTE, location + GetInstructionSize(), cpu, transparent);
 			AddExecuteCycleCount(7);
 		}
 		else
 		{
-			//SBC A,(HL)	10001110
-			//SBC A,(IX+d)	11011110 10001110 dddddddd
-			//SBC A,(IY+d)	11111110 10001110 dddddddd
+			// SBC A,(HL)	10001110
+			// SBC A,(IX+d)	11011110 10001110 dddddddd
+			// SBC A,(IY+d)	11111110 10001110 dddddddd
 			_source.SetMode(EffectiveAddress::Mode::HLIndirect);
 			if (GetIndexState() == EffectiveAddress::IndexState::None)
 			{
@@ -74,14 +74,14 @@ public:
 		Z80Byte result;
 		Z80Byte carry;
 
-		//Perform the operation
+		// Perform the operation
 		additionalTime += _source.Read(cpu, location, op1);
 		additionalTime += _target.Read(cpu, location, op2);
 		carry = (unsigned int)cpu->GetFlagC();
 		result = op2 - (op1 + carry);
 		additionalTime += _target.Write(cpu, location, result);
 
-		//Set the flag results
+		// Set the flag results
 		cpu->SetFlagS(result.Negative());
 		cpu->SetFlagZ(result.Zero());
 		cpu->SetFlagY(result.GetBit(5));
@@ -91,7 +91,7 @@ public:
 		cpu->SetFlagN(true);
 		cpu->SetFlagC((op1.GetData() + carry.GetData()) > op2.GetData());
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -101,5 +101,5 @@ private:
 	EffectiveAddress _target;
 };
 
-} //Close namespace Z80
+} // Close namespace Z80
 #endif

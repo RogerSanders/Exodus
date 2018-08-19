@@ -2,9 +2,9 @@
 #include "Stream/Stream.pkg"
 #include "resource.h"
 
-//----------------------------------------------------------------------------------------
-//Constructors
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Constructors
+//----------------------------------------------------------------------------------------------------------------------
 EmbeddedROMView::EmbeddedROMView(IUIManager& uiManager, EmbeddedROMViewPresenter& presenter, ISystemGUIInterface& model)
 :ViewBase(uiManager, presenter), _presenter(presenter), _model(model)
 {
@@ -14,9 +14,9 @@ EmbeddedROMView::EmbeddedROMView(IUIManager& uiManager, EmbeddedROMViewPresenter
 	SetDialogViewType();
 }
 
-//----------------------------------------------------------------------------------------
-//Member window procedure
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Member window procedure
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR EmbeddedROMView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	WndProcDialogImplementSaveFieldWhenLostFocus(hwnd, msg, wparam, lparam);
@@ -34,12 +34,12 @@ INT_PTR EmbeddedROMView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARA
 	return FALSE;
 }
 
-//----------------------------------------------------------------------------------------
-//Event handlers
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Event handlers
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR EmbeddedROMView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	//Set the folder icon on the browse button
+	// Set the folder icon on the browse button
 	HANDLE folderIconHandle = LoadImage(GetAssemblyHandle(), MAKEINTRESOURCE(IDI_FOLDER), IMAGE_ICON, 0, 0, LR_SHARED);
 	SendMessage(GetDlgItem(hwnd, IDC_EMBEDDEDROM_BROWSE), BM_SETIMAGE, IMAGE_ICON, (LPARAM)folderIconHandle);
 
@@ -48,7 +48,7 @@ INT_PTR EmbeddedROMView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lpara
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR EmbeddedROMView::msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	KillTimer(hwnd, 1);
@@ -56,29 +56,29 @@ INT_PTR EmbeddedROMView::msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	return FALSE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR EmbeddedROMView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	//If the embedded ROM list hasn't been modified, abort any further processing.
+	// If the embedded ROM list hasn't been modified, abort any further processing.
 	unsigned int newEmbeddedROMIDLastModifiedToken = _model.GetEmbeddedROMInfoLastModifiedToken();
 	if (_embeddedROMIDLastModifiedToken == newEmbeddedROMIDLastModifiedToken)
 	{
 		return TRUE;
 	}
 
-	//Obtain the current set of embedded ROM IDs
+	// Obtain the current set of embedded ROM IDs
 	std::list<unsigned int> embeddedROMIDList = _model.GetEmbeddedROMIDs();
 
-	//Disable visual updates to the embedded ROM list
+	// Disable visual updates to the embedded ROM list
 	SendMessage(GetDlgItem(hwnd, IDC_EMBEDDEDROM_LIST), WM_SETREDRAW, FALSE, 0);
 
-	//Update the embedded ROM list
+	// Update the embedded ROM list
 	bool foundCurrentlySelectedROMID = false;
 	LRESULT top = SendMessage(GetDlgItem(hwnd, IDC_EMBEDDEDROM_LIST), LB_GETTOPINDEX, 0, 0);
 	SendMessage(GetDlgItem(hwnd, IDC_EMBEDDEDROM_LIST), LB_RESETCONTENT, 0, NULL);
 	for (std::list<unsigned int>::const_iterator i = embeddedROMIDList.begin(); i != embeddedROMIDList.end(); ++i)
 	{
-		//Attempt to obtain info on the next embedded ROM
+		// Attempt to obtain info on the next embedded ROM
 		unsigned int embeddedROMID = *i;
 		EmbeddedROMInfo embeddedROMInfo;
 		if (!_model.GetEmbeddedROMInfo(embeddedROMID, embeddedROMInfo))
@@ -86,22 +86,22 @@ INT_PTR EmbeddedROMView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			continue;
 		}
 
-		//Attempt to retrieve the display name of the associated module
+		// Attempt to retrieve the display name of the associated module
 		std::wstring moduleDisplayName;
 		if (!_model.GetModuleDisplayName(embeddedROMInfo.GetModuleID(), moduleDisplayName))
 		{
 			continue;
 		}
 
-		//Build a string uniquely identifying this embedded ROM in the system
+		// Build a string uniquely identifying this embedded ROM in the system
 		std::wstring romNameString = moduleDisplayName + L" - " + embeddedROMInfo.GetDisplayName();
 
-		//Add an entry for this embedded ROM to the list
+		// Add an entry for this embedded ROM to the list
 		LRESULT newItemIndex = SendMessage(GetDlgItem(hwnd, IDC_EMBEDDEDROM_LIST), LB_ADDSTRING, 0, (LPARAM)romNameString.c_str());
 		SendMessage(GetDlgItem(hwnd, IDC_EMBEDDEDROM_LIST), LB_SETITEMDATA, newItemIndex, (LPARAM)embeddedROMID);
 
-		//If this ROM entry was the previously selected ROM entry, record its index in the
-		//list.
+		// If this ROM entry was the previously selected ROM entry, record its index in the
+		// list.
 		if (embeddedROMID == _selectedROMID)
 		{
 			std::wstring filePath = embeddedROMInfo.GetFilePath();
@@ -112,8 +112,8 @@ INT_PTR EmbeddedROMView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	}
 	SendMessage(GetDlgItem(hwnd, IDC_EMBEDDEDROM_LIST), LB_SETTOPINDEX, top, 0);
 
-	//If the previously selected embedded ROM item was not found, clear the current
-	//selection in the list.
+	// If the previously selected embedded ROM item was not found, clear the current
+	// selection in the list.
 	if (!foundCurrentlySelectedROMID)
 	{
 		_selectedROMID = 0;
@@ -121,17 +121,17 @@ INT_PTR EmbeddedROMView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		SendMessage(GetDlgItem(hwnd, IDC_EMBEDDEDROM_LIST), LB_SETCURSEL, (WPARAM)-1, 0);
 	}
 
-	//Enable visual updates to the embedded ROM list, and trigger a refresh.
+	// Enable visual updates to the embedded ROM list, and trigger a refresh.
 	SendMessage(GetDlgItem(hwnd, IDC_EMBEDDEDROM_LIST), WM_SETREDRAW, TRUE, 0);
 	InvalidateRect(GetDlgItem(hwnd, IDC_EMBEDDEDROM_LIST), NULL, FALSE);
 
-	//Save the new last modified token as the current last modified token
+	// Save the new last modified token as the current last modified token
 	_embeddedROMIDLastModifiedToken = newEmbeddedROMIDLastModifiedToken;
 
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR EmbeddedROMView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	if (HIWORD(wparam) == BN_CLICKED)
@@ -140,7 +140,7 @@ INT_PTR EmbeddedROMView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		switch (controlID)
 		{
 		case IDC_EMBEDDEDROM_BROWSE:{
-			//Select a new target file
+			// Select a new target file
 			std::wstring fileNameCurrent = GetDlgItemString(hwnd, IDC_EMBEDDEDROM_PATH);
 			std::wstring selectedFilePath;
 			if (_presenter.GetGUIInterface().SelectExistingFile(L"Binary files|bin", L"bin", fileNameCurrent, L"", true, selectedFilePath))

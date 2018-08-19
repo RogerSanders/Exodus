@@ -8,10 +8,10 @@
 class Timestamp
 {
 public:
-	//Constructors
+	// Constructors
 	inline Timestamp(const SYSTEMTIME& systemTime);
 
-	//Timestamp string functions
+	// Timestamp string functions
 	inline std::wstring GetDate() const;
 	inline std::wstring GetFilenameDate() const;
 	inline std::wstring GetTime() const;

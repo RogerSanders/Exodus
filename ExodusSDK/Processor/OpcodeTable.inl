@@ -1,31 +1,31 @@
 #include "DataConversion/DataConversion.pkg"
 
-//----------------------------------------------------------------------------------------
-//Constructors
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Constructors
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> OpcodeTable<T>::OpcodeTable(unsigned int opcodeDecodeBits)
 {
 	_opcodeDecodeBits = opcodeDecodeBits;
 	_opcodeDecodeMask = (1 << _opcodeDecodeBits) - 1;
 }
 
-//----------------------------------------------------------------------------------------
-//Initialization functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Initialization functions
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> void OpcodeTable<T>::InitializeOpcodeTable()
 {
 	_opcodeArray.assign(1 << _opcodeDecodeBits, (T*)0);
 }
 
-//----------------------------------------------------------------------------------------
-//Instruction functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Instruction functions
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> bool OpcodeTable<T>::AllocateRegionToOpcode(const T* opcode, const std::wstring& definition, const std::wstring& substitutions)
 {
 	size_t p1;
 	size_t p2;
 
-	//Find the next unhandled substitution character
+	// Find the next unhandled substitution character
 	p1 = definition.find_first_not_of(L"01");
 	if (p1 != std::wstring::npos)
 	{
@@ -39,7 +39,7 @@ template<class T> bool OpcodeTable<T>::AllocateRegionToOpcode(const T* opcode, c
 		std::vector<std::wstring> dataSet;
 		if (replace[0] == '*')
 		{
-			//Wildcard replace
+			// Wildcard replace
 			for (unsigned int i = 0; i < ((unsigned int)1 << (unsigned int)replace.length()); ++i)
 			{
 				std::wstring entry;
@@ -49,7 +49,7 @@ template<class T> bool OpcodeTable<T>::AllocateRegionToOpcode(const T* opcode, c
 		}
 		else
 		{
-			//Substitution character replace
+			// Substitution character replace
 			size_t temp1;
 			size_t temp2;
 
@@ -91,7 +91,7 @@ template<class T> bool OpcodeTable<T>::AllocateRegionToOpcode(const T* opcode, c
 			}
 		}
 
-		//Make recursive call with each valid substitution
+		// Make recursive call with each valid substitution
 		bool finalSubstitution = false;
 		if (definition.find_first_not_of(L"01", p2) == std::wstring::npos)
 		{
@@ -126,7 +126,7 @@ template<class T> bool OpcodeTable<T>::AllocateRegionToOpcode(const T* opcode, c
 	}
 	else
 	{
-		//If there are no remaining substitution characters, add resolved entry
+		// If there are no remaining substitution characters, add resolved entry
 		unsigned int opcodeIndex;
 		StringToIntBase2(definition, opcodeIndex);
 		if (_opcodeArray[opcodeIndex] != 0)
@@ -139,7 +139,7 @@ template<class T> bool OpcodeTable<T>::AllocateRegionToOpcode(const T* opcode, c
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> const T* OpcodeTable<T>::GetInstruction(unsigned int opcode) const
 {
 	return _opcodeArray[opcode & _opcodeDecodeMask];

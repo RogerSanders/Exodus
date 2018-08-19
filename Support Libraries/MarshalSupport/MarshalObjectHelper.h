@@ -22,12 +22,12 @@
 namespace MarshalSupport {
 namespace Internal {
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, bool HasMashalConstructor = has_marshal_constructor<ElementType>::value, bool IsOnlyMovable = Internal::is_only_movable<typename Internal::get_last_nested_container_element_type<ElementType>::type>::value, bool IsAssignable = Internal::is_assignable<ElementType>::value>
 class MarshalObjectHelperInternal
 { };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType>
 class MarshalObjectHelperInternal<ElementType, false, false, true>
 {
@@ -54,7 +54,7 @@ public:
 #endif
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType>
 class MarshalObjectHelperInternal<ElementType, false, false, false>
 {
@@ -71,7 +71,7 @@ public:
 #endif
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
 template<class ElementType>
 class MarshalObjectHelperInternal<ElementType, false, true, true>
@@ -88,7 +88,7 @@ public:
 };
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
 template<class ElementType>
 class MarshalObjectHelperInternal<ElementType, false, true, false>
@@ -101,7 +101,7 @@ public:
 };
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType>
 class MarshalObjectHelperInternal<ElementType, true, false, true>
 {
@@ -128,7 +128,7 @@ public:
 #endif
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType>
 class MarshalObjectHelperInternal<ElementType, true, false, false>
 {
@@ -145,7 +145,7 @@ public:
 #endif
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
 template<class ElementType>
 class MarshalObjectHelperInternal<ElementType, true, true, true>
@@ -162,7 +162,7 @@ public:
 };
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
 template<class ElementType>
 class MarshalObjectHelperInternal<ElementType, true, true, false>
@@ -175,12 +175,12 @@ public:
 };
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, bool ContainedElementHasMashalConstructor = has_marshal_constructor<typename get_next_nested_container_element_type<ElementType>::type>::value>
 class MarshalObjectHelper :public MarshalObjectHelperInternal<ElementType>
 { };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Alloc>
 class MarshalObjectHelper<std::vector<ElementType, Alloc>, false> :public MarshalObjectHelperInternal<std::vector<ElementType, Alloc>>
 {
@@ -197,7 +197,7 @@ public:
 #endif
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Alloc>
 class MarshalObjectHelper<std::vector<ElementType, Alloc>, true> :public MarshalObjectHelperInternal<std::vector<ElementType, Alloc>>
 {
@@ -218,7 +218,7 @@ public:
 #endif
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Alloc>
 class MarshalObjectHelper<std::list<ElementType, Alloc>, false> :public MarshalObjectHelperInternal<std::list<ElementType, Alloc>>
 {
@@ -235,7 +235,7 @@ public:
 #endif
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Alloc>
 class MarshalObjectHelper<std::list<ElementType, Alloc>, true> :public MarshalObjectHelperInternal<std::list<ElementType, Alloc>>
 {
@@ -257,7 +257,7 @@ public:
 };
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Alloc>
 class MarshalObjectHelper<std::forward_list<ElementType, Alloc>, false> :public MarshalObjectHelperInternal<std::forward_list<ElementType, Alloc>>
 {
@@ -274,7 +274,7 @@ public:
 #endif
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Alloc>
 class MarshalObjectHelper<std::forward_list<ElementType, Alloc>, true> :public MarshalObjectHelperInternal<std::forward_list<ElementType, Alloc>>
 {
@@ -292,7 +292,7 @@ public:
 };
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Alloc>
 class MarshalObjectHelper<std::deque<ElementType, Alloc>, false> :public MarshalObjectHelperInternal<std::deque<ElementType, Alloc>>
 {
@@ -309,7 +309,7 @@ public:
 #endif
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Alloc>
 class MarshalObjectHelper<std::deque<ElementType, Alloc>, true> :public MarshalObjectHelperInternal<std::deque<ElementType, Alloc>>
 {
@@ -330,7 +330,7 @@ public:
 #endif
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Compare, class Alloc>
 class MarshalObjectHelper<std::set<ElementType, Compare, Alloc>, false> :public MarshalObjectHelperInternal<std::set<ElementType, Compare, Alloc>>
 {
@@ -347,7 +347,7 @@ public:
 #endif
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Compare, class Alloc>
 class MarshalObjectHelper<std::set<ElementType, Compare, Alloc>, true> :public MarshalObjectHelperInternal<std::set<ElementType, Compare, Alloc>>
 {
@@ -368,7 +368,7 @@ public:
 #endif
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Compare, class Alloc>
 class MarshalObjectHelper<std::multiset<ElementType, Compare, Alloc>, false> :public MarshalObjectHelperInternal<std::multiset<ElementType, Compare, Alloc>>
 {
@@ -385,7 +385,7 @@ public:
 #endif
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Compare, class Alloc>
 class MarshalObjectHelper<std::multiset<ElementType, Compare, Alloc>, true> :public MarshalObjectHelperInternal<std::multiset<ElementType, Compare, Alloc>>
 {
@@ -407,7 +407,7 @@ public:
 };
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Hash, class Pred, class Alloc>
 class MarshalObjectHelper<std::unordered_set<ElementType, Hash, Pred, Alloc>, false> :public MarshalObjectHelperInternal<std::unordered_set<ElementType, Hash, Pred, Alloc>>
 {
@@ -422,7 +422,7 @@ public:
 	}
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Hash, class Pred, class Alloc>
 class MarshalObjectHelper<std::unordered_set<ElementType, Hash, Pred, Alloc>, true> :public MarshalObjectHelperInternal<std::unordered_set<ElementType, Hash, Pred, Alloc>>
 {
@@ -437,7 +437,7 @@ public:
 	}
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Hash, class Pred, class Alloc>
 class MarshalObjectHelper<std::unordered_multiset<ElementType, Hash, Pred, Alloc>, false> :public MarshalObjectHelperInternal<std::unordered_multiset<ElementType, Hash, Pred, Alloc>>
 {
@@ -452,7 +452,7 @@ public:
 	}
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Hash, class Pred, class Alloc>
 class MarshalObjectHelper<std::unordered_multiset<ElementType, Hash, Pred, Alloc>, true> :public MarshalObjectHelperInternal<std::unordered_multiset<ElementType, Hash, Pred, Alloc>>
 {
@@ -468,7 +468,7 @@ public:
 };
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class KeyType, class ElementType, class Compare, class Alloc>
 class MarshalObjectHelper<std::map<KeyType, ElementType, Compare, Alloc>, false> :public MarshalObjectHelperInternal<std::map<KeyType, ElementType, Compare, Alloc>>
 {
@@ -485,7 +485,7 @@ public:
 #endif
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class KeyType, class ElementType, class Compare, class Alloc>
 class MarshalObjectHelper<std::map<KeyType, ElementType, Compare, Alloc>, true> :public MarshalObjectHelperInternal<std::map<KeyType, ElementType, Compare, Alloc>>
 {
@@ -506,7 +506,7 @@ public:
 #endif
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class KeyType, class ElementType, class Compare, class Alloc>
 class MarshalObjectHelper<std::multimap<KeyType, ElementType, Compare, Alloc>, false> :public MarshalObjectHelperInternal<std::multimap<KeyType, ElementType, Compare, Alloc>>
 {
@@ -523,7 +523,7 @@ public:
 #endif
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class KeyType, class ElementType, class Compare, class Alloc>
 class MarshalObjectHelper<std::multimap<KeyType, ElementType, Compare, Alloc>, true> :public MarshalObjectHelperInternal<std::multimap<KeyType, ElementType, Compare, Alloc>>
 {
@@ -545,7 +545,7 @@ public:
 };
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class KeyType, class ElementType, class Hash, class Pred, class Alloc>
 class MarshalObjectHelper<std::unordered_map<KeyType, ElementType, Hash, Pred, Alloc>, false> :public MarshalObjectHelperInternal<std::unordered_map<KeyType, ElementType, Hash, Pred, Alloc>>
 {
@@ -560,7 +560,7 @@ public:
 	}
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class KeyType, class ElementType, class Hash, class Pred, class Alloc>
 class MarshalObjectHelper<std::unordered_map<KeyType, ElementType, Hash, Pred, Alloc>, true> :public MarshalObjectHelperInternal<std::unordered_map<KeyType, ElementType, Hash, Pred, Alloc>>
 {
@@ -575,7 +575,7 @@ public:
 	}
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class KeyType, class ElementType, class Hash, class Pred, class Alloc>
 class MarshalObjectHelper<std::unordered_multimap<KeyType, ElementType, Hash, Pred, Alloc>, false> :public MarshalObjectHelperInternal<std::unordered_multimap<KeyType, ElementType, Hash, Pred, Alloc>>
 {
@@ -590,7 +590,7 @@ public:
 	}
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class KeyType, class ElementType, class Hash, class Pred, class Alloc>
 class MarshalObjectHelper<std::unordered_multimap<KeyType, ElementType, Hash, Pred, Alloc>, true> :public MarshalObjectHelperInternal<std::unordered_multimap<KeyType, ElementType, Hash, Pred, Alloc>>
 {
@@ -606,7 +606,7 @@ public:
 };
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Container>
 class MarshalObjectHelper<std::stack<ElementType, Container>, false> :public MarshalObjectHelperInternal<std::stack<ElementType, Container>>
 {
@@ -623,7 +623,7 @@ public:
 #endif
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Container>
 class MarshalObjectHelper<std::stack<ElementType, Container>, true> :public MarshalObjectHelperInternal<std::stack<ElementType, Container>>
 {
@@ -644,7 +644,7 @@ public:
 #endif
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Container>
 class MarshalObjectHelper<std::queue<ElementType, Container>, false> :public MarshalObjectHelperInternal<std::queue<ElementType, Container>>
 {
@@ -661,7 +661,7 @@ public:
 #endif
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Container>
 class MarshalObjectHelper<std::queue<ElementType, Container>, true> :public MarshalObjectHelperInternal<std::queue<ElementType, Container>>
 {
@@ -682,7 +682,7 @@ public:
 #endif
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Container, class Compare>
 class MarshalObjectHelper<std::priority_queue<ElementType, Container, Compare>, false> :public MarshalObjectHelperInternal<std::priority_queue<ElementType, Container, Compare>>
 {
@@ -699,7 +699,7 @@ public:
 #endif
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Container, class Compare>
 class MarshalObjectHelper<std::priority_queue<ElementType, Container, Compare>, true> :public MarshalObjectHelperInternal<std::priority_queue<ElementType, Container, Compare>>
 {
@@ -720,7 +720,7 @@ public:
 #endif
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class traits, class Alloc>
 class MarshalObjectHelper<std::basic_string<ElementType, traits, Alloc>, false> :public MarshalObjectHelperInternal<std::basic_string<ElementType, traits, Alloc>>
 {
@@ -737,7 +737,7 @@ public:
 #endif
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class traits, class Alloc>
 class MarshalObjectHelper<std::basic_string<ElementType, traits, Alloc>, true> :public MarshalObjectHelperInternal<std::basic_string<ElementType, traits, Alloc>>
 {
@@ -758,6 +758,6 @@ public:
 #endif
 };
 
-} //Close namespace Internal
-} //Close namespace MarshalSupport
+} // Close namespace Internal
+} // Close namespace MarshalSupport
 #endif

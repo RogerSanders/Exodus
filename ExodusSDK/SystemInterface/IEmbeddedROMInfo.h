@@ -8,14 +8,14 @@ using namespace MarshalSupport::Operators;
 class IEmbeddedROMInfo
 {
 public:
-	//Constructors
+	// Constructors
 	virtual ~IEmbeddedROMInfo() = 0 {}
 
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisIEmbeddedROMInfoVersion() { return 1; }
 	virtual unsigned int GetIEmbeddedROMInfoVersion() const = 0;
 
-	//Getters
+	// Getters
 	virtual Marshal::Ret<std::wstring> GetName() const = 0;
 	virtual Marshal::Ret<std::wstring> GetDisplayName() const = 0;
 	virtual unsigned int GetModuleID() const = 0;
@@ -25,7 +25,7 @@ public:
 	virtual unsigned int GetROMEntryBitCount() const = 0;
 	virtual Marshal::Ret<std::wstring> GetFilePath() const = 0;
 
-	//Setters
+	// Setters
 	virtual void SetName(const Marshal::In<std::wstring>& name) = 0;
 	virtual void SetDisplayName(const Marshal::In<std::wstring>& displayName) = 0;
 	virtual void SetModuleID(unsigned int moduleID) = 0;

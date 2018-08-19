@@ -41,20 +41,20 @@ public:
 		double additionalTime = 0;
 		M68000Long address;
 
-		//Perform the operation
+		// Perform the operation
 		additionalTime += _target.Read(cpu, address, GetInstructionRegister());
 		cpu->PopCallStack(address.GetData());
 		cpu->SetPC(address);
 
-		//Return the execution time
+		// Return the execution time
 		return GetExecuteCycleCount(additionalTime);
 	}
 
 	virtual void GetResultantPCLocations(std::set<unsigned int>& resultantPCLocations, bool& undeterminedResultantPCLocation) const
 	{
-		//Since this opcode returns to a previous address saved on the stack, and we don't
-		//care about return opcodes when calculating resultant PC locations, don't return
-		//any resultant PC locations from executing this opcode.
+		// Since this opcode returns to a previous address saved on the stack, and we don't
+		// care about return opcodes when calculating resultant PC locations, don't return
+		// any resultant PC locations from executing this opcode.
 		undeterminedResultantPCLocation = false;
 	}
 
@@ -65,5 +65,5 @@ private:
 	EffectiveAddress _target;
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #endif

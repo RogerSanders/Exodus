@@ -12,21 +12,21 @@ using namespace MarshalSupport::Operators;
 class IViewPresenter
 {
 public:
-	//Enumerations
+	// Enumerations
 	enum class ViewTarget;
 
 public:
-	//Constructors
+	// Constructors
 	virtual ~IViewPresenter() = 0 {}
 
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisIViewPresenterVersion() { return 1; }
 	virtual unsigned int GetIViewPresenterVersion() const = 0;
 
-	//Assembly handle functions
+	// Assembly handle functions
 	virtual AssemblyHandle GetAssemblyHandle() const = 0;
 
-	//View management functions
+	// View management functions
 	virtual bool OpenView(IUIManager& uiManager, IViewStateChangeNotifier* notifier, IHierarchicalStorageNode* viewState) = 0;
 	virtual void CloseView() = 0;
 	virtual void ShowView() = 0;
@@ -34,14 +34,14 @@ public:
 	virtual void ActivateView() = 0;
 	virtual void NotifyViewClosed(IView* view) = 0;
 
-	//View target functions
+	// View target functions
 	virtual ViewTarget GetViewTarget() const = 0;
 	virtual Marshal::Ret<std::wstring> GetViewTargetDeviceInstanceName() const = 0;
 	virtual Marshal::Ret<std::wstring> GetViewTargetExtensionInstanceName() const = 0;
 	virtual bool GetViewTargetGlobalExtension() const = 0;
 	virtual unsigned int GetViewTargetModuleID() const = 0;
 
-	//State functions
+	// State functions
 	virtual int GetViewID() const = 0;
 	virtual Marshal::Ret<std::wstring> GetViewGroupName() const = 0;
 	virtual Marshal::Ret<std::wstring> GetViewName() const = 0;

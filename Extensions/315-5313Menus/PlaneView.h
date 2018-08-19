@@ -8,15 +8,15 @@
 class PlaneView :public ViewBase
 {
 public:
-	//Constructors
+	// Constructors
 	PlaneView(IUIManager& uiManager, PlaneViewPresenter& presenter, IS315_5313& model);
 
 protected:
-	//Member window procedure
+	// Member window procedure
 	virtual INT_PTR WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
 private:
-	//Event handlers
+	// Event handlers
 	INT_PTR msgWM_INITDIALOG(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgWM_SIZE(HWND hwnd, WPARAM wParam, LPARAM lParam);
@@ -26,11 +26,11 @@ private:
 	void UpdateControlPositions(HWND hwnd);
 	void UpdateScrollbar(HWND scrollWindow, WPARAM wParam);
 
-	//Render window procedure
+	// Render window procedure
 	static LRESULT CALLBACK WndProcRenderStatic(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 	LRESULT WndProcRender(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
-	//Render window event handlers
+	// Render window event handlers
 	LRESULT msgRenderWM_CREATE(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgRenderWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgRenderWM_SIZE(HWND hwnd, WPARAM wParam, LPARAM lParam);
@@ -40,12 +40,12 @@ private:
 	LRESULT msgRenderWM_KEYDOWN(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	void UpdateRenderWindowSize(HWND hwnd, int renderWindowWidth, int renderWindowHeight);
 
-	//Render helper methods
+	// Render helper methods
 	void GetScrollPlanePaletteInfo(const std::vector<unsigned char>& vramData, unsigned int mappingBaseAddress, unsigned int patternBaseAddress, unsigned int planeWidth, unsigned int planeHeight, unsigned int xpos, unsigned int ypos, bool interlaceMode2Active, unsigned int& paletteRow, unsigned int& paletteIndex) const;
 	void GetScrollPlaneHScrollData(const std::vector<unsigned char>& vramData, unsigned int screenRowNumber, unsigned int hscrollDataBase, bool hscrState, bool lscrState, bool layerA, unsigned int& layerHscrollPatternDisplacement, unsigned int& layerHscrollMappingDisplacement) const;
 
 private:
-	//Enumerations
+	// Enumerations
 	enum SelectedLayer
 	{
 		SELECTEDLAYER_LAYERA,
@@ -54,7 +54,7 @@ private:
 		SELECTEDLAYER_SPRITES
 	};
 
-	//Structures
+	// Structures
 	struct ScreenBoundaryPrimitive
 	{
 		ScreenBoundaryPrimitive(unsigned int apixelPosXBegin, unsigned int apixelPosXEnd, unsigned int apixelPosYBegin, unsigned int apixelPosYEnd, bool aprimitiveIsPolygon = false, bool aprimitiveIsScreenBoundary = true)

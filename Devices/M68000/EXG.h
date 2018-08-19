@@ -34,15 +34,15 @@ public:
 //	-----------------------------------------------------------------
 		switch (data.GetDataSegment(3, 5))
 		{
-		case 0x8:	//01000->Exchange between data registers.
+		case 0x8:	// 01000->Exchange between data registers.
 			_source.BuildDataDirect(BITCOUNT_LONG, location + GetInstructionSize(), data.GetDataSegment(9, 3));
 			_target.BuildDataDirect(BITCOUNT_LONG, location + GetInstructionSize(), data.GetDataSegment(0, 3));
 			break;
-		case 0x9:	//01001->Exchange between address registers.
+		case 0x9:	// 01001->Exchange between address registers.
 			_source.BuildAddressDirect(BITCOUNT_LONG, location + GetInstructionSize(), data.GetDataSegment(9, 3));
 			_target.BuildAddressDirect(BITCOUNT_LONG, location + GetInstructionSize(), data.GetDataSegment(0, 3));
 			break;
-		case 0x11:	//10001->Exchange between data and address registers.
+		case 0x11:	// 10001->Exchange between data and address registers.
 			_source.BuildDataDirect(BITCOUNT_LONG, location + GetInstructionSize(), data.GetDataSegment(9, 3));
 			_target.BuildAddressDirect(BITCOUNT_LONG, location + GetInstructionSize(), data.GetDataSegment(0, 3));
 			break;
@@ -56,7 +56,7 @@ public:
 		M68000Long op1;
 		M68000Long op2;
 
-		//Perform the operation
+		// Perform the operation
 		additionalTime += _source.Read(cpu, op1, GetInstructionRegister());
 		additionalTime += _target.Read(cpu, op2, GetInstructionRegister());
 		unsigned int _sourceReadFromAddress;
@@ -68,7 +68,7 @@ public:
 		additionalTime += _source.Write(cpu, op2, GetInstructionRegister(), false, false, _targetIsUnmodifiedFromAddress, _targetReadFromAddress, _targetReadFromAddressSize);
 		additionalTime += _target.Write(cpu, op1, GetInstructionRegister(), false, false, _sourceIsUnmodifiedFromAddress, _sourceReadFromAddress, _sourceReadFromAddressSize);
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -84,5 +84,5 @@ private:
 	EffectiveAddress _target;
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #endif

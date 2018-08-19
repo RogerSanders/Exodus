@@ -7,11 +7,11 @@ class DebugMenuHandler;
 class SN76489Menus :public Extension
 {
 public:
-	//Constructors
+	// Constructors
 	SN76489Menus(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 	~SN76489Menus();
 
-	//Window functions
+	// Window functions
 	virtual bool RegisterDeviceMenuHandler(IDevice* targetDevice);
 	virtual void UnregisterDeviceMenuHandler(IDevice* targetDevice);
 	virtual void AddDeviceMenuItems(DeviceMenu deviceMenu, IMenuSegment& menuSegment, IDevice* targetDevice);

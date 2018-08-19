@@ -1,15 +1,15 @@
 #include <set>
 
-//----------------------------------------------------------------------------------------
-//Enumerations
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Enumerations
+//----------------------------------------------------------------------------------------------------------------------
 enum class System::InputEvent
 {
 	KeyDown,
 	KeyUp
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 enum class System::SystemStateChangeType
 {
 	SetSystemLineState,
@@ -17,9 +17,9 @@ enum class System::SystemStateChangeType
 	SetSystemOption
 };
 
-//----------------------------------------------------------------------------------------
-//Structures
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Structures
+//----------------------------------------------------------------------------------------------------------------------
 struct System::DeviceLibraryEntry
 {
 	DeviceLibraryEntry()
@@ -36,7 +36,7 @@ struct System::DeviceLibraryEntry
 	AssemblyHandle assemblyHandle;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct System::ExtensionLibraryEntry
 {
 	ExtensionLibraryEntry()
@@ -54,7 +54,7 @@ struct System::ExtensionLibraryEntry
 	AssemblyHandle assemblyHandle;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct System::LoadedDeviceInfo
 {
 	IDevice* device;
@@ -65,7 +65,7 @@ struct System::LoadedDeviceInfo
 	std::set<IExtension*> menuHandlers;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct System::ExportedDeviceInfo
 {
 	IDevice* device;
@@ -74,7 +74,7 @@ struct System::ExportedDeviceInfo
 	std::wstring importName;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct System::ImportedDeviceInfo
 {
 	IDevice* device;
@@ -87,7 +87,7 @@ struct System::ImportedDeviceInfo
 	std::wstring importingModuleDeviceInstanceName;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct System::LoadedExtensionInfo
 {
 	IExtension* extension;
@@ -96,7 +96,7 @@ struct System::LoadedExtensionInfo
 	std::set<IExtension*> menuHandlers;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct System::LoadedGlobalExtensionInfo
 {
 	IExtension* extension;
@@ -106,7 +106,7 @@ struct System::LoadedGlobalExtensionInfo
 	std::set<IExtension*> menuHandlers;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct System::ExportedExtensionInfo
 {
 	IExtension* extension;
@@ -114,7 +114,7 @@ struct System::ExportedExtensionInfo
 	std::wstring importName;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct System::ImportedExtensionInfo
 {
 	IExtension* extension;
@@ -126,7 +126,7 @@ struct System::ImportedExtensionInfo
 	std::wstring importingModuleExtensionInstanceName;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct System::LoadedBusInfo
 {
 	BusInterface* busInterface;
@@ -134,7 +134,7 @@ struct System::LoadedBusInfo
 	unsigned int moduleID;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct System::ExportedBusInfo
 {
 	BusInterface* busInterface;
@@ -143,7 +143,7 @@ struct System::ExportedBusInfo
 	std::list<ExportedLineGroupInfo> exportedLineGroups;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct System::ImportedBusInfo
 {
 	BusInterface* busInterface;
@@ -156,7 +156,7 @@ struct System::ImportedBusInfo
 	std::list<ImportedLineGroupInfo> importedLineGroups;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct System::LoadedClockSourceInfo
 {
 	ClockSource* clockSource;
@@ -164,7 +164,7 @@ struct System::LoadedClockSourceInfo
 	unsigned int moduleID;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct System::ExportedClockSourceInfo
 {
 	ClockSource* clockSource;
@@ -172,7 +172,7 @@ struct System::ExportedClockSourceInfo
 	std::wstring importName;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct System::ImportedClockSourceInfo
 {
 	ClockSource* clockSource;
@@ -184,7 +184,7 @@ struct System::ImportedClockSourceInfo
 	std::wstring importingModuleClockSourceName;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct System::ExportedLineGroupInfo
 {
 	unsigned int lineGroupID;
@@ -192,7 +192,7 @@ struct System::ExportedLineGroupInfo
 	std::wstring localName;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct System::LineGroupDetails
 {
 	BusInterface* busInterface;
@@ -200,7 +200,7 @@ struct System::LineGroupDetails
 	unsigned int lineGroupID;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct System::ImportedLineGroupInfo
 {
 	unsigned int lineGroupID;
@@ -208,49 +208,49 @@ struct System::ImportedLineGroupInfo
 	std::wstring localName;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct System::LoadedModuleInfoInternal
 {
 	LoadedModuleInfoInternal()
 	:moduleValidated(false), programModule(false)
 	{}
 
-	//Internal data
+	// Internal data
 	unsigned int moduleID;
 	bool moduleValidated;
 
-	//External information
+	// External information
 	std::wstring filePath;
 
-	//Required metadata
+	// Required metadata
 	bool programModule;
 	std::wstring systemClassName;
 	std::wstring className;
 	std::wstring instanceName;
 	std::wstring displayName;
 
-	//Optional metadata
+	// Optional metadata
 	std::wstring productionYear;
 	std::wstring manufacturerCode;
 	std::wstring manufacturerDisplayName;
 
-	//Menu handlers
+	// Menu handlers
 	std::set<IExtension*> menuHandlers;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct System::ConnectorInfoInternal
 {
-	//Internal data
+	// Internal data
 	unsigned int connectorID;
 
-	//Exporting module info
+	// Exporting module info
 	unsigned int exportingModuleID;
 	std::wstring connectorClassName;
 	std::wstring exportingModuleConnectorInstanceName;
 	std::wstring systemClassName;
 
-	//Exported objects
+	// Exported objects
 	std::map<std::wstring, ExportedDeviceInfo> exportedDeviceInfo;
 	std::map<std::wstring, ExportedExtensionInfo> exportedExtensionInfo;
 	std::map<std::wstring, ExportedBusInfo> exportedBusInfo;
@@ -258,13 +258,13 @@ struct System::ConnectorInfoInternal
 	std::map<std::wstring, ExportedSystemLineInfo> exportedSystemLineInfo;
 	std::map<std::wstring, ExportedSystemSettingInfo> exportedSystemSettingInfo;
 
-	//Importing module info
+	// Importing module info
 	bool connectorUsed;
 	unsigned int importingModuleID;
 	std::wstring importingModuleConnectorInstanceName;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct System::InputMapEntry
 {
 	KeyCode keyCode;
@@ -272,7 +272,7 @@ struct System::InputMapEntry
 	unsigned int targetDeviceKeyCode;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct System::InputEventEntry
 {
 	InputEvent inputEvent;
@@ -280,7 +280,7 @@ struct System::InputEventEntry
 	bool sent;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct System::ViewOpenRequest
 {
 	IViewPresenter::ViewTarget viewTarget;
@@ -292,7 +292,7 @@ struct System::ViewOpenRequest
 	bool globalExtension;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct System::InputRegistration
 {
 	InputRegistration()
@@ -306,7 +306,7 @@ struct System::InputRegistration
 	KeyCode systemKeyCode;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct System::UnmappedLineStateInfo
 {
 	UnmappedLineStateInfo(unsigned int moduleID, IDevice* atargetDevice, unsigned int alineNo, Data alineData)
@@ -319,7 +319,7 @@ struct System::UnmappedLineStateInfo
 	Data lineData;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct System::SystemSettingInfo
 {
 	SystemSettingInfo()
@@ -335,10 +335,10 @@ struct System::SystemSettingInfo
 	unsigned int selectedOption;
 	bool toggleSetting;
 	//##TODO## Remove this information from here. Instead of a direct link to a single
-	//menu item being exposed here, provide a way for observers to subscribe to change
-	//notifications with a callback, and trigger that callback when system options change.
-	//This will allow our option menu handler to update its own menu checked state in
-	//response to a system settings change, without any dependency from the system itself.
+	// menu item being exposed here, provide a way for observers to subscribe to change
+	// notifications with a callback, and trigger that callback when system options change.
+	// This will allow our option menu handler to update its own menu checked state in
+	// response to a system settings change, without any dependency from the system itself.
 	unsigned int menuItemID;
 	IMenuSelectableOption* menuItemEntry;
 
@@ -358,7 +358,7 @@ struct System::SystemSettingInfo
 	ObserverCollection settingChangeObservers;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct System::SystemSettingOption
 {
 	SystemSettingOption()
@@ -369,15 +369,15 @@ struct System::SystemSettingOption
 	std::wstring displayName;
 	std::list<SystemStateChange> stateChanges;
 	//##TODO## Remove this information from here. Instead of a direct link to a single
-	//menu item being exposed here, provide a way for observers to subscribe to change
-	//notifications with a callback, and trigger that callback when system options change.
-	//This will allow our option menu handler to update its own menu checked state in
-	//response to a system settings change, without any dependency from the system itself.
+	// menu item being exposed here, provide a way for observers to subscribe to change
+	// notifications with a callback, and trigger that callback when system options change.
+	// This will allow our option menu handler to update its own menu checked state in
+	// response to a system settings change, without any dependency from the system itself.
 	unsigned int menuItemID;
 	IMenuSelectableOption* menuItemEntry;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct System::SystemStateChange
 {
 	unsigned int moduleID;
@@ -389,7 +389,7 @@ struct System::SystemStateChange
 	std::wstring setSystemOptionValue;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct System::SystemLineInfo
 {
 	unsigned int moduleID;
@@ -399,7 +399,7 @@ struct System::SystemLineInfo
 	unsigned int currentValue;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct System::ExportedSystemLineInfo
 {
 	unsigned int systemLineID;
@@ -407,7 +407,7 @@ struct System::ExportedSystemLineInfo
 	std::wstring importName;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct System::ImportedSystemLineInfo
 {
 	unsigned int systemLineID;
@@ -419,7 +419,7 @@ struct System::ImportedSystemLineInfo
 	std::wstring importingModuleSystemLineName;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct System::ExportedSystemSettingInfo
 {
 	unsigned int systemSettingID;
@@ -427,7 +427,7 @@ struct System::ExportedSystemSettingInfo
 	std::wstring importName;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct System::ImportedSystemSettingInfo
 {
 	unsigned int systemSettingID;
@@ -439,7 +439,7 @@ struct System::ImportedSystemSettingInfo
 	std::wstring importingModuleSystemSettingName;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct System::SystemLineMapping
 {
 	SystemLineMapping()
@@ -464,7 +464,7 @@ struct System::SystemLineMapping
 	DataRemapTable lineRemapTable;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct System::EmbeddedROMInfoInternal
 {
 	std::wstring embeddedROMName;

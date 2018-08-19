@@ -9,29 +9,29 @@
 class InputMappingDetailsView :public ViewBase
 {
 public:
-	//Constructors
+	// Constructors
 	InputMappingDetailsView(IUIManager& uiManager, InputMappingDetailsViewPresenter& presenter, ISystemGUIInterface& model, IDevice* targetDevice);
 
-	//Target device functions
+	// Target device functions
 	void SetTargetDevice(IDevice* targetDevice);
 
 protected:
-	//Member window procedure
+	// Member window procedure
 	virtual INT_PTR WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
 private:
-	//Event handlers
+	// Event handlers
 	INT_PTR msgWM_INITDIALOG(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgWM_COMMAND(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgWM_BOUNCE(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgWM_USER(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
-	//Target device update functions
+	// Target device update functions
 	void UpdateTargetDeviceInputMappingsDisplay(HWND hwnd);
 	void UpdateSelectedInputRegistration(HWND hwnd);
 
-	//Joystick functions
+	// Joystick functions
 	void JoystickKeyMappingWorkerThread();
 
 private:

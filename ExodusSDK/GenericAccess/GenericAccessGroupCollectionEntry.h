@@ -6,33 +6,33 @@
 class GenericAccessGroupCollectionEntry :public IGenericAccessGroupCollectionEntry
 {
 public:
-	//Constructors
+	// Constructors
 	inline GenericAccessGroupCollectionEntry(const std::wstring& name, IGenericAccessDataValue::DataType keyDataType);
 	inline ~GenericAccessGroupCollectionEntry();
 
-	//Interface version functions
+	// Interface version functions
 	virtual unsigned int GetIGenericAccessGroupEntryVersion() const;
 	virtual unsigned int GetIGenericAccessGroupVersion() const;
 	virtual unsigned int GetIGenericAccessGroupCollectionEntryVersion() const;
 
-	//Type functions
+	// Type functions
 	virtual GroupEntryType GetGroupEntryType() const;
 	virtual bool IsGroup() const;
 
-	//Parent functions
+	// Parent functions
 	virtual IGenericAccessGroup* GetParent() const;
 
-	//Data context functions
+	// Data context functions
 	virtual const IGenericAccess::DataContext* GetDataContext() const;
 	inline GenericAccessGroupCollectionEntry* SetDataContext(const IGenericAccess::DataContext* dataContext);
 
-	//Group info functions
+	// Group info functions
 	virtual Marshal::Ret<std::wstring> GetName() const;
 	inline GenericAccessGroupCollectionEntry* SetName(const std::wstring& name);
 	virtual bool GetOpenByDefault() const;
 	inline GenericAccessGroupCollectionEntry* SetOpenByDefault(bool state);
 
-	//Collection entry functions
+	// Collection entry functions
 	virtual IGenericAccessDataValue::DataType GetKeyDataType() const;
 	inline GenericAccessGroupCollectionEntry* SetKeyDataType(IGenericAccessDataValue::DataType keyDataType);
 	virtual unsigned int GetEntryCount() const;
@@ -46,7 +46,7 @@ public:
 	virtual IGenericAccessGroupEntry* GetCollectionEntry(const Marshal::In<std::wstring>& key) const;
 	virtual IGenericAccessGroupEntry* GetCollectionEntry(const IGenericAccessDataValue& key) const;
 
-	//Modification functions
+	// Modification functions
 	virtual unsigned int GetLastModifiedToken() const;
 	virtual void ObtainReadLock() const;
 	virtual void ReleaseReadLock() const;
@@ -54,7 +54,7 @@ public:
 	virtual void ReleaseWriteLock() const;
 
 protected:
-	//Parent functions
+	// Parent functions
 	virtual void SetParent(IGenericAccessGroup* parent);
 
 private:

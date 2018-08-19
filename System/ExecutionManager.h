@@ -11,20 +11,20 @@
 #include <set>
 
 //##TODO## Consider holding active devices on a different command wait condition than non
-//active devices. This would allow us to wake just the active devices, or all devices,
-//depending on what command we want to execute.
+// active devices. This would allow us to wake just the active devices, or all devices,
+// depending on what command we want to execute.
 class ExecutionManager : public IExecutionSuspendManager
 {
 public:
-	//Constructors
+	// Constructors
 	inline ExecutionManager();
 
-	//Device functions
+	// Device functions
 	inline void AddDevice(DeviceContext* device);
 	inline void RemoveDevice(DeviceContext* device);
 	inline void ClearAllDevices();
 
-	//Execute functions
+	// Execute functions
 	inline void NotifyUpcomingTimeslice(double nanoseconds);
 	inline void NotifyBeforeExecuteCalled();
 	inline void NotifyAfterExecuteCalled();
@@ -35,16 +35,16 @@ public:
 	inline void AssertCurrentOutputLineState();
 	inline void NegateCurrentOutputLineState();
 
-	//Suspend functions
+	// Suspend functions
 	virtual void EnableTimesliceExecutionSuspend();
 	virtual void DisableTimesliceExecutionSuspend();
 	virtual bool AllDevicesSuspended(volatile ReferenceCounterType& suspendedThreadCount, volatile ReferenceCounterType& remainingThreadCount) const;
 	void BuildBlockedDependentDeviceSet(const DeviceContext* sourceDevice, std::set<const DeviceContext*>& dependentDeviceSet) const;
 
-	//Timing functions
+	// Timing functions
 	inline double GetNextTimingPoint(double maximumTimeslice, DeviceContext*& nextDeviceStep, unsigned int& nextDeviceStepContext);
 
-	//Worker thread control
+	// Worker thread control
 	inline void BeginExecution();
 	inline void SuspendExecution();
 

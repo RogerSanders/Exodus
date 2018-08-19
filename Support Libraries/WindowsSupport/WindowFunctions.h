@@ -1,8 +1,8 @@
 #ifndef __WINDOWFUNCTIONS_H__
 #define __WINDOWFUNCTIONS_H__
 #define _WIN32_WINNT 0x0501
-//Define NOMINMAX so we don't get the extremely problematic "min" and "max" macro
-//definitions from windef.h
+// Define NOMINMAX so we don't get the extremely problematic "min" and "max" macro
+// definitions from windef.h
 #define NOMINMAX
 #include <windows.h>
 #include <gl\gl.h>
@@ -14,8 +14,8 @@
 #include <map>
 #include "StreamInterface/StreamInterface.pkg"
 
-//Ugly workarounds for a silly 64-bit portability warning problem in winuser.h. Issue
-//acknowledged by Microsoft. Waiting for SDK update to fix problem as of September 2008.
+// Ugly workarounds for a silly 64-bit portability warning problem in winuser.h. Issue
+// acknowledged by Microsoft. Waiting for SDK update to fix problem as of September 2008.
 #ifndef _WIN64
 #undef GetWindowLongPtr
 #undef SetWindowLongPtr
@@ -28,7 +28,7 @@
 #endif
 #endif
 
-//Module helper functions
+// Module helper functions
 enum VersionInfoProperty
 {
 	VERSIONINFOPROPERTY_COMMENTS,
@@ -47,7 +47,7 @@ enum VersionInfoProperty
 bool GetModuleVersionInfoString(const std::wstring& modulePath, VersionInfoProperty targetProperty, std::wstring& content);
 std::wstring GetModuleFilePath(HMODULE moduleHandle);
 
-//DPI functions
+// DPI functions
 bool DPIIsScalingActive();
 void DPIGetScreenSettings(int& dpiX, int& dpiY);
 void DPIGetScreenScaleFactors(float& dpiScaleX, float& dpiScaleY);
@@ -56,23 +56,23 @@ template<class T> T DPIScaleHeight(T pixelHeight);
 template<class T> T DPIReverseScaleWidth(T pixelWidth);
 template<class T> T DPIReverseScaleHeight(T pixelHeight);
 
-//BindStdHandlesToConsole function
+// BindStdHandlesToConsole function
 void BindStdHandlesToConsole();
 
-//Environment variable functions
+// Environment variable functions
 bool IsEnvironmentVariableDefined(const std::wstring& name);
 std::wstring GetEnvironmentVariableString(const std::wstring& name);
 void SetEnvironmentVariableString(const std::wstring& name, const std::wstring& value);
 void RemoveEnvironmentVariable(const std::wstring& name);
 std::map<std::wstring, std::wstring> GetEnvironmentVariableList();
 
-//Window creation helpers
+// Window creation helpers
 HWND CreateWindowThread(HINSTANCE hInstance, const std::wstring& windowName, WNDPROC wndproc, unsigned int width, unsigned int height, LPVOID params);
 HWND CreateWindowsWindow(HINSTANCE hInstance, const std::wstring& windowName, WNDPROC wndproc, unsigned int width, unsigned int height, LPVOID params);
 HGLRC CreateOpenGLWindow(HWND hwnd);
 void GetHiddenBorderDimensions(HWND hwnd, int& borderLeft, int& borderRight, int& borderTop, int& borderBottom);
 
-//Internal implementation for CreateWindowThread
+// Internal implementation for CreateWindowThread
 struct CreateWindowThreadParams
 {
 	HINSTANCE hInstance;
@@ -89,16 +89,16 @@ void ReleaseCreateWindowThreadParams(CreateWindowThreadParams* object);
 DWORD WINAPI CreateWindowThreadFunction(LPVOID params);
 void WindowsMessageLoop(HWND hwnd);
 
-//Parent and owner window functions
+// Parent and owner window functions
 HWND SetWindowParent(HWND targetWindow, HWND newParent);
 HWND GetFirstOwnerWindow(HWND targetWindow);
 HWND GetFirstOwnerWindowOrTopLevelParent(HWND targetWindow);
 void SetOwnerWindow(HWND targetWindow, HWND newOwnerWindow);
 
-//General window helper functions
+// General window helper functions
 std::wstring GetClassName(HWND targetWindow);
 
-//Control text helper functions
+// Control text helper functions
 void UpdateDlgItemBin(HWND hwnd, int controlID, unsigned int data);
 unsigned int GetDlgItemBin(HWND hwnd, int controlID);
 void UpdateDlgItemHex(HWND hwnd, int controlID, unsigned int width, unsigned int data);
@@ -112,7 +112,7 @@ std::wstring GetDlgItemString(HWND hwnd, int controlID);
 void SetWindowText(HWND hwnd, const std::wstring& data);
 std::wstring GetWindowText(HWND hwnd);
 
-//Modal window functions
+// Modal window functions
 std::list<HWND> DisableAllEnabledDialogWindows(HWND ownerWindow);
 void EnableDialogWindows(const std::list<HWND>& windowList);
 int SafeMessageBox(HWND hwnd, const std::wstring& message, const std::wstring& title, UINT type);
@@ -121,15 +121,15 @@ INT_PTR SafeDialogBoxParam(HINSTANCE hInstance, LPCWSTR lpTemplateName, HWND hWn
 INT_PTR SafeDialogBoxIndirect(HINSTANCE hInstance, LPCDLGTEMPLATE lpTemplate, HWND hWndParent, DLGPROC lpDialogFunc);
 INT_PTR SafeDialogBoxIndirectParam(HINSTANCE hInstance, LPCDLGTEMPLATE hDialogTemplate, HWND hWndParent, DLGPROC lpDialogFunc, LPARAM dwInitParam);
 
-//Window enumeration
+// Window enumeration
 std::list<HWND> GetOwnedDialogWindows(HWND ownerWindow);
 std::list<HWND> GetDescendantWindows(HWND targetWindow);
 
-//Tooltip functions
+// Tooltip functions
 HWND CreateTooltipControl(HINSTANCE moduleHandle, HWND hwndParent, unsigned int maxWidth = 300);
 BOOL AddTooltip(HINSTANCE moduleHandle, HWND hwndTooltip, HWND hwndParent, int targetControlID, const std::wstring& text, bool createAnchor = false, const std::wstring& anchorLink = L"");
 
-//Child window message bounce back
+// Child window message bounce back
 #define WM_BOUNCE WM_APP + 0x800
 struct BounceMessage
 {
@@ -152,20 +152,20 @@ struct BounceMessage
 };
 LRESULT CALLBACK BounceBackSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
 
-//Edit control extensions
+// Edit control extensions
 LRESULT CALLBACK EditBoxFocusFixSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
 
-//Static control extensions
+// Static control extensions
 LRESULT CALLBACK ResizableStaticControlSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData);
 
-//Highlight extensions
+// Highlight extensions
 void PaintCheckboxHighlight(HWND hwnd);
 
-//Icon helper functions
+// Icon helper functions
 unsigned int GetIconFileEntryCount(Stream::IStream& iconFileStream);
 bool ConvertIconFileToIconResource(Stream::IStream& iconFileStream, Stream::IStream& iconDirectoryData, const std::map<int, Stream::IStream*>& iconResourceData);
 
-//WinColor struct
+// WinColor struct
 struct WinColor
 {
 	WinColor()
@@ -190,8 +190,8 @@ struct WinColor
 	unsigned char b;
 };
 
-//DLGTEMPLATEEX struct, based on information provided by Microsoft. This structure is not
-//defined in any public header files.
+// DLGTEMPLATEEX struct, based on information provided by Microsoft. This structure is not
+// defined in any public header files.
 struct DLGTEMPLATEEX
 {
 	WORD dlgVer;

@@ -6,21 +6,21 @@
 //##TODO## Split this into separate logical files
 //##TODO## Group these together into a class or namespace
 //##TODO## Make a file for string helper functions
-//We support the following notations for distinguishing number bases:
-//Base 16: 0x????, 0X????, 0h????, 0H????
-//Base 10: 0d????, 0D????
-//Base 8:  0o????, 0O????, 0q????, 0Q????
-//Base 2:  0b????, 0B????
-//-We don't support any postfix base encoding forms, because they can be ambiguous with
-//unqualified number encodings from other bases. The 'b' and 'd' postfixes in particular
-//would conflict with base 16 encoding, but other encoding schemes like base 32 encoding
-//that could be added later would conflict with all postfixes.
-//-Any unusual variations of base encoding should be supported through separate
-//compatibility layers for specific platforms, IE, an interpretation layer for Intel or
-//Motorola assembly numeric encoding. These strings could be passed through this kind of
-//compatibility layer before processing, IE, by stripping off the platform specific base
-//identifier, and feeding the modified string along with the detected base into our
-//generic routines here.
+// We support the following notations for distinguishing number bases:
+// Base 16: 0x????, 0X????, 0h????, 0H????
+// Base 10: 0d????, 0D????
+// Base 8:  0o????, 0O????, 0q????, 0Q????
+// Base 2:  0b????, 0B????
+// -We don't support any postfix base encoding forms, because they can be ambiguous with
+// unqualified number encodings from other bases. The 'b' and 'd' postfixes in particular
+// would conflict with base 16 encoding, but other encoding schemes like base 32 encoding
+// that could be added later would conflict with all postfixes.
+// -Any unusual variations of base encoding should be supported through separate
+// compatibility layers for specific platforms, IE, an interpretation layer for Intel or
+// Motorola assembly numeric encoding. These strings could be passed through this kind of
+// compatibility layer before processing, IE, by stripping off the platform specific base
+// identifier, and feeding the modified string along with the detected base into our
+// generic routines here.
 inline char HexNybbleToChar(unsigned int nybble);
 inline wchar_t HexNybbleToWChar(unsigned int nybble);
 inline unsigned int HexCharToNybble(char nybble);

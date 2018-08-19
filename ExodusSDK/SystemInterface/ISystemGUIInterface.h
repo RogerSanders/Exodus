@@ -15,10 +15,10 @@ using namespace MarshalSupport::Operators;
 class ISystemGUIInterface :public ISystemExtensionInterface
 {
 public:
-	//Enumerations
+	// Enumerations
 	enum class FileType;
 
-	//Structures
+	// Structures
 	struct StateInfo;
 	struct ModuleRelationship;
 	struct SavedRelationshipImportConnector;
@@ -29,7 +29,7 @@ public:
 	struct ConnectorDefinitionExport;
 	struct SystemLogEntry;
 
-	//Typedefs
+	// Typedefs
 	typedef std::map<unsigned int, ModuleRelationship> ModuleRelationshipMap;
 	typedef std::pair<unsigned int, ModuleRelationship> ModuleRelationshipEntry;
 	typedef std::map<unsigned int, SavedRelationshipModule> SavedRelationshipMap;
@@ -40,28 +40,28 @@ public:
 	typedef std::list<ConnectorDefinitionExport> ConnectorExportList;
 
 public:
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisISystemGUIInterfaceVersion() { return 1; }
 	virtual unsigned int GetISystemGUIInterfaceVersion() const = 0;
 
-	//Path functions
+	// Path functions
 	virtual void SetCapturePath(const Marshal::In<std::wstring>& path) = 0;
 
-	//Logging functions
+	// Logging functions
 	virtual Marshal::Ret<std::vector<SystemLogEntry>> GetEventLog() const = 0;
 	virtual unsigned int GetEventLogLastModifiedToken() const = 0;
 	virtual void ClearEventLog() = 0;
 	virtual unsigned int GetEventLogSize() const = 0;
 	virtual void SetEventLogSize(unsigned int logSize) = 0;
 
-	//Embedded ROM functions
+	// Embedded ROM functions
 	virtual Marshal::Ret<std::list<unsigned int>> GetEmbeddedROMIDs() const = 0;
 	virtual unsigned int GetEmbeddedROMInfoLastModifiedToken() const = 0;
 	virtual bool GetEmbeddedROMInfo(unsigned int embeddedROMID, IEmbeddedROMInfo& embeddedROMInfo) const = 0;
 	virtual bool SetEmbeddedROMPath(unsigned int embeddedROMID, const Marshal::In<std::wstring>& filePath) = 0;
 	virtual bool ReloadEmbeddedROMData(unsigned int embeddedROMID) = 0;
 
-	//Module setting functions
+	// Module setting functions
 	virtual Marshal::Ret<std::list<unsigned int>> GetModuleSettingIDs(unsigned int moduleID) const = 0;
 	virtual bool GetModuleSettingInfo(unsigned int moduleID, unsigned int moduleSettingID, IModuleSettingInfo& moduleSettingInfo) const = 0;
 	virtual bool GetModuleSettingOptionInfo(unsigned int moduleID, unsigned int moduleSettingID, unsigned int moduleSettingOptionIndex, IModuleSettingOptionInfo& moduleSettingOptionInfo) const = 0;
@@ -70,7 +70,7 @@ public:
 	virtual void ModuleSettingActiveOptionChangeNotifyRegister(unsigned int moduleID, unsigned int moduleSettingID, IObserverSubscription& observer) = 0;
 	virtual void ModuleSettingActiveOptionChangeNotifyDeregister(unsigned int moduleID, unsigned int moduleSettingID, IObserverSubscription& observer) = 0;
 
-	//System interface functions
+	// System interface functions
 	virtual bool GetThrottlingState() const = 0;
 	virtual void SetThrottlingState(bool state) = 0;
 	virtual bool GetRunWhenProgramModuleLoadedState() const = 0;
@@ -78,15 +78,15 @@ public:
 	virtual bool GetEnablePersistentState() const = 0;
 	virtual void SetEnablePersistentState(bool state) = 0;
 
-	//Device registration
+	// Device registration
 	virtual bool RegisterDevice(const IDeviceInfo& entry, AssemblyHandle assemblyHandle) = 0;
 	virtual void UnregisterDevice(const Marshal::In<std::wstring>& deviceName) = 0;
 
-	//Extension registration
+	// Extension registration
 	virtual bool RegisterExtension(const IExtensionInfo& entry, AssemblyHandle assemblyHandle) = 0;
 	virtual void UnregisterExtension(const Marshal::In<std::wstring>& extensionName) = 0;
 
-	//Input functions
+	// Input functions
 	virtual KeyCode GetKeyCodeID(const Marshal::In<std::wstring>& keyCodeName) const = 0;
 	virtual Marshal::Ret<std::wstring> GetKeyCodeName(KeyCode keyCode) const = 0;
 	virtual unsigned int GetInputDeviceListLastModifiedToken() const = 0;
@@ -98,26 +98,26 @@ public:
 	virtual KeyCode GetDeviceKeyCodeMapping(IDevice* targetDevice, unsigned int targetDeviceKeyCode) const = 0;
 	virtual bool SetDeviceKeyCodeMapping(IDevice* targetDevice, unsigned int deviceKeyCode, KeyCode systemKeyCode) = 0;
 
-	//Savestate functions
+	// Savestate functions
 	//##TODO## Consider not making the name of a savestate xml file within a zip archive
-	//be hardcoded to "save.xml". Come up with a way for the name within the archive to be
-	//specified by the caller perhaps? The problem is, we don't want to have to load the
-	//zip file twice.
+	// be hardcoded to "save.xml". Come up with a way for the name within the archive to be
+	// specified by the caller perhaps? The problem is, we don't want to have to load the
+	// zip file twice.
 	virtual bool LoadState(const Marshal::In<std::wstring>& filePath, FileType fileType, bool debuggerState) = 0;
 	virtual bool SaveState(const Marshal::In<std::wstring>& filePath, FileType fileType, bool debuggerState) = 0;
 	virtual Marshal::Ret<StateInfo> GetStateInfo(const Marshal::In<std::wstring>& filePath, FileType fileType) const = 0;
 	virtual bool LoadModuleRelationshipsNode(IHierarchicalStorageNode& node, const Marshal::Out<ModuleRelationshipMap>& relationshipMap) const = 0;
 	virtual void SaveModuleRelationshipsNode(IHierarchicalStorageNode& node, bool saveFilePathInfo = false, const Marshal::In<std::wstring>& relativePathBase = L"") const = 0;
 
-	//Module loading and unloading
+	// Module loading and unloading
 	//##TODO## Add the use of FileType to module loading, so that a module definition can
-	//be contained either in a zip file or as a standalone file.
+	// be contained either in a zip file or as a standalone file.
 	//##TODO## As per the requirement for savestates above, make it possible to specify
-	//the target name of a file within a zip archive. This will be necessary with modules,
-	//where it is highly desirable to be able to create a zip file with a set of related
-	//system definitions.
+	// the target name of a file within a zip archive. This will be necessary with modules,
+	// where it is highly desirable to be able to create a zip file with a set of related
+	// system definitions.
 	//##FIX## Shouldn't all the synchronous functions be available here, like progress,
-	//result, and aborting?
+	// result, and aborting?
 	virtual void LoadModuleSynchronous(const Marshal::In<std::wstring>& filePath, const Marshal::In<ConnectorMappingList>& connectorMappings) = 0;
 	virtual void LoadModuleSynchronousAbort() = 0;
 	virtual float LoadModuleSynchronousProgress() const = 0;
@@ -134,7 +134,7 @@ public:
 	virtual Marshal::Ret<std::wstring> LoadModuleSynchronousCurrentModuleName() const = 0;
 	virtual Marshal::Ret<std::wstring> UnloadModuleSynchronousCurrentModuleName() const = 0;
 
-	//View functions
+	// View functions
 	virtual void BuildFileOpenMenu(IMenuSubmenu& menuSubmenu) const = 0;
 	virtual void BuildSystemMenu(IMenuSubmenu& menuSubmenu) const = 0;
 	virtual void BuildSettingsMenu(IMenuSubmenu& menuSubmenu) const = 0;

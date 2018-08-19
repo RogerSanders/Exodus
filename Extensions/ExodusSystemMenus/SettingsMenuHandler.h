@@ -6,7 +6,7 @@
 class SettingsMenuHandler :public MenuHandlerBase
 {
 public:
-	//Enumerations
+	// Enumerations
 	enum MenuItem
 	{
 		MENUITEM_INPUTMAPPING,
@@ -14,15 +14,15 @@ public:
 		MENUITEM_EMBEDDEDROM
 	};
 
-	//Constructors
+	// Constructors
 	SettingsMenuHandler(ExodusSystemMenus& owner, ISystemGUIInterface& model);
 
-	//Window functions
+	// Window functions
 	void OpenInputMappingDetailsView(IDevice* targetDevice);
 	void CloseInputMappingDetailsView();
 
 protected:
-	//Management functions
+	// Management functions
 	virtual void GetMenuItems(std::list<MenuItemDefinition>& menuItems) const;
 	virtual IViewPresenter* CreateViewForItem(int menuItemID, const std::wstring& viewName);
 	virtual void DeleteViewForItem(int menuItemID, IViewPresenter* viewPresenter);

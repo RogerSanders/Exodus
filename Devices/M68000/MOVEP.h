@@ -48,7 +48,7 @@ public:
 
 		if (_memoryTarget)
 		{
-			//MOVEP	Dx,(d,Ay)
+			// MOVEP	Dx,(d,Ay)
 			_source.BuildDataDirect(_size, location + GetInstructionSize(), data.GetDataSegment(9, 3));
 			_target.BuildAddressIndirectDisplace(_size, location + GetInstructionSize(), data.GetDataSegment(0, 3), cpu, transparent, GetInstructionRegister());
 			AddInstructionSize(_target.ExtensionSize());
@@ -63,7 +63,7 @@ public:
 		}
 		else
 		{
-			//MOVEP	(d,Ay),Dx
+			// MOVEP	(d,Ay),Dx
 			_source.BuildAddressIndirectDisplace(_size, location + GetInstructionSize(), data.GetDataSegment(0, 3), cpu, transparent, GetInstructionRegister());
 			AddInstructionSize(_source.ExtensionSize());
 			_target.BuildDataDirect(_size, location + GetInstructionSize(), data.GetDataSegment(9, 3));
@@ -86,7 +86,7 @@ public:
 
 		if (_memoryTarget)
 		{
-			//Move the data from the _source to the _target memory location
+			// Move the data from the _source to the _target memory location
 			Data totalData(_size);
 			additionalTime += _source.Read(cpu, totalData, GetInstructionRegister());
 			M68000Long address;
@@ -100,7 +100,7 @@ public:
 		}
 		else
 		{
-			//Read the data from the memory address and load it into the _target
+			// Read the data from the memory address and load it into the _target
 			M68000Long address;
 			_source.GetAddress(cpu, address);
 			Data totalData(_size);
@@ -109,7 +109,7 @@ public:
 			{
 				M68000Byte byte;
 
-				//Record active disassembly info for this register move
+				// Record active disassembly info for this register move
 				cpu->AddDisassemblyAddressInfoData(address.GetData(), byte.GetByteSize(), M68000::DisassemblyDataType::Integer);
 
 				additionalTime += cpu->ReadMemory(address, byte, cpu->GetFunctionCode(false), location + 2, true, GetInstructionRegister(), false, false);
@@ -120,7 +120,7 @@ public:
 			additionalTime += _target.Write(cpu, totalData, GetInstructionRegister());
 		}
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -138,5 +138,5 @@ private:
 	EffectiveAddress _target;
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #endif

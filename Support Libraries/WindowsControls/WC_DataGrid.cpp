@@ -8,14 +8,14 @@
 //##DEBUG##
 #include <iostream>
 
-//----------------------------------------------------------------------------------------
-//Constants
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Constants
+//----------------------------------------------------------------------------------------------------------------------
 const wchar_t* WC_DataGrid::WindowClassName = L"EX_DataGrid";
 
-//----------------------------------------------------------------------------------------
-//Constructors
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Constructors
+//----------------------------------------------------------------------------------------------------------------------
 WC_DataGrid::WC_DataGrid(HINSTANCE moduleHandle, HWND hwnd)
 :_moduleHandle(moduleHandle), _hwnd(hwnd)
 {
@@ -70,10 +70,10 @@ WC_DataGrid::WC_DataGrid(HINSTANCE moduleHandle, HWND hwnd)
 	_largestColumnDataArraySize = 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WC_DataGrid::~WC_DataGrid()
 {
-	//Delete any alloated brush objects for embedded cell controls
+	// Delete any alloated brush objects for embedded cell controls
 	for (std::map<unsigned int, std::vector<CellControlInfo>>::iterator columnIterator = _customControlForCell.begin(); columnIterator != _customControlForCell.end(); ++columnIterator)
 	{
 		std::vector<CellControlInfo>& rowData = columnIterator->second;
@@ -89,13 +89,13 @@ WC_DataGrid::~WC_DataGrid()
 	}
 }
 
-//----------------------------------------------------------------------------------------
-//Class registration
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Class registration
+//----------------------------------------------------------------------------------------------------------------------
 bool WC_DataGrid::RegisterWindowClass(HINSTANCE moduleHandle)
 {
-	//Attempt to register the window class for this control, and return the result to the
-	//caller.
+	// Attempt to register the window class for this control, and return the result to the
+	// caller.
 	WNDCLASSEX wc;
 	wc.cbSize        = sizeof(WNDCLASSEX);
 	wc.style         = 0;
@@ -113,18 +113,18 @@ bool WC_DataGrid::RegisterWindowClass(HINSTANCE moduleHandle)
 	return (registerClassExReturn != 0);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool WC_DataGrid::UnregisterWindowClass(HINSTANCE moduleHandle)
 {
-	//Attempt to unregister the window class for this control, and return the result to
-	//the caller.
+	// Attempt to unregister the window class for this control, and return the result to
+	// the caller.
 	BOOL unregisterClassReturn = UnregisterClass(WindowClassName, moduleHandle);
 	return (unregisterClassReturn != 0);
 }
 
-//----------------------------------------------------------------------------------------
-//Drag selection functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Drag selection functions
+//----------------------------------------------------------------------------------------------------------------------
 void WC_DataGrid::UpdateDragSelectPos(int newSelectPosSigned)
 {
 	unsigned int newSelectPos;
@@ -153,7 +153,7 @@ void WC_DataGrid::UpdateDragSelectPos(int newSelectPosSigned)
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int WC_DataGrid::GetDragSelectPos() const
 {
 	if (_dragSelectEndPos != _selectedCharacterNo)
@@ -166,7 +166,7 @@ unsigned int WC_DataGrid::GetDragSelectPos() const
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void WC_DataGrid::StartDragSelect()
 {
 	if (!_dragSelectActive && !_ignoreDragSelectStart)
@@ -177,21 +177,21 @@ void WC_DataGrid::StartDragSelect()
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void WC_DataGrid::StopDragSelect()
 {
 	_dragSelectActive = false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool WC_DataGrid::DragSelectActive() const
 {
 	return _dragSelectActive;
 }
 
-//----------------------------------------------------------------------------------------
-//Clipboard functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Clipboard functions
+//----------------------------------------------------------------------------------------------------------------------
 bool WC_DataGrid::CopyToClipboard()
 {
 	if (!DragSelectActive())
@@ -203,7 +203,7 @@ bool WC_DataGrid::CopyToClipboard()
 		return false;
 	}
 
-	//Copy data to the clipboard
+	// Copy data to the clipboard
 	unsigned int dragSelectTextSize = _dragSelectEndPos - _dragSelectStartPos;
 	HGLOBAL clipboardDataHandle = GlobalAlloc(GMEM_MOVEABLE, (dragSelectTextSize + 1) * sizeof(wchar_t));
 	if (clipboardDataHandle == NULL)
@@ -228,7 +228,7 @@ bool WC_DataGrid::CopyToClipboard()
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool WC_DataGrid::PasteFromClipboard()
 {
 	if (IsClipboardFormatAvailable(CF_UNICODETEXT) == 0)
@@ -275,9 +275,9 @@ bool WC_DataGrid::PasteFromClipboard()
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
-//Message handlers
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Message handlers
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT CALLBACK WC_DataGrid::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
@@ -309,7 +309,7 @@ LRESULT CALLBACK WC_DataGrid::WndProc(HWND hwnd, UINT message, WPARAM wParam, LP
 	return DefWindowProc(hwnd, message, wParam, lParam);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::WndProcPrivate(UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
@@ -396,65 +396,65 @@ LRESULT WC_DataGrid::WndProcPrivate(UINT message, WPARAM wParam, LPARAM lParam)
 	return DefWindowProc(_hwnd, message, wParam, lParam);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void WC_DataGrid::RebuildHeaderOrder()
 {
-	//Rebuild the sorted column list
+	// Rebuild the sorted column list
 	_columnSortIndex.clear();
 	for (ColumnDataIterator i = _columnData.begin(); i != _columnData.end(); ++i)
 	{
-		//Query the new entry for the actual item order
+		// Query the new entry for the actual item order
 		HDITEM hdItem;
 		hdItem.mask = HDI_ORDER;
 		LRESULT getItemResult = SendMessage(_hwndHeader, HDM_GETITEM, (WPARAM)i->index, (LPARAM)&hdItem);
 		if (getItemResult == TRUE)
 		{
-			//Update the stored order number for the column
+			// Update the stored order number for the column
 			i->order = hdItem.iOrder;
 
-			//Add the column into the column sort index
+			// Add the column into the column sort index
 			_columnSortIndex.insert(ColumnSortIndexEntry(i->order, &(*i)));
 		}
 	}
 
-	//If edit mode is active, flag that a selection pos change event is now pending, since
-	//a change in the column order requires us to update the current caret position.
+	// If edit mode is active, flag that a selection pos change event is now pending, since
+	// a change in the column order requires us to update the current caret position.
 	_editModeSelectionPosChangePending = _editModeActive;
 	_editModeSelectionPosChangePendingInPixels = false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgWM_CREATE(WPARAM wParam, LPARAM lParam)
 {
-	//Initialize common controls
+	// Initialize common controls
 	INITCOMMONCONTROLSEX iccex;
 	iccex.dwICC = ICC_WIN95_CLASSES;
 	iccex.dwSize = sizeof(INITCOMMONCONTROLSEX);
 	InitCommonControlsEx(&iccex);
 
-	//Initialize the header
+	// Initialize the header
 	_hwndHeader = CreateWindowEx(0, WC_HEADER, L"", WS_CHILD | WS_VISIBLE | HDS_FULLDRAG | HDS_HOTTRACK | HDS_DRAGDROP, 0, 0, 0, 0, _hwnd, (HMENU)HeaderControlID, _moduleHandle, NULL);
 
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgWM_SIZE(WPARAM wParam, LPARAM lParam)
 {
-	//Calculate the dimensions of the drawable surface of this control
+	// Calculate the dimensions of the drawable surface of this control
 	RECT rect;
 	GetClientRect(_hwnd, &rect);
 	int newClientWidth = rect.right;
 	int newClientHeight = rect.bottom;
 
-	//If this control has changed in size, process the size change event.
+	// If this control has changed in size, process the size change event.
 	if ((_controlWidth != newClientWidth) || (_controlHeight != newClientHeight))
 	{
-		//Update the stored width and height of the control
+		// Update the stored width and height of the control
 		_controlWidth = newClientWidth;
 		_controlHeight = newClientHeight;
 
-		//Update the header position and size
+		// Update the header position and size
 		WINDOWPOS headerPos;
 		HDLAYOUT headerLayout;
 		headerLayout.prc = &rect;
@@ -466,17 +466,17 @@ LRESULT WC_DataGrid::msgWM_SIZE(WPARAM wParam, LPARAM lParam)
 		_headerPosY = headerPos.y;
 		MoveWindow(_hwndHeader, _headerPosX - _currentScrollHOffset, _headerPosY, _headerWidth + _currentScrollHOffset, _headerHeight, TRUE);
 
-		//Update size information based on the new control width and height
+		// Update size information based on the new control width and height
 		UpdateWindowSize();
 
-		//Recalculate all automatically sized column widths
+		// Recalculate all automatically sized column widths
 		RecalculateColumnWidths();
 	}
 
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgWM_NOTIFY(WPARAM wParam, LPARAM lParam)
 {
 	NMHDR* nmhdr = (NMHDR*)lParam;
@@ -484,7 +484,7 @@ LRESULT WC_DataGrid::msgWM_NOTIFY(WPARAM wParam, LPARAM lParam)
 	{
 		if (nmhdr->code == HDN_ITEMCHANGED)
 		{
-			//If the user has resized a column, update the column width
+			// If the user has resized a column, update the column width
 			NMHEADER* nmHeader = (NMHEADER*)lParam;
 			ColumnIndexIterator i = _columnIndex.find(nmHeader->iItem);
 			if (i != _columnIndex.end())
@@ -492,34 +492,34 @@ LRESULT WC_DataGrid::msgWM_NOTIFY(WPARAM wParam, LPARAM lParam)
 				ColumnData& column = *i->second;
 				if (!column.manuallySettingColumnWidth && ((nmHeader->pitem->mask & HDI_WIDTH) != 0))
 				{
-					//Since the user has manually sized this column, force the column into
-					//absolute sizing mode, and set the absolute width of the column to
-					//the new width of the column header.
+					// Since the user has manually sized this column, force the column into
+					// absolute sizing mode, and set the absolute width of the column to
+					// the new width of the column header.
 					column.sizeMode = ColumnSizeMode::Absolute;
 					column.absoluteWidth = nmHeader->pitem->cxy;
 					column.actualWidth = column.absoluteWidth;
 
-					//Recalculate all automatically sized column widths
+					// Recalculate all automatically sized column widths
 					RecalculateColumnWidths();
 				}
 			}
 
-			//Update the current scrollbar state
+			// Update the current scrollbar state
 			UpdateScrollbarSettings(_currentScrollHOffset, _vscrollCurrent, true);
 
-			//Force the control to redraw
+			// Force the control to redraw
 			ForceControlRedraw();
 		}
 		if (nmhdr->code == NM_RELEASEDCAPTURE)
 		{
-			//If the user has possibly changed the column order, update our column order
-			//index. Note that we use this notification rather than HDN_ENDDRAG since the
-			//HDN_ENDDRAG notification is sent before the order numbers are updated
-			//within the header control, so requesting the order numbers for each element
-			//in the header returns the old order numbers.
+			// If the user has possibly changed the column order, update our column order
+			// index. Note that we use this notification rather than HDN_ENDDRAG since the
+			// HDN_ENDDRAG notification is sent before the order numbers are updated
+			// within the header control, so requesting the order numbers for each element
+			// in the header returns the old order numbers.
 			RebuildHeaderOrder();
 
-			//Force the control to redraw
+			// Force the control to redraw
 			ForceControlRedraw();
 		}
 	}
@@ -527,52 +527,52 @@ LRESULT WC_DataGrid::msgWM_NOTIFY(WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgWM_ERASEBKGND(WPARAM wParam, LPARAM lParam)
 {
-	//We handle the WM_ERASEBKGND message here and return 0 to prevent the background
-	//being erased by the default window procedure. Returning zero here will leave the
-	//existing window content intact, and instead leave an erase pending for our WM_PAINT
-	//message handler to process, which is what we want. Without processing this message,
-	//there's a noticeable flicker when redrawing the control where the background is
-	//erased before the WM_PAINT message is issued, such as when the control is resized.
+	// We handle the WM_ERASEBKGND message here and return 0 to prevent the background
+	// being erased by the default window procedure. Returning zero here will leave the
+	// existing window content intact, and instead leave an erase pending for our WM_PAINT
+	// message handler to process, which is what we want. Without processing this message,
+	// there's a noticeable flicker when redrawing the control where the background is
+	// erased before the WM_PAINT message is issued, such as when the control is resized.
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgWM_PAINT(WPARAM wParam, LPARAM lParam)
 {
-	//Update our child controls before beginning the paint process. We need to do this
-	//here before calling BeginPaint below so that the clipping region for our paint
-	//operation is correctly set to exclude our child controls.
+	// Update our child controls before beginning the paint process. We need to do this
+	// here before calling BeginPaint below so that the clipping region for our paint
+	// operation is correctly set to exclude our child controls.
 	UpdateChildControls();
 
-	//Begin the paint operation
+	// Begin the paint operation
 	PAINTSTRUCT paintInfo;
 	BeginPaint(_hwnd, &paintInfo);
 	HDC hdc = paintInfo.hdc;
 
-	//Create a bitmap we can render the control onto
+	// Create a bitmap we can render the control onto
 	HDC hdcControl = hdc;
 	HDC hdcBitmap = CreateCompatibleDC(hdcControl);
 	HBITMAP hbitmap = CreateCompatibleBitmap(hdcControl, _controlWidth, _controlHeight);
 	HBITMAP hbitmapOriginal = (HBITMAP)SelectObject(hdcBitmap, hbitmap);
 
-	//Send a WM_PRINTCLIENT message to the native control and get it to render into the
-	//bitmap
+	// Send a WM_PRINTCLIENT message to the native control and get it to render into the
+	// bitmap
 	SendMessage(_hwnd, WM_PRINTCLIENT, (WPARAM)hdcBitmap, PRF_CLIENT | PRF_NONCLIENT | PRF_CHILDREN);
 
-	//Transfer the final bitmap for the control into the screen buffer
+	// Transfer the final bitmap for the control into the screen buffer
 	BitBlt(hdcControl, 0, _headerHeight, _controlWidth, _controlHeight, hdcBitmap, 0, _headerHeight, SRCCOPY);
 
-	//Clean up the allocated handles
+	// Clean up the allocated handles
 	SelectObject(hdcBitmap, hbitmapOriginal);
 	DeleteObject(hbitmap);
 	DeleteDC(hdcBitmap);
 
-	//Calculate the over-render amount for the header control. Over-render ensures the
-	//header always extends all the way across the top of our control, even when we pass
-	//the end of the last column.
+	// Calculate the over-render amount for the header control. Over-render ensures the
+	// header always extends all the way across the top of our control, even when we pass
+	// the end of the last column.
 	int totalHeaderWidth = (int)GetTotalRowWidth();
 	int overRenderWidth = _controlWidth - (totalHeaderWidth - _currentScrollHOffset);
 	if (overRenderWidth < 0)
@@ -580,64 +580,64 @@ LRESULT WC_DataGrid::msgWM_PAINT(WPARAM wParam, LPARAM lParam)
 		overRenderWidth = 0;
 	}
 
-	//Render the header into the screen buffer
+	// Render the header into the screen buffer
 	hdcControl = hdc;
 	hdcBitmap = CreateCompatibleDC(hdcControl);
 	hbitmap = CreateCompatibleBitmap(hdcControl, totalHeaderWidth + overRenderWidth, _headerHeight);
 	hbitmapOriginal = (HBITMAP)SelectObject(hdcBitmap, hbitmap);
 
-	//Send a WM_PRINTCLIENT message to the header control and get it to render into the
-	//bitmap
+	// Send a WM_PRINTCLIENT message to the header control and get it to render into the
+	// bitmap
 	SendMessage(_hwndHeader, WM_PRINTCLIENT, (WPARAM)hdcBitmap, PRF_CLIENT | PRF_NONCLIENT | PRF_CHILDREN);
 
-	//Transfer the final bitmap for the control into the screen buffer
+	// Transfer the final bitmap for the control into the screen buffer
 	BitBlt(hdcControl, _headerPosX, _headerPosY, _headerWidth  + overRenderWidth, _headerHeight, hdcBitmap, _currentScrollHOffset, 0, SRCCOPY);
 
-	//Clean up the allocated handles
+	// Clean up the allocated handles
 	SelectObject(hdcBitmap, hbitmapOriginal);
 	DeleteObject(hbitmap);
 	DeleteDC(hdcBitmap);
 
-	//Validate the entire client area of the control. It's REALLY important that we
-	//call this here, otherwise Windows is going to send WM_PAINT messages over and
-	//over again waiting for the region to be validated.
+	// Validate the entire client area of the control. It's REALLY important that we
+	// call this here, otherwise Windows is going to send WM_PAINT messages over and
+	// over again waiting for the region to be validated.
 	ValidateRect(_hwnd, NULL);
 
-	//Complete the paint operation
+	// Complete the paint operation
 	EndPaint(_hwnd, &paintInfo);
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void WC_DataGrid::UpdateChildControls()
 {
-	//Begin a session for processing this batch of window size changes for column
-	//controls. Processing all the window size and position changes in a single operation
-	//in this manner gives the best performance and appearance.
+	// Begin a session for processing this batch of window size changes for column
+	// controls. Processing all the window size and position changes in a single operation
+	// in this manner gives the best performance and appearance.
 	HDWP deferWindowPosSession = BeginDeferWindowPos(_visibleRows);
 
-	//Update child control info for each cell
+	// Update child control info for each cell
 	std::set<HWND> drawnChildControls;
 	std::set<HWND> drawPendingChildControls;
 	int gridContentStartPosX = _headerPosX;
 	int gridContentStartPosY = _headerPosY + _headerHeight;
 	for (unsigned int row = 0; row < _visibleRows; ++row)
 	{
-		//Determine the index of this row into our data arrays
+		// Determine the index of this row into our data arrays
 		unsigned int rowDataArrayIndex = (!_autoScrollingManagement)? row: (_vscrollCurrent + row);
 
-		//Update child control info for each column in this row
+		// Update child control info for each column in this row
 		int columnStartPosX = gridContentStartPosX - _currentScrollHOffset;
 		int columnStartPosY = gridContentStartPosY + ((int)row * (_fontHeight + (_marginSize * 2)));
 		int columnEndPosY = columnStartPosY + _fontHeight + (_marginSize * 2);
 		for (ColumnSortIndexIterator i = _columnSortIndex.begin(); i != _columnSortIndex.end(); ++i)
 		{
-			//Retrieve and calculate information for this cell
+			// Retrieve and calculate information for this cell
 			ColumnData& columnData = *(i->second);
 			int columnEndPosX = columnStartPosX + (int)columnData.actualWidth;
 			bool editModeActiveForCell = (_editModeActive && (_selectedRowNo == rowDataArrayIndex) && (_selectedColumnID == columnData.columnID));
 
-			//Obtain a raw pointer to the character string to use for this cell
+			// Obtain a raw pointer to the character string to use for this cell
 			const wchar_t* cellDataRaw = 0;
 			unsigned int cellDataRawLength = 0;
 			if (editModeActiveForCell)
@@ -654,12 +654,12 @@ void WC_DataGrid::UpdateChildControls()
 				}
 			}
 
-			//If this cell is within the defined data region of the grid, update its child
-			//control info.
+			// If this cell is within the defined data region of the grid, update its child
+			// control info.
 			if (cellDataRaw != 0)
 			{
-				//Retrieve the control information for this cell, creating the data
-				//structure if necessary.
+				// Retrieve the control information for this cell, creating the data
+				// structure if necessary.
 				std::vector<CellControlInfo>& controlListForColumn = _customControlForCell[columnData.columnID];
 				if (rowDataArrayIndex >= controlListForColumn.size())
 				{
@@ -667,32 +667,32 @@ void WC_DataGrid::UpdateChildControls()
 				}
 				CellControlInfo& cellControlInfo = controlListForColumn[rowDataArrayIndex];
 
-				//If we already had a child control created for this cell, but it's now of
-				//the wrong type, delete the existing child control for this cell.
+				// If we already had a child control created for this cell, but it's now of
+				// the wrong type, delete the existing child control for this cell.
 				if ((cellControlInfo.hwnd != NULL) && (cellControlInfo.controlType != cellControlInfo.createdControlType))
 				{
-					//Destroy the child control
+					// Destroy the child control
 					DestroyWindow(cellControlInfo.hwnd);
 
-					//Delete any colour brush associated with this child control
+					// Delete any colour brush associated with this child control
 					if (cellControlInfo.lastBackgroundColorSet)
 					{
 						DeleteObject(cellControlInfo.lastBackgroundColorBrush);
 					}
 
-					//Remove references to this child control
+					// Remove references to this child control
 					_childControlSet.erase(cellControlInfo.hwnd);
 					_childControlMapping.erase(cellControlInfo.hwnd);
 					cellControlInfo.hwnd = NULL;
 				}
 
-				//Save the position and size of this cell
+				// Save the position and size of this cell
 				cellControlInfo.cellPosX = columnStartPosX;
 				cellControlInfo.cellPosY = columnStartPosY;
 				cellControlInfo.cellWidth = columnEndPosX - columnStartPosX;
 				cellControlInfo.cellHeight = columnEndPosY - columnStartPosY;
 
-				//Calculate the latest position and size to use for the child control
+				// Calculate the latest position and size to use for the child control
 				int newControlPosX = columnStartPosX;
 				int newControlPosY = columnStartPosY + 1;
 				int newControlWidth = (columnEndPosX - newControlPosX) - 1;
@@ -733,7 +733,7 @@ void WC_DataGrid::UpdateChildControls()
 					ReleaseDC(_hwnd, hdc);
 				}
 
-				//Create or reposition the child control for this cell as required
+				// Create or reposition the child control for this cell as required
 				if (cellControlInfo.hwnd == NULL)
 				{
 					if ((cellControlInfo.controlType == CellControlType::ComboBox)
@@ -745,56 +745,56 @@ void WC_DataGrid::UpdateChildControls()
 						cellControlInfo.hwnd = CreateWindow(WC_BUTTON, buttonText, windowStyle, newControlPosX, newControlPosY, newControlWidth, newControlHeight, _hwnd, NULL, _moduleHandle, NULL);
 						if (cellControlInfo.hwnd != NULL)
 						{
-							//Set the font for this child control
+							// Set the font for this child control
 							SendMessage(cellControlInfo.hwnd, WM_SETFONT, (WPARAM)_controlFont, FALSE);
 
-							//Subclass the child control so we can intercept click events
+							// Subclass the child control so we can intercept click events
 							SetWindowSubclass(cellControlInfo.hwnd, ChildControlClickHandlerSubclassProc, 0, (DWORD_PTR)this);
 
-							//Save information on this created child control
+							// Save information on this created child control
 							_childControlSet.insert(cellControlInfo.hwnd);
 							_childControlMapping.insert(std::pair<HWND, CellMapping>(cellControlInfo.hwnd, CellMapping(columnData.columnID, rowDataArrayIndex)));
 							cellControlInfo.createdControlType = cellControlInfo.controlType;
 
-							//Add this control to the list of controls with a draw event
-							//pending
+							// Add this control to the list of controls with a draw event
+							// pending
 							drawPendingChildControls.insert(cellControlInfo.hwnd);
 						}
 					}
 				}
 				else if ((cellControlInfo.controlPosX != newControlPosX) || (cellControlInfo.controlPosY != newControlPosY) || (cellControlInfo.controlWidth != newControlWidth) || (cellControlInfo.controlHeight != newControlHeight))
 				{
-					//If this control has moved since it was last drawn, update the
-					//position of the control.
+					// If this control has moved since it was last drawn, update the
+					// position of the control.
 					DeferWindowPos(deferWindowPosSession, cellControlInfo.hwnd, NULL, newControlPosX, newControlPosY, newControlWidth, newControlHeight, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
 
-					//Add this control to the list of controls with a draw event
-					//pending
+					// Add this control to the list of controls with a draw event
+					// pending
 					drawPendingChildControls.insert(cellControlInfo.hwnd);
 				}
 
-				//Save the new control position and size as the last used position and
-				//size for this control
+				// Save the new control position and size as the last used position and
+				// size for this control
 				cellControlInfo.controlPosX = newControlPosX;
 				cellControlInfo.controlPosY = newControlPosY;
 				cellControlInfo.controlWidth = newControlWidth;
 				cellControlInfo.controlHeight = newControlHeight;
 
-				//Update the current state of the child control
+				// Update the current state of the child control
 				if (cellControlInfo.controlType == CellControlType::CheckBox)
 				{
-					//Update the checked state for this checkbox cell
+					// Update the checked state for this checkbox cell
 					StringToBool(cellDataRaw, cellControlInfo.checkedState);
 				}
 				if ((cellControlInfo.hwnd != NULL) && (cellControlInfo.controlType == CellControlType::Button))
 				{
-					//Update the text for this button cell
+					// Update the text for this button cell
 					SendMessage(cellControlInfo.hwnd, WM_SETTEXT, 0, (LPARAM)cellDataRaw);
 				}
 
-				//If a control exists for this cell, ensure it is currently visible, and
-				//add it to the list of child controls that were drawn in this paint
-				//operation.
+				// If a control exists for this cell, ensure it is currently visible, and
+				// add it to the list of child controls that were drawn in this paint
+				// operation.
 				if (cellControlInfo.hwnd != NULL)
 				{
 					DeferWindowPos(deferWindowPosSession, cellControlInfo.hwnd, NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
@@ -802,12 +802,12 @@ void WC_DataGrid::UpdateChildControls()
 				}
 			}
 
-			//Update the column start position for the next column
+			// Update the column start position for the next column
 			columnStartPosX += (int)columnData.actualWidth;
 		}
 	}
 
-	//Hide any child control windows that are not currently visible
+	// Hide any child control windows that are not currently visible
 	std::set<HWND> hiddenControls;
 	std::set_difference(_childControlSet.begin(), _childControlSet.end(), drawnChildControls.begin(), drawnChildControls.end(), std::inserter(hiddenControls, hiddenControls.begin()));
 	for (std::set<HWND>::const_iterator i = hiddenControls.begin(); i != hiddenControls.end(); ++i)
@@ -815,25 +815,25 @@ void WC_DataGrid::UpdateChildControls()
 		DeferWindowPos(deferWindowPosSession, *i, NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE | SWP_HIDEWINDOW);
 	}
 
-	//Process all the window size and position changes involved in this update
+	// Process all the window size and position changes involved in this update
 	EndDeferWindowPos(deferWindowPosSession);
 
-	//Process all pending draw events for any child controls now. Although we've
-	//repositioned our child controls, they haven't actually redrawn yet. Requesting them
-	//to update immediately now where a redraw is required, improves the visual appearance
-	//of the redraw by making all the draw operations occur closer together.
+	// Process all pending draw events for any child controls now. Although we've
+	// repositioned our child controls, they haven't actually redrawn yet. Requesting them
+	// to update immediately now where a redraw is required, improves the visual appearance
+	// of the redraw by making all the draw operations occur closer together.
 	for (std::set<HWND>::const_iterator i = drawPendingChildControls.begin(); i != drawPendingChildControls.end(); ++i)
 	{
 		UpdateWindow(*i);
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 {
 	HDC hdc = (HDC)wParam;
 
-	//Determine which color values to use for various display elements
+	// Determine which color values to use for various display elements
 	WinColor backgroundColor    = _userColorData.backgroundColorDefined? _userColorData.colorBackground:    _defaultColorData.colorBackground;
 	WinColor textFrontColor     = _userColorData.textColorDefined?       _userColorData.colorTextFront:     _defaultColorData.colorTextFront;
 	WinColor textBackColor      = _userColorData.textColorDefined?       _userColorData.colorTextBack:      _defaultColorData.colorTextBack;
@@ -841,27 +841,27 @@ LRESULT WC_DataGrid::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 	WinColor editTextBackColor  = _userColorData.editColorDefined?       _userColorData.colorEditTextBack:  _defaultColorData.colorEditTextBack;
 	WinColor lineColor          = _userColorData.lineColorDefined?       _userColorData.colorLine:          _defaultColorData.colorLine;
 
-	//Fill the window with the background colour
+	// Fill the window with the background colour
 	HBRUSH backgroundBrush = CreateSolidBrush(backgroundColor.GetColorREF());
 	HBRUSH backgroundBrushOld = (HBRUSH)SelectObject(hdc, backgroundBrush);
 	PatBlt(hdc, 0, _headerHeight, _controlWidth, _controlHeight, PATCOPY);
 	SelectObject(hdc, backgroundBrushOld);
 	DeleteObject(backgroundBrush);
 
-	//Switch to our data area font
+	// Switch to our data area font
 	HFONT hfontOld;
 	hfontOld = (HFONT)SelectObject(hdc, _dataAreaFont);
 
-	//Draw the columns
+	// Draw the columns
 	bool foundActiveEditCell = false;
 	int gridContentStartPosX = _headerPosX;
 	int gridContentStartPosY = _headerPosY + _headerHeight;
 	for (unsigned int row = 0; row < _visibleRows; ++row)
 	{
-		//Determine the index of this row into our data arrays
+		// Determine the index of this row into our data arrays
 		unsigned int rowDataArrayIndex = (!_autoScrollingManagement)? row: (_vscrollCurrent + row);
 
-		//Determine the color data to use for this row
+		// Determine the color data to use for this row
 		bool useCustomBackgroundColor = false;
 		WinColor customBackgroundColor;
 		WinColor colorTextFrontForRow = textFrontColor;
@@ -870,14 +870,14 @@ LRESULT WC_DataGrid::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 		WinColor colorEditTextBackForRow = editTextBackColor;
 		if (rowDataArrayIndex < (unsigned int)_rowColorDataArray.size())
 		{
-			//Select the text colors to use
+			// Select the text colors to use
 			CustomColorData& rowColorData = _rowColorDataArray[rowDataArrayIndex];
 			colorTextFrontForRow     = (rowColorData.textColorDefined)? rowColorData.colorTextFront:     textFrontColor;
 			colorTextBackForRow      = (rowColorData.textColorDefined)? rowColorData.colorTextBack:      textBackColor;
 			colorEditTextFrontForRow = (rowColorData.editColorDefined)? rowColorData.colorEditTextFront: editTextFrontColor;
 			colorEditTextBackForRow  = (rowColorData.editColorDefined)? rowColorData.colorEditTextBack:  editTextBackColor;
 
-			//Check if a custom background color has been specified for this row
+			// Check if a custom background color has been specified for this row
 			if (rowColorData.backgroundColorDefined)
 			{
 				useCustomBackgroundColor = true;
@@ -885,25 +885,25 @@ LRESULT WC_DataGrid::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 			}
 		}
 
-		//Draw each column in this row
+		// Draw each column in this row
 		int columnStartPosX = gridContentStartPosX - _currentScrollHOffset;
 		int columnStartPosY = gridContentStartPosY + ((int)row * (_fontHeight + (_marginSize * 2)));
 		int columnEndPosY = columnStartPosY + _fontHeight + (_marginSize * 2);
 		for (ColumnSortIndexIterator i = _columnSortIndex.begin(); i != _columnSortIndex.end(); ++i)
 		{
-			//Retrieve and calculate information for this cell
+			// Retrieve and calculate information for this cell
 			ColumnData& columnData = *(i->second);
 			int columnEndPosX = columnStartPosX + (int)columnData.actualWidth;
 			bool editModeActiveForCell = (_editModeActive && (_selectedRowNo == rowDataArrayIndex) && (_selectedColumnID == columnData.columnID));
 
-			//Calculate the colour values to use for this cell
+			// Calculate the colour values to use for this cell
 			bool useCustomBackgroundColorForCell = useCustomBackgroundColor;
 			WinColor customBackgroundColorForCell = customBackgroundColor;
 			WinColor colorTextFrontForCell = (editModeActiveForCell)? colorEditTextFrontForRow: colorTextFrontForRow;
 			WinColor colorTextBackForCell = (editModeActiveForCell)? colorEditTextBackForRow: colorTextBackForRow;
 
-			//If any custom colours have been specified for this cell, apply them now as
-			//overrides.
+			// If any custom colours have been specified for this cell, apply them now as
+			// overrides.
 			std::map<unsigned int, std::map<unsigned int, CustomColorData>>::const_iterator cellCustomColorDataIteratorForRow = _cellCustomColorData.find(rowDataArrayIndex);
 			if (cellCustomColorDataIteratorForRow != _cellCustomColorData.end())
 			{
@@ -929,11 +929,11 @@ LRESULT WC_DataGrid::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 				}
 			}
 
-			//Select the text color to use for this cell
+			// Select the text color to use for this cell
 			SetTextColor(hdc, colorTextFrontForCell.GetColorREF());
 			SetBkColor(hdc, colorTextBackForCell.GetColorREF());
 
-			//Apply a custom background color for this column if one has been specified
+			// Apply a custom background color for this column if one has been specified
 			if (useCustomBackgroundColorForCell)
 			{
 				HBRUSH backgroundBrush = CreateSolidBrush(customBackgroundColorForCell.GetColorREF());
@@ -943,7 +943,7 @@ LRESULT WC_DataGrid::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 				DeleteObject(backgroundBrush);
 			}
 
-			//Obtain a raw pointer to the character string to use for this cell
+			// Obtain a raw pointer to the character string to use for this cell
 			const wchar_t* cellDataRaw = 0;
 			unsigned int cellDataRawLength = 0;
 			if (editModeActiveForCell)
@@ -960,14 +960,14 @@ LRESULT WC_DataGrid::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 				}
 			}
 
-			//If this cell is within the defined data region of the grid, draw the cell
-			//content.
+			// If this cell is within the defined data region of the grid, draw the cell
+			// content.
 			if (cellDataRaw != 0)
 			{
-				//Retrieve the control information for this cell. Note that we can't
-				//assume this structure exists at this point, as themed win32 controls
-				//send WM_PRINTCLIENT messages directly to their parent controls, meaning
-				//we can't assume WM_PAINT has already been called.
+				// Retrieve the control information for this cell. Note that we can't
+				// assume this structure exists at this point, as themed win32 controls
+				// send WM_PRINTCLIENT messages directly to their parent controls, meaning
+				// we can't assume WM_PAINT has already been called.
 				std::vector<CellControlInfo>& controlListForColumn = _customControlForCell[columnData.columnID];
 				if (rowDataArrayIndex >= controlListForColumn.size())
 				{
@@ -975,14 +975,14 @@ LRESULT WC_DataGrid::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 				}
 				CellControlInfo& cellControlInfo = controlListForColumn[rowDataArrayIndex];
 
-				//Calculate the default position of text within this cell
+				// Calculate the default position of text within this cell
 				int textStartPosX = ((columnStartPosX + (int)_marginSize) > columnEndPosX)? columnEndPosX: (columnStartPosX + (int)_marginSize);
 				int textStartPosY = ((columnStartPosY + (int)_marginSize) > columnEndPosY)? columnEndPosY: (columnStartPosY + (int)_marginSize);
 				int textEndPosX = ((columnEndPosX - (int)_marginSize) < textStartPosX)? textStartPosX: columnEndPosX - (int)_marginSize;
 				int textEndPosY = ((columnEndPosY - (int)_marginSize) < textStartPosY)? textStartPosY: columnEndPosY - (int)_marginSize;
 
-				//Adjust the text position in this cell to take into account the control
-				//type used in this cell
+				// Adjust the text position in this cell to take into account the control
+				// type used in this cell
 				if ((cellControlInfo.controlType == CellControlType::TreeEntry) && (cellControlInfo.treeEntryIndentLevel > 0))
 				{
 					textStartPosX += cellControlInfo.controlPosX + cellControlInfo.controlWidth + (int)_marginSize;
@@ -994,26 +994,26 @@ LRESULT WC_DataGrid::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 					textEndPosX = (textEndPosX < textStartPosX)? textStartPosX: textEndPosX;
 				}
 
-				//If this cell is in edit mode, process for any pending adjustments which
-				//need to be made to the edit position for the cell.
+				// If this cell is in edit mode, process for any pending adjustments which
+				// need to be made to the edit position for the cell.
 				if (editModeActiveForCell)
 				{
-					//Flag that we found the active edit cell. We track this to determine
-					//if we need to hide the caret in the case that the cell being edited
-					//is scrolled outside the visible area of the control.
+					// Flag that we found the active edit cell. We track this to determine
+					// if we need to hide the caret in the case that the cell being edited
+					// is scrolled outside the visible area of the control.
 					foundActiveEditCell = true;
 
-					//If an edit position change is pending, flag that we also need to set
-					//the caret position.
+					// If an edit position change is pending, flag that we also need to set
+					// the caret position.
 					bool setCaretPosPending = _editModeSelectionPosChangePending;
 
-					//If an edit position change is pending, and the new position is
-					//specified as a pixel location, update the selected character number
-					//using this pixel location.
+					// If an edit position change is pending, and the new position is
+					// specified as a pixel location, update the selected character number
+					// using this pixel location.
 					if (_editModeSelectionPosChangePending && _editModeSelectionPosChangePendingInPixels)
 					{
-						//Attempt to locate a character within the data string before or
-						//after which to place the edit position.
+						// Attempt to locate a character within the data string before or
+						// after which to place the edit position.
 						bool foundNewEditPos = false;
 						int newEditPos = 0;
 						int characterSearchPos = 0;
@@ -1038,8 +1038,8 @@ LRESULT WC_DataGrid::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 							++characterSearchPos;
 						}
 
-						//If we found a new edit position within the data string, set it
-						//here, otherwise move the edit position to the end of the string.
+						// If we found a new edit position within the data string, set it
+						// here, otherwise move the edit position to the end of the string.
 						if (foundNewEditPos)
 						{
 							SelectCharacter(newEditPos);
@@ -1049,30 +1049,30 @@ LRESULT WC_DataGrid::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 							SelectCharacter(stringLength);
 						}
 
-						//If drag select start requests were being ignored, reactivate
-						//them now that the selected character number has been set.
+						// If drag select start requests were being ignored, reactivate
+						// them now that the selected character number has been set.
 						_ignoreDragSelectStart = false;
 
-						//Flag that a selection pixel pos change is no longer pending
+						// Flag that a selection pixel pos change is no longer pending
 						_editModeSelectionPosChangePendingInPixels = false;
 					}
 
-					//Flag that an edit position change is no longer pending
+					// Flag that an edit position change is no longer pending
 					_editModeSelectionPosChangePending = false;
 
-					//Calculate the total width of the rendered text content for this cell
+					// Calculate the total width of the rendered text content for this cell
 					SIZE totalTextSize;
 					GetTextExtentPoint32(hdc, cellDataRaw, cellDataRawLength, &totalTextSize);
 					unsigned int totalTextWidthInPixels = (unsigned int)totalTextSize.cx;
 
-					//Calculate the width of the rendered text content for this cell up to
-					//the current selected character number
+					// Calculate the width of the rendered text content for this cell up to
+					// the current selected character number
 					SIZE textSizeToSelectedCharacter;
 					GetTextExtentPoint32(hdc, cellDataRaw, _selectedCharacterNo, &textSizeToSelectedCharacter);
 					unsigned int textWidthInPixelsToSelectedCharacter = (unsigned int)textSizeToSelectedCharacter.cx;
 
-					//Ensure the current edit position lies within the visible region of
-					//the cell, shifting the content horizontally if it does not.
+					// Ensure the current edit position lies within the visible region of
+					// the cell, shifting the content horizontally if it does not.
 					bool editPosLiesWithinVisibleCellRegion = false;
 					unsigned int availableTextSize = (unsigned int)(textEndPosX - textStartPosX);
 					unsigned int editCellPixelOffsetAmount = (availableTextSize / 4) + 1;
@@ -1094,11 +1094,11 @@ LRESULT WC_DataGrid::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 						}
 					}
 
-					//If we need to update the caret position, do it now.
+					// If we need to update the caret position, do it now.
 					if (setCaretPosPending)
 					{
-						//Calculate the number of characters in the string for this cell
-						//that precede the caret position
+						// Calculate the number of characters in the string for this cell
+						// that precede the caret position
 						int stringLength = (int)cellDataRawLength;
 						int selectedCharacterNoWithinString = _selectedCharacterNo;
 						if (selectedCharacterNoWithinString > stringLength)
@@ -1106,8 +1106,8 @@ LRESULT WC_DataGrid::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 							selectedCharacterNoWithinString = stringLength;
 						}
 
-						//Calculate the rendered size of the text string component that
-						//precedes the caret position
+						// Calculate the rendered size of the text string component that
+						// precedes the caret position
 						int precedingStringSizeBeforeCaret = 0;
 						if (selectedCharacterNoWithinString > 0)
 						{
@@ -1119,13 +1119,13 @@ LRESULT WC_DataGrid::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 							}
 						}
 
-						//Position the caret at the required location
+						// Position the caret at the required location
 						SetCaretPos((textStartPosX + precedingStringSizeBeforeCaret) - _editCellHorizontalPixelOffset, textStartPosY);
 					}
 
-					//If drag select is active, hide the caret if it is currently visible,
-					//and flag it to reappear again when drag select finishes, otherwise
-					//show the caret if a show caret operation is pending.
+					// If drag select is active, hide the caret if it is currently visible,
+					// and flag it to reappear again when drag select finishes, otherwise
+					// show the caret if a show caret operation is pending.
 					if (DragSelectActive() && (_dragSelectStartPos != _dragSelectEndPos))
 					{
 						if (!_editModeShowCaretPending)
@@ -1141,11 +1141,11 @@ LRESULT WC_DataGrid::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 					}
 				}
 
-				//Update the content of this cell
+				// Update the content of this cell
 				if (cellControlInfo.controlType == CellControlType::CheckBox)
 				{
-					//Calculate the position and size of the checkbox control for this
-					//cell
+					// Calculate the position and size of the checkbox control for this
+					// cell
 					int controlSmallestDimension = (cellControlInfo.controlWidth < cellControlInfo.controlHeight)? cellControlInfo.controlWidth: cellControlInfo.controlHeight;
 					RECT rect;
 					rect.left = cellControlInfo.controlPosX;
@@ -1153,7 +1153,7 @@ LRESULT WC_DataGrid::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 					rect.top = cellControlInfo.controlPosY;
 					rect.bottom = cellControlInfo.controlPosY + controlSmallestDimension;
 
-					//Draw the checkbox for this cell
+					// Draw the checkbox for this cell
 					HTHEME hTheme = OpenThemeData(_hwnd, WC_BUTTON);
 					if (hTheme != NULL)
 					{
@@ -1164,18 +1164,18 @@ LRESULT WC_DataGrid::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 				}
 				else if ((cellControlInfo.controlType == CellControlType::TextBox) || (cellControlInfo.controlType == CellControlType::ComboBox) || (cellControlInfo.controlType == CellControlType::TreeEntry) || (cellControlInfo.controlType == CellControlType::TextBoxWithButton))
 				{
-					//If this is a tree entry cell and an expand icon needs to be drawn
-					//for it, draw it now.
+					// If this is a tree entry cell and an expand icon needs to be drawn
+					// for it, draw it now.
 					if ((cellControlInfo.controlType == CellControlType::TreeEntry) && cellControlInfo.showExpandIcon && (cellControlInfo.treeEntryIndentLevel > 0))
 					{
-						//Calculate the position of the expand icon
+						// Calculate the position of the expand icon
 						RECT expandIconRect;
 						expandIconRect.left = cellControlInfo.controlPosX;
 						expandIconRect.right = cellControlInfo.controlPosX + cellControlInfo.controlWidth;
 						expandIconRect.top = cellControlInfo.controlPosY;
 						expandIconRect.bottom = cellControlInfo.controlPosY + cellControlInfo.controlHeight;
 
-						//Select the text character to use to represent the expand icon
+						// Select the text character to use to represent the expand icon
 						std::wstring expandIconText;
 						if (!cellControlInfo.expandIconIsExpanded)
 						{
@@ -1186,28 +1186,28 @@ LRESULT WC_DataGrid::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 							expandIconText = L"\u25E2";
 						}
 
-						//Determine the colour settings to use for the expand icon
+						// Determine the colour settings to use for the expand icon
 						WinColor treeArrowOpenBorder(60, 60, 60);
 						WinColor treeArrowClosedBorder(150, 150, 150);
 						COLORREF treeArrowColor = (cellControlInfo.expandIconIsExpanded)? treeArrowOpenBorder.GetColorREF(): treeArrowClosedBorder.GetColorREF();
 
-						//Draw the expand icon for this cell
+						// Draw the expand icon for this cell
 						SetTextColor(hdc, treeArrowColor);
 						DrawText(hdc, expandIconText.c_str(), (int)expandIconText.size(), &expandIconRect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 						SetTextColor(hdc, colorTextFrontForCell.GetColorREF());
 					}
 
-					//Calculate the position and size of the text content within this cell
+					// Calculate the position and size of the text content within this cell
 					RECT rect;
 					rect.left = textStartPosX;
 					rect.right = textEndPosX;
 					rect.top = textStartPosY;
 					rect.bottom = textEndPosY;
 
-					//Draw the text for this cell
+					// Draw the text for this cell
 					if (!editModeActiveForCell)
 					{
-						//Determine the ellipsis mode to use for this cell
+						// Determine the ellipsis mode to use for this cell
 						UINT ellipsisMode = 0;
 						switch (cellControlInfo.ellipsisMode)
 						{
@@ -1219,39 +1219,39 @@ LRESULT WC_DataGrid::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 							break;
 						}
 
-						//Draw the text for this cell
+						// Draw the text for this cell
 						DrawText(hdc, cellDataRaw, cellDataRawLength, &rect, DT_LEFT | DT_VCENTER | DT_SINGLELINE | ellipsisMode);
 					}
 					else
 					{
-						//Setup a clipping region to restrict text drawing to the visible
-						//text area of this cell
+						// Setup a clipping region to restrict text drawing to the visible
+						// text area of this cell
 						HRGN textClippingRegion = CreateRectRgnIndirect(&rect);
 						SelectClipRgn(hdc, textClippingRegion);
 
-						//Adjust the text drawing area for this cell to take into account
-						//the current horizontal pixel offset value. This will cause us to
-						//start the text drawing process before the left border of the
-						//text region, with the clipping region we've defined above
-						//preventing pixels in this area actually being modified.
+						// Adjust the text drawing area for this cell to take into account
+						// the current horizontal pixel offset value. This will cause us to
+						// start the text drawing process before the left border of the
+						// text region, with the clipping region we've defined above
+						// preventing pixels in this area actually being modified.
 						rect.left -= (int)_editCellHorizontalPixelOffset;
 
-						//Render the text for this cell
+						// Render the text for this cell
 						if (!DragSelectActive())
 						{
 							DrawText(hdc, cellDataRaw, cellDataRawLength, &rect, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
 						}
 						else
 						{
-							//Reset the right boundary of our text render region to be the
-							//same as the left boundary. We do this because we calculate
-							//the right boundary for each element of the selected text
-							//string using a rolling calculation, adjusting the left
-							//boundary of each element to start at the right boundary of
-							//the preceding element.
+							// Reset the right boundary of our text render region to be the
+							// same as the left boundary. We do this because we calculate
+							// the right boundary for each element of the selected text
+							// string using a rolling calculation, adjusting the left
+							// boundary of each element to start at the right boundary of
+							// the preceding element.
 							rect.right = rect.left;
 
-							//Draw any text before the selected region
+							// Draw any text before the selected region
 							if (_dragSelectStartPos > 0)
 							{
 								SIZE textSize;
@@ -1261,7 +1261,7 @@ LRESULT WC_DataGrid::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 								DrawText(hdc, cellDataRaw, _dragSelectStartPos, &rect, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
 							}
 
-							//Set the text colour to the selected text colour
+							// Set the text colour to the selected text colour
 							WinColor colorSelectedEditTextFrontForRow = colorEditTextFrontForRow;
 							WinColor colorSelectedEditTextBackForRow = colorEditTextBackForRow;
 							colorSelectedEditTextFrontForRow.Invert();
@@ -1269,18 +1269,18 @@ LRESULT WC_DataGrid::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 							SetTextColor(hdc, colorSelectedEditTextFrontForRow.GetColorREF());
 							SetBkColor(hdc, colorSelectedEditTextBackForRow.GetColorREF());
 
-							//Draw the selected text
+							// Draw the selected text
 							SIZE textSize;
 							GetTextExtentPoint32(hdc, (cellDataRaw + _dragSelectStartPos), (_dragSelectEndPos - _dragSelectStartPos), &textSize);
 							rect.left = rect.right;
 							rect.right = rect.left + textSize.cx;
 							DrawText(hdc, (cellDataRaw + _dragSelectStartPos), (_dragSelectEndPos - _dragSelectStartPos), &rect, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
 
-							//Restore the text colour
+							// Restore the text colour
 							SetTextColor(hdc, colorEditTextFrontForRow.GetColorREF());
 							SetBkColor(hdc, colorEditTextBackForRow.GetColorREF());
 
-							//Draw any text after the selected region
+							// Draw any text after the selected region
 							if (_dragSelectEndPos < cellDataRawLength)
 							{
 								SIZE textSize;
@@ -1291,56 +1291,56 @@ LRESULT WC_DataGrid::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 							}
 						}
 
-						//Remove the text clipping region for this cell
+						// Remove the text clipping region for this cell
 						SelectClipRgn(hdc, NULL);
 						DeleteObject(textClippingRegion);
 					}
 				}
 			}
 
-			//Create a new pen to draw the cell border
+			// Create a new pen to draw the cell border
 			HPEN hpen = CreatePen(PS_SOLID, 0, lineColor.GetColorREF());
 			HPEN hpenOld = (HPEN)SelectObject(hdc, hpen);
 
-			//Draw the dividing line marking the right end of this column
+			// Draw the dividing line marking the right end of this column
 			MoveToEx(hdc, columnEndPosX - 1, columnStartPosY, NULL);
 			LineTo(hdc, columnEndPosX - 1, columnEndPosY);
 
-			//If this row is within the data buffer for this column, draw the dividing
-			//line marking the bottom of this column.
+			// If this row is within the data buffer for this column, draw the dividing
+			// line marking the bottom of this column.
 			//##FIX## Either make this work properly for columns with mismatched lengths,
-			//or require all columns to be defined for the same number of rows.
+			// or require all columns to be defined for the same number of rows.
 			if (cellDataRaw != 0)
 			{
 				MoveToEx(hdc, columnStartPosX, columnEndPosY, NULL);
 				LineTo(hdc, columnEndPosX, columnEndPosY);
 			}
 
-			//Destroy the pen object used to draw the cell border
+			// Destroy the pen object used to draw the cell border
 			SelectObject(hdc, hpenOld);
 			DeleteObject(hpen);
 
-			//Update the column start position for the next column
+			// Update the column start position for the next column
 			columnStartPosX += (int)columnData.actualWidth;
 		}
 	}
 
-	//If edit mode is active, but the active edit cell isn't currently visible on the
-	//screen, hide the caret if it is currently visible, and flag it to be shown again
-	//when the cell becomes visible.
+	// If edit mode is active, but the active edit cell isn't currently visible on the
+	// screen, hide the caret if it is currently visible, and flag it to be shown again
+	// when the cell becomes visible.
 	if (_editModeActive && !foundActiveEditCell && !_editModeShowCaretPending)
 	{
 		HideCaret(_hwnd);
 		_editModeShowCaretPending = true;
 	}
 
-	//Restore the state of the device context, and free any allocated handles
+	// Restore the state of the device context, and free any allocated handles
 	SelectObject(hdc, hfontOld);
 
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgWM_COMMAND(WPARAM wParam, LPARAM lParam)
 {
 	//##TODO## Clean up and comment this
@@ -1409,8 +1409,8 @@ LRESULT WC_DataGrid::msgWM_COMMAND(WPARAM wParam, LPARAM lParam)
 	else if ((HIWORD(wParam) == LBN_SELCANCEL) || (HIWORD(wParam) == LBN_KILLFOCUS))
 	{
 		//##TODO## Fix this comment
-		//If an open combobox selection list loses keyboard focus, destroy the selection
-		//list window.
+		// If an open combobox selection list loses keyboard focus, destroy the selection
+		// list window.
 		if ((HWND)lParam == _hwndComboBoxList)
 		{
 			DestroyWindow(_hwndComboBoxList);
@@ -1420,21 +1420,21 @@ LRESULT WC_DataGrid::msgWM_COMMAND(WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void WC_DataGrid::ShowCellSelectionList(unsigned int columnID, unsigned int rowNo, const CellControlInfo& cellControlInfo)
 {
-	//Destroy any other selection list that's currently visible
+	// Destroy any other selection list that's currently visible
 	if (_hwndComboBoxList != NULL)
 	{
 		DestroyWindow(_hwndComboBoxList);
 		_hwndComboBoxList = NULL;
 	}
 
-	//Save the associated row and column iD for the new selection list
+	// Save the associated row and column iD for the new selection list
 	_openComboBoxColumnID = columnID;
 	_openComboBoxRowNo = rowNo;
 
-	//Calculate the desired position of the selection list window
+	// Calculate the desired position of the selection list window
 	POINT cellPosAsPoint;
 	cellPosAsPoint.x = cellControlInfo.cellPosX;
 	cellPosAsPoint.y = cellControlInfo.cellPosY;
@@ -1442,13 +1442,13 @@ void WC_DataGrid::ShowCellSelectionList(unsigned int columnID, unsigned int rowN
 	int selectionListPosX = cellPosAsPoint.x;
 	int selectionListPosY = cellPosAsPoint.y + cellControlInfo.cellHeight;
 
-	//Create the selection list window
+	// Create the selection list window
 	_hwndComboBoxList = CreateWindowEx(0, WC_LISTBOX, L"", WS_POPUP | WS_DLGFRAME | WS_HSCROLL | WS_VSCROLL | LBS_NOTIFY | LBS_NOINTEGRALHEIGHT, selectionListPosX, selectionListPosY, 0, 0, _hwnd, NULL, _moduleHandle, NULL);
 	SendMessage(_hwndComboBoxList, WM_SETFONT, (WPARAM)_dataAreaFont, FALSE);
 
-	//Populate the selection list with each supplied entry, and calculate the width in
-	//pixels of the longest entry, as well as the list index of the currently selected
-	//item.
+	// Populate the selection list with each supplied entry, and calculate the width in
+	// pixels of the longest entry, as well as the list index of the currently selected
+	// item.
 	int currentSelectedItemIndex = -1;
 	int maxElementWidth = 0;
 	HDC hdc = GetDC(_hwndComboBoxList);
@@ -1456,18 +1456,18 @@ void WC_DataGrid::ShowCellSelectionList(unsigned int columnID, unsigned int rowN
 	std::wstring currentSelectedItemText = _columnIDIndex[columnID]->dataBuffer[rowNo];
 	for (size_t i = 0; i < cellControlInfo.selectionList.size(); ++i)
 	{
-		//Add this entry to the selection list
+		// Add this entry to the selection list
 		const std::wstring& selectionListEntry = cellControlInfo.selectionList[i];
 		int newListEntryIndex = (int)SendMessage(_hwndComboBoxList, LB_ADDSTRING, 0, (LPARAM)selectionListEntry.c_str());
 
-		//Check if this new selection list item is the currently selected item
+		// Check if this new selection list item is the currently selected item
 		if ((currentSelectedItemIndex < 0) && (selectionListEntry == currentSelectedItemText))
 		{
 			currentSelectedItemIndex = newListEntryIndex;
 		}
 
-		//If this selection list item is the widest item in pixels so far, update the max
-		//element width.
+		// If this selection list item is the widest item in pixels so far, update the max
+		// element width.
 		SIZE textSize;
 		BOOL getTextExtentPoint32Return = GetTextExtentPoint32(hdc, selectionListEntry.c_str(), (int)selectionListEntry.size(), &textSize);
 		if (getTextExtentPoint32Return != 0)
@@ -1478,16 +1478,16 @@ void WC_DataGrid::ShowCellSelectionList(unsigned int columnID, unsigned int rowN
 	SelectObject(hdc, hfontOld);
 	ReleaseDC(_hwndComboBoxList, hdc);
 
-	//Set the maximum horizontal extent of the selection list to the calculated pixel
-	//width of the largest element. We need to do this in order for the horizontal
-	//scrollbar to be displayed and scroll to the correct extents.
+	// Set the maximum horizontal extent of the selection list to the calculated pixel
+	// width of the largest element. We need to do this in order for the horizontal
+	// scrollbar to be displayed and scroll to the correct extents.
 	SendMessage(_hwndComboBoxList, LB_SETHORIZONTALEXTENT, maxElementWidth, 0);
 
-	//Calculate the desired width and height of the selection list window
+	// Calculate the desired width and height of the selection list window
 	//##TODO## Calculate a more sensible maximum height for the selection list
 	//##TODO## Take into account the current monitor screen extents when calculating a
-	//position and size of the selection list, to ensure it is always fully visible on the
-	//screen.
+	// position and size of the selection list, to ensure it is always fully visible on the
+	// screen.
 	int maxSelectionListHeight = 200; //##DEBUG##
 	int selectionListWidth = cellControlInfo.cellWidth;
 	int selectionListHeight = ((int)cellControlInfo.selectionList.size() * _fontHeight) + (GetSystemMetrics(SM_CYDLGFRAME) * 2);
@@ -1497,23 +1497,23 @@ void WC_DataGrid::ShowCellSelectionList(unsigned int columnID, unsigned int rowN
 	}
 	selectionListHeight = (selectionListHeight > maxSelectionListHeight)? maxSelectionListHeight: selectionListHeight;
 
-	//Resize the selection list window to the desired width and height
+	// Resize the selection list window to the desired width and height
 	SetWindowPos(_hwndComboBoxList, NULL, 0, 0, selectionListWidth, selectionListHeight, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
 
-	//Set the currently selected item as the initial selection for the selection list
+	// Set the currently selected item as the initial selection for the selection list
 	SendMessage(_hwndComboBoxList, LB_SETCURSEL, currentSelectedItemIndex, 0);
 
-	//Show the selection list window
+	// Show the selection list window
 	ShowWindow(_hwndComboBoxList, SW_SHOW);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgWM_SETFONT(WPARAM wParam, LPARAM lParam)
 {
-	//Store the font to use for out controls
+	// Store the font to use for out controls
 	_controlFont = (HFONT)wParam;
 
-	//Pass this message on to each created child control
+	// Pass this message on to each created child control
 	if (_hwndHeader != NULL)
 	{
 		SendMessage(_hwndHeader, WM_SETFONT, wParam, lParam);
@@ -1527,7 +1527,7 @@ LRESULT WC_DataGrid::msgWM_SETFONT(WPARAM wParam, LPARAM lParam)
 		SendMessage(*i, WM_SETFONT, wParam, lParam);
 	}
 
-	//If no data area font has been defined, use this font for our data area as well.
+	// If no data area font has been defined, use this font for our data area as well.
 	if (_dataAreaFont == NULL)
 	{
 		msgGRID_SETDATAAREAFONT(wParam, NULL);
@@ -1535,9 +1535,9 @@ LRESULT WC_DataGrid::msgWM_SETFONT(WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
-//Window size functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Window size functions
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int WC_DataGrid::GetTotalRowWidth() const
 {
 	unsigned int totalRowWidth = 0;
@@ -1548,10 +1548,10 @@ unsigned int WC_DataGrid::GetTotalRowWidth() const
 	return totalRowWidth;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void WC_DataGrid::UpdateWindowSize()
 {
-	//Calculate the maximum number of rows which can be shown within the control
+	// Calculate the maximum number of rows which can be shown within the control
 	int textAreaHeight = _controlHeight - _headerHeight;
 	if (_controlHeight < _headerHeight)
 	{
@@ -1561,11 +1561,11 @@ void WC_DataGrid::UpdateWindowSize()
 	unsigned int newVisibleRows = (unsigned int)((textAreaHeight + (rowHeight - 1)) / rowHeight);
 	unsigned int newFullyVisibleRows = (unsigned int)(textAreaHeight / rowHeight);
 
-	//If we're not using automatic scroll management, and more rows need to be shown after
-	//the resize, update the data buffer sizes for each column.
+	// If we're not using automatic scroll management, and more rows need to be shown after
+	// the resize, update the data buffer sizes for each column.
 	if (!_autoScrollingManagement && (newVisibleRows > _visibleRows))
 	{
-		//Resize any data buffers that need to be adjusted
+		// Resize any data buffers that need to be adjusted
 		_rowColorDataArray.resize(newVisibleRows);
 		bool resizedDataBuffer = false;
 		for (ColumnDataIterator i = _columnData.begin(); i != _columnData.end(); ++i)
@@ -1577,50 +1577,50 @@ void WC_DataGrid::UpdateWindowSize()
 			}
 		}
 
-		//If we needed to resize at least one data buffer, recalculate the new highest
-		//column data index.
+		// If we needed to resize at least one data buffer, recalculate the new highest
+		// column data index.
 		if (resizedDataBuffer)
 		{
 			_largestColumnDataArraySize = CalculateLargestColumnDataArraySize();
 		}
 	}
 
-	//Ensure the number of fully visible rows is recorded as at least 1, and store the new
-	//value now.
+	// Ensure the number of fully visible rows is recorded as at least 1, and store the new
+	// value now.
 	newFullyVisibleRows = (newFullyVisibleRows <= 0)? 1: newFullyVisibleRows;
 	_fullyVisibleRows = newFullyVisibleRows;
 
-	//If the number of visible rows has changed, update the stored visible row state.
+	// If the number of visible rows has changed, update the stored visible row state.
 	if (newVisibleRows != _visibleRows)
 	{
-		//Update the number of rows to be displayed
+		// Update the number of rows to be displayed
 		_visibleRows = newVisibleRows;
 
-		//If the number of visible rows has changed, send a message to the parent control
-		//to notify it about the change in visible rows.
+		// If the number of visible rows has changed, send a message to the parent control
+		// to notify it about the change in visible rows.
 		Grid_NewVisibleRowCount newRowCountState;
 		newRowCountState.visibleRows = newVisibleRows;
 		SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::NewRowCount), (LPARAM)&newRowCountState);
 	}
 
-	//If automatic scroll management is enabled, recalculate the new scroll settings based
-	//on the new window size.
+	// If automatic scroll management is enabled, recalculate the new scroll settings based
+	// on the new window size.
 	if (_autoScrollingManagement)
 	{
 		RecalculateScrollPosition();
 	}
 
-	//Update the current scrollbar state
+	// Update the current scrollbar state
 	UpdateScrollbarSettings(_currentScrollHOffset, _vscrollCurrent, true);
 
-	//Force the control to redraw
+	// Force the control to redraw
 	ForceControlRedraw();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int WC_DataGrid::CalculateLargestColumnDataArraySize()
 {
-	//Calculate the largest column data array size
+	// Calculate the largest column data array size
 	unsigned int calculatedLargestColumnDataArraySize = 0;
 	for (std::list<ColumnData>::const_iterator i = _columnData.begin(); i != _columnData.end(); ++i)
 	{
@@ -1630,15 +1630,15 @@ unsigned int WC_DataGrid::CalculateLargestColumnDataArraySize()
 	return calculatedLargestColumnDataArraySize;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void WC_DataGrid::RecalculateScrollPosition()
 {
-	//Reset the vertical scroll minimum value and number of values per page
+	// Reset the vertical scroll minimum value and number of values per page
 	_vscrollMin = 0;
 	_vscrollValuesPerPage = _fullyVisibleRows;
 
-	//Calculate a new maximum vertical scroll position, using the size of the largest
-	//content buffer.
+	// Calculate a new maximum vertical scroll position, using the size of the largest
+	// content buffer.
 	int newVScrollMax = 0;
 	for (std::list<ColumnData>::const_iterator i = _columnData.begin(); i != _columnData.end(); ++i)
 	{
@@ -1648,18 +1648,18 @@ void WC_DataGrid::RecalculateScrollPosition()
 	_vscrollMax = (newVScrollMax > _vscrollValuesPerPage)? newVScrollMax - _vscrollValuesPerPage: 0;
 	_vscrollMaxTrueLimit = newVScrollMax;
 
-	//Clamp the current vertical scroll position to the new maximum vertical scroll
-	//position
+	// Clamp the current vertical scroll position to the new maximum vertical scroll
+	// position
 	_vscrollCurrent = (_vscrollCurrent > _vscrollMax)? _vscrollMax: _vscrollCurrent;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void WC_DataGrid::UpdateScrollbarSettings(int newScrollHOffset, int newScrollVOffset, bool controlSizeChanged)
 {
-	//Calculate the new settings for the horizontal scrollbar
+	// Calculate the new settings for the horizontal scrollbar
 	unsigned int totalRowWidth = GetTotalRowWidth();
 
-	//Clamp the new horizontal scroll offset to the upper and lower boundaries
+	// Clamp the new horizontal scroll offset to the upper and lower boundaries
 	if ((newScrollHOffset + _controlWidth) > (int)totalRowWidth)
 	{
 		newScrollHOffset = (int)totalRowWidth - _controlWidth;
@@ -1669,16 +1669,16 @@ void WC_DataGrid::UpdateScrollbarSettings(int newScrollHOffset, int newScrollVOf
 		newScrollHOffset = 0;
 	}
 
-	//If the horizontal scroll offset has changed, update the horizontal scroll settings.
+	// If the horizontal scroll offset has changed, update the horizontal scroll settings.
 	if (controlSizeChanged || (_currentScrollHOffset != newScrollHOffset))
 	{
-		//Latch the new scroll value
+		// Latch the new scroll value
 		_currentScrollHOffset = newScrollHOffset;
 
-		//Reposition the header control to handle horizontal scrolling
+		// Reposition the header control to handle horizontal scrolling
 		MoveWindow(_hwndHeader, _headerPosX - _currentScrollHOffset, _headerPosY, _headerWidth + _currentScrollHOffset, _headerHeight, TRUE);
 
-		//Apply the latest horizontal scrollbar settings
+		// Apply the latest horizontal scrollbar settings
 		SCROLLINFO hscrollInfo;
 		hscrollInfo.cbSize = sizeof(hscrollInfo);
 		hscrollInfo.nMin = 0;
@@ -1688,12 +1688,12 @@ void WC_DataGrid::UpdateScrollbarSettings(int newScrollHOffset, int newScrollVOf
 		hscrollInfo.fMask = SIF_POS | SIF_RANGE | SIF_PAGE;
 		SetScrollInfo(_hwnd, SB_HORZ, &hscrollInfo, TRUE);
 
-		//Flag that the caret position needs to be updated in edit mode
+		// Flag that the caret position needs to be updated in edit mode
 		_editModeSelectionPosChangePendingInPixels = false;
 		_editModeSelectionPosChangePending = true;
 	}
 
-	//Clamp the new vertical scroll offset to the upper and lower boundaries
+	// Clamp the new vertical scroll offset to the upper and lower boundaries
 	if (newScrollVOffset < _vscrollMin)
 	{
 		newScrollVOffset = _vscrollMin;
@@ -1703,13 +1703,13 @@ void WC_DataGrid::UpdateScrollbarSettings(int newScrollHOffset, int newScrollVOf
 		newScrollVOffset = _vscrollMax;
 	}
 
-	//If the vertical scroll offset has changed, update the vertical scroll settings.
+	// If the vertical scroll offset has changed, update the vertical scroll settings.
 	if (controlSizeChanged || (_vscrollCurrent != newScrollVOffset))
 	{
-		//Latch the new scroll value
+		// Latch the new scroll value
 		_vscrollCurrent = newScrollVOffset;
 
-		//Apply the latest vertical scrollbar settings
+		// Apply the latest vertical scrollbar settings
 		SCROLLINFO vscrollInfo;
 		vscrollInfo.cbSize = sizeof(vscrollInfo);
 		vscrollInfo.nMin = _vscrollMin;
@@ -1719,16 +1719,16 @@ void WC_DataGrid::UpdateScrollbarSettings(int newScrollHOffset, int newScrollVOf
 		vscrollInfo.fMask = SIF_POS | SIF_RANGE | SIF_PAGE;
 		SetScrollInfo(_hwnd, SB_VERT, &vscrollInfo, TRUE);
 
-		//Flag that the caret position needs to be updated in edit mode
+		// Flag that the caret position needs to be updated in edit mode
 		_editModeSelectionPosChangePendingInPixels = false;
 		_editModeSelectionPosChangePending = true;
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void WC_DataGrid::ForceControlRedraw()
 {
-	//Force the control to redraw
+	// Force the control to redraw
 	InvalidateRect(_hwnd, NULL, FALSE);
 	for (std::set<HWND>::const_iterator i = _childControlSet.begin(); i != _childControlSet.end(); ++i)
 	{
@@ -1736,18 +1736,18 @@ void WC_DataGrid::ForceControlRedraw()
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void WC_DataGrid::RecalculateColumnWidths()
 {
-	//Calculate the size of all columns with a non-proportional size, and build a list of
-	//all the proportional columns and the sum total of all proportional width weightings.
+	// Calculate the size of all columns with a non-proportional size, and build a list of
+	// all the proportional columns and the sum total of all proportional width weightings.
 	int fixedColumnWidths = 0;
 	std::list<ColumnData*> proportionalColumnSet;
 	float proportionalColumnWidthWeightingSum = 0;
 	for (std::list<ColumnData>::iterator i = _columnData.begin(); i != _columnData.end(); ++i)
 	{
-		//If this is a proportional column, add it to the proportional column set, and
-		//advance to the next column.
+		// If this is a proportional column, add it to the proportional column set, and
+		// advance to the next column.
 		ColumnData& column = *i;
 		if (column.sizeMode == ColumnSizeMode::Proportional)
 		{
@@ -1756,7 +1756,7 @@ void WC_DataGrid::RecalculateColumnWidths()
 			continue;
 		}
 
-		//Calculate the desired size of this column
+		// Calculate the desired size of this column
 		unsigned int newColumnWidth = 0;
 		if (column.sizeMode == ColumnSizeMode::Absolute)
 		{
@@ -1764,22 +1764,22 @@ void WC_DataGrid::RecalculateColumnWidths()
 		}
 		else if (column.sizeMode == ColumnSizeMode::SizeToContent)
 		{
-			//Create a device content to perform text size calculations
+			// Create a device content to perform text size calculations
 			HDC hdc = GetDC(_hwnd);
 
-			//Calculate the longest content entry in this column, including the column
-			//header.
+			// Calculate the longest content entry in this column, including the column
+			// header.
 			HFONT hfontOld = (HFONT)SelectObject(hdc, _dataAreaFont);
 			unsigned int longestContentWidth = 0;
 			std::vector<CellControlInfo>& controlListForColumn = _customControlForCell[column.columnID];
 			for (size_t columnDataIndex = 0; columnDataIndex < column.dataBuffer.size(); ++columnDataIndex)
 			{
-				//Calculate the width in pixels of the text for this cell
+				// Calculate the width in pixels of the text for this cell
 				SIZE textSize;
 				GetTextExtentPoint32(hdc, column.dataBuffer[columnDataIndex].c_str(), (int)column.dataBuffer[columnDataIndex].size(), &textSize);
 				unsigned int cellTextWidth = (unsigned int)textSize.cx;
 
-				//Calculate the total width of all the content in this cell
+				// Calculate the total width of all the content in this cell
 				unsigned int totalCellContentWidth = cellTextWidth;
 				if (columnDataIndex < controlListForColumn.size())
 				{
@@ -1806,46 +1806,46 @@ void WC_DataGrid::RecalculateColumnWidths()
 					}
 				}
 
-				//If this cell content is the longest encountered for this column so far,
-				//update the longest content width.
+				// If this cell content is the longest encountered for this column so far,
+				// update the longest content width.
 				longestContentWidth = (longestContentWidth < totalCellContentWidth)? totalCellContentWidth: longestContentWidth;
 			}
 
-			//Calculate the minimum allowable width for this column
+			// Calculate the minimum allowable width for this column
 			unsigned int minWidth;
 			if (column.minWidth >= 0)
 			{
-				//Set the minimum width to the user supplied value
+				// Set the minimum width to the user supplied value
 				minWidth = (unsigned int)column.minWidth;
 			}
 			else
 			{
-				//Set the minimum width to the size required to display the header text fully
+				// Set the minimum width to the size required to display the header text fully
 				SelectObject(hdc, _controlFont);
 				SIZE textSize;
 				GetTextExtentPoint32(hdc, column.name.c_str(), (int)column.name.size(), &textSize);
 				minWidth = textSize.cx + (_marginSize * 2) + _fontHeight;
 			}
 
-			//Release the allocated device context
+			// Release the allocated device context
 			SelectObject(hdc, hfontOld);
 			ReleaseDC(_hwnd, hdc);
 
-			//Calculate the desired width for this column
+			// Calculate the desired width for this column
 			newColumnWidth = longestContentWidth + (_marginSize * 2) + _fontHeight;
 
-			//Limit the desired column width by its allowed minimum and maximum sizes
+			// Limit the desired column width by its allowed minimum and maximum sizes
 			newColumnWidth = ((column.maxWidth >= 0) && (newColumnWidth > (unsigned int)column.maxWidth))? (unsigned int)column.maxWidth: newColumnWidth;
 			newColumnWidth = (newColumnWidth < minWidth)? minWidth: newColumnWidth;
 		}
 
-		//If the width for this column has changed, update it in the header control.
+		// If the width for this column has changed, update it in the header control.
 		if (column.actualWidth != newColumnWidth)
 		{
-			//Record the new actual width for this proportional column
+			// Record the new actual width for this proportional column
 			column.actualWidth = newColumnWidth;
 
-			//Update the width of the column within our header control
+			// Update the width of the column within our header control
 			column.manuallySettingColumnWidth = true;
 			HDITEM hdItem;
 			hdItem.mask = HDI_WIDTH;
@@ -1854,29 +1854,29 @@ void WC_DataGrid::RecalculateColumnWidths()
 			column.manuallySettingColumnWidth = false;
 		}
 
-		//Add the width of this column to the sum of fixed column widths
+		// Add the width of this column to the sum of fixed column widths
 		fixedColumnWidths += (int)column.actualWidth;
 	}
 
-	//Update the size of each proportional column
+	// Update the size of each proportional column
 	unsigned int proportionalColumnSpaceRemaining = (_headerWidth < fixedColumnWidths)? 0: _headerWidth - fixedColumnWidths;
 	for (std::list<ColumnData*>::iterator i = proportionalColumnSet.begin(); i != proportionalColumnSet.end(); ++i)
 	{
-		//Calculate the new desired width for this proportional column
+		// Calculate the new desired width for this proportional column
 		ColumnData& column = *(*i);
 		float proportionalSpaceForColumn = column.proportionalWidth / proportionalColumnWidthWeightingSum;
 		unsigned int newColumnWidth = (unsigned int)(((float)proportionalColumnSpaceRemaining * proportionalSpaceForColumn) + 0.5f);
 
-		//Calculate the minimum allowable width for this column
+		// Calculate the minimum allowable width for this column
 		unsigned int minWidth;
 		if (column.minWidth >= 0)
 		{
-			//Set the minimum width to the user supplied value
+			// Set the minimum width to the user supplied value
 			minWidth = (unsigned int)column.minWidth;
 		}
 		else
 		{
-			//Set the minimum width to the size required to display the header text fully
+			// Set the minimum width to the size required to display the header text fully
 			HDC hdc = GetDC(_hwnd);
 			HFONT hfontOld = (HFONT)SelectObject(hdc, _controlFont);
 			SIZE textSize;
@@ -1886,17 +1886,17 @@ void WC_DataGrid::RecalculateColumnWidths()
 			minWidth = textSize.cx + (_marginSize * 2) + _fontHeight;
 		}
 
-		//Limit the desired column width by its allowed minimum and maximum sizes
+		// Limit the desired column width by its allowed minimum and maximum sizes
 		newColumnWidth = ((column.maxWidth >= 0) && (newColumnWidth > (unsigned int)column.maxWidth))? (unsigned int)column.maxWidth: newColumnWidth;
 		newColumnWidth = (newColumnWidth < minWidth)? minWidth: newColumnWidth;
 
-		//If the width for this column has changed, update it.
+		// If the width for this column has changed, update it.
 		if (column.actualWidth != newColumnWidth)
 		{
-			//Record the new actual width for this proportional column
+			// Record the new actual width for this proportional column
 			column.actualWidth = newColumnWidth;
 
-			//Update the width of the column within our header control
+			// Update the width of the column within our header control
 			column.manuallySettingColumnWidth = true;
 			HDITEM hdItem;
 			hdItem.mask = HDI_WIDTH;
@@ -1907,32 +1907,32 @@ void WC_DataGrid::RecalculateColumnWidths()
 	}
 }
 
-//----------------------------------------------------------------------------------------
-//Edit functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Edit functions
+//----------------------------------------------------------------------------------------------------------------------
 bool WC_DataGrid::IsCellEditingActive() const
 {
 	return _editModeActive;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool WC_DataGrid::BeginCellEditing(int cursorPosInPixels)
 {
-	//If we're already in cell editing mode, update the current cursor position, and
-	//return.
+	// If we're already in cell editing mode, update the current cursor position, and
+	// return.
 	if (_editModeActive)
 	{
 		UpdateCellEditingPos(cursorPosInPixels);
 		return false;
 	}
 
-	//Ensure a cell is currently selected
+	// Ensure a cell is currently selected
 	if (!_rowSelected || !_columnSelected)
 	{
 		return false;
 	}
 
-	//Retrieve the column data for the currently selected column
+	// Retrieve the column data for the currently selected column
 	ColumnIDIndexIterator columnIterator = _columnIDIndex.find(_selectedColumnID);
 	if (columnIterator == _columnIDIndex.end())
 	{
@@ -1940,8 +1940,8 @@ bool WC_DataGrid::BeginCellEditing(int cursorPosInPixels)
 	}
 	const ColumnData& columnData = *(columnIterator->second);
 
-	//Load the data for the currently selected cell in the target column into the edit
-	//buffer
+	// Load the data for the currently selected cell in the target column into the edit
+	// buffer
 	unsigned int columnDataArrayIndex = _selectedRowNo;
 	unsigned int columnDataArraySize = (unsigned int)columnData.dataBuffer.size();
 	if (columnDataArrayIndex >= columnDataArraySize)
@@ -1950,91 +1950,91 @@ bool WC_DataGrid::BeginCellEditing(int cursorPosInPixels)
 	}
 	_editBuffer = columnData.dataBuffer[columnDataArrayIndex];
 
-	//Flag that edit mode is now active
+	// Flag that edit mode is now active
 	_editModeActive = true;
 
-	//Set the caret position within the cell we're editing
+	// Set the caret position within the cell we're editing
 	UpdateCellEditingPos(cursorPosInPixels);
 
-	//Flag that the caret needs to be shown
+	// Flag that the caret needs to be shown
 	_editModeShowCaretPending = true;
 
-	//Clear the horizontal pixel offset for the cell being edited. This will be
-	//recalculated by the render process if required, and we don't want the horizontal
-	//offset for the previously edited cell to interfere.
+	// Clear the horizontal pixel offset for the cell being edited. This will be
+	// recalculated by the render process if required, and we don't want the horizontal
+	// offset for the previously edited cell to interfere.
 	_editCellHorizontalPixelOffset = 0;
 
-	//Since the operation has succeeded, return true.
+	// Since the operation has succeeded, return true.
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void WC_DataGrid::UpdateCellEditingPos(int cursorPosInPixels)
 {
-	//Flag that the caret position needs to be updated in edit mode
+	// Flag that the caret position needs to be updated in edit mode
 	_editModeNewSelectionPosInPixels = cursorPosInPixels;
 	_editModeSelectionPosChangePending = true;
 	_editModeSelectionPosChangePendingInPixels = true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void WC_DataGrid::CompleteCellEditing()
 {
-	//Check if cell editing mode is currently active
+	// Check if cell editing mode is currently active
 	if (!_editModeActive)
 	{
 		return;
 	}
 
-	//Notify the parent window of this edit complete event
+	// Notify the parent window of this edit complete event
 	Grid_CellEditEvent info;
 	info.targetRowNo = _selectedRowNo;
 	info.targetColumnID = _selectedColumnID;
 	info.newData = _editBuffer;
 	SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::CellEdit), (LPARAM)&info);
 
-	//Hide the caret now that we're exiting edit mode
+	// Hide the caret now that we're exiting edit mode
 	if (!_editModeShowCaretPending)
 	{
 		HideCaret(_hwnd);
 	}
 	_editModeShowCaretPending = false;
 
-	//Flag that cell editing mode is no longer active
+	// Flag that cell editing mode is no longer active
 	_editModeActive = false;
 
-	//Flag that drag select is no longer active
+	// Flag that drag select is no longer active
 	StopDragSelect();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void WC_DataGrid::CancelCellEditing()
 {
-	//Check if cell editing mode is currently active
+	// Check if cell editing mode is currently active
 	if (!_editModeActive)
 	{
 		return;
 	}
 
-	//Hide the caret now that we're exiting edit mode
+	// Hide the caret now that we're exiting edit mode
 	if (!_editModeShowCaretPending)
 	{
 		HideCaret(_hwnd);
 	}
 	_editModeShowCaretPending = false;
 
-	//Flag that cell editing mode is no longer active
+	// Flag that cell editing mode is no longer active
 	_editModeActive = false;
 
-	//Flag that drag select is no longer active
+	// Flag that drag select is no longer active
 	StopDragSelect();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void WC_DataGrid::SelectCharacter(int newCharacterPos)
 {
-	//Calculate the new selected character number, taking into account the actual
-	//character extents of the data in the edit buffer.
+	// Calculate the new selected character number, taking into account the actual
+	// character extents of the data in the edit buffer.
 	unsigned int previousSelectedCharacterNo = _selectedCharacterNo;
 	if (newCharacterPos < 0)
 	{
@@ -2049,18 +2049,18 @@ void WC_DataGrid::SelectCharacter(int newCharacterPos)
 		_selectedCharacterNo = (unsigned int)newCharacterPos;
 	}
 
-	//If we didn't actually end up altering the edit position, abort any further
-	//processing.
+	// If we didn't actually end up altering the edit position, abort any further
+	// processing.
 	if (previousSelectedCharacterNo == _selectedCharacterNo)
 	{
 		return;
 	}
 
-	//Flag that the caret position needs to be updated in edit mode
+	// Flag that the caret position needs to be updated in edit mode
 	_editModeSelectionPosChangePending = true;
 
-	//Adjust the current drag select position to take into account the new character
-	//selection
+	// Adjust the current drag select position to take into account the new character
+	// selection
 	if (DragSelectActive())
 	{
 		if (previousSelectedCharacterNo == _dragSelectStartPos)
@@ -2090,30 +2090,30 @@ void WC_DataGrid::SelectCharacter(int newCharacterPos)
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 size_t WC_DataGrid::PerformWordSearchForNextBoundary(size_t searchStartPos, size_t searchEndPos, const std::wstring& text)
 {
-	//Retrieve the active locale for the current environment
+	// Retrieve the active locale for the current environment
 	std::locale currentLocale;
 
-	//Calculate the adjustment value to use to advance to the next character in the
-	//requested search direction
+	// Calculate the adjustment value to use to advance to the next character in the
+	// requested search direction
 	size_t searchAdjustment = (searchStartPos <= searchEndPos)? 1: -1;
 
-	//Skip any leading whitespace or control characters starting from the current search
-	//position
+	// Skip any leading whitespace or control characters starting from the current search
+	// position
 	size_t currentSearchPos = searchStartPos;
 	while ((currentSearchPos != searchEndPos) && (std::isspace(text[currentSearchPos], currentLocale) || std::iscntrl(text[currentSearchPos], currentLocale)))
 	{
 		currentSearchPos += searchAdjustment;
 	}
 
-	//Search for the next point at which the category of character changes. We categorize
-	//all characters into three groups:
-	//1. Whitespace or control characters
-	//2..Alphanumeric characters
-	//3. Punctuation characters
-	//We generate a word break at each point where the category changes
+	// Search for the next point at which the category of character changes. We categorize
+	// all characters into three groups:
+	// 1. Whitespace or control characters
+	// 2..Alphanumeric characters
+	// 3. Punctuation characters
+	// We generate a word break at each point where the category changes
 	size_t previousSearchPos = currentSearchPos;
 	while ((currentSearchPos != searchEndPos)
 		&& ((std::isspace(text[currentSearchPos], currentLocale) || std::iscntrl(text[currentSearchPos], currentLocale)) == (std::isspace(text[previousSearchPos], currentLocale) || std::iscntrl(text[previousSearchPos], currentLocale)))
@@ -2123,21 +2123,21 @@ size_t WC_DataGrid::PerformWordSearchForNextBoundary(size_t searchStartPos, size
 		currentSearchPos += searchAdjustment;
 	}
 
-	//Return the next calculated word break position in the requested direction
+	// Return the next calculated word break position in the requested direction
 	return currentSearchPos;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void WC_DataGrid::ForceEditCellIntoView()
 {
 	//##TODO## Adjust the vertical and horizontal scroll settings of the control if
-	//necessary, to ensure the cell currently being edited is visible to the user.
+	// necessary, to ensure the cell currently being edited is visible to the user.
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgWM_VSCROLL(WPARAM wParam, LPARAM lParam)
 {
-	//Handle this scroll event
+	// Handle this scroll event
 	int vscrollNew = _vscrollCurrent;
 	switch (LOWORD(wParam))
 	{
@@ -2232,22 +2232,22 @@ LRESULT WC_DataGrid::msgWM_VSCROLL(WPARAM wParam, LPARAM lParam)
 		break;
 	}
 
-	//Update the current scrollbar state
+	// Update the current scrollbar state
 	if (_autoScrollingManagement)
 	{
 		UpdateScrollbarSettings(_currentScrollHOffset, vscrollNew, false);
 	}
 
-	//Force the control to redraw
+	// Force the control to redraw
 	ForceControlRedraw();
 
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgWM_HSCROLL(WPARAM wParam, LPARAM lParam)
 {
-	//Handle this scroll event
+	// Handle this scroll event
 	int hscrollNew = _currentScrollHOffset;
 	unsigned int totalRowWidth = GetTotalRowWidth();
 	switch (LOWORD(wParam))
@@ -2279,16 +2279,16 @@ LRESULT WC_DataGrid::msgWM_HSCROLL(WPARAM wParam, LPARAM lParam)
 		break;}
 	}
 
-	//Update the current scrollbar state
+	// Update the current scrollbar state
 	UpdateScrollbarSettings(hscrollNew, _vscrollCurrent, false);
 
-	//Force the control to redraw
+	// Force the control to redraw
 	ForceControlRedraw();
 
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgWM_KEYDOWN(WPARAM wParam, LPARAM lParam)
 {
 	unsigned int virtualKeyCode = (unsigned int)wParam;
@@ -2299,7 +2299,7 @@ LRESULT WC_DataGrid::msgWM_KEYDOWN(WPARAM wParam, LPARAM lParam)
 	default:
 		return 0;
 	case 'A':
-		//If the control key is being held down, capture the keypress as a hotkey.
+		// If the control key is being held down, capture the keypress as a hotkey.
 		if (_editModeActive && ((GetKeyState(VK_CONTROL) & 0x8000) != 0))
 		{
 			SelectCharacter((int)_editBuffer.size());
@@ -2309,14 +2309,14 @@ LRESULT WC_DataGrid::msgWM_KEYDOWN(WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	case 'C':
-		//If the control key is being held down, capture the keypress as a hotkey.
+		// If the control key is being held down, capture the keypress as a hotkey.
 		if (_editModeActive && ((GetKeyState(VK_CONTROL) & 0x8000) != 0))
 		{
 			CopyToClipboard();
 		}
 		break;
 	case 'V':
-		//If the control key is being held down, capture the keypress as a hotkey.
+		// If the control key is being held down, capture the keypress as a hotkey.
 		if (_editModeActive && ((GetKeyState(VK_CONTROL) & 0x8000) != 0))
 		{
 			PasteFromClipboard();
@@ -2330,12 +2330,12 @@ LRESULT WC_DataGrid::msgWM_KEYDOWN(WPARAM wParam, LPARAM lParam)
 		break;
 	case VK_TAB:
 		//##TODO## When the user presses the tab key, tab across to the next editable
-		//cell. Note that we can't really make this work properly without introducing the
-		//concept of a selected cell independent of an editing cell, which we should do
-		//anyway. It should be possible to highlight a cell without editing it, where a
-		//left click within the cell or pressing enter activates edit mode for the
-		//selected cell.
-		//if(IsCellEditingActive())
+		// cell. Note that we can't really make this work properly without introducing the
+		// concept of a selected cell independent of an editing cell, which we should do
+		// anyway. It should be possible to highlight a cell without editing it, where a
+		// left click within the cell or pressing enter activates edit mode for the
+		// selected cell.
+		// if(IsCellEditingActive())
 		//{
 		//	unsigned int previousSelectedRowNo = selectedRowNo;
 		//	unsigned int previousSelectedColumnID = selectedColumnID;
@@ -2404,9 +2404,9 @@ LRESULT WC_DataGrid::msgWM_KEYDOWN(WPARAM wParam, LPARAM lParam)
 		break;
 	case VK_UP:
 		//##FIX## Up and down shouldn't scroll the view, they should move the selected
-		//cell.
+		// cell.
 		//##TODO## If edit mode is currently active on a selection list cell, this should
-		//shift to the next or previous entry in the selection list if possible.
+		// shift to the next or previous entry in the selection list if possible.
 		if (_autoScrollingManagement)
 		{
 			vscrollNew -= 1;
@@ -2506,39 +2506,39 @@ LRESULT WC_DataGrid::msgWM_KEYDOWN(WPARAM wParam, LPARAM lParam)
 		break;
 	}
 
-	//Update the current scrollbar state
+	// Update the current scrollbar state
 	if (_autoScrollingManagement)
 	{
 		UpdateScrollbarSettings(_currentScrollHOffset, vscrollNew, false);
 	}
 
-	//Force the entire control to redraw
+	// Force the entire control to redraw
 	ForceControlRedraw();
 
-	//Make the redraw operation happen immediately. We do this because it's been noted
-	//that when doing the page up/down steps, it's possible for the operation to be slow
-	//enough that the control is never redrawn between key repeat messages, causing the
-	//interface to not actually update while the user is scrolling.
+	// Make the redraw operation happen immediately. We do this because it's been noted
+	// that when doing the page up/down steps, it's possible for the operation to be slow
+	// enough that the control is never redrawn between key repeat messages, causing the
+	// interface to not actually update while the user is scrolling.
 	UpdateWindow(_hwnd);
 
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgWM_CHAR(WPARAM wParam, LPARAM lParam)
 {
-	//Ensure we're currently in cell edit mode
+	// Ensure we're currently in cell edit mode
 	if (!_editModeActive)
 	{
 		return 0;
 	}
 
-	//Write the character to the edit buffer, and update the current edit position.
+	// Write the character to the edit buffer, and update the current edit position.
 	unsigned char byte = (unsigned char)wParam;
 	if ((byte >= 0x20) && (byte < 0x7F))
 	{
-		//If drag select is currently active, delete all selected data from the buffer,
-		//and adjust the selected character number.
+		// If drag select is currently active, delete all selected data from the buffer,
+		// and adjust the selected character number.
 		if (DragSelectActive())
 		{
 			_editBuffer.erase(_dragSelectStartPos, _dragSelectEndPos - _dragSelectStartPos);
@@ -2546,111 +2546,111 @@ LRESULT WC_DataGrid::msgWM_CHAR(WPARAM wParam, LPARAM lParam)
 			StopDragSelect();
 		}
 
-		//Write the entered character into the edit buffer at the current selected
-		//character position, and advance the selected position past the new character.
+		// Write the entered character into the edit buffer at the current selected
+		// character position, and advance the selected position past the new character.
 		wchar_t byteAsUnicodeChar = (wchar_t)byte;
 		_editBuffer.insert(_selectedCharacterNo, 1, byteAsUnicodeChar);
 		SelectCharacter((int)_selectedCharacterNo + 1);
 	}
 
-	//Ensure the cell currently being edited is within view
+	// Ensure the cell currently being edited is within view
 	ForceEditCellIntoView();
 
-	//Force the entire control to redraw
+	// Force the entire control to redraw
 	ForceControlRedraw();
 
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgWM_KILLFOCUS(WPARAM wParam, LPARAM lParam)
 {
-	//If we're currently in cell edit mode, complete the edit now that the window is
-	//losing focus.
+	// If we're currently in cell edit mode, complete the edit now that the window is
+	// losing focus.
 	CompleteCellEditing();
 
-	//Destroy the window caret
+	// Destroy the window caret
 	DestroyCaret();
 
-	//Force the entire control to redraw
+	// Force the entire control to redraw
 	ForceControlRedraw();
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgWM_SETFOCUS(WPARAM wParam, LPARAM lParam)
 {
-	//Create a caret for the window
+	// Create a caret for the window
 	CreateCaret(_hwnd, NULL, 2, _fontHeight);
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgWM_MOUSEMOVE(WPARAM wParam, LPARAM lParam)
 {
-	//Ensure that we're currently in edit mode, and the left mouse button is currently
-	//down, indicating a drag select is being performed.
+	// Ensure that we're currently in edit mode, and the left mouse button is currently
+	// down, indicating a drag select is being performed.
 	if (!_editModeActive || !_mouseButtonDown)
 	{
 		return 0;
 	}
 
-	//Extract the cursor position for this message relative to the control
+	// Extract the cursor position for this message relative to the control
 	int cursorPosX = (short)LOWORD(lParam);
 
-	//Determine the position of the cursor within the content area of the grid
+	// Determine the position of the cursor within the content area of the grid
 	int selectionPosXWithinGridContent = (cursorPosX - (int)_headerPosX) + _currentScrollHOffset;
 
-	//Determine the start and end position of the column that's currently being edited
+	// Determine the start and end position of the column that's currently being edited
 	bool foundSelectedColumn = false;
 	int editColumnStartPosX = (int)_headerPosX;
 	int editColumnEndPosX = editColumnStartPosX;
 	ColumnSortIndexIterator sortedColumnIterator = _columnSortIndex.begin();
 	while (!foundSelectedColumn && (sortedColumnIterator != _columnSortIndex.end()))
 	{
-		//Update the column end position for this column
+		// Update the column end position for this column
 		ColumnData& columnData = *(sortedColumnIterator->second);
 		editColumnEndPosX = editColumnStartPosX + (int)columnData.actualWidth;
 
-		//Check if the selection occurs within this column
+		// Check if the selection occurs within this column
 		if (columnData.columnID == _selectedColumnID)
 		{
 			foundSelectedColumn = true;
 			continue;
 		}
 
-		//Update the column start position for the next column
+		// Update the column start position for the next column
 		editColumnStartPosX = editColumnEndPosX;
 
-		//Advance to the next column in the list of columns
+		// Advance to the next column in the list of columns
 		++sortedColumnIterator;
 	}
 
-	//Ensure we managed to find the currently selected column
+	// Ensure we managed to find the currently selected column
 	if (!foundSelectedColumn)
 	{
 		return 0;
 	}
 
-	//Calculate the position of the mouse relative to the selected cell
+	// Calculate the position of the mouse relative to the selected cell
 	int selectionPosXWithinSelectedCellContent = selectionPosXWithinGridContent - editColumnStartPosX;
 
-	//Set the cell editing pos to the selected location
+	// Set the cell editing pos to the selected location
 	UpdateCellEditingPos(selectionPosXWithinSelectedCellContent);
 
-	//Initiate drag select if it is not currently active
+	// Initiate drag select if it is not currently active
 	if (!DragSelectActive())
 	{
 		StartDragSelect();
 	}
 
-	//Force the entire control to redraw so that changes to drag select are visible
+	// Force the entire control to redraw so that changes to drag select are visible
 	ForceControlRedraw();
 
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgWM_LBUTTONUP(WPARAM wParam, LPARAM lParam)
 {
 	ReleaseCapture();
@@ -2659,21 +2659,21 @@ LRESULT WC_DataGrid::msgWM_LBUTTONUP(WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgWM_LBUTTONDOWN(WPARAM wParam, LPARAM lParam)
 {
-	//Ensure our control currently has focus
+	// Ensure our control currently has focus
 	SetFocus(_hwnd);
 
-	//Extract the cursor position for this message relative to the control
+	// Extract the cursor position for this message relative to the control
 	int cursorPosX = (short)LOWORD(lParam);
 	int cursorPosY = (short)HIWORD(lParam);
 
-	//Determine the position of the cursor within the content area of the grid
+	// Determine the position of the cursor within the content area of the grid
 	int selectionPosXWithinGridContent = (cursorPosX - _headerPosX) + _currentScrollHOffset;
 	int selectionPosYWithinGridContent = cursorPosY - (_headerPosY + _headerHeight);
 
-	//Calculate the number of the selected row
+	// Calculate the number of the selected row
 	bool foundSelectedRow = false;
 	int newSelectedVisibleRowNo = selectionPosYWithinGridContent / (_fontHeight + (_marginSize * 2));
 	int newSelectedRowSelectionOffsetY;
@@ -2688,7 +2688,7 @@ LRESULT WC_DataGrid::msgWM_LBUTTONDOWN(WPARAM wParam, LPARAM lParam)
 		foundSelectedRow = true;
 	}
 
-	//Determine the ID number of the column that was selected
+	// Determine the ID number of the column that was selected
 	bool foundSelectedColumn = false;
 	bool newSelectedColumnSupportsEdit = false;
 	unsigned int newSelectedColumnID = 0;
@@ -2697,11 +2697,11 @@ LRESULT WC_DataGrid::msgWM_LBUTTONDOWN(WPARAM wParam, LPARAM lParam)
 	int columnStartPosX = (int)_headerPosX;
 	while (!foundSelectedColumn && (sortedColumnIterator != _columnSortIndex.end()))
 	{
-		//Calculate the end position of this column, in pixels.
+		// Calculate the end position of this column, in pixels.
 		ColumnData& columnData = *(sortedColumnIterator->second);
 		int columnEndPosX = columnStartPosX + (int)columnData.actualWidth;
 
-		//Check if the selection occurs within this column
+		// Check if the selection occurs within this column
 		if ((selectionPosXWithinGridContent >= columnStartPosX) && (selectionPosXWithinGridContent < columnEndPosX))
 		{
 			newSelectedColumnID = columnData.columnID;
@@ -2711,19 +2711,19 @@ LRESULT WC_DataGrid::msgWM_LBUTTONDOWN(WPARAM wParam, LPARAM lParam)
 			continue;
 		}
 
-		//Update the column start position for the next column
+		// Update the column start position for the next column
 		columnStartPosX = columnEndPosX;
 
-		//Advance to the next column in the list of columns
+		// Advance to the next column in the list of columns
 		++sortedColumnIterator;
 	}
 
-	//Determine if a new selected cell has been found, and if the new selected cell is the
-	//same as the currently selected cell.
+	// Determine if a new selected cell has been found, and if the new selected cell is the
+	// same as the currently selected cell.
 	bool foundSelectedCell = foundSelectedColumn && foundSelectedRow;
 	bool selectedCellIsSameAsPrevious = _rowSelected && _columnSelected && foundSelectedCell && (_selectedRowNo == (unsigned int)newSelectedRowNo) && (_selectedColumnID == newSelectedColumnID);
 
-	//If a special area of the target cell was clicked, detect and handle that now
+	// If a special area of the target cell was clicked, detect and handle that now
 	if (foundSelectedCell)
 	{
 		std::vector<CellControlInfo>& cellInfoArray = _customControlForCell[newSelectedColumnID];
@@ -2733,9 +2733,9 @@ LRESULT WC_DataGrid::msgWM_LBUTTONDOWN(WPARAM wParam, LPARAM lParam)
 			CellControlInfo& cellInfoInternal = cellInfoArray[newSelectedRowNo];
 			if ((cellInfoInternal.controlType == CellControlType::TreeEntry) && cellInfoInternal.showExpandIcon)
 			{
-				//If the user just clicked on the control region of a tree entry cell that
-				//has an expand icon, process this click as a trigger on the expand state
-				//change instead of a selection event.
+				// If the user just clicked on the control region of a tree entry cell that
+				// has an expand icon, process this click as a trigger on the expand state
+				// change instead of a selection event.
 				if ((cursorPosX >= cellInfoInternal.controlPosX)
 				&& (cursorPosX < (cellInfoInternal.controlPosX + cellInfoInternal.controlWidth))
 				&& (cursorPosY >= cellInfoInternal.controlPosY)
@@ -2751,21 +2751,21 @@ LRESULT WC_DataGrid::msgWM_LBUTTONDOWN(WPARAM wParam, LPARAM lParam)
 			}
 			else if ((cellInfoInternal.controlType == CellControlType::ComboBox) && columnData.editingAllowed && cellInfoInternal.pickFromSelectionListOnly)
 			{
-				//If the user selected the text region of a combobox cell that doesn't
-				//allow manual entries, expand the selection list for the cell.
+				// If the user selected the text region of a combobox cell that doesn't
+				// allow manual entries, expand the selection list for the cell.
 				ShowCellSelectionList(newSelectedColumnID, newSelectedRowNo, cellInfoInternal);
 				return 0;
 			}
 			else if ((cellInfoInternal.controlType == CellControlType::CheckBox) && columnData.editingAllowed)
 			{
-				//Calcuate the inverted checked state for this checkbox cell
+				// Calcuate the inverted checked state for this checkbox cell
 				std::wstring dataAsString = columnData.dataBuffer[newSelectedRowNo];
 				bool checkedState = false;
 				StringToBool(dataAsString, checkedState);
 				checkedState = !checkedState;
 				BoolToString(checkedState, dataAsString);
 
-				//Raise an edit event for this checkbox cell
+				// Raise an edit event for this checkbox cell
 				Grid_CellEditEvent info;
 				info.targetRowNo = newSelectedRowNo;
 				info.targetColumnID = newSelectedColumnID;
@@ -2776,11 +2776,11 @@ LRESULT WC_DataGrid::msgWM_LBUTTONDOWN(WPARAM wParam, LPARAM lParam)
 		}
 	}
 
-	//Notify the parent window of the selection event. Note that we give the handler an
-	//option to abort any further processing of this click event by setting the
-	//ignoreClickEvent field of this message to true. This allows the owner to extend the
-	//selection behaviour of the grid control by performing custom actions in response to
-	//this click event, without the control performing actions that interfere.
+	// Notify the parent window of the selection event. Note that we give the handler an
+	// option to abort any further processing of this click event by setting the
+	// ignoreClickEvent field of this message to true. This allows the owner to extend the
+	// selection behaviour of the grid control by performing custom actions in response to
+	// this click event, without the control performing actions that interfere.
 	Grid_SelectionEvent info;
 	info.sameCellAsPrevious = selectedCellIsSameAsPrevious;
 	info.rowSelected = foundSelectedRow;
@@ -2792,20 +2792,20 @@ LRESULT WC_DataGrid::msgWM_LBUTTONDOWN(WPARAM wParam, LPARAM lParam)
 	info.ignoreSelectionEvent = false;
 	SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::SelectionEvent), (LPARAM)&info);
 
-	//If we were instructed to ignore this click event, abort any further processing.
+	// If we were instructed to ignore this click event, abort any further processing.
 	if (info.ignoreSelectionEvent)
 	{
 		return 0;
 	}
 
-	//If a different cell has been selected, handle the selected cell change, otherwise
-	//update the edit state for the selected cell to respond to the click event.
+	// If a different cell has been selected, handle the selected cell change, otherwise
+	// update the edit state for the selected cell to respond to the click event.
 	if (!selectedCellIsSameAsPrevious)
 	{
-		//Complete cell editing if it is currently active
+		// Complete cell editing if it is currently active
 		CompleteCellEditing();
 
-		//Update the currently selected cell information
+		// Update the currently selected cell information
 		if (!foundSelectedRow || !foundSelectedColumn)
 		{
 			_rowSelected = false;
@@ -2821,50 +2821,50 @@ LRESULT WC_DataGrid::msgWM_LBUTTONDOWN(WPARAM wParam, LPARAM lParam)
 			_selectedColumnID = newSelectedColumnID;
 		}
 
-		//If a new cell was selected, and edit mode is supported on that cell, enter edit
-		//mode for the newly selected cell.
+		// If a new cell was selected, and edit mode is supported on that cell, enter edit
+		// mode for the newly selected cell.
 		//##TODO## Make single click editing optional
 		if (foundSelectedCell && newSelectedColumnSupportsEdit)
 		{
-			//Begin the cell editing process, with the edit position specified in pixels.
-			//The actual selected character number will be calculated in the next render
-			//process.
+			// Begin the cell editing process, with the edit position specified in pixels.
+			// The actual selected character number will be calculated in the next render
+			// process.
 			BeginCellEditing(newSelectedColumnSelectionOffsetX);
 
-			//Reset the selected character number, so that it's not pointing past the end
-			//of the edit buffer in the case that we just switched selected fields. The
-			//correct selected character number will be set during the next draw process,
-			//but in the case that another event, such as a keyboard event, is processed
-			//before the selected character number can be set correctly, it could cause a
-			//problem if we have a current selection position that lies outside the edit
-			//buffer.
+			// Reset the selected character number, so that it's not pointing past the end
+			// of the edit buffer in the case that we just switched selected fields. The
+			// correct selected character number will be set during the next draw process,
+			// but in the case that another event, such as a keyboard event, is processed
+			// before the selected character number can be set correctly, it could cause a
+			// problem if we have a current selection position that lies outside the edit
+			// buffer.
 			SelectCharacter(0);
 
-			//Set drag select start events to be ignored. This state will be cleared when
-			//the selection position for the newly selected column has been correctly set.
+			// Set drag select start events to be ignored. This state will be cleared when
+			// the selection position for the newly selected column has been correctly set.
 			_ignoreDragSelectStart = true;
 		}
 	}
 	else
 	{
-		//Either enter editing mode for the target cell if supported, or update the
-		//current caret position within the cell, depending on whether edit mode is
-		//currently active or not.
+		// Either enter editing mode for the target cell if supported, or update the
+		// current caret position within the cell, depending on whether edit mode is
+		// currently active or not.
 		if (IsCellEditingActive())
 		{
 			if ((GetKeyState(VK_SHIFT) & 0x8000) != 0)
 			{
-				//If the user has shift+clicked on the window, start a drag select from
-				//the current location.
+				// If the user has shift+clicked on the window, start a drag select from
+				// the current location.
 				StartDragSelect();
 			}
 			else
 			{
-				//Stop drag-select if it is currently in progress
+				// Stop drag-select if it is currently in progress
 				StopDragSelect();
 			}
 
-			//Set the cell editing pos to use the selected location
+			// Set the cell editing pos to use the selected location
 			UpdateCellEditingPos(newSelectedColumnSelectionOffsetX);
 		}
 		else if (newSelectedColumnSupportsEdit)
@@ -2873,24 +2873,24 @@ LRESULT WC_DataGrid::msgWM_LBUTTONDOWN(WPARAM wParam, LPARAM lParam)
 		}
 	}
 
-	//Capture the mouse, so that we can track a drag-select if the user starts a drag
-	//operation and moves the cursor outside the window, and flag that the left mouse
-	//button is being held down.
+	// Capture the mouse, so that we can track a drag-select if the user starts a drag
+	// operation and moves the cursor outside the window, and flag that the left mouse
+	// button is being held down.
 	SetCapture(_hwnd);
 	_mouseButtonDown = true;
 
-	//Force the entire control to redraw so that changes to drag select are visible
+	// Force the entire control to redraw so that changes to drag select are visible
 	ForceControlRedraw();
 
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgWM_MOUSEWHEEL(WPARAM wParam, LPARAM lParam)
 {
-	//Calculate the number of lines to scroll in the window. We displace the view pos
-	//by a minimum of 3 lines per division of the scroll wheel. We also invert the
-	//sign, since we want a scroll down to increase the view position.
+	// Calculate the number of lines to scroll in the window. We displace the view pos
+	// by a minimum of 3 lines per division of the scroll wheel. We also invert the
+	// sign, since we want a scroll down to increase the view position.
 	int scrollUnits = ((short)HIWORD(wParam) / WHEEL_DELTA);
 	scrollUnits *= -3;
 
@@ -2915,22 +2915,22 @@ LRESULT WC_DataGrid::msgWM_MOUSEWHEEL(WPARAM wParam, LPARAM lParam)
 		}
 	}
 
-	//Update the current scrollbar state
+	// Update the current scrollbar state
 	if (_autoScrollingManagement)
 	{
 		UpdateScrollbarSettings(_currentScrollHOffset, vscrollNew, false);
 	}
 
-	//Force the entire control to redraw
+	// Force the entire control to redraw
 	ForceControlRedraw();
 
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgWM_CTLCOLORSTATIC(WPARAM wParam, LPARAM lParam)
 {
-	//Attempt to identify a cell associated with the target control
+	// Attempt to identify a cell associated with the target control
 	HWND targetControl = (HWND)lParam;
 	std::map<HWND, CellMapping>::const_iterator controlMappingIterator = _childControlMapping.find(targetControl);
 	if (controlMappingIterator == _childControlMapping.end())
@@ -2938,14 +2938,14 @@ LRESULT WC_DataGrid::msgWM_CTLCOLORSTATIC(WPARAM wParam, LPARAM lParam)
 		return DefWindowProc(_hwnd, WM_CTLCOLORSTATIC, wParam, lParam);
 	}
 
-	//Retrieve information on the target cell
+	// Retrieve information on the target cell
 	const CellMapping& cellMapping = controlMappingIterator->second;
 	CellControlInfo& cellInfo = _customControlForCell[cellMapping.columnID][cellMapping.rowNo];
 
-	//Set the background color to be the same as the background colour for the grid
+	// Set the background color to be the same as the background colour for the grid
 	WinColor backgroundColor = _userColorData.backgroundColorDefined? _userColorData.colorBackground: _defaultColorData.colorBackground;
 
-	//If a background colour override has been specified for the target row, retrieve it.
+	// If a background colour override has been specified for the target row, retrieve it.
 	if (cellMapping.rowNo < (unsigned int)_rowColorDataArray.size())
 	{
 		CustomColorData& rowColorData = _rowColorDataArray[cellMapping.rowNo];
@@ -2955,7 +2955,7 @@ LRESULT WC_DataGrid::msgWM_CTLCOLORSTATIC(WPARAM wParam, LPARAM lParam)
 		}
 	}
 
-	//If a background colour override has been specified for the cell row, retrieve it.
+	// If a background colour override has been specified for the cell row, retrieve it.
 	std::map<unsigned int, std::map<unsigned int, CustomColorData>>::const_iterator cellCustomColorDataIteratorForRow = _cellCustomColorData.find(cellMapping.rowNo);
 	if (cellCustomColorDataIteratorForRow != _cellCustomColorData.end())
 	{
@@ -2970,8 +2970,8 @@ LRESULT WC_DataGrid::msgWM_CTLCOLORSTATIC(WPARAM wParam, LPARAM lParam)
 		}
 	}
 
-	//If a background brush hasn't been generated for this cell, or if the background
-	//colour has changed, create a new brush now.
+	// If a background brush hasn't been generated for this cell, or if the background
+	// colour has changed, create a new brush now.
 	if (!cellInfo.lastBackgroundColorSet || (cellInfo.lastBackgroundColor != backgroundColor.GetColorREF()))
 	{
 		if (cellInfo.lastBackgroundColorSet)
@@ -2986,43 +2986,43 @@ LRESULT WC_DataGrid::msgWM_CTLCOLORSTATIC(WPARAM wParam, LPARAM lParam)
 	return (LRESULT)cellInfo.lastBackgroundColorBrush;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgGRID_SETMANUALSCROLLING(WPARAM wParam, LPARAM lParam)
 {
-	//If the new scrolling state is the same as the currently selected state, reject the
-	//message and return 1.
+	// If the new scrolling state is the same as the currently selected state, reject the
+	// message and return 1.
 	bool newManualScrollingState = (wParam != 0);
 	if (newManualScrollingState == !_autoScrollingManagement)
 	{
 		return 1;
 	}
 
-	//Apply the new manual scrolling state
+	// Apply the new manual scrolling state
 	_autoScrollingManagement = !newManualScrollingState;
 
-	//If automatic scrolling is being enabled, calculate new vertical scroll values
-	//automatically based on the current state.
+	// If automatic scrolling is being enabled, calculate new vertical scroll values
+	// automatically based on the current state.
 	if (_autoScrollingManagement)
 	{
 		RecalculateScrollPosition();
 	}
 
-	//Update the current scrollbar state
+	// Update the current scrollbar state
 	UpdateScrollbarSettings(_currentScrollHOffset, _vscrollCurrent, true);
 
-	//Force the control to redraw
+	// Force the control to redraw
 	ForceControlRedraw();
 
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgGRID_SETDATAAREAFONT(WPARAM wParam, LPARAM lParam)
 {
-	//Set the new font for the data area of this grid
+	// Set the new font for the data area of this grid
 	_dataAreaFont = (HFONT)wParam;
 
-	//Read the font metrics for our new font
+	// Read the font metrics for our new font
 	HDC hdc = GetDC(_hwnd);
 	HFONT hfontOld = (HFONT)SelectObject(hdc, _dataAreaFont);
 	TEXTMETRIC textMetric;
@@ -3032,21 +3032,21 @@ LRESULT WC_DataGrid::msgGRID_SETDATAAREAFONT(WPARAM wParam, LPARAM lParam)
 	SelectObject(hdc, hfontOld);
 	ReleaseDC(_hwnd, hdc);
 
-	//Update the window size information based on the new font metrics
+	// Update the window size information based on the new font metrics
 	UpdateWindowSize();
 
-	//Force the entire control to redraw
+	// Force the entire control to redraw
 	ForceControlRedraw();
 
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgGRID_INSERTCOLUMN(WPARAM wParam, LPARAM lParam)
 {
 	const Grid_InsertColumn& info = *((const Grid_InsertColumn*)lParam);
 
-	//Insert the new column into our header array
+	// Insert the new column into our header array
 	_columnData.push_back(ColumnData(info.name, info.columnID, info.editingAllowed, info.cellType));
 	ColumnData* i = &(*_columnData.rbegin());
 	i->sizeMode = info.sizeMode;
@@ -3055,13 +3055,13 @@ LRESULT WC_DataGrid::msgGRID_INSERTCOLUMN(WPARAM wParam, LPARAM lParam)
 	i->minWidth = (info.minWidth >= 0)? DPIScaleWidth(info.minWidth): info.minWidth;
 	i->maxWidth = (info.maxWidth >= 0)? DPIScaleWidth(info.maxWidth): info.maxWidth;
 
-	//Insert the new column into our ID index
+	// Insert the new column into our ID index
 	_columnIDIndex.insert(ColumnIDIndexEntry(info.columnID, i));
 
-	//Recalculate the highest column data index
+	// Recalculate the highest column data index
 	_largestColumnDataArraySize = CalculateLargestColumnDataArraySize();
 
-	//Insert the new column into our header control
+	// Insert the new column into our header control
 	HDITEM hdItem;
 	hdItem.mask = HDI_FORMAT | HDI_TEXT;
 	hdItem.fmt = HDF_STRING;
@@ -3074,29 +3074,29 @@ LRESULT WC_DataGrid::msgGRID_INSERTCOLUMN(WPARAM wParam, LPARAM lParam)
 		_columnIndex.insert(ColumnIndexEntry(itemIndex, i));
 	}
 
-	//Since the columns have changed, we need to rebuild our header order index
+	// Since the columns have changed, we need to rebuild our header order index
 	RebuildHeaderOrder();
 
-	//Recalculate all automatically sized column widths
+	// Recalculate all automatically sized column widths
 	RecalculateColumnWidths();
 
-	//If automatic scroll management is enabled, recalculate the new scroll settings based
-	//on the new column list.
+	// If automatic scroll management is enabled, recalculate the new scroll settings based
+	// on the new column list.
 	if (_autoScrollingManagement)
 	{
 		RecalculateScrollPosition();
 	}
 
-	//Update the current scrollbar state
+	// Update the current scrollbar state
 	UpdateScrollbarSettings(_currentScrollHOffset, _vscrollCurrent, true);
 
-	//Force the control to redraw
+	// Force the control to redraw
 	ForceControlRedraw();
 
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgGRID_DELETECOLUMN(WPARAM wParam, LPARAM lParam)
 {
 	unsigned int targetColumnID = (unsigned int)wParam;
@@ -3104,35 +3104,35 @@ LRESULT WC_DataGrid::msgGRID_DELETECOLUMN(WPARAM wParam, LPARAM lParam)
 	{
 		if (i->columnID == targetColumnID)
 		{
-			//Delete the column from the header control
+			// Delete the column from the header control
 			SendMessage(_hwndHeader, HDM_DELETEITEM, (WPARAM)i->index, 0);
 
-			//Erase the column from all our indexes
+			// Erase the column from all our indexes
 			_columnIndex.erase(i->index);
 			_columnSortIndex.erase(i->order);
 			_columnIDIndex.erase(i->columnID);
 			_columnData.erase(i);
 
-			//Recalculate the highest column data index
+			// Recalculate the highest column data index
 			_largestColumnDataArraySize = CalculateLargestColumnDataArraySize();
 
-			//Since the columns have changed, we need to rebuild our header order index
+			// Since the columns have changed, we need to rebuild our header order index
 			RebuildHeaderOrder();
 
-			//Recalculate all automatically sized column widths
+			// Recalculate all automatically sized column widths
 			RecalculateColumnWidths();
 
-			//If automatic scroll management is enabled, recalculate the new scroll
-			//settings based on the new column list.
+			// If automatic scroll management is enabled, recalculate the new scroll
+			// settings based on the new column list.
 			if (_autoScrollingManagement)
 			{
 				RecalculateScrollPosition();
 			}
 
-			//Update the current scrollbar state
+			// Update the current scrollbar state
 			UpdateScrollbarSettings(_currentScrollHOffset, _vscrollCurrent, true);
 
-			//Force the control to redraw
+			// Force the control to redraw
 			ForceControlRedraw();
 
 			return 0;
@@ -3141,14 +3141,14 @@ LRESULT WC_DataGrid::msgGRID_DELETECOLUMN(WPARAM wParam, LPARAM lParam)
 	return 1;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgGRID_INSERTROWS(WPARAM wParam, LPARAM lParam)
 {
 	const Grid_InsertRows& info = *((const Grid_InsertRows*)lParam);
 
-	//Clear any existing data for all rows if requested
+	// Clear any existing data for all rows if requested
 	//##FIX## Determine what we need to do to handle custom controls for columns here. I
-	//think we're handling this incorrectly when removing rows and columns too.
+	// think we're handling this incorrectly when removing rows and columns too.
 	if (info.clearExistingRows)
 	{
 		_rowColorDataArray.clear();
@@ -3159,7 +3159,7 @@ LRESULT WC_DataGrid::msgGRID_INSERTROWS(WPARAM wParam, LPARAM lParam)
 		}
 	}
 
-	//Resize all our data buffers as required
+	// Resize all our data buffers as required
 	if ((size_t)info.targetRowNo > _rowColorDataArray.size())
 	{
 		_rowColorDataArray.resize(info.targetRowNo);
@@ -3208,13 +3208,13 @@ LRESULT WC_DataGrid::msgGRID_INSERTROWS(WPARAM wParam, LPARAM lParam)
 		i->dataBuffer.insert(i->dataBuffer.begin() + info.targetRowNo, info.rowCount, std::wstring());
 	}
 
-	//Insert the new row data into our data arrays
+	// Insert the new row data into our data arrays
 	for (size_t i = 0; (i < info.rowCount) && (i < info.rowData.size()); ++i)
 	{
 		const std::map<unsigned int, std::wstring>& dataForRow = info.rowData[i];
 		for (std::map<unsigned int, std::wstring>::const_iterator columnDataIterator = dataForRow.begin(); columnDataIterator != dataForRow.end(); ++columnDataIterator)
 		{
-			//Retrieve information on the specified column
+			// Retrieve information on the specified column
 			ColumnIDIndexIterator columnIterator = _columnIDIndex.find(columnDataIterator->first);
 			if (columnIterator == _columnIDIndex.end())
 			{
@@ -3222,45 +3222,45 @@ LRESULT WC_DataGrid::msgGRID_INSERTROWS(WPARAM wParam, LPARAM lParam)
 			}
 			ColumnData* column = columnIterator->second;
 
-			//Load the specified data into the data buffer for this column
+			// Load the specified data into the data buffer for this column
 			column->dataBuffer[i] = columnDataIterator->second;
 		}
 	}
 
-	//Recalculate the new highest column data index
+	// Recalculate the new highest column data index
 	_largestColumnDataArraySize = CalculateLargestColumnDataArraySize();
 
-	//Update the number of the cell currently being edited if required
+	// Update the number of the cell currently being edited if required
 	if (_editModeActive && (_selectedRowNo >= info.targetRowNo))
 	{
 		_selectedRowNo += info.rowCount;
 	}
 
-	//Recalculate all automatically sized column widths
+	// Recalculate all automatically sized column widths
 	RecalculateColumnWidths();
 
-	//If automatic scroll management is enabled, recalculate the new scroll settings based
-	//on the new window size.
+	// If automatic scroll management is enabled, recalculate the new scroll settings based
+	// on the new window size.
 	if (_autoScrollingManagement)
 	{
 		RecalculateScrollPosition();
 	}
 
-	//Update the current scrollbar state
+	// Update the current scrollbar state
 	UpdateScrollbarSettings(_currentScrollHOffset, _vscrollCurrent, true);
 
-	//Force the control to redraw
+	// Force the control to redraw
 	ForceControlRedraw();
 
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgGRID_DELETEROWS(WPARAM wParam, LPARAM lParam)
 {
 	const Grid_DeleteRows& info = *((const Grid_DeleteRows*)lParam);
 
-	//Resize any data buffers that need to be adjusted
+	// Resize any data buffers that need to be adjusted
 	if ((size_t)info.targetRowNo < _rowColorDataArray.size())
 	{
 		size_t elementsToRemove = ((info.targetRowNo + info.rowCount) > _rowColorDataArray.size())? _rowColorDataArray.size() - info.targetRowNo: (size_t)info.rowCount;
@@ -3325,10 +3325,10 @@ LRESULT WC_DataGrid::msgGRID_DELETEROWS(WPARAM wParam, LPARAM lParam)
 		}
 	}
 
-	//Recalculate the new highest column data index
+	// Recalculate the new highest column data index
 	_largestColumnDataArraySize = CalculateLargestColumnDataArraySize();
 
-	//Update the number of the cell currently being edited if required
+	// Update the number of the cell currently being edited if required
 	if (_editModeActive && (_selectedRowNo >= info.targetRowNo))
 	{
 		if (_selectedRowNo < (info.targetRowNo + info.rowCount))
@@ -3341,26 +3341,26 @@ LRESULT WC_DataGrid::msgGRID_DELETEROWS(WPARAM wParam, LPARAM lParam)
 		}
 	}
 
-	//Recalculate all automatically sized column widths
+	// Recalculate all automatically sized column widths
 	RecalculateColumnWidths();
 
-	//If automatic scroll management is enabled, recalculate the new scroll settings based
-	//on the new window size.
+	// If automatic scroll management is enabled, recalculate the new scroll settings based
+	// on the new window size.
 	if (_autoScrollingManagement)
 	{
 		RecalculateScrollPosition();
 	}
 
-	//Update the current scrollbar state
+	// Update the current scrollbar state
 	UpdateScrollbarSettings(_currentScrollHOffset, _vscrollCurrent, true);
 
-	//Force the control to redraw
+	// Force the control to redraw
 	ForceControlRedraw();
 
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgGRID_GETCOLUMNINFO(WPARAM wParam, LPARAM lParam)
 {
 	unsigned int targetColumnID = (unsigned int)wParam;
@@ -3380,7 +3380,7 @@ LRESULT WC_DataGrid::msgGRID_GETCOLUMNINFO(WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgGRID_SETCOLUMNINFO(WPARAM wParam, LPARAM lParam)
 {
 	const Grid_SetColumnInfo& info = *((const Grid_SetColumnInfo*)lParam);
@@ -3389,14 +3389,14 @@ LRESULT WC_DataGrid::msgGRID_SETCOLUMNINFO(WPARAM wParam, LPARAM lParam)
 	{
 		ColumnData* i = columnIterator->second;
 
-		//If cell editing is about to be disabled for this column, and we have a currently
-		//active cell editing operation to this column, complete the edit process.
+		// If cell editing is about to be disabled for this column, and we have a currently
+		// active cell editing operation to this column, complete the edit process.
 		if ((i->editingAllowed && !info.editingAllowed) && _editModeActive && (_selectedColumnID == i->columnID))
 		{
 			CompleteCellEditing();
 		}
 
-		//Update the info for this column
+		// Update the info for this column
 		i->columnID = info.columnID;
 		i->name = info.name;
 		i->controlType = info.controlType;
@@ -3407,10 +3407,10 @@ LRESULT WC_DataGrid::msgGRID_SETCOLUMNINFO(WPARAM wParam, LPARAM lParam)
 		i->minWidth = info.minWidth;
 		i->maxWidth = info.maxWidth;
 
-		//Recalculate all automatically sized column widths
+		// Recalculate all automatically sized column widths
 		RecalculateColumnWidths();
 
-		//Update the title of this column in our edit control
+		// Update the title of this column in our edit control
 		HDITEM hdItem;
 		hdItem.mask = HDI_FORMAT | HDI_TEXT;
 		hdItem.fmt = HDF_STRING;
@@ -3421,7 +3421,7 @@ LRESULT WC_DataGrid::msgGRID_SETCOLUMNINFO(WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgGRID_SETCELLINFO(WPARAM wParam, LPARAM lParam)
 {
 	const Grid_SetCellInfo& cellInfo = *((const Grid_SetCellInfo*)lParam);
@@ -3448,18 +3448,18 @@ LRESULT WC_DataGrid::msgGRID_SETCELLINFO(WPARAM wParam, LPARAM lParam)
 		cellInfoInternal.ellipsisMode = cellInfo.ellipsisMode;
 	}
 
-	//Force the control to redraw
+	// Force the control to redraw
 	ForceControlRedraw();
 
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgGRID_UPDATECELLTEXT(WPARAM wParam, LPARAM lParam)
 {
 	const Grid_UpdateCellText& info = *((const Grid_UpdateCellText*)lParam);
 
-	//Retrieve information on the specified column
+	// Retrieve information on the specified column
 	ColumnIDIndexIterator columnIterator = _columnIDIndex.find(info.columnID);
 	if (columnIterator == _columnIDIndex.end())
 	{
@@ -3467,70 +3467,70 @@ LRESULT WC_DataGrid::msgGRID_UPDATECELLTEXT(WPARAM wParam, LPARAM lParam)
 	}
 	ColumnData* column = columnIterator->second;
 
-	//Ensure the specified row number lies within the data array for the specified column
+	// Ensure the specified row number lies within the data array for the specified column
 	bool resizedDataBuffer = false;
 	if ((size_t)info.rowNo >= column->dataBuffer.size())
 	{
 		if (!_autoScrollingManagement)
 		{
-			//If auto scrolling management is disabled, and the row number is larger than
-			//the data buffer, return a failure, since the specified row number must
-			//correspond to a visible row number in this case.
+			// If auto scrolling management is disabled, and the row number is larger than
+			// the data buffer, return a failure, since the specified row number must
+			// correspond to a visible row number in this case.
 			return 1;
 		}
 		else
 		{
-			//If auto scrolling management is active, and the row number is larger than
-			//the data buffer, extend the data buffer to include the target row.
+			// If auto scrolling management is active, and the row number is larger than
+			// the data buffer, extend the data buffer to include the target row.
 			column->dataBuffer.resize((size_t)info.rowNo + 1);
 			resizedDataBuffer = true;
 		}
 	}
 
-	//If the specified cell text is the same as the current cell data, abort any further
-	//processing.
+	// If the specified cell text is the same as the current cell data, abort any further
+	// processing.
 	if (!resizedDataBuffer && (column->dataBuffer[info.rowNo] == info.newText))
 	{
 		return 0;
 	}
 
-	//Load the specified cell data into the data buffer for the target column
+	// Load the specified cell data into the data buffer for the target column
 	column->dataBuffer[info.rowNo] = info.newText;
 
-	//Recalculate all automatically sized column widths
+	// Recalculate all automatically sized column widths
 	RecalculateColumnWidths();
 
-	//Calculate the new the highest column data index
+	// Calculate the new the highest column data index
 	unsigned int newLargestColumnDataArraySize = CalculateLargestColumnDataArraySize();
 
-	//If the highest column data index has changed, apply the new setting, and update
-	//scroll information for the control.
+	// If the highest column data index has changed, apply the new setting, and update
+	// scroll information for the control.
 	if (_largestColumnDataArraySize != newLargestColumnDataArraySize)
 	{
 		_largestColumnDataArraySize = newLargestColumnDataArraySize;
 		if (_autoScrollingManagement)
 		{
-			//Calculate new vertical scroll values automatically based on the current state
+			// Calculate new vertical scroll values automatically based on the current state
 			RecalculateScrollPosition();
 
-			//Update the current scrollbar state
+			// Update the current scrollbar state
 			UpdateScrollbarSettings(_currentScrollHOffset, _vscrollCurrent, true);
 		}
 	}
 
-	//Force the control to redraw
+	// Force the control to redraw
 	ForceControlRedraw();
 
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgGRID_UPDATECOLUMNTEXT(WPARAM wParam, LPARAM lParam)
 {
 	unsigned int targetColumnID = (unsigned int)wParam;
 	const std::vector<std::wstring>& text = *((const std::vector<std::wstring>*)lParam);
 
-	//Retrieve information on the specified column
+	// Retrieve information on the specified column
 	ColumnIDIndexIterator columnIterator = _columnIDIndex.find(targetColumnID);
 	if (columnIterator == _columnIDIndex.end())
 	{
@@ -3538,7 +3538,7 @@ LRESULT WC_DataGrid::msgGRID_UPDATECOLUMNTEXT(WPARAM wParam, LPARAM lParam)
 	}
 	ColumnData* column = columnIterator->second;
 
-	//Update the data for the target column
+	// Update the data for the target column
 	if (!_autoScrollingManagement)
 	{
 		for (unsigned int i = 0; (i < text.size()) && (i < column->dataBuffer.size()); ++i)
@@ -3551,40 +3551,40 @@ LRESULT WC_DataGrid::msgGRID_UPDATECOLUMNTEXT(WPARAM wParam, LPARAM lParam)
 		column->dataBuffer = text;
 	}
 
-	//Recalculate all automatically sized column widths
+	// Recalculate all automatically sized column widths
 	RecalculateColumnWidths();
 
-	//Calculate the new the highest column data index
+	// Calculate the new the highest column data index
 	unsigned int newLargestColumnDataArraySize = CalculateLargestColumnDataArraySize();
 
-	//If the highest column data index has changed, apply the new setting, and update
-	//scroll information for the control.
+	// If the highest column data index has changed, apply the new setting, and update
+	// scroll information for the control.
 	if (_largestColumnDataArraySize != newLargestColumnDataArraySize)
 	{
 		_largestColumnDataArraySize = newLargestColumnDataArraySize;
 		if (_autoScrollingManagement)
 		{
-			//Calculate new vertical scroll values automatically based on the current state
+			// Calculate new vertical scroll values automatically based on the current state
 			RecalculateScrollPosition();
 
-			//Update the current scrollbar state
+			// Update the current scrollbar state
 			UpdateScrollbarSettings(_currentScrollHOffset, _vscrollCurrent, true);
 		}
 	}
 
-	//Force the control to redraw
+	// Force the control to redraw
 	ForceControlRedraw();
 
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgGRID_UPDATEROWTEXT(WPARAM wParam, LPARAM lParam)
 {
 	unsigned int rowNo = (unsigned int)wParam;
 	const std::map<unsigned int, std::wstring>& columnData = *((const std::map<unsigned int, std::wstring>*)lParam);
 
-	//Update each provided value for each target column
+	// Update each provided value for each target column
 	bool providedDataValid = true;
 	bool updatedDataValue = false;
 	for (std::map<unsigned int, std::wstring>::const_iterator columnDataIterator = columnData.begin(); columnDataIterator != columnData.end(); ++columnDataIterator)
@@ -3592,7 +3592,7 @@ LRESULT WC_DataGrid::msgGRID_UPDATEROWTEXT(WPARAM wParam, LPARAM lParam)
 		unsigned int columnID = columnDataIterator->first;
 		const std::wstring& newText = columnDataIterator->second;
 
-		//Retrieve information on the specified column
+		// Retrieve information on the specified column
 		ColumnIDIndexIterator columnIterator = _columnIDIndex.find(columnID);
 		if (columnIterator == _columnIDIndex.end())
 		{
@@ -3601,79 +3601,79 @@ LRESULT WC_DataGrid::msgGRID_UPDATEROWTEXT(WPARAM wParam, LPARAM lParam)
 		}
 		ColumnData* column = columnIterator->second;
 
-		//Ensure the specified row number lies within the data array for the specified column
+		// Ensure the specified row number lies within the data array for the specified column
 		bool resizedDataBuffer = false;
 		if ((size_t)rowNo >= column->dataBuffer.size())
 		{
 			if (!_autoScrollingManagement)
 			{
-				//If auto scrolling management is disabled, and the row number is larger than
-				//the data buffer, return a failure, since the specified row number must
-				//correspond to a visible row number in this case.
+				// If auto scrolling management is disabled, and the row number is larger than
+				// the data buffer, return a failure, since the specified row number must
+				// correspond to a visible row number in this case.
 				providedDataValid = false;
 				continue;
 			}
 			else
 			{
-				//If auto scrolling management is active, and the row number is larger than
-				//the data buffer, extend the data buffer to include the target row.
+				// If auto scrolling management is active, and the row number is larger than
+				// the data buffer, extend the data buffer to include the target row.
 				column->dataBuffer.resize((size_t)rowNo + 1);
 				resizedDataBuffer = true;
 				updatedDataValue = true;
 			}
 		}
 
-		//If we haven't come across a changed value in this update so far, check if the
-		//new value is different from the current value, and skip this entry if it is not.
+		// If we haven't come across a changed value in this update so far, check if the
+		// new value is different from the current value, and skip this entry if it is not.
 		if (!updatedDataValue && !resizedDataBuffer && (column->dataBuffer[rowNo] == newText))
 		{
 			continue;
 		}
 
-		//Load the specified cell data into the data buffer for the target column
+		// Load the specified cell data into the data buffer for the target column
 		column->dataBuffer[rowNo] = newText;
 		updatedDataValue = true;
 	}
 
-	//If no data values were changed in this update, abort any further processing.
+	// If no data values were changed in this update, abort any further processing.
 	if (!updatedDataValue)
 	{
 		return (providedDataValid)? 0: 1;
 	}
 
-	//Recalculate all automatically sized column widths
+	// Recalculate all automatically sized column widths
 	RecalculateColumnWidths();
 
-	//Calculate the new the highest column data index
+	// Calculate the new the highest column data index
 	unsigned int newLargestColumnDataArraySize = CalculateLargestColumnDataArraySize();
 
-	//If the highest column data index has changed, apply the new setting, and update
-	//scroll information for the control.
+	// If the highest column data index has changed, apply the new setting, and update
+	// scroll information for the control.
 	if (_largestColumnDataArraySize != newLargestColumnDataArraySize)
 	{
 		_largestColumnDataArraySize = newLargestColumnDataArraySize;
 		if (_autoScrollingManagement)
 		{
-			//Calculate new vertical scroll values automatically based on the current state
+			// Calculate new vertical scroll values automatically based on the current state
 			RecalculateScrollPosition();
 
-			//Update the current scrollbar state
+			// Update the current scrollbar state
 			UpdateScrollbarSettings(_currentScrollHOffset, _vscrollCurrent, true);
 		}
 	}
 
-	//Force the control to redraw
+	// Force the control to redraw
 	ForceControlRedraw();
 
 	return (providedDataValid)? 0: 1;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgGRID_UPDATEMULTIPLEROWTEXT(WPARAM wParam, LPARAM lParam)
 {
 	const std::map<unsigned int, std::map<unsigned int, std::wstring>>& newTextForColumns = *((const std::map<unsigned int, std::map<unsigned int, std::wstring>>*)lParam);
 
-	//Update each provided value for each target row and column
+	// Update each provided value for each target row and column
 	bool providedDataValid = true;
 	bool updatedDataValue = false;
 	for (std::map<unsigned int, std::map<unsigned int, std::wstring>>::const_iterator rowDataIterator = newTextForColumns.begin(); rowDataIterator != newTextForColumns.end(); ++rowDataIterator)
@@ -3685,7 +3685,7 @@ LRESULT WC_DataGrid::msgGRID_UPDATEMULTIPLEROWTEXT(WPARAM wParam, LPARAM lParam)
 			unsigned int columnID = columnDataIterator->first;
 			const std::wstring& newText = columnDataIterator->second;
 
-			//Retrieve information on the specified column
+			// Retrieve information on the specified column
 			ColumnIDIndexIterator columnIterator = _columnIDIndex.find(columnID);
 			if (columnIterator == _columnIDIndex.end())
 			{
@@ -3694,75 +3694,75 @@ LRESULT WC_DataGrid::msgGRID_UPDATEMULTIPLEROWTEXT(WPARAM wParam, LPARAM lParam)
 			}
 			ColumnData* column = columnIterator->second;
 
-			//Ensure the specified row number lies within the data array for the specified column
+			// Ensure the specified row number lies within the data array for the specified column
 			bool resizedDataBuffer = false;
 			if ((size_t)rowNo >= column->dataBuffer.size())
 			{
 				if (!_autoScrollingManagement)
 				{
-					//If auto scrolling management is disabled, and the row number is larger than
-					//the data buffer, return a failure, since the specified row number must
-					//correspond to a visible row number in this case.
+					// If auto scrolling management is disabled, and the row number is larger than
+					// the data buffer, return a failure, since the specified row number must
+					// correspond to a visible row number in this case.
 					providedDataValid = false;
 					continue;
 				}
 				else
 				{
-					//If auto scrolling management is active, and the row number is larger than
-					//the data buffer, extend the data buffer to include the target row.
+					// If auto scrolling management is active, and the row number is larger than
+					// the data buffer, extend the data buffer to include the target row.
 					column->dataBuffer.resize((size_t)rowNo + 1);
 					resizedDataBuffer = true;
 					updatedDataValue = true;
 				}
 			}
 
-			//If we haven't come across a changed value in this update so far, check if the
-			//new value is different from the current value, and skip this entry if it is not.
+			// If we haven't come across a changed value in this update so far, check if the
+			// new value is different from the current value, and skip this entry if it is not.
 			if (!updatedDataValue && !resizedDataBuffer && (column->dataBuffer[rowNo] == newText))
 			{
 				continue;
 			}
 
-			//Load the specified cell data into the data buffer for the target column
+			// Load the specified cell data into the data buffer for the target column
 			column->dataBuffer[rowNo] = newText;
 			updatedDataValue = true;
 		}
 	}
 
-	//If no data values were changed in this update, abort any further processing.
+	// If no data values were changed in this update, abort any further processing.
 	if (!updatedDataValue)
 	{
 		return (providedDataValid)? 0: 1;
 	}
 
-	//Recalculate all automatically sized column widths
+	// Recalculate all automatically sized column widths
 	RecalculateColumnWidths();
 
-	//Calculate the new the highest column data index
+	// Calculate the new the highest column data index
 	unsigned int newLargestColumnDataArraySize = CalculateLargestColumnDataArraySize();
 
-	//If the highest column data index has changed, apply the new setting, and update
-	//scroll information for the control.
+	// If the highest column data index has changed, apply the new setting, and update
+	// scroll information for the control.
 	if (_largestColumnDataArraySize != newLargestColumnDataArraySize)
 	{
 		_largestColumnDataArraySize = newLargestColumnDataArraySize;
 		if (_autoScrollingManagement)
 		{
-			//Calculate new vertical scroll values automatically based on the current state
+			// Calculate new vertical scroll values automatically based on the current state
 			RecalculateScrollPosition();
 
-			//Update the current scrollbar state
+			// Update the current scrollbar state
 			UpdateScrollbarSettings(_currentScrollHOffset, _vscrollCurrent, true);
 		}
 	}
 
-	//Force the control to redraw
+	// Force the control to redraw
 	ForceControlRedraw();
 
 	return (providedDataValid)? 0: 1;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgGRID_SETCONTROLCOLOR(WPARAM wParam, LPARAM lParam)
 {
 	const Grid_SetControlColor& controlColorInfo = *((const Grid_SetControlColor*)lParam);
@@ -3779,7 +3779,7 @@ LRESULT WC_DataGrid::msgGRID_SETCONTROLCOLOR(WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgGRID_SETROWCOLOR(WPARAM wParam, LPARAM lParam)
 {
 	unsigned int targetRowID = (unsigned int)wParam;
@@ -3789,7 +3789,7 @@ LRESULT WC_DataGrid::msgGRID_SETROWCOLOR(WPARAM wParam, LPARAM lParam)
 		return 1;
 	}
 
-	//Save the custom colour information for the target row
+	// Save the custom colour information for the target row
 	CustomColorData& rowColorData = _rowColorDataArray[targetRowID];
 	rowColorData.backgroundColorDefined = rowColorInfo.backgroundColorDefined;
 	rowColorData.colorBackground = rowColorInfo.colorBackground;
@@ -3800,19 +3800,19 @@ LRESULT WC_DataGrid::msgGRID_SETROWCOLOR(WPARAM wParam, LPARAM lParam)
 	rowColorData.colorEditTextFront = rowColorInfo.colorEditTextFront;
 	rowColorData.colorEditTextBack = rowColorInfo.colorEditTextBack;
 
-	//Force the control to redraw
+	// Force the control to redraw
 	ForceControlRedraw();
 
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgGRID_SETCELLCOLOR(WPARAM wParam, LPARAM lParam)
 {
 	const Grid_SetCellColor& cellColorInfo = *((const Grid_SetCellColor*)lParam);
 
-	//If a custom colour has been undefined for the target cell, remove it, otherwise add
-	//it to the set of customized cell colours.
+	// If a custom colour has been undefined for the target cell, remove it, otherwise add
+	// it to the set of customized cell colours.
 	if (!cellColorInfo.backgroundColorDefined && !cellColorInfo.editColorDefined && !cellColorInfo.textColorDefined)
 	{
 		_cellCustomColorData[cellColorInfo.targetRowNo].erase(cellColorInfo.targetColumnID);
@@ -3830,35 +3830,35 @@ LRESULT WC_DataGrid::msgGRID_SETCELLCOLOR(WPARAM wParam, LPARAM lParam)
 		cellColorData.colorEditTextBack = cellColorInfo.colorEditTextBack;
 	}
 
-	//Force the control to redraw
+	// Force the control to redraw
 	ForceControlRedraw();
 
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgGRID_GETROWCOUNT(WPARAM wParam, LPARAM lParam)
 {
 	return (LRESULT)_largestColumnDataArraySize;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgGRID_GETVISIBLEROWCOUNT(WPARAM wParam, LPARAM lParam)
 {
 	return (LRESULT)_visibleRows;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DataGrid::msgGRID_SETVSCROLLINFO(WPARAM wParam, LPARAM lParam)
 {
-	//If automatic scrolling management is currently enabled, we reject this message, and
-	//return 1.
+	// If automatic scrolling management is currently enabled, we reject this message, and
+	// return 1.
 	if (_autoScrollingManagement)
 	{
 		return 1;
 	}
 
-	//Apply the new vscroll settings
+	// Apply the new vscroll settings
 	const Grid_SetVScrollInfo& info = *((const Grid_SetVScrollInfo*)lParam);
 	_vscrollCurrent = info.currentPos;
 	_vscrollValuesPerPage = info.valuesPerPage;
@@ -3866,18 +3866,18 @@ LRESULT WC_DataGrid::msgGRID_SETVSCROLLINFO(WPARAM wParam, LPARAM lParam)
 	_vscrollMax = (info.maxPos > info.valuesPerPage)? info.maxPos - info.valuesPerPage: 0;
 	_vscrollMaxTrueLimit = info.maxPos;
 
-	//Update the current scrollbar state
+	// Update the current scrollbar state
 	UpdateScrollbarSettings(_currentScrollHOffset, _vscrollCurrent, true);
 
-	//Force the control to redraw
+	// Force the control to redraw
 	ForceControlRedraw();
 
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
-//Subclass window procedures
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Subclass window procedures
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT CALLBACK WC_DataGrid::ChildControlClickHandlerSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
 	WC_DataGrid& dataGrid = *((WC_DataGrid*)dwRefData);
@@ -3885,22 +3885,22 @@ LRESULT CALLBACK WC_DataGrid::ChildControlClickHandlerSubclassProc(HWND hwnd, UI
 	{
 	case WM_LBUTTONDBLCLK:
 	case WM_LBUTTONDOWN:
-		//Attempt to identify a cell associated with the target control
+		// Attempt to identify a cell associated with the target control
 		std::map<HWND, CellMapping>::const_iterator controlMappingIterator = dataGrid._childControlMapping.find(hwnd);
 		if (controlMappingIterator == dataGrid._childControlMapping.end())
 		{
 			return 0;
 		}
 
-		//Retrieve information on the target cell
+		// Retrieve information on the target cell
 		const CellMapping& cellMapping = controlMappingIterator->second;
 
-		//Notify the parent window of the selection event. Note that we give the handler
-		//an option to abort any further processing of this click event by setting the
-		//ignoreClickEvent field of this message to true. This allows the owner to extend
-		//the selection behaviour of the grid control by performing custom actions in
-		//response to this click event, without the control performing actions that
-		//interfere.
+		// Notify the parent window of the selection event. Note that we give the handler
+		// an option to abort any further processing of this click event by setting the
+		// ignoreClickEvent field of this message to true. This allows the owner to extend
+		// the selection behaviour of the grid control by performing custom actions in
+		// response to this click event, without the control performing actions that
+		// interfere.
 		Grid_SelectionEvent info;
 		info.sameCellAsPrevious = false;
 		info.rowSelected = true;
@@ -3912,16 +3912,16 @@ LRESULT CALLBACK WC_DataGrid::ChildControlClickHandlerSubclassProc(HWND hwnd, UI
 		info.ignoreSelectionEvent = false;
 		SendMessage(GetParent(dataGrid._hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(dataGrid._hwnd) & 0xFFFF), WindowNotifications::SelectionEvent), (LPARAM)&info);
 
-		//If we were instructed to ignore this click event, abort any further processing.
+		// If we were instructed to ignore this click event, abort any further processing.
 		if (info.ignoreSelectionEvent)
 		{
 			return 0;
 		}
 
-		//Complete cell editing if it is currently active
+		// Complete cell editing if it is currently active
 		dataGrid.CompleteCellEditing();
 
-		//Update the currently selected cell information
+		// Update the currently selected cell information
 		dataGrid._rowSelected = false;
 		dataGrid._columnSelected = false;
 		dataGrid._selectedRowNo = 0;

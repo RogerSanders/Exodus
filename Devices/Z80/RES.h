@@ -32,14 +32,14 @@ public:
 
 		if (_target.Decode8BitRegister(data.GetDataSegment(0, 3)))
 		{
-			//RES b,r		11001011 10bbbrrr
+			// RES b,r		11001011 10bbbrrr
 			AddExecuteCycleCount(4);
 		}
 		else
 		{
-			//RES b,(HL)		11001011 10bbb110
-			//RES b,(IX+d)		11011101 11001011 dddddddd 10bbb110
-			//RES b,(IY+d)		11111101 11001011 dddddddd 10bbb110
+			// RES b,(HL)		11001011 10bbb110
+			// RES b,(IX+d)		11011101 11001011 dddddddd 10bbb110
+			// RES b,(IY+d)		11111101 11001011 dddddddd 10bbb110
 			_target.SetMode(EffectiveAddress::Mode::HLIndirect);
 			AddExecuteCycleCount(7);
 
@@ -62,7 +62,7 @@ public:
 		double additionalTime = 0;
 		Z80Byte op1;
 
-		//Perform the operation
+		// Perform the operation
 		if (_doubleOutput)
 		{
 			additionalTime += _targetHL.Read(cpu, location, op1);
@@ -80,7 +80,7 @@ public:
 		}
 		additionalTime += _target.Write(cpu, location, op1);
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -92,5 +92,5 @@ private:
 	bool _doubleOutput;
 };
 
-} //Close namespace Z80
+} // Close namespace Z80
 #endif

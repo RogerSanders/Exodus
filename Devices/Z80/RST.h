@@ -29,7 +29,7 @@ public:
 	{
 		_target.SetIndexState(GetIndexState(), GetIndexOffset());
 
-		//RST p		11ttt111
+		// RST p		11ttt111
 		_target.SetMode(EffectiveAddress::Mode::SPPreDec);
 		_source.BuildImmediateData(Z80Word(data.GetDataSegment(3, 3) << 3));
 		AddExecuteCycleCount(11);
@@ -43,13 +43,13 @@ public:
 		double additionalTime = 0;
 		Z80Word newPC;
 
-		//Perform the operation
+		// Perform the operation
 		additionalTime += _source.Read(cpu, location + GetInstructionSize(), newPC);
 		additionalTime += _target.Write(cpu, location + GetInstructionSize(), location + GetInstructionSize());
 		cpu->PushCallStack(cpu->GetPC().GetData(), newPC.GetData(), (location + GetInstructionSize()).GetData(), L"RST");
 		cpu->SetPC(newPC);
 
-		//Return the execution time
+		// Return the execution time
 		return GetExecuteCycleCount(additionalTime);
 	}
 
@@ -58,5 +58,5 @@ private:
 	EffectiveAddress _target;
 };
 
-} //Close namespace Z80
+} // Close namespace Z80
 #endif

@@ -4,7 +4,7 @@
 template<class DataType, class TimesliceType> struct TimedBufferAccessTarget
 {
 public:
-	//Enumerations
+	// Enumerations
 	enum Target
 	{
 		TARGET_COMMITTED,
@@ -14,17 +14,17 @@ public:
 	};
 
 public:
-	//Constructors
+	// Constructors
 	inline TimedBufferAccessTarget();
 
-	//Access functions
+	// Access functions
 	inline TimedBufferAccessTarget& AccessCommitted();
 	inline TimedBufferAccessTarget& AccessCommitted(TimesliceType atime);
 	inline TimedBufferAccessTarget& AccessLatest();
 	inline TimedBufferAccessTarget& AccessTime(TimesliceType atime);
 
 public:
-	//Data members
+	// Data members
 	Target target;
 	TimesliceType time;
 };

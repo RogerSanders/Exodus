@@ -30,7 +30,7 @@ public:
 		_source.SetIndexState(GetIndexState(), GetIndexOffset());
 		_target.SetIndexState(GetIndexState(), GetIndexOffset());
 
-		//LDI		11101101 10100000
+		// LDI		11101101 10100000
 		_source.SetMode(EffectiveAddress::Mode::HLPostInc);
 		_target.SetMode(EffectiveAddress::Mode::DEPostInc);
 		AddExecuteCycleCount(12);
@@ -45,12 +45,12 @@ public:
 		double additionalTime = 0;
 		Z80Byte result;
 
-		//Perform the operation
+		// Perform the operation
 		additionalTime += _source.Read(cpu, location, result);
 		additionalTime += _target.Write(cpu, location, result);
 		cpu->SetBC(cpu->GetBC() - 1);
 
-		//Set the flag results
+		// Set the flag results
 		cpu->SetFlagH(false);
 		cpu->SetFlagPV(cpu->GetBC() != 0);
 		cpu->SetFlagN(false);
@@ -61,7 +61,7 @@ public:
 		cpu->SetFlagY(regAResult.GetBit(1));
 		cpu->SetFlagX(regAResult.GetBit(3));
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -71,5 +71,5 @@ private:
 	EffectiveAddress _target;
 };
 
-} //Close namespace Z80
+} // Close namespace Z80
 #endif

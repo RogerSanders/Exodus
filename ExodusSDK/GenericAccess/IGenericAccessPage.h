@@ -8,23 +8,23 @@ using namespace MarshalSupport::Operators;
 class IGenericAccessPage
 {
 public:
-	//Enumerations
+	// Enumerations
 	enum class Type;
 
 public:
-	//Constructors
+	// Constructors
 	virtual ~IGenericAccessPage() = 0 {}
 
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisIGenericAccessPageVersion() { return 1; }
 	virtual unsigned int GetIGenericAccessPageVersion() const = 0;
 
-	//Page info functions
+	// Page info functions
 	virtual Type GetPageType() const = 0;
 	virtual Marshal::Ret<std::wstring> GetName() const = 0;
 	virtual Marshal::Ret<std::wstring> GetTitle() const = 0;
 
-	//Content functions
+	// Content functions
 	virtual const IGenericAccessGroup* GetContentRoot() const = 0;
 };
 

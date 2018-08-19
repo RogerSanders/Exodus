@@ -1,7 +1,7 @@
 #ifndef __M68000OPCODES_PKG__
 #define __M68000OPCODES_PKG__
 
-//Arithmetic instructions
+// Arithmetic instructions
 #include "ADD.h"
 #include "ADDA.h"
 #include "ADDI.h"
@@ -26,7 +26,7 @@
 #include "NEGX.h"	
 #include "NOP.h"
 
-//Logic instructions
+// Logic instructions
 #include "AND.h"
 #include "ANDI.h"
 #include "EOR.h"
@@ -37,7 +37,7 @@
 #include "TST.h"
 #include "Scc.h"
 
-//Shift and Rotate
+// Shift and Rotate
 #include "ASL.h"
 #include "ASR.h"
 #include "LSL.h"
@@ -48,18 +48,18 @@
 #include "ROXR.h"
 #include "SWAP.h"
 
-//Bit Manipulation
+// Bit Manipulation
 #include "BCHG.h"
 #include "BCLR.h"
 #include "BSET.h"
 #include "BTST.h"
 
-//BCD instructions
+// BCD instructions
 #include "ABCD.h"
 #include "NBCD.h"
 #include "SBCD.h"
 
-//Data Transfer
+// Data Transfer
 #include "EXG.h"
 #include "LEA.h"
 #include "LINK.h"
@@ -71,7 +71,7 @@
 #include "PEA.h"
 #include "UNLK.h"
 
-//Flow Control
+// Flow Control
 #include "Bcc.h"
 #include "DBcc.h"
 #include "BRA.h"
@@ -81,7 +81,7 @@
 #include "RTR.h"
 #include "RTS.h"
 
-//Privileged
+// Privileged
 #include "ANDI to SR.h"
 #include "EORI to SR.h"
 #include "ORI to SR.h"
@@ -92,19 +92,19 @@
 #include "RTE.h"
 #include "STOP.h"
 
-//Exceptions
+// Exceptions
 #include "CHK.h"
 #include "ILLEGAL.h"
 #include "TRAP.h"
 #include "TRAPV.h"
 
-//CCR Related
+// CCR Related
 #include "ANDI to CCR.h"
 #include "EORI to CCR.h"
 #include "ORI to CCR.h"
 #include "MOVE to CCR.h"
 
-//Multiprocessor
+// Multiprocessor
 #include "TAS.h"
 
 #endif

@@ -4,5 +4,5 @@ namespace MarshalSupport {
 
 struct no_bound_object_tag { };
 
-} //Close namespace MarshalSupport
+} // Close namespace MarshalSupport
 #endif

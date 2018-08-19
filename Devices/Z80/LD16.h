@@ -36,36 +36,36 @@ public:
 
 		if (data == 0xF9)
 		{
-			//LD SP,HL		11111001
-			//LD SP,IX		11011101 11111001
-			//LD SP,IY		11111101 11111001
+			// LD SP,HL		11111001
+			// LD SP,IX		11011101 11111001
+			// LD SP,IY		11111101 11111001
 			_source.SetMode(EffectiveAddress::Mode::HL);
 			_target.SetMode(EffectiveAddress::Mode::SP);
 			AddExecuteCycleCount(6);
 		}
 		else if (data == 0x2A)
 		{
-			//LD HL,(nn)	00101010 nnnnnnnn nnnnnnnn
-			//LD IX,(nn)	11011101 00101010 nnnnnnnn nnnnnnnn
-			//LD IY,(nn)	11111101 00101010 nnnnnnnn nnnnnnnn
+			// LD HL,(nn)	00101010 nnnnnnnn nnnnnnnn
+			// LD IX,(nn)	11011101 00101010 nnnnnnnn nnnnnnnn
+			// LD IY,(nn)	11111101 00101010 nnnnnnnn nnnnnnnn
 			_source.BuildAbsoluteAddress(location + GetInstructionSize(), cpu, transparent);
 			_target.SetMode(EffectiveAddress::Mode::HL);
 			AddExecuteCycleCount(16);
 		}
 		else if (data == 0x22)
 		{
-			//LD (nn),HL	00100010 nnnnnnnn nnnnnnnn
-			//LD (nn),IX	11011101 00100010 nnnnnnnn nnnnnnnn
-			//LD (nn),IY	11111101 00100010 nnnnnnnn nnnnnnnn
+			// LD (nn),HL	00100010 nnnnnnnn nnnnnnnn
+			// LD (nn),IX	11011101 00100010 nnnnnnnn nnnnnnnn
+			// LD (nn),IY	11111101 00100010 nnnnnnnn nnnnnnnn
 			_source.SetMode(EffectiveAddress::Mode::HL);
 			_target.BuildAbsoluteAddress(location + GetInstructionSize(), cpu, transparent);
 			AddExecuteCycleCount(16);
 		}
 		else
 		{
-			//LD dd,nn		00dd0001 nnnnnnnn nnnnnnnn
-			//LD IX,nn		11011101 00100001 nnnnnnnn nnnnnnnn
-			//LD IY,nn		11111101 00100001 nnnnnnnn nnnnnnnn
+			// LD dd,nn		00dd0001 nnnnnnnn nnnnnnnn
+			// LD IX,nn		11011101 00100001 nnnnnnnn nnnnnnnn
+			// LD IY,nn		11111101 00100001 nnnnnnnn nnnnnnnn
 			_source.BuildImmediateData(BITCOUNT_WORD, location + GetInstructionSize(), cpu, transparent);
 			_target.Decode16BitRegister(data.GetDataSegment(4, 2));
 			AddExecuteCycleCount(10);
@@ -81,11 +81,11 @@ public:
 		double additionalTime = 0;
 		Z80Word result;
 
-		//Perform the operation
+		// Perform the operation
 		additionalTime += _source.Read(cpu, location, result);
 		additionalTime += _target.Write(cpu, location, result);
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -95,5 +95,5 @@ private:
 	EffectiveAddress _target;
 };
 
-} //Close namespace Z80
+} // Close namespace Z80
 #endif

@@ -5,14 +5,14 @@
 class IGenericAccessDataValueFloat :public IGenericAccessDataValue
 {
 public:
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisIGenericAccessDataValueFloatVersion() { return 1; }
 	virtual unsigned int GetIGenericAccessDataValueFloatVersion() const = 0;
 
-	//Value read functions
+	// Value read functions
 	virtual float GetValue() const = 0;
 
-	//Value display functions
+	// Value display functions
 	virtual FloatDisplayMode GetDisplayMode() const = 0;
 	virtual void SetDisplayMode(FloatDisplayMode state) = 0;
 	virtual unsigned int GetMinWholeNumberChars() const = 0;
@@ -20,7 +20,7 @@ public:
 	virtual unsigned int GetMinFractionalNumberChars() const = 0;
 	virtual void SetMinFractionalNumberChars(unsigned int state) = 0;
 
-	//Value limit functions
+	// Value limit functions
 	virtual float GetMinValue() const = 0;
 	virtual void SetMinValue(float state) = 0;
 	virtual float GetMaxValue() const = 0;

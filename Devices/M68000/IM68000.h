@@ -8,25 +8,25 @@ using namespace MarshalSupport::Operators;
 class IM68000 :public virtual IGenericAccess
 {
 public:
-	//Enumerations
+	// Enumerations
 	enum class IM68000DataSource;
 	enum class Exceptions;
 
-	//Structures
+	// Structures
 	struct RegisterDataContext;
 	struct ExceptionDebuggingEntry;
 
-	//Constants
+	// Constants
 	static const int AddressRegCount = 8;
 	static const int DataRegCount = 8;
 	static const unsigned int SP = 7;
 
 public:
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisIM68000Version() { return 1; }
 	virtual unsigned int GetIM68000Version() const = 0;
 
-	//CCR flags
+	// CCR flags
 	inline bool GetX() const;
 	inline void SetX(bool data);
 	inline bool GetN() const;
@@ -38,7 +38,7 @@ public:
 	inline bool GetC() const;
 	inline void SetC(bool data);
 
-	//SR flags
+	// SR flags
 	inline bool GetSR_T() const;
 	inline void SetSR_T(bool data);
 	inline bool GetSR_S() const;
@@ -46,7 +46,7 @@ public:
 	inline unsigned int GetSR_IPM() const;
 	inline void SetSR_IPM(unsigned int data);
 
-	//Register functions
+	// Register functions
 	inline unsigned int GetPC() const;
 	inline void SetPC(unsigned int data);
 	inline unsigned int GetSR() const;
@@ -64,7 +64,7 @@ public:
 	inline unsigned int GetD(unsigned int regiserNo) const;
 	inline void SetD(unsigned int regiserNo, unsigned int data);
 
-	//Exception debugging functions
+	// Exception debugging functions
 	virtual bool GetLogAllExceptions() const = 0;
 	virtual void SetLogAllExceptions(bool state) = 0;
 	virtual bool GetBreakOnAllExceptions() const = 0;

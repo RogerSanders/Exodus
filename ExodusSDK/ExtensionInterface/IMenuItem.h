@@ -4,18 +4,18 @@
 class IMenuItem
 {
 public:
-	//Enumerations
+	// Enumerations
 	enum class Type;
 
 public:
-	//Constructors
+	// Constructors
 	virtual ~IMenuItem() = 0 {}
 
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisIMenuItemVersion();
 	virtual unsigned int GetIMenuItemVersion() const = 0;
 
-	//Type functions
+	// Type functions
 	virtual Type GetType() const = 0;
 };
 

@@ -6,25 +6,25 @@
 class GenericAccessDataValueDouble :public GenericAccessDataValueBase<IGenericAccessDataValueDouble>
 {
 public:
-	//Constructors
+	// Constructors
 	GenericAccessDataValueDouble(double value = 0.0);
 
-	//Interface version functions
+	// Interface version functions
 	virtual unsigned int GetIGenericAccessDataValueDoubleVersion() const;
 
-	//Type functions
+	// Type functions
 	virtual DataType GetType() const;
 
-	//Value read functions
+	// Value read functions
 	virtual double GetValue() const;
 	virtual Marshal::Ret<std::wstring> GetValueString() const;
 
-	//Value write functions
+	// Value write functions
 	virtual bool SetValueFloat(float value);
 	virtual bool SetValueDouble(double value);
 	virtual bool SetValueString(const Marshal::In<std::wstring>& value);
 
-	//Value display functions
+	// Value display functions
 	virtual FloatDisplayMode GetDisplayMode() const;
 	virtual void SetDisplayMode(FloatDisplayMode state);
 	virtual unsigned int GetMinWholeNumberChars() const;
@@ -32,13 +32,13 @@ public:
 	virtual unsigned int GetMinFractionalNumberChars() const;
 	virtual void SetMinFractionalNumberChars(unsigned int state);
 
-	//Value limit functions
+	// Value limit functions
 	virtual double GetMinValue() const;
 	virtual void SetMinValue(double state);
 	virtual double GetMaxValue() const;
 	virtual void SetMaxValue(double state);
 
-	//Value limit functions
+	// Value limit functions
 	virtual void ApplyLimitSettingsToCurrentValue();
 
 private:

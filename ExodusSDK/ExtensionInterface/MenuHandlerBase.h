@@ -14,33 +14,33 @@
 #include <condition_variable>
 
 //##TODO## Add support for menu items which are not just selectable items, IE, submenus or
-//separators.
+// separators.
 class MenuHandlerBase :public IMenuHandler
 {
 public:
-	//Constructors
+	// Constructors
 	MenuHandlerBase(const std::wstring& menuHandlerName, IViewManager& viewManager);
 	virtual ~MenuHandlerBase();
 	void LoadMenuItems();
 	void ClearMenuItems();
 
-	//Interface version functions
+	// Interface version functions
 	virtual unsigned int GetIMenuHandlerVersion() const;
 
-	//Menu binding functions
+	// Menu binding functions
 	void AddMenuItems(IMenuSegment& menuSegment);
 
-	//Menu item handler functions
+	// Menu item handler functions
 	virtual void HandleMenuItemSelect(int menuItemID);
 	bool RestoreMenuViewOpen(const std::wstring& viewGroupName, const std::wstring& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter);
 	bool OpenView(const std::wstring& viewGroupName, const std::wstring& viewName);
 
 protected:
-	//Structures
+	// Structures
 	struct MenuItemDefinition;
 
 protected:
-	//Management functions
+	// Management functions
 	std::wstring GetMenuHandlerName() const;
 	std::wstring GetMenuItemName(int menuItemID) const;
 	std::set<IViewPresenter*> GetOpenViewPresenters(int menuItemID) const;
@@ -51,15 +51,15 @@ protected:
 	virtual void HandleMenuItemSelectNonView(int menuItemID, IViewManager& viewManager);
 
 private:
-	//Structures
+	// Structures
 	struct MenuItemInternal;
 
 private:
-	//View management
+	// View management
 	void DeleteViewOnClose(int menuItemID, IViewPresenter* viewPresenter);
 	void DeleteViewHandler(int menuItemID, IViewPresenter* viewPresenter);
 
-	//Menu item handler functions
+	// Menu item handler functions
 	void HandleViewMenuItemSelect(MenuItemInternal& menuItem);
 
 private:

@@ -14,10 +14,10 @@ the choice to "Terminate", "Ignore", or "Debug".
 #ifndef __ASSERTION_H__
 #define __ASSERTION_H__
 
-//Assert functions
+// Assert functions
 inline void Assert(bool expression, unsigned int line, const wchar_t* file, const wchar_t* message);
 
-//Assert macros
+// Assert macros
 #define ASSERTFAILUREEXCEPTIONCODE 0xDEADC0DE
 #define MAKESTRINGWIDE(string) L ## string
 #ifdef  NDEBUG

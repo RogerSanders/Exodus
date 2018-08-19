@@ -63,7 +63,7 @@ inline void ClearSTLContainer(std::basic_string<ElementType, traits, Alloc>& ele
 template<class ElementType>
 inline void ClearSTLContainer(ElementType& element);
 
-} //Close namespace Internal
-} //Close namespace MarshalSupport
+} // Close namespace Internal
+} // Close namespace MarshalSupport
 #include "ClearSTLContainer.inl"
 #endif

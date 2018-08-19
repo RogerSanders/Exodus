@@ -4,10 +4,10 @@
 template<class T, size_t S> struct ThinVector
 {
 public:
-	//Constructors
+	// Constructors
 	inline ThinVector();
 
-	//Initialization functions
+	// Initialization functions
 	inline void InitializeData();
 	inline void CopyData(const T* sourceDataArray, size_t sourceDataArraySize);
 

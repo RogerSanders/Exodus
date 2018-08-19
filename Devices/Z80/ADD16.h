@@ -31,9 +31,9 @@ public:
 		_target.SetIndexState(GetIndexState(), GetIndexOffset());
 		_target.SetMode(EffectiveAddress::Mode::HL);
 
-		//ADD HL,ss		00ss1001
-		//ADD IX,ss		11011101 00ss1001
-		//ADD IY,ss		11111101 00ss1001
+		// ADD HL,ss		00ss1001
+		// ADD IX,ss		11011101 00ss1001
+		// ADD IY,ss		11111101 00ss1001
 		_source.Decode16BitRegister(data.GetDataSegment(4, 2));
 
 		AddInstructionSize(GetIndexOffsetSize(_source.UsesIndexOffset() || _target.UsesIndexOffset()));
@@ -49,20 +49,20 @@ public:
 		Z80Word op2;
 		Z80Word result;
 
-		//Perform the operation
+		// Perform the operation
 		additionalTime += _source.Read(cpu, location, op1);
 		additionalTime += _target.Read(cpu, location, op2);
 		result = op2 + op1;
 		additionalTime += _target.Write(cpu, location, result);
 
-		//Set the flag results
+		// Set the flag results
 		cpu->SetFlagY(result.GetBit(8+5));
 		cpu->SetFlagH((op1.GetDataSegment(0, 8+4) + op2.GetDataSegment(0, 8+4)) > result.GetDataSegment(0, 8+4));
 		cpu->SetFlagX(result.GetBit(8+3));
 		cpu->SetFlagN(false);
 		cpu->SetFlagC((op1.GetData() + op2.GetData()) > result.GetData());
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -72,5 +72,5 @@ private:
 	EffectiveAddress _target;
 };
 
-} //Close namespace Z80
+} // Close namespace Z80
 #endif

@@ -6,11 +6,11 @@ class DebugMenuHandler;
 class M68000Menus :public Extension
 {
 public:
-	//Constructors
+	// Constructors
 	M68000Menus(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 	~M68000Menus();
 
-	//Window functions
+	// Window functions
 	virtual bool RegisterDeviceMenuHandler(IDevice* targetDevice);
 	virtual void UnregisterDeviceMenuHandler(IDevice* targetDevice);
 	virtual void AddDeviceMenuItems(DeviceMenu deviceMenu, IMenuSegment& menuSegment, IDevice* targetDevice);

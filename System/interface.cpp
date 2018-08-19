@@ -19,7 +19,7 @@ extern "C" __declspec(dllexport) unsigned int GetInterfaceVersion()
 
 extern "C" __declspec(dllexport) bool GetSystemEntry(unsigned int entryNo, ISystemInfo& entry)
 {
-	//Retrieve any required information from the version info table for our assembly
+	// Retrieve any required information from the version info table for our assembly
 	std::wstring copyrightText;
 	std::wstring commentsText;
 	HMODULE moduleHandle = NULL;

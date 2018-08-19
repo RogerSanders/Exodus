@@ -1,11 +1,11 @@
-//----------------------------------------------------------------------------------------
-//Enumerations
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Enumerations
+//----------------------------------------------------------------------------------------------------------------------
 enum class ISystemDeviceInterface::KeyCode
 {
 	None,
 
-	//Control keys
+	// Control keys
 	Escape,
 	Tab,
 	Enter,
@@ -30,12 +30,12 @@ enum class ISystemDeviceInterface::KeyCode
 	RightWindows,
 	Menu,
 
-	//Modifier keys
+	// Modifier keys
 	Ctrl,
 	Alt,
 	Shift,
 
-	//Function keys
+	// Function keys
 	F1,
 	F2,
 	F3,
@@ -49,7 +49,7 @@ enum class ISystemDeviceInterface::KeyCode
 	F11,
 	F12,
 
-	//Numbers
+	// Numbers
 	Number0,
 	Number1,
 	Number2,
@@ -61,7 +61,7 @@ enum class ISystemDeviceInterface::KeyCode
 	Number8,
 	Number9,
 
-	//Letters
+	// Letters
 	A,
 	B,
 	C,
@@ -89,7 +89,7 @@ enum class ISystemDeviceInterface::KeyCode
 	Y,
 	Z,
 
-	//Symbol keys
+	// Symbol keys
 	OEM1,
 	OEMPLUS,
 	OEMCOMMA,
@@ -105,7 +105,7 @@ enum class ISystemDeviceInterface::KeyCode
 	OEMAX,
 	OEM102,
 
-	//Numpad keys
+	// Numpad keys
 	NUMPAD0,
 	NUMPAD1,
 	NUMPAD2,
@@ -122,11 +122,11 @@ enum class ISystemDeviceInterface::KeyCode
 	NUMPADADD,
 	NUMPADDECIMAL,
 
-	//Joystick buttons
+	// Joystick buttons
 	JOYSTICK00BUTTON00,
 	JOYSTICK15BUTTON31 = (ISystemDeviceInterface::KeyCode::JOYSTICK00BUTTON00 + ((16*32) - 1)),
 
-	//Joystick axes as buttons
+	// Joystick axes as buttons
 	JOYSTICK00AXIS0PLUS,
 	JOYSTICK00AXIS0MINUS,
 	JOYSTICK15AXIS5PLUS = (ISystemDeviceInterface::KeyCode::JOYSTICK00AXIS0PLUS + ((16*6*2) - 2)),
@@ -135,24 +135,24 @@ enum class ISystemDeviceInterface::KeyCode
 	EndOfList
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 enum class ISystemDeviceInterface::AxisCode
 {
 	None,
 
-	//Joystick axes
+	// Joystick axes
 	Joystick00Axis0,
 	Joystick15Axis6 = (ISystemDeviceInterface::AxisCode::Joystick00Axis0 + ((16*6) - 1)),
 
 	EndOfList
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 enum class ISystemDeviceInterface::ScrollCode
 {
 	None,
 
-	//Mouse input
+	// Mouse input
 	MouseX,
 	MouseY,
 	MouseZ,

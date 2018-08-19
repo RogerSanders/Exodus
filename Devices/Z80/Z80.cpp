@@ -4,28 +4,28 @@
 #include <iostream>
 namespace Z80{
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Z80::Z80(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
 :Processor(implementationName, instanceName, moduleID), _opcodeTable(8), _opcodeTableCB(8), _opcodeTableED(8), _opcodeBuffer(0), _memoryBus(0)
 {
-	//Set the default state for our device preferences
+	// Set the default state for our device preferences
 	_suspendWhenBusReleased = false;
 
-	//Initialize our CE line state
+	// Initialize our CE line state
 	_ceLineMaskRD = 0;
 	_ceLineMaskWR = 0;
 
-	//Ensure we don't think a reset was triggered on the last processor step
+	// Ensure we don't think a reset was triggered on the last processor step
 	_resetLastStep = false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Z80::~Z80()
 {
-	//Delete the opcode buffer
+	// Delete the opcode buffer
 	delete _opcodeBuffer;
 
-	//Delete all objects stored in the opcode lists
+	// Delete all objects stored in the opcode lists
 	for (std::list<Z80Instruction*>::const_iterator i = _opcodeList.begin(); i != _opcodeList.end(); ++i)
 	{
 		delete *i;
@@ -40,17 +40,17 @@ Z80::~Z80()
 	}
 }
 
-//----------------------------------------------------------------------------------------
-//Interface version functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Interface version functions
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int Z80::GetIZ80Version() const
 {
 	return ThisIZ80Version();
 }
 
-//----------------------------------------------------------------------------------------
-//Initialization functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Initialization functions
+//----------------------------------------------------------------------------------------------------------------------
 bool Z80::Construct(IHierarchicalStorageNode& node)
 {
 	bool result = Processor::Construct(node);
@@ -62,17 +62,17 @@ bool Z80::Construct(IHierarchicalStorageNode& node)
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool Z80::BuildDevice()
 {
 	bool result = Processor::BuildDevice();
 
-	//Initialize our opcode tables
+	// Initialize our opcode tables
 	_opcodeTable.InitializeOpcodeTable();
 	_opcodeTableED.InitializeOpcodeTable();
 	_opcodeTableCB.InitializeOpcodeTable();
 
-	//Delete all objects stored in the opcode lists
+	// Delete all objects stored in the opcode lists
 	for (std::list<Z80Instruction*>::const_iterator i = _opcodeList.begin(); i != _opcodeList.end(); ++i)
 	{
 		delete *i;
@@ -89,19 +89,19 @@ bool Z80::BuildDevice()
 	_opcodeListCB.clear();
 	_opcodeListED.clear();
 
-	//Add all defined opcodes for this device to the opcode list
+	// Add all defined opcodes for this device to the opcode list
 
-	//8-Bit Load Instructions
+	// 8-Bit Load Instructions
 	_opcodeList.push_back(new LD8());
 	_opcodeListED.push_back(new LD8ED());
 
-	//16-Bit Load Instructions
+	// 16-Bit Load Instructions
 	_opcodeList.push_back(new LD16());
 	_opcodeListED.push_back(new LD16ED());
 	_opcodeList.push_back(new PUSH());
 	_opcodeList.push_back(new POP());
 
-	//Exchange, Block Transfer, and Search Instructions
+	// Exchange, Block Transfer, and Search Instructions
 	_opcodeList.push_back(new EX());
 	_opcodeList.push_back(new EXX());
 	_opcodeListED.push_back(new LDI());
@@ -113,7 +113,7 @@ bool Z80::BuildDevice()
 	_opcodeListED.push_back(new CPD());
 	_opcodeListED.push_back(new CPDR());
 
-	//8-Bit Arithmetic Instructions
+	// 8-Bit Arithmetic Instructions
 	_opcodeList.push_back(new ADD8());
 	_opcodeList.push_back(new AND8());
 	_opcodeList.push_back(new CP8());
@@ -125,7 +125,7 @@ bool Z80::BuildDevice()
 	_opcodeList.push_back(new ADC8());
 	_opcodeList.push_back(new SBC8());
 
-	//General-Purpose Arithmetic and CPU Control Instructions
+	// General-Purpose Arithmetic and CPU Control Instructions
 	_opcodeList.push_back(new CPL());
 	_opcodeList.push_back(new CCF());
 	_opcodeList.push_back(new SCF());
@@ -137,14 +137,14 @@ bool Z80::BuildDevice()
 	_opcodeListED.push_back(new IM());
 	_opcodeList.push_back(new DAA());
 
-	//16-bit Arithmetic Instructions
+	// 16-bit Arithmetic Instructions
 	_opcodeList.push_back(new ADD16());
 	_opcodeList.push_back(new DEC16());
 	_opcodeList.push_back(new INC16());
 	_opcodeListED.push_back(new ADC16());
 	_opcodeListED.push_back(new SBC16());
 
-	//Rotate and Shift Instructions
+	// Rotate and Shift Instructions
 	_opcodeList.push_back(new RLCA());
 	_opcodeList.push_back(new RLA());
 	_opcodeList.push_back(new RRCA());
@@ -160,17 +160,17 @@ bool Z80::BuildDevice()
 	_opcodeListED.push_back(new RLD());
 	_opcodeListED.push_back(new RRD());
 
-	//Bit set, reset, and test instructions
+	// Bit set, reset, and test instructions
 	_opcodeListCB.push_back(new BIT());
 	_opcodeListCB.push_back(new SET());
 	_opcodeListCB.push_back(new RES());
 
-	//Jump Instructions
+	// Jump Instructions
 	_opcodeList.push_back(new JP());
 	_opcodeList.push_back(new JR());
 	_opcodeList.push_back(new DJNZ());
 
-	//Call and Return Instructions
+	// Call and Return Instructions
 	_opcodeList.push_back(new CALL());
 	_opcodeList.push_back(new RET());
 	_opcodeList.push_back(new RST());
@@ -178,85 +178,85 @@ bool Z80::BuildDevice()
 	_opcodeListED.push_back(new RETN());
 
 	//##TODO## Input and Output Instructions
-	//IN
-	//INI
-	//INIR
-	//IND
-	//INDR
-	//OUT
-	//OUTI
-	//OTIR
-	//OUTD
-	//OTDR
+	// IN
+	// INI
+	// INIR
+	// IND
+	// INDR
+	// OUT
+	// OUTI
+	// OTIR
+	// OUTD
+	// OTDR
 
-	//Prepare to calculate the size of the largest opcode object allocated by this device
+	// Prepare to calculate the size of the largest opcode object allocated by this device
 	size_t largestObjectSize = 0;
 
-	//Register each constructed opcode object in the opcode table, and update the size of
-	//the largest opcode object.
+	// Register each constructed opcode object in the opcode table, and update the size of
+	// the largest opcode object.
 	for (std::list<Z80Instruction*>::const_iterator i = _opcodeList.begin(); i != _opcodeList.end(); ++i)
 	{
-		//Register this opcode in the opcode table
+		// Register this opcode in the opcode table
 		Z80Instruction* opcodeObject = *i;
 		if (!opcodeObject->RegisterOpcode(_opcodeTable))
 		{
-			//Log the event
+			// Log the event
 			LogEntry logEntry(LogEntry::EventLevel::Critical);
 			logEntry << L"Error registering opcode! Opcode name: " << opcodeObject->GetOpcodeName();
 			GetDeviceContext()->WriteLogEvent(logEntry);
 			result = false;
 		}
 
-		//Update our calculation of the largest opcode size
+		// Update our calculation of the largest opcode size
 		size_t currentOpcodeObjectSize = opcodeObject->GetOpcodeClassByteSize();
 		largestObjectSize = (currentOpcodeObjectSize > largestObjectSize)? currentOpcodeObjectSize: largestObjectSize;
 	}
 
-	//Register each constructed CB opcode object in the CB opcode table, and update the
-	//size of the largest opcode object.
+	// Register each constructed CB opcode object in the CB opcode table, and update the
+	// size of the largest opcode object.
 	for (std::list<Z80Instruction*>::const_iterator i = _opcodeListCB.begin(); i != _opcodeListCB.end(); ++i)
 	{
-		//Register this opcode in the opcode table
+		// Register this opcode in the opcode table
 		Z80Instruction* opcodeObject = *i;
 		if (!opcodeObject->RegisterOpcode(_opcodeTableCB))
 		{
-			//Log the event
+			// Log the event
 			LogEntry logEntry(LogEntry::EventLevel::Critical);
 			logEntry << L"Error registering opcode! Opcode name: " << opcodeObject->GetOpcodeName();
 			GetDeviceContext()->WriteLogEvent(logEntry);
 			result = false;
 		}
 
-		//Update our calculation of the largest opcode size
+		// Update our calculation of the largest opcode size
 		size_t currentOpcodeObjectSize = opcodeObject->GetOpcodeClassByteSize();
 		largestObjectSize = (currentOpcodeObjectSize > largestObjectSize)? currentOpcodeObjectSize: largestObjectSize;
 	}
 
-	//Register each constructed ED opcode object in the ED opcode table, and update the
-	//size of the largest opcode object.
+	// Register each constructed ED opcode object in the ED opcode table, and update the
+	// size of the largest opcode object.
 	for (std::list<Z80Instruction*>::const_iterator i = _opcodeListED.begin(); i != _opcodeListED.end(); ++i)
 	{
-		//Register this opcode in the opcode table
+		// Register this opcode in the opcode table
 		Z80Instruction* opcodeObject = *i;
 		if (!opcodeObject->RegisterOpcode(_opcodeTableED))
 		{
-			//Log the event
+			// Log the event
 			LogEntry logEntry(LogEntry::EventLevel::Critical);
 			logEntry << L"Error registering opcode! Opcode name: " << opcodeObject->GetOpcodeName();
 			GetDeviceContext()->WriteLogEvent(logEntry);
 			result = false;
 		}
 
-		//Update our calculation of the largest opcode size
+		// Update our calculation of the largest opcode size
 		size_t currentOpcodeObjectSize = opcodeObject->GetOpcodeClassByteSize();
 		largestObjectSize = (currentOpcodeObjectSize > largestObjectSize)? currentOpcodeObjectSize: largestObjectSize;
 	}
 
-	//Allocate a new opcode buffer, which is large enough to hold an instance of the
-	//largest opcode object.
+	// Allocate a new opcode buffer, which is large enough to hold an instance of the
+	// largest opcode object.
 	_opcodeBuffer = (void*)new unsigned char[largestObjectSize];
 
-	//Register each data source with the generic data access base class
+	// Register each data source with the generic data access base class
 	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterA, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
 	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterF, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
 	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterB, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(0xFF)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal)->SetHighlightUsed(true));
@@ -303,7 +303,7 @@ bool Z80::BuildDevice()
 	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterFlagN, IGenericAccessDataValue::DataType::Bool))->SetHighlightUsed(true));
 	result &= AddGenericDataInfo((new GenericAccessDataInfo(IZ80DataSource::RegisterFlagC, IGenericAccessDataValue::DataType::Bool))->SetHighlightUsed(true));
 
-	//Register page layouts for generic access to this device
+	// Register page layouts for generic access to this device
 	GenericAccessPage* registersPage = new GenericAccessPage(L"Registers");
 	registersPage->AddEntry((new GenericAccessGroup(L"Raw Registers"))
 	                 ->AddEntry(new GenericAccessGroupDataEntry(IZ80DataSource::RegisterAF, L"AF"))
@@ -350,13 +350,13 @@ bool Z80::BuildDevice()
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool Z80::ValidateDevice()
 {
 	return (_memoryBus != 0);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Z80::Initialize()
 {
 	_afreg = 0;
@@ -414,11 +414,11 @@ void Z80::Initialize()
 
 	Reset();
 
-	//These defaults are suggested by "The Undocumented Z80 Documented", but apparently
-	//these registers aren't actually initialized during power on, and more importantly,
-	//during a reset. We used to incorrectly initialize these registers during a reset as
-	//well, but this caused the Z80 sound driver in "Decap Attack" for the Mega Drive to
-	//crash during startup.
+	// These defaults are suggested by "The Undocumented Z80 Documented", but apparently
+	// these registers aren't actually initialized during power on, and more importantly,
+	// during a reset. We used to incorrectly initialize these registers during a reset as
+	// well, but this caused the Z80 sound driver in "Decap Attack" for the Mega Drive to
+	// crash during startup.
 	SetBC(Z80Word(0xFFFF));
 	SetDE(Z80Word(0xFFFF));
 	SetHL(Z80Word(0xFFFF));
@@ -429,19 +429,19 @@ void Z80::Initialize()
 	SetIX(Z80Word(0xFFFF));
 	SetIY(Z80Word(0xFFFF));
 
-	//Synchronize the changed register state with the current register state
+	// Synchronize the changed register state with the current register state
 	PopulateChangedRegStateFromCurrentState();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Z80::Reset()
 {
 	_processorStopped = false;
 	_maskInterruptsNextOpcode = false;
 
-	//These defaults obtained from "The Undocumented Z80 Documented" by Sean Young. Some
-	//additional info from http://www.z80.info/interrup.htm says the I and R registers
-	//should also be zeroed here, which makes sense.
+	// These defaults obtained from "The Undocumented Z80 Documented" by Sean Young. Some
+	// additional info from http://www.z80.info/interrup.htm says the I and R registers
+	// should also be zeroed here, which makes sense.
 	SetSP(Z80Word(0xFFFF));
 	SetAF(Z80Word(0xFFFF));
 	SetPC(Z80Word(0));
@@ -453,27 +453,27 @@ void Z80::Reset()
 
 	//##FIX## Refer to http://gendev.spritesmind.net/forum/viewtopic.php?t=779 thread
 	//"Williams Arcade Classics sound" for lots of information about how the Z80 is
-	//supposed to behave on a reset. According to Charles MacDonald:
-	//-I, R, PC reset to zero. 
-	//-IM 0 selected and interrupts are disabled (like DI). 
-	//-All other registers (SP, AF, AF', IX, etc.) retain their values.
-	//Also note that the HALT status is apparently supposed to be cleared here, as Charles
-	//says "On the Genesis you can definitely do a DI; HALT sequence and still recover
-	//from a 68K-triggered reset without being 'stuck' in the HALT state."
+	// supposed to behave on a reset. According to Charles MacDonald:
+	// -I, R, PC reset to zero. 
+	// -IM 0 selected and interrupts are disabled (like DI). 
+	// -All other registers (SP, AF, AF', IX, etc.) retain their values.
+	// Also note that the HALT status is apparently supposed to be cleared here, as Charles
+	// says "On the Genesis you can definitely do a DI; HALT sequence and still recover
+	// from a 68K-triggered reset without being 'stuck' in the HALT state."
 
 	ClearCallStack();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Z80::BeginExecution()
 {
-	//Synchronize the changed register state with the current register state
+	// Synchronize the changed register state with the current register state
 	PopulateChangedRegStateFromCurrentState();
 }
 
-//----------------------------------------------------------------------------------------
-//Reference functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Reference functions
+//----------------------------------------------------------------------------------------------------------------------
 bool Z80::AddReference(const Marshal::In<std::wstring>& referenceName, IBusInterface* target)
 {
 	bool result = false;
@@ -487,7 +487,7 @@ bool Z80::AddReference(const Marshal::In<std::wstring>& referenceName, IBusInter
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Z80::RemoveReference(IBusInterface* target)
 {
 	_externalReferenceLock.ObtainWriteLock();
@@ -498,24 +498,24 @@ void Z80::RemoveReference(IBusInterface* target)
 	_externalReferenceLock.ReleaseWriteLock();
 }
 
-//----------------------------------------------------------------------------------------
-//Suspend functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Suspend functions
+//----------------------------------------------------------------------------------------------------------------------
 bool Z80::UsesExecuteSuspend() const
 {
 	return _suspendWhenBusReleased;
 }
 
-//----------------------------------------------------------------------------------------
-//Execute functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Execute functions
+//----------------------------------------------------------------------------------------------------------------------
 double Z80::ExecuteStep()
 {
 	unsigned int cyclesExecuted = 1;
 	double additionalTime = 0;
 
-	//If we have any pending line state changes waiting, apply any which we have now
-	//reached.
+	// If we have any pending line state changes waiting, apply any which we have now
+	// reached.
 	if (_lineAccessPending)
 	{
 		//##DEBUG##
@@ -526,9 +526,9 @@ double Z80::ExecuteStep()
 		bool done = false;
 		while (!done)
 		{
-			//Remove the next line access that we've reached from the front of the line
-			//access buffer. Note that our lineMutex lock may be released while applying
-			//some line state changes, so we can't keep active reference to an iterator.
+			// Remove the next line access that we've reached from the front of the line
+			// access buffer. Note that our lineMutex lock may be released while applying
+			// some line state changes, so we can't keep active reference to an iterator.
 			std::list<LineAccess>::iterator i = _lineAccessBuffer.begin();
 			if ((i == _lineAccessBuffer.end()) || (i->accessTime > currentTimesliceProgress))
 			{
@@ -540,13 +540,13 @@ double Z80::ExecuteStep()
 			_lineAccessPending = !_lineAccessBuffer.empty();
 
 			//##DEBUG##
-			//std::wstringstream logMessage;
-			//logMessage << L"Z80 Line state change: " << std::setprecision(16) << lineaccess.accessTime << '\t' << currentTimesliceProgress << '\t' << lineAccess.lineID << '\t' << i->state.GetData();
-			//LogEntry logEntry(LogEntry::EventLevel::DEBUG, logMessage.str());
-			//GetDeviceContext()->WriteLogEvent(logEntry);
-			//std::wcout << "Z80 Line state change: " << std::setprecision(16) << lineAccess.accessTime << '\t' << currentTimesliceProgress << '\n';
+			// std::wstringstream logMessage;
+			// logMessage << L"Z80 Line state change: " << std::setprecision(16) << lineaccess.accessTime << '\t' << currentTimesliceProgress << '\t' << lineAccess.lineID << '\t' << i->state.GetData();
+			// LogEntry logEntry(LogEntry::EventLevel::DEBUG, logMessage.str());
+			// GetDeviceContext()->WriteLogEvent(logEntry);
+			// std::wcout << "Z80 Line state change: " << std::setprecision(16) << lineAccess.accessTime << '\t' << currentTimesliceProgress << '\n';
 
-			//Apply the line state change
+			// Apply the line state change
 			if (lineAccess.clockRateChange)
 			{
 				ApplyClockStateChange(lineAccess.lineID, lineAccess.clockRate);
@@ -559,44 +559,44 @@ double Z80::ExecuteStep()
 	}
 	_lastLineCheckTime = GetCurrentTimesliceProgress();
 
-	//If no line access is pending, and we've decided to suspend until another line state
-	//change is received, suspend execution waiting for another line state change to be
-	//received, unless execution suspension has now been disabled.
+	// If no line access is pending, and we've decided to suspend until another line state
+	// change is received, suspend execution waiting for another line state change to be
+	// received, unless execution suspension has now been disabled.
 	if (!_lineAccessPending && _suspendUntilLineStateChangeReceived && !GetDeviceContext()->TimesliceSuspensionDisabled())
 	{
-		//Check lineAccessPending again after taking a lock on lineMutex. This will ensure
-		//we never enter a suspend state when there are actually line access events
-		//sitting in the buffer.
+		// Check lineAccessPending again after taking a lock on lineMutex. This will ensure
+		// we never enter a suspend state when there are actually line access events
+		// sitting in the buffer.
 		std::unique_lock<std::mutex> lock(_lineMutex);
 		if (!_lineAccessPending)
 		{
-			//Suspend timeslice execution, release the lock on lineMutex, then wait until
-			//execution is resumed. It is essential to perform these steps, in this order.
-			//By waiting to release the lock until after we have suspended timeslice
-			//execution, we ensure that no line state changes have sneaked into the buffer
-			//since we tested the value of the lineAccessPending variable. We need to
-			//release this lock before we enter our wait state however, so that other
-			//devices can resume execution of this device by triggering a line state
-			//change. After releasing the lock, we can now safely enter our wait state,
-			//since a command to resume timeslice execution between the calls we make here
-			//to suspend and wait for resume will be respected, and the wait call will
-			//return immediately.
+			// Suspend timeslice execution, release the lock on lineMutex, then wait until
+			// execution is resumed. It is essential to perform these steps, in this order.
+			// By waiting to release the lock until after we have suspended timeslice
+			// execution, we ensure that no line state changes have sneaked into the buffer
+			// since we tested the value of the lineAccessPending variable. We need to
+			// release this lock before we enter our wait state however, so that other
+			// devices can resume execution of this device by triggering a line state
+			// change. After releasing the lock, we can now safely enter our wait state,
+			// since a command to resume timeslice execution between the calls we make here
+			// to suspend and wait for resume will be respected, and the wait call will
+			// return immediately.
 			GetDeviceContext()->SuspendTimesliceExecution();
 			lock.unlock();
 			GetDeviceContext()->WaitForTimesliceExecutionResume();
 		}
 	}
 
-	//Apply any active effects from input lines to the processor
+	// Apply any active effects from input lines to the processor
 	bool processorNotExecuting = _resetLineState || _busreqLineState || !GetDeviceContext()->DeviceEnabled();
 	if (processorNotExecuting)
 	{
 		if (_resetLineState && !_resetLastStep)
 		{
-			//Note that we remember when we reset on the last step as an optimization.
-			//Since we execute a step every cycle when the reset line is held asserted,
-			//we don't want to perform the reset steps every single step repeatedly when
-			//no processor state has changed.
+			// Note that we remember when we reset on the last step as an optimization.
+			// Since we execute a step every cycle when the reset line is held asserted,
+			// we don't want to perform the reset steps every single step repeatedly when
+			// no processor state has changed.
 			Reset();
 			_resetLastStep = true;
 		}
@@ -604,35 +604,35 @@ double Z80::ExecuteStep()
 	}
 	_resetLastStep = false;
 
-	//If interrupts are not being suppressed for this opcode, and we've received either
-	//a non-maskable interrupt, or a normal interrupt while interrupts are not being
-	//masked, begin interrupt processing.
-	//Note the maskInterruptsNextOpcode flag, which is used for interrupt suppression.
-	//This is set in the EI instruction, and cleared immediately after we check for
-	//interrupts here. This emulates the behaviour of the Z80 where interrupts are not
-	//accepted until after the instruction immediately following an EI opcode. This is
-	//necessary so that a maskable interrupt routine can call EI followed by RETI to
-	//return from the handler, without another interrupt being triggered before RETI is
-	//executed. We also use the maskInterruptsNextOpcode flag when we encounter
-	//consecutive DD or FD prefix bytes during the decode process, where we use this flag
-	//to mask interrupts until the end of the series is reached.
+	// If interrupts are not being suppressed for this opcode, and we've received either
+	// a non-maskable interrupt, or a normal interrupt while interrupts are not being
+	// masked, begin interrupt processing.
+	// Note the maskInterruptsNextOpcode flag, which is used for interrupt suppression.
+	// This is set in the EI instruction, and cleared immediately after we check for
+	// interrupts here. This emulates the behaviour of the Z80 where interrupts are not
+	// accepted until after the instruction immediately following an EI opcode. This is
+	// necessary so that a maskable interrupt routine can call EI followed by RETI to
+	// return from the handler, without another interrupt being triggered before RETI is
+	// executed. We also use the maskInterruptsNextOpcode flag when we encounter
+	// consecutive DD or FD prefix bytes during the decode process, where we use this flag
+	// to mask interrupts until the end of the series is reached.
 	if (!_maskInterruptsNextOpcode && (_nmiLineState || (_intLineState && GetIFF1())))
 	{
-		//Clear the stopped state
+		// Clear the stopped state
 		_processorStopped = false;
 		if (_nmiLineState)
 		{
-			//Process a non-maskable interrupt
+			// Process a non-maskable interrupt
 			//##NOTE## Contrary to official documentation, according to "The Undocumented
-			//Z80 Documented" by Sean Young, IFF1 is NOT copied into IFF2 here. See
-			//section 7.1, "Errors in official documentation".
-			//Negate IFF1
+			// Z80 Documented" by Sean Young, IFF1 is NOT copied into IFF2 here. See
+			// section 7.1, "Errors in official documentation".
+			// Negate IFF1
 			SetIFF1(false);
-			//Write the return address to the stack
+			// Write the return address to the stack
 			EffectiveAddress sp;
 			sp.SetMode(EffectiveAddress::Mode::SPPreDec);
 			sp.Write(this, GetPC(), GetPC());
-			//Update the debug call stack, and branch to the interrupt handler
+			// Update the debug call stack, and branch to the interrupt handler
 			PushCallStack(GetPC().GetData(), 0x66, GetPC().GetData(), L"NMI", true);
 			SetPC(Z80Word(0x66));
 
@@ -642,8 +642,8 @@ double Z80::ExecuteStep()
 		}
 		else if (_intLineState)
 		{
-			//Process a maskable interrupt
-			//Negate both IFF flags
+			// Process a maskable interrupt
+			// Negate both IFF flags
 			SetIFF1(false);
 			SetIFF2(false);
 			if (GetInterruptMode() == 0)
@@ -658,13 +658,13 @@ double Z80::ExecuteStep()
 			else if (GetInterruptMode() == 1)
 			{
 				//##DEBUG##
-				//std::wcout << "Z80 executed interrupt mode 1\n";
+				// std::wcout << "Z80 executed interrupt mode 1\n";
 
-				//Write the return address to the stack
+				// Write the return address to the stack
 				EffectiveAddress sp;
 				sp.SetMode(EffectiveAddress::Mode::SPPreDec);
 				sp.Write(this, GetPC(), GetPC());
-				//Update the debug call stack, and branch to the interrupt handler
+				// Update the debug call stack, and branch to the interrupt handler
 				PushCallStack(GetPC().GetData(), 0x38, GetPC().GetData(), L"INT - mode 1", true);
 				SetPC(Z80Word(0x38));
 
@@ -681,10 +681,10 @@ double Z80::ExecuteStep()
 			}
 
 			//##FIX## What about the IORQ line? This line when asserted with the M1 line
-			//indicates an interrupt acknowledge cycle, and we believe this needs to be
-			//handled by the VDP in order to clear the Z80 INT line at the appropriate
-			//time. Perhaps an overloaded INTAK line would be appropriate to define to
-			//indicate this case. Both IORQ and M1 have other meanings.
+			// indicates an interrupt acknowledge cycle, and we believe this needs to be
+			// handled by the VDP in order to clear the Z80 INT line at the appropriate
+			// time. Perhaps an overloaded INTAK line would be appropriate to define to
+			// indicate this case. Both IORQ and M1 have other meanings.
 			AddRefresh(1);
 		}
 
@@ -692,10 +692,10 @@ double Z80::ExecuteStep()
 	}
 	_maskInterruptsNextOpcode = false;
 
-	//If the processor isn't stopped, fetch the next opcode
+	// If the processor isn't stopped, fetch the next opcode
 	if (!_processorStopped)
 	{
-		//Update the trace log, and test for breakpoints
+		// Update the trace log, and test for breakpoints
 		RecordTrace(GetPC().GetData());
 		CheckExecution(GetPC().GetData());
 
@@ -709,10 +709,10 @@ double Z80::ExecuteStep()
 		Z80Byte opcode;
 		EffectiveAddress::IndexState indexState = EffectiveAddress::IndexState::None;
 
-		//Read the first byte of the instruction
+		// Read the first byte of the instruction
 		additionalTime += ReadMemory(readLocation++, opcode, false);
 		++instructionSize;
-		//If the first byte is a prefix byte, process it, and read the second byte.
+		// If the first byte is a prefix byte, process it, and read the second byte.
 		if ((opcode == 0xDD) || (opcode == 0xFD))
 		{
 			AddRefresh(1);
@@ -727,46 +727,46 @@ double Z80::ExecuteStep()
 			additionalTime += ReadMemory(readLocation++, opcode, false);
 			++instructionSize;
 
-			//Read the displacement value for the index register. Note that we have not
-			//added it to the instruction size or incremented the read location. At this
-			//point, we don't know if it's required or not yet. In most cases, this is
-			//only determined during the decode function for the opcode.
+			// Read the displacement value for the index register. Note that we have not
+			// added it to the instruction size or incremented the read location. At this
+			// point, we don't know if it's required or not yet. In most cases, this is
+			// only determined during the decode function for the opcode.
 			additionalTime += ReadMemory(readLocation, indexOffset, false);
 
 			cyclesExecuted += 4;
 		}
-		//If we've encountered two prefix bytes back to back, force the opcode to a NOP
-		//instruction.
+		// If we've encountered two prefix bytes back to back, force the opcode to a NOP
+		// instruction.
 		if ((opcode == 0xDD) || (opcode == 0xFD))
 		{
 			opcode = 0;
-			//We set this flag here to prevent interrupts being accepted when we start
-			//the next cycle. According to "The Undocumented Z80 Documented", section
-			//5.5, page 22, interrupts are not accepted during continuous blocks of
-			//prefix bytes.
+			// We set this flag here to prevent interrupts being accepted when we start
+			// the next cycle. According to "The Undocumented Z80 Documented", section
+			// 5.5, page 22, interrupts are not accepted during continuous blocks of
+			// prefix bytes.
 			_maskInterruptsNextOpcode = true;
 		}
 
-		//Select the decode table to use, and extract the opcode
+		// Select the decode table to use, and extract the opcode
 		if (opcode == 0xCB)
 		{
 			if (indexState != EffectiveAddress::IndexState::None)
 			{
-				//Decode a DDCB or an FDCB opcode. These opcodes include a mandatory index
-				//displacement value as the third byte of the opcode.
+				// Decode a DDCB or an FDCB opcode. These opcodes include a mandatory index
+				// displacement value as the third byte of the opcode.
 				mandatoryIndexOffset = true;
 				additionalTime += ReadMemory(readLocation++, indexOffset, false);
 				++instructionSize;
 			}
 			else
 			{
-				//Decode the CB opcode
-				//According to the undocumented z80 documented, section 6.1, this opcode
-				//group increases the refresh register by 2, regardless of whether it was
-				//prefixed or not. We emulate this here by only adding the refresh
-				//increment for the non-prefixed version. In the case of the prefixed
-				//versions, the prefix read will add the increment itself. The second
-				//increment is always added for all opcodes later in this function.
+				// Decode the CB opcode
+				// According to the undocumented z80 documented, section 6.1, this opcode
+				// group increases the refresh register by 2, regardless of whether it was
+				// prefixed or not. We emulate this here by only adding the refresh
+				// increment for the non-prefixed version. In the case of the prefixed
+				// versions, the prefix read will add the increment itself. The second
+				// increment is always added for all opcodes later in this function.
 				AddRefresh(1);
 			}
 			additionalTime += ReadMemory(readLocation++, opcode, false);
@@ -775,8 +775,8 @@ double Z80::ExecuteStep()
 		}
 		else if (opcode == 0xED)
 		{
-			//Override any DD or FD prefix. The DD and FD prefix bytes are ignored for ED
-			//prefixed opcodes.
+			// Override any DD or FD prefix. The DD and FD prefix bytes are ignored for ED
+			// prefixed opcodes.
 			indexState = EffectiveAddress::IndexState::None;
 
 			AddRefresh(1);
@@ -784,13 +784,13 @@ double Z80::ExecuteStep()
 			++instructionSize;
 			nextOpcodeType = _opcodeTableED.GetInstruction(opcode.GetData());
 
-			//If we've encountered an invalid ED prefixed opcode, force the opcode to a
-			//NOP instruction.
+			// If we've encountered an invalid ED prefixed opcode, force the opcode to a
+			// NOP instruction.
 			//##NOTE## We've only disabled this because the ED opcode table is currently
-			//incomplete, and we want to be notified about attempts to use unimplemented
-			//opcodes. This catch should be re-enabled when the ED opcode table has all
-			//valid opcodes defined.
-			//if(nextOpcode == 0)
+			// incomplete, and we want to be notified about attempts to use unimplemented
+			// opcodes. This catch should be re-enabled when the ED opcode table has all
+			// valid opcodes defined.
+			// if(nextOpcode == 0)
 			//{
 			//	opcode = 0;
 			//	nextOpcode = opcodeTable.GetInstruction(opcode.GetData());
@@ -802,7 +802,7 @@ double Z80::ExecuteStep()
 		}
 		AddRefresh(1);
 
-		//Process the opcode
+		// Process the opcode
 		if (nextOpcodeType != 0)
 		{
 			Z80Instruction* nextOpcode = 0;
@@ -834,7 +834,7 @@ double Z80::ExecuteStep()
 	return CalculateExecutionTime(cyclesExecuted) + additionalTime;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Z80::ExecuteRollback()
 {
 	_afreg = _bafreg;	_af2reg = _baf2reg;
@@ -867,7 +867,7 @@ void Z80::ExecuteRollback()
 	Processor::ExecuteRollback();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Z80::ExecuteCommit()
 {
 	_bafreg = _afreg;	_baf2reg = _af2reg;
@@ -906,32 +906,32 @@ void Z80::ExecuteCommit()
 	Processor::ExecuteCommit();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool Z80::SendNotifyUpcomingTimeslice() const
 {
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Z80::NotifyUpcomingTimeslice(double nanoseconds)
 {
-	//Reset lastLineCheckTime for the beginning of the new timeslice, and force any
-	//remaining line state changes to be evaluated at the start of the new timeslice.
+	// Reset lastLineCheckTime for the beginning of the new timeslice, and force any
+	// remaining line state changes to be evaluated at the start of the new timeslice.
 	_lastLineCheckTime = 0;
 	for (std::list<LineAccess>::iterator i = _lineAccessBuffer.begin(); i != _lineAccessBuffer.end(); ++i)
 	{
-		//We rebase accessTime here to the start of the new time block, in order to allow
-		//line state changes to be flagged ahead of the time they actually take effect.
-		//This rebasing allows changes flagged ahead of time to safely cross timeslice
-		//boundaries.
+		// We rebase accessTime here to the start of the new time block, in order to allow
+		// line state changes to be flagged ahead of the time they actually take effect.
+		// This rebasing allows changes flagged ahead of time to safely cross timeslice
+		// boundaries.
 		i->accessTime -= _lastTimesliceLength;
 	}
 	_lastTimesliceLength = nanoseconds;
 }
 
-//----------------------------------------------------------------------------------------
-//Line functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Line functions
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int Z80::GetLineID(const Marshal::In<std::wstring>& lineName) const
 {
 	if (lineName == L"RESET")
@@ -957,7 +957,7 @@ unsigned int Z80::GetLineID(const Marshal::In<std::wstring>& lineName) const
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> Z80::GetLineName(unsigned int lineID) const
 {
 	switch ((LineID)lineID)
@@ -976,7 +976,7 @@ Marshal::Ret<std::wstring> Z80::GetLineName(unsigned int lineID) const
 	return L"";
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int Z80::GetLineWidth(unsigned int lineID) const
 {
 	switch ((LineID)lineID)
@@ -995,28 +995,28 @@ unsigned int Z80::GetLineWidth(unsigned int lineID) const
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Z80::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	std::unique_lock<std::mutex> lock(_lineMutex);
 
-	//Flag that an entry exists in the buffer. This flag is used to skip the expensive
-	//locking operation in the active thread for this device when no line changes are
-	//pending. Note that we set this flag before we've actually written the entry into
-	//the buffer, as we want to force the active thread to lock on the beginning of the
-	//next cycle while this function is executing, so that the current timeslice progress
-	//of the device doesn't change after we've read it.
+	// Flag that an entry exists in the buffer. This flag is used to skip the expensive
+	// locking operation in the active thread for this device when no line changes are
+	// pending. Note that we set this flag before we've actually written the entry into
+	// the buffer, as we want to force the active thread to lock on the beginning of the
+	// next cycle while this function is executing, so that the current timeslice progress
+	// of the device doesn't change after we've read it.
 	_lineAccessPending = true;
 
-	//Read the time at which this access is being made, and trigger a rollback if we've
-	//already passed that time.
+	// Read the time at which this access is being made, and trigger a rollback if we've
+	// already passed that time.
 	if (_lastLineCheckTime > accessTime)
 	{
 		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 	}
 
-	//Insert the line access into the buffer. Note that entries in the buffer are sorted
-	//by access time from lowest to highest.
+	// Insert the line access into the buffer. Note that entries in the buffer are sorted
+	// by access time from lowest to highest.
 	std::list<LineAccess>::reverse_iterator i = _lineAccessBuffer.rbegin();
 	while ((i != _lineAccessBuffer.rend()) && (i->accessTime > accessTime))
 	{
@@ -1024,33 +1024,33 @@ void Z80::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceCon
 	}
 	_lineAccessBuffer.insert(i.base(), LineAccess(targetLine, lineData, accessTime));
 
-	//Resume the main execution thread if it is currently suspended waiting for a line
-	//state change to be received.
+	// Resume the main execution thread if it is currently suspended waiting for a line
+	// state change to be received.
 	if (_suspendUntilLineStateChangeReceived)
 	{
 		GetDeviceContext()->ResumeTimesliceExecution();
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Z80::TransparentSetLineState(unsigned int targetLine, const Data& lineData)
 {
 	SetLineState(targetLine, lineData, 0, _lastTimesliceLength, 0);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Z80::RevokeSetLineState(unsigned int targetLine, const Data& lineData, double reportedTime, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	std::unique_lock<std::mutex> lock(_lineMutex);
 
-	//Read the time at which this access is being made, and trigger a rollback if we've
-	//already passed that time.
+	// Read the time at which this access is being made, and trigger a rollback if we've
+	// already passed that time.
 	if (_lastLineCheckTime > accessTime)
 	{
 		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 	}
 
-	//Find the matching line state change entry in the line access buffer
+	// Find the matching line state change entry in the line access buffer
 	std::list<LineAccess>::reverse_iterator i = _lineAccessBuffer.rbegin();
 	bool foundTargetEntry = false;
 	while (!foundTargetEntry && (i != _lineAccessBuffer.rend()))
@@ -1063,7 +1063,7 @@ void Z80::RevokeSetLineState(unsigned int targetLine, const Data& lineData, doub
 		++i;
 	}
 
-	//Erase the target line state change entry from the line access buffer
+	// Erase the target line state change entry from the line access buffer
 	if (foundTargetEntry)
 	{
 		_lineAccessBuffer.erase((++i).base());
@@ -1074,11 +1074,11 @@ void Z80::RevokeSetLineState(unsigned int targetLine, const Data& lineData, doub
 		std::wcout << "Failed to find matching line state change in RevokeSetLineState! " << GetLineName(targetLine) << '\t' << lineData.GetData() << '\t' << std::setprecision(24) << reportedTime << '\t' << std::setprecision(24) << accessTime << '\n';
 	}
 
-	//Update the lineAccessPending flag
+	// Update the lineAccessPending flag
 	_lineAccessPending = !_lineAccessBuffer.empty();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Z80::AssertCurrentOutputLineState() const
 {
 	if (_memoryBus != 0)
@@ -1087,7 +1087,7 @@ void Z80::AssertCurrentOutputLineState() const
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Z80::NegateCurrentOutputLineState() const
 {
 	if (_memoryBus != 0)
@@ -1096,7 +1096,7 @@ void Z80::NegateCurrentOutputLineState() const
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Z80::ApplyLineStateChange(unsigned int targetLine, const Data& lineData, std::unique_lock<std::mutex>& lock)
 {
 	//##DEBUG##
@@ -1115,20 +1115,20 @@ void Z80::ApplyLineStateChange(unsigned int targetLine, const Data& lineData, st
 		{
 			_busreqLineState = newState;
 
-			//Release our lock on lineMutex. This is critical in order to avoid
-			//deadlocks between devices if another device attempts to update the line
-			//state for this device while we are updating the line state for that same
-			//device, either directly or indirectly. There must never be a blocking
-			//mutex held which would prevent a call to SetLineState on this device
-			//succeeding when we are in tern calling SetLineState.
+			// Release our lock on lineMutex. This is critical in order to avoid
+			// deadlocks between devices if another device attempts to update the line
+			// state for this device while we are updating the line state for that same
+			// device, either directly or indirectly. There must never be a blocking
+			// mutex held which would prevent a call to SetLineState on this device
+			// succeeding when we are in tern calling SetLineState.
 			lock.unlock();
 
-			//If we're processing a change to the BUSREQ line, we need to now change the
-			//state of the BUSACK line to match.
+			// If we're processing a change to the BUSREQ line, we need to now change the
+			// state of the BUSACK line to match.
 			_busackLineState = _busreqLineState;
 			_memoryBus->SetLineState((unsigned int)LineID::BusAck, Data(GetLineWidth((unsigned int)LineID::BusAck), (unsigned int)_busackLineState), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 
-			//Re-acquire the lock now that we've completed our external call
+			// Re-acquire the lock now that we've completed our external call
 			lock.lock();
 		}
 		break;}
@@ -1140,18 +1140,18 @@ void Z80::ApplyLineStateChange(unsigned int targetLine, const Data& lineData, st
 		break;
 	}
 
-	//Flag whether we want to suspend until another line state change is received, or we
-	//reach the end of the current timeslice. We do this so that the Z80 doesn't advance
-	//past the state of other devices in response to, for example, bus requests, when we
-	//expect those events often to be brief. If the Z80 advances too far ahead, when the
-	//bus is released for example, a rollback would need to be generated. This is an
-	//optimization to try and avoid excessive rollbacks.
+	// Flag whether we want to suspend until another line state change is received, or we
+	// reach the end of the current timeslice. We do this so that the Z80 doesn't advance
+	// past the state of other devices in response to, for example, bus requests, when we
+	// expect those events often to be brief. If the Z80 advances too far ahead, when the
+	// bus is released for example, a rollback would need to be generated. This is an
+	// optimization to try and avoid excessive rollbacks.
 	_suspendUntilLineStateChangeReceived = _suspendWhenBusReleased && (_resetLineState || _busreqLineState);
 }
 
-//----------------------------------------------------------------------------------------
-//Clock source functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Clock source functions
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int Z80::GetClockSourceID(const Marshal::In<std::wstring>& clockSourceName) const
 {
 	if (clockSourceName == L"CLK")
@@ -1161,7 +1161,7 @@ unsigned int Z80::GetClockSourceID(const Marshal::In<std::wstring>& clockSourceN
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> Z80::GetClockSourceName(unsigned int clockSourceID) const
 {
 	switch ((ClockID)clockSourceID)
@@ -1172,30 +1172,30 @@ Marshal::Ret<std::wstring> Z80::GetClockSourceName(unsigned int clockSourceID) c
 	return L"";
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Z80::SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
-	//We push clock rate changes through the normal line state change tracking system
-	//here, since line state changes and clock changes are basically the same problem.
+	// We push clock rate changes through the normal line state change tracking system
+	// here, since line state changes and clock changes are basically the same problem.
 	std::unique_lock<std::mutex> lock(_lineMutex);
 
-	//Flag that an entry exists in the buffer. This flag is used to skip the expensive
-	//locking operation in the active thread for this device when no line changes are
-	//pending. Note that we set this flag before we've actually written the entry into
-	//the buffer, as we want to force the active thread to lock on the beginning of the
-	//next cycle while this function is executing, so that the current timeslice progress
-	//of the device doesn't change after we've read it.
+	// Flag that an entry exists in the buffer. This flag is used to skip the expensive
+	// locking operation in the active thread for this device when no line changes are
+	// pending. Note that we set this flag before we've actually written the entry into
+	// the buffer, as we want to force the active thread to lock on the beginning of the
+	// next cycle while this function is executing, so that the current timeslice progress
+	// of the device doesn't change after we've read it.
 	_lineAccessPending = true;
 
-	//Read the time at which this access is being made, and trigger a rollback if we've
-	//already passed that time.
+	// Read the time at which this access is being made, and trigger a rollback if we've
+	// already passed that time.
 	if (_lastLineCheckTime > accessTime)
 	{
 		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 	}
 
-	//Insert the line access into the buffer. Note that entries in the buffer are sorted
-	//by access time from lowest to highest.
+	// Insert the line access into the buffer. Note that entries in the buffer are sorted
+	// by access time from lowest to highest.
 	std::list<LineAccess>::reverse_iterator i = _lineAccessBuffer.rbegin();
 	while ((i != _lineAccessBuffer.rend()) && (i->accessTime > accessTime))
 	{
@@ -1203,75 +1203,75 @@ void Z80::SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceC
 	}
 	_lineAccessBuffer.insert(i.base(), LineAccess(clockInput, clockRate, accessTime));
 
-	//Resume the main execution thread if it is currently suspended waiting for a line
-	//state change to be received.
+	// Resume the main execution thread if it is currently suspended waiting for a line
+	// state change to be received.
 	if (_suspendUntilLineStateChangeReceived)
 	{
 		GetDeviceContext()->ResumeTimesliceExecution();
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Z80::TransparentSetClockSourceRate(unsigned int clockInput, double clockRate)
 {
 	ApplyClockStateChange(clockInput, clockRate);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Z80::ApplyClockStateChange(unsigned int targetClock, double clockRate)
 {
-	//Apply the input clock rate change
+	// Apply the input clock rate change
 	if ((ClockID)targetClock == ClockID::Clk)
 	{
 		SetClockSpeed(clockRate);
 	}
 }
 
-//----------------------------------------------------------------------------------------
-//Instruction functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Instruction functions
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int Z80::GetByteBitCount() const
 {
 	return 8;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int Z80::GetCurrentPC() const
 {
 	return GetPC().GetData();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int Z80::GetPCWidth() const
 {
 	return 16;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int Z80::GetAddressBusWidth() const
 {
 	return 16;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int Z80::GetDataBusWidth() const
 {
 	return 8;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int Z80::GetMinimumOpcodeByteSize() const
 {
 	return 1;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int Z80::GetMinimumDataByteSize() const
 {
 	return 1;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int Z80::GetMemorySpaceByte(unsigned int location) const
 {
 	_externalReferenceLock.ObtainReadLock();
@@ -1287,7 +1287,7 @@ unsigned int Z80::GetMemorySpaceByte(unsigned int location) const
 	return data.GetData();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Z80::SetMemorySpaceByte(unsigned int location, unsigned int data)
 {
 	_externalReferenceLock.ObtainReadLock();
@@ -1302,7 +1302,7 @@ void Z80::SetMemorySpaceByte(unsigned int location, unsigned int data)
 	_externalReferenceLock.ReleaseReadLock();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool Z80::GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const
 {
 	_externalReferenceLock.ObtainReadLock();
@@ -1323,10 +1323,10 @@ bool Z80::GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const
 	Z80Byte opcode;
 	EffectiveAddress::IndexState indexState = EffectiveAddress::IndexState::None;
 
-	//Read the first byte of the instruction
+	// Read the first byte of the instruction
 	ReadMemory(readLocation++, opcode, true);
 	++instructionSize;
-	//If the first byte is a prefix byte, process it, and read the second byte.
+	// If the first byte is a prefix byte, process it, and read the second byte.
 	if ((opcode == 0xDD) || (opcode == 0xFD))
 	{
 		if (opcode == 0xDD)
@@ -1342,20 +1342,20 @@ bool Z80::GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const
 
 		ReadMemory(readLocation, indexOffset, true);
 	}
-	//If we've encountered two prefix bytes back to back, force the opcode to a NOP
-	//instruction.
+	// If we've encountered two prefix bytes back to back, force the opcode to a NOP
+	// instruction.
 	if ((opcode == 0xDD) || (opcode == 0xFD))
 	{
 		opcode = 0;
 	}
 
-	//Select the decode table to use, and extract the opcode
+	// Select the decode table to use, and extract the opcode
 	if (opcode == 0xCB)
 	{
 		if (indexState != EffectiveAddress::IndexState::None)
 		{
-			//Decode a DDCB or an FDCB opcode. These opcodes include a mandatory index
-			//displacement value as the third byte of the opcode.
+			// Decode a DDCB or an FDCB opcode. These opcodes include a mandatory index
+			// displacement value as the third byte of the opcode.
 			mandatoryIndexOffset = true;
 			ReadMemory(readLocation++, indexOffset, true);
 			++instructionSize;
@@ -1366,8 +1366,8 @@ bool Z80::GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const
 	}
 	else if (opcode == 0xED)
 	{
-		//Override any DD or FD prefix. The DD and FD prefix bytes are ignored for ED
-		//prefixed opcodes.
+		// Override any DD or FD prefix. The DD and FD prefix bytes are ignored for ED
+		// prefixed opcodes.
 		indexState = EffectiveAddress::IndexState::None;
 
 		ReadMemory(readLocation++, opcode, true);
@@ -1379,7 +1379,7 @@ bool Z80::GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const
 		nextOpcodeType = _opcodeTable.GetInstruction(opcode.GetData());
 	}
 
-	//Process the opcode
+	// Process the opcode
 	if (nextOpcodeType != 0)
 	{
 		Z80Instruction* nextOpcode = nextOpcodeType->Clone();
@@ -1409,9 +1409,9 @@ bool Z80::GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
-//Memory access functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Memory access functions
+//----------------------------------------------------------------------------------------------------------------------
 double Z80::ReadMemory(const Z80Word& location, Data& data, bool transparent) const
 {
 	IBusInterface::AccessResult result;
@@ -1460,7 +1460,7 @@ double Z80::ReadMemory(const Z80Word& location, Data& data, bool transparent) co
 	return result.executionTime;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 double Z80::WriteMemory(const Z80Word& location, const Data& data, bool transparent) const
 {
 	IBusInterface::AccessResult result;
@@ -1507,9 +1507,9 @@ double Z80::WriteMemory(const Z80Word& location, const Data& data, bool transpar
 	return result.executionTime;
 }
 
-//----------------------------------------------------------------------------------------
-//CE line state functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// CE line state functions
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int Z80::GetCELineID(const Marshal::In<std::wstring>& lineName, bool inputLine) const
 {
 	if (lineName == L"RD")
@@ -1523,7 +1523,7 @@ unsigned int Z80::GetCELineID(const Marshal::In<std::wstring>& lineName, bool in
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Z80::SetCELineOutput(unsigned int lineID, bool lineMapped, unsigned int lineStartBitNumber)
 {
 	switch ((CELineID)lineID)
@@ -1537,7 +1537,7 @@ void Z80::SetCELineOutput(unsigned int lineID, bool lineMapped, unsigned int lin
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int Z80::CalculateCELineStateMemory(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext, double accessTime) const
 {
 	unsigned int ceLineState = 0;
@@ -1550,15 +1550,15 @@ unsigned int Z80::CalculateCELineStateMemory(unsigned int location, const Data& 
 	return ceLineState;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int Z80::CalculateCELineStateMemoryTransparent(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext) const
 {
 	return CalculateCELineStateMemory(location, data, currentCELineState, sourceBusInterface, caller, calculateCELineStateContext, 0.0);
 }
 
-//----------------------------------------------------------------------------------------
-//Savestate functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Savestate functions
+//----------------------------------------------------------------------------------------------------------------------
 void Z80::LoadState(IHierarchicalStorageNode& node)
 {
 	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
@@ -1601,7 +1601,7 @@ void Z80::LoadState(IHierarchicalStorageNode& node)
 				else if (registerName == L"NMILineState")			_nmiLineState = (*i)->ExtractData<bool>();
 			}
 		}
-		//Restore the lineAccessBuffer state
+		// Restore the lineAccessBuffer state
 		else if ((*i)->GetName() == L"LineAccessBuffer")
 		{
 			_lineAccessBuffer.clear();
@@ -1616,7 +1616,7 @@ void Z80::LoadState(IHierarchicalStorageNode& node)
 					IHierarchicalStorageAttribute* accessTimeAttribute = (*lineAccessBufferEntry)->GetAttribute(L"AccessTime");
 					if ((lineNameAttribute != 0) && (clockRateChangeAttribute != 0) && (accessTimeAttribute != 0))
 					{
-						//Extract the entry from the XML stream
+						// Extract the entry from the XML stream
 						LineAccess lineAccess(0, 0.0, 0.0);
 						bool lineAccessDefined = false;
 						std::wstring lineName = lineNameAttribute->ExtractValue<std::wstring>();
@@ -1654,8 +1654,8 @@ void Z80::LoadState(IHierarchicalStorageNode& node)
 							}
 						}
 
-						//Find the correct location in the list to insert the entry. The
-						//list must be sorted from earliest to latest.
+						// Find the correct location in the list to insert the entry. The
+						// list must be sorted from earliest to latest.
 						if (lineAccessDefined)
 						{
 							std::list<LineAccess>::reverse_iterator j = _lineAccessBuffer.rbegin();
@@ -1672,17 +1672,17 @@ void Z80::LoadState(IHierarchicalStorageNode& node)
 		}
 	}
 
-	//Clear the flag indicating we performed a reset on the last step. This flag is only
-	//here for performance purposes. We want to reset it now so that if we loaded a
-	//savestate which changed the Z80 state while a reset was being asserted, and the
-	//reset line state didn't change after loading the state, but the register contents
-	//did, the register contents will be correctly reset on the next cycle.
+	// Clear the flag indicating we performed a reset on the last step. This flag is only
+	// here for performance purposes. We want to reset it now so that if we loaded a
+	// savestate which changed the Z80 state while a reset was being asserted, and the
+	// reset line state didn't change after loading the state, but the register contents
+	// did, the register contents will be correctly reset on the next cycle.
 	_resetLastStep = false;
 
 	Processor::LoadState(node);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Z80::SaveState(IHierarchicalStorageNode& node) const
 {
 	node.CreateChildHex(L"Register", _afreg.GetData(), _afreg.GetHexCharCount()).CreateAttribute(L"name", L"AF");
@@ -1715,7 +1715,7 @@ void Z80::SaveState(IHierarchicalStorageNode& node) const
 	node.CreateChild(L"Register", _intLineState).CreateAttribute(L"name", L"INTLineState");
 	node.CreateChild(L"Register", _nmiLineState).CreateAttribute(L"name", L"NMILineState");
 
-	//Save the lineAccessBuffer state
+	// Save the lineAccessBuffer state
 	if (_lineAccessPending)
 	{
 		IHierarchicalStorageNode& lineAccessState = node.CreateChild(L"LineAccessBuffer");
@@ -1740,9 +1740,9 @@ void Z80::SaveState(IHierarchicalStorageNode& node) const
 	Processor::SaveState(node);
 }
 
-//----------------------------------------------------------------------------------------
-//Data read/write functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Data read/write functions
+//----------------------------------------------------------------------------------------------------------------------
 bool Z80::ReadGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue) const
 {
 	ApplyGenericDataValueDisplaySettings(dataID, dataValue);
@@ -1842,7 +1842,7 @@ bool Z80::ReadGenericData(unsigned int dataID, const DataContext* dataContext, I
 	return Processor::ReadGenericData(dataID, dataContext, dataValue);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool Z80::WriteGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue)
 {
 	ApplyGenericDataValueLimitSettings(dataID, dataValue);
@@ -2078,9 +2078,9 @@ bool Z80::WriteGenericData(unsigned int dataID, const DataContext* dataContext, 
 	return Processor::WriteGenericData(dataID, dataContext, dataValue);
 }
 
-//----------------------------------------------------------------------------------------
-//Highlight functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Highlight functions
+//----------------------------------------------------------------------------------------------------------------------
 bool Z80::GetGenericDataHighlightState(unsigned int dataID, const DataContext* dataContext) const
 {
 	switch ((IZ80DataSource)dataID)
@@ -2179,10 +2179,10 @@ bool Z80::GetGenericDataHighlightState(unsigned int dataID, const DataContext* d
 	return Processor::GetGenericDataHighlightState(dataID, dataContext);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Z80::PopulateChangedRegStateFromCurrentState()
 {
-	//Save a snapshot of the current register state for changed register tracking
+	// Save a snapshot of the current register state for changed register tracking
 	_regChangedAF = GetAF().GetData();
 	_regChangedBC = GetBC().GetData();
 	_regChangedDE = GetDE().GetData();
@@ -2230,4 +2230,4 @@ void Z80::PopulateChangedRegStateFromCurrentState()
 	_regChangedFlagC = GetFlagC();
 }
 
-} //Close namespace Z80
+} // Close namespace Z80

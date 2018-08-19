@@ -32,52 +32,52 @@ should be able to be sent to all devices simultaneously.
 #include <mutex>
 #include <condition_variable>
 
-//Terminology:
-//Assembly  - An assembly (IE, a dll) which contains the definition of one or more devices
+// Terminology:
+// Assembly  - An assembly (IE, a dll) which contains the definition of one or more devices
 //            or extensions.
-//Device    - An emulation core for a logical chip or device in a system
-//Extension - An extension to the emulation platform. Extensions have some limited access
+// Device    - An emulation core for a logical chip or device in a system
+// Extension - An extension to the emulation platform. Extensions have some limited access
 //            to the emulation platform, and can reference and be referenced by other
 //            devices and extensions, allowing forms of interaction between devices that
 //            are not provided by the base emulation platform, and allowing new menu items
 //            to be defined which can affect and interact with the system in ways that
 //            devices alone cannot do.
-//Module    - A physical or logical part of a system, usually defining one or more devices
+// Module    - A physical or logical part of a system, usually defining one or more devices
 //            and the connections between those devices, and exposing connectors for other
 //            modules to interface with. In our case, an xml file describes a module.
-//System    - The total combination of all currently loaded modules, with the current
+// System    - The total combination of all currently loaded modules, with the current
 //            state of all system settings defined within those modules. A system may be
 //            seen as a convenience, allowing a complex system with many modules and
 //            settings to be saved and loaded in one operation. A system is defined by an
 //            xml file.
-//Connector - An interface into a module where other modules are able to attach
+// Connector - An interface into a module where other modules are able to attach
 //            themselves, and are able to observe and/or effect the operation of the
 //            other module via the interface exposed over the connector. Connectors should
 //            usually model physical connectors used on the real hardware.
 
 //##TODO## Split the module loading and unloading code into a separate source file. This
-//code currently occupies most of our System.cpp file, making it hard to find critical
-//system functions.
+// code currently occupies most of our System.cpp file, making it hard to find critical
+// system functions.
 class System :public ISystemGUIInterface
 {
 public:
-	//Constructors
+	// Constructors
 	System(IGUIExtensionInterface& guiExtensionInterface);
 	virtual ~System();
 
-	//Interface version functions
+	// Interface version functions
 	virtual unsigned int GetISystemDeviceInterfaceVersion() const;
 	virtual unsigned int GetISystemExtensionInterfaceVersion() const;
 	virtual unsigned int GetISystemGUIInterfaceVersion() const;
 
-	//Savestate functions
+	// Savestate functions
 	virtual bool LoadState(const Marshal::In<std::wstring>& filePath, FileType fileType, bool debuggerState);
 	virtual bool SaveState(const Marshal::In<std::wstring>& filePath, FileType fileType, bool debuggerState);
 	virtual Marshal::Ret<StateInfo> GetStateInfo(const Marshal::In<std::wstring>& filePath, FileType fileType) const;
 	virtual bool LoadModuleRelationshipsNode(IHierarchicalStorageNode& node, const Marshal::Out<ModuleRelationshipMap>& relationshipMap) const;
 	virtual void SaveModuleRelationshipsNode(IHierarchicalStorageNode& node, bool saveFilePathInfo = false, const Marshal::In<std::wstring>& relativePathBase = L"") const;
 
-	//Logging functions
+	// Logging functions
 	virtual void WriteLogEvent(const ILogEntry& entry) const;
 	virtual Marshal::Ret<std::vector<SystemLogEntry>> GetEventLog() const;
 	virtual unsigned int GetEventLogLastModifiedToken() const;
@@ -85,14 +85,14 @@ public:
 	virtual unsigned int GetEventLogSize() const;
 	virtual void SetEventLogSize(unsigned int logSize);
 
-	//Embedded ROM functions
+	// Embedded ROM functions
 	virtual Marshal::Ret<std::list<unsigned int>> GetEmbeddedROMIDs() const;
 	virtual unsigned int GetEmbeddedROMInfoLastModifiedToken() const;
 	virtual bool GetEmbeddedROMInfo(unsigned int embeddedROMID, IEmbeddedROMInfo& embeddedROMInfo) const;
 	virtual bool SetEmbeddedROMPath(unsigned int embeddedROMID, const Marshal::In<std::wstring>& filePath);
 	virtual bool ReloadEmbeddedROMData(unsigned int embeddedROMID);
 
-	//Module setting functions
+	// Module setting functions
 	virtual Marshal::Ret<std::list<unsigned int>> GetModuleSettingIDs(unsigned int moduleID) const;
 	virtual bool GetModuleSettingInfo(unsigned int moduleID, unsigned int moduleSettingID, IModuleSettingInfo& moduleSettingInfo) const;
 	virtual bool GetModuleSettingOptionInfo(unsigned int moduleID, unsigned int moduleSettingID, unsigned int moduleSettingOptionIndex, IModuleSettingOptionInfo& moduleSettingOptionInfo) const;
@@ -101,11 +101,11 @@ public:
 	virtual void ModuleSettingActiveOptionChangeNotifyRegister(unsigned int moduleID, unsigned int moduleSettingID, IObserverSubscription& observer);
 	virtual void ModuleSettingActiveOptionChangeNotifyDeregister(unsigned int moduleID, unsigned int moduleSettingID, IObserverSubscription& observer);
 
-	//Path functions
+	// Path functions
 	virtual Marshal::Ret<std::wstring> GetCapturePath() const;
 	virtual void SetCapturePath(const Marshal::In<std::wstring>& path);
 
-	//System interface functions
+	// System interface functions
 	virtual void FlagInitialize();
 	virtual void Initialize();
 	virtual void InitializeDevice(IDevice* device);
@@ -116,15 +116,15 @@ public:
 	virtual bool GetEnablePersistentState() const;
 	virtual void SetEnablePersistentState(bool state);
 
-	//Device registration
+	// Device registration
 	virtual bool RegisterDevice(const IDeviceInfo& entry, AssemblyHandle assemblyHandle);
 	virtual void UnregisterDevice(const Marshal::In<std::wstring>& deviceName);
 
-	//Extension registration
+	// Extension registration
 	virtual bool RegisterExtension(const IExtensionInfo& entry, AssemblyHandle assemblyHandle);
 	virtual void UnregisterExtension(const Marshal::In<std::wstring>& extensionName);
 
-	//Module loading and unloading
+	// Module loading and unloading
 	virtual void LoadModuleSynchronous(const Marshal::In<std::wstring>& filePath, const Marshal::In<ConnectorMappingList>& connectorMappings);
 	virtual void LoadModuleSynchronousAbort();
 	virtual float LoadModuleSynchronousProgress() const;
@@ -141,7 +141,7 @@ public:
 	virtual Marshal::Ret<std::wstring> LoadModuleSynchronousCurrentModuleName() const;
 	virtual Marshal::Ret<std::wstring> UnloadModuleSynchronousCurrentModuleName() const;
 
-	//Loaded module info functions
+	// Loaded module info functions
 	virtual Marshal::Ret<std::list<unsigned int>> GetLoadedModuleIDs() const;
 	virtual bool GetLoadedModuleInfo(unsigned int moduleID, ILoadedModuleInfo& moduleInfo) const;
 	virtual bool GetModuleDisplayName(unsigned int moduleID, const Marshal::Out<std::wstring>& moduleDisplayName) const;
@@ -149,20 +149,20 @@ public:
 	virtual void LoadedModulesChangeNotifyRegister(IObserverSubscription& observer);
 	virtual void LoadedModulesChangeNotifyDeregister(IObserverSubscription& observer);
 
-	//Connector info functions
+	// Connector info functions
 	virtual Marshal::Ret<std::list<unsigned int>> GetConnectorIDs() const;
 	virtual bool GetConnectorInfo(unsigned int connectorID, IConnectorInfo& connectorInfo) const;
 
-	//Loaded device info functions
+	// Loaded device info functions
 	virtual Marshal::Ret<std::list<IDevice*>> GetLoadedDevices() const;
 	virtual bool GetDeviceDisplayName(IDevice* device, const Marshal::Out<std::wstring>& deviceDisplayName) const;
 	virtual bool GetDeviceInstanceName(IDevice* device, const Marshal::Out<std::wstring>& deviceInstanceName) const;
 	virtual bool GetFullyQualifiedDeviceDisplayName(IDevice* device, const Marshal::Out<std::wstring>& fullyQualifiedDeviceDisplayName) const;
 
-	//Loaded extension info functions
+	// Loaded extension info functions
 	virtual Marshal::Ret<std::list<IExtension*>> GetLoadedExtensions() const;
 
-	//System execution functions
+	// System execution functions
 	virtual bool SystemRunning() const;
 	virtual void RunSystem();
 	virtual void StopSystem();
@@ -174,7 +174,7 @@ public:
 	virtual void SetSystemRollback(IDeviceContext* triggerDevice, IDeviceContext* rollbackDevice, double timeslice, unsigned int accessContext, void (*callbackFunction)(void*), void* callbackParams);
 	virtual bool PerformingSingleDeviceStep() const;
 
-	//View functions
+	// View functions
 	virtual void BuildFileOpenMenu(IMenuSubmenu& menuSubmenu) const;
 	virtual void BuildSystemMenu(IMenuSubmenu& menuSubmenu) const;
 	virtual void BuildSettingsMenu(IMenuSubmenu& menuSubmenu) const;
@@ -185,7 +185,7 @@ public:
 	virtual bool RestoreViewStateForExtension(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, const Marshal::In<std::wstring>& extensionInstanceName) const;
 	virtual bool RestoreViewStateForExtension(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, unsigned int moduleID, const Marshal::In<std::wstring>& extensionInstanceName) const;
 
-	//Input functions
+	// Input functions
 	virtual KeyCode GetKeyCodeID(const Marshal::In<std::wstring>& keyCodeName) const;
 	virtual Marshal::Ret<std::wstring> GetKeyCodeName(KeyCode keyCode) const;
 	virtual bool TranslateKeyCode(unsigned int platformKeyCode, KeyCode& inputKeyCode) const;
@@ -206,11 +206,11 @@ public:
 	virtual bool SetDeviceKeyCodeMapping(IDevice* targetDevice, unsigned int deviceKeyCode, KeyCode systemKeyCode);
 
 private:
-	//Enumerations
+	// Enumerations
 	enum class InputEvent;
 	enum class SystemStateChangeType;
 
-	//Structures
+	// Structures
 	struct DeviceLibraryEntry;
 	struct ExtensionLibraryEntry;
 	struct LoadedDeviceInfo;
@@ -248,7 +248,7 @@ private:
 	struct SystemLineMapping;
 	struct EmbeddedROMInfoInternal;
 
-	//Typedefs
+	// Typedefs
 	typedef std::map<std::wstring, unsigned int> NameToIDMap;
 	typedef std::pair<std::wstring, unsigned int> NameToIDMapEntry;
 	typedef std::map<unsigned int, LoadedModuleInfoInternal> LoadedModuleInfoMap;
@@ -288,10 +288,10 @@ private:
 	typedef std::list<SystemLineMapping> SystemLineMappingList;
 
 private:
-	//Embedded ROM functions
+	// Embedded ROM functions
 	bool ReloadEmbeddedROMData(const EmbeddedROMInfoInternal& targetEmbeddedROMInfo);
 
-	//Loaded entity functions
+	// Loaded entity functions
 	IDevice* GetDevice(unsigned int moduleID, const std::wstring& deviceName) const;
 	IExtension* GetExtension(unsigned int moduleID, const std::wstring& extensionName) const;
 	IExtension* GetGlobalExtension(const std::wstring& extensionName) const;
@@ -300,7 +300,7 @@ private:
 	unsigned int GetSystemLineID(unsigned int moduleID, const std::wstring& systemLineName) const;
 	unsigned int GetSystemSettingID(unsigned int moduleID, const std::wstring& systemSettingName) const;
 
-	//Savestate functions
+	// Savestate functions
 	bool LoadPersistentStateForModule(const std::wstring& filePath, unsigned int moduleID, FileType fileType, bool returnSuccessOnNoFilePresent);
 	bool SavePersistentStateForModule(const std::wstring& filePath, unsigned int moduleID, FileType fileType, bool generateNoFileIfNoContentPresent);
 	bool LoadSavedRelationshipMap(IHierarchicalStorageNode& node, SavedRelationshipMap& relationshipMap) const;
@@ -308,7 +308,7 @@ private:
 	void SaveModuleRelationshipsImportConnectors(IHierarchicalStorageNode& moduleNode, unsigned int moduleID) const;
 	bool DoesLoadedModuleMatchSavedModule(const SavedRelationshipMap& savedRelationshipData, const SavedRelationshipModule& savedModuleInfo, const LoadedModuleInfoInternal& loadedModuleInfo, const ConnectorInfoMapOnImportingModuleID& connectorDetailsOnImportingModuleID) const;
 
-	//Module loading and unloading
+	// Module loading and unloading
 	unsigned int GetFirstAvailableDeviceIndex() const;
 	unsigned int GenerateFreeModuleID() const;
 	unsigned int GenerateFreeConnectorID() const;
@@ -380,106 +380,106 @@ private:
 	void PushUnloadModuleCurrentModuleName(const std::wstring& moduleName);
 	void PopUnloadModuleCurrentModuleName();
 
-	//Device creation and deletion
+	// Device creation and deletion
 	bool AddDevice(unsigned int moduleID, IDevice* device, DeviceContext* deviceContext);
 	IDevice* CreateDevice(const std::wstring& deviceName, const std::wstring& instanceName, unsigned int moduleID) const;
 	void DestroyDevice(const std::wstring& deviceName, IDevice* device) const;
 	void UnloadDevice(IDevice* device);
 	void RemoveDeviceFromDeviceList(DeviceArray& deviceList, IDevice* device) const;
 
-	//Extension creation and deletion
+	// Extension creation and deletion
 	IExtension* CreateGlobalExtension(const std::wstring& extensionName) const;
 	IExtension* CreateExtension(const std::wstring& extensionName, const std::wstring& instanceName, unsigned int moduleID) const;
 	bool LoadPersistentGlobalExtension(const std::wstring& extensionName);
 	void DestroyExtension(const std::wstring& extensionName, IExtension* extension) const;
 	void UnloadExtension(IExtension* extension);
 
-	//System interface functions
+	// System interface functions
 	bool ValidateSystem();
 	void InitializeInternal();
 	void SignalSystemStopped();
 
-	//System execution functions
+	// System execution functions
 	double ExecuteSystemStepInternal(double maximumTimeslice);
 	void ExecuteThread();
 
-	//Output stream functions
+	// Output stream functions
 	//##TODO## Implement video/audio output streams
 //	VideoBuffer RegisterVideoOutput(const std::wstring& name);
 	//##NOTE##
-	//This stub is old. The current line of thinking for achieving generic video output is to
-	//have two levels of abstraction. The first is called a Surface, and represents a single
-	//physical display device, such as a TV or computer screen. Most systems will only have
-	//one surface. The next level is called a layer. A layer is akin to layers in a graphics
-	//program. It can be thought of as a texture with an alpha channel. The layers assigned
-	//to a surface have a priority order, indicating the order in which they are drawn. High
-	//priority layers are shown on top of low priority layers. Any number of layers can be
-	//assigned to a surface. Note that a single layer may also be assigned to multiple
-	//surfaces. This allows a secondary alternate debug output to be created, which uses the
-	//same rendered content from the real surface, but with debug information overlayed.
-	//Behind the scenes, layers will be implemented as textures while surfaces will be OpenGL
-	//drawing surfaces, running in orthogonal mode. Textures will be rendered onto quads
-	//drawn from highest priority to lowest priority (to take advantage of hardware to
-	//eliminate hidden texels), with the z coordinate increasing by 1 for each additional
-	//surface.
-	//Note that support will need to exist for stretching the texture, to support non-square
-	//pixel aspect ratios such as those used on the Mega Drive.
-	//Note that it might be better not to make textures our first choice for rendering pixel
-	//data. The low-level glDrawPixels is currently being used, and it has alpha support. If
-	//we were to use this function to render surfaces, we would need to render in reverse
-	//order in order to replace low priority layers with high priority content. We should be
-	//able to make a higher-order surface class which uses textures internally, and adds
-	//scaling support. We would however effectively have to always render from texture anyway
-	//for the Mega Drive, as all its render layers need to support scaling. Note that when
-	//using texture scaling, it would not be possible to change the rate of scaling partway
-	//through a frame.
+	// This stub is old. The current line of thinking for achieving generic video output is to
+	// have two levels of abstraction. The first is called a Surface, and represents a single
+	// physical display device, such as a TV or computer screen. Most systems will only have
+	// one surface. The next level is called a layer. A layer is akin to layers in a graphics
+	// program. It can be thought of as a texture with an alpha channel. The layers assigned
+	// to a surface have a priority order, indicating the order in which they are drawn. High
+	// priority layers are shown on top of low priority layers. Any number of layers can be
+	// assigned to a surface. Note that a single layer may also be assigned to multiple
+	// surfaces. This allows a secondary alternate debug output to be created, which uses the
+	// same rendered content from the real surface, but with debug information overlayed.
+	// Behind the scenes, layers will be implemented as textures while surfaces will be OpenGL
+	// drawing surfaces, running in orthogonal mode. Textures will be rendered onto quads
+	// drawn from highest priority to lowest priority (to take advantage of hardware to
+	// eliminate hidden texels), with the z coordinate increasing by 1 for each additional
+	// surface.
+	// Note that support will need to exist for stretching the texture, to support non-square
+	// pixel aspect ratios such as those used on the Mega Drive.
+	// Note that it might be better not to make textures our first choice for rendering pixel
+	// data. The low-level glDrawPixels is currently being used, and it has alpha support. If
+	// we were to use this function to render surfaces, we would need to render in reverse
+	// order in order to replace low priority layers with high priority content. We should be
+	// able to make a higher-order surface class which uses textures internally, and adds
+	// scaling support. We would however effectively have to always render from texture anyway
+	// for the Mega Drive, as all its render layers need to support scaling. Note that when
+	// using texture scaling, it would not be possible to change the rate of scaling partway
+	// through a frame.
 
-	//Input functions
+	// Input functions
 	void UnmapAllKeyCodeMappingsForDevice(IDevice* device);
 	void SendStoredInputEvents();
 	void ClearSentStoredInputEvents();
 
-	//System setting functions
+	// System setting functions
 	bool ApplySystemStateChange(const SystemStateChange& stateChange);
 
-	//System line functions
+	// System line functions
 	unsigned int GetSystemLineWidth(unsigned int systemLineID) const;
 	bool SetSystemLineState(unsigned int systemLineID, const Data& lineData);
 
 private:
-	//Extension interfaces
+	// Extension interfaces
 	IGUIExtensionInterface& _guiExtensionInterface;
 
-	//Devices
+	// Devices
 	DeviceLibraryList _deviceLibrary;
 	//##TODO##
-	//Note that as per the decision above to make names local, we also need to consider
-	//that when presenting device names to the user. Debug menu items and window names now
-	//need to include the addon name where a device belongs to an addon. Also note that
-	//where one addon is loaded multiple times (eg, two identical controllers connected),
-	//we need to add a number on to each instance of the addon, to distinguish them one
-	//from the other.
+	// Note that as per the decision above to make names local, we also need to consider
+	// that when presenting device names to the user. Debug menu items and window names now
+	// need to include the addon name where a device belongs to an addon. Also note that
+	// where one addon is loaded multiple times (eg, two identical controllers connected),
+	// we need to add a number on to each instance of the addon, to distinguish them one
+	// from the other.
 	//##TODO## We need to carefully consider how savestates will be implemented when we
-	//have addons loaded. In particular, what happens when a user tries to load a
-	//savestate into a system with a different set of addons loaded? Obviously we don't
-	//want something as trivial as a three button controller instead of a six button
-	//controller being loaded to prevent a savestate being compatible. At the same time
-	//though, what about identifying what addons were loaded at the time a savestate was
-	//made, and automatically changing the system state to switch to that set of addons? I
-	//would suggest we don't make the change automatic, but ask the user if they want to
-	//switch the loaded addons in order to load the savestate. Further down this track, we
-	//also need a way to identify the currently loaded "game", so that we can determine
-	//which savestates to make available. How does this work when we have multiple "games"
-	//loaded though, such as when we have S&K with another game locked on?
+	// have addons loaded. In particular, what happens when a user tries to load a
+	// savestate into a system with a different set of addons loaded? Obviously we don't
+	// want something as trivial as a three button controller instead of a six button
+	// controller being loaded to prevent a savestate being compatible. At the same time
+	// though, what about identifying what addons were loaded at the time a savestate was
+	// made, and automatically changing the system state to switch to that set of addons? I
+	// would suggest we don't make the change automatic, but ask the user if they want to
+	// switch the loaded addons in order to load the savestate. Further down this track, we
+	// also need a way to identify the currently loaded "game", so that we can determine
+	// which savestates to make available. How does this work when we have multiple "games"
+	// loaded though, such as when we have S&K with another game locked on?
 	//##NOTE## When implementing the addon system, we have decided we don't want to
-	//restrict our emulator to running only a single system at any one time. We want it to
-	//be possible to load up, for example, two completely disconnected and isolated
-	//systems in the emulator at once, and play them side by side. We also need to allow
-	//addons to link to more than one system, so that an addon can, for example, provide a
-	//connection between two systems. An example of this might be in a link cable, such as
-	//the one provided by Zero Tolerance. Note however, that a link cable, or addon, might
-	//need to interface between two completely independent and normally unrelated systems,
-	//and the addon needs to only be available if both are loaded.
+	// restrict our emulator to running only a single system at any one time. We want it to
+	// be possible to load up, for example, two completely disconnected and isolated
+	// systems in the emulator at once, and play them side by side. We also need to allow
+	// addons to link to more than one system, so that an addon can, for example, provide a
+	// connection between two systems. An example of this might be in a link cable, such as
+	// the one provided by Zero Tolerance. Note however, that a link cable, or addon, might
+	// need to interface between two completely independent and normally unrelated systems,
+	// and the addon needs to only be available if both are loaded.
 	mutable unsigned int _nextFreeModuleID;
 	LoadedModuleInfoMap _loadedModuleInfoMap;
 	LoadedDeviceInfoList _loadedDeviceInfoList;
@@ -487,66 +487,66 @@ private:
 	ExecutionManager _executionManager;
 	DeviceArray _devices;
 
-	//Extensions
+	// Extensions
 	ExtensionLibraryList _extensionLibrary;
 	LoadedExtensionInfoList _loadedExtensionInfoList;
 	ImportedExtensionInfoList _importedExtensionInfoList;
 	LoadedGlobalExtensionInfoList _globalExtensionInfoList;
 
-	//Bus interfaces
+	// Bus interfaces
 	BusInterfaceList _busInterfaces;
 	ImportedBusInterfaceList _importedBusInterfaces;
 
-	//Unmapped line state info
+	// Unmapped line state info
 	UnmappedLineStateList _unmappedLineStateList;
 
-	//Clock sources
+	// Clock sources
 	ClockSourceList _clockSources;
 	ImportedClockSourceList _importedClockSources;
 
-	//Module settings
+	// Module settings
 	mutable unsigned int _nextFreeSystemSettingID;
 	SystemSettingsMap _systemSettings;
 	std::set<SystemSettingInfo*> _systemSettingsObjects;
 	ModuleSystemSettingMap _moduleSettings;
 	ImportedSystemSettingList _importedSystemSettings;
 
-	//System lines
+	// System lines
 	mutable unsigned int _nextFreeSystemLineID;
 	SystemLineMap _systemLines;
 	ImportedSystemLineList _importedSystemLines;
 	SystemLineMappingList _systemLineMappings;
 
-	//Embedded ROM info
+	// Embedded ROM info
 	mutable unsigned int _nextFreeEmbeddedROMID;
 	std::map<unsigned int, EmbeddedROMInfoInternal> _embeddedROMInfoSet;
 	unsigned int _embeddedROMInfoLastModifiedToken;
 
-	//System menu handlers
+	// System menu handlers
 	std::set<IExtension*> _systemMenuHandlers;
 
-	//Input settings
+	// Input settings
 	mutable std::mutex _inputMutex;
 	unsigned int _inputDeviceListLastModifiedToken;
 	InputRegistrationList _inputRegistrationList;
 	InputKeyMap _inputKeyMap;
 	std::list<InputEventEntry> _inputEvents;
 
-	//System settings
+	// System settings
 	std::wstring _capturePath;
 	bool _enableThrottling;
 	bool _runWhenProgramModuleLoaded;
 	bool _enablePersistentState;
 
-	//Connector settings
+	// Connector settings
 	mutable unsigned int _nextFreeConnectorID;
 	ConnectorDetailsMap _connectorDetailsMap;
 
-	//Line group settings
+	// Line group settings
 	mutable unsigned int _nextFreeLineGroupID;
 	LineGroupDetailsMap _lineGroupDetailsMap;
 
-	//Access mutexes
+	// Access mutexes
 	mutable std::mutex _systemRollbackMutex;
 	mutable std::mutex _systemStateMutex;
 	mutable std::mutex _moduleLoadMutex;
@@ -555,7 +555,7 @@ private:
 	mutable std::mutex _embeddedROMMutex;
 	mutable std::recursive_mutex _moduleSettingMutex;
 
-	//Asynchronous notification settings
+	// Asynchronous notification settings
 	mutable std::mutex _moduleNameMutex;
 	std::condition_variable _notifySystemStopped;
 	volatile bool _stopSystem;
@@ -571,7 +571,7 @@ private:
 	std::list<std::wstring> _loadSystemCurrentModuleNameStack;
 	std::list<std::wstring> _unloadSystemCurrentModuleNameStack;
 
-	//Rollback settings
+	// Rollback settings
 	volatile double _rollbackTimeslice;
 	unsigned int _rollbackContext;
 	IDeviceContext* _rollbackDevice;
@@ -579,12 +579,12 @@ private:
 	void (*_rollbackFunction)(void*);
 	void* _rollbackParams;
 
-	//Event log settings
+	// Event log settings
 	unsigned int _eventLogSize;
 	mutable unsigned int _eventLogLastModifiedToken;
 	mutable std::list<SystemLogEntry> _log;
 
-	//Notification settings
+	// Notification settings
 	ObserverCollection _loadedModuleChangeObservers;
 };
 

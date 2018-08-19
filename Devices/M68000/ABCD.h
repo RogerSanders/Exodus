@@ -55,7 +55,7 @@ public:
 		M68000Byte op2;
 		M68000Byte result;
 
-		//Perform the operation
+		// Perform the operation
 		additionalTime += _source.Read(cpu, op1Base10, GetInstructionRegister());
 		additionalTime += _target.ReadWithoutAdjustingAddress(cpu, op2Base10, GetInstructionRegister());
 		op1 = op1Base10.GetData() & 0x0F;
@@ -77,17 +77,17 @@ public:
 		resultBase10 |= ((resultBase10Temp.GetData() / 10) % 10) << 4;
 		additionalTime += _target.Write(cpu, resultBase10, GetInstructionRegister());
 
-		//Set the flag results
+		// Set the flag results
 		cpu->SetX(carry);
 		cpu->SetZ(cpu->GetZ() && resultBase10.Zero());
 		cpu->SetC(carry);
 		//##NOTE## Although the state of the N and V flags are officially undefined,
-		//their behaviour on the M68000 is predictable, and is described in "68000
-		//Undocumented Behavior Notes" by Bart Trzynadlowski.
+		// their behaviour on the M68000 is predictable, and is described in "68000
+		// Undocumented Behavior Notes" by Bart Trzynadlowski.
 		cpu->SetN(resultBase10.Negative());
 		cpu->SetV(!result.MSB() && resultBase10.MSB());
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -103,5 +103,5 @@ private:
 	EffectiveAddress _target;
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #endif

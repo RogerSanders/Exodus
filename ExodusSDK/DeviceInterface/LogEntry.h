@@ -9,32 +9,32 @@ using namespace MarshalSupport::Operators;
 class LogEntry :public ILogEntry
 {
 public:
-	//Constructors
+	// Constructors
 	LogEntry(EventLevel level);
 	LogEntry(EventLevel level, const std::wstring& text);
 	LogEntry(EventLevel level, const std::wstring& source, const std::wstring& text);
 	LogEntry(const LogEntry& object);
 
-	//Interface version functions
+	// Interface version functions
 	virtual unsigned int GetILogEntryVersion() const;
 
-	//Getters
+	// Getters
 	virtual EventLevel GetEventLevel() const;
 	virtual Marshal::Ret<std::wstring> GetText() const;
 	virtual Marshal::Ret<std::wstring> GetSource() const;
 	virtual Marshal::Ret<std::wstring> GetEventLevelString() const;
 	virtual Marshal::Ret<std::wstring> GetTimeString() const;
 
-	//Setters
+	// Setters
 	inline void SetText(const std::wstring& text);
 	inline void SetSource(const std::wstring& source);
 	inline void SetEventLevel(EventLevel level);
 	virtual void OverrideSourceText(const Marshal::In<std::wstring>& source) const;
 
-	//Version functions
+	// Version functions
 	virtual unsigned int GetInterfaceVersion() const;
 
-	//Text-based stream functions
+	// Text-based stream functions
 	template<class T> inline LogEntry& operator>>(T& data);
 	template<class T> inline LogEntry& operator<<(const T& data);
 

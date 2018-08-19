@@ -73,7 +73,7 @@ public:
 //	----------------------------------------=========================
 //	                                        |----------<ea>---------|
 
-		//JMP	<ea>
+		// JMP	<ea>
 		_target.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), BITCOUNT_LONG, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
 		AddInstructionSize(_target.ExtensionSize());
 		AddExecuteCycleCount(GetExecuteTime(_target.GetAddressMode()));
@@ -83,9 +83,9 @@ public:
 	{
 		M68000Long address;
 
-		//If the _target location was read from a memory address, and the read value hasn't
-		//been modified up to this point, record the _source memory address as a pointer to
-		//code for disassembly purposes.
+		// If the _target location was read from a memory address, and the read value hasn't
+		// been modified up to this point, record the _source memory address as a pointer to
+		// code for disassembly purposes.
 		unsigned int _targetReadFromAddress;
 		bool dataIsOffset;
 		unsigned int offsetBaseAddress;
@@ -95,11 +95,11 @@ public:
 			cpu->AddDisassemblyAddressInfoOffset(_targetReadFromAddress, dataSize, true, dataIsOffset, offsetBaseAddress);
 		}
 
-		//Perform the operation
+		// Perform the operation
 		_target.GetAddress(cpu, address);
 		cpu->SetPC(address);
 
-		//Detect possible jump tables for active disassembly
+		// Detect possible jump tables for active disassembly
 		if (cpu->ActiveDisassemblyEnabled() && ((_target.GetAddressMode() == EffectiveAddress::Mode::AddRegIndirectIndex8Bit) || (_target.GetAddressMode() == EffectiveAddress::Mode::PCIndirectIndex8Bit)))
 		{
 			M68000Long baseAddress;
@@ -107,17 +107,17 @@ public:
 			cpu->AddDisassemblyPossibleBranchTable(baseAddress.GetData(), address.GetData(), GetInstructionSize());
 		}
 
-		//Return the execution time
+		// Return the execution time
 		return GetExecuteCycleCount();
 	}
 
 	virtual void GetResultantPCLocations(std::set<unsigned int>& resultantPCLocations, bool& undeterminedResultantPCLocation) const
 	{
-		//Return the jump location from executing this opcode, if it can be determined
-		//statically, as the possible resultant PC location from executing this opcode. If
-		//the jump location cannot be determined at this time because it relies on
-		//register contents, flag that there is an undetermined resultant PC location from
-		//executing this opcode.
+		// Return the jump location from executing this opcode, if it can be determined
+		// statically, as the possible resultant PC location from executing this opcode. If
+		// the jump location cannot be determined at this time because it relies on
+		// register contents, flag that there is an undetermined resultant PC location from
+		// executing this opcode.
 		undeterminedResultantPCLocation = false;
 		M68000Long jumpOpcodeAddress;
 		if (_target.GetAddressTransparent(jumpOpcodeAddress))
@@ -139,5 +139,5 @@ private:
 	EffectiveAddress _target;
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #endif

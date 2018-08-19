@@ -10,11 +10,11 @@ using namespace MarshalSupport::Operators;
 class IS315_5313 :public virtual IGenericAccess
 {
 public:
-	//Enumerations
+	// Enumerations
 	enum class IS315_5313DataSource;
 	enum class PixelSource;
 
-	//Structures
+	// Structures
 	struct RegisterDataContext;
 	struct FIFOEntryDataContext;
 	struct PortMonitorEntry;
@@ -23,13 +23,13 @@ public:
 	struct SpriteBoundaryLineEntry;
 	struct ImageBufferInfo;
 
-	//Constants
+	// Constants
 	static const unsigned int RegisterCount = 24;
 	static const unsigned int RegisterCountM4 = 11;
 	static const unsigned int VramSize = 0x10000;
 	static const unsigned int CramSize = 0x80;
-	static const unsigned int VsramSize = 0x50; //Note that this has been observed to be 0x80 bytes on the Genesis 3
-	static const unsigned int SpriteCacheSize = 0x140; //4 bytes cached per sprite, with 80 sprites max in H40 mode.
+	static const unsigned int VsramSize = 0x50; // Note that this has been observed to be 0x80 bytes on the Genesis 3
+	static const unsigned int SpriteCacheSize = 0x140; // 4 bytes cached per sprite, with 80 sprites max in H40 mode.
 	static const unsigned int FifoBufferSize = 4;
 	static const unsigned int StatusRegisterMask = 0x03FF;
 	static const unsigned int CellsPerColumn = 2;
@@ -38,14 +38,14 @@ public:
 	static const unsigned int ImageBufferPlanes = 3;
 
 public:
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisIS315_5313Version() { return 1; }
 	virtual unsigned int GetIS315_5313Version() const = 0;
 
-	//Device access functions
+	// Device access functions
 	virtual IDevice* GetDevice() = 0;
 
-	//External buffer functions
+	// External buffer functions
 	virtual void LockExternalBuffers() = 0;
 	virtual void UnlockExternalBuffers() = 0;
 	virtual ITimedBufferInt* GetVRAMBuffer() const = 0;
@@ -53,7 +53,7 @@ public:
 	virtual ITimedBufferInt* GetVSRAMBuffer() const = 0;
 	virtual ITimedBufferInt* GetSpriteCacheBuffer() const = 0;
 
-	//Image buffer functions
+	// Image buffer functions
 	virtual unsigned int GetImageLastRenderedFrameToken() const = 0;
 	virtual unsigned int GetImageCompletedBufferPlaneNo() const = 0;
 	virtual unsigned int GetImageDrawingBufferPlaneNo() const = 0;
@@ -68,7 +68,7 @@ public:
 	virtual void GetImageBufferActiveScanPosX(unsigned int planeNo, unsigned int lineNo, unsigned int& startPosX, unsigned int& endPosX) const = 0;
 	virtual void GetImageBufferActiveScanPosY(unsigned int planeNo, unsigned int& startPosY, unsigned int& endPosY) const = 0;
 
-	//Rendering functions
+	// Rendering functions
 	virtual void DigitalRenderReadHscrollData(unsigned int screenRowNumber, unsigned int hscrollDataBase, bool hscrState, bool lscrState, unsigned int& layerAHscrollPatternDisplacement, unsigned int& layerBHscrollPatternDisplacement, unsigned int& layerAHscrollMappingDisplacement, unsigned int& layerBHscrollMappingDisplacement) const = 0;
 	virtual void DigitalRenderReadVscrollData(unsigned int screenColumnNumber, unsigned int layerNumber, bool vscrState, bool interlaceMode2Active, unsigned int& layerVscrollPatternDisplacement, unsigned int& layerVscrollMappingDisplacement, Data& vsramReadCache) const = 0;
 	virtual unsigned int CalculatePatternDataRowNumber(unsigned int patternRowNumberNoFlip, bool interlaceMode2Active, const Data& mappingData) const = 0;
@@ -78,11 +78,11 @@ public:
 	virtual unsigned char ColorValueTo8BitValue(unsigned int colorValue, bool shadow, bool highlight) const = 0;
 	virtual Marshal::Ret<std::list<SpriteBoundaryLineEntry>> GetSpriteBoundaryLines(unsigned int planeNo) const = 0;
 
-	//Sprite list debugging functions
+	// Sprite list debugging functions
 	virtual SpriteMappingTableEntry GetSpriteMappingTableEntry(unsigned int spriteTableBaseAddress, unsigned int entryNo) const = 0;
 	virtual void SetSpriteMappingTableEntry(unsigned int spriteTableBaseAddress, unsigned int entryNo, const SpriteMappingTableEntry& entry, bool useSeparatedData) = 0;
 
-	//Port monitor functions
+	// Port monitor functions
 	virtual bool GetPortMonitorStatusReadEnabled() const = 0;
 	virtual void SetPortMonitorStatusReadEnabled(bool state) = 0;
 	virtual bool GetPortMonitorDataReadEnabled() const = 0;
@@ -99,7 +99,7 @@ public:
 	virtual unsigned int GetPortMonitorLogLastModifiedToken() const = 0;
 	virtual void ClearPortMonitorLog() = 0;
 
-	//Debug output
+	// Debug output
 	inline bool GetOutputPortAccessDebugMessages() const;
 	inline void SetOutputPortAccessDebugMessages(bool data);
 	inline bool GetOutputTimingDebugMessages() const;
@@ -137,7 +137,7 @@ public:
 	inline bool GetVideoEnableFullImageBufferInfo() const;
 	inline void SetVideoEnableFullImageBufferInfo(bool data);
 
-	//Layer removal
+	// Layer removal
 	inline bool GetEnableLayerA() const;
 	inline void SetEnableLayerA(bool data);
 	inline bool GetEnableLayerAHigh() const;
@@ -163,11 +163,11 @@ public:
 	inline bool GetEnableSpriteLow() const;
 	inline void SetEnableSpriteLow(bool data);
 
-	//Raw register functions
+	// Raw register functions
 	inline unsigned int GetRegisterData(unsigned int location) const;
 	inline void SetRegisterData(unsigned int location, unsigned int data);
 
-	//Interpreted register functions
+	// Interpreted register functions
 	inline bool RegGetVSI() const;
 	inline void RegSetVSI(bool data);
 	inline bool RegGetHSI() const;
@@ -311,7 +311,7 @@ public:
 	inline bool RegGetDMD0() const;
 	inline void RegSetDMD0(bool data);
 
-	//Status register functions
+	// Status register functions
 	inline unsigned int GetStatus() const;
 	inline void SetStatus(unsigned int data);
 	inline bool GetStatusFlagFIFOEmpty() const;
@@ -335,7 +335,7 @@ public:
 	inline bool GetStatusFlagPAL() const;
 	inline void SetStatusFlagPAL(bool data);
 
-	//Port register functions
+	// Port register functions
 	inline unsigned int RegGetPortCode() const;
 	inline void RegSetPortCode(unsigned int data);
 	inline unsigned int RegGetPortAddress() const;
@@ -349,7 +349,7 @@ public:
 	inline bool RegGetReadFullyCached() const;
 	inline void RegSetReadFullyCached(bool data);
 
-	//Interrupt register functions
+	// Interrupt register functions
 	inline bool RegGetVINTPending() const;
 	inline void RegSetVINTPending(bool data);
 	inline bool RegGetHINTPending() const;
@@ -357,7 +357,7 @@ public:
 	inline bool RegGetEXINTPending() const;
 	inline void RegSetEXINTPending(bool data);
 
-	//HV counter register functions
+	// HV counter register functions
 	inline unsigned int RegGetHVCounterExternal() const;
 	inline unsigned int RegGetHCounterInternal() const;
 	inline void RegSetHCounterInternal(unsigned int data);
@@ -368,7 +368,7 @@ public:
 	inline unsigned int RegGetVCounterLatched() const;
 	inline void RegSetVCounterLatched(unsigned int data);
 
-	//FIFO register functions
+	// FIFO register functions
 	inline unsigned int RegGetFIFOCode(unsigned int entryNo) const;
 	inline void RegSetFIFOCode(unsigned int entryNo, unsigned int data);
 	inline unsigned int RegGetFIFOAddress(unsigned int entryNo) const;

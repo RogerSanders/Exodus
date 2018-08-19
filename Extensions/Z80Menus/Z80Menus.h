@@ -7,11 +7,11 @@ class DebugMenuHandler;
 class Z80Menus :public Extension
 {
 public:
-	//Constructors
+	// Constructors
 	Z80Menus(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 	~Z80Menus();
 
-	//Window functions
+	// Window functions
 	virtual bool RegisterDeviceMenuHandler(IDevice* targetDevice);
 	virtual void UnregisterDeviceMenuHandler(IDevice* targetDevice);
 	virtual void AddDeviceMenuItems(DeviceMenu deviceMenu, IMenuSegment& menuSegment, IDevice* targetDevice);

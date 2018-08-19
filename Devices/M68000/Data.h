@@ -10,12 +10,12 @@ enum Bitcount
 };
 
 //##TODO## Figure out a way to get the same behaviour we currently have with these custom
-//types, without the need to duplicate all this operator code here.
+// types, without the need to duplicate all this operator code here.
 
 class M68000Byte :public Data
 {
 public:
-	//Constructors
+	// Constructors
 	inline M68000Byte()
 	:Data(BITCOUNT_BYTE)
 	{}
@@ -26,7 +26,7 @@ public:
 	:Data(BITCOUNT_BYTE, data.GetData())
 	{}
 
-	//Integer operators
+	// Integer operators
 	M68000Byte operator+(unsigned int target) const
 	{
 		M68000Byte temp(*this);
@@ -178,7 +178,7 @@ public:
 		return _data <= target;
 	}
 
-	//M68000Byte operators
+	// M68000Byte operators
 	M68000Byte operator+(const M68000Byte& target) const
 	{
 		M68000Byte temp(*this);
@@ -330,7 +330,7 @@ public:
 		return _data <= target._data;
 	}
 
-	//Unary operators
+	// Unary operators
 	M68000Byte operator~() const
 	{
 		M68000Byte temp(*this);
@@ -369,7 +369,7 @@ public:
 class M68000Word :public Data
 {
 public:
-	//Constructors
+	// Constructors
 	inline M68000Word()
 	:Data(BITCOUNT_WORD)
 	{}
@@ -380,7 +380,7 @@ public:
 	:Data(BITCOUNT_WORD, data.GetData())
 	{}
 
-	//Integer operators
+	// Integer operators
 	M68000Word operator+(unsigned int target) const
 	{
 		M68000Word temp(*this);
@@ -532,7 +532,7 @@ public:
 		return _data <= target;
 	}
 
-	//M68000Word operators
+	// M68000Word operators
 	M68000Word operator+(const M68000Word& target) const
 	{
 		M68000Word temp(*this);
@@ -684,7 +684,7 @@ public:
 		return _data <= target._data;
 	}
 
-	//Unary operators
+	// Unary operators
 	M68000Word operator~() const
 	{
 		M68000Word temp(*this);
@@ -723,7 +723,7 @@ public:
 class M68000Long :public Data
 {
 public:
-	//Constructors
+	// Constructors
 	inline M68000Long()
 	:Data(BITCOUNT_LONG)
 	{}
@@ -734,7 +734,7 @@ public:
 	:Data(BITCOUNT_LONG, data.GetData())
 	{}
 
-	//Integer operators
+	// Integer operators
 	M68000Long operator+(unsigned int target) const
 	{
 		M68000Long temp(*this);
@@ -886,7 +886,7 @@ public:
 		return _data <= target;
 	}
 
-	//M68000Long operators
+	// M68000Long operators
 	M68000Long operator+(const M68000Long& target) const
 	{
 		M68000Long temp(*this);
@@ -1038,7 +1038,7 @@ public:
 		return _data <= target._data;
 	}
 
-	//Unary operators
+	// Unary operators
 	M68000Long operator~() const
 	{
 		M68000Long temp(*this);
@@ -1074,5 +1074,5 @@ public:
 	}
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #endif

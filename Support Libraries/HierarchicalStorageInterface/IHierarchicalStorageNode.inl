@@ -1,6 +1,6 @@
-//----------------------------------------------------------------------------------------
-//Child functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Child functions
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::CreateChild(const std::wstring& name, const T& data)
 {
 	IHierarchicalStorageNode& child = CreateChild(name);
@@ -8,7 +8,7 @@ template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::CreateChil
 	return child;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::CreateChildHex(const std::wstring& name, const T& data, unsigned int length)
 {
 	IHierarchicalStorageNode& child = CreateChild(name);
@@ -16,7 +16,7 @@ template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::CreateChil
 	return child;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::CreateChildBinary(const std::wstring& name, const T& data, const std::wstring& bufferName, bool inlineBinaryData)
 {
 	IHierarchicalStorageNode& child = CreateChild(name);
@@ -24,7 +24,7 @@ template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::CreateChil
 	return child;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::CreateChildBinary(const std::wstring& name, const T* buffer, unsigned int entries, const std::wstring& bufferName, bool inlineBinaryData)
 {
 	IHierarchicalStorageNode& child = CreateChild(name);
@@ -32,9 +32,9 @@ template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::CreateChil
 	return child;
 }
 
-//----------------------------------------------------------------------------------------
-//Attribute functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Attribute functions
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::CreateAttribute(const std::wstring& name, const T& value)
 {
 	IHierarchicalStorageAttribute& attribute = CreateAttribute(name);
@@ -42,7 +42,7 @@ template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::CreateAttr
 	return *this;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::CreateAttributeHex(const std::wstring& name, const T& value, unsigned int length)
 {
 	IHierarchicalStorageAttribute& attribute = CreateAttribute(name);
@@ -50,7 +50,7 @@ template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::CreateAttr
 	return *this;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> bool IHierarchicalStorageNode::ExtractAttribute(const std::wstring& name, T& target)
 {
 	IHierarchicalStorageAttribute* attribute = GetAttribute(name);
@@ -62,7 +62,7 @@ template<class T> bool IHierarchicalStorageNode::ExtractAttribute(const std::wst
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> bool IHierarchicalStorageNode::ExtractAttributeHex(const std::wstring& name, T& target)
 {
 	IHierarchicalStorageAttribute* attribute = GetAttribute(name);
@@ -74,9 +74,9 @@ template<class T> bool IHierarchicalStorageNode::ExtractAttributeHex(const std::
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
-//Data read functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Data read functions
+//----------------------------------------------------------------------------------------------------------------------
 std::wstring IHierarchicalStorageNode::GetData() const
 {
 	Stream::IStream& dataStream = GetInternalStream();
@@ -88,7 +88,7 @@ std::wstring IHierarchicalStorageNode::GetData() const
 	return data;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> T IHierarchicalStorageNode::ExtractData()
 {
 	Stream::IStream& dataStream = GetInternalStream();
@@ -100,7 +100,7 @@ template<class T> T IHierarchicalStorageNode::ExtractData()
 	return data;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> T IHierarchicalStorageNode::ExtractHexData()
 {
 	Stream::IStream& dataStream = GetInternalStream();
@@ -112,7 +112,7 @@ template<class T> T IHierarchicalStorageNode::ExtractHexData()
 	return data;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::ExtractData(T& target)
 {
 	Stream::IStream& dataStream = GetInternalStream();
@@ -123,7 +123,7 @@ template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::ExtractDat
 	return *this;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::ExtractHexData(T& target)
 {
 	Stream::IStream& dataStream = GetInternalStream();
@@ -134,9 +134,9 @@ template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::ExtractHex
 	return *this;
 }
 
-//----------------------------------------------------------------------------------------
-//Data write functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Data write functions
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::SetData(const T& data)
 {
 	SetBinaryDataPresent(false);
@@ -146,7 +146,7 @@ template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::SetData(co
 	return *this;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::InsertData(const T& data)
 {
 	SetBinaryDataPresent(false);
@@ -156,7 +156,7 @@ template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::InsertData
 	return *this;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::InsertHexData(const T& data, unsigned int length)
 {
 	SetBinaryDataPresent(false);
@@ -166,9 +166,9 @@ template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::InsertHexD
 	return *this;
 }
 
-//----------------------------------------------------------------------------------------
-//Binary data read functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Binary data read functions
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> T IHierarchicalStorageNode::ExtractBinaryData()
 {
 	Stream::IStream& dataStream = GetInternalStream();
@@ -180,7 +180,7 @@ template<class T> T IHierarchicalStorageNode::ExtractBinaryData()
 	return data;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::ExtractBinaryData(T& target)
 {
 	Stream::IStream& dataStream = GetInternalStream();
@@ -191,9 +191,9 @@ template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::ExtractBin
 	return *this;
 }
 
-//----------------------------------------------------------------------------------------
-//Binary data write functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Binary data write functions
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::InsertBinaryData(const T& data, const std::wstring& bufferName, bool inlineBinaryData)
 {
 	SetBinaryDataPresent(true);
@@ -205,7 +205,7 @@ template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::InsertBina
 	return *this;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::InsertBinaryData(const T* buffer, size_t entries, const std::wstring& bufferName, bool inlineBinaryData)
 {
 	SetBinaryDataPresent(true);

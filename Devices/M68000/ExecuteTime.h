@@ -5,25 +5,25 @@ namespace M68000 {
 class ExecuteTime
 {
 public:
-	//Constructors
+	// Constructors
 	inline ExecuteTime();
 	inline ExecuteTime(unsigned int acycles, unsigned int abusRead, unsigned int abusWrite, double aadditionalTime = 0);
 
-	//Set functions
+	// Set functions
 	inline void Set(unsigned int acycles, unsigned int abusRead, unsigned int abusWrite, double aadditionalTime = 0);
 
-	//Addition operators
+	// Addition operators
 	inline ExecuteTime operator+(const ExecuteTime& target) const;
 	inline ExecuteTime& operator+=(const ExecuteTime& target);
 
 public:
-	//Data members
+	// Data members
 	unsigned int cycles;
 	unsigned int busRead;
 	unsigned int busWrite;
 	double additionalTime;
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #include "ExecuteTime.inl"
 #endif

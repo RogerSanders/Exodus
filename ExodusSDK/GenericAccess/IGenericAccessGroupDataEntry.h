@@ -7,11 +7,11 @@
 class IGenericAccessGroupDataEntry :public IGenericAccessGroupEntry
 {
 public:
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisIGenericAccessGroupDataEntryVersion() { return 1; }
 	virtual unsigned int GetIGenericAccessGroupDataEntryVersion() const = 0;
 
-	//Data info functions
+	// Data info functions
 	virtual unsigned int GetDataID() const = 0;
 	virtual Marshal::Ret<std::wstring> GetName() const = 0;
 	virtual Marshal::Ret<std::wstring> GetDescription() const = 0;

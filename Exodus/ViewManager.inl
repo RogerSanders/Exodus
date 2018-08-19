@@ -1,6 +1,6 @@
-//----------------------------------------------------------------------------------------
-//Enumerations
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Enumerations
+//----------------------------------------------------------------------------------------------------------------------
 enum class ViewManager::ViewOperationType
 {
 	Open,
@@ -11,9 +11,9 @@ enum class ViewManager::ViewOperationType
 	Hide,
 };
 
-//----------------------------------------------------------------------------------------
-//Structures
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Structures
+//----------------------------------------------------------------------------------------------------------------------
 struct ViewManager::ViewInfo
 {
 	ViewInfo(IViewPresenter& viewPresenter)
@@ -32,7 +32,7 @@ struct ViewManager::ViewInfo
 	IHierarchicalStorageNode* node;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct ViewManager::ViewOperation
 {
 	ViewOperation(ViewOperationType atype, IViewPresenter& viewPresenter, IHierarchicalStorageNode* aviewState = 0)
@@ -44,7 +44,7 @@ struct ViewManager::ViewOperation
 	IHierarchicalStorageNode* viewState;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct ViewManager::PlaceholderWindowInfo
 {
 	PlaceholderWindowInfo()
@@ -59,7 +59,7 @@ struct ViewManager::PlaceholderWindowInfo
 	IView::ViewType viewType;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct ViewManager::OpenWindowInfo
 {
 	OpenWindowInfo(HWND ahwnd, IView& aview, IViewPresenter& viewPresenter, std::wstring awindowTitle = L"")
@@ -72,7 +72,7 @@ struct ViewManager::OpenWindowInfo
 	std::wstring windowTitle;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct ViewManager::InvokeUIParams
 {
 	InvokeUIParams(const std::function<void()>& acallback, std::condition_variable& acallbackComplete)
@@ -83,7 +83,7 @@ struct ViewManager::InvokeUIParams
 	std::condition_variable& callbackComplete;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct ViewManager::Region2D
 {
 	Region2D()
@@ -98,7 +98,7 @@ struct ViewManager::Region2D
 	long sizey;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct ViewManager::DialogWindowFrameState
 {
 	DialogWindowFrameState()

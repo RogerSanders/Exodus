@@ -7,11 +7,11 @@ class DebugMenuHandler;
 class MemoryMenus :public Extension
 {
 public:
-	//Constructors
+	// Constructors
 	MemoryMenus(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 	~MemoryMenus();
 
-	//Window functions
+	// Window functions
 	virtual bool RegisterDeviceMenuHandler(IDevice* targetDevice);
 	virtual void UnregisterDeviceMenuHandler(IDevice* targetDevice);
 	virtual void AddDeviceMenuItems(DeviceMenu deviceMenu, IMenuSegment& menuSegment, IDevice* targetDevice);

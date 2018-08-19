@@ -1,15 +1,15 @@
 #include "RAM16Variable.h"
 
-//----------------------------------------------------------------------------------------
-//Constructors
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Constructors
+//----------------------------------------------------------------------------------------------------------------------
 RAM16Variable::RAM16Variable(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
 :RAMBase(implementationName, instanceName, moduleID)
 {}
 
-//----------------------------------------------------------------------------------------
-//Memory interface functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Memory interface functions
+//----------------------------------------------------------------------------------------------------------------------
 IBusInterface::AccessResult RAM16Variable::ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	static const unsigned int arrayEntryByteSize = 2;
@@ -47,7 +47,7 @@ IBusInterface::AccessResult RAM16Variable::ReadInterface(unsigned int interfaceN
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 IBusInterface::AccessResult RAM16Variable::WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	static const unsigned int arrayEntryByteSize = 2;
@@ -88,13 +88,13 @@ IBusInterface::AccessResult RAM16Variable::WriteInterface(unsigned int interface
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void RAM16Variable::TransparentReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, unsigned int accessContext)
 {
 	ReadInterface(interfaceNumber, location, data, caller, 0, accessContext);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void RAM16Variable::TransparentWriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, unsigned int accessContext)
 {
 	static const unsigned int arrayEntryByteSize = 2;
@@ -134,15 +134,15 @@ void RAM16Variable::TransparentWriteInterface(unsigned int interfaceNumber, unsi
 	}
 }
 
-//----------------------------------------------------------------------------------------
-//Debug memory access functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Debug memory access functions
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int RAM16Variable::ReadMemoryEntry(unsigned int location) const
 {
 	return _memoryArray[location % _memoryArraySize];
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void RAM16Variable::WriteMemoryEntry(unsigned int location, unsigned int data)
 {
 	_memoryArray[location % _memoryArraySize] = (unsigned short)data;

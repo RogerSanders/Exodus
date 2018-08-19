@@ -46,6 +46,6 @@ template<class ElementType, class Container> struct is_this_or_nested_element_la
 template<class ElementType, class Container, class Compare> struct is_this_or_nested_element_last_nested_container_element<std::priority_queue<ElementType, Container, Compare>> { static const bool value = is_last_nested_container_element<ElementType>::value; };
 template<class ElementType, class traits, class Alloc> struct is_this_or_nested_element_last_nested_container_element<std::basic_string<ElementType, traits, Alloc>> { static const bool value = is_last_nested_container_element<ElementType>::value; };
 
-} //Close namespace Internal
-} //Close namespace MarshalSupport
+} // Close namespace Internal
+} // Close namespace MarshalSupport
 #endif

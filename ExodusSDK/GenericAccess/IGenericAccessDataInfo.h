@@ -8,31 +8,31 @@ using namespace MarshalSupport::Operators;
 class IGenericAccessDataInfo
 {
 public:
-	//Typedefs
+	// Typedefs
 	typedef void* DataID;
 
 public:
-	//Constructors
+	// Constructors
 	virtual ~IGenericAccessDataInfo() = 0 {}
 
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisIGenericAccessDataInfoVersion() { return 1; }
 	virtual unsigned int GetIGenericAccessDataInfoVersion() const = 0;
 
-	//Data info functions
+	// Data info functions
 	virtual unsigned int GetID() const = 0;
 	virtual IGenericAccessDataValue::DataType GetType() const = 0;
 	virtual bool GetReadOnly() const = 0;
 	virtual bool GetLockingSupported() const = 0;
 	virtual bool GetHighlightUsed() const = 0;
 
-	//Data display mode functions
+	// Data display mode functions
 	virtual IGenericAccessDataValue::IntDisplayMode GetIntDisplayMode() const = 0;
 	virtual IGenericAccessDataValue::FloatDisplayMode GetFloatDisplayMode() const = 0;
 	virtual unsigned int GetMinWholeNumberChars() const = 0;
 	virtual unsigned int GetMinFractionalNumberChars() const = 0;
 
-	//Data limit functions
+	// Data limit functions
 	virtual int GetIntMinValue() const = 0;
 	virtual int GetIntMaxValue() const = 0;
 	virtual unsigned int GetUIntMinValue() const = 0;
@@ -43,13 +43,13 @@ public:
 	virtual double GetDoubleMaxValue() const = 0;
 	virtual unsigned int GetStringMaxLength() const = 0;
 
-	//File path settings
+	// File path settings
 	virtual bool GetFilePathCreatingTarget() const = 0;
 	virtual bool GetFilePathAllowScanningIntoArchives() const = 0;
 	virtual Marshal::Ret<std::wstring> GetFilePathExtensionFilter() const = 0;
 	virtual Marshal::Ret<std::wstring> GetFilePathDefaultExtension() const = 0;
 
-	//Folder path settings
+	// Folder path settings
 	virtual bool GetFolderPathCreatingTarget() const = 0;
 };
 

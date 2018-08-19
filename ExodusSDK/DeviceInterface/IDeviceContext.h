@@ -6,34 +6,34 @@ class IDevice;
 using namespace MarshalSupport::Operators;
 
 //##TODO## Eliminate any methods here which are merely wrappers of system methods, and
-//don't logically belong on this interface.
+// don't logically belong on this interface.
 class IDeviceContext
 {
 public:
-	//Constructors
+	// Constructors
 	virtual ~IDeviceContext() = 0 {}
 
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisIDeviceContextVersion() { return 1; }
 	virtual unsigned int GetIDeviceContextVersion() const = 0;
 
-	//Timing functions
+	// Timing functions
 	virtual double GetCurrentTimesliceProgress() const = 0;
 	virtual void SetCurrentTimesliceProgress(double executionProgress) = 0;
 
-	//Control functions
+	// Control functions
 	virtual bool DeviceEnabled() const = 0;
 	virtual void SetDeviceEnabled(bool state) = 0;
 
-	//Device interface
+	// Device interface
 	virtual IDevice& GetTargetDevice() const = 0;
 	virtual unsigned int GetDeviceIndexNo() const = 0;
 
-	//System message functions
+	// System message functions
 	//##TODO## Remove all these functions from here entirely, and let the device use its
-	//provided system interface to execute these instead.
+	// provided system interface to execute these instead.
 	//##TODO## Remove this method once we have a new logging system with dedicated logger
-	//objects, and a source setting for the logger object.
+	// objects, and a source setting for the logger object.
 	virtual void WriteLogEvent(const ILogEntry& entry) = 0;
 	virtual void FlagStopSystem() = 0;
 	virtual void StopSystem() = 0;
@@ -43,7 +43,7 @@ public:
 	virtual Marshal::Ret<std::wstring> GetModuleDisplayName() const = 0;
 	virtual Marshal::Ret<std::wstring> GetModuleInstanceName() const = 0;
 
-	//Suspend functions
+	// Suspend functions
 	virtual bool UsesExecuteSuspend() const = 0;
 	virtual bool UsesTransientExecution() const = 0;
 	virtual bool TimesliceExecutionSuspended() const = 0;
@@ -55,7 +55,7 @@ public:
 	virtual void SetTransientExecutionActive(bool state) = 0;
 	virtual bool TimesliceExecutionCompleted() const = 0;
 
-	//Dependent device functions
+	// Dependent device functions
 	virtual void SetDeviceDependencyEnable(IDeviceContext* targetDevice, bool state) = 0;
 };
 

@@ -2,9 +2,9 @@
 #include "DataConversion/DataConversion.pkg"
 #include "resource.h"
 
-//----------------------------------------------------------------------------------------
-//Constructors
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Constructors
+//----------------------------------------------------------------------------------------------------------------------
 SettingsView::SettingsView(IUIManager& uiManager, SettingsViewPresenter& presenter, ExodusInterface& model)
 :ViewBase(uiManager, presenter), _presenter(presenter), _model(model)
 {
@@ -12,9 +12,9 @@ SettingsView::SettingsView(IUIManager& uiManager, SettingsViewPresenter& present
 	SetDialogViewType(DialogMode::Modal, false, DialogPos::Center);
 }
 
-//----------------------------------------------------------------------------------------
-//Member window procedure
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Member window procedure
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR SettingsView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	WndProcDialogImplementSaveFieldWhenLostFocus(hwnd, msg, wparam, lparam);
@@ -30,9 +30,9 @@ INT_PTR SettingsView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM l
 	return FALSE;
 }
 
-//----------------------------------------------------------------------------------------
-//Event handlers
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Event handlers
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR SettingsView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	CoInitializeEx(0, COINIT_APARTMENTTHREADED);
@@ -67,14 +67,14 @@ INT_PTR SettingsView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR SettingsView::msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	CoUninitialize();
 	return FALSE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR SettingsView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	if (HIWORD(wparam) == EN_CHANGE)
@@ -117,7 +117,7 @@ INT_PTR SettingsView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			EnableWindow(GetDlgItem(hwnd, IDC_SETTINGS_APPLY), FALSE);
 			break;
 		case IDC_SETTINGS_LOADSYSTEMCHANGE:{
-			//Get the fully resolved path to the current target file
+			// Get the fully resolved path to the current target file
 			std::wstring moduleFolderPath = _model.GetGlobalPreferencePathModules();
 			std::wstring fileNameCurrent = GetDlgItemString(hwnd, IDC_SETTINGS_LOADSYSTEM);
 			if (!fileNameCurrent.empty() && PathIsRelativePath(fileNameCurrent))
@@ -125,7 +125,7 @@ INT_PTR SettingsView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 				fileNameCurrent = PathCombinePaths(moduleFolderPath, fileNameCurrent);
 			}
 
-			//Select a new target file
+			// Select a new target file
 			std::wstring selectedFilePath;
 			if (_model.SelectExistingFile(L"System Definitions|xml", L"xml", fileNameCurrent, moduleFolderPath, true, selectedFilePath))
 			{
@@ -134,7 +134,7 @@ INT_PTR SettingsView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			}
 			break;}
 		case IDC_SETTINGS_LOADWORKSPACECHANGE:{
-			//Get the fully resolved path to the current target file
+			// Get the fully resolved path to the current target file
 			std::wstring workspaceFolderPath = _model.GetGlobalPreferencePathWorkspaces();
 			std::wstring fileNameCurrent = GetDlgItemString(hwnd, IDC_SETTINGS_LOADWORKSPACE);
 			if (!fileNameCurrent.empty() && PathIsRelativePath(fileNameCurrent))
@@ -142,7 +142,7 @@ INT_PTR SettingsView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 				fileNameCurrent = PathCombinePaths(workspaceFolderPath, fileNameCurrent);
 			}
 
-			//Select a new target file
+			// Select a new target file
 			std::wstring selectedFilePath;
 			if (_model.SelectExistingFile(L"Workspace Files|xml", L"xml", fileNameCurrent, workspaceFolderPath, true, selectedFilePath))
 			{
@@ -183,14 +183,14 @@ INT_PTR SettingsView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 				break;
 			}
 
-			//Retrieve the current target directory
+			// Retrieve the current target directory
 			std::wstring currentSelectedDir = GetDlgItemString(hwnd, textboxControlID);
 			if (PathIsRelativePath(currentSelectedDir))
 			{
 				currentSelectedDir = PathCombinePaths(_model.GetPreferenceDirectoryPath(), currentSelectedDir);
 			}
 
-			//Select a new target directory
+			// Select a new target directory
 			std::wstring newSelectedDir;
 			if (SelectExistingDirectory((HWND)_model.GetMainWindowHandle(), currentSelectedDir, newSelectedDir))
 			{

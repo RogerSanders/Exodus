@@ -1,6 +1,6 @@
-//----------------------------------------------------------------------------------------
-//Value read functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Value read functions
+//----------------------------------------------------------------------------------------------------------------------
 std::wstring IHierarchicalStorageAttribute::GetValue() const
 {
 	ResetInternalStreamPosition();
@@ -11,7 +11,7 @@ std::wstring IHierarchicalStorageAttribute::GetValue() const
 	return data;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> T IHierarchicalStorageAttribute::ExtractValue()
 {
 	ResetInternalStreamPosition();
@@ -22,7 +22,7 @@ template<class T> T IHierarchicalStorageAttribute::ExtractValue()
 	return data;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> T IHierarchicalStorageAttribute::ExtractHexValue()
 {
 	ResetInternalStreamPosition();
@@ -33,7 +33,7 @@ template<class T> T IHierarchicalStorageAttribute::ExtractHexValue()
 	return data;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> void IHierarchicalStorageAttribute::ExtractValue(T& target)
 {
 	ResetInternalStreamPosition();
@@ -42,7 +42,7 @@ template<class T> void IHierarchicalStorageAttribute::ExtractValue(T& target)
 	bufferView >> target;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> void IHierarchicalStorageAttribute::ExtractHexValue(T& target)
 {
 	ResetInternalStreamPosition();
@@ -51,9 +51,9 @@ template<class T> void IHierarchicalStorageAttribute::ExtractHexValue(T& target)
 	bufferView >> Stream::Hex() >> target;
 }
 
-//----------------------------------------------------------------------------------------
-//Value write functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Value write functions
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> void IHierarchicalStorageAttribute::SetValue(const T& data)
 {
 	ResetInternalStreamPosition();
@@ -63,7 +63,7 @@ template<class T> void IHierarchicalStorageAttribute::SetValue(const T& data)
 	bufferView << data;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> void IHierarchicalStorageAttribute::InsertValue(const T& data)
 {
 	Stream::IStream& buffer = GetInternalStream();
@@ -71,7 +71,7 @@ template<class T> void IHierarchicalStorageAttribute::InsertValue(const T& data)
 	bufferView << data;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> void IHierarchicalStorageAttribute::InsertHexValue(const T& data, unsigned int length)
 {
 	Stream::IStream& buffer = GetInternalStream();

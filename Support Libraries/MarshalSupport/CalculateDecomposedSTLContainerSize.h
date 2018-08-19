@@ -71,7 +71,7 @@ inline void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_
 template<class ElementType>
 inline void CalculateDecomposedSTLContainerSize(size_t& elementArrayIndex, size_t& elementSizeArrayIndex, const ElementType& element);
 
-} //Close namespace Internal
-} //Close namespace MarshalSupport
+} // Close namespace Internal
+} // Close namespace MarshalSupport
 #include "CalculateDecomposedSTLContainerSize.inl"
 #endif

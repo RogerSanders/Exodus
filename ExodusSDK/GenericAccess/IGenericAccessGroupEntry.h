@@ -8,32 +8,32 @@ class IGenericAccessGroup;
 class IGenericAccessGroupEntry
 {
 public:
-	//Enumerations
+	// Enumerations
 	enum class GroupEntryType;
 
 public:
-	//Constructors
+	// Constructors
 	virtual ~IGenericAccessGroupEntry() = 0 {}
 
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisIGenericAccessGroupEntryVersion() { return 1; }
 	virtual unsigned int GetIGenericAccessGroupEntryVersion() const = 0;
 
-	//Type functions
+	// Type functions
 	virtual GroupEntryType GetGroupEntryType() const = 0;
 	virtual bool IsGroup() const = 0;
 
-	//Parent functions
+	// Parent functions
 	virtual IGenericAccessGroup* GetParent() const = 0;
 
-	//Data context functions
+	// Data context functions
 	virtual const IGenericAccess::DataContext* GetDataContext() const = 0;
 
 protected:
-	//Friend declarations
+	// Friend declarations
 	friend class IGenericAccessGroup;
 
-	//Parent functions
+	// Parent functions
 	virtual void SetParent(IGenericAccessGroup* parent) = 0;
 };
 

@@ -1,31 +1,31 @@
 #include "Debug/Debug.pkg"
 
-//----------------------------------------------------------------------------------------
-//PCX structures
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// PCX structures
+//----------------------------------------------------------------------------------------------------------------------
 struct Image::PCXFileHeader
 {
-	unsigned char manufacturer;		//0x00
-	unsigned char version;			//0x01
-	unsigned char encoding;			//0x02
-	unsigned char bitsPerPixel;		//0x03
-	unsigned short xmin;			//0x04-0x05
-	unsigned short ymin;			//0x06-0x07
-	unsigned short xmax;			//0x08-0x09
-	unsigned short ymax;			//0x0A-0x0B
-	unsigned short hdpi;			//0x0C-0x0D
-	unsigned short vdpi;			//0x0E-0x0F
-	unsigned char colorMap[48];		//0x10-0x40
-	unsigned char reserved1;		//0x41
-	unsigned char numPlanes;		//0x42
-	unsigned short bytesPerLine;	//0x43-0x44
-	unsigned short paletteInfo;		//0x45-0x46
-	unsigned short hscreenSize;		//0x47-0x48
-	unsigned short vscreenSize;		//0x49-0x4A
-	unsigned char reserved2[54];	//0x4B-0x80
+	unsigned char manufacturer;		// 0x00
+	unsigned char version;			// 0x01
+	unsigned char encoding;			// 0x02
+	unsigned char bitsPerPixel;		// 0x03
+	unsigned short xmin;			// 0x04-0x05
+	unsigned short ymin;			// 0x06-0x07
+	unsigned short xmax;			// 0x08-0x09
+	unsigned short ymax;			// 0x0A-0x0B
+	unsigned short hdpi;			// 0x0C-0x0D
+	unsigned short vdpi;			// 0x0E-0x0F
+	unsigned char colorMap[48];		// 0x10-0x40
+	unsigned char reserved1;		// 0x41
+	unsigned char numPlanes;		// 0x42
+	unsigned short bytesPerLine;	// 0x43-0x44
+	unsigned short paletteInfo;		// 0x45-0x46
+	unsigned short hscreenSize;		// 0x47-0x48
+	unsigned short vscreenSize;		// 0x49-0x4A
+	unsigned char reserved2[54];	// 0x4B-0x80
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 enum class Image::PCXImageFormat
 {
 //	Mono,
@@ -38,12 +38,12 @@ enum class Image::PCXImageFormat
 	Literal
 };
 
-//----------------------------------------------------------------------------------------
-//TIFF structures
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// TIFF structures
+//----------------------------------------------------------------------------------------------------------------------
 struct Image::TIFFStreamManager
 {
-	//Constructors
+	// Constructors
 	TIFFStreamManager(Stream::IStream& astream)
 	:stream(astream)
 	{}
@@ -58,7 +58,7 @@ struct Image::TIFFStreamManager
 	}
 
 private:
-	//Callback handlers
+	// Callback handlers
 	static tmsize_t ReadProc(thandle_t fd, void* buf, tmsize_t size)
 	{
 		TIFFStreamManager* obj = (TIFFStreamManager*)fd;
@@ -123,17 +123,17 @@ private:
 	Stream::IStream& stream;
 };
 
-//----------------------------------------------------------------------------------------
-//JPG structures
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// JPG structures
+//----------------------------------------------------------------------------------------------------------------------
 struct Image::JPGStreamSourceManager
 {
 public:
-	//Constructors
+	// Constructors
 	JPGStreamSourceManager(j_decompress_ptr cinfo, Stream::IStream& astream, unsigned int abufferSize)
 	:stream(astream), buffer(abufferSize)
 	{
-		//Register libjpeg callback handlers
+		// Register libjpeg callback handlers
 		pub.init_source = init_source;
 		pub.fill_input_buffer = fill_input_buffer;
 		pub.skip_input_data = skip_input_data;
@@ -144,7 +144,7 @@ public:
 	}
 
 private:
-	//Libjpeg callback handlers
+	// Libjpeg callback handlers
 	static void init_source(j_decompress_ptr cinfo)
 	{
 		JPGStreamSourceManager* src = (JPGStreamSourceManager*)cinfo->src;
@@ -155,10 +155,10 @@ private:
 	static boolean fill_input_buffer(j_decompress_ptr cinfo)
 	{
 		JPGStreamSourceManager* src = (JPGStreamSourceManager*)cinfo->src;
-		//Note that we have to ignore the current state of bytes_in_buffer and
-		//next_input_byte here, and simply refill the buffer, as specified in
-		//libjpeg.txt. These values are not always valid when this function is
-		//called. This function needs to assume the buffer is empty.
+		// Note that we have to ignore the current state of bytes_in_buffer and
+		// next_input_byte here, and simply refill the buffer, as specified in
+		// libjpeg.txt. These values are not always valid when this function is
+		// called. This function needs to assume the buffer is empty.
 		if (!src->stream.ReadData(src->buffer, src->buffer.size()))
 		{
 			return FALSE;
@@ -171,8 +171,8 @@ private:
 	static void skip_input_data(j_decompress_ptr cinfo, long num_bytes)
 	{
 		JPGStreamSourceManager* src = (JPGStreamSourceManager*)cinfo->src;
-		//As specified in libjpeg.txt, it seems a negative count may be passed to this
-		//function on occasion. In this case, the operation should be ignored.
+		// As specified in libjpeg.txt, it seems a negative count may be passed to this
+		// function on occasion. In this case, the operation should be ignored.
 		if (num_bytes <= 0)
 		{
 			return;
@@ -204,15 +204,15 @@ private:
 	std::vector<unsigned char> buffer;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct Image::JPGStreamDestinationManager
 {
 public:
-	//Constructors
+	// Constructors
 	JPGStreamDestinationManager(j_compress_ptr cinfo, Stream::IStream& astream, unsigned int abufferSize)
 	:stream(astream), buffer(abufferSize)
 	{
-		//Register libjpeg callback handlers
+		// Register libjpeg callback handlers
 		pub.init_destination = init_destination;
 		pub.empty_output_buffer = empty_output_buffer;
 		pub.term_destination = term_destination;
@@ -221,7 +221,7 @@ public:
 	}
 
 private:
-	//Libjpeg callback handlers
+	// Libjpeg callback handlers
 	static void init_destination(j_compress_ptr cinfo)
 	{
 		JPGStreamDestinationManager* dest = (JPGStreamDestinationManager*)cinfo->dest;
@@ -232,10 +232,10 @@ private:
 	static boolean empty_output_buffer(j_compress_ptr cinfo)
 	{
 		JPGStreamDestinationManager* dest = (JPGStreamDestinationManager*)cinfo->dest;
-		//Note that as in fill_input_buffer, we have to ignore the current state of
-		//free_in_buffer and next_output_byte here, and simply write out the entire
-		//buffer, as specified in libjpeg.txt. This function needs to assume the buffer
-		//is full.
+		// Note that as in fill_input_buffer, we have to ignore the current state of
+		// free_in_buffer and next_output_byte here, and simply write out the entire
+		// buffer, as specified in libjpeg.txt. This function needs to assume the buffer
+		// is full.
 		if (!dest->stream.WriteData(&dest->buffer[0], dest->buffer.size()))
 		{
 			return FALSE;
@@ -248,9 +248,9 @@ private:
 	static void term_destination(j_compress_ptr cinfo)
 	{
 		JPGStreamDestinationManager* dest = (JPGStreamDestinationManager*)cinfo->dest;
-		//We dump out the remaining data in the buffer here. We can't call
-		//empty_output_buffer to do the job, since that function has to assume
-		//that the buffer is completely full, which it probably won't be here.
+		// We dump out the remaining data in the buffer here. We can't call
+		// empty_output_buffer to do the job, since that function has to assume
+		// that the buffer is completely full, which it probably won't be here.
 		unsigned int bytesToWrite = (unsigned int)(dest->buffer.size() - dest->pub.free_in_buffer);
 		if (bytesToWrite > 0)
 		{
@@ -266,22 +266,22 @@ private:
 	std::vector<unsigned char> buffer;
 };
 
-//----------------------------------------------------------------------------------------
-//TGA structures
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// TGA structures
+//----------------------------------------------------------------------------------------------------------------------
 struct Image::TGAFileHeader
 {
-	//Field 1 - ID Length
+	// Field 1 - ID Length
 	unsigned char idLength;
-	//Field 2 - Color Map Type
+	// Field 2 - Color Map Type
 	unsigned char colorMapType;
-	//Field 3 - Image Type
+	// Field 3 - Image Type
 	unsigned char imageType;
-	//Field 4 - Color Map Specification
+	// Field 4 - Color Map Specification
 	unsigned short colorMapFirstEntry;
 	unsigned short colorMapLength;
 	unsigned char colorMapBitsPerEntry;
-	//Field 5 - Image Specification
+	// Field 5 - Image Specification
 	unsigned short imageOriginX;
 	unsigned short imageOriginY;
 	unsigned short imageWidth;
@@ -290,7 +290,7 @@ struct Image::TGAFileHeader
 	unsigned char imageDescriptor;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct Image::TGAColorMapEntry
 {
 	unsigned int r;
@@ -299,7 +299,7 @@ struct Image::TGAColorMapEntry
 	unsigned int a;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 enum class Image::TGAImageType
 {
 	None = 0,
@@ -311,9 +311,9 @@ enum class Image::TGAImageType
 	RLEMonochrome = 11
 };
 
-//----------------------------------------------------------------------------------------
-//BMP structures
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// BMP structures
+//----------------------------------------------------------------------------------------------------------------------
 struct Image::BITMAPV2INFOHEADER
 {
 	DWORD biSize;
@@ -333,7 +333,7 @@ struct Image::BITMAPV2INFOHEADER
 	DWORD biBlueMask;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct Image::BITMAPV3INFOHEADER
 {
 	DWORD biSize;
@@ -354,17 +354,17 @@ struct Image::BITMAPV3INFOHEADER
 	DWORD biAlphaMask;
 };
 
-//----------------------------------------------------------------------------------------
-//Constructors
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Constructors
+//----------------------------------------------------------------------------------------------------------------------
 Image::Image(unsigned int imageWidth, unsigned int imageHeight, PixelFormat pixelFormat, DataFormat dataFormat)
 {
 	SetImageFormat(imageWidth, imageHeight, pixelFormat, dataFormat);
 }
 
-//----------------------------------------------------------------------------------------
-//Pixel data manipulation
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Pixel data manipulation
+//----------------------------------------------------------------------------------------------------------------------
 void Image::GetRawPixelDataInternal(unsigned int posX, unsigned int posY, unsigned int planeNo, PixelData& data) const
 {
 	unsigned int dataPos = ((posX + (posY * _imageWidth)) * _dataPlaneCount) + planeNo;
@@ -372,7 +372,7 @@ void Image::GetRawPixelDataInternal(unsigned int posX, unsigned int posY, unsign
 	data = _imageData[dataPos];
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Image::SetRawPixelDataInternal(unsigned int posX, unsigned int posY, unsigned int planeNo, PixelData data)
 {
 	unsigned int dataPos = ((posX + (posY * _imageWidth)) * _dataPlaneCount) + planeNo;
@@ -380,7 +380,7 @@ void Image::SetRawPixelDataInternal(unsigned int posX, unsigned int posY, unsign
 	_imageData[dataPos] = data;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Image::ReadPixelDataInternal(unsigned int posX, unsigned int posY, unsigned int planeNo, float& data) const
 {
 	PixelData pixelData;
@@ -399,7 +399,7 @@ void Image::ReadPixelDataInternal(unsigned int posX, unsigned int posY, unsigned
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Image::ReadPixelDataInternal(unsigned int posX, unsigned int posY, unsigned int planeNo, unsigned char& data) const
 {
 	PixelData pixelData;
@@ -418,7 +418,7 @@ void Image::ReadPixelDataInternal(unsigned int posX, unsigned int posY, unsigned
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Image::ReadPixelDataInternal(unsigned int posX, unsigned int posY, unsigned int planeNo, unsigned int& data, unsigned int bitCount) const
 {
 	unsigned int maxValue = (((1 << (bitCount - 1)) - 1) << 1) | 0x01;
@@ -438,7 +438,7 @@ void Image::ReadPixelDataInternal(unsigned int posX, unsigned int posY, unsigned
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Image::WritePixelDataInternal(unsigned int posX, unsigned int posY, unsigned int planeNo, float data)
 {
 	PixelData pixelData;
@@ -457,7 +457,7 @@ void Image::WritePixelDataInternal(unsigned int posX, unsigned int posY, unsigne
 	SetRawPixelDataInternal(posX, posY, planeNo, pixelData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Image::WritePixelDataInternal(unsigned int posX, unsigned int posY, unsigned int planeNo, unsigned char data)
 {
 	PixelData pixelData;
@@ -476,7 +476,7 @@ void Image::WritePixelDataInternal(unsigned int posX, unsigned int posY, unsigne
 	SetRawPixelDataInternal(posX, posY, planeNo, pixelData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Image::WritePixelDataInternal(unsigned int posX, unsigned int posY, unsigned int planeNo, unsigned int data, unsigned int bitCount)
 {
 	unsigned int maxValue = (((1 << (bitCount - 1)) - 1) << 1) | 0x01;

@@ -7,11 +7,11 @@
 class DebugMenuHandler :public MenuHandlerBase
 {
 public:
-	//Constructors
+	// Constructors
 	DebugMenuHandler(Z80Menus& owner, const IDevice& modelInstanceKey, IZ80& model);
 
 protected:
-	//Management functions
+	// Management functions
 	virtual void GetMenuItems(std::list<MenuItemDefinition>& menuItems) const;
 	virtual IViewPresenter* CreateViewForItem(int menuItemID, const std::wstring& viewName);
 	virtual void DeleteViewForItem(int menuItemID, IViewPresenter* viewPresenter);

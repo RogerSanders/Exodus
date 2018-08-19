@@ -1,9 +1,9 @@
 #include "RegistersView.h"
 #include "resource.h"
 
-//----------------------------------------------------------------------------------------
-//Constructors
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Constructors
+//----------------------------------------------------------------------------------------------------------------------
 RegistersView::RegistersView(IUIManager& uiManager, RegistersViewPresenter& presenter, IS315_5313& model)
 :ViewBase(uiManager, presenter), _presenter(presenter), _model(model), _initializedDialog(false), _currentControlFocus(0), _activeTabWindow(NULL)
 {
@@ -13,15 +13,15 @@ RegistersView::RegistersView(IUIManager& uiManager, RegistersViewPresenter& pres
 	SetDockableViewType();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 RegistersView::~RegistersView()
 {
 	DeleteObject(_lockedBrush);
 }
 
-//----------------------------------------------------------------------------------------
-//Member window procedure
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Member window procedure
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR RegistersView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	WndProcDialogImplementSaveFieldWhenLostFocus(hwnd, msg, wparam, lparam);
@@ -37,17 +37,17 @@ INT_PTR RegistersView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM 
 	return FALSE;
 }
 
-//----------------------------------------------------------------------------------------
-//Event handlers
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Event handlers
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR RegistersView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	//Add our set of tab items to the list of tabs
+	// Add our set of tab items to the list of tabs
 	_tabItems.push_back(TabInfo(L"Raw Registers", IDD_VDP_REGISTERS_RAWREGISTERS, WndProcRawRegistersStatic));
 	_tabItems.push_back(TabInfo(L"Mode Registers", IDD_VDP_REGISTERS_MODEREGISTERS, WndProcModeRegistersStatic));
 	_tabItems.push_back(TabInfo(L"Other Registers", IDD_VDP_REGISTERS_OTHERREGISTERS, WndProcOtherRegistersStatic));
 
-	//Insert our tabs into the tab control
+	// Insert our tabs into the tab control
 	for (unsigned int i = 0; i < (unsigned int)_tabItems.size(); ++i)
 	{
 		TCITEM tabItem;
@@ -56,37 +56,37 @@ INT_PTR RegistersView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		SendMessage(GetDlgItem(hwnd, IDC_VDP_REGISTERS_TABCONTROL), TCM_INSERTITEM, i, (LPARAM)&tabItem);
 	}
 
-	//Create each window associated with each tab, and calculate the required size of the
-	//client area of the tab control to fit the largest tab window.
+	// Create each window associated with each tab, and calculate the required size of the
+	// client area of the tab control to fit the largest tab window.
 	int requiredTabClientWidth = 0;
 	int requiredTabClientHeight = 0;
 	for (unsigned int i = 0; i < (unsigned int)_tabItems.size(); ++i)
 	{
-		//Create the dialog window for this tab
+		// Create the dialog window for this tab
 		DLGPROC dialogWindowProc = _tabItems[i].dialogProc;
 		LPCWSTR dialogTemplateName = MAKEINTRESOURCE(_tabItems[i].dialogID);
 		_tabItems[i].hwndDialog = CreateDialogParam(GetAssemblyHandle(), dialogTemplateName, GetDlgItem(hwnd, IDC_VDP_REGISTERS_TABCONTROL), dialogWindowProc, (LPARAM)this);
 
-		//Calculate the required size of the window for this tab in pixel units
+		// Calculate the required size of the window for this tab in pixel units
 		RECT rect;
 		GetClientRect(_tabItems[i].hwndDialog, &rect);
 		int tabWidth = rect.right;
 		int tabHeight = rect.bottom;
 
-		//Increase the required size of the client area for the tab control to accommodate
-		//the contents of this tab, if required.
+		// Increase the required size of the client area for the tab control to accommodate
+		// the contents of this tab, if required.
 		requiredTabClientWidth = (tabWidth > requiredTabClientWidth)? tabWidth: requiredTabClientWidth;
 		requiredTabClientHeight = (tabHeight > requiredTabClientHeight)? tabHeight: requiredTabClientHeight;
 	}
 
-	//Save the original size of the tab control
+	// Save the original size of the tab control
 	RECT tabControlOriginalRect;
 	GetClientRect(GetDlgItem(hwnd, IDC_VDP_REGISTERS_TABCONTROL), &tabControlOriginalRect);
 	int tabControlOriginalSizeX = tabControlOriginalRect.right - tabControlOriginalRect.left;
 	int tabControlOriginalSizeY = tabControlOriginalRect.bottom - tabControlOriginalRect.top;
 
-	//Calculate the exact required pixel size of the tab control to fully display the
-	//content in each tab
+	// Calculate the exact required pixel size of the tab control to fully display the
+	// content in each tab
 	RECT tabControlRect;
 	tabControlRect.left = 0;
 	tabControlRect.top = 0;
@@ -96,10 +96,10 @@ INT_PTR RegistersView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	int tabControlRequiredSizeX = tabControlRect.right - tabControlRect.left;
 	int tabControlRequiredSizeY = tabControlRect.bottom - tabControlRect.top;
 
-	//Resize the tab control
+	// Resize the tab control
 	SetWindowPos(GetDlgItem(hwnd, IDC_VDP_REGISTERS_TABCONTROL), NULL, 0, 0, tabControlRequiredSizeX, tabControlRequiredSizeY, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER | SWP_NOMOVE);
 
-	//Calculate the required pixel size and position of each tab window
+	// Calculate the required pixel size and position of each tab window
 	RECT currentTabControlRect;
 	GetWindowRect(GetDlgItem(hwnd, IDC_VDP_REGISTERS_TABCONTROL), &currentTabControlRect);
 	SendMessage(GetDlgItem(hwnd, IDC_VDP_REGISTERS_TABCONTROL), TCM_ADJUSTRECT, (WPARAM)FALSE, (LPARAM)&currentTabControlRect);
@@ -112,40 +112,40 @@ INT_PTR RegistersView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	int tabRequiredSizeX = currentTabControlRect.right - currentTabControlRect.left;
 	int tabRequiredSizeY = currentTabControlRect.bottom - currentTabControlRect.top;
 
-	//Position and size each tab window
+	// Position and size each tab window
 	for (unsigned int i = 0; i < (unsigned int)_tabItems.size(); ++i)
 	{
 		SetWindowPos(_tabItems[i].hwndDialog, NULL, tabRequiredPosX, tabRequiredPosY, tabRequiredSizeX, tabRequiredSizeY, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER);
 	}
 
-	//Calculate the current size of the owning window
+	// Calculate the current size of the owning window
 	RECT mainDialogRect;
 	GetWindowRect(hwnd, &mainDialogRect);
 	int currentMainDialogWidth = mainDialogRect.right - mainDialogRect.left;
 	int currentMainDialogHeight = mainDialogRect.bottom - mainDialogRect.top;
 
-	//Resize the owning window to the required size
+	// Resize the owning window to the required size
 	int newMainDialogWidth = currentMainDialogWidth + (tabControlRequiredSizeX - tabControlOriginalSizeX);
 	int newMainDialogHeight = currentMainDialogHeight + (tabControlRequiredSizeY - tabControlOriginalSizeY);
 	SetWindowPos(hwnd, NULL, 0, 0, newMainDialogWidth, newMainDialogHeight, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER | SWP_NOMOVE);
 
-	//Explicitly select and show the first tab
+	// Explicitly select and show the first tab
 	_activeTabWindow = _tabItems[0].hwndDialog;
 	ShowWindow(_activeTabWindow, SW_SHOWNA);
 
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR RegistersView::msgWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam)
 {
-	//Note that we need to explicitly destroy the child window here, since we share state
-	//with the child window, passing in the "this" pointer as its state. Since the
-	//destructor for our state may be called anytime after this window is destroyed, and
-	//this window is fully destroyed before child windows are destroyed, we need to
-	//explicitly destroy the child window here. The child window is fully destroyed before
-	//the DestroyWindow() function returns, and our state is still valid until we return
-	//from handling this WM_DESTROY message.
+	// Note that we need to explicitly destroy the child window here, since we share state
+	// with the child window, passing in the "this" pointer as its state. Since the
+	// destructor for our state may be called anytime after this window is destroyed, and
+	// this window is fully destroyed before child windows are destroyed, we need to
+	// explicitly destroy the child window here. The child window is fully destroyed before
+	// the DestroyWindow() function returns, and our state is still valid until we return
+	// from handling this WM_DESTROY message.
 	if (_activeTabWindow != NULL)
 	{
 		DestroyWindow(_activeTabWindow);
@@ -155,7 +155,7 @@ INT_PTR RegistersView::msgWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam)
 	return FALSE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR RegistersView::msgWM_NOTIFY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	NMHDR* nmhdr = (NMHDR*)lparam;
@@ -163,12 +163,12 @@ INT_PTR RegistersView::msgWM_NOTIFY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	{
 		if ((nmhdr->code == TCN_SELCHANGE))
 		{
-			//Begin a session for processing this batch of window visibility changes.
-			//Processing all the changes in a single operation in this manner gives the
-			//best performance and appearance.
+			// Begin a session for processing this batch of window visibility changes.
+			// Processing all the changes in a single operation in this manner gives the
+			// best performance and appearance.
 			HDWP deferWindowPosSession = BeginDeferWindowPos(2);
 
-			//If another tab window is currently visible, hide it now.
+			// If another tab window is currently visible, hide it now.
 			if (_activeTabWindow != NULL)
 			{
 				DeferWindowPos(deferWindowPosSession, _activeTabWindow, NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
@@ -176,7 +176,7 @@ INT_PTR RegistersView::msgWM_NOTIFY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 				_initializedDialog = false;
 			}
 
-			//Show the window for the new selected tab on the tab control
+			// Show the window for the new selected tab on the tab control
 			int currentlySelectedTab = (int)SendMessage(nmhdr->hwndFrom, TCM_GETCURSEL, 0, 0);
 			if ((currentlySelectedTab < 0) || (currentlySelectedTab >= (int)_tabItems.size()))
 			{
@@ -185,30 +185,30 @@ INT_PTR RegistersView::msgWM_NOTIFY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			_activeTabWindow = _tabItems[currentlySelectedTab].hwndDialog;
 			DeferWindowPos(deferWindowPosSession, _activeTabWindow, NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
 
-			//Process all the window size and position changes involved in this update
+			// Process all the window size and position changes involved in this update
 			EndDeferWindowPos(deferWindowPosSession);
 		}
 	}
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
-//Raw registers dialog window procedure
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Raw registers dialog window procedure
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR CALLBACK RegistersView::WndProcRawRegistersStatic(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
-	//Obtain the object pointer
+	// Obtain the object pointer
 	RegistersView* state = (RegistersView*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
-	//Process the message
+	// Process the message
 	switch (msg)
 	{
 	case WM_INITDIALOG:
-		//Set the object pointer
+		// Set the object pointer
 		state = (RegistersView*)lparam;
 		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)(state));
 
-		//Pass this message on to the member window procedure function
+		// Pass this message on to the member window procedure function
 		if (state != 0)
 		{
 			return state->WndProcRawRegisters(hwnd, msg, wparam, lparam);
@@ -217,19 +217,19 @@ INT_PTR CALLBACK RegistersView::WndProcRawRegistersStatic(HWND hwnd, UINT msg, W
 	case WM_DESTROY:
 		if (state != 0)
 		{
-			//Pass this message on to the member window procedure function
+			// Pass this message on to the member window procedure function
 			INT_PTR result = state->WndProcRawRegisters(hwnd, msg, wparam, lparam);
 
-			//Discard the object pointer
+			// Discard the object pointer
 			SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)0);
 
-			//Return the result from processing the message
+			// Return the result from processing the message
 			return result;
 		}
 		break;
 	}
 
-	//Pass this message on to the member window procedure function
+	// Pass this message on to the member window procedure function
 	INT_PTR result = FALSE;
 	if (state != 0)
 	{
@@ -238,7 +238,7 @@ INT_PTR CALLBACK RegistersView::WndProcRawRegistersStatic(HWND hwnd, UINT msg, W
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR RegistersView::WndProcRawRegisters(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	WndProcDialogImplementSaveFieldWhenLostFocus(hwnd, msg, wparam, lparam);
@@ -260,12 +260,12 @@ INT_PTR RegistersView::WndProcRawRegisters(HWND hwnd, UINT msg, WPARAM wparam, L
 	return FALSE;
 }
 
-//----------------------------------------------------------------------------------------
-//Raw registers dialog event handlers
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Raw registers dialog event handlers
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR RegistersView::msgRawRegistersWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	//Tooltip messages
+	// Tooltip messages
 	const std::wstring lockingTooltip = 
 		L"Selected controls on this window support register locking. "
 		L"Register locking allows the current value of a register to "
@@ -277,11 +277,11 @@ INT_PTR RegistersView::msgRawRegistersWM_INITDIALOG(HWND hwnd, WPARAM wparam, LP
 		L"Controls that support locking will change colour to indicate "
 		L"when they are locked.";
 
-	//Create tooltips for the window
+	// Create tooltips for the window
 	HWND hwndTooltip = CreateTooltipControl(GetAssemblyHandle(), hwnd);
 	AddTooltip(GetAssemblyHandle(), hwndTooltip, hwnd, IDC_VDP_REGISTERS_LOCKING_TT, lockingTooltip, true);
 
-	//Enable system message bounce-back for controls which can be locked
+	// Enable system message bounce-back for controls which can be locked
 	SetWindowSubclass(GetDlgItem(hwnd, IDC_REG_0), BounceBackSubclassProc, 0, 0);
 	SetWindowSubclass(GetDlgItem(hwnd, IDC_REG_1), BounceBackSubclassProc, 0, 0);
 	SetWindowSubclass(GetDlgItem(hwnd, IDC_REG_2), BounceBackSubclassProc, 0, 0);
@@ -307,13 +307,13 @@ INT_PTR RegistersView::msgRawRegistersWM_INITDIALOG(HWND hwnd, WPARAM wparam, LP
 	SetWindowSubclass(GetDlgItem(hwnd, IDC_REG_22), BounceBackSubclassProc, 0, 0);
 	SetWindowSubclass(GetDlgItem(hwnd, IDC_REG_23), BounceBackSubclassProc, 0, 0);
 
-	//Create a timer to refresh the register contents
+	// Create a timer to refresh the register contents
 	SetTimer(hwnd, 1, 50, NULL);
 
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR RegistersView::msgRawRegistersWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	KillTimer(hwnd, 1);
@@ -321,28 +321,28 @@ INT_PTR RegistersView::msgRawRegistersWM_DESTROY(HWND hwnd, WPARAM wparam, LPARA
 	return FALSE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR RegistersView::msgRawRegistersWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	_initializedDialog = true;
 
-	//Update raw registers
+	// Update raw registers
 	for (unsigned int i = 0; i < IS315_5313::RegisterCount; ++i)
 	{
 		if (_currentControlFocus != (IDC_REG_0 + i))	UpdateDlgItemHex(hwnd, IDC_REG_0 + i, 2, _model.GetRegisterData(i));
 	}
 
-	//Port registers
+	// Port registers
 	if (_currentControlFocus != IDC_CODE)	UpdateDlgItemHex(hwnd, IDC_CODE, 2, _model.RegGetPortCode());
 	if (_currentControlFocus != IDC_ADDRESS)	UpdateDlgItemHex(hwnd, IDC_ADDRESS, 5, _model.RegGetPortAddress());
 	CheckDlgButton(hwnd, IDC_WRITEPENDING, _model.RegGetPortWritePending()? BST_CHECKED: BST_UNCHECKED);
 
-	//Interrupt registers
+	// Interrupt registers
 	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_VINTPENDING, _model.RegGetVINTPending()? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_HINTPENDING, _model.RegGetHINTPending()? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_EXINTPENDING, _model.RegGetEXINTPending()? BST_CHECKED: BST_UNCHECKED);
 
-	//FIFO registers
+	// FIFO registers
 	if (_currentControlFocus != IDC_VDP_REGISTERS_FIFOBUFFER_CODE1) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_CODE1, 2, _model.RegGetFIFOCode(0));
 	if (_currentControlFocus != IDC_VDP_REGISTERS_FIFOBUFFER_ADDRESS1) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_ADDRESS1, 5, _model.RegGetFIFOAddress(0));
 	if (_currentControlFocus != IDC_VDP_REGISTERS_FIFOBUFFER_DATA1) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_DATA1, 4, _model.RegGetFIFOData(0));
@@ -369,7 +369,7 @@ INT_PTR RegistersView::msgRawRegistersWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM 
 	CheckDlgButton(hwnd, IDC_VDP_SETTINGS_READDATAHALFCACHED, (_model.RegGetReadHalfCached())? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_VDP_SETTINGS_READDATAFULLYCACHED, (_model.RegGetReadFullyCached())? BST_CHECKED: BST_UNCHECKED);
 
-	//Status and HV counter registers
+	// Status and HV counter registers
 	if (_currentControlFocus != IDC_STATUSREGISTER) UpdateDlgItemHex(hwnd, IDC_STATUSREGISTER, 4, _model.GetStatus());
 	if (_currentControlFocus != IDC_HVCOUNTER) UpdateDlgItemHex(hwnd, IDC_HVCOUNTER, 4, _model.RegGetHVCounterExternal());
 	if (_currentControlFocus != IDC_VDP_REGISTERS_INTERNALCOUNTERH) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_INTERNALCOUNTERH, 4, _model.RegGetHCounterInternal());
@@ -380,7 +380,7 @@ INT_PTR RegistersView::msgRawRegistersWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM 
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR RegistersView::msgRawRegistersWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	if (HIWORD(wparam) == BN_CLICKED)
@@ -388,12 +388,12 @@ INT_PTR RegistersView::msgRawRegistersWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 		unsigned int controlID = LOWORD(wparam);
 		switch (controlID)
 		{
-		//Port registers
+		// Port registers
 		case IDC_WRITEPENDING:
 			_model.RegSetPortWritePending(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 
-		//Interrupt registers
+		// Interrupt registers
 		case IDC_VDP_REGISTERS_VINTPENDING:
 			_model.RegSetVINTPending(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
@@ -404,7 +404,7 @@ INT_PTR RegistersView::msgRawRegistersWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 			_model.RegSetEXINTPending(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 
-		//FIFO registers
+		// FIFO registers
 		case IDC_VDP_REGISTERS_FIFOBUFFER_WRITEPENDING1:
 		case IDC_VDP_REGISTERS_FIFOBUFFER_WRITEPENDING2:
 		case IDC_VDP_REGISTERS_FIFOBUFFER_WRITEPENDING3:
@@ -437,7 +437,7 @@ INT_PTR RegistersView::msgRawRegistersWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 		std::wstring newText = GetDlgItemString(hwnd, LOWORD(wparam));
 		if (newText != _previousText)
 		{
-			//Raw registers
+			// Raw registers
 			if ((LOWORD(wparam) >= IDC_REG_0) && (LOWORD(wparam) < (IDC_REG_0 + IS315_5313::RegisterCount)))
 			{
 				unsigned int registerNo = LOWORD(wparam) - IDC_REG_0;
@@ -445,7 +445,7 @@ INT_PTR RegistersView::msgRawRegistersWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 			}
 			else switch(LOWORD(wparam))
 			{
-			//Port registers
+			// Port registers
 			case IDC_CODE:
 				_model.RegSetPortCode(GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
@@ -453,7 +453,7 @@ INT_PTR RegistersView::msgRawRegistersWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 				_model.RegSetPortAddress(GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 
-			//FIFO registers
+			// FIFO registers
 			case IDC_VDP_REGISTERS_FIFOBUFFER_CODE1:
 				_model.RegSetFIFOCode(0, GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
@@ -494,7 +494,7 @@ INT_PTR RegistersView::msgRawRegistersWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 				_model.RegSetReadBuffer(GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 
-			//Status and HV counter registers
+			// Status and HV counter registers
 			case IDC_STATUSREGISTER:
 				_model.SetStatus(GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
@@ -517,7 +517,7 @@ INT_PTR RegistersView::msgRawRegistersWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR RegistersView::msgRawRegistersWM_BOUNCE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	BounceMessage* bounceMessage = (BounceMessage*)lparam;
@@ -528,8 +528,8 @@ INT_PTR RegistersView::msgRawRegistersWM_BOUNCE(HWND hwnd, WPARAM wparam, LPARAM
 	case WM_LBUTTONDOWN:
 		if ((bounceMessage->wParam & MK_CONTROL) != 0)
 		{
-			//If the user has control+clicked a control which supports locking, toggle the
-			//lock state of the target register.
+			// If the user has control+clicked a control which supports locking, toggle the
+			// lock state of the target register.
 			unsigned int dataID;
 			IS315_5313::RegisterDataContext registerDataContext;
 			const IS315_5313::DataContext* dataContext;
@@ -538,7 +538,7 @@ INT_PTR RegistersView::msgRawRegistersWM_BOUNCE(HWND hwnd, WPARAM wparam, LPARAM
 				_model.SetGenericDataLocked(dataID, dataContext, !_model.GetGenericDataLocked(dataID, dataContext));
 			}
 
-			//Force the control to redraw when the lock state is toggled
+			// Force the control to redraw when the lock state is toggled
 			InvalidateRect(bounceMessage->hwnd, NULL, FALSE);
 
 			bounceMessage->SetResult(TRUE);
@@ -549,10 +549,10 @@ INT_PTR RegistersView::msgRawRegistersWM_BOUNCE(HWND hwnd, WPARAM wparam, LPARAM
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR RegistersView::msgRawRegistersWM_CTLCOLOREDIT(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	//Handle background colour changes for edit controls which are locked
+	// Handle background colour changes for edit controls which are locked
 	int controlID = GetDlgCtrlID((HWND)lparam);
 	unsigned int dataID;
 	IS315_5313::RegisterDataContext registerDataContext;
@@ -568,23 +568,23 @@ INT_PTR RegistersView::msgRawRegistersWM_CTLCOLOREDIT(HWND hwnd, WPARAM wparam, 
 	return FALSE;
 }
 
-//----------------------------------------------------------------------------------------
-//Mode registers dialog window procedure
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Mode registers dialog window procedure
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR CALLBACK RegistersView::WndProcModeRegistersStatic(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
-	//Obtain the object pointer
+	// Obtain the object pointer
 	RegistersView* state = (RegistersView*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
-	//Process the message
+	// Process the message
 	switch (msg)
 	{
 	case WM_INITDIALOG:
-		//Set the object pointer
+		// Set the object pointer
 		state = (RegistersView*)lparam;
 		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)(state));
 
-		//Pass this message on to the member window procedure function
+		// Pass this message on to the member window procedure function
 		if (state != 0)
 		{
 			return state->WndProcModeRegisters(hwnd, msg, wparam, lparam);
@@ -593,19 +593,19 @@ INT_PTR CALLBACK RegistersView::WndProcModeRegistersStatic(HWND hwnd, UINT msg, 
 	case WM_DESTROY:
 		if (state != 0)
 		{
-			//Pass this message on to the member window procedure function
+			// Pass this message on to the member window procedure function
 			INT_PTR result = state->WndProcModeRegisters(hwnd, msg, wparam, lparam);
 
-			//Discard the object pointer
+			// Discard the object pointer
 			SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)0);
 
-			//Return the result from processing the message
+			// Return the result from processing the message
 			return result;
 		}
 		break;
 	}
 
-	//Pass this message on to the member window procedure function
+	// Pass this message on to the member window procedure function
 	INT_PTR result = FALSE;
 	if (state != 0)
 	{
@@ -614,7 +614,7 @@ INT_PTR CALLBACK RegistersView::WndProcModeRegistersStatic(HWND hwnd, UINT msg, 
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR RegistersView::WndProcModeRegisters(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	WndProcDialogImplementSaveFieldWhenLostFocus(hwnd, msg, wparam, lparam);
@@ -634,12 +634,12 @@ INT_PTR RegistersView::WndProcModeRegisters(HWND hwnd, UINT msg, WPARAM wparam, 
 	return FALSE;
 }
 
-//----------------------------------------------------------------------------------------
-//Mode registers dialog event handlers
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Mode registers dialog event handlers
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR RegistersView::msgModeRegistersWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	//Tooltip messages
+	// Tooltip messages
 	const std::wstring tooltipMessageVSI = 
 		L"Vertical Scroll Inhibit. Disables vertical scrolling for columns 24-31. This "
 		L"setting from the SMS VDP is still present in the Mega Drive VDP, even when mode 5 "
@@ -834,7 +834,7 @@ INT_PTR RegistersView::msgModeRegistersWM_INITDIALOG(HWND hwnd, WPARAM wparam, L
 		L"it during HSYNC to keep the overall drawing time of a line in H40 mode the same as "
 		L"in H32 mode, which allows a normal TV to lock onto the signal.";
 
-	//Create tooltips for the window
+	// Create tooltips for the window
 	HWND hwndTooltip = CreateTooltipControl(GetAssemblyHandle(), hwnd);
 	AddTooltip(GetAssemblyHandle(), hwndTooltip, hwnd, IDC_VDP_REGISTERS_VSI_TT, tooltipMessageVSI, true);
 	AddTooltip(GetAssemblyHandle(), hwndTooltip, hwnd, IDC_VDP_REGISTERS_HSI_TT, tooltipMessageHSI, true);
@@ -869,13 +869,13 @@ INT_PTR RegistersView::msgModeRegistersWM_INITDIALOG(HWND hwnd, WPARAM wparam, L
 	AddTooltip(GetAssemblyHandle(), hwndTooltip, hwnd, IDC_VDP_REGISTERS_LSM0_TT, tooltipMessageLSM0, true);
 	AddTooltip(GetAssemblyHandle(), hwndTooltip, hwnd, IDC_VDP_REGISTERS_RS1_TT, tooltipMessageRS1, true);
 
-	//Create a timer to refresh the register contents
+	// Create a timer to refresh the register contents
 	SetTimer(hwnd, 1, 50, NULL);
 
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR RegistersView::msgModeRegistersWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	KillTimer(hwnd, 1);
@@ -883,12 +883,12 @@ INT_PTR RegistersView::msgModeRegistersWM_DESTROY(HWND hwnd, WPARAM wparam, LPAR
 	return FALSE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR RegistersView::msgModeRegistersWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	_initializedDialog = true;
 
-	//Mode registers
+	// Mode registers
 	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_VSI, (_model.RegGetVSI())? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_HSI, (_model.RegGetHSI())? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_LCB, (_model.RegGetLCB())? BST_CHECKED: BST_UNCHECKED);
@@ -925,7 +925,7 @@ INT_PTR RegistersView::msgModeRegistersWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR RegistersView::msgModeRegistersWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	if (HIWORD(wparam) == BN_CLICKED)
@@ -1035,7 +1035,7 @@ INT_PTR RegistersView::msgModeRegistersWM_COMMAND(HWND hwnd, WPARAM wparam, LPAR
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR RegistersView::msgModeRegistersWM_BOUNCE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	BounceMessage* bounceMessage = (BounceMessage*)lparam;
@@ -1046,15 +1046,15 @@ INT_PTR RegistersView::msgModeRegistersWM_BOUNCE(HWND hwnd, WPARAM wparam, LPARA
 	case WM_LBUTTONDOWN:
 		if ((bounceMessage->wParam & MK_CONTROL) != 0)
 		{
-			//If the user has control+clicked a control which supports locking, toggle the
-			//lock state of the target register.
+			// If the user has control+clicked a control which supports locking, toggle the
+			// lock state of the target register.
 			unsigned int dataID;
 			if (ModeRegistersControlIDToDataID(controlID, dataID))
 			{
 				_model.SetGenericDataLocked(dataID, 0, !_model.GetGenericDataLocked(dataID, 0));
 			}
 
-			//Force the control to redraw when the lock state is toggled
+			// Force the control to redraw when the lock state is toggled
 			InvalidateRect(bounceMessage->hwnd, NULL, FALSE);
 
 			bounceMessage->SetResult(TRUE);
@@ -1095,7 +1095,7 @@ INT_PTR RegistersView::msgModeRegistersWM_BOUNCE(HWND hwnd, WPARAM wparam, LPARA
 		case IDC_VDP_REGISTERS_LSM1:
 		case IDC_VDP_REGISTERS_LSM0:
 		case IDC_VDP_REGISTERS_RS1:{
-			//Handle background colour changes for checkbox controls which are locked
+			// Handle background colour changes for checkbox controls which are locked
 			unsigned int dataID;
 			if (ModeRegistersControlIDToDataID(controlID, dataID))
 			{
@@ -1113,23 +1113,23 @@ INT_PTR RegistersView::msgModeRegistersWM_BOUNCE(HWND hwnd, WPARAM wparam, LPARA
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
-//Other registers dialog window procedure
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Other registers dialog window procedure
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR CALLBACK RegistersView::WndProcOtherRegistersStatic(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
-	//Obtain the object pointer
+	// Obtain the object pointer
 	RegistersView* state = (RegistersView*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
-	//Process the message
+	// Process the message
 	switch (msg)
 	{
 	case WM_INITDIALOG:
-		//Set the object pointer
+		// Set the object pointer
 		state = (RegistersView*)lparam;
 		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)(state));
 
-		//Pass this message on to the member window procedure function
+		// Pass this message on to the member window procedure function
 		if (state != 0)
 		{
 			return state->WndProcOtherRegisters(hwnd, msg, wparam, lparam);
@@ -1138,19 +1138,19 @@ INT_PTR CALLBACK RegistersView::WndProcOtherRegistersStatic(HWND hwnd, UINT msg,
 	case WM_DESTROY:
 		if (state != 0)
 		{
-			//Pass this message on to the member window procedure function
+			// Pass this message on to the member window procedure function
 			INT_PTR result = state->WndProcOtherRegisters(hwnd, msg, wparam, lparam);
 
-			//Discard the object pointer
+			// Discard the object pointer
 			SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)0);
 
-			//Return the result from processing the message
+			// Return the result from processing the message
 			return result;
 		}
 		break;
 	}
 
-	//Pass this message on to the member window procedure function
+	// Pass this message on to the member window procedure function
 	INT_PTR result = FALSE;
 	if (state != 0)
 	{
@@ -1159,7 +1159,7 @@ INT_PTR CALLBACK RegistersView::WndProcOtherRegistersStatic(HWND hwnd, UINT msg,
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR RegistersView::WndProcOtherRegisters(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	WndProcDialogImplementSaveFieldWhenLostFocus(hwnd, msg, wparam, lparam);
@@ -1181,12 +1181,12 @@ INT_PTR RegistersView::WndProcOtherRegisters(HWND hwnd, UINT msg, WPARAM wparam,
 	return FALSE;
 }
 
-//----------------------------------------------------------------------------------------
-//Other registers dialog event handlers
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Other registers dialog event handlers
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR RegistersView::msgOtherRegistersWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	//Tooltip messages
+	// Tooltip messages
 	const std::wstring tooltipMessage077 = 
 		L"Unknown. This bit has no known function.";
 	const std::wstring tooltipMessage076 = 
@@ -1318,7 +1318,7 @@ INT_PTR RegistersView::msgOtherRegistersWM_INITDIALOG(HWND hwnd, WPARAM wparam, 
 		L"Together with the window down setting, these bits define the vertical size and "
 		L"position of the window region.";
 
-	//Create tooltips for the window
+	// Create tooltips for the window
 	HWND hwndTooltip = CreateTooltipControl(GetAssemblyHandle(), hwnd);
 	AddTooltip(GetAssemblyHandle(), hwndTooltip, hwnd, IDC_VDP_REGISTERS_077_TT, tooltipMessage077, true);
 	AddTooltip(GetAssemblyHandle(), hwndTooltip, hwnd, IDC_VDP_REGISTERS_076_TT, tooltipMessage076, true);
@@ -1353,13 +1353,13 @@ INT_PTR RegistersView::msgOtherRegistersWM_INITDIALOG(HWND hwnd, WPARAM wparam, 
 	AddTooltip(GetAssemblyHandle(), hwndTooltip, hwnd, IDC_VDP_REGISTERS_1256_TT, tooltipMessage1256, true);
 	AddTooltip(GetAssemblyHandle(), hwndTooltip, hwnd, IDC_VDP_REGISTERS_WINDOWBASEY_TT, tooltipMessageWindowBaseY, true);
 
-	//Create a timer to refresh the register contents
+	// Create a timer to refresh the register contents
 	SetTimer(hwnd, 1, 50, NULL);
 
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR RegistersView::msgOtherRegistersWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	KillTimer(hwnd, 1);
@@ -1367,12 +1367,12 @@ INT_PTR RegistersView::msgOtherRegistersWM_DESTROY(HWND hwnd, WPARAM wparam, LPA
 	return FALSE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR RegistersView::msgOtherRegistersWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	_initializedDialog = true;
 
-	//Other registers
+	// Other registers
 	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_077, (_model.RegGet077())? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_076, (_model.RegGet076())? BST_CHECKED: BST_UNCHECKED);
 	if (_currentControlFocus != IDC_VDP_REGISTERS_BACKGROUNDPALETTEROW) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_BACKGROUNDPALETTEROW, 1, _model.RegGetBackgroundPaletteRow());
@@ -1416,22 +1416,22 @@ INT_PTR RegistersView::msgOtherRegistersWM_TIMER(HWND hwnd, WPARAM wparam, LPARA
 	if (_currentControlFocus != IDC_VDP_REGISTERS_1256) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_1256, 1, _model.RegGet1256());
 	if (_currentControlFocus != IDC_VDP_REGISTERS_WINDOWBASEY) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_WINDOWBASEY, 1, _model.RegGetWindowBasePointY());
 
-	//Calculate the effective width and height of the main scroll planes based on the
-	//current register settings
+	// Calculate the effective width and height of the main scroll planes based on the
+	// current register settings
 	unsigned int hszState = _model.RegGetHSZ();
 	unsigned int vszState = _model.RegGetVSZ();
 	unsigned int screenSizeCellsH;
 	unsigned int screenSizeCellsV;
 	_model.CalculateEffectiveCellScrollSize(hszState, vszState, screenSizeCellsH, screenSizeCellsV);
 
-	//Update the effective scroll plane width and height on the debug window
+	// Update the effective scroll plane width and height on the debug window
 	UpdateDlgItemBin(hwnd, IDC_VDP_REGISTERS_HSZ_E, screenSizeCellsH);
 	UpdateDlgItemBin(hwnd, IDC_VDP_REGISTERS_VSZ_E, screenSizeCellsV);
 
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR RegistersView::msgOtherRegistersWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	if (HIWORD(wparam) == BN_CLICKED)
@@ -1583,7 +1583,7 @@ INT_PTR RegistersView::msgOtherRegistersWM_COMMAND(HWND hwnd, WPARAM wparam, LPA
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR RegistersView::msgOtherRegistersWM_BOUNCE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	BounceMessage* bounceMessage = (BounceMessage*)lparam;
@@ -1594,15 +1594,15 @@ INT_PTR RegistersView::msgOtherRegistersWM_BOUNCE(HWND hwnd, WPARAM wparam, LPAR
 	case WM_LBUTTONDOWN:
 		if ((bounceMessage->wParam & MK_CONTROL) != 0)
 		{
-			//If the user has control+clicked a control which supports locking, toggle the
-			//lock state of the target register.
+			// If the user has control+clicked a control which supports locking, toggle the
+			// lock state of the target register.
 			unsigned int dataID;
 			if (OtherRegistersControlIDToDataID(controlID, dataID))
 			{
 				_model.SetGenericDataLocked(dataID, 0, !_model.GetGenericDataLocked(dataID, 0));
 			}
 
-			//Force the control to redraw when the lock state is toggled
+			// Force the control to redraw when the lock state is toggled
 			InvalidateRect(bounceMessage->hwnd, NULL, FALSE);
 
 			bounceMessage->SetResult(TRUE);
@@ -1617,7 +1617,7 @@ INT_PTR RegistersView::msgOtherRegistersWM_BOUNCE(HWND hwnd, WPARAM wparam, LPAR
 		case IDC_VDP_REGISTERS_WINDOWDOWN:
 		case IDC_VDP_REGISTERS_DMD1:
 		case IDC_VDP_REGISTERS_DMD0:{
-			//Handle background colour changes for checkbox controls which are locked
+			// Handle background colour changes for checkbox controls which are locked
 			unsigned int dataID;
 			if (ModeRegistersControlIDToDataID(controlID, dataID))
 			{
@@ -1635,10 +1635,10 @@ INT_PTR RegistersView::msgOtherRegistersWM_BOUNCE(HWND hwnd, WPARAM wparam, LPAR
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR RegistersView::msgOtherRegistersWM_CTLCOLOREDIT(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	//Handle background colour changes for edit controls which are locked
+	// Handle background colour changes for edit controls which are locked
 	int controlID = GetDlgCtrlID((HWND)lparam);
 	unsigned int dataID;
 	if (OtherRegistersControlIDToDataID(controlID, dataID))
@@ -1652,9 +1652,9 @@ INT_PTR RegistersView::msgOtherRegistersWM_CTLCOLOREDIT(HWND hwnd, WPARAM wparam
 	return FALSE;
 }
 
-//----------------------------------------------------------------------------------------
-//Register locking functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Register locking functions
+//----------------------------------------------------------------------------------------------------------------------
 bool RegistersView::RawRegistersControlIDToDataID(int controlID, unsigned int& genericDataID, IS315_5313::RegisterDataContext& registerDataContext, const IGenericAccess::DataContext** dataContext)
 {
 	*dataContext = 0;
@@ -1692,7 +1692,7 @@ bool RegistersView::RawRegistersControlIDToDataID(int controlID, unsigned int& g
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool RegistersView::ModeRegistersControlIDToDataID(int controlID, unsigned int& genericDataID)
 {
 	switch (controlID)
@@ -1797,7 +1797,7 @@ bool RegistersView::ModeRegistersControlIDToDataID(int controlID, unsigned int& 
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool RegistersView::OtherRegistersControlIDToDataID(int controlID, unsigned int& genericDataID)
 {
 	switch (controlID)

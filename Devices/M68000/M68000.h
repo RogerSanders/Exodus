@@ -74,19 +74,19 @@ class M68000Instruction;
 class M68000 :public Processor, public IM68000
 {
 public:
-	//Enumerations
+	// Enumerations
 	enum class FunctionCode;
 	enum class State;
 
 public:
-	//Constructors
+	// Constructors
 	M68000(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 	~M68000();
 
-	//Interface version functions
+	// Interface version functions
 	virtual unsigned int GetIM68000Version() const;
 
-	//Initialization functions
+	// Initialization functions
 	virtual bool Construct(IHierarchicalStorageNode& node);
 	virtual bool BuildDevice();
 	virtual bool ValidateDevice();
@@ -94,12 +94,12 @@ public:
 	virtual void Reset();
 	virtual void BeginExecution();
 
-	//Reference functions
+	// Reference functions
 	using Processor::AddReference;
 	virtual bool AddReference(const Marshal::In<std::wstring>& referenceName, IBusInterface* target);
 	virtual void RemoveReference(IBusInterface* target);
 
-	//Exception functions
+	// Exception functions
 	double PushStackFrame(const M68000Long& pc, const M68000Word& sr, bool processingInstruction = true);
 	double PushStackFrame(const M68000Long& pc, const M68000Word& sr, const M68000Word& instructionRegister, const M68000Long& accessAddress, bool read, bool processingInstruction, FunctionCode functionCode);
 	ExecuteTime ProcessException(Exceptions vector);
@@ -108,10 +108,10 @@ public:
 	void ExceptionLogIfRequested(Exceptions vector);
 	void ExceptionBreakIfRequested(Exceptions vector);
 
-	//Suspend functions
+	// Suspend functions
 	virtual bool UsesExecuteSuspend() const;
 
-	//Execute functions
+	// Execute functions
 	virtual double ExecuteStep();
 	virtual void ExecuteRollback();
 	virtual void ExecuteCommit();
@@ -119,7 +119,7 @@ public:
 	virtual void NotifyUpcomingTimeslice(double nanoseconds);
 	virtual void NotifyAfterExecuteStepFinishedTimeslice();
 
-	//Instruction functions
+	// Instruction functions
 	virtual unsigned int GetByteBitCount() const;
 	virtual unsigned int GetCurrentPC() const;
 	virtual unsigned int GetPCWidth() const;
@@ -131,7 +131,7 @@ public:
 	virtual void SetMemorySpaceByte(unsigned int location, unsigned int data);
 	virtual bool GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const;
 
-	//Line functions
+	// Line functions
 	virtual unsigned int GetLineID(const Marshal::In<std::wstring>& lineName) const;
 	virtual Marshal::Ret<std::wstring> GetLineName(unsigned int lineID) const;
 	virtual unsigned int GetLineWidth(unsigned int lineID) const;
@@ -142,13 +142,13 @@ public:
 	virtual void AssertCurrentOutputLineState() const;
 	virtual void NegateCurrentOutputLineState() const;
 
-	//Clock source functions
+	// Clock source functions
 	virtual unsigned int GetClockSourceID(const Marshal::In<std::wstring>& clockSourceName) const;
 	virtual Marshal::Ret<std::wstring> GetClockSourceName(unsigned int clockSourceID) const;
 	virtual void SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	virtual void TransparentSetClockSourceRate(unsigned int clockInput, double clockRate);
 
-	//Disassembly functions
+	// Disassembly functions
 	bool DisassemblyGetAddressRegisterLastAccessedInPostIncMode(unsigned int regNo) const;
 	void DisassemblySetAddressRegisterLastAccessedInPostIncMode(unsigned int regNo, bool state);
 	unsigned int DisassemblyGetAddressRegisterCurrentArrayID(unsigned int regNo) const;
@@ -160,7 +160,7 @@ public:
 	unsigned int DisassemblyGetAddressRegisterUnmodifiedSize(unsigned int regNo) const;
 	unsigned int DisassemblyGetDataRegisterUnmodifiedSize(unsigned int regNo) const;
 
-	//CCR flags
+	// CCR flags
 	inline bool GetX() const;
 	inline void SetX(bool flag);
 	inline bool GetN() const;
@@ -172,7 +172,7 @@ public:
 	inline bool GetC() const;
 	inline void SetC(bool flag);
 
-	//SR flags
+	// SR flags
 	inline bool GetSR_T() const;
 	inline void SetSR_T(bool flag);
 	inline bool GetSR_S() const;
@@ -180,7 +180,7 @@ public:
 	inline unsigned int GetSR_IPM() const;
 	inline void SetSR_IPM(unsigned int ipm);
 
-	//Register functions
+	// Register functions
 	inline M68000Long GetPC() const;
 	inline void GetPC(Data& data) const;
 	inline void SetPC(const M68000Long& data);
@@ -209,10 +209,10 @@ public:
 	//##TODO## Phase out these functions, and just work with the state variable directly.
 	inline void SetProcessorState(State executeState);
 
-	//Special operation functions
+	// Special operation functions
 	void TriggerExternalReset(double resetTimeBegin, double resetTimeEnd);
 
-	//Memory access functions
+	// Memory access functions
 	FunctionCode GetFunctionCode(bool programReference) const;
 	double ReadMemory(const M68000Long& location, Data& data, FunctionCode code, bool transparent, const M68000Long& currentPC, bool processingInstruction, const M68000Word& instructionRegister, bool rmwCycleInProgress, bool rmwCycleFirstOperation) const;
 	double ReadMemory(const M68000Long& location, Data& data, FunctionCode code, const M68000Long& currentPC, bool processingInstruction, const M68000Word& instructionRegister, bool rmwCycleInProgress, bool rmwCycleFirstOperation) const;
@@ -221,16 +221,16 @@ public:
 	double WriteMemory(const M68000Long& location, const Data& data, FunctionCode code, const M68000Long& currentPC, bool processingInstruction, const M68000Word& instructionRegister, bool rmwCycleInProgress, bool rmwCycleFirstOperation) const;
 	void WriteMemoryTransparent(const M68000Long& location, const Data& data, FunctionCode code, bool rmwCycleInProgress, bool rmwCycleFirstOperation) const;
 
-	//CE line state functions
+	// CE line state functions
 	virtual unsigned int GetCELineID(const Marshal::In<std::wstring>& lineName, bool inputLine) const;
 	virtual void SetCELineOutput(unsigned int lineID, bool lineMapped, unsigned int lineStartBitNumber);
 	virtual unsigned int CalculateCELineStateMemory(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext, double accessTime) const;
 	virtual unsigned int CalculateCELineStateMemoryTransparent(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext) const;
 
-	//Active disassembly functions
+	// Active disassembly functions
 	virtual bool ActiveDisassemblySupported() const;
 
-	//Active disassembly formatting functions
+	// Active disassembly formatting functions
 	virtual bool GetLeadingLinesForASMFile(unsigned int analysisStartAddress, unsigned int analysisEndAddress, std::list<std::wstring>& outputLines) const;
 	virtual bool GetTrailingLinesForASMFile(unsigned int analysisStartAddress, unsigned int analysisEndAddress, std::list<std::wstring>& outputLines) const;
 	virtual bool FormatOpcodeForDisassembly(unsigned int opcodeAddress, const LabelSubstitutionSettings& labelSettings, std::wstring& opcodePrefix, std::wstring& opcodeArguments, std::wstring& opcodeComments) const;
@@ -240,7 +240,7 @@ public:
 	virtual bool FormatLabelPlacementForDisassembly(const std::wstring& rawLabel, std::wstring& formattedLabel) const;
 	virtual bool FormatLabelUsageForDisassembly(const std::wstring& rawLabel, int labelOffset, std::wstring& formattedLabel) const;
 
-	//Exception debugging functions
+	// Exception debugging functions
 	virtual bool GetLogAllExceptions() const;
 	virtual void SetLogAllExceptions(bool state);
 	virtual bool GetBreakOnAllExceptions() const;
@@ -252,29 +252,29 @@ public:
 	virtual Marshal::Ret<std::wstring> GetExceptionName(Exceptions vectorNumber) const;
 	virtual void TriggerException(Exceptions vectorNumber);
 
-	//Savestate functions
+	// Savestate functions
 	virtual void LoadState(IHierarchicalStorageNode& node);
 	virtual void SaveState(IHierarchicalStorageNode& node) const;
 	virtual void LoadDebuggerState(IHierarchicalStorageNode& node);
 	virtual void SaveDebuggerState(IHierarchicalStorageNode& node) const;
 
-	//Data read/write functions
+	// Data read/write functions
 	using IGenericAccess::ReadGenericData;
 	using IGenericAccess::WriteGenericData;
 	virtual bool ReadGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue) const;
 	virtual bool WriteGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue);
 
-	//Highlight functions
+	// Highlight functions
 	virtual bool GetGenericDataHighlightState(unsigned int dataID, const DataContext* dataContext) const;
 	void PopulateChangedRegStateFromCurrentState();
 
 private:
-	//Enumerations
+	// Enumerations
 	enum class CELineID;
 	enum class LineID;
 	enum class ClockID;
 
-	//Structures
+	// Structures
 	struct LineAccess;
 	struct CalculateCELineStateContext;
 	struct RegisterDisassemblyInfo
@@ -291,25 +291,25 @@ private:
 	};
 
 private:
-	//Line functions
+	// Line functions
 	void ApplyLineStateChange(LineID targetLine, const Data& lineData, std::unique_lock<std::mutex>& lock);
 
-	//Clock source functions
+	// Clock source functions
 	void ApplyClockStateChange(ClockID targetClock, double clockRate);
 
 private:
-	//Bus interface
+	// Bus interface
 	mutable ReadWriteLock _externalReferenceLock;
 	IBusInterface* _memoryBus;
 
-	//Opcode decode table
+	// Opcode decode table
 	std::list<M68000Instruction*> _opcodeList;
 	OpcodeTable<M68000Instruction> _opcodeTable;
 
-	//Opcode allocation buffer for placement new
+	// Opcode allocation buffer for placement new
 	void* _opcodeBuffer;
 
-	//User registers
+	// User registers
 	M68000Long _a[AddressRegCount - 1];
 	M68000Long _ba[AddressRegCount - 1];
 	M68000Long _d[DataRegCount];
@@ -323,13 +323,13 @@ private:
 	M68000Word _sr;
 	M68000Word _bsr;
 
-	//Disassembly register info
+	// Disassembly register info
 	RegisterDisassemblyInfo _aDisassemblyInfo[AddressRegCount - 1];
 	RegisterDisassemblyInfo _baDisassemblyInfo[AddressRegCount - 1];
 	RegisterDisassemblyInfo _dDisassemblyInfo[DataRegCount];
 	RegisterDisassemblyInfo _bdDisassemblyInfo[DataRegCount];
 
-	//Processor status data
+	// Processor status data
 	State _processorState;
 	State _bprocessorState;
 	mutable M68000Word _lastReadBusData;
@@ -343,7 +343,7 @@ private:
 	bool _powerOnDelayPending;
 	bool _bpowerOnDelayPending;
 
-	//Group 0 exception info
+	// Group 0 exception info
 	mutable bool _group0ExceptionPending;
 	bool _bgroup0ExceptionPending;
 	mutable M68000Word _group0InstructionRegister;
@@ -363,7 +363,7 @@ private:
 	mutable FunctionCode _group0FunctionCode;
 	FunctionCode _bgroup0FunctionCode;
 
-	//Exception debugging
+	// Exception debugging
 	mutable std::mutex _debugMutex;
 	std::list<ExceptionDebuggingEntry> _exceptionList;
 	volatile bool _exceptionListEmpty;
@@ -373,7 +373,7 @@ private:
 	volatile bool _debugExceptionTriggerPending;
 	Exceptions _debugExceptionTriggerVector;
 
-	//Changed register state
+	// Changed register state
 	unsigned int _regChangedA[AddressRegCount];
 	unsigned int _regChangedD[DataRegCount];
 	unsigned int _regChangedSP;
@@ -391,7 +391,7 @@ private:
 	bool _regChangedT;
 	unsigned int _regChangedIPM;
 
-	//CE line masks
+	// CE line masks
 	unsigned int _ceLineMaskLowerDataStrobe;
 	unsigned int _ceLineMaskUpperDataStrobe;
 	unsigned int _ceLineMaskReadHighWriteLow;
@@ -402,7 +402,7 @@ private:
 	unsigned int _ceLineMaskRMWCycleInProgress;
 	unsigned int _ceLineMaskRMWCycleFirstOperation;
 
-	//Line access
+	// Line access
 	std::mutex _lineMutex;
 	double _lastLineCheckTime;
 	volatile bool _lineAccessPending;
@@ -432,6 +432,6 @@ private:
 	unsigned int _binterruptPendingLevel;
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #include "M68000.inl"
 #endif

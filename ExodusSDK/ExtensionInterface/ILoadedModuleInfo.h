@@ -7,22 +7,22 @@ using namespace MarshalSupport::Operators;
 class ILoadedModuleInfo
 {
 public:
-	//Constructors
+	// Constructors
 	virtual ~ILoadedModuleInfo() = 0 {}
 
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisILoadedModuleInfoVersion() { return 1; }
 	virtual unsigned int GetILoadedModuleInfoVersion() const = 0;
 
-	//Internal data
+	// Internal data
 	virtual unsigned int GetModuleID() const = 0;
 	virtual void SetModuleID(unsigned int moduleID) = 0;
 
-	//External information
+	// External information
 	virtual Marshal::Ret<std::wstring> GetModuleFilePath() const = 0;
 	virtual void SetModuleFilePath(const Marshal::In<std::wstring>& moduleFilePath) = 0;
 
-	//Required metadata
+	// Required metadata
 	virtual bool GetIsProgramModule() const = 0;
 	virtual void SetIsProgramModule(bool programModule) = 0;
 	virtual Marshal::Ret<std::wstring> GetSystemClassName() const = 0;
@@ -34,7 +34,7 @@ public:
 	virtual Marshal::Ret<std::wstring> GetModuleDisplayName() const = 0;
 	virtual void SetModuleDisplayName(const Marshal::In<std::wstring>& displayName) = 0;
 
-	//Optional metadata
+	// Optional metadata
 	virtual Marshal::Ret<std::wstring> GetProductionYear() const = 0;
 	virtual void SetProductionYear(const Marshal::In<std::wstring>& productionYear) = 0;
 	virtual Marshal::Ret<std::wstring> GetManufacturerCode() const = 0;

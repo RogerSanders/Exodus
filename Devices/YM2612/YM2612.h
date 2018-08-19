@@ -66,23 +66,23 @@ References:
 class YM2612 :public Device, public GenericAccessBase<IYM2612>
 {
 public:
-	//Constructors
+	// Constructors
 	YM2612(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 
-	//Interface version functions
+	// Interface version functions
 	virtual unsigned int GetIYM2612Version() const;
 
-	//Initialization functions
+	// Initialization functions
 	virtual bool BuildDevice();
 	virtual bool ValidateDevice();
 	virtual void Initialize();
 	void Reset(double accessTime);
 
-	//Reference functions
+	// Reference functions
 	virtual bool AddReference(const Marshal::In<std::wstring>& referenceName, IBusInterface* target);
 	virtual void RemoveReference(IBusInterface* target);
 
-	//Line functions
+	// Line functions
 	virtual unsigned int GetLineID(const Marshal::In<std::wstring>& lineName) const;
 	virtual Marshal::Ret<std::wstring> GetLineName(unsigned int lineID) const;
 	virtual unsigned int GetLineWidth(unsigned int lineID) const;
@@ -90,13 +90,13 @@ public:
 	virtual void AssertCurrentOutputLineState() const;
 	virtual void NegateCurrentOutputLineState() const;
 
-	//Clock source functions
+	// Clock source functions
 	virtual unsigned int GetClockSourceID(const Marshal::In<std::wstring>& clockSourceName) const;
 	virtual Marshal::Ret<std::wstring> GetClockSourceName(unsigned int clockSourceID) const;
 	virtual void SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	virtual void TransparentSetClockSourceRate(unsigned int clockInput, double clockRate);
 
-	//Execute functions
+	// Execute functions
 	virtual void BeginExecution();
 	virtual void SuspendExecution();
 	virtual UpdateMethod GetUpdateMethod() const;
@@ -106,33 +106,33 @@ public:
 	virtual void ExecuteRollback();
 	virtual void ExecuteCommit();
 
-	//Memory interface functions
+	// Memory interface functions
 	virtual IBusInterface::AccessResult ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	virtual IBusInterface::AccessResult WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 
-	//Savestate functions
+	// Savestate functions
 	virtual void LoadState(IHierarchicalStorageNode& node);
 	virtual void SaveState(IHierarchicalStorageNode& node) const;
 	virtual void LoadDebuggerState(IHierarchicalStorageNode& node);
 	virtual void SaveDebuggerState(IHierarchicalStorageNode& node) const;
 
-	//Data read/write functions
+	// Data read/write functions
 	using IGenericAccess::ReadGenericData;
 	using IGenericAccess::WriteGenericData;
 	virtual bool ReadGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue) const;
 	virtual bool WriteGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue);
 
-	//Data locking functions
+	// Data locking functions
 	virtual bool GetGenericDataLocked(unsigned int dataID, const DataContext* dataContext) const;
 	virtual bool SetGenericDataLocked(unsigned int dataID, const DataContext* dataContext, bool state);
 
 private:
-	//Enumerations
+	// Enumerations
 	enum class LineID;
 	enum class ClockID;
 	enum class AccessContext;
 
-	//Structures
+	// Structures
 	struct OperatorData
 	{
 		enum ADSRPhase
@@ -147,8 +147,8 @@ private:
 		:attenuation(10), phaseCounter(20)
 		{}
 
-		Data attenuation;   //10-bit
-		Data phaseCounter;  //20-bit
+		Data attenuation;   // 10-bit
+		Data phaseCounter;  // 20-bit
 		ADSRPhase phase;
 		bool keyon;
 		bool csmKeyOn;
@@ -197,15 +197,15 @@ private:
 		std::wstring lockedValue;
 	};
 
-	//Typedefs
+	// Typedefs
 	typedef RandomTimeAccessBuffer<Data, double>::AccessTarget AccessTarget;
 
-	//Constants
+	// Constants
 	static const unsigned int ChannelAddressOffsets[ChannelCount];
 	static const unsigned int OperatorAddressOffsets[ChannelCount][OperatorCount];
 	static const unsigned int Channel3OperatorFrequencyAddressOffsets[2][OperatorCount];
 
-	//Envelope generator constants
+	// Envelope generator constants
 	static const unsigned int RateBitCount = 6;
 	static const unsigned int AttenuationBitCount = 10;
 	static const unsigned int FnumDataBitCount = 11;
@@ -219,7 +219,7 @@ private:
 	static const unsigned int DetuneBitCount = 3;
 	static const unsigned int DetunePhaseIncrementTable[1 << KeyCodeBitCount][1 << (DetuneBitCount - 1)];
 
-	//Operator unit constants
+	// Operator unit constants
 	static const unsigned int PhaseBitCount = 10;
 	static const unsigned int SinTableBitCount = 8;
 	static const unsigned int PowTableBitCount = 8;
@@ -229,20 +229,20 @@ private:
 	static const unsigned int AccumulatorOutputBitCount = 16;
 
 private:
-	//Execute functions
+	// Execute functions
 	void RenderThread();
 
-	//General operator functions
+	// General operator functions
 	void UpdateOperator(unsigned int channelNo, unsigned int operatorNo, bool updateEnvelopeGenerator);
 	unsigned int CalculateKeyCode(unsigned int block, unsigned int fnumber) const;
 
-	//Phase generator functions
+	// Phase generator functions
 	void UpdatePhaseGenerator(unsigned int channelNo, unsigned int operatorNo, unsigned int channelAddressOffset, unsigned int operatorAddressOffset);
 	unsigned int GetCurrentPhase(unsigned int channelNo, unsigned int operatorNo) const;
 	unsigned int GetFrequencyData(unsigned int channelNo, unsigned int operatorNo, unsigned int operatorAddressOffset, const AccessTarget& accessTarget) const;
 	unsigned int GetBlockData(unsigned int channelNo, unsigned int operatorNo, unsigned int operatorAddressOffset, const AccessTarget& accessTarget) const;
 
-	//Envelope generator functions
+	// Envelope generator functions
 	void UpdateEnvelopeGenerator(unsigned int channelNo, unsigned int operatorNo, unsigned int channelAddressOffset, unsigned int operatorAddressOffset);
 	void SetADSRPhase(unsigned int channelNo, unsigned int operatorNo, unsigned int channelAddressOffset, unsigned int operatorAddressOffset, OperatorData::ADSRPhase phase);
 	unsigned int GetOutputAttenuation(unsigned int channelNo, unsigned int operatorNo, unsigned int channelAddressOffset, unsigned int operatorAddressOffset) const;
@@ -251,18 +251,18 @@ private:
 	unsigned int ConvertTotalLevelToAttenuation(unsigned int totalLevel) const;
 	unsigned int ConvertSustainLevelToAttenuation(unsigned int sustainLevel) const;
 
-	//Operator unit functions
+	// Operator unit functions
 	unsigned int InversePow2(unsigned int num) const;
 	int CalculateOperator(unsigned int phase, int phaseModulation, unsigned int attenuation) const;
 
-	//Memory interface functions
+	// Memory interface functions
 	void RegisterSpecialUpdateFunction(unsigned int location, const Data& data, double accessTime, IDeviceContext* caller, unsigned int accessContext);
 	bool CheckForLatchedWrite(unsigned int location, const Data& data, double accessTime);
 
-	//Timer management functions
+	// Timer management functions
 	void UpdateTimers(double timesliceProgress);
 
-	//Raw register functions
+	// Raw register functions
 	inline Data GetRegisterData(unsigned int location, const AccessTarget& accessTarget) const;
 	inline void SetRegisterData(unsigned int location, const Data& data, const AccessTarget& accessTarget);
 	inline unsigned int GetChannelBlockAddressOffset(unsigned int channelNo) const;
@@ -270,18 +270,18 @@ private:
 	inline unsigned int GetAddressChannel3FrequencyBlock1(unsigned int operatorNo) const;
 	inline unsigned int GetAddressChannel3FrequencyBlock2(unsigned int operatorNo) const;
 
-	//Common FM register functions
-	inline unsigned int GetTestData(const AccessTarget& accessTarget) const;	//21H
+	// Common FM register functions
+	inline unsigned int GetTestData(const AccessTarget& accessTarget) const;	// 21H
 	inline void SetTestData(unsigned int data, const AccessTarget& accessTarget);
-	inline bool GetLFOEnabled(const AccessTarget& accessTarget) const;	//22H
+	inline bool GetLFOEnabled(const AccessTarget& accessTarget) const;	// 22H
 	inline void SetLFOEnabled(bool data, const AccessTarget& accessTarget);
 	inline unsigned int GetLFOData(const AccessTarget& accessTarget) const;
 	inline void SetLFOData(unsigned int data, const AccessTarget& accessTarget);
-	inline unsigned int GetTimerAData(const AccessTarget& accessTarget) const;	//24H-25H
+	inline unsigned int GetTimerAData(const AccessTarget& accessTarget) const;	// 24H-25H
 	inline void SetTimerAData(unsigned int data, const AccessTarget& accessTarget);
-	inline unsigned int GetTimerBData(const AccessTarget& accessTarget) const;	//26H
+	inline unsigned int GetTimerBData(const AccessTarget& accessTarget) const;	// 26H
 	inline void SetTimerBData(unsigned int data, const AccessTarget& accessTarget);
-	inline unsigned int GetCH3Mode(const AccessTarget& accessTarget) const;	//27H
+	inline unsigned int GetCH3Mode(const AccessTarget& accessTarget) const;	// 27H
 	inline void SetCH3Mode(unsigned int data, const AccessTarget& accessTarget);
 	inline bool GetTimerBReset(const AccessTarget& accessTarget) const;
 	inline void SetTimerBReset(bool data, const AccessTarget& accessTarget);
@@ -295,33 +295,33 @@ private:
 	inline void SetTimerBLoad(bool data, const AccessTarget& accessTarget);
 	inline bool GetTimerALoad(const AccessTarget& accessTarget) const;
 	inline void SetTimerALoad(bool data, const AccessTarget& accessTarget);
-	inline unsigned int GetDACData(const AccessTarget& accessTarget) const;	//2AH
+	inline unsigned int GetDACData(const AccessTarget& accessTarget) const;	// 2AH
 	inline void SetDACData(unsigned int data, const AccessTarget& accessTarget);
-	inline bool GetDACEnabled(const AccessTarget& accessTarget) const;	//2BH
+	inline bool GetDACEnabled(const AccessTarget& accessTarget) const;	// 2BH
 	inline void SetDACEnabled(bool data, const AccessTarget& accessTarget);
 
-	//FM operator register functions
-	inline unsigned int GetDetuneData(unsigned int operatorAddressOffset, const AccessTarget& accessTarget) const;	//30H-3FH
+	// FM operator register functions
+	inline unsigned int GetDetuneData(unsigned int operatorAddressOffset, const AccessTarget& accessTarget) const;	// 30H-3FH
 	inline void SetDetuneData(unsigned int operatorAddressOffset, unsigned int data, const AccessTarget& accessTarget);
 	inline unsigned int GetMultipleData(unsigned int operatorAddressOffset, const AccessTarget& accessTarget) const;
 	inline void SetMultipleData(unsigned int operatorAddressOffset, unsigned int data, const AccessTarget& accessTarget);
-	inline unsigned int GetTotalLevelData(unsigned int operatorAddressOffset, const AccessTarget& accessTarget) const;	//40H-4FH
+	inline unsigned int GetTotalLevelData(unsigned int operatorAddressOffset, const AccessTarget& accessTarget) const;	// 40H-4FH
 	inline void SetTotalLevelData(unsigned int operatorAddressOffset, unsigned int data, const AccessTarget& accessTarget);
-	inline unsigned int GetKeyScaleData(unsigned int operatorAddressOffset, const AccessTarget& accessTarget) const;	//50H-5FH
+	inline unsigned int GetKeyScaleData(unsigned int operatorAddressOffset, const AccessTarget& accessTarget) const;	// 50H-5FH
 	inline void SetKeyScaleData(unsigned int operatorAddressOffset, unsigned int data, const AccessTarget& accessTarget);
 	inline unsigned int GetAttackRateData(unsigned int operatorAddressOffset, const AccessTarget& accessTarget) const;
 	inline void SetAttackRateData(unsigned int operatorAddressOffset, unsigned int data, const AccessTarget& accessTarget);
-	inline bool GetAmplitudeModulationEnabled(unsigned int operatorAddressOffset, const AccessTarget& accessTarget) const;	//60H-6FH
+	inline bool GetAmplitudeModulationEnabled(unsigned int operatorAddressOffset, const AccessTarget& accessTarget) const;	// 60H-6FH
 	inline void SetAmplitudeModulationEnabled(unsigned int operatorAddressOffset, bool data, const AccessTarget& accessTarget);
 	inline unsigned int GetDecayRateData(unsigned int operatorAddressOffset, const AccessTarget& accessTarget) const;
 	inline void SetDecayRateData(unsigned int operatorAddressOffset, unsigned int data, const AccessTarget& accessTarget);
-	inline unsigned int GetSustainRateData(unsigned int operatorAddressOffset, const AccessTarget& accessTarget) const;	//70H-7FH
+	inline unsigned int GetSustainRateData(unsigned int operatorAddressOffset, const AccessTarget& accessTarget) const;	// 70H-7FH
 	inline void SetSustainRateData(unsigned int operatorAddressOffset, unsigned int data, const AccessTarget& accessTarget);
-	inline unsigned int GetSustainLevelData(unsigned int operatorAddressOffset, const AccessTarget& accessTarget) const;	//80H-8FH
+	inline unsigned int GetSustainLevelData(unsigned int operatorAddressOffset, const AccessTarget& accessTarget) const;	// 80H-8FH
 	inline void SetSustainLevelData(unsigned int operatorAddressOffset, unsigned int data, const AccessTarget& accessTarget);
 	inline unsigned int GetReleaseRateData(unsigned int operatorAddressOffset, const AccessTarget& accessTarget) const;
 	inline void SetReleaseRateData(unsigned int operatorAddressOffset, unsigned int data, const AccessTarget& accessTarget);
-	inline unsigned int GetSSGData(unsigned int operatorAddressOffset, const AccessTarget& accessTarget) const;	//90H-9FH
+	inline unsigned int GetSSGData(unsigned int operatorAddressOffset, const AccessTarget& accessTarget) const;	// 90H-9FH
 	inline void SetSSGData(unsigned int operatorAddressOffset, unsigned int data, const AccessTarget& accessTarget);
 	inline bool GetSSGEnabled(unsigned int operatorAddressOffset, const AccessTarget& accessTarget) const;
 	inline void SetSSGEnabled(unsigned int operatorAddressOffset, bool data, const AccessTarget& accessTarget);
@@ -332,20 +332,20 @@ private:
 	inline bool GetSSGHold(unsigned int operatorAddressOffset, const AccessTarget& accessTarget) const;
 	inline void SetSSGHold(unsigned int operatorAddressOffset, bool data, const AccessTarget& accessTarget);
 
-	//FM channel register functions
-	inline unsigned int GetFrequencyData(unsigned int channelAddressOffset, const AccessTarget& accessTarget) const;	//A0H-A7H
+	// FM channel register functions
+	inline unsigned int GetFrequencyData(unsigned int channelAddressOffset, const AccessTarget& accessTarget) const;	// A0H-A7H
 	inline void SetFrequencyData(unsigned int channelAddressOffset, unsigned int data, const AccessTarget& accessTarget);
 	inline unsigned int GetBlockData(unsigned int channelAddressOffset, const AccessTarget& accessTarget) const;
 	inline void SetBlockData(unsigned int channelAddressOffset, unsigned int data, const AccessTarget& accessTarget);
-	inline unsigned int GetFrequencyDataChannel3(unsigned int operatorNo, const AccessTarget& accessTarget) const;	//A8H-AFH
+	inline unsigned int GetFrequencyDataChannel3(unsigned int operatorNo, const AccessTarget& accessTarget) const;	// A8H-AFH
 	inline void SetFrequencyDataChannel3(unsigned int operatorNo, unsigned int data, const AccessTarget& accessTarget);
 	inline unsigned int GetBlockDataChannel3(unsigned int operatorNo, const AccessTarget& accessTarget) const;
 	inline void SetBlockDataChannel3(unsigned int operatorNo, unsigned int data, const AccessTarget& accessTarget);
-	inline unsigned int GetFeedbackData(unsigned int channelAddressOffset, const AccessTarget& accessTarget) const;	//B0H-B3H
+	inline unsigned int GetFeedbackData(unsigned int channelAddressOffset, const AccessTarget& accessTarget) const;	// B0H-B3H
 	inline void SetFeedbackData(unsigned int channelAddressOffset, unsigned int data, const AccessTarget& accessTarget);
 	inline unsigned int GetAlgorithmData(unsigned int channelAddressOffset, const AccessTarget& accessTarget) const;
 	inline void SetAlgorithmData(unsigned int channelAddressOffset, unsigned int data, const AccessTarget& accessTarget);
-	inline bool GetOutputLeft(unsigned int channelAddressOffset, const AccessTarget& accessTarget) const;	//B4H-B7H
+	inline bool GetOutputLeft(unsigned int channelAddressOffset, const AccessTarget& accessTarget) const;	// B4H-B7H
 	inline void SetOutputLeft(unsigned int channelAddressOffset, bool data, const AccessTarget& accessTarget);
 	inline bool GetOutputRight(unsigned int channelAddressOffset, const AccessTarget& accessTarget) const;
 	inline void SetOutputRight(unsigned int channelAddressOffset, bool data, const AccessTarget& accessTarget);
@@ -354,7 +354,7 @@ private:
 	inline unsigned int GetPMSData(unsigned int channelAddressOffset, const AccessTarget& accessTarget) const;
 	inline void SetPMSData(unsigned int channelAddressOffset, unsigned int data, const AccessTarget& accessTarget);
 
-	//Status register functions
+	// Status register functions
 	inline Data GetStatusRegister() const;
 	inline void SetStatusRegister(unsigned int data);
 	inline bool GetBusyFlag() const;
@@ -364,18 +364,18 @@ private:
 	inline bool GetTimerAOverflow() const;
 	inline void SetTimerAOverflow(bool state);
 
-	//Audio logging functions
+	// Audio logging functions
 	void SetAudioLoggingEnabled(bool state);
 	void SetChannelAudioLoggingEnabled(unsigned int channelNo, bool state);
 	void SetOperatorAudioLoggingEnabled(unsigned int channelNo, unsigned int operatorNo, bool state);
 	static bool ToggleLoggingEnabledState(Stream::WAVFile& wavFile, const std::wstring& fileName, bool currentState, bool newState, unsigned int channelCount, unsigned int bitsPerSample, unsigned int samplesPerSec);
 
 private:
-	//Calculated internal lookup tables
+	// Calculated internal lookup tables
 	unsigned int sinTable[1 << SinTableBitCount];
 	unsigned int powTable[1 << PowTableBitCount];
 
-	//Clock settings
+	// Clock settings
 	double _externalClockRate;
 	double _bexternalClockRate;
 	unsigned int _fmClockDivider;
@@ -384,13 +384,13 @@ private:
 	unsigned int _timerAClockDivider;
 	unsigned int _timerBClockDivider;
 
-	//Bus interface
+	// Bus interface
 	mutable std::mutex _lineMutex;
 	IBusInterface* _memoryBus;
 	volatile bool _icLineState;
 	bool _bicLineState;
 
-	//Registers
+	// Registers
 	mutable std::mutex _accessMutex;
 	double _lastAccessTime;
 	RandomTimeAccessBuffer<Data, double> _reg;
@@ -399,7 +399,7 @@ private:
 	Data _status;
 	Data _bstatus;
 
-	//Temporary storage for fnum/block register latch behaviour
+	// Temporary storage for fnum/block register latch behaviour
 	bool _latchedFrequencyDataPending[ChannelCount];
 	std::vector<Data> _latchedFrequencyData;
 	bool _latchedFrequencyDataPendingCH3[3];
@@ -409,7 +409,7 @@ private:
 	bool _blatchedFrequencyDataPendingCH3[3];
 	std::vector<Data> _blatchedFrequencyDataCH3;
 
-	//Timer status
+	// Timer status
 	double _lastTimesliceLength;
 	double _timersLastUpdateTime;
 	double _timersRemainingTime;
@@ -437,11 +437,11 @@ private:
 	bool _irqLineState;
 	bool _birqLineState;
 
-	//This register records the times at which Timer A overflows. It is needed in order to
-	//implement CSM support.
+	// This register records the times at which Timer A overflows. It is needed in order to
+	// implement CSM support.
 	RandomTimeAccessValue<bool, double> _timerAOverflowTimes;
 
-	//Render thread properties
+	// Render thread properties
 	mutable std::mutex _renderThreadMutex;
 	mutable std::mutex _timesliceMutex;
 	std::condition_variable _renderThreadUpdate;
@@ -461,7 +461,7 @@ private:
 	AudioStream _outputStream;
 	std::vector<short> _outputBuffer;
 
-	//Render data
+	// Render data
 	unsigned int _envelopeCycleCounter;
 	OperatorData _operatorData[ChannelCount][OperatorCount];
 	int _operatorOutput[ChannelCount][OperatorCount];
@@ -469,7 +469,7 @@ private:
 	int _cyclesUntilLFOIncrement;
 	unsigned int _currentLFOCounter;
 
-	//Register locking
+	// Register locking
 	mutable std::mutex _registerLockMutex;
 	bool _keyStateLocking[ChannelCount][OperatorCount];
 	bool _rawRegisterLocking[RegisterCountTotal];
@@ -477,7 +477,7 @@ private:
 	TimerStateLocking _timerAStateLocking;
 	TimerStateLocking _timerBStateLocking;
 
-	//Wave logging
+	// Wave logging
 	mutable std::mutex _waveLoggingMutex;
 	bool _wavLoggingEnabled;
 	bool _wavLoggingChannelEnabled[ChannelCount];

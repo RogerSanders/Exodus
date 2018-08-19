@@ -5,9 +5,9 @@ namespace MarshalSupport {
 class IMarshallingObject
 {
 protected:
-	//Constructors
+	// Constructors
 	inline ~IMarshallingObject() { };
 };
 
-} //Close namespace MarshalSupport
+} // Close namespace MarshalSupport
 #endif

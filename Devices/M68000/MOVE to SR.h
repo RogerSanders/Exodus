@@ -39,7 +39,7 @@ public:
 //	----------------------------------------=========================
 //	                                        |----------<ea>---------|
 
-		//MOVE	<ea>,SR
+		// MOVE	<ea>,SR
 		_source.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), BITCOUNT_WORD, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
 		AddInstructionSize(_source.ExtensionSize());
 		AddExecuteCycleCount(ExecuteTime(12, 1, 0));
@@ -51,11 +51,11 @@ public:
 		double additionalTime = 0;
 		M68000Word result;
 
-		//Perform the operation
+		// Perform the operation
 		additionalTime += _source.Read(cpu, result, GetInstructionRegister());
 		cpu->SetSR(result);
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -69,5 +69,5 @@ private:
 	EffectiveAddress _source;
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #endif

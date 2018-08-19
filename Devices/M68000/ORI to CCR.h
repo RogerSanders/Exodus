@@ -35,7 +35,7 @@ public:
 //	| 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |     8 BITS IMMEDIATE DATA     |
 //	-----------------------------------------------------------------
 
-		//ORI	#<data>,CCR
+		// ORI	#<data>,CCR
 		_source.BuildImmediateData(BITCOUNT_BYTE, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
 		AddInstructionSize(_source.ExtensionSize());
 		AddExecuteCycleCount(ExecuteTime(20, 3, 0));
@@ -48,13 +48,13 @@ public:
 		M68000Byte op2;
 		M68000Byte result;
 
-		//Perform the operation
+		// Perform the operation
 		additionalTime += _source.Read(cpu, op1, GetInstructionRegister());
 		op2 = cpu->GetCCR();
 		result = op1 | op2;
 		cpu->SetCCR(result);
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -68,5 +68,5 @@ private:
 	EffectiveAddress _source;
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #endif

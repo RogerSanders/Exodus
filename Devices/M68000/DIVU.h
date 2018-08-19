@@ -34,14 +34,14 @@ public:
 //	----------------------------------------=========================
 //	                                        |----------<ea>---------|
 
-		//DIVU.W	<ea>,Dn     32/16 -> 16r:16q
+		// DIVU.W	<ea>,Dn     32/16 -> 16r:16q
 		_target.BuildDataDirect(BITCOUNT_WORD, location + GetInstructionSize(), data.GetDataSegment(9, 3));
 		_source.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), BITCOUNT_WORD, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
 		AddInstructionSize(_source.ExtensionSize());
 
 		//##NOTE## This is apparently a worst case execution time. According to the
-		//M68000 Users Manual, this can vary by a little under 10% in a best case
-		//scenario, but I haven't found any reference on how to calculate the timing.
+		// M68000 Users Manual, this can vary by a little under 10% in a best case
+		// scenario, but I haven't found any reference on how to calculate the timing.
 		AddExecuteCycleCount(ExecuteTime(140, 1, 0));
 		AddExecuteCycleCount(_source.DecodeTime());
 	}
@@ -56,17 +56,17 @@ public:
 		M68000Word remainder;
 		M68000Long result;
 
-		//Read the _source data
+		// Read the _source data
 		additionalTime += _source.Read(cpu, temp1, GetInstructionRegister());
 		op1 = M68000Long(temp1.Convert(BITCOUNT_LONG));
 		additionalTime += _target.ReadWithoutAdjustingAddress(cpu, op2, GetInstructionRegister());
 
-		//Check for divide by zero
+		// Check for divide by zero
 		if (op1 == 0)
 		{
-			//UNDEFINED N
-			//UNDEFINED Z
-			//UNDEFINED V
+			// UNDEFINED N
+			// UNDEFINED Z
+			// UNDEFINED V
 			if (cpu->ExceptionDisabled(M68000::Exceptions::ZeroDivide))
 			{
 				return GetExecuteCycleCount(additionalTime);
@@ -79,26 +79,26 @@ public:
 			}
 		}
 
-		//Perform a test run of the operation to check for an overflow. Our _source data
-		//is 32-bit, and the final quotient is only 16-bit, so an overflow can occur if
-		//the quotient after division is still larger than can fit into a 16-bit _target.
-		//To test for this, we perform the division and test if the result is larger than
-		//the maximum number which can be stored in the result.
+		// Perform a test run of the operation to check for an overflow. Our _source data
+		// is 32-bit, and the final quotient is only 16-bit, so an overflow can occur if
+		// the quotient after division is still larger than can fit into a 16-bit _target.
+		// To test for this, we perform the division and test if the result is larger than
+		// the maximum number which can be stored in the result.
 		if ((op2 / op1) <= quotient.GetMaxValue())
 		{
-			//The operation didn't overflow. Commit the results.
+			// The operation didn't overflow. Commit the results.
 			quotient = M68000Word(op2 / op1);
 			remainder = M68000Word(op2 % op1);
 			result.SetUpperBits(remainder);
 			result.SetLowerBits(quotient);
 			additionalTime += _target.Write(cpu, result, GetInstructionRegister());
 
-			//Set the flag results
+			// Set the flag results
 			//##TODO## Check handling of this flag. Official M68000 programmer's manual
-			//says it should be set if quotient is negative, but this is an unsigned
-			//divide. It's probably correct, and the MSB of the _source sets the N flag,
-			//but do a test on real hardware and see if a quotient of 0x8000 in an
-			//unsigned divide sets the N flag.
+			// says it should be set if quotient is negative, but this is an unsigned
+			// divide. It's probably correct, and the MSB of the _source sets the N flag,
+			// but do a test on real hardware and see if a quotient of 0x8000 in an
+			// unsigned divide sets the N flag.
 			cpu->SetN(quotient.Negative());
 			cpu->SetZ(quotient.Zero());
 			cpu->SetV(false);
@@ -106,17 +106,17 @@ public:
 		}
 		else
 		{
-			//An overflow has occurred. In this case, the result of the operation is not
-			//saved, and the flag results differ.
+			// An overflow has occurred. In this case, the result of the operation is not
+			// saved, and the flag results differ.
 
-			//Set the flag results
-			//UNDEFINED N
-			//UNDEFINED Z
+			// Set the flag results
+			// UNDEFINED N
+			// UNDEFINED Z
 			cpu->SetV(true);
 			cpu->SetC(false);
 		}
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -132,5 +132,5 @@ private:
 	EffectiveAddress _target;
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #endif

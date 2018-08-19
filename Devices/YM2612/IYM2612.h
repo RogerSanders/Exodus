@@ -6,17 +6,17 @@
 class IYM2612 :public virtual IGenericAccess
 {
 public:
-	//Enumerations
+	// Enumerations
 	enum class IYM2612DataSource;
 	enum Channels :unsigned int;
 	enum Operators :unsigned int;
 
-	//Structures
+	// Structures
 	struct RegisterDataContext;
 	struct ChannelDataContext;
 	struct OperatorDataContext;
 
-	//Constants
+	// Constants
 	static const unsigned int ChannelCount = 6;
 	static const unsigned int OperatorCount = 4;
 	static const unsigned int PartCount = 2;
@@ -24,11 +24,11 @@ public:
 	static const unsigned int RegisterCountTotal = RegisterCountPerPart * PartCount;
 
 public:
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisIYM2612Version() { return 1; }
 	virtual unsigned int GetIYM2612Version() const = 0;
 
-	//Clock setting functions
+	// Clock setting functions
 	inline double GetExternalClockRate() const;
 	inline void SetExternalClockRate(double data);
 	inline unsigned int GetFMClockDivider() const;
@@ -42,11 +42,11 @@ public:
 	inline unsigned int GetTimerBClockDivider() const;
 	inline void SetTimerBClockDivider(unsigned int data);
 
-	//Raw register functions
+	// Raw register functions
 	inline unsigned int GetRegisterData(unsigned int registerNo) const;
 	inline void SetRegisterData(unsigned int registerNo, unsigned int data);
 
-	//Common FM register functions
+	// Common FM register functions
 	inline unsigned int GetTestData() const;
 	inline void SetTestData(unsigned int data);
 	inline bool GetLFOEnabled() const;
@@ -76,7 +76,7 @@ public:
 	inline bool GetDACEnabled() const;
 	inline void SetDACEnabled(bool data);
 
-	//FM operator register functions
+	// FM operator register functions
 	inline unsigned int GetDetuneData(unsigned int channelNo, unsigned int operatorNo) const;
 	inline void SetDetuneData(unsigned int channelNo, unsigned int operatorNo, unsigned int data);
 	inline unsigned int GetMultipleData(unsigned int channelNo, unsigned int operatorNo) const;
@@ -108,7 +108,7 @@ public:
 	inline bool GetSSGHold(unsigned int channelNo, unsigned int operatorNo) const;
 	inline void SetSSGHold(unsigned int channelNo, unsigned int operatorNo, bool data);
 
-	//FM channel register functions
+	// FM channel register functions
 	inline unsigned int GetFrequencyData(unsigned int channelNo) const;
 	inline void SetFrequencyData(unsigned int channelNo, unsigned int data);
 	inline unsigned int GetBlockData(unsigned int channelNo) const;
@@ -130,11 +130,11 @@ public:
 	inline unsigned int GetPMSData(unsigned int channelNo) const;
 	inline void SetPMSData(unsigned int channelNo, unsigned int data);
 
-	//Key on/off functions
+	// Key on/off functions
 	inline bool GetKeyState(unsigned int channelNo, unsigned int operatorNo) const;
 	inline void SetKeyState(unsigned int channelNo, unsigned int operatorNo, bool data);
 
-	//Status register functions
+	// Status register functions
 	inline unsigned int GetStatusRegister() const;
 	inline void SetStatusRegister(unsigned int data);
 	inline bool GetBusyFlag() const;
@@ -144,13 +144,13 @@ public:
 	inline bool GetTimerAOverflow() const;
 	inline void SetTimerAOverflow(bool data);
 
-	//Timer functions
+	// Timer functions
 	inline unsigned int GetTimerACurrentCounter() const;
 	inline void SetTimerACurrentCounter(unsigned int data);
 	inline unsigned int GetTimerBCurrentCounter() const;
 	inline void SetTimerBCurrentCounter(unsigned int data);
 
-	//Audio logging functions
+	// Audio logging functions
 	inline bool IsAudioLoggingEnabled() const;
 	inline void SetAudioLoggingEnabled(bool data);
 	inline bool IsChannelAudioLoggingEnabled(unsigned int channelNo) const;
