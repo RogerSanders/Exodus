@@ -35,6 +35,6 @@ template<class T>
 struct is_assignable { static const bool value = true; };
 #endif
 
-} //Close namespace Internal
-} //Close namespace MarshalSupport
+} // Close namespace Internal
+} // Close namespace MarshalSupport
 #endif

@@ -9,7 +9,7 @@ public:
 	ExecuteTime GetExecuteTime(EffectiveAddress::Mode _sourceMode, EffectiveAddress::Mode _targetMode, Bitcount operationSize)
 	{
 		static const ExecuteTime executeTimeArray[12][9] = {
-			           //Dn                     An                     (An)                   (An)+                  -(An)                  d(An)                  d(An,ix)               xxx.W                  xxx.L
+			           // Dn                     An                     (An)                   (An)+                  -(An)                  d(An)                  d(An,ix)               xxx.W                  xxx.L
 			/*Dn*/      {ExecuteTime(4, 1, 0),  ExecuteTime(4, 1, 0),  ExecuteTime(8, 1, 1),  ExecuteTime(8, 1, 1),  ExecuteTime(8, 1, 1),  ExecuteTime(12, 2, 1), ExecuteTime(14, 2, 1), ExecuteTime(12, 2, 1), ExecuteTime(16, 3, 1)},
 			/*An*/      {ExecuteTime(4, 1, 0),  ExecuteTime(4, 1, 0),  ExecuteTime(8, 1, 1),  ExecuteTime(8, 1, 1),  ExecuteTime(8, 1, 1),  ExecuteTime(12, 2, 1), ExecuteTime(14, 2, 1), ExecuteTime(12, 2, 1), ExecuteTime(16, 3, 1)},
 			/*(An)*/    {ExecuteTime(8, 2, 0),  ExecuteTime(8, 2, 0),  ExecuteTime(12, 2, 1), ExecuteTime(12, 2, 1), ExecuteTime(12, 2, 1), ExecuteTime(16, 3, 1), ExecuteTime(18, 3, 1), ExecuteTime(16, 3, 1), ExecuteTime(20, 4, 1)},
@@ -23,7 +23,7 @@ public:
 			/*d(PC,ix)*/{ExecuteTime(14, 3, 0), ExecuteTime(14, 3, 0), ExecuteTime(18, 3, 1), ExecuteTime(18, 3, 1), ExecuteTime(18, 3, 1), ExecuteTime(22, 4, 1), ExecuteTime(24, 4, 1), ExecuteTime(22, 4, 1), ExecuteTime(26, 5, 1)},
 			/*#xxx*/    {ExecuteTime(8, 2, 0),  ExecuteTime(8, 2, 0),  ExecuteTime(12, 2, 1), ExecuteTime(12, 2, 1), ExecuteTime(12, 2, 1), ExecuteTime(16, 3, 1), ExecuteTime(18, 3, 1), ExecuteTime(16, 3, 1), ExecuteTime(20, 4, 1)}};
 		static const ExecuteTime executeTimeArrayLong[12][9] = {
-			           //Dn                     An                     (An)                   (An)+                  -(An)                  d(An)                  d(An,ix)               xxx.W                  xxx.L
+			           // Dn                     An                     (An)                   (An)+                  -(An)                  d(An)                  d(An,ix)               xxx.W                  xxx.L
 			/*Dn*/      {ExecuteTime(4, 1, 0),  ExecuteTime(4, 1, 0),  ExecuteTime(12, 1, 2), ExecuteTime(12, 1, 2), ExecuteTime(12, 1, 2), ExecuteTime(16, 2, 2), ExecuteTime(18, 2, 2), ExecuteTime(16, 2, 2), ExecuteTime(20, 3, 2)},
 			/*An*/      {ExecuteTime(4, 1, 0),  ExecuteTime(4, 1, 0),  ExecuteTime(12, 1, 2), ExecuteTime(12, 1, 2), ExecuteTime(12, 1, 2), ExecuteTime(16, 2, 2), ExecuteTime(18, 2, 2), ExecuteTime(16, 2, 2), ExecuteTime(20, 3, 2)},
 			/*(An)*/    {ExecuteTime(12, 3, 0), ExecuteTime(12, 3, 0), ExecuteTime(20, 3, 2), ExecuteTime(20, 3, 2), ExecuteTime(20, 3, 2), ExecuteTime(24, 4, 2), ExecuteTime(26, 4, 2), ExecuteTime(24, 4, 2), ExecuteTime(28, 5, 2)},
@@ -148,10 +148,10 @@ public:
 //	                                        |------_source <ea>------|
 		switch (data.GetDataSegment(12, 2))
 		{
-		case 3:	//11
+		case 3:	// 11
 			_size = BITCOUNT_WORD;
 			break;
-		case 2:	//10
+		case 2:	// 10
 			_size = BITCOUNT_LONG;
 			break;
 		}
@@ -167,16 +167,16 @@ public:
 		double additionalTime = 0;
 		Data result(_size);
 
-		//Read information about the _source for use in active disassembly
+		// Read information about the _source for use in active disassembly
 		unsigned int _sourceReadFromAddress;
 		bool _sourceIsUnmodifiedFromAddress = _source.IsTargetUnmodifiedFromMemoryRead(cpu, _size, _sourceReadFromAddress);
 		unsigned int _sourceReadFromAddressSize = _source.GetTargetOriginalMemoryReadSize(cpu, _size);
 
-		//Perform the operation
+		// Perform the operation
 		additionalTime += _source.Read(cpu, result, GetInstructionRegister());
 		additionalTime += _target.Write(cpu, result.SignExtend(BITCOUNT_LONG), GetInstructionRegister(), false, false, _sourceIsUnmodifiedFromAddress, _sourceReadFromAddress, _sourceReadFromAddressSize);
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -193,5 +193,5 @@ private:
 	Bitcount _size;
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #endif

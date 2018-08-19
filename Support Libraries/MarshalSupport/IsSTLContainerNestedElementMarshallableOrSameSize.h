@@ -71,7 +71,7 @@ inline MARSHALSUPPORT_CONSTEXPR bool IsSTLContainerNestedElementMarshallableOrSa
 template<class ElementType>
 inline MARSHALSUPPORT_CONSTEXPR bool IsSTLContainerNestedElementMarshallableOrSameSize(size_t expectedSize, const ElementType* elementPointer);
 
-} //Close namespace Internal
-} //Close namespace MarshalSupport
+} // Close namespace Internal
+} // Close namespace MarshalSupport
 #include "IsSTLContainerNestedElementMarshallableOrSameSize.inl"
 #endif

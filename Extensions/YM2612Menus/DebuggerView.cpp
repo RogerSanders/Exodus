@@ -3,9 +3,9 @@
 #include "resource.h"
 #include <functional>
 
-//----------------------------------------------------------------------------------------
-//Constructors
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Constructors
+//----------------------------------------------------------------------------------------------------------------------
 DebuggerView::DebuggerView(IUIManager& uiManager, DebuggerViewPresenter& presenter, IYM2612& model)
 :ViewBase(uiManager, presenter), _presenter(presenter), _model(model), _initializedDialog(false), _currentControlFocus(0)
 {
@@ -16,15 +16,15 @@ DebuggerView::DebuggerView(IUIManager& uiManager, DebuggerViewPresenter& present
 	SetDockableViewType();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 DebuggerView::~DebuggerView()
 {
 	DeleteObject(_lockedBrush);
 }
 
-//----------------------------------------------------------------------------------------
-//Member window procedure
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Member window procedure
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR DebuggerView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	WndProcDialogImplementSaveFieldWhenLostFocus(hwnd, msg, wparam, lparam);
@@ -46,12 +46,12 @@ INT_PTR DebuggerView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM l
 	return FALSE;
 }
 
-//----------------------------------------------------------------------------------------
-//Event handlers
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Event handlers
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR DebuggerView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	//Set the channel select radio buttons to their default state
+	// Set the channel select radio buttons to their default state
 	CheckDlgButton(hwnd, IDC_YM2612_DEBUGGER_CS1, (_selectedChannel == IYM2612::CHANNEL1)? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_YM2612_DEBUGGER_CS2, (_selectedChannel == IYM2612::CHANNEL2)? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_YM2612_DEBUGGER_CS3, (_selectedChannel == IYM2612::CHANNEL3)? BST_CHECKED: BST_UNCHECKED);
@@ -59,7 +59,7 @@ INT_PTR DebuggerView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	CheckDlgButton(hwnd, IDC_YM2612_DEBUGGER_CS5, (_selectedChannel == IYM2612::CHANNEL5)? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_YM2612_DEBUGGER_CS6, (_selectedChannel == IYM2612::CHANNEL6)? BST_CHECKED: BST_UNCHECKED);
 
-	//Tooltip messages
+	// Tooltip messages
 	const std::wstring lockingTooltip = 
 		L"Selected controls on this window support register locking. "
 		L"Register locking allows the current value of a register to "
@@ -108,7 +108,7 @@ INT_PTR DebuggerView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		L"the calculation, the release rate is treated as a 5-bit value "
 		L"with the LSB fixed to 1.";
 
-	//Create tooltips for the window
+	// Create tooltips for the window
 	HWND hwndTooltip = CreateTooltipControl(GetAssemblyHandle(), hwnd);
 	AddTooltip(GetAssemblyHandle(), hwndTooltip, hwnd, IDC_YM2612_DEBUGGER_LOCKING_TT, lockingTooltip, true);
 	AddTooltip(GetAssemblyHandle(), hwndTooltip, hwnd, IDC_YM2612_DEBUGGER_TL_TT, tlTooltip, true);
@@ -118,7 +118,7 @@ INT_PTR DebuggerView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	AddTooltip(GetAssemblyHandle(), hwndTooltip, hwnd, IDC_YM2612_DEBUGGER_SR_TT, srTooltip, true);
 	AddTooltip(GetAssemblyHandle(), hwndTooltip, hwnd, IDC_YM2612_DEBUGGER_RR_TT, rrTooltip, true);
 
-	//Enable system message bounce-back for controls which can be locked
+	// Enable system message bounce-back for controls which can be locked
 	SetWindowSubclass(GetDlgItem(hwnd, IDC_YM2612_DEBUGGER_TL_OP1), BounceBackSubclassProc, 0, 0);
 	SetWindowSubclass(GetDlgItem(hwnd, IDC_YM2612_DEBUGGER_TL_OP2), BounceBackSubclassProc, 0, 0);
 	SetWindowSubclass(GetDlgItem(hwnd, IDC_YM2612_DEBUGGER_TL_OP3), BounceBackSubclassProc, 0, 0);
@@ -237,7 +237,7 @@ INT_PTR DebuggerView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR DebuggerView::msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	KillTimer(hwnd, 1);
@@ -245,12 +245,12 @@ INT_PTR DebuggerView::msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	return FALSE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR DebuggerView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	unsigned int channelNo = _selectedChannel;
 
-	//Total Level
+	// Total Level
 	if (_currentControlFocus != IDC_YM2612_DEBUGGER_TL_OP1)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_TL_OP1, 2, _model.GetTotalLevelData(channelNo, IYM2612::OPERATOR1));
@@ -268,7 +268,7 @@ INT_PTR DebuggerView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_TL_OP4, 2, _model.GetTotalLevelData(channelNo, IYM2612::OPERATOR4));
 	}
 
-	//Sustain Level
+	// Sustain Level
 	if (_currentControlFocus != IDC_YM2612_DEBUGGER_SL_OP1)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_SL_OP1, 1, _model.GetSustainLevelData(channelNo, IYM2612::OPERATOR1));
@@ -286,7 +286,7 @@ INT_PTR DebuggerView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_SL_OP4, 1, _model.GetSustainLevelData(channelNo, IYM2612::OPERATOR4));
 	}
 
-	//Attack Rate
+	// Attack Rate
 	if (_currentControlFocus != IDC_YM2612_DEBUGGER_AR_OP1)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_AR_OP1, 2, _model.GetAttackRateData(channelNo, IYM2612::OPERATOR1));
@@ -304,7 +304,7 @@ INT_PTR DebuggerView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_AR_OP4, 2, _model.GetAttackRateData(channelNo, IYM2612::OPERATOR4));
 	}
 
-	//Decay Rate
+	// Decay Rate
 	if (_currentControlFocus != IDC_YM2612_DEBUGGER_DR_OP1)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_DR_OP1, 2, _model.GetDecayRateData(channelNo, IYM2612::OPERATOR1));
@@ -322,7 +322,7 @@ INT_PTR DebuggerView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_DR_OP4, 2, _model.GetDecayRateData(channelNo, IYM2612::OPERATOR4));
 	}
 
-	//Sustain Rate
+	// Sustain Rate
 	if (_currentControlFocus != IDC_YM2612_DEBUGGER_SR_OP1)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_SR_OP1, 2, _model.GetSustainRateData(channelNo, IYM2612::OPERATOR1));
@@ -340,7 +340,7 @@ INT_PTR DebuggerView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_SR_OP4, 2, _model.GetSustainRateData(channelNo, IYM2612::OPERATOR4));
 	}
 
-	//Release Rate
+	// Release Rate
 	if (_currentControlFocus != IDC_YM2612_DEBUGGER_RR_OP1)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_RR_OP1, 1, _model.GetReleaseRateData(channelNo, IYM2612::OPERATOR1));
@@ -358,7 +358,7 @@ INT_PTR DebuggerView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_RR_OP4, 1, _model.GetReleaseRateData(channelNo, IYM2612::OPERATOR4));
 	}
 
-	//SSG-EG Mode
+	// SSG-EG Mode
 	if (_currentControlFocus != IDC_YM2612_DEBUGGER_SSGEG_OP1)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_SSGEG_OP1, 1, _model.GetSSGData(channelNo, IYM2612::OPERATOR1));
@@ -376,7 +376,7 @@ INT_PTR DebuggerView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_SSGEG_OP4, 1, _model.GetSSGData(channelNo, IYM2612::OPERATOR4));
 	}
 
-	//Detune
+	// Detune
 	if (_currentControlFocus != IDC_YM2612_DEBUGGER_DT_OP1)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_DT_OP1, 1, _model.GetDetuneData(channelNo, IYM2612::OPERATOR1));
@@ -394,7 +394,7 @@ INT_PTR DebuggerView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_DT_OP4, 1, _model.GetDetuneData(channelNo, IYM2612::OPERATOR4));
 	}
 
-	//Multiple
+	// Multiple
 	if (_currentControlFocus != IDC_YM2612_DEBUGGER_MUL_OP1)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_MUL_OP1, 1, _model.GetMultipleData(channelNo, IYM2612::OPERATOR1));
@@ -412,7 +412,7 @@ INT_PTR DebuggerView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_MUL_OP4, 1, _model.GetMultipleData(channelNo, IYM2612::OPERATOR4));
 	}
 
-	//Key Scale
+	// Key Scale
 	if (_currentControlFocus != IDC_YM2612_DEBUGGER_KS_OP1)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_KS_OP1, 1, _model.GetKeyScaleData(channelNo, IYM2612::OPERATOR1));
@@ -430,13 +430,13 @@ INT_PTR DebuggerView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_KS_OP4, 1, _model.GetKeyScaleData(channelNo, IYM2612::OPERATOR4));
 	}
 
-	//AM Enable
+	// AM Enable
 	CheckDlgButton(hwnd, IDC_YM2612_DEBUGGER_AM_OP1, (_model.GetAmplitudeModulationEnabled(channelNo, IYM2612::OPERATOR1))? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_YM2612_DEBUGGER_AM_OP2, (_model.GetAmplitudeModulationEnabled(channelNo, IYM2612::OPERATOR2))? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_YM2612_DEBUGGER_AM_OP3, (_model.GetAmplitudeModulationEnabled(channelNo, IYM2612::OPERATOR3))? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_YM2612_DEBUGGER_AM_OP4, (_model.GetAmplitudeModulationEnabled(channelNo, IYM2612::OPERATOR4))? BST_CHECKED: BST_UNCHECKED);
 
-	//Channel Registers
+	// Channel Registers
 	if (_currentControlFocus != IDC_YM2612_DEBUGGER_ALGORITHM)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_ALGORITHM, 1, _model.GetAlgorithmData(channelNo));
@@ -464,7 +464,7 @@ INT_PTR DebuggerView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	CheckDlgButton(hwnd, IDC_YM2612_DEBUGGER_LEFT, (_model.GetOutputLeft(channelNo))? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_YM2612_DEBUGGER_RIGHT, (_model.GetOutputRight(channelNo))? BST_CHECKED: BST_UNCHECKED);
 
-	//Channel 3 Frequency
+	// Channel 3 Frequency
 	if (_currentControlFocus != IDC_YM2612_DEBUGGER_CH3MODE)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_CH3MODE, 1, _model.GetCH3Mode());
@@ -502,7 +502,7 @@ INT_PTR DebuggerView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_CH3BLOCK_OP4, 1, _model.GetBlockDataChannel3(IYM2612::OPERATOR4));
 	}
 
-	//Timers
+	// Timers
 	CheckDlgButton(hwnd, IDC_YM2612_DEBUGGER_TIMERA_ENABLED, (_model.GetTimerAEnable())? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_YM2612_DEBUGGER_TIMERB_ENABLED, (_model.GetTimerBEnable())? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_YM2612_DEBUGGER_TIMERA_LOADED, (_model.GetTimerALoad())? BST_CHECKED: BST_UNCHECKED);
@@ -526,7 +526,7 @@ INT_PTR DebuggerView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_TIMERB_DATA, 2, _model.GetTimerBCurrentCounter());
 	}
 
-	//LFO
+	// LFO
 	CheckDlgButton(hwnd, IDC_YM2612_DEBUGGER_LFOENABLED, (_model.GetLFOEnabled())? BST_CHECKED: BST_UNCHECKED);
 	if (_currentControlFocus != IDC_YM2612_DEBUGGER_LFOFREQ)
 	{
@@ -563,14 +563,14 @@ INT_PTR DebuggerView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	}
 	UpdateDlgItemString(hwnd, IDC_YM2612_DEBUGGER_LFOFREQ2, lfoFrequencyText);
 
-	//DAC
+	// DAC
 	CheckDlgButton(hwnd, IDC_YM2612_DEBUGGER_DACENABLED, (_model.GetDACEnabled())? BST_CHECKED: BST_UNCHECKED);
 	if (_currentControlFocus != IDC_YM2612_DEBUGGER_DACDATA)
 	{
 		UpdateDlgItemHex(hwnd, IDC_YM2612_DEBUGGER_DACDATA, 2, _model.GetDACData());
 	}
 
-	//Key On/Off
+	// Key On/Off
 	CheckDlgButton(hwnd, IDC_YM2612_DEBUGGER_KEY_11, _model.GetKeyState(IYM2612::CHANNEL1, IYM2612::OPERATOR1)? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_YM2612_DEBUGGER_KEY_12, _model.GetKeyState(IYM2612::CHANNEL1, IYM2612::OPERATOR2)? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_YM2612_DEBUGGER_KEY_13, _model.GetKeyState(IYM2612::CHANNEL1, IYM2612::OPERATOR3)? BST_CHECKED: BST_UNCHECKED);
@@ -603,7 +603,7 @@ INT_PTR DebuggerView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	CheckDlgButton(hwnd, IDC_YM2612_DEBUGGER_KEY_5, (_model.GetKeyState(IYM2612::CHANNEL5, IYM2612::OPERATOR1) && _model.GetKeyState(IYM2612::CHANNEL5, IYM2612::OPERATOR2) && _model.GetKeyState(IYM2612::CHANNEL5, IYM2612::OPERATOR3) && _model.GetKeyState(IYM2612::CHANNEL5, IYM2612::OPERATOR4))? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_YM2612_DEBUGGER_KEY_6, (_model.GetKeyState(IYM2612::CHANNEL6, IYM2612::OPERATOR1) && _model.GetKeyState(IYM2612::CHANNEL6, IYM2612::OPERATOR2) && _model.GetKeyState(IYM2612::CHANNEL6, IYM2612::OPERATOR3) && _model.GetKeyState(IYM2612::CHANNEL6, IYM2612::OPERATOR4))? BST_CHECKED: BST_UNCHECKED);
 
-	//Clock
+	// Clock
 	if (_currentControlFocus != IDC_YM2612_DEBUGGER_CLOCK)
 	{
 		UpdateDlgItemFloat(hwnd, IDC_YM2612_DEBUGGER_CLOCK, (float)_model.GetExternalClockRate());
@@ -632,7 +632,7 @@ INT_PTR DebuggerView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR DebuggerView::msgWM_BOUNCE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	BounceMessage* bounceMessage = (BounceMessage*)lparam;
@@ -643,8 +643,8 @@ INT_PTR DebuggerView::msgWM_BOUNCE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	case WM_LBUTTONDOWN:
 		if ((bounceMessage->wParam & MK_CONTROL) != 0)
 		{
-			//If the user has control+clicked a control which supports locking, toggle the
-			//lock state of the target register.
+			// If the user has control+clicked a control which supports locking, toggle the
+			// lock state of the target register.
 			switch (controlID)
 			{
 			default:{
@@ -658,7 +658,7 @@ INT_PTR DebuggerView::msgWM_BOUNCE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 					_model.SetGenericDataLocked(dataID, dataContext, !_model.GetGenericDataLocked(dataID, dataContext));
 				}
 
-				//Force the control to redraw when the lock state is toggled
+				// Force the control to redraw when the lock state is toggled
 				InvalidateRect(bounceMessage->hwnd, NULL, FALSE);
 				break;}
 			case IDC_YM2612_DEBUGGER_KEY_11:
@@ -695,11 +695,11 @@ INT_PTR DebuggerView::msgWM_BOUNCE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 					_model.SetGenericDataLocked(dataID, dataContext, !_model.GetGenericDataLocked(dataID, dataContext));
 				}
 
-				//We force the entire window to redraw instead as a special case here to
-				//deal with the "All" key-state checkboxes which toggle the locked state
-				//for all the operators within a channel at once. If we only redraw the
-				//control which was clicked, the other checkboxes which have had their
-				//state toggled won't redraw.
+				// We force the entire window to redraw instead as a special case here to
+				// deal with the "All" key-state checkboxes which toggle the locked state
+				// for all the operators within a channel at once. If we only redraw the
+				// control which was clicked, the other checkboxes which have had their
+				// state toggled won't redraw.
 				InvalidateRect(hwnd, NULL, FALSE);
 				break;}
 			case IDC_YM2612_DEBUGGER_KEY_1:
@@ -719,11 +719,11 @@ INT_PTR DebuggerView::msgWM_BOUNCE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 				_model.SetGenericDataLocked((unsigned int)IYM2612::IYM2612DataSource::KeyState, &operator3KeyStateDataContext, newKeyLockingState);
 				_model.SetGenericDataLocked((unsigned int)IYM2612::IYM2612DataSource::KeyState, &operator4KeyStateDataContext, newKeyLockingState);
 
-				//We force the entire window to redraw instead as a special case here to
-				//deal with the "All" key-state checkboxes which toggle the locked state
-				//for all the operators within a channel at once. If we only redraw the
-				//control which was clicked, the other checkboxes which have had their
-				//state toggled won't redraw.
+				// We force the entire window to redraw instead as a special case here to
+				// deal with the "All" key-state checkboxes which toggle the locked state
+				// for all the operators within a channel at once. If we only redraw the
+				// control which was clicked, the other checkboxes which have had their
+				// state toggled won't redraw.
 				InvalidateRect(hwnd, NULL, FALSE);
 				break;}
 			}
@@ -771,7 +771,7 @@ INT_PTR DebuggerView::msgWM_BOUNCE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		case IDC_YM2612_DEBUGGER_KEY_62:
 		case IDC_YM2612_DEBUGGER_KEY_63:
 		case IDC_YM2612_DEBUGGER_KEY_64:{
-			//Handle background colour changes for checkbox controls which are locked
+			// Handle background colour changes for checkbox controls which are locked
 			unsigned int dataID;
 			IYM2612::RegisterDataContext registerDataContext;
 			IYM2612::ChannelDataContext channelDataContext;
@@ -811,10 +811,10 @@ INT_PTR DebuggerView::msgWM_BOUNCE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR DebuggerView::msgWM_CTLCOLOREDIT(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	//Handle background colour changes for edit controls which are locked
+	// Handle background colour changes for edit controls which are locked
 	int controlID = GetDlgCtrlID((HWND)lparam);
 	unsigned int dataID;
 	IYM2612::RegisterDataContext registerDataContext;
@@ -832,7 +832,7 @@ INT_PTR DebuggerView::msgWM_CTLCOLOREDIT(HWND hwnd, WPARAM wparam, LPARAM lparam
 	return FALSE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR DebuggerView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	unsigned int channelNo = _selectedChannel;
@@ -855,7 +855,7 @@ INT_PTR DebuggerView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			_presenter.OpenOperatorView(channelNo, IYM2612::OPERATOR4);
 			break;}
 
-		//Channel Select
+		// Channel Select
 		case IDC_YM2612_DEBUGGER_CS1:{
 			_selectedChannel = 0;
 			InvalidateRect(hwnd, NULL, FALSE);
@@ -881,7 +881,7 @@ INT_PTR DebuggerView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			InvalidateRect(hwnd, NULL, FALSE);
 			break;}
 
-		//AM Enable
+		// AM Enable
 		case IDC_YM2612_DEBUGGER_AM_OP1:{
 			_model.SetAmplitudeModulationEnabled(channelNo, IYM2612::OPERATOR1, IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED);
 			break;}
@@ -895,7 +895,7 @@ INT_PTR DebuggerView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			_model.SetAmplitudeModulationEnabled(channelNo, IYM2612::OPERATOR4, IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED);
 			break;}
 
-		//Left/Right
+		// Left/Right
 		case IDC_YM2612_DEBUGGER_LEFT:{
 			_model.SetOutputLeft(channelNo, IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED);
 			break;}
@@ -903,7 +903,7 @@ INT_PTR DebuggerView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			_model.SetOutputRight(channelNo, IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED);
 			break;}
 
-		//Timers
+		// Timers
 		case IDC_YM2612_DEBUGGER_TIMERA_ENABLED:{
 			_model.SetTimerAEnable(IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED);
 			break;}
@@ -923,17 +923,17 @@ INT_PTR DebuggerView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			_model.SetTimerBOverflow(IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED);
 			break;}
 
-		//LFO
+		// LFO
 		case IDC_YM2612_DEBUGGER_LFOENABLED:{
 			_model.SetLFOEnabled(IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED);
 			break;}
 
-		//DAC
+		// DAC
 		case IDC_YM2612_DEBUGGER_DACENABLED:{
 			_model.SetDACEnabled(IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED);
 			break;}
 
-		//Key On/Off
+		// Key On/Off
 		case IDC_YM2612_DEBUGGER_KEY_11:{
 			_model.SetKeyState(IYM2612::CHANNEL1, IYM2612::OPERATOR1, (IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED));
 			break;}
@@ -1045,9 +1045,9 @@ INT_PTR DebuggerView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			break;}
 		}
 
-		//If the target register is currently locked, we need to re-create the lock with
-		//the updated register value. Note that we have already obtained a lock before the
-		//new register value was written.
+		// If the target register is currently locked, we need to re-create the lock with
+		// the updated register value. Note that we have already obtained a lock before the
+		// new register value was written.
 		unsigned int dataID;
 		IYM2612::RegisterDataContext registerDataContext;
 		IYM2612::ChannelDataContext channelDataContext;
@@ -1079,7 +1079,7 @@ INT_PTR DebuggerView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		unsigned int controlID = LOWORD(wparam);
 		switch (controlID)
 		{
-		//Total Level
+		// Total Level
 		case IDC_YM2612_DEBUGGER_TL_OP1:{
 			_model.SetTotalLevelData(channelNo, IYM2612::OPERATOR1, GetDlgItemHex(hwnd, LOWORD(wparam)));
 			break;}
@@ -1093,7 +1093,7 @@ INT_PTR DebuggerView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			_model.SetTotalLevelData(channelNo, IYM2612::OPERATOR4, GetDlgItemHex(hwnd, LOWORD(wparam)));
 			break;}
 
-		//Sustain Level
+		// Sustain Level
 		case IDC_YM2612_DEBUGGER_SL_OP1:{
 			_model.SetSustainLevelData(channelNo, IYM2612::OPERATOR1, GetDlgItemHex(hwnd, LOWORD(wparam)));
 			break;}
@@ -1107,7 +1107,7 @@ INT_PTR DebuggerView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			_model.SetSustainLevelData(channelNo, IYM2612::OPERATOR4, GetDlgItemHex(hwnd, LOWORD(wparam)));
 			break;}
 
-		//Attack Rate
+		// Attack Rate
 		case IDC_YM2612_DEBUGGER_AR_OP1:{
 			_model.SetAttackRateData(channelNo, IYM2612::OPERATOR1, GetDlgItemHex(hwnd, LOWORD(wparam)));
 			break;}
@@ -1121,7 +1121,7 @@ INT_PTR DebuggerView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			_model.SetAttackRateData(channelNo, IYM2612::OPERATOR4, GetDlgItemHex(hwnd, LOWORD(wparam)));
 			break;}
 
-		//Decay Rate
+		// Decay Rate
 		case IDC_YM2612_DEBUGGER_DR_OP1:{
 			_model.SetDecayRateData(channelNo, IYM2612::OPERATOR1, GetDlgItemHex(hwnd, LOWORD(wparam)));
 			break;}
@@ -1135,7 +1135,7 @@ INT_PTR DebuggerView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			_model.SetDecayRateData(channelNo, IYM2612::OPERATOR4, GetDlgItemHex(hwnd, LOWORD(wparam)));
 			break;}
 
-		//Sustain Rate
+		// Sustain Rate
 		case IDC_YM2612_DEBUGGER_SR_OP1:{
 			_model.SetSustainRateData(channelNo, IYM2612::OPERATOR1, GetDlgItemHex(hwnd, LOWORD(wparam)));
 			break;}
@@ -1149,7 +1149,7 @@ INT_PTR DebuggerView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			_model.SetSustainRateData(channelNo, IYM2612::OPERATOR4, GetDlgItemHex(hwnd, LOWORD(wparam)));
 			break;}
 
-		//Release Rate
+		// Release Rate
 		case IDC_YM2612_DEBUGGER_RR_OP1:{
 			_model.SetReleaseRateData(channelNo, IYM2612::OPERATOR1, GetDlgItemHex(hwnd, LOWORD(wparam)));
 			break;}
@@ -1163,7 +1163,7 @@ INT_PTR DebuggerView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			_model.SetReleaseRateData(channelNo, IYM2612::OPERATOR4, GetDlgItemHex(hwnd, LOWORD(wparam)));
 			break;}
 
-		//SSG-EG Mode
+		// SSG-EG Mode
 		case IDC_YM2612_DEBUGGER_SSGEG_OP1:{
 			_model.SetSSGData(channelNo, IYM2612::OPERATOR1, GetDlgItemHex(hwnd, LOWORD(wparam)));
 			break;}
@@ -1177,7 +1177,7 @@ INT_PTR DebuggerView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			_model.SetSSGData(channelNo, IYM2612::OPERATOR4, GetDlgItemHex(hwnd, LOWORD(wparam)));
 			break;}
 
-		//Detune
+		// Detune
 		case IDC_YM2612_DEBUGGER_DT_OP1:{
 			_model.SetDetuneData(channelNo, IYM2612::OPERATOR1, GetDlgItemHex(hwnd, LOWORD(wparam)));
 			break;}
@@ -1191,7 +1191,7 @@ INT_PTR DebuggerView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			_model.SetDetuneData(channelNo, IYM2612::OPERATOR4, GetDlgItemHex(hwnd, LOWORD(wparam)));
 			break;}
 
-		//Multiple
+		// Multiple
 		case IDC_YM2612_DEBUGGER_MUL_OP1:{
 			_model.SetMultipleData(channelNo, IYM2612::OPERATOR1, GetDlgItemHex(hwnd, LOWORD(wparam)));
 			break;}
@@ -1205,7 +1205,7 @@ INT_PTR DebuggerView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			_model.SetMultipleData(channelNo, IYM2612::OPERATOR4, GetDlgItemHex(hwnd, LOWORD(wparam)));
 			break;}
 
-		//Key Scale
+		// Key Scale
 		case IDC_YM2612_DEBUGGER_KS_OP1:{
 			_model.SetKeyScaleData(channelNo, IYM2612::OPERATOR1, GetDlgItemHex(hwnd, LOWORD(wparam)));
 			break;}
@@ -1219,7 +1219,7 @@ INT_PTR DebuggerView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			_model.SetKeyScaleData(channelNo, IYM2612::OPERATOR4, GetDlgItemHex(hwnd, LOWORD(wparam)));
 			break;}
 
-		//Channel Registers
+		// Channel Registers
 		case IDC_YM2612_DEBUGGER_ALGORITHM:{
 			_model.SetAlgorithmData(channelNo, GetDlgItemHex(hwnd, LOWORD(wparam)));
 			break;}
@@ -1239,7 +1239,7 @@ INT_PTR DebuggerView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			_model.SetPMSData(channelNo, GetDlgItemHex(hwnd, LOWORD(wparam)));
 			break;}
 
-		//Channel 3 Frequency
+		// Channel 3 Frequency
 		case IDC_YM2612_DEBUGGER_CH3MODE:{
 			_model.SetCH3Mode(GetDlgItemHex(hwnd, LOWORD(wparam)));
 			break;}
@@ -1268,7 +1268,7 @@ INT_PTR DebuggerView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			_model.SetBlockDataChannel3(IYM2612::OPERATOR4, GetDlgItemHex(hwnd, LOWORD(wparam)));
 			break;}
 
-		//Timers
+		// Timers
 		case IDC_YM2612_DEBUGGER_TIMERA_RATE:{
 			_model.SetTimerAData(GetDlgItemHex(hwnd, LOWORD(wparam)));
 			break;}
@@ -1282,17 +1282,17 @@ INT_PTR DebuggerView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			_model.SetTimerBCurrentCounter(GetDlgItemHex(hwnd, LOWORD(wparam)));
 			break;}
 
-		//LFO
+		// LFO
 		case IDC_YM2612_DEBUGGER_LFOFREQ:{
 			_model.SetLFOData(GetDlgItemHex(hwnd, LOWORD(wparam)));
 			break;}
 
-		//DAC
+		// DAC
 		case IDC_YM2612_DEBUGGER_DACDATA:{
 			_model.SetDACData(GetDlgItemHex(hwnd, LOWORD(wparam)));
 			break;}
 
-		//Clock
+		// Clock
 		case IDC_YM2612_DEBUGGER_CLOCK:{
 			_model.SetExternalClockRate(GetDlgItemDouble(hwnd, LOWORD(wparam)));
 			break;}
@@ -1313,9 +1313,9 @@ INT_PTR DebuggerView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			break;}
 		}
 
-		//If the target register is currently locked, we need to re-create the lock with
-		//the updated register value. Note that we have already obtained a lock before the
-		//new register value was written.
+		// If the target register is currently locked, we need to re-create the lock with
+		// the updated register value. Note that we have already obtained a lock before the
+		// new register value was written.
 		unsigned int dataID;
 		IYM2612::RegisterDataContext registerDataContext;
 		IYM2612::ChannelDataContext channelDataContext;
@@ -1331,9 +1331,9 @@ INT_PTR DebuggerView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
-//Register locking functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Register locking functions
+//----------------------------------------------------------------------------------------------------------------------
 bool DebuggerView::ControlIDToDataID(int controlID, unsigned int& genericDataID, IYM2612::RegisterDataContext& registerDataContext, IYM2612::ChannelDataContext& channelDataContext, IYM2612::OperatorDataContext& operatorDataContext, const IGenericAccess::DataContext** dataContext)
 {
 	*dataContext = 0;

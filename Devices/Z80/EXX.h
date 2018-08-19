@@ -28,7 +28,7 @@ public:
 	virtual void Z80Decode(const Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)
 	{
 		//##NOTE## This opcode is not affected by index prefixes. HL is always the _target.
-		//EXX		11011001
+		// EXX		11011001
 		_sourceBC.SetMode(EffectiveAddress::Mode::BC);
 		_sourceDE.SetMode(EffectiveAddress::Mode::DE);
 		_sourceHL.SetMode(EffectiveAddress::Mode::HL);
@@ -48,7 +48,7 @@ public:
 		Z80Word _targetDETemp;
 		Z80Word _targetHLTemp;
 
-		//Perform the operation
+		// Perform the operation
 		additionalTime += _sourceBC.Read(cpu, location + GetInstructionSize(), _sourceBCTemp);
 		additionalTime += _sourceDE.Read(cpu, location + GetInstructionSize(), _sourceDETemp);
 		additionalTime += _sourceHL.Read(cpu, location + GetInstructionSize(), _sourceHLTemp);
@@ -62,7 +62,7 @@ public:
 		additionalTime += _targetDE.Write(cpu, location + GetInstructionSize(), _sourceDETemp);
 		additionalTime += _targetHL.Write(cpu, location + GetInstructionSize(), _sourceHLTemp);
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -76,5 +76,5 @@ private:
 	EffectiveAddress _targetHL;
 };
 
-} //Close namespace Z80
+} // Close namespace Z80
 #endif

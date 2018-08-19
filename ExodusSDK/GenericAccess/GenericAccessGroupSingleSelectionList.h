@@ -5,26 +5,26 @@
 class GenericAccessGroupSingleSelectionList :public IGenericAccessGroupSingleSelectionList
 {
 public:
-	//Constructors
+	// Constructors
 	template<class T> inline GenericAccessGroupSingleSelectionList(T dataID, const std::wstring& name);
 	inline ~GenericAccessGroupSingleSelectionList();
 
-	//Interface version functions
+	// Interface version functions
 	virtual unsigned int GetIGenericAccessGroupEntryVersion() const;
 	virtual unsigned int GetIGenericAccessGroupSingleSelectionListVersion() const;
 
-	//Type functions
+	// Type functions
 	virtual GroupEntryType GetGroupEntryType() const;
 	virtual bool IsGroup() const;
 
-	//Parent functions
+	// Parent functions
 	virtual IGenericAccessGroup* GetParent() const;
 
-	//Data context functions
+	// Data context functions
 	virtual const IGenericAccess::DataContext* GetDataContext() const;
 	inline GenericAccessGroupSingleSelectionList* SetDataContext(const IGenericAccess::DataContext* dataContext);
 
-	//List info functions
+	// List info functions
 	virtual unsigned int GetDataID() const;
 	virtual Marshal::Ret<std::list<std::pair<const IGenericAccessDataValue*, const IGenericAccessDataValue*>>> GetSelectionList() const;
 	inline GenericAccessGroupSingleSelectionList* SetSelectionList(const std::list<std::pair<const IGenericAccessDataValue*, const IGenericAccessDataValue*>>& selectionList);
@@ -39,7 +39,7 @@ public:
 	inline GenericAccessGroupSingleSelectionList* SetHelpFileLink(const std::wstring& helpFileLink);
 
 protected:
-	//Parent functions
+	// Parent functions
 	virtual void SetParent(IGenericAccessGroup* parent);
 
 private:

@@ -13,31 +13,31 @@ using namespace MarshalSupport::Operators;
 class IExtension
 {
 public:
-	//Enumerations
+	// Enumerations
 	enum class SystemMenu;
 	enum class ModuleMenu;
 	enum class DeviceMenu;
 	enum class ExtensionMenu;
 
-	//Typedefs
+	// Typedefs
 	typedef void* AssemblyHandle;
 
 public:
-	//Constructors
+	// Constructors
 	virtual ~IExtension() = 0 {}
 
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisIExtensionVersion() { return 1; }
 	virtual unsigned int GetIExtensionVersion() const = 0;
 
-	//Initialization functions
+	// Initialization functions
 	virtual bool BindToSystemInterface(ISystemExtensionInterface* systemInterface) = 0;
 	virtual bool BindToGUIInterface(IGUIExtensionInterface* guiInterface) = 0;
 	virtual bool Construct(IHierarchicalStorageNode& node) = 0;
 	virtual bool BuildExtension() = 0;
 	virtual bool ValidateExtension() = 0;
 
-	//Reference functions
+	// Reference functions
 	virtual bool AddReference(const Marshal::In<std::wstring>& referenceName, IDevice* target) = 0;
 	virtual bool AddReference(const Marshal::In<std::wstring>& referenceName, IExtension* target) = 0;
 	virtual bool AddReference(const Marshal::In<std::wstring>& referenceName, IBusInterface* target) = 0;
@@ -47,18 +47,18 @@ public:
 	virtual bool RemoveReference(IBusInterface* target) = 0;
 	virtual bool RemoveReference(IClockSource* target) = 0;
 
-	//Name functions
+	// Name functions
 	virtual Marshal::Ret<std::wstring> GetExtensionClassName() const = 0;
 	virtual Marshal::Ret<std::wstring> GetExtensionInstanceName() const = 0;
 	virtual unsigned int GetExtensionModuleID() const = 0;
 
-	//Savestate functions
+	// Savestate functions
 	virtual void LoadSettingsState(IHierarchicalStorageNode& node) = 0;
 	virtual void SaveSettingsState(IHierarchicalStorageNode& node) const = 0;
 	virtual void LoadDebuggerState(IHierarchicalStorageNode& node) = 0;
 	virtual void SaveDebuggerState(IHierarchicalStorageNode& node) const = 0;
 
-	//Window functions
+	// Window functions
 	virtual AssemblyHandle GetAssemblyHandle() const = 0;
 	virtual void SetAssemblyHandle(AssemblyHandle assemblyHandle) = 0;
 	virtual bool RegisterSystemMenuHandler() = 0;

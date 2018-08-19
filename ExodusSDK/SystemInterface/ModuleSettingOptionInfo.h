@@ -5,17 +5,17 @@
 class ModuleSettingOptionInfo :public IModuleSettingOptionInfo
 {
 public:
-	//Constructors
+	// Constructors
 	ModuleSettingOptionInfo();
 
-	//Interface version functions
+	// Interface version functions
 	virtual unsigned int GetIModuleSettingOptionInfoVersion() const;
 
-	//Getters
+	// Getters
 	virtual Marshal::Ret<std::wstring> GetName() const;
 	virtual Marshal::Ret<std::wstring> GetDisplayName() const;
 
-	//Setters
+	// Setters
 	virtual void SetName(const Marshal::In<std::wstring>& name);
 	virtual void SetDisplayName(const Marshal::In<std::wstring>& displayName);
 

@@ -8,15 +8,15 @@
 class SettingsView :public ViewBase
 {
 public:
-	//Constructors
+	// Constructors
 	SettingsView(IUIManager& uiManager, SettingsViewPresenter& presenter, ExodusInterface& model);
 
 protected:
-	//Member window procedure
+	// Member window procedure
 	virtual INT_PTR WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
 private:
-	//Event handlers
+	// Event handlers
 	INT_PTR msgWM_INITDIALOG(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam);
 	INT_PTR msgWM_COMMAND(HWND hwnd, WPARAM wParam, LPARAM lParam);

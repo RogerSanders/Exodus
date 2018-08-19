@@ -11,8 +11,8 @@ public:
 
 	virtual bool Privileged() const
 	{
-		//Note that this instruction does not require supervisor privileges on the base M68000
-		//processor. Reference: M68000 Programmers Reference Manual, table A-1, footnote 4.
+		// Note that this instruction does not require supervisor privileges on the base M68000
+		// processor. Reference: M68000 Programmers Reference Manual, table A-1, footnote 4.
 		//##TODO## Run a test on the hardware to confirm this behaviour.
 		return false;
 	}
@@ -42,7 +42,7 @@ public:
 //	----------------------------------------=========================
 //	                                        |----------<ea>---------|
 
-		//MOVE	SR,<ea>
+		// MOVE	SR,<ea>
 		_target.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), BITCOUNT_WORD, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
 		AddInstructionSize(_target.ExtensionSize());
 		if ((_target.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect) || (_target.GetAddressMode() == EffectiveAddress::Mode::AddRegDirect))
@@ -61,11 +61,11 @@ public:
 		double additionalTime = 0;
 		M68000Word result;
 
-		//Perform the operation
+		// Perform the operation
 		result = cpu->GetSR();
 		additionalTime += _target.Write(cpu, result, GetInstructionRegister());
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -81,5 +81,5 @@ private:
 	EffectiveAddress _target;
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #endif

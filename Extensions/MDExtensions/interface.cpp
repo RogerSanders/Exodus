@@ -19,7 +19,7 @@ extern "C" __declspec(dllexport) unsigned int GetInterfaceVersion()
 
 extern "C" __declspec(dllexport) bool GetExtensionEntry(unsigned int entryNo, IExtensionInfo& entry)
 {
-	//Retrieve any required information from the version info table for our plugin
+	// Retrieve any required information from the version info table for our plugin
 	std::wstring copyrightText;
 	std::wstring commentsText;
 	HMODULE moduleHandle = NULL;

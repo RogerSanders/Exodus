@@ -8,25 +8,25 @@
 class RegistersView :public ViewBase
 {
 public:
-	//Constructors
+	// Constructors
 	RegistersView(IUIManager& uiManager, RegistersViewPresenter& presenter, IS315_5313& model);
 	~RegistersView();
 
 protected:
-	//Member window procedure
+	// Member window procedure
 	virtual INT_PTR WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
 private:
-	//Event handlers
+	// Event handlers
 	INT_PTR msgWM_INITDIALOG(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgWM_NOTIFY(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
-	//Raw registers dialog window procedure
+	// Raw registers dialog window procedure
 	static INT_PTR CALLBACK WndProcRawRegistersStatic(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 	INT_PTR WndProcRawRegisters(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
-	//Raw registers dialog event handlers
+	// Raw registers dialog event handlers
 	INT_PTR msgRawRegistersWM_INITDIALOG(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgRawRegistersWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgRawRegistersWM_TIMER(HWND hwnd, WPARAM wParam, LPARAM lParam);
@@ -34,22 +34,22 @@ private:
 	INT_PTR msgRawRegistersWM_BOUNCE(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgRawRegistersWM_CTLCOLOREDIT(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
-	//Mode registers dialog window procedure
+	// Mode registers dialog window procedure
 	static INT_PTR CALLBACK WndProcModeRegistersStatic(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 	INT_PTR WndProcModeRegisters(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
-	//Mode registers dialog event handlers
+	// Mode registers dialog event handlers
 	INT_PTR msgModeRegistersWM_INITDIALOG(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgModeRegistersWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgModeRegistersWM_TIMER(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgModeRegistersWM_COMMAND(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgModeRegistersWM_BOUNCE(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
-	//Other registers dialog window procedure
+	// Other registers dialog window procedure
 	static INT_PTR CALLBACK WndProcOtherRegistersStatic(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 	INT_PTR WndProcOtherRegisters(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
-	//Other registers dialog event handlers
+	// Other registers dialog event handlers
 	INT_PTR msgOtherRegistersWM_INITDIALOG(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgOtherRegistersWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgOtherRegistersWM_TIMER(HWND hwnd, WPARAM wParam, LPARAM lParam);
@@ -57,13 +57,13 @@ private:
 	INT_PTR msgOtherRegistersWM_BOUNCE(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgOtherRegistersWM_CTLCOLOREDIT(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
-	//Register locking functions
+	// Register locking functions
 	bool RawRegistersControlIDToDataID(int controlID, unsigned int& genericDataID, IS315_5313::RegisterDataContext& registerDataContext, const IGenericAccess::DataContext** dataContext);
 	bool ModeRegistersControlIDToDataID(int controlID, unsigned int& genericDataID);
 	bool OtherRegistersControlIDToDataID(int controlID, unsigned int& genericDataID);
 
 private:
-	//Structures
+	// Structures
 	struct TabInfo
 	{
 		TabInfo(const std::wstring& atabName, int adialogID, DLGPROC adialogProc)

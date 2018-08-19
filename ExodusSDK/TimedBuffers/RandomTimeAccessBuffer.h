@@ -31,45 +31,45 @@ anyway.
 #include "TimedBufferAccessTarget.h"
 #include "TimedBufferAdvanceSession.h"
 
-//Any object can be stored, saved, or loaded from this container, provided it meets the
-//following requirements:
-//-It is copy constructible
-//-It is assignable
-//-It is streamable into and from Stream::ViewBinary and Stream::ViewText, either natively
-//or through overloaded stream operators.
+// Any object can be stored, saved, or loaded from this container, provided it meets the
+// following requirements:
+// -It is copy constructible
+// -It is assignable
+// -It is streamable into and from Stream::ViewBinary and Stream::ViewText, either natively
+// or through overloaded stream operators.
 
 //##TODO## Finish implementing the optional cached copy of the latest buffer state
 //##TODO## Consider making this class 64-bit compliant by using size_t for the address and
-//size arguments. In fact, I would definitely do this, since it should cost us nothing
-//internally in terms of performance.
+// size arguments. In fact, I would definitely do this, since it should cost us nothing
+// internally in terms of performance.
 //##TODO## Re-evaluate the locking on this class, and compare with RandomTimeAccessBufferNew.
-//Note that we've had one idea about making the lock on read/write optional. In most
-//cases, this buffer is internal to a device, and that device itself has locks to prevent
-//concurrent access. If the buffer is being used in this kind of scenario, by instructing
-//this container to skip the lock, we could get a performance boost.
+// Note that we've had one idea about making the lock on read/write optional. In most
+// cases, this buffer is internal to a device, and that device itself has locks to prevent
+// concurrent access. If the buffer is being used in this kind of scenario, by instructing
+// this container to skip the lock, we could get a performance boost.
 template<class DataType, class TimesliceType> class RandomTimeAccessBuffer
 {
 public:
-	//Structures
+	// Structures
 	struct TimesliceEntry;
 
-	//Typedefs
+	// Typedefs
 	typedef typename TimedBufferWriteInfo<DataType, TimesliceType> WriteInfo;
 	typedef typename TimedBufferAccessTarget<DataType, TimesliceType> AccessTarget;
 	typedef typename TimedBufferAdvanceSession<DataType, TimesliceType> AdvanceSession;
 	typedef typename std::list<TimesliceEntry>::iterator Timeslice;
 
-	//Constructors
+	// Constructors
 	inline RandomTimeAccessBuffer();
 	inline RandomTimeAccessBuffer(const DataType& defaultValue);
 	inline RandomTimeAccessBuffer(unsigned int size, bool keepLatestCopy);
 	inline RandomTimeAccessBuffer(unsigned int size, bool keepLatestCopy, const DataType& defaultValue);
 
-	//Size functions
+	// Size functions
 	inline unsigned int Size() const;
 	void Resize(unsigned int size, bool keepLatestCopy = false);
 
-	//Access functions
+	// Access functions
 	inline DataType Read(unsigned int address, const AccessTarget& accessTarget) const;
 	inline void Write(unsigned int address, const DataType& data, const AccessTarget& accessTarget);
 	inline DataType Read(unsigned int address, const TimedBufferAccessTarget<DataType, TimesliceType>* accessTarget) const;
@@ -81,18 +81,18 @@ public:
 	DataType ReadCommitted(unsigned int address, TimesliceType readTime) const;
 	//##TODO## Consider removing this function
 	//##NOTE## I now strongly recommend removing this function. Not only does it
-	//effectively not work, since the newly written value can be overwritten at any moment
-	//from a buffered write, making it useless for debugger changes, it also doesn't work
-	//with the latest memory state buffer. Implementing support for this function call
-	//with the latest memory state buffer would make this function perform quite slowly
-	//too, which is actually its only advantage over the WriteLatest function.
+	// effectively not work, since the newly written value can be overwritten at any moment
+	// from a buffered write, making it useless for debugger changes, it also doesn't work
+	// with the latest memory state buffer. Implementing support for this function call
+	// with the latest memory state buffer would make this function perform quite slowly
+	// too, which is actually its only advantage over the WriteLatest function.
 	inline void WriteCommitted(unsigned int address, const DataType& data);
 	DataType ReadLatest(unsigned int address) const;
 	void WriteLatest(unsigned int address, const DataType& data);
 	void GetLatestBufferCopy(std::vector<DataType>& buffer) const;
 	void GetLatestBufferCopy(DataType* buffer, unsigned int bufferSize) const;
 
-	//Time management functions
+	// Time management functions
 	void Initialize();
 	bool DoesLatestTimesliceExist() const;
 	Timeslice GetLatestTimeslice();
@@ -107,24 +107,24 @@ public:
 	void Rollback();
 	void AddTimeslice(TimesliceType timeslice);
 
-	//Session management functions
+	// Session management functions
 	void BeginAdvanceSession(AdvanceSession& advanceSession, const Timeslice& targetTimeslice, bool retrieveWriteInfo) const;
 
-	//Savestate functions
+	// Savestate functions
 	bool LoadState(IHierarchicalStorageNode& node);
 	bool SaveState(IHierarchicalStorageNode& node, const std::wstring& bufferName, bool inlineData = false) const;
 
 private:
-	//Structures
+	// Structures
 	struct WriteEntry;
 	struct TimesliceSaveEntry;
 	struct WriteSaveEntry;
 
-	//Time management functions
+	// Time management functions
 	TimesliceType GetNextWriteTimeNoLock(const Timeslice& targetTimeslice) const;
 	void AdvanceBySessionInternal(TimesliceType currentProgress, AdvanceSession& advanceSession, const Timeslice& targetTimeslice);
 
-	//Savestate functions
+	// Savestate functions
 	bool LoadTimesliceEntries(IHierarchicalStorageNode& node, std::list<TimesliceSaveEntry>& timesliceSaveList);
 	bool LoadWriteEntries(IHierarchicalStorageNode& node, std::list<WriteSaveEntry>& writeSaveList);
 

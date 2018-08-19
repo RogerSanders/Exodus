@@ -6,19 +6,19 @@
 class GenericAccessPage :public IGenericAccessPage
 {
 public:
-	//Constructors
+	// Constructors
 	GenericAccessPage(const std::wstring& name, const std::wstring& title = L"", Type type = Type::Debug);
 
-	//Interface version functions
+	// Interface version functions
 	virtual unsigned int GetIGenericAccessPageVersion() const;
 
-	//Page info methods
+	// Page info methods
 	virtual Type GetPageType() const;
 	void SetPageType(Type type);
 	virtual Marshal::Ret<std::wstring> GetName() const;
 	virtual Marshal::Ret<std::wstring> GetTitle() const;
 
-	//Content methods
+	// Content methods
 	virtual const IGenericAccessGroup* GetContentRoot() const;
 	GenericAccessPage* AddEntry(IGenericAccessGroupEntry* entry);
 

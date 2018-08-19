@@ -73,7 +73,7 @@ public:
 //	----------------------------------------=========================
 //	                                        |----------<ea>---------|
 
-		//JSR	<ea>
+		// JSR	<ea>
 		_target.BuildAddressPredec(BITCOUNT_LONG, location + GetInstructionSize(), M68000::SP);
 
 		_source.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), BITCOUNT_LONG, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
@@ -87,11 +87,11 @@ public:
 		M68000Long address;
 
 		//##FIX## If a data register is unmodified, and is then used as the index into a
-		//branch, eg: "jsr off_468(pc,d0.w)", we need to mark the _source location for the
-		//data register value as an offset.
-		//If the _target location was read from a memory address, and the read value hasn't
-		//been modified up to this point, record the _source memory address as a pointer to
-		//code for disassembly purposes.
+		// branch, eg: "jsr off_468(pc,d0.w)", we need to mark the _source location for the
+		// data register value as an offset.
+		// If the _target location was read from a memory address, and the read value hasn't
+		// been modified up to this point, record the _source memory address as a pointer to
+		// code for disassembly purposes.
 		unsigned int _targetReadFromAddress;
 		bool dataIsOffset;
 		unsigned int offsetBaseAddress;
@@ -101,13 +101,13 @@ public:
 			cpu->AddDisassemblyAddressInfoOffset(_targetReadFromAddress, dataSize, true, dataIsOffset, offsetBaseAddress);
 		}
 
-		//Perform the operation
+		// Perform the operation
 		_source.GetAddress(cpu, address);
 		additionalTime += _target.Write(cpu, M68000Long(location + GetInstructionSize()), GetInstructionRegister());
 		cpu->PushCallStack(cpu->GetPC().GetData(), address.GetData(), (location + GetInstructionSize()).GetData(), L"JSR");
 		cpu->SetPC(address);
 
-		//Detect possible jump tables for active disassembly
+		// Detect possible jump tables for active disassembly
 		if (cpu->ActiveDisassemblyEnabled() && ((_source.GetAddressMode() == EffectiveAddress::Mode::AddRegIndirectIndex8Bit) || (_source.GetAddressMode() == EffectiveAddress::Mode::PCIndirectIndex8Bit)))
 		{
 			M68000Long baseAddress;
@@ -115,17 +115,17 @@ public:
 			cpu->AddDisassemblyPossibleBranchTable(baseAddress.GetData(), address.GetData(), GetInstructionSize());
 		}
 
-		//Return the execution time
+		// Return the execution time
 		return GetExecuteCycleCount(additionalTime);
 	}
 
 	virtual void GetResultantPCLocations(std::set<unsigned int>& resultantPCLocations, bool& undeterminedResultantPCLocation) const
 	{
-		//Return the address directly after this opcode, and the jump location from
-		//executing this opcode, if it can be determined statically, as the possible
-		//resultant PC locations from executing this opcode. If the jump location cannot
-		//be determined at this time because it relies on register contents, flag that
-		//there is an undetermined resultant PC location from executing this opcode.
+		// Return the address directly after this opcode, and the jump location from
+		// executing this opcode, if it can be determined statically, as the possible
+		// resultant PC locations from executing this opcode. If the jump location cannot
+		// be determined at this time because it relies on register contents, flag that
+		// there is an undetermined resultant PC location from executing this opcode.
 		undeterminedResultantPCLocation = false;
 		unsigned int nextOpcodeAddress = GetInstructionLocation().GetData() + GetInstructionSize();
 		resultantPCLocations.insert(nextOpcodeAddress);
@@ -151,5 +151,5 @@ private:
 	EffectiveAddress _target;
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #endif

@@ -18,7 +18,7 @@ reached, that the counter will definitely not change again.
 #include "WindowsSupport/WindowsSupport.pkg"
 
 //##FIX## These methods can be replaced with a call to InterlockedIncrement and
-//InterlockedDecrement
+// InterlockedDecrement
 typedef LONG ReferenceCounterType;
 ReferenceCounterType ReferenceCounterIncrement(volatile ReferenceCounterType& referenceCounter);
 ReferenceCounterType ReferenceCounterDecrement(volatile ReferenceCounterType& referenceCounter);

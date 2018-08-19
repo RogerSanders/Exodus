@@ -35,18 +35,18 @@ public:
 //	                            |--<opmode>-|----------<ea>---------|
 		switch (data.GetDataSegment(6, 2))
 		{
-		case 0:	//00
+		case 0:	// 00
 			_size = BITCOUNT_BYTE;
 			break;
-		case 1:	//01
+		case 1:	// 01
 			_size = BITCOUNT_WORD;
 			break;
-		case 2:	//10
+		case 2:	// 10
 			_size = BITCOUNT_LONG;
 			break;
 		}
 
-		//NOT	<ea>
+		// NOT	<ea>
 		_target.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), _size, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
 		AddInstructionSize(_target.ExtensionSize());
 
@@ -81,18 +81,18 @@ public:
 		Data op1(_size);
 		Data result(_size);
 
-		//Perform the operation
+		// Perform the operation
 		additionalTime += _target.ReadWithoutAdjustingAddress(cpu, op1, GetInstructionRegister());
 		result = ~op1;
 		additionalTime += _target.Write(cpu, result, GetInstructionRegister());
 
-		//Set the flag results
+		// Set the flag results
 		cpu->SetN(result.Negative());
 		cpu->SetZ(result.Zero());
 		cpu->SetV(false);
 		cpu->SetC(false);
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -107,5 +107,5 @@ private:
 	Bitcount _size;
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #endif

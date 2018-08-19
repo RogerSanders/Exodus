@@ -5,10 +5,10 @@ class ITimedBufferInt;
 class ITimedBufferIntDevice
 {
 public:
-	//Make sure the object can't be deleted from this base
+	// Make sure the object can't be deleted from this base
 	protected: virtual ~ITimedBufferIntDevice() = 0 {} public:
 
-	//Buffer functions
+	// Buffer functions
 	virtual ITimedBufferInt* GetTimedBuffer() = 0;
 };
 

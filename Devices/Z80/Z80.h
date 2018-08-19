@@ -38,7 +38,7 @@ References:
 #include "ExecuteTime.h"
 #include <mutex>
 #include <list>
-//View and menu classes
+// View and menu classes
 class RegistersViewPresenter;
 class RegistersView;
 namespace Z80 {
@@ -47,14 +47,14 @@ class Z80Instruction;
 class Z80 :public Processor, public IZ80
 {
 public:
-	//Constructors
+	// Constructors
 	Z80(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 	~Z80();
 
-	//Interface version functions
+	// Interface version functions
 	virtual unsigned int GetIZ80Version() const;
 
-	//Initialization functions
+	// Initialization functions
 	virtual bool Construct(IHierarchicalStorageNode& node);
 	virtual bool BuildDevice();
 	virtual bool ValidateDevice();
@@ -62,22 +62,22 @@ public:
 	virtual void Reset();
 	virtual void BeginExecution();
 
-	//Reference functions
+	// Reference functions
 	using Processor::AddReference;
 	virtual bool AddReference(const Marshal::In<std::wstring>& referenceName, IBusInterface* target);
 	virtual void RemoveReference(IBusInterface* target);
 
-	//Suspend functions
+	// Suspend functions
 	virtual bool UsesExecuteSuspend() const;
 
-	//Execute functions
+	// Execute functions
 	virtual double ExecuteStep();
 	virtual void ExecuteRollback();
 	virtual void ExecuteCommit();
 	virtual bool SendNotifyUpcomingTimeslice() const;
 	virtual void NotifyUpcomingTimeslice(double nanoseconds);
 
-	//Line functions
+	// Line functions
 	virtual unsigned int GetLineID(const Marshal::In<std::wstring>& lineName) const;
 	virtual Marshal::Ret<std::wstring> GetLineName(unsigned int lineID) const;
 	virtual unsigned int GetLineWidth(unsigned int lineID) const;
@@ -88,16 +88,16 @@ public:
 	virtual void NegateCurrentOutputLineState() const;
 	void ApplyLineStateChange(unsigned int targetLine, const Data& lineData, std::unique_lock<std::mutex>& lock);
 
-	//Clock source functions
+	// Clock source functions
 	virtual unsigned int GetClockSourceID(const Marshal::In<std::wstring>& clockSourceName) const;
 	virtual Marshal::Ret<std::wstring> GetClockSourceName(unsigned int clockSourceID) const;
 	virtual void SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	virtual void TransparentSetClockSourceRate(unsigned int clockInput, double clockRate);
 	void ApplyClockStateChange(unsigned int targetClock, double clockRate);
 
-	//Instruction functions
+	// Instruction functions
 	//##TODO##
-	//virtual bool FormatDataForDisassembly(const std::vector<Data>& dataElements, unsigned int outputElementBitCount, std::wstring& disassembly) const;
+	// virtual bool FormatDataForDisassembly(const std::vector<Data>& dataElements, unsigned int outputElementBitCount, std::wstring& disassembly) const;
 	virtual unsigned int GetByteBitCount() const;
 	virtual unsigned int GetCurrentPC() const;
 	virtual unsigned int GetPCWidth() const;
@@ -109,7 +109,7 @@ public:
 	virtual void SetMemorySpaceByte(unsigned int location, unsigned int data);
 	virtual bool GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const;
 
-	//Register functions
+	// Register functions
 	inline Z80Byte GetA() const;
 	inline void GetA(Data& data) const;
 	inline void SetA(const Z80Byte& data);
@@ -220,7 +220,7 @@ public:
 
 	inline void AddRefresh(unsigned int increase);
 
-	//Interrupt register functions
+	// Interrupt register functions
 	inline unsigned int GetInterruptMode() const;
 	inline void SetInterruptMode(unsigned int interruptMode);
 	inline bool GetIFF1() const;
@@ -231,7 +231,7 @@ public:
 	inline void SetMaskInterruptsNextOpcode(bool state);
 	inline void SetProcessorStoppedState(bool state);
 
-	//Flag functions
+	// Flag functions
 	inline bool GetFlagS() const;
 	inline void SetFlagS(bool flag);
 	inline bool GetFlagZ() const;
@@ -249,50 +249,50 @@ public:
 	inline bool GetFlagC() const;
 	inline void SetFlagC(bool flag);
 
-	//Memory access functions
+	// Memory access functions
 	double ReadMemory(const Z80Word& location, Data& data, bool transparent) const;
 	double WriteMemory(const Z80Word& location, const Data& data, bool transparent) const;
 
-	//CE line state functions
+	// CE line state functions
 	virtual unsigned int GetCELineID(const Marshal::In<std::wstring>& lineName, bool inputLine) const;
 	virtual void SetCELineOutput(unsigned int lineID, bool lineMapped, unsigned int lineStartBitNumber);
 	virtual unsigned int CalculateCELineStateMemory(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext, double accessTime) const;
 	virtual unsigned int CalculateCELineStateMemoryTransparent(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext) const;
 
-	//Savestate functions
+	// Savestate functions
 	virtual void LoadState(IHierarchicalStorageNode& node);
 	virtual void SaveState(IHierarchicalStorageNode& node) const;
 
-	//Data read/write functions
+	// Data read/write functions
 	using IGenericAccess::ReadGenericData;
 	using IGenericAccess::WriteGenericData;
 	virtual bool ReadGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue) const;
 	virtual bool WriteGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue);
 
-	//Highlight functions
+	// Highlight functions
 	virtual bool GetGenericDataHighlightState(unsigned int dataID, const DataContext* dataContext) const;
 	void PopulateChangedRegStateFromCurrentState();
 
 private:
-	//Enumerations
+	// Enumerations
 	enum class CELineID;
 	enum class LineID;
 	enum class ClockID;
 
-	//Structures
+	// Structures
 	struct LineAccess;
 	struct CalculateCELineStateContext;
 
-	//View and menu classes
+	// View and menu classes
 	friend class RegistersViewPresenter;
 	friend class RegistersView;
 
 private:
-	//Bus interface
+	// Bus interface
 	mutable ReadWriteLock _externalReferenceLock;
 	IBusInterface* _memoryBus;
 
-	//Opcode decode tables
+	// Opcode decode tables
 	std::list<Z80Instruction*> _opcodeList;
 	std::list<Z80Instruction*> _opcodeListCB;
 	std::list<Z80Instruction*> _opcodeListED;
@@ -300,10 +300,10 @@ private:
 	OpcodeTable<Z80Instruction> _opcodeTableCB;
 	OpcodeTable<Z80Instruction> _opcodeTableED;
 
-	//Opcode allocation buffer for placement new
+	// Opcode allocation buffer for placement new
 	void* _opcodeBuffer;
 
-	//Main registers       Alternate registers
+	// Main registers       Alternate registers
 	Z80Word _afreg;        Z80Word _af2reg;
 	Z80Word _bcreg;        Z80Word _bc2reg;
 	Z80Word _dereg;        Z80Word _de2reg;
@@ -313,7 +313,7 @@ private:
 	Z80Word _bdereg;       Z80Word _bde2reg;
 	Z80Word _bhlreg;       Z80Word _bhl2reg;
 
-	//Special purpose registers
+	// Special purpose registers
 	Z80Byte _ireg;
 	Z80Byte _rreg;
 	Z80Word _ixreg;
@@ -327,7 +327,7 @@ private:
 	Z80Word _bspreg;
 	Z80Word _bpcreg;
 
-	//Interrupt registers
+	// Interrupt registers
 	unsigned int _interruptMode;
 	bool _iff1;
 	bool _iff2;
@@ -337,15 +337,15 @@ private:
 	bool _biff2;
 	bool _bmaskInterruptsNextOpcode;
 
-	//External signals
+	// External signals
 	bool _processorStopped;
 	bool _bprocessorStopped;
 
-	//CE line masks
+	// CE line masks
 	unsigned int _ceLineMaskRD;
 	unsigned int _ceLineMaskWR;
 
-	//Changed register state
+	// Changed register state
 	volatile unsigned int _regChangedAF;
 	volatile unsigned int _regChangedBC;
 	volatile unsigned int _regChangedDE;
@@ -392,7 +392,7 @@ private:
 	volatile bool _regChangedFlagN;
 	volatile bool _regChangedFlagC;
 
-	//Line access
+	// Line access
 	std::mutex _lineMutex;
 	mutable double _lastLineCheckTime;
 	volatile bool _lineAccessPending;
@@ -416,6 +416,6 @@ private:
 	bool _bnmiLineState;
 };
 
-} //Close namespace Z80
+} // Close namespace Z80
 #include "Z80.inl"
 #endif

@@ -13,14 +13,14 @@
 namespace MarshalSupport {
 namespace Internal {
 
-//Disable warning about our use of type traits causing conditional expressions to be constant. The code behaves as
-//intended, and the compiler is free to optimize away the dead branch.
+// Disable warning about our use of type traits causing conditional expressions to be constant. The code behaves as
+// intended, and the compiler is free to optimize away the dead branch.
 #ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable:4127)
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Alloc>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, const std::vector<ElementType, Alloc>& element)
 {
@@ -44,7 +44,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 }
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Alloc>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::vector<ElementType, Alloc>&& element)
 {
@@ -66,14 +66,14 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 }
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 inline void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, const std::vector<bool>& element)
 {
-	//Note that we specifically exclude vectors from using memcpy here, since we can't do
-	//that on the bit-packed specialization of a boolean vector that's still part of the
-	//C++ standard at this time, and the data() method doesn't exist on this container
-	//specialization either, so we can't use type traits within the generic vector
-	//specialization to exclude it.
+	// Note that we specifically exclude vectors from using memcpy here, since we can't do
+	// that on the bit-packed specialization of a boolean vector that's still part of the
+	// C++ standard at this time, and the data() method doesn't exist on this container
+	// specialization either, so we can't use type traits within the generic vector
+	// specialization to exclude it.
 	size_t containerEntryCount = element.size();
 	elementSizeArray[elementSizeArrayIndex++] = containerEntryCount;
 	bool* itemArrayWithType = (bool*)itemArray;
@@ -84,7 +84,7 @@ inline void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], IN
 }
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, size_t ArraySize>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, const std::array<ElementType, ArraySize>& element)
 {
@@ -103,7 +103,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, size_t ArraySize>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::array<ElementType, ArraySize>&& element)
 {
@@ -123,7 +123,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 }
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Alloc>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, const std::list<ElementType, Alloc>& element)
 {
@@ -138,7 +138,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 }
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Alloc>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::list<ElementType, Alloc>&& element)
 {
@@ -152,7 +152,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 	elementSizeArray[elementSizeArrayIndexForContainer] = containerEntryCount;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Alloc>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, const std::forward_list<ElementType, Alloc>& element)
 {
@@ -166,7 +166,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 	elementSizeArray[elementSizeArrayIndexForContainer] = containerEntryCount;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Alloc>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::forward_list<ElementType, Alloc>&& element)
 {
@@ -181,7 +181,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 }
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Alloc>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, const std::deque<ElementType, Alloc>& element)
 {
@@ -196,7 +196,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 }
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Alloc>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::deque<ElementType, Alloc>&& element)
 {
@@ -211,7 +211,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 }
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Compare, class Alloc>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, const std::set<ElementType, Compare, Alloc>& element)
 {
@@ -226,7 +226,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 }
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Compare, class Alloc>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::set<ElementType, Compare, Alloc>&& element)
 {
@@ -234,10 +234,10 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 	size_t containerEntryCount = 0;
 	for (typename std::set<ElementType, Compare, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
 	{
-		//Note that we can't use a non-const iterator and move the elements from this
-		//container, because as per the C++ standard 23.2.4/6 iterator and const_iterator
-		//are both const iterators for set containers. Casting away the const property and
-		//performing a move here during iteration would cause undefined behaviour.
+		// Note that we can't use a non-const iterator and move the elements from this
+		// container, because as per the C++ standard 23.2.4/6 iterator and const_iterator
+		// are both const iterators for set containers. Casting away the const property and
+		// performing a move here during iteration would cause undefined behaviour.
 		DecomposeSTLContainer(itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, *i);
 		++containerEntryCount;
 	}
@@ -245,7 +245,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 }
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Compare, class Alloc>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, const std::multiset<ElementType, Compare, Alloc>& element)
 {
@@ -260,7 +260,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 }
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Compare, class Alloc>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::multiset<ElementType, Compare, Alloc>&& element)
 {
@@ -268,17 +268,17 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 	size_t containerEntryCount = 0;
 	for (typename std::multiset<ElementType, Compare, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
 	{
-		//Note that we can't use a non-const iterator and move the elements from this
-		//container, because as per the C++ standard 23.2.4/6 iterator and const_iterator
-		//are both const iterators for set containers. Casting away the const property and
-		//performing a move here during iteration would cause undefined behaviour.
+		// Note that we can't use a non-const iterator and move the elements from this
+		// container, because as per the C++ standard 23.2.4/6 iterator and const_iterator
+		// are both const iterators for set containers. Casting away the const property and
+		// performing a move here during iteration would cause undefined behaviour.
 		DecomposeSTLContainer(itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, *i);
 		++containerEntryCount;
 	}
 	elementSizeArray[elementSizeArrayIndexForContainer] = containerEntryCount;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Hash, class Pred, class Alloc>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, const std::unordered_set<ElementType, Hash, Pred, Alloc>& element)
 {
@@ -292,7 +292,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 	elementSizeArray[elementSizeArrayIndexForContainer] = containerEntryCount;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Hash, class Pred, class Alloc>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::unordered_set<ElementType, Hash, Pred, Alloc>&& element)
 {
@@ -300,17 +300,17 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 	size_t containerEntryCount = 0;
 	for (typename std::unordered_set<ElementType, Hash, Pred, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
 	{
-		//Note that we can't use a non-const iterator and move the elements from this
-		//container, because as per the C++ standard 23.2.4/6 iterator and const_iterator
-		//are both const iterators for set containers. Casting away the const property and
-		//performing a move here during iteration would cause undefined behaviour.
+		// Note that we can't use a non-const iterator and move the elements from this
+		// container, because as per the C++ standard 23.2.4/6 iterator and const_iterator
+		// are both const iterators for set containers. Casting away the const property and
+		// performing a move here during iteration would cause undefined behaviour.
 		DecomposeSTLContainer(itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, *i);
 		++containerEntryCount;
 	}
 	elementSizeArray[elementSizeArrayIndexForContainer] = containerEntryCount;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Hash, class Pred, class Alloc>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, const std::unordered_multiset<ElementType, Hash, Pred, Alloc>& element)
 {
@@ -324,7 +324,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 	elementSizeArray[elementSizeArrayIndexForContainer] = containerEntryCount;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Hash, class Pred, class Alloc>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::unordered_multiset<ElementType, Hash, Pred, Alloc>&& element)
 {
@@ -332,10 +332,10 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 	size_t containerEntryCount = 0;
 	for (typename std::unordered_multiset<ElementType, Hash, Pred, Alloc>::const_iterator i = element.begin(); i != element.end(); ++i)
 	{
-		//Note that we can't use a non-const iterator and move the elements from this
-		//container, because as per the C++ standard 23.2.4/6 iterator and const_iterator
-		//are both const iterators for set containers. Casting away the const property and
-		//performing a move here during iteration would cause undefined behaviour.
+		// Note that we can't use a non-const iterator and move the elements from this
+		// container, because as per the C++ standard 23.2.4/6 iterator and const_iterator
+		// are both const iterators for set containers. Casting away the const property and
+		// performing a move here during iteration would cause undefined behaviour.
 		DecomposeSTLContainer(itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, *i);
 		++containerEntryCount;
 	}
@@ -343,7 +343,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 }
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class KeyType, class ElementType, class Compare, class Alloc>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, const std::map<KeyType, ElementType, Compare, Alloc>& element)
 {
@@ -358,7 +358,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 }
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class KeyType, class ElementType, class Compare, class Alloc>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::map<KeyType, ElementType, Compare, Alloc>&& element)
 {
@@ -373,7 +373,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 }
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class KeyType, class ElementType, class Compare, class Alloc>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, const std::multimap<KeyType, ElementType, Compare, Alloc>& element)
 {
@@ -388,7 +388,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 }
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class KeyType, class ElementType, class Compare, class Alloc>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::multimap<KeyType, ElementType, Compare, Alloc>&& element)
 {
@@ -402,7 +402,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class KeyType, class ElementType, class Hash, class Pred, class Alloc>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, const std::unordered_map<KeyType, ElementType, Hash, Pred, Alloc>& element)
 {
@@ -416,7 +416,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class KeyType, class ElementType, class Hash, class Pred, class Alloc>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::unordered_map<KeyType, ElementType, Hash, Pred, Alloc>&& element)
 {
@@ -430,7 +430,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class KeyType, class ElementType, class Hash, class Pred, class Alloc>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, const std::unordered_multimap<KeyType, ElementType, Hash, Pred, Alloc>& element)
 {
@@ -444,7 +444,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class KeyType, class ElementType, class Hash, class Pred, class Alloc>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::unordered_multimap<KeyType, ElementType, Hash, Pred, Alloc>&& element)
 {
@@ -459,7 +459,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 }
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Container>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, const std::stack<ElementType, Container>& element)
 {
@@ -482,7 +482,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 }
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Container>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::stack<ElementType, Container>&& element)
 {
@@ -504,7 +504,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 }
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Container>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, const std::queue<ElementType, Container>& element)
 {
@@ -520,7 +520,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 }
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Container>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::queue<ElementType, Container>&& element)
 {
@@ -535,7 +535,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 }
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Container, class Compare>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, const std::priority_queue<ElementType, Container, Compare>& element)
 {
@@ -544,11 +544,11 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 	std::priority_queue<ElementType, Container, Compare> elementCopy(element);
 	for (size_t i = 0; i < elementSize; ++i)
 	{
-		//Note that the double copy here sucks, but due to an oversight in the current design of std::priority_queue,
-		//there's no defined way to move an item off the queue. We could do a const cast here, and based on the very
-		//specific way the behaviour of the std::priority_queue class is defined in the standard, that really should be
-		//safe to do on any real-world implementation. We currently stick to the letter of the standard here however,
-		//and perform another copy rather than expose us to any undefined behaviour.
+		// Note that the double copy here sucks, but due to an oversight in the current design of std::priority_queue,
+		// there's no defined way to move an item off the queue. We could do a const cast here, and based on the very
+		// specific way the behaviour of the std::priority_queue class is defined in the standard, that really should be
+		// safe to do on any real-world implementation. We currently stick to the letter of the standard here however,
+		// and perform another copy rather than expose us to any undefined behaviour.
 		const ElementType& entry = elementCopy.top();
 		DecomposeSTLContainer(itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, entry);
 		elementCopy.pop();
@@ -556,7 +556,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 }
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Container, class Compare>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::priority_queue<ElementType, Container, Compare>&& element)
 {
@@ -571,7 +571,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 }
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class traits, class Alloc>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, const std::basic_string<ElementType, traits, Alloc>& element)
 {
@@ -595,7 +595,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 }
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class traits, class Alloc>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::basic_string<ElementType, traits, Alloc>&& element)
 {
@@ -617,7 +617,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 }
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class T1, class T2>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, const std::pair<T1, T2>& element)
 {
@@ -628,7 +628,7 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 }
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class T1, class T2>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::pair<T1, T2>&& element)
 {
@@ -640,22 +640,22 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 #endif
 
 #if defined(MARSHALSUPPORT_CPP11SUPPORTED) && !defined(MARSHALSUPPORT_NOVARIADICTEMPLATES)
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, const std::tuple<>& element)
 { }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::tuple<>&& element)
 { }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class... Args>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, const std::tuple<Args...>& element)
 {
 	TupleHelper<std::tuple_size<std::tuple<Args...>>::value-1, Args...>::DecomposeSTLContainer(itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex, element);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<size_t TupleElementNo, class... Args>
 void TupleHelper<TupleElementNo, Args...>::DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, const std::tuple<Args...>& element)
 {
@@ -664,7 +664,7 @@ void TupleHelper<TupleElementNo, Args...>::DecomposeSTLContainer(void* itemArray
 	TupleHelper<TupleElementNo-1, Args...>::DecomposeSTLContainer(itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, element);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class... Args>
 void TupleHelper<0, Args...>::DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, const std::tuple<Args...>& element)
 {
@@ -672,14 +672,14 @@ void TupleHelper<0, Args...>::DecomposeSTLContainer(void* itemArray, size_t elem
 	keyWrapper->AddKey(std::get<0>(element));
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class... Args>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::tuple<Args...>&& element)
 {
 	TupleHelper<std::tuple_size<std::tuple<Args...>>::value-1, Args...>::DecomposeSTLContainer(itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex, std::move(element));
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<size_t TupleElementNo, class... Args>
 void TupleHelper<TupleElementNo, Args...>::DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::tuple<Args...>&& element)
 {
@@ -688,7 +688,7 @@ void TupleHelper<TupleElementNo, Args...>::DecomposeSTLContainer(void* itemArray
 	TupleHelper<TupleElementNo-1, Args...>::DecomposeSTLContainer(itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, std::move(element));
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class... Args>
 void TupleHelper<0, Args...>::DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::tuple<Args...>&& element)
 {
@@ -697,11 +697,11 @@ void TupleHelper<0, Args...>::DecomposeSTLContainer(void* itemArray, size_t elem
 }
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, const ElementType& element)
 {
-	//Ensure that this function hasn't been called when there are still STL containers we need to decompose
+	// Ensure that this function hasn't been called when there are still STL containers we need to decompose
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
 	static_assert(is_last_nested_container_element<ElementType>::value, "MarshalSupport internal error. DecomposeSTLContainer reached final element marshaller with a type that still contains nested elements.");
 #else
@@ -713,27 +713,27 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 	new((void*)&arrayElement) ElementType(element);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, ElementType& element)
 {
-	//If a non-const lvalue reference has been supplied, convert it to a const lvalue reference and resolve the function
-	//again. We only supply overloads on this function for STL container types using const lvalue and non-const rvalue
-	//references, so we need to ensure that non-const lvalue references are made const before they are handled.
+	// If a non-const lvalue reference has been supplied, convert it to a const lvalue reference and resolve the function
+	// again. We only supply overloads on this function for STL container types using const lvalue and non-const rvalue
+	// references, so we need to ensure that non-const lvalue references are made const before they are handled.
 	DecomposeSTLContainer(itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex, (const ElementType&)element);
 }
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType>
 void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, ElementType&& element)
 {
-	//This function takes a universal reference in. Note that this function should never be invoked with a const rvalue
-	//reference. If this occurs, we have an internal error in our library. We use a static assertion to raise an error
-	//in this case.
+	// This function takes a universal reference in. Note that this function should never be invoked with a const rvalue
+	// reference. If this occurs, we have an internal error in our library. We use a static assertion to raise an error
+	// in this case.
 	static_assert(!std::is_const<ElementType>::value, "MarshalSupport internal error. DecomposeSTLContainer was called with a const rvalue reference.");
 
-	//Ensure that this function hasn't been called when there are still STL containers we need to decompose
+	// Ensure that this function hasn't been called when there are still STL containers we need to decompose
 	static_assert(is_last_nested_container_element<typename std::decay<ElementType>::type>::value, "MarshalSupport internal error. DecomposeSTLContainer reached final element marshaller with a type that still contains nested elements.");
 
 	auto* itemArrayWithType = (typename std::decay<ElementType>::type*)itemArray;
@@ -742,10 +742,10 @@ void DecomposeSTLContainer(void* itemArray, size_t elementSizeArray[], INestedMa
 }
 #endif
 
-//Restore the disabled warnings
+// Restore the disabled warnings
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
 
-} //Close namespace Internal
-} //Close namespace MarshalSupport
+} // Close namespace Internal
+} // Close namespace MarshalSupport

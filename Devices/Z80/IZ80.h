@@ -5,15 +5,15 @@
 class IZ80 :public virtual IGenericAccess
 {
 public:
-	//Enumerations
+	// Enumerations
 	enum class IZ80DataSource;
 
 public:
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisIZ80Version() { return 1; }
 	virtual unsigned int GetIZ80Version() const = 0;
 
-	//Register functions
+	// Register functions
 	inline unsigned int GetA() const;
 	inline void SetA(unsigned int data);
 	inline unsigned int GetF() const;
@@ -88,7 +88,7 @@ public:
 	inline unsigned int GetPC() const;
 	inline void SetPC(unsigned int data);
 
-	//Interrupt register functions
+	// Interrupt register functions
 	inline unsigned int GetInterruptMode() const;
 	inline void SetInterruptMode(unsigned int interruptMode);
 	inline bool GetIFF1() const;
@@ -96,7 +96,7 @@ public:
 	inline bool GetIFF2() const;
 	inline void SetIFF2(bool state);
 
-	//Flag functions
+	// Flag functions
 	inline bool GetFlagS() const;
 	inline void SetFlagS(bool flag);
 	inline bool GetFlagZ() const;

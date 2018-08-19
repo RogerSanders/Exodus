@@ -1,15 +1,15 @@
 #include "RAM8Variable.h"
 
-//----------------------------------------------------------------------------------------
-//Constructors
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Constructors
+//----------------------------------------------------------------------------------------------------------------------
 RAM8Variable::RAM8Variable(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
 :RAMBase(implementationName, instanceName, moduleID)
 {}
 
-//----------------------------------------------------------------------------------------
-//Memory interface functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Memory interface functions
+//----------------------------------------------------------------------------------------------------------------------
 IBusInterface::AccessResult RAM8Variable::ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	static const unsigned int arrayEntryByteSize = 1;
@@ -38,7 +38,7 @@ IBusInterface::AccessResult RAM8Variable::ReadInterface(unsigned int interfaceNu
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 IBusInterface::AccessResult RAM8Variable::WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	static const unsigned int arrayEntryByteSize = 1;
@@ -71,13 +71,13 @@ IBusInterface::AccessResult RAM8Variable::WriteInterface(unsigned int interfaceN
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void RAM8Variable::TransparentReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, unsigned int accessContext)
 {
 	ReadInterface(interfaceNumber, location, data, caller, 0, accessContext);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void RAM8Variable::TransparentWriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, unsigned int accessContext)
 {
 	static const unsigned int arrayEntryByteSize = 1;
@@ -109,15 +109,15 @@ void RAM8Variable::TransparentWriteInterface(unsigned int interfaceNumber, unsig
 	}
 }
 
-//----------------------------------------------------------------------------------------
-//Debug memory access functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Debug memory access functions
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int RAM8Variable::ReadMemoryEntry(unsigned int location) const
 {
 	return _memoryArray[location % _memoryArraySize];
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void RAM8Variable::WriteMemoryEntry(unsigned int location, unsigned int data)
 {
 	_memoryArray[location % _memoryArraySize] = (unsigned char)data;

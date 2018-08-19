@@ -6,17 +6,17 @@
 class InputMappingViewPresenter :public ViewPresenterBase
 {
 public:
-	//Constructors
+	// Constructors
 	InputMappingViewPresenter(const std::wstring& viewGroupName, const std::wstring& viewName, int viewID, ExodusSystemMenus& owner, ISystemGUIInterface& model);
 
-	//View title functions
+	// View title functions
 	static std::wstring GetUnqualifiedViewTitle();
 
-	//View creation and deletion
+	// View creation and deletion
 	virtual IView* CreateView(IUIManager& uiManager);
 	virtual void DeleteView(IView* view);
 
-	//Window functions
+	// Window functions
 	void OpenInputMappingDetailsView(IDevice* targetDevice);
 	void CloseInputMappingDetailsView();
 

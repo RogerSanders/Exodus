@@ -7,26 +7,26 @@ using namespace MarshalSupport::Operators;
 class ISystemDeviceInterface
 {
 public:
-	//Enumerations
+	// Enumerations
 	enum class KeyCode;
 	enum class AxisCode;
 	enum class ScrollCode;
 
 public:
-	//Constructors
+	// Constructors
 	virtual ~ISystemDeviceInterface() = 0 {}
 
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisISystemDeviceInterfaceVersion() { return 1; }
 	virtual unsigned int GetISystemDeviceInterfaceVersion() const = 0;
 
-	//Path functions
+	// Path functions
 	virtual Marshal::Ret<std::wstring> GetCapturePath() const = 0;
 
-	//Logging functions
+	// Logging functions
 	virtual void WriteLogEvent(const ILogEntry& entry) const = 0;
 
-	//System execution functions
+	// System execution functions
 	virtual void FlagStopSystem() = 0;
 	virtual bool IsSystemRollbackFlagged() const = 0;
 	virtual double SystemRollbackTime() const = 0;
@@ -34,7 +34,7 @@ public:
 	virtual void SetSystemRollback(IDeviceContext* triggerDevice, IDeviceContext* rollbackDevice, double timeslice, unsigned int accessContext, void (*callbackFunction)(void*) = 0, void* callbackParams = 0) = 0;
 	virtual bool PerformingSingleDeviceStep() const = 0;
 
-	//Input functions
+	// Input functions
 	virtual bool TranslateKeyCode(unsigned int platformKeyCode, KeyCode& inputKeyCode) const = 0;
 	virtual bool TranslateJoystickButton(unsigned int joystickNo, unsigned int buttonNo, KeyCode& inputKeyCode) const = 0;
 	virtual bool TranslateJoystickAxisAsButton(unsigned int joystickNo, unsigned int axisNo, bool positiveAxis, KeyCode& inputKeyCode) const = 0;

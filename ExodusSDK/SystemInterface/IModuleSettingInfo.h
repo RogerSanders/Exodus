@@ -8,14 +8,14 @@ using namespace MarshalSupport::Operators;
 class IModuleSettingInfo
 {
 public:
-	//Constructors
+	// Constructors
 	virtual ~IModuleSettingInfo() = 0 {}
 
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisIModuleSettingInfoVersion() { return 1; }
 	virtual unsigned int GetIModuleSettingInfoVersion() const = 0;
 
-	//Getters
+	// Getters
 	virtual Marshal::Ret<std::wstring> GetName() const = 0;
 	virtual Marshal::Ret<std::wstring> GetDisplayName() const = 0;
 	virtual unsigned int GetOptionCount() const = 0;
@@ -24,7 +24,7 @@ public:
 	virtual unsigned int GetToggleSettingOffOptionIndex() const = 0;
 	virtual bool IsToggleSetting() const = 0;
 
-	//Setters
+	// Setters
 	virtual void SetName(const Marshal::In<std::wstring>& name) = 0;
 	virtual void SetDisplayName(const Marshal::In<std::wstring>& displayName) = 0;
 	virtual void SetOptionCount(unsigned int optionCount) = 0;

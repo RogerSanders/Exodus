@@ -43,17 +43,17 @@ public:
 		double additionalTime = 0;
 		M68000Byte result;
 
-		//Perform the operation
+		// Perform the operation
 		additionalTime += _source.Read(cpu, result, GetInstructionRegister());
 		additionalTime += _target.Write(cpu, result.SignExtend(BITCOUNT_LONG), GetInstructionRegister());
 
-		//Set the flag results
+		// Set the flag results
 		cpu->SetN(result.Negative());
 		cpu->SetZ(result.Zero());
 		cpu->SetV(false);
 		cpu->SetC(false);
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -69,5 +69,5 @@ private:
 	EffectiveAddress _target;
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #endif

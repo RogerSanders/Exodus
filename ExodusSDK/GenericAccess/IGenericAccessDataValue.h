@@ -7,26 +7,26 @@ using namespace MarshalSupport::Operators;
 class IGenericAccessDataValue
 {
 public:
-	//Enumerations
+	// Enumerations
 	enum class DataType;
 	enum class IntDisplayMode;
 	enum class FloatDisplayMode;
 
 public:
-	//Constructors
+	// Constructors
 	virtual ~IGenericAccessDataValue() = 0 {}
 
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisIGenericAccessDataValueVersion() { return 1; }
 	virtual unsigned int GetIGenericAccessDataValueVersion() const = 0;
 
-	//Type functions
+	// Type functions
 	virtual DataType GetType() const = 0;
 
-	//Value read functions
+	// Value read functions
 	virtual Marshal::Ret<std::wstring> GetValueString() const = 0;
 
-	//Value write functions
+	// Value write functions
 	inline bool SetValue(bool value);
 	inline bool SetValue(int value);
 	inline bool SetValue(unsigned int value);
@@ -42,7 +42,7 @@ public:
 	virtual bool SetValueFilePath(const Marshal::In<std::wstring>& value) = 0;
 	virtual bool SetValueFolderPath(const Marshal::In<std::wstring>& value) = 0;
 
-	//Value limit functions
+	// Value limit functions
 	virtual void ApplyLimitSettingsToCurrentValue() = 0;
 };
 

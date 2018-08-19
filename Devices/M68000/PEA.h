@@ -83,11 +83,11 @@ public:
 		double additionalTime = 0;
 		M68000Long result;
 
-		//Perform the operation
+		// Perform the operation
 		_source.GetAddress(cpu, result);
 		additionalTime += _target.Write(cpu, result, GetInstructionRegister());
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -103,5 +103,5 @@ private:
 	EffectiveAddress _target;
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #endif

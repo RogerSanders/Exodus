@@ -3,16 +3,16 @@
 #include "InputMappingDetailsViewPresenter.h"
 #include "EmbeddedROMViewPresenter.h"
 
-//----------------------------------------------------------------------------------------
-//Constructors
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Constructors
+//----------------------------------------------------------------------------------------------------------------------
 SettingsMenuHandler::SettingsMenuHandler(ExodusSystemMenus& owner, ISystemGUIInterface& model)
 :MenuHandlerBase(L"SystemSettingsMenu", owner.GetViewManager()), _owner(owner), _model(model)
 {}
 
-//----------------------------------------------------------------------------------------
-//Management functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Management functions
+//----------------------------------------------------------------------------------------------------------------------
 void SettingsMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) const
 {
 	menuItems.push_back(MenuItemDefinition(MENUITEM_INPUTMAPPING, L"InputMapping", InputMappingViewPresenter::GetUnqualifiedViewTitle(), true));
@@ -20,7 +20,7 @@ void SettingsMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems)
 	menuItems.push_back(MenuItemDefinition(MENUITEM_EMBEDDEDROM, L"EmbeddedROMControl", EmbeddedROMViewPresenter::GetUnqualifiedViewTitle(), true));
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 IViewPresenter* SettingsMenuHandler::CreateViewForItem(int menuItemID, const std::wstring& viewName)
 {
 	switch (menuItemID)
@@ -33,15 +33,15 @@ IViewPresenter* SettingsMenuHandler::CreateViewForItem(int menuItemID, const std
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void SettingsMenuHandler::DeleteViewForItem(int menuItemID, IViewPresenter* viewPresenter)
 {
 	delete viewPresenter;
 }
 
-//----------------------------------------------------------------------------------------
-//Window functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Window functions
+//----------------------------------------------------------------------------------------------------------------------
 void SettingsMenuHandler::OpenInputMappingDetailsView(IDevice* targetDevice)
 {
 	std::set<IViewPresenter*> viewPresenters = GetOpenViewPresenters(MENUITEM_INPUTMAPPINGDETAILS);
@@ -64,7 +64,7 @@ void SettingsMenuHandler::OpenInputMappingDetailsView(IDevice* targetDevice)
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void SettingsMenuHandler::CloseInputMappingDetailsView()
 {
 	std::set<IViewPresenter*> viewPresenters = GetOpenViewPresenters(MENUITEM_INPUTMAPPINGDETAILS);

@@ -6,13 +6,13 @@
 class GenericAccessDataInfo :public IGenericAccessDataInfo
 {
 public:
-	//Constructors
+	// Constructors
 	template<class T> inline GenericAccessDataInfo(T id, IGenericAccessDataValue::DataType type);
 
-	//Interface version functions
+	// Interface version functions
 	virtual unsigned int GetIGenericAccessDataInfoVersion() const;
 
-	//Data info functions
+	// Data info functions
 	virtual unsigned int GetID() const;
 	inline GenericAccessDataInfo* SetID(unsigned int id);
 	virtual IGenericAccessDataValue::DataType GetType() const;
@@ -24,7 +24,7 @@ public:
 	virtual bool GetHighlightUsed() const;
 	inline GenericAccessDataInfo* SetHighlightUsed(bool highlightUsed);
 
-	//Data display mode functions
+	// Data display mode functions
 	virtual IGenericAccessDataValue::IntDisplayMode GetIntDisplayMode() const;
 	inline GenericAccessDataInfo* SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode state);
 	virtual IGenericAccessDataValue::FloatDisplayMode GetFloatDisplayMode() const;
@@ -34,7 +34,7 @@ public:
 	virtual unsigned int GetMinFractionalNumberChars() const;
 	inline GenericAccessDataInfo* SetMinFractionalNumberChars(unsigned int state);
 
-	//Data limit functions
+	// Data limit functions
 	virtual int GetIntMinValue() const;
 	inline GenericAccessDataInfo* SetIntMinValue(int state);
 	virtual int GetIntMaxValue() const;
@@ -54,7 +54,7 @@ public:
 	virtual unsigned int GetStringMaxLength() const;
 	inline GenericAccessDataInfo* SetStringMaxLength(unsigned int state);
 
-	//File path settings
+	// File path settings
 	virtual bool GetFilePathCreatingTarget() const;
 	inline GenericAccessDataInfo* SetFilePathCreatingTarget(bool state);
 	virtual bool GetFilePathAllowScanningIntoArchives() const;
@@ -64,7 +64,7 @@ public:
 	virtual Marshal::Ret<std::wstring> GetFilePathDefaultExtension() const;
 	inline GenericAccessDataInfo* SetFilePathDefaultExtension(const std::wstring& filePathDefaultExtension);
 
-	//Folder path settings
+	// Folder path settings
 	virtual bool GetFolderPathCreatingTarget() const;
 	inline GenericAccessDataInfo* SetFolderPathCreatingTarget(bool state);
 
@@ -75,13 +75,13 @@ private:
 	bool _lockingSupported;
 	bool _highlightUsed;
 
-	//Display mode state
+	// Display mode state
 	IGenericAccessDataValue::IntDisplayMode _intDisplayMode;
 	IGenericAccessDataValue::FloatDisplayMode _floatDisplayMode;
 	unsigned int _minWholeNumberChars;
 	unsigned int _minFractionalNumberChars;
 
-	//Data limit state
+	// Data limit state
 	int _intMinValue;
 	int _intMaxValue;
 	unsigned int _uintMinValue;
@@ -92,13 +92,13 @@ private:
 	double _doubleMaxValue;
 	unsigned int _maxStringLength;
 
-	//File path settings
+	// File path settings
 	bool _filePathCreatingTarget;
 	bool _filePathAllowScanningIntoArchives;
 	std::wstring _filePathExtensionFilter;
 	std::wstring _filePathDefaultExtension;
 
-	//Folder path settings
+	// Folder path settings
 	bool _folderPathCreatingTarget;
 };
 

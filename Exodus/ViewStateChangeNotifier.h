@@ -6,13 +6,13 @@
 class ViewStateChangeNotifier :public IViewStateChangeNotifier
 {
 public:
-	//Constructors
+	// Constructors
 	ViewStateChangeNotifier(IViewManagerNotifierInterface& viewManager, IViewPresenter& viewPresenter);
 
-	//Interface version functions
+	// Interface version functions
 	virtual unsigned int GetIViewStateChangeNotifierVersion() const;
 
-	//Notification functions
+	// Notification functions
 	virtual void NotifyViewClosed();
 
 private:

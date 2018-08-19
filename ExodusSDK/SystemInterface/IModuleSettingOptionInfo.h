@@ -8,18 +8,18 @@ using namespace MarshalSupport::Operators;
 class IModuleSettingOptionInfo
 {
 public:
-	//Constructors
+	// Constructors
 	virtual ~IModuleSettingOptionInfo() = 0 {}
 
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisIModuleSettingOptionInfoVersion() { return 1; }
 	virtual unsigned int GetIModuleSettingOptionInfoVersion() const = 0;
 
-	//Getters
+	// Getters
 	virtual Marshal::Ret<std::wstring> GetName() const = 0;
 	virtual Marshal::Ret<std::wstring> GetDisplayName() const = 0;
 
-	//Setters
+	// Setters
 	virtual void SetName(const Marshal::In<std::wstring>& name) = 0;
 	virtual void SetDisplayName(const Marshal::In<std::wstring>& displayName) = 0;
 };

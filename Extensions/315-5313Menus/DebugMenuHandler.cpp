@@ -7,16 +7,16 @@
 #include "SpriteListViewPresenter.h"
 #include "PortMonitorViewPresenter.h"
 
-//----------------------------------------------------------------------------------------
-//Constructors
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Constructors
+//----------------------------------------------------------------------------------------------------------------------
 DebugMenuHandler::DebugMenuHandler(S315_5313Menus& owner, const IDevice& modelInstanceKey, IS315_5313& model)
 :MenuHandlerBase(L"VDPDebugMenu", owner.GetViewManager()), _owner(owner), _modelInstanceKey(modelInstanceKey), _model(model)
 {}
 
-//----------------------------------------------------------------------------------------
-//Management functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Management functions
+//----------------------------------------------------------------------------------------------------------------------
 void DebugMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) const
 {
 	menuItems.push_back(MenuItemDefinition(MENUITEM_IMAGE, L"Image", ImageViewPresenter::GetUnqualifiedViewTitle(), true, true));
@@ -28,7 +28,7 @@ void DebugMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) co
 	menuItems.push_back(MenuItemDefinition(MENUITEM_VRAMVIEWER, L"VRAMPatterns", VRAMViewPresenter::GetUnqualifiedViewTitle(), true, true));
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 IViewPresenter* DebugMenuHandler::CreateViewForItem(int menuItemID, const std::wstring& viewName)
 {
 	switch (menuItemID)
@@ -51,7 +51,7 @@ IViewPresenter* DebugMenuHandler::CreateViewForItem(int menuItemID, const std::w
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void DebugMenuHandler::DeleteViewForItem(int menuItemID, IViewPresenter* viewPresenter)
 {
 	delete viewPresenter;

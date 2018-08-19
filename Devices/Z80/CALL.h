@@ -41,11 +41,11 @@ public:
 		_target.SetIndexState(GetIndexState(), GetIndexOffset());
 		_conditionCode = ConditionCode::None;
 
-		//CALL nn		//11001101 nnnnnnnn nnnnnnnn
+		// CALL nn		// 11001101 nnnnnnnn nnnnnnnn
 		_source.BuildImmediateData(BITCOUNT_WORD, location + GetInstructionSize(), cpu, transparent);
 		if (!data.GetBit(0))
 		{
-			//CALL cc,nn		//11ccc100 nnnnnnnn nnnnnnnn
+			// CALL cc,nn		// 11ccc100 nnnnnnnn nnnnnnnn
 			_conditionCode = (ConditionCode)data.GetDataSegment(3, 3);
 		}
 		_target.SetMode(EffectiveAddress::Mode::SPPreDec);
@@ -60,10 +60,10 @@ public:
 		double additionalTime = 0;
 		ExecuteTime additionalCycles;
 
-		//Test the condition code
+		// Test the condition code
 		if (ConditionCodeTrue(cpu, _conditionCode))
 		{
-			//If the condition is true, jump to the _target location.
+			// If the condition is true, jump to the _target location.
 			additionalTime += _target.Write(cpu, location + GetInstructionSize(), location + GetInstructionSize());
 			Z80Word newPC;
 			additionalTime += _source.Read(cpu, location + GetInstructionSize(), newPC);
@@ -73,13 +73,13 @@ public:
 		}
 		else
 		{
-			//If the condition is false, skip the call, and continue execution at the
-			//next instruction.
+			// If the condition is false, skip the call, and continue execution at the
+			// next instruction.
 			cpu->SetPC(location + GetInstructionSize());
 			additionalCycles.cycles = 10;
 		}
 
-		//Return the execution time
+		// Return the execution time
 		return GetExecuteCycleCount(additionalTime) + additionalCycles;
 	}
 
@@ -89,5 +89,5 @@ private:
 	ConditionCode _conditionCode;
 };
 
-} //Close namespace Z80
+} // Close namespace Z80
 #endif

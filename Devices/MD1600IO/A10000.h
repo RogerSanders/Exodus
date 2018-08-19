@@ -38,32 +38,32 @@ References:
 #include <mutex>
 #include <vector>
 
-//Physical port interface:
-//Pin 1 - D0
-//Pin 2 - D1
-//Pin 3 - D2
-//Pin 4 - D3
-//Pin 5 - +5V
-//Pin 6 - TL
-//Pin 7 - TH
-//Pin 8 - GND
-//Pin 9 - TR
+// Physical port interface:
+// Pin 1 - D0
+// Pin 2 - D1
+// Pin 3 - D2
+// Pin 4 - D3
+// Pin 5 - +5V
+// Pin 6 - TL
+// Pin 7 - TH
+// Pin 8 - GND
+// Pin 9 - TR
 
 class A10000 :public Device
 {
 public:
-	//Constructors
+	// Constructors
 	A10000(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 
-	//Initialization functions
+	// Initialization functions
 	virtual bool ValidateDevice();
 	virtual void Initialize();
 
-	//Reference functions
+	// Reference functions
 	virtual bool AddReference(const Marshal::In<std::wstring>& referenceName, IBusInterface* target);
 	virtual void RemoveReference(IBusInterface* target);
 
-	//Execute functions
+	// Execute functions
 	virtual bool SendNotifyUpcomingTimeslice() const;
 	virtual void NotifyUpcomingTimeslice(double nanoseconds);
 	virtual bool SendNotifyAfterExecuteCalled() const;
@@ -71,7 +71,7 @@ public:
 	virtual void ExecuteRollback();
 	virtual void ExecuteCommit();
 
-	//Line functions
+	// Line functions
 	virtual unsigned int GetLineID(const Marshal::In<std::wstring>& lineName) const;
 	virtual Marshal::Ret<std::wstring> GetLineName(unsigned int lineID) const;
 	virtual unsigned int GetLineWidth(unsigned int lineID) const;
@@ -81,29 +81,29 @@ public:
 	virtual void AssertCurrentOutputLineState() const;
 	virtual void NegateCurrentOutputLineState() const;
 
-	//Memory interface functions
+	// Memory interface functions
 	virtual IBusInterface::AccessResult ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	virtual IBusInterface::AccessResult WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 
-	//Savestate functions
+	// Savestate functions
 	virtual void LoadState(IHierarchicalStorageNode& node);
 	virtual void SaveState(IHierarchicalStorageNode& node) const;
 
 private:
-	//Enumerations
+	// Enumerations
 	enum class Ports;
 	enum class PortLine;
 	enum class LineID;
 
-	//Structures
+	// Structures
 	struct InputLineState;
 	struct LineAccess;
 
-	//Constants
+	// Constants
 	static const unsigned int ControlPortCount = 3;
 
 private:
-	//Line functions
+	// Line functions
 	void AssertCurrentOutputLineStateForPort(Ports portNo) const;
 	void NegateCurrentOutputLineStateForPort(Ports portNo) const;
 	void ApplyLineStateChange(LineID targetLine, const Data& lineData);
@@ -111,27 +111,27 @@ private:
 	static LineID GetLineIDForPort(Ports portNo, PortLine portLine);
 	static inline unsigned int GetPortIndexForPort(Ports portNo);
 
-	//Data register access
+	// Data register access
 	inline Data ReadDataRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, Ports portNo) const;
 	inline void WriteDataRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, Ports portNo, const Data& data);
 
-	//Control register access
+	// Control register access
 	inline Data ReadControlRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, Ports portNo) const;
 	inline void WriteControlRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, Ports portNo, const Data& data);
 
-	//Serial control register access
+	// Serial control register access
 	inline Data ReadSerialControlRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, Ports portNo) const;
 	inline void WriteSerialControlRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, Ports portNo, const Data& data);
 
-	//TxData register access
+	// TxData register access
 	inline Data ReadTxDataRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, Ports portNo) const;
 	inline void WriteTxDataRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, Ports portNo, const Data& data);
 
-	//RxData register access
+	// RxData register access
 	inline Data ReadRxDataRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, Ports portNo) const;
 	inline void WriteRxDataRegister(IDeviceContext* caller, double accessTime, unsigned int accessContext, Ports portNo, const Data& data);
 
-	//Raw register functions
+	// Raw register functions
 	inline Data GetVersionRegister() const;
 	inline void SetVersionRegister(const Data& data);
 	inline Data GetDataRegister(Ports portNo) const;
@@ -145,7 +145,7 @@ private:
 	inline Data GetRxDataRegister(Ports portNo) const;
 	inline void SetRxDataRegister(Ports portNo, const Data& data);
 
-	//Version register functions
+	// Version register functions
 	inline bool GetOverseasFlag() const;
 	inline void SetOverseasFlag(bool data);
 	inline bool GetPALFlag() const;
@@ -155,7 +155,7 @@ private:
 	inline unsigned int GetHardwareVersion() const;
 	inline void SetHardwareVersion(unsigned int data);
 
-	//Data register functions
+	// Data register functions
 	inline bool GetDataRegisterHL(Ports portNo) const;
 	inline void SetDataRegisterHL(Ports portNo, bool state);
 	inline bool GetDataRegisterTH(Ports portNo) const;
@@ -173,7 +173,7 @@ private:
 	inline bool GetDataRegisterD0(Ports portNo) const;
 	inline void SetDataRegisterD0(Ports portNo, bool state);
 
-	//Control register functions
+	// Control register functions
 	inline bool GetControlRegisterHL(Ports portNo) const;
 	inline void SetControlRegisterHL(Ports portNo, bool state);
 	inline bool GetControlRegisterTH(Ports portNo) const;
@@ -191,7 +191,7 @@ private:
 	inline bool GetControlRegisterD0(Ports portNo) const;
 	inline void SetControlRegisterD0(Ports portNo, bool state);
 
-	//Serial control register functions
+	// Serial control register functions
 	inline unsigned int GetSerialBaudRate(Ports portNo) const;
 	inline void SetSerialBaudRate(Ports portNo, unsigned int state);
 	inline bool GetSerialInputEnabled(Ports portNo) const;
@@ -207,21 +207,21 @@ private:
 	inline bool GetTxDataBufferFull(Ports portNo) const;
 	inline void SetTxDataBufferFull(Ports portNo, bool state);
 
-	//Interrupt functions
+	// Interrupt functions
 	void UpdateHLInterruptState(IDeviceContext* caller, double accessTime, unsigned int accessContext);
 
 private:
-	//Bus interface
+	// Bus interface
 	IBusInterface* _memoryBus;
 	IBusInterface* _controlPortBus;
 
-	//Version register settings
+	// Version register settings
 	Data _versionRegister;
 	Data _bversionRegister;
 	unsigned int _inputHardwareVersion;
 	unsigned int _binputHardwareVersion;
 
-	//Control port registers
+	// Control port registers
 	mutable std::mutex _accessMutex;
 	std::vector<Data> _dataRegisters;
 	std::vector<Data> _bdataRegisters;
@@ -236,11 +236,11 @@ private:
 	bool _currentHLLineState;
 	bool _bcurrentHLLineState;
 
-	//Input line state
+	// Input line state
 	std::vector<InputLineState> _inputLineState;
 	std::vector<InputLineState> _binputLineState;
 
-	//Line access
+	// Line access
 	std::mutex _lineMutex;
 	double _lastLineCheckTime;
 	volatile bool _lineAccessPending;

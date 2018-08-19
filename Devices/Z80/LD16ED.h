@@ -32,14 +32,14 @@ public:
 
 		if (data.GetBit(3))
 		{
-			//LD dd,(nn)	11101101 01dd1011 nnnnnnnn nnnnnnnn
+			// LD dd,(nn)	11101101 01dd1011 nnnnnnnn nnnnnnnn
 			_source.BuildAbsoluteAddress(location + GetInstructionSize(), cpu, transparent);
 			_target.Decode16BitRegister(data.GetDataSegment(4, 2));
 			AddExecuteCycleCount(16);
 		}
 		else
 		{
-			//LD (nn),dd	11101101 01dd0011 nnnnnnnn nnnnnnnn
+			// LD (nn),dd	11101101 01dd0011 nnnnnnnn nnnnnnnn
 			_source.Decode16BitRegister(data.GetDataSegment(4, 2));
 			_target.BuildAbsoluteAddress(location + GetInstructionSize(), cpu, transparent);
 			AddExecuteCycleCount(16);
@@ -54,11 +54,11 @@ public:
 		double additionalTime = 0;
 		Z80Word result;
 
-		//Perform the operation
+		// Perform the operation
 		additionalTime += _source.Read(cpu, location, result);
 		additionalTime += _target.Write(cpu, location, result);
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -68,5 +68,5 @@ private:
 	EffectiveAddress _target;
 };
 
-} //Close namespace Z80
+} // Close namespace Z80
 #endif

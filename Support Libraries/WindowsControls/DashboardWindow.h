@@ -11,34 +11,34 @@
 class DashboardWindow :public IDockingWindow
 {
 public:
-	//Enumerations
+	// Enumerations
 	enum class WindowMessages :unsigned int;
 	enum class InsertDirection;
 
-	//Structures
+	// Structures
 	struct AddWindowParams;
 	struct DividerListEntry;
 
-	//Constants
+	// Constants
 	static const wchar_t* WindowClassName;
 
 public:
-	//Constructors
+	// Constructors
 	DashboardWindow(HINSTANCE moduleHandle, HWND hwnd);
 	virtual ~DashboardWindow();
 
-	//Class registration
+	// Class registration
 	static bool RegisterWindowClass(HINSTANCE moduleHandle);
 	static bool UnregisterWindowClass(HINSTANCE moduleHandle);
 
-	//Message handlers
+	// Message handlers
 	static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 private:
-	//Enumerations
+	// Enumerations
 	enum class DockTargetPos;
 
-	//Structures
+	// Structures
 	struct DividerContentEntry;
 	struct Divider;
 	struct ContentRegion;
@@ -46,14 +46,14 @@ private:
 	struct DividerSplitPosition;
 	struct DividerExtendButtonPosition;
 
-	//Constants
+	// Constants
 	static const wchar_t* PlacementTargetWindowClassName;
 	static const wchar_t* PlacementShadowWindowClassName;
 	static const wchar_t* DividerHighlightWindowClassName;
 	static const unsigned int DividerHighlightWindowCount = 4;
 
 private:
-	//Message handlers
+	// Message handlers
 	LRESULT WndProcPrivate(UINT message, WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_CREATE(WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_DESTROY(WPARAM wParam, LPARAM lParam);
@@ -85,37 +85,37 @@ private:
 	LRESULT msgDASHWIN_SAVELAYOUTTODIVIDERLIST(WPARAM wParam, LPARAM lParam);
 	LRESULT msgDASHWIN_LOADLAYOUTFROMDIVIDERLIST(WPARAM wParam, LPARAM lParam);
 
-	//Placement target message handlers
+	// Placement target message handlers
 	static LRESULT CALLBACK PlacementTargetWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 	LRESULT PlacementTargetWndProcPrivate(HWND placementTargetHwnd, UINT message, WPARAM wParam, LPARAM lParam);
 	LRESULT msgPlacementTargetWM_PAINT(HWND placementTargetHwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgPlacementTargetWM_PRINTCLIENT(HWND placementTargetHwnd, WPARAM wParam, LPARAM lParam);
 
-	//Placement shadow message handlers
+	// Placement shadow message handlers
 	static LRESULT CALLBACK PlacementShadowWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 	LRESULT PlacementShadowWndProcPrivate(HWND placementShadowHwnd, UINT message, WPARAM wParam, LPARAM lParam);
 	LRESULT msgPlacementShadowWM_PAINT(HWND placementShadowHwnd, WPARAM wParam, LPARAM lParam);
 
-	//Divider highlight message handlers
+	// Divider highlight message handlers
 	static LRESULT CALLBACK DividerHighlightWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 	LRESULT DividerHighlightWndProcPrivate(HWND placementShadowHwnd, UINT message, WPARAM wParam, LPARAM lParam);
 	LRESULT msgDividerHighlightWM_PAINT(HWND placementShadowHwnd, WPARAM wParam, LPARAM lParam);
 
-	//Helper methods
+	// Helper methods
 	static IDockingWindow* GetDockingWindowFromHWND(HWND hwnd);
 	static BOOL CALLBACK EnumDockingWindowsProc(HWND hwnd, LPARAM lParam);
 	static void AddDockingWindowToWindowList(HWND hwnd, std::list<IDockingWindow*>& dockingWindowList);
 
-	//Window handle methods
+	// Window handle methods
 	virtual HWND GetWindowHandle() const;
 
-	//Placement content methods
+	// Placement content methods
 	virtual void HideDropTargets(IDockingWindow* callingDockingWindow);
 	void HideDropTargets(IDockingWindow* callingDockingWindow, bool hideChildWindowDropTargets);
 	virtual void ShowDropTargets(IDockingWindow* callingDockingWindow, int dockWindowWidth, int dockWindowHeight, int cursorPosX, int cursorPosY);
 	virtual bool HitTestDropTargets(IDockingWindow* callingDockingWindow, int cursorPosX, int cursorPosY, IDockingWindowDropTargetInfo*& dropTargetInfo) const;
 
-	//Child container methods
+	// Child container methods
 	virtual void AddChildContainer(IDockingWindow* childContainer, const IDockingWindowDropTargetInfo* dropTargetInfo);
 	virtual void RemoveChildContainer(IDockingWindow* childContainer);
 	virtual void NotifyChildContainerContentChanged(IDockingWindow* childContainer);
@@ -126,7 +126,7 @@ private:
 	virtual HCURSOR ParentOverrideCursorForChildContainer(IDockingWindow* childContainer, int cursorPosX, int cursorPosY) const;
 	virtual bool ParentBorderClickForChildContainer(IDockingWindow* childContainer, int cursorPosX, int cursorPosY);
 
-	//Hosted content methods
+	// Hosted content methods
 	//##FIX##
 	virtual void RemoveHostedContent(HWND contentWindow) { }
 	virtual unsigned int GetHostedContentCount() const { return 1; }
@@ -136,17 +136,17 @@ private:
 	virtual Marshal::Ret<std::wstring> GetHostedContentTitle(unsigned int contentEntryNo) const { return GetWindowText(_hwnd); }
 	virtual HWND GetHostedContentWindow(unsigned int contentEntryNo) const { return _hwnd; }
 
-	//Parent docking window methods
+	// Parent docking window methods
 	virtual IDockingWindow* GetParentDockingWindow() const;
 	virtual void NotifyAddedToParent(IDockingWindow* newParentDockingWindow);
 	virtual void NotifyRemovedFromParent();
 
-	//Cached data
+	// Cached data
 	void UpdateCachedLocations(bool deferWindowUpdate = false);
 	void ApplyCachedLocations();
 	void UpdateCachedDividerLocation(int regionPosX, int regionPosY, const ContentRegion& precedingRegion, Divider& divider);
 
-	//Region functions
+	// Region functions
 	void InsertRegion(ContentRegion& existingRegion, InsertDirection insertDirection, HWND hostedWindow, double regionProportion);
 	Divider* InsertRegion(ContentRegion& existingRegion, InsertDirection insertDirection, HWND hostedWindow, int distanceAlongRegion);
 	void RemoveRegion(ContentRegion& existingRegion);
@@ -156,7 +156,7 @@ private:
 	void BuildSortedRegionList(std::list<ContentRegion*>& sortedRegionList) const;
 	void BuildSortedRegionList(const std::list<DividerContentEntry>& targetContentList, std::set<ContentRegion*>& processedRegions, std::list<ContentRegion*>& sortedRegionList) const;
 
-	//Divider functions
+	// Divider functions
 	std::set<Divider*> GetMergeCandidates(Divider* targetDivider, bool getPartialOverlappingMatches) const;
 	std::set<Divider*> GetAllMergeCandidates(Divider* targetDivider) const;
 	void GetAllMergeCandidatesInternal(Divider* targetDivider, std::set<Divider*>& resultSet) const;
@@ -165,47 +165,47 @@ private:
 	Divider* SwapContinuingDividerAtJunction(Divider* firstDividerToMerge, Divider* secondDividerToMerge, Divider* dividerToSplit);
 	void ExtendDivider(Divider* targetDivider, bool extendFromStart, bool extendPrecedingContent);
 
-	//Sizing methods
+	// Sizing methods
 	void HandleSizeChanged(int newWidth, int newHeight);
 	std::list<Divider*> GetDividersAtPosition(int posX, int posY) const;
 
-	//Layout functions
+	// Layout functions
 	void SaveLayoutInfo(std::list<DividerListEntry>& dividerList) const;
 	void LoadLayoutInfo(const std::list<DividerListEntry>& dividerList);
 
-	//Canvas helper functions
+	// Canvas helper functions
 	//##TODO## Move these into a proper canvas class once we've implemented it, and modify
-	//our code to use that class.
+	// our code to use that class.
 	static void DrawImageLine(IImage& image, unsigned int startPosX, unsigned int startPosY, unsigned int endPosX, unsigned int endPosY, const std::map<int, unsigned char>& penColorComponents);
 	static void DrawImageSquare(IImage& image, unsigned int startPosX, unsigned int startPosY, unsigned int width, unsigned int height, const std::map<int, unsigned char>& penColorComponents);
 	//##TODO## Consider shifting this into the Image class, once the future of the image
-	//load routines and the image class itself is determined.
+	// load routines and the image class itself is determined.
 	static HBITMAP ImageToLoadedDIB(IImage& image, HDC deviceContext);
 
 private:
-	//Window handles
+	// Window handles
 	HINSTANCE _moduleHandle;
 	HWND _hwnd;
 
-	//Font info
+	// Font info
 	HFONT _controlFont;
 	int _controlFontHeight;
 
-	//Cursor info
+	// Cursor info
 	HCURSOR _cursorSizeHorizontal;
 	HCURSOR _cursorSizeVertical;
 	HCURSOR _cursorSizeAll;
 
-	//Window metrics
+	// Window metrics
 	int _dividerSizeX;
 	int _dividerSizeY;
 	int _controlWidth;
 	int _controlHeight;
 
-	//Parent docking window info
+	// Parent docking window info
 	IDockingWindow* _parentDockingWindow;
 
-	//Drag-info
+	// Drag-info
 	bool _windowDragInProgress;
 	IDockingWindow* _dockingWindowUnderDragPos;
 	RECT _windowSizeMoveInitialPos;
@@ -214,13 +214,13 @@ private:
 	bool _leftMouseButtonDown;
 	bool _ignoreNextSizeAndMove;
 
-	//Region and divider info
+	// Region and divider info
 	std::list<DividerContentEntry> _topLevelDividersFromTop;
 	std::list<DividerContentEntry> _topLevelDividersFromLeft;
 	std::list<ContentRegion*> _regions;
 	std::list<Divider*> _dividers;
 
-	//Divider drag info
+	// Divider drag info
 	bool _dividerDragActive;
 	int _dragLastPosX;
 	int _dragLastPosY;
@@ -231,7 +231,7 @@ private:
 	std::set<Divider*> _verticalDividersBeingDragged;
 	std::set<Divider*> _horizontalDividersBeingDragged;
 
-	//Drop target info
+	// Drop target info
 	std::map<DockTargetPos, HWND> _dropTargets;
 	IDockingWindow* _dropTargetsChildDockingWindow;
 	bool _dropTargetsVisible;
@@ -240,11 +240,11 @@ private:
 	DockTargetPos _dropShadowCurrentPos;
 	HWND _dropShadow;
 
-	//Divider highlight info
+	// Divider highlight info
 	unsigned int _dividerHighlightVisibleWindowCount;
 	HWND _dividerHighlightWindows[DividerHighlightWindowCount];
 
-	//Render info
+	// Render info
 	WinColor _dividerBackgroundColor;
 	Image _grabberImage;
 	Image _arrowImageTopLeft;

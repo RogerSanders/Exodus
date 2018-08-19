@@ -42,18 +42,18 @@ public:
 		Z80Byte op1;
 		Z80Byte result;
 
-		//Perform the operation
+		// Perform the operation
 		additionalTime += _target.Read(cpu, location, op1);
 		result = ~op1;
 		additionalTime += _target.Write(cpu, location, result);
 
-		//Set the flag results
+		// Set the flag results
 		cpu->SetFlagY(result.GetBit(5));
 		cpu->SetFlagH(true);
 		cpu->SetFlagX(result.GetBit(3));
 		cpu->SetFlagN(true);
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -62,5 +62,5 @@ private:
 	EffectiveAddress _target;
 };
 
-} //Close namespace Z80
+} // Close namespace Z80
 #endif

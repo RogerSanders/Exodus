@@ -5,7 +5,7 @@
 class MemoryWrite :public MemoryRead
 {
 public:
-	//Constructors
+	// Constructors
 	MemoryWrite(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 };
 

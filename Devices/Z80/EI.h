@@ -32,18 +32,18 @@ public:
 
 	virtual ExecuteTime Z80Execute(Z80* cpu, const Z80Word& location) const
 	{
-		//Perform the operation
+		// Perform the operation
 		cpu->SetIFF1(true);
 		cpu->SetIFF2(true);
 
-		//Flag that an EI opcode has just been executed. See notes in Z80::ExecuteCycle.
+		// Flag that an EI opcode has just been executed. See notes in Z80::ExecuteCycle.
 		cpu->SetMaskInterruptsNextOpcode(true);
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount();
 	}
 };
 
-} //Close namespace Z80
+} // Close namespace Z80
 #endif

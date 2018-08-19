@@ -50,20 +50,20 @@ public:
 		M68000Long currentStack;
 		M68000Long offsetData;
 
-		//Read _source register, and write it to the stack
+		// Read _source register, and write it to the stack
 		additionalTime += _source.Read(cpu, currentReg, GetInstructionRegister());
 		additionalTime += _target.Write(cpu, currentReg, GetInstructionRegister());
 
-		//Write stack address into _source register
+		// Write stack address into _source register
 		additionalTime += _stackPointer.Read(cpu, currentStack, GetInstructionRegister());
 		additionalTime += _source.Write(cpu, currentStack, GetInstructionRegister());
 
-		//Add offset to stack address
+		// Add offset to stack address
 		additionalTime += _offset.Read(cpu, offsetData, GetInstructionRegister());
 		currentStack += offsetData;
 		additionalTime += _stackPointer.Write(cpu, currentStack, GetInstructionRegister());
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -79,5 +79,5 @@ private:
 	Bitcount _size;
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #endif

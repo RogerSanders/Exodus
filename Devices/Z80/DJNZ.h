@@ -30,7 +30,7 @@ public:
 		_source.SetIndexState(GetIndexState(), GetIndexOffset());
 		_target.SetIndexState(GetIndexState(), GetIndexOffset());
 
-		//DJNZ e		00010000 eeeeeeee
+		// DJNZ e		00010000 eeeeeeee
 		_source.SetMode(EffectiveAddress::Mode::B);
 		_target.BuildImmediateData(BITCOUNT_BYTE, location + GetInstructionSize(), cpu, transparent);
 		AddExecuteCycleCount(8);
@@ -48,14 +48,14 @@ public:
 		Z80Word newPC;
 		ExecuteTime additionalCycles;
 
-		//Update the counter
+		// Update the counter
 		additionalTime += _source.Read(cpu, location, count);
 		--count;
 		additionalTime += _source.Write(cpu, location, count);
 
 		if (count != 0)
 		{
-			//If the counter is nonzero, run the loop again
+			// If the counter is nonzero, run the loop again
 			additionalTime += _target.Read(cpu, location, offset);
 			newPC = location + GetInstructionSize();
 			newPC += Z80Word(offset.SignExtend(BITCOUNT_WORD));
@@ -63,12 +63,12 @@ public:
 		}
 		else
 		{
-			//The counter has reached zero. Continue execution at the next instruction.
+			// The counter has reached zero. Continue execution at the next instruction.
 			newPC = location + GetInstructionSize();
 		}
 		cpu->SetPC(newPC);
 
-		//Return the execution time
+		// Return the execution time
 		return GetExecuteCycleCount(additionalTime) + additionalCycles;
 	}
 
@@ -77,5 +77,5 @@ private:
 	EffectiveAddress _target;
 };
 
-} //Close namespace Z80
+} // Close namespace Z80
 #endif

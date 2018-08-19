@@ -5,24 +5,24 @@ class IDeviceContext;
 class IClockSource
 {
 public:
-	//Enumerations
+	// Enumerations
 	enum class ClockType;
 
 public:
-	//Constructors
+	// Constructors
 	virtual ~IClockSource() = 0 {}
 
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisIClockSourceVersion() { return 1; }
 	virtual unsigned int GetIClockSourceVersion() const = 0;
 
-	//Clock type functions
+	// Clock type functions
 	virtual ClockType GetClockType() const = 0;
 
 	//##TODO## Add support for clock phase, so that the progress of the current clock
-	//pulse can be retrieved and set.
+	// pulse can be retrieved and set.
 
-	//Clock frequency functions
+	// Clock frequency functions
 	virtual bool SetClockFrequency(double clockRate, IDeviceContext* caller, double accessTime, unsigned int accessContext) = 0;
 	virtual bool SetClockDivider(double divider, IDeviceContext* caller, double accessTime, unsigned int accessContext) = 0;
 	virtual bool SetClockMultiplier(double multiplier, IDeviceContext* caller, double accessTime, unsigned int accessContext) = 0;

@@ -8,19 +8,19 @@
 class MemoryEditorView :public ViewBase
 {
 public:
-	//Constructors
+	// Constructors
 	MemoryEditorView(IUIManager& uiManager, MemoryEditorViewPresenter& presenter, IMemory& model);
 
 protected:
-	//Member window procedure
+	// Member window procedure
 	virtual LRESULT WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
 private:
-	//Constants
+	// Constants
 	static const long long HexEditControlID = 100;
 
 private:
-	//Event handlers
+	// Event handlers
 	LRESULT msgWM_CREATE(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_TIMER(HWND hwnd, WPARAM wParam, LPARAM lParam);

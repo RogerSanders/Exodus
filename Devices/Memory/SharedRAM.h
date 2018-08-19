@@ -8,41 +8,41 @@
 class SharedRAM :public MemoryWrite
 {
 public:
-	//Constructors
+	// Constructors
 	SharedRAM(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 	virtual bool Construct(IHierarchicalStorageNode& node);
 
-	//Memory size functions
+	// Memory size functions
 	virtual unsigned int GetMemoryEntrySizeInBytes() const;
 
-	//Initialization functions
+	// Initialization functions
 	virtual void Initialize();
 
-	//Execute functions
+	// Execute functions
 	virtual void ExecuteRollback();
 	virtual void ExecuteCommit();
 
-	//Memory interface functions
+	// Memory interface functions
 	virtual IBusInterface::AccessResult ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	virtual IBusInterface::AccessResult WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	virtual void TransparentReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, unsigned int accessContext);
 	virtual void TransparentWriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, unsigned int accessContext);
 
-	//Debug memory access functions
+	// Debug memory access functions
 	virtual unsigned int ReadMemoryEntry(unsigned int location) const;
 	virtual void WriteMemoryEntry(unsigned int location, unsigned int data);
 
-	//Memory locking functions
+	// Memory locking functions
 	virtual bool IsMemoryLockingSupported() const;
 	virtual void LockMemoryBlock(unsigned int location, unsigned int size, bool state);
 	virtual bool IsAddressLocked(unsigned int location) const;
 
-	//Savestate functions
+	// Savestate functions
 	virtual void LoadState(IHierarchicalStorageNode& node);
 	virtual void SaveState(IHierarchicalStorageNode& node) const;
 
 private:
-	//Rollback data
+	// Rollback data
 	struct MemoryWriteStatus
 	{
 		MemoryWriteStatus()

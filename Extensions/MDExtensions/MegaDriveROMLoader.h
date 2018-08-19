@@ -5,45 +5,45 @@
 class MegaDriveROMLoader :public Extension
 {
 public:
-	//Constructors
+	// Constructors
 	MegaDriveROMLoader(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 	~MegaDriveROMLoader();
 
-	//ROM loading functions
+	// ROM loading functions
 	void LoadROMFile();
 	void UnloadROMFile();
 
-	//Window functions
+	// Window functions
 	virtual bool RegisterSystemMenuHandler();
 	virtual void AddSystemMenuItems(SystemMenu systemMenu, IMenuSegment& menuSegment);
 
 private:
-	//Structures
+	// Structures
 	struct MegaDriveROMHeader;
 
-	//View and menu classes
+	// View and menu classes
 	class FileOpenMenuHandler;
 	friend class FileOpenMenuHandler;
 
 private:
-	//ROM loading functions
+	// ROM loading functions
 	void UnloadROMFileFromModulePath(const std::wstring& targetROMModulePath) const;
 
-	//ROM module generation
+	// ROM module generation
 	bool BuildROMFileModuleFromFile(const std::wstring& filePath, IHierarchicalStorageNode& node, std::wstring& romName);
 	bool SaveOutputROMModule(IHierarchicalStorageTree& tree, const std::wstring& filePath);
 
-	//ROM analysis functions
+	// ROM analysis functions
 	bool LoadROMHeaderFromFile(const std::wstring& filePath, MegaDriveROMHeader& romHeader) const;
 	static bool AutoDetectRegionCode(const MegaDriveROMHeader& romHeader, std::wstring& regionCode);
 	static bool AutoDetectBackupRAMSupport(const MegaDriveROMHeader& romHeader, unsigned int& sramStartLocation, unsigned int& sramByteSize, bool& linkedToEvenAddress, bool& linkedToOddAddress, bool& sram16Bit, std::vector<unsigned char>& initialRAMData);
 	static bool StringStartsWith(const std::string& targetString, const std::string& compareString);
 
 private:
-	//Menu handling
+	// Menu handling
 	FileOpenMenuHandler* _menuHandler;
 
-	//Loaded ROM info
+	// Loaded ROM info
 	bool _selectionMadeThisSession;
 	std::list<std::wstring> _currentlyLoadedROMModuleFilePaths;
 };

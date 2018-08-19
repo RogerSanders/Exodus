@@ -4,17 +4,17 @@
 #include "SystemMenuHandler.h"
 #include "ModuleOptionMenuHandler.h"
 
-//----------------------------------------------------------------------------------------
-//Constructors
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Constructors
+//----------------------------------------------------------------------------------------------------------------------
 ExodusSystemMenus::ExodusSystemMenus(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
 :Extension(implementationName, instanceName, moduleID), _model(0), _debugMenuHandler(0), _settingsMenuHandler(0), _systemMenuHandler(0)
 {}
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 ExodusSystemMenus::~ExodusSystemMenus()
 {
-	//Delete all menu handlers
+	// Delete all menu handlers
 	if (_debugMenuHandler != 0)
 	{
 		_debugMenuHandler->ClearMenuItems();
@@ -37,15 +37,15 @@ ExodusSystemMenus::~ExodusSystemMenus()
 	}
 }
 
-//----------------------------------------------------------------------------------------
-//Window functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Window functions
+//----------------------------------------------------------------------------------------------------------------------
 bool ExodusSystemMenus::RegisterSystemMenuHandler()
 {
-	//Retrieve the system GUI interface
+	// Retrieve the system GUI interface
 	_model = &((ISystemGUIInterface&)GetSystemInterface());
 
-	//Create all menu handlers
+	// Create all menu handlers
 	_debugMenuHandler = new DebugMenuHandler(*this, *_model);
 	_debugMenuHandler->LoadMenuItems();
 	_settingsMenuHandler = new SettingsMenuHandler(*this, *_model);
@@ -56,7 +56,7 @@ bool ExodusSystemMenus::RegisterSystemMenuHandler()
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool ExodusSystemMenus::RegisterModuleMenuHandler(unsigned int moduleID)
 {
 	ModuleOptionMenuHandler* menuHandler = new ModuleOptionMenuHandler(*this, *_model, moduleID);
@@ -64,7 +64,7 @@ bool ExodusSystemMenus::RegisterModuleMenuHandler(unsigned int moduleID)
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void ExodusSystemMenus::UnregisterModuleMenuHandler(unsigned int moduleID)
 {
 	std::map<unsigned int, ModuleOptionMenuHandler*>::iterator moduleOptionMenuHandlerIterator = _moduleOptionMenuHandlers.find(moduleID);
@@ -76,7 +76,7 @@ void ExodusSystemMenus::UnregisterModuleMenuHandler(unsigned int moduleID)
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void ExodusSystemMenus::AddSystemMenuItems(SystemMenu systemMenu, IMenuSegment& menuSegment)
 {
 	switch (systemMenu)
@@ -93,7 +93,7 @@ void ExodusSystemMenus::AddSystemMenuItems(SystemMenu systemMenu, IMenuSegment& 
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void ExodusSystemMenus::AddModuleMenuItems(ModuleMenu moduleMenu, IMenuSegment& menuSegment, unsigned int moduleID)
 {
 	if (moduleMenu == IExtension::ModuleMenu::Settings)
@@ -103,7 +103,7 @@ void ExodusSystemMenus::AddModuleMenuItems(ModuleMenu moduleMenu, IMenuSegment& 
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool ExodusSystemMenus::RestoreSystemViewState(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter)
 {
 	bool result = false;
@@ -113,14 +113,14 @@ bool ExodusSystemMenus::RestoreSystemViewState(const Marshal::In<std::wstring>& 
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool ExodusSystemMenus::RestoreModuleViewState(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, unsigned int moduleID)
 {
-	//Nothing to do here, since our current module option menu handler has no views.
+	// Nothing to do here, since our current module option menu handler has no views.
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool ExodusSystemMenus::OpenSystemView(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName)
 {
 	bool result = false;
@@ -130,20 +130,20 @@ bool ExodusSystemMenus::OpenSystemView(const Marshal::In<std::wstring>& viewGrou
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool ExodusSystemMenus::OpenModuleView(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, unsigned int moduleID)
 {
-	//Nothing to do here, since our current module option menu handler has no views.
+	// Nothing to do here, since our current module option menu handler has no views.
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void ExodusSystemMenus::OpenInputMappingDetailsView(IDevice* targetDevice)
 {
 	_settingsMenuHandler->OpenInputMappingDetailsView(targetDevice);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void ExodusSystemMenus::CloseInputMappingDetailsView()
 {
 	_settingsMenuHandler->CloseInputMappingDetailsView();

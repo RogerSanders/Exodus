@@ -5,21 +5,21 @@
 class LoadedModuleInfo :public ILoadedModuleInfo
 {
 public:
-	//Constructors
+	// Constructors
 	LoadedModuleInfo();
 
-	//Interface version functions
+	// Interface version functions
 	virtual unsigned int GetILoadedModuleInfoVersion() const;
 
-	//Internal data
+	// Internal data
 	virtual unsigned int GetModuleID() const;
 	virtual void SetModuleID(unsigned int moduleID);
 
-	//External information
+	// External information
 	virtual Marshal::Ret<std::wstring> GetModuleFilePath() const;
 	virtual void SetModuleFilePath(const Marshal::In<std::wstring>& moduleFilePath);
 
-	//Required metadata
+	// Required metadata
 	virtual bool GetIsProgramModule() const;
 	virtual void SetIsProgramModule(bool programModule);
 	virtual Marshal::Ret<std::wstring> GetSystemClassName() const;
@@ -31,7 +31,7 @@ public:
 	virtual Marshal::Ret<std::wstring> GetModuleDisplayName() const;
 	virtual void SetModuleDisplayName(const Marshal::In<std::wstring>& displayName);
 
-	//Optional metadata
+	// Optional metadata
 	virtual Marshal::Ret<std::wstring> GetProductionYear() const;
 	virtual void SetProductionYear(const Marshal::In<std::wstring>& productionYear);
 	virtual Marshal::Ret<std::wstring> GetManufacturerCode() const;
@@ -40,22 +40,22 @@ public:
 	virtual void SetManufacturerDisplayName(const Marshal::In<std::wstring>& manufacturerDisplayName);
 
 private:
-	//Internal data
+	// Internal data
 	unsigned int _moduleID;
 
-	//External information
+	// External information
 	std::wstring _filePath;
 
-	//Required metadata
+	// Required metadata
 	bool _programModule;
 	std::wstring _systemClassName;
 	std::wstring _className;
 	std::wstring _instanceName;
 	std::wstring _displayName;
 	//##TODO## Consider whether this should be implemented
-	//unsigned int versionNumber;
+	// unsigned int versionNumber;
 
-	//Optional metadata
+	// Optional metadata
 	std::wstring _productionYear;
 	std::wstring _manufacturerCode;
 	std::wstring _manufacturerDisplayName;

@@ -35,27 +35,27 @@ public:
 
 		if (!data.GetBit(0))
 		{
-			//EX AF,AF'		00001000
+			// EX AF,AF'		00001000
 			_source.SetMode(EffectiveAddress::Mode::AF);
 			_target.SetMode(EffectiveAddress::Mode::AF2);
 			AddExecuteCycleCount(4);
 		}
 		else if (data.GetBit(3))
 		{
-			//EX DE,HL		11101011
+			// EX DE,HL		11101011
 			_source.SetMode(EffectiveAddress::Mode::DE);
 			//##NOTE## We override the index state for the _target in this form of the
-			//opcode. The only other opcode which has exceptions to the indexing rule
-			//is LD8.
+			// opcode. The only other opcode which has exceptions to the indexing rule
+			// is LD8.
 			_target.SetIndexState(EffectiveAddress::IndexState::None, 0);
 			_target.SetMode(EffectiveAddress::Mode::HL);
 			AddExecuteCycleCount(4);
 		}
 		else
 		{
-			//EX (SP),HL		11100011
-			//EX (SP),IX		11011101 11100011
-			//EX (SP),IY		11111101 11100011
+			// EX (SP),HL		11100011
+			// EX (SP),IX		11011101 11100011
+			// EX (SP),IY		11111101 11100011
 			_source.SetMode(EffectiveAddress::Mode::SPIndirect);
 			_target.SetMode(EffectiveAddress::Mode::HL);
 			AddExecuteCycleCount(19);
@@ -72,13 +72,13 @@ public:
 		Z80Word op1;
 		Z80Word op2;
 
-		//Perform the operation
+		// Perform the operation
 		additionalTime += _source.Read(cpu, location, op1);
 		additionalTime += _target.Read(cpu, location, op2);
 		additionalTime += _source.Write(cpu, location, op2);
 		additionalTime += _target.Write(cpu, location, op1);
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -88,5 +88,5 @@ private:
 	EffectiveAddress _target;
 };
 
-} //Close namespace Z80
+} // Close namespace Z80
 #endif

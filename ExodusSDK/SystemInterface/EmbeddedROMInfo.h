@@ -5,13 +5,13 @@
 class EmbeddedROMInfo :public IEmbeddedROMInfo
 {
 public:
-	//Constructors
+	// Constructors
 	EmbeddedROMInfo();
 
-	//Interface version functions
+	// Interface version functions
 	virtual unsigned int GetIEmbeddedROMInfoVersion() const;
 
-	//Getters
+	// Getters
 	virtual Marshal::Ret<std::wstring> GetName() const;
 	virtual Marshal::Ret<std::wstring> GetDisplayName() const;
 	virtual unsigned int GetModuleID() const;
@@ -21,7 +21,7 @@ public:
 	virtual unsigned int GetROMEntryBitCount() const;
 	virtual Marshal::Ret<std::wstring> GetFilePath() const;
 
-	//Setters
+	// Setters
 	virtual void SetName(const Marshal::In<std::wstring>& name);
 	virtual void SetDisplayName(const Marshal::In<std::wstring>& displayName);
 	virtual void SetModuleID(unsigned int moduleID);

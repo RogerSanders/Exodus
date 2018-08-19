@@ -3,9 +3,9 @@
 #include "Debug/Debug.pkg"
 namespace Z80 {
 
-//----------------------------------------------------------------------------------------
-//Data transfer
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Data transfer
+//----------------------------------------------------------------------------------------------------------------------
 double EffectiveAddress::Read(Z80* cpu, const Z80Word& pc, Data& target) const
 {
 	double additionalTime = 0;
@@ -223,7 +223,7 @@ double EffectiveAddress::Read(Z80* cpu, const Z80Word& pc, Data& target) const
 	return additionalTime;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 double EffectiveAddress::Write(Z80* cpu, const Z80Word& pc, const Data& target) const
 {
 	double additionalTime = 0;
@@ -449,9 +449,9 @@ double EffectiveAddress::Write(Z80* cpu, const Z80Word& pc, const Data& target) 
 	return additionalTime;
 }
 
-//----------------------------------------------------------------------------------------
-//Disassembly functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Disassembly functions
+//----------------------------------------------------------------------------------------------------------------------
 std::wstring EffectiveAddress::Disassemble() const
 {
 	switch (_mode)
@@ -535,7 +535,7 @@ std::wstring EffectiveAddress::Disassemble() const
 	return L"INVALID";
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::wstring EffectiveAddress::DisassembleImmediateAsPCDisplacement(const Z80Word& location) const
 {
 	Z80Word newPC = location + Z80Word(_data.SignExtend(BITCOUNT_WORD));
@@ -544,4 +544,4 @@ std::wstring EffectiveAddress::DisassembleImmediateAsPCDisplacement(const Z80Wor
 	return stream.str();
 }
 
-} //Close namespace Z80
+} // Close namespace Z80

@@ -3,35 +3,35 @@
 #include <mutex>
 #include <list>
 
-//Any object can be stored, saved, or loaded from this container, provided it meets the
-//following requirements:
-//-It is copy constructible
-//-It is assignable
-//-It is streamable into and from Stream::ViewText, either natively or through overloaded
-//stream operators.
+// Any object can be stored, saved, or loaded from this container, provided it meets the
+// following requirements:
+// -It is copy constructible
+// -It is assignable
+// -It is streamable into and from Stream::ViewText, either natively or through overloaded
+// stream operators.
 
 template<class DataType, class TimesliceType> class RandomTimeAccessValue
 {
 public:
-	//Structures
+	// Structures
 	struct TimesliceEntry;
 	struct WriteEntry;
 	struct WriteInfo;
 	struct TimesliceSaveEntry;
 	struct WriteSaveEntry;
 
-	//Typedefs
+	// Typedefs
 	typedef typename std::list<TimesliceEntry>::iterator Timeslice;
 
-	//Constructors
+	// Constructors
 	RandomTimeAccessValue();
 	RandomTimeAccessValue(const DataType& defaultValue);
 
-	//Dereference operators
+	// Dereference operators
 	const DataType& operator*() const;
 	DataType& operator*();
 
-	//Access functions
+	// Access functions
 	DataType Read(TimesliceType readTime) const;
 	void Write(TimesliceType writeTime, const DataType& data);
 	DataType ReadCommitted() const;
@@ -40,7 +40,7 @@ public:
 	DataType ReadLatest() const;
 	void WriteLatest(const DataType& data);
 
-	//Time management functions
+	// Time management functions
 	void Initialize();
 	bool DoesLatestTimesliceExist() const;
 	Timeslice GetLatestTimeslice();
@@ -54,7 +54,7 @@ public:
 	void Rollback();
 	void AddTimeslice(TimesliceType timeslice);
 
-	//Savestate functions
+	// Savestate functions
 	bool LoadState(IHierarchicalStorageNode& node);
 	bool LoadTimesliceEntries(IHierarchicalStorageNode& node, std::list<TimesliceSaveEntry>& timesliceSaveList);
 	bool LoadWriteEntries(IHierarchicalStorageNode& node, std::list<WriteSaveEntry>& writeSaveList);

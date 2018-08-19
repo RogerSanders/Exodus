@@ -5,17 +5,17 @@
 class ConnectorInfo :public IConnectorInfo
 {
 public:
-	//Constructors
+	// Constructors
 	ConnectorInfo();
 
-	//Interface version functions
+	// Interface version functions
 	virtual unsigned int GetIConnectorInfoVersion() const;
 
-	//Internal data
+	// Internal data
 	virtual unsigned int GetConnectorID() const;
 	virtual void SetConnectorID(unsigned int connectorID);
 
-	//Exporting module info
+	// Exporting module info
 	virtual unsigned int GetExportingModuleID() const;
 	virtual void SetExportingModuleID(unsigned int exportingModuleID);
 	virtual Marshal::Ret<std::wstring> GetConnectorClassName() const;
@@ -25,7 +25,7 @@ public:
 	virtual Marshal::Ret<std::wstring> GetSystemClassName() const;
 	virtual void SetSystemClassName(const Marshal::In<std::wstring>& systemClassName);
 
-	//Importing module info
+	// Importing module info
 	virtual bool GetIsConnectorUsed() const;
 	virtual void SetIsConnectorUsed(bool connectorUser);
 	virtual unsigned int GetImportingModuleID() const;
@@ -34,16 +34,16 @@ public:
 	virtual void SetImportingModuleConnectorInstanceName(const Marshal::In<std::wstring>& importingModuleConnectorInstanceName);
 
 private:
-	//Internal data
+	// Internal data
 	unsigned int _connectorID;
 
-	//Exporting module info
+	// Exporting module info
 	unsigned int _exportingModuleID;
 	std::wstring _connectorClassName;
 	std::wstring _exportingModuleConnectorInstanceName;
 	std::wstring _systemClassName;
 
-	//Importing module info
+	// Importing module info
 	bool _connectorUsed;
 	unsigned int _importingModuleID;
 	std::wstring _importingModuleConnectorInstanceName;

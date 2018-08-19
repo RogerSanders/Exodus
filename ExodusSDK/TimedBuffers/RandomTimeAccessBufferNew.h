@@ -5,10 +5,10 @@
 #include "HierarchicalStorageInterface/HierarchicalStorageInterface.pkg"
 #include <mutex>
 
-//template<class T> class RandomTimeAccessBufferNew
+// template<class T> class RandomTimeAccessBufferNew
 //{
-//public:
-//	//Structures
+// public:
+//	// Structures
 //	struct TimesliceEntry;
 //	struct WriteEntry;
 //	struct WriteInfo;
@@ -17,39 +17,39 @@
 //	struct AccessTarget;
 //	typedef typename std::list<TimesliceEntry>::iterator Timeslice;
 //
-//	//Constructors
+//	// Constructors
 //	inline RandomTimeAccessBufferNew();
 //	inline RandomTimeAccessBufferNew(unsigned int size);
 //	inline RandomTimeAccessBufferNew(unsigned int size, const T& adefaultValue);
 //
-//	//Common functions: Overlapped access permissible
+//	// Common functions: Overlapped access permissible
 //	inline T Read(unsigned int address, const AccessTarget& accessTarget) const;
 //	inline void Write(unsigned int address, const T& data, const AccessTarget& accessTarget);
 //	inline unsigned int Size() const;
 //
-//	//Active functions: One active function at a time, overlapped with others
-//	T Read(unsigned int address, double readTime) const;	//Reads writeList, committed
-//	void Write(unsigned int address, double writeTime, const T& data);	//Adds writeList
-//	void AddTimeslice(double timeslice);	//Adds timesliceList
-//	T ReadLatest(unsigned int address) const;	//Reads writeList, committed
-//	void WriteLatest(unsigned int address, const T& data);	//Writes writeList, Writes committed
-//	void GetLatestBufferCopy(std::vector<T>& buffer) const;	//Reads writeList, committed
-//	void Commit();	//Writes writeList
-//	void Rollback();	//Writes writeList
-//	Timeslice GetLatestTimeslice() const;	//Reads timesliceList
+//	// Active functions: One active function at a time, overlapped with others
+//	T Read(unsigned int address, double readTime) const;	// Reads writeList, committed
+//	void Write(unsigned int address, double writeTime, const T& data);	// Adds writeList
+//	void AddTimeslice(double timeslice);	// Adds timesliceList
+//	T ReadLatest(unsigned int address) const;	// Reads writeList, committed
+//	void WriteLatest(unsigned int address, const T& data);	// Writes writeList, Writes committed
+//	void GetLatestBufferCopy(std::vector<T>& buffer) const;	// Reads writeList, committed
+//	void Commit();	// Writes writeList
+//	void Rollback();	// Writes writeList
+//	Timeslice GetLatestTimeslice() const;	// Reads timesliceList
 //
-//	//Committed functions: One committed function at a time, overlapped with others
-//	inline T ReadCommitted(unsigned int address) const;	//Reads committed
-//	T ReadCommitted(unsigned int address, double readTime) const;	//Reads committed, writeList
-//	inline void WriteCommitted(unsigned int address, const T& data);	//Writes committed
-//	void AdvancePastTimeslice(const Timeslice& targetTimeslice);	//Writes writeList, committed
-//	void AdvanceToTimeslice(const Timeslice& targetTimeslice);	//Writes writeList, committed
-//	void AdvanceByTime(double step, const Timeslice& targetTimeslice);	//Writes writeList, committed
-//	bool AdvanceByStep(const Timeslice& targetTimeslice);	//Writes writeList, committed
-//	double GetNextWriteTime(const Timeslice& targetTimeslice);	//Reads writeList
-//	WriteInfo GetWriteInfo(unsigned int index, const Timeslice& targetTimeslice);	//Reads writeList
+//	// Committed functions: One committed function at a time, overlapped with others
+//	inline T ReadCommitted(unsigned int address) const;	// Reads committed
+//	T ReadCommitted(unsigned int address, double readTime) const;	// Reads committed, writeList
+//	inline void WriteCommitted(unsigned int address, const T& data);	// Writes committed
+//	void AdvancePastTimeslice(const Timeslice& targetTimeslice);	// Writes writeList, committed
+//	void AdvanceToTimeslice(const Timeslice& targetTimeslice);	// Writes writeList, committed
+//	void AdvanceByTime(double step, const Timeslice& targetTimeslice);	// Writes writeList, committed
+//	bool AdvanceByStep(const Timeslice& targetTimeslice);	// Writes writeList, committed
+//	double GetNextWriteTime(const Timeslice& targetTimeslice);	// Reads writeList
+//	WriteInfo GetWriteInfo(unsigned int index, const Timeslice& targetTimeslice);	// Reads writeList
 //
-//	//Control functions: Require global exclusive access
+//	// Control functions: Require global exclusive access
 //	void Initialize();
 //	void Flush();
 //	void Resize(unsigned int size);
@@ -58,7 +58,7 @@
 //	std::list<WriteSaveEntry> LoadWriteEntries(XMLEntity* entity);
 //	void GetState(XMLEntity* entity, const std::wstring& bufferName, bool inlineData = false) const;
 //
-//private:
+// private:
 //	std::list<TimesliceEntry> timesliceList;
 //	Timeslice latestTimeslice;
 //	std::list<WriteEntry> writeList;
@@ -66,7 +66,7 @@
 //	T defaultValue;
 //	double currentTimeOffset;
 //	//##TODO## Create an iterator member which stores a reference to the first non-committed
-//	//entry in the writelist, for use with the advance functions
+//	// entry in the writelist, for use with the advance functions
 //};
 
 #include "ThinList.pkg"
@@ -97,7 +97,7 @@ could.
 template<class T> class RandomTimeAccessBufferNew
 {
 public:
-	//Structures
+	// Structures
 	struct TimesliceEntry;
 	struct WriteEntry;
 	struct WriteInfo;
@@ -106,42 +106,42 @@ public:
 	struct AccessTarget;
 	typedef typename ThinListDouble<TimesliceEntry>* Timeslice;
 
-	//Constructors
+	// Constructors
 	inline RandomTimeAccessBufferNew();
 	inline RandomTimeAccessBufferNew(unsigned int size);
 	inline RandomTimeAccessBufferNew(unsigned int size, const T& adefaultValue);
 
-	//Common functions: Overlapped access permissible
+	// Common functions: Overlapped access permissible
 	inline T Read(unsigned int address, const AccessTarget& accessTarget) const;
 	inline void Write(unsigned int address, T data, const AccessTarget& accessTarget);
 	inline unsigned int Size() const;
 
-	//Active functions: One active function at a time, overlapped with others
-	T Read(unsigned int address, double readTime) const;	//Reads writeList, committed
-	void Write(unsigned int address, double writeTime, const T& data);	//Adds writeList
-	void AddTimeslice(double timeslice);	//Adds timesliceList
-	void Commit();	//Writes timesliceList
-	void Rollback();	//Writes timesliceList, writeList
-	Timeslice GetLatestTimeslice() const;	//Reads timesliceList
+	// Active functions: One active function at a time, overlapped with others
+	T Read(unsigned int address, double readTime) const;	// Reads writeList, committed
+	void Write(unsigned int address, double writeTime, const T& data);	// Adds writeList
+	void AddTimeslice(double timeslice);	// Adds timesliceList
+	void Commit();	// Writes timesliceList
+	void Rollback();	// Writes timesliceList, writeList
+	Timeslice GetLatestTimeslice() const;	// Reads timesliceList
 
-	//Latest functions: Locked - Overlapped with all
-	T ReadLatest(unsigned int address) const;	//Reads writeList, committed
-	void WriteLatest(unsigned int address, const T& data);	//Writes writeList, Writes committed
-	void GetLatestBufferCopy(std::vector<T>& buffer) const;	//Reads writeList, committed
+	// Latest functions: Locked - Overlapped with all
+	T ReadLatest(unsigned int address) const;	// Reads writeList, committed
+	void WriteLatest(unsigned int address, const T& data);	// Writes writeList, Writes committed
+	void GetLatestBufferCopy(std::vector<T>& buffer) const;	// Reads writeList, committed
 
-	//Committed functions: One committed function at a time, overlapped with others
-	inline T ReadCommitted(unsigned int address) const;	//Reads committed
-	T ReadCommitted(unsigned int address, double readTime) const;	//Reads committed, writeList
-	inline void WriteCommitted(unsigned int address, const T& data);	//Writes committed
-	void AdvancePastTimeslice(const Timeslice& targetTimeslice);	//Writes writeList, committed
-	void AdvanceToTimeslice(const Timeslice& targetTimeslice);	//Writes writeList, committed
-	void AdvanceByTime(double step, const Timeslice& targetTimeslice);	//Writes writeList, committed
-	bool AdvanceByStep(const Timeslice& targetTimeslice);	//Writes writeList, committed
-	double GetNextWriteTime(const Timeslice& targetTimeslice);	//Reads writeList
-	WriteInfo GetWriteInfo(unsigned int index, const Timeslice& targetTimeslice);	//Reads writeList
-	void Flush(const Timeslice& targetTimeslice); //Locked - Deletes writeList, timesliceList
+	// Committed functions: One committed function at a time, overlapped with others
+	inline T ReadCommitted(unsigned int address) const;	// Reads committed
+	T ReadCommitted(unsigned int address, double readTime) const;	// Reads committed, writeList
+	inline void WriteCommitted(unsigned int address, const T& data);	// Writes committed
+	void AdvancePastTimeslice(const Timeslice& targetTimeslice);	// Writes writeList, committed
+	void AdvanceToTimeslice(const Timeslice& targetTimeslice);	// Writes writeList, committed
+	void AdvanceByTime(double step, const Timeslice& targetTimeslice);	// Writes writeList, committed
+	bool AdvanceByStep(const Timeslice& targetTimeslice);	// Writes writeList, committed
+	double GetNextWriteTime(const Timeslice& targetTimeslice);	// Reads writeList
+	WriteInfo GetWriteInfo(unsigned int index, const Timeslice& targetTimeslice);	// Reads writeList
+	void Flush(const Timeslice& targetTimeslice); // Locked - Deletes writeList, timesliceList
 
-	//Control functions: Require global exclusive access
+	// Control functions: Require global exclusive access
 	void Initialize();
 	void Resize(unsigned int size);
 	void LoadState(IHierarchicalStorageNode& node);
@@ -163,7 +163,7 @@ private:
 	T defaultValue;
 	double currentTimeOffset;
 	//##TODO## Create an iterator member which stores a reference to the first non-committed
-	//entry in the writelist, for use with the advance functions
+	// entry in the writelist, for use with the advance functions
 
 	mutable std::mutex accessLock;
 };

@@ -6,16 +6,16 @@
 struct ZIPChunkLocalFileHeader
 {
 public:
-	//Constructors
+	// Constructors
 	inline ZIPChunkLocalFileHeader();
 	inline void Initialize();
 
-	//Serialization functions
+	// Serialization functions
 	inline bool LoadFromStream(Stream::IStream& stream);
 	inline bool SaveToStream(Stream::IStream& stream) const;
 
 public:
-	//Constants
+	// Constants
 	static const unsigned int ValidSignature = 0x04034B50;
 
 public:

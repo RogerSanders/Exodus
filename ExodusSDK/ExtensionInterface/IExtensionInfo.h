@@ -8,19 +8,19 @@ using namespace MarshalSupport::Operators;
 class IExtensionInfo
 {
 public:
-	//Typedefs
+	// Typedefs
 	typedef IExtension* (*AllocatorPointer)(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID);
 	typedef void (*DestructorPointer)(IExtension* extension);
 
 public:
-	//Constructors
+	// Constructors
 	virtual ~IExtensionInfo() = 0 {}
 
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisIExtensionInfoVersion() { return 1; }
 	virtual unsigned int GetIExtensionInfoVersion() const = 0;
 
-	//Getters
+	// Getters
 	virtual AllocatorPointer GetAllocator() const = 0;
 	virtual DestructorPointer GetDestructor() const = 0;
 	virtual Marshal::Ret<std::wstring> GetExtensionClassName() const = 0;
@@ -30,7 +30,7 @@ public:
 	virtual Marshal::Ret<std::wstring> GetExtensionComments() const = 0;
 	virtual bool GetIsPersistentGlobalExtension() const = 0;
 
-	//Setters
+	// Setters
 	virtual void SetExtensionSettings(AllocatorPointer allocator, DestructorPointer destructor, const Marshal::In<std::wstring>& extensionClassName, const Marshal::In<std::wstring>& extensionImplementationName, unsigned int extensionVersionNo, const Marshal::In<std::wstring>& extensionCopyright, const Marshal::In<std::wstring>& extensionComments, bool persistentGlobalExtension = false) = 0;
 	virtual void SetExtensionAllocators(AllocatorPointer allocator, DestructorPointer destructor) = 0;
 	virtual void SetExtensionClassName(const Marshal::In<std::wstring>& extensionClassName) = 0;

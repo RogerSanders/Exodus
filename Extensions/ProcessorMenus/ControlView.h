@@ -8,15 +8,15 @@
 class ControlView :public ViewBase
 {
 public:
-	//Constructors
+	// Constructors
 	ControlView(IUIManager& uiManager, ControlViewPresenter& presenter, IProcessor& model);
 
 protected:
-	//Member window procedure
+	// Member window procedure
 	virtual INT_PTR WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
 private:
-	//Event handlers
+	// Event handlers
 	INT_PTR msgWM_INITDIALOG(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgWM_TIMER(HWND hwnd, WPARAM wParam, LPARAM lParam);

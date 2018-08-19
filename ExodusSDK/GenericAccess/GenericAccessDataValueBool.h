@@ -6,24 +6,24 @@
 class GenericAccessDataValueBool :public GenericAccessDataValueBase<IGenericAccessDataValueBool>
 {
 public:
-	//Constructors
+	// Constructors
 	GenericAccessDataValueBool(bool value = false);
 
-	//Interface version functions
+	// Interface version functions
 	virtual unsigned int GetIGenericAccessDataValueBoolVersion() const;
 
-	//Type functions
+	// Type functions
 	virtual DataType GetType() const;
 
-	//Value read functions
+	// Value read functions
 	virtual bool GetValue() const;
 	virtual Marshal::Ret<std::wstring> GetValueString() const;
 
-	//Value write functions
+	// Value write functions
 	virtual bool SetValueBool(bool value);
 	virtual bool SetValueString(const Marshal::In<std::wstring>& value);
 
-	//Value limit functions
+	// Value limit functions
 	virtual void ApplyLimitSettingsToCurrentValue();
 
 private:

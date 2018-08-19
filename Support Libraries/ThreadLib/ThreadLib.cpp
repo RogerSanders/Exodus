@@ -1,6 +1,6 @@
 #include "ThreadLib.h"
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void SetCurrentThreadPriority(ThreadPriority priority)
 {
 	int threadPriority = THREAD_PRIORITY_NORMAL;
@@ -31,7 +31,7 @@ void SetCurrentThreadPriority(ThreadPriority priority)
 	SetThreadPriority(GetCurrentThread(), threadPriority);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Timestamp GetTimestamp()
 {
 	SYSTEMTIME systemTime;

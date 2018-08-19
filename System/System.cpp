@@ -13,9 +13,9 @@
 #include <iostream>
 #include <iomanip>
 
-//----------------------------------------------------------------------------------------
-//Constructors
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Constructors
+//----------------------------------------------------------------------------------------------------------------------
 System::System(IGUIExtensionInterface& guiExtensionInterface)
 :_guiExtensionInterface(guiExtensionInterface), _stopSystem(false), _systemStopped(true), _initialize(true), _rollback(false), _performingSingleDeviceStep(false), _enableThrottling(true), _runWhenProgramModuleLoaded(true), _enablePersistentState(true)
 {
@@ -34,50 +34,50 @@ System::System(IGUIExtensionInterface& guiExtensionInterface)
 	_nextFreeEmbeddedROMID = 5000;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 System::~System()
 {
-	//Unload all currently loaded modules
+	// Unload all currently loaded modules
 	UnloadAllModules();
 
-	//Unload all persistent global extensions. Persistent extensions should be all that is
-	//left in the list of global extensions at this point.
+	// Unload all persistent global extensions. Persistent extensions should be all that is
+	// left in the list of global extensions at this point.
 	for (LoadedGlobalExtensionInfoList::const_iterator i = _globalExtensionInfoList.begin(); i != _globalExtensionInfoList.end(); ++i)
 	{
 		UnloadExtension(i->second.extension);
 	}
 }
 
-//----------------------------------------------------------------------------------------
-//Interface version functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Interface version functions
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int System::GetISystemDeviceInterfaceVersion() const
 {
 	return ThisISystemDeviceInterfaceVersion();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int System::GetISystemExtensionInterfaceVersion() const
 {
 	return ThisISystemExtensionInterfaceVersion();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int System::GetISystemGUIInterfaceVersion() const
 {
 	return ThisISystemGUIInterfaceVersion();
 }
 
-//----------------------------------------------------------------------------------------
-//Savestate functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Savestate functions
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadState(const Marshal::In<std::wstring>& filePath, FileType fileType, bool debuggerState)
 {
-	//Save running state and pause system
+	// Save running state and pause system
 	bool running = SystemRunning();
 	StopSystem();
 
-	//Open the target file
+	// Open the target file
 	FileStreamReference sourceStreamReference(_guiExtensionInterface);
 	if (!sourceStreamReference.OpenExistingFileForRead(filePath))
 	{
@@ -93,7 +93,7 @@ bool System::LoadState(const Marshal::In<std::wstring>& filePath, FileType fileT
 	HierarchicalStorageTree tree;
 	if (fileType == FileType::ZIP)
 	{
-		//Load the ZIP header structure
+		// Load the ZIP header structure
 		ZIPArchive archive;
 		if (!archive.LoadFromStream(source))
 		{
@@ -105,7 +105,7 @@ bool System::LoadState(const Marshal::In<std::wstring>& filePath, FileType fileT
 			return false;
 		}
 
-		//Load XML tree from file
+		// Load XML tree from file
 		ZIPFileEntry* entry = archive.GetFileEntry(L"save.xml");
 		if (entry == 0)
 		{
@@ -139,7 +139,7 @@ bool System::LoadState(const Marshal::In<std::wstring>& filePath, FileType fileT
 			return false;
 		}
 
-		//Load external binary data into the XML tree
+		// Load external binary data into the XML tree
 		std::list<IHierarchicalStorageNode*> binaryList;
 		binaryList = tree.GetBinaryDataNodeList();
 		for (std::list<IHierarchicalStorageNode*>::iterator i = binaryList.begin(); i != binaryList.end(); ++i)
@@ -170,11 +170,11 @@ bool System::LoadState(const Marshal::In<std::wstring>& filePath, FileType fileT
 	}
 	else if (fileType == FileType::XML)
 	{
-		//Determine the text format for the target file
+		// Determine the text format for the target file
 		source.SetTextEncoding(Stream::IStream::TextEncoding::UTF8);
 		source.ProcessByteOrderMark();
 
-		//Attempt to load the XML tree from the file
+		// Attempt to load the XML tree from the file
 		if (!tree.LoadTree(source))
 		{
 			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to load state from file " + filePath + L" because the xml structure could not be decoded! The xml decode error string is as follows: " + tree.GetErrorString()));
@@ -185,7 +185,7 @@ bool System::LoadState(const Marshal::In<std::wstring>& filePath, FileType fileT
 			return false;
 		}
 
-		//Load external binary data into the XML tree
+		// Load external binary data into the XML tree
 		std::wstring fileDir = PathGetDirectory(filePath);
 		std::list<IHierarchicalStorageNode*> binaryList;
 		binaryList = tree.GetBinaryDataNodeList();
@@ -194,14 +194,14 @@ bool System::LoadState(const Marshal::In<std::wstring>& filePath, FileType fileT
 			std::wstring binaryFileName = (*i)->GetBinaryDataBufferName() + L".bin";
 			std::wstring binaryFilePath = binaryFileName;
 
-			//If the file path contains a relative path to the target, resolve the relative
-			//file path using the directory containing the module file as a base.
+			// If the file path contains a relative path to the target, resolve the relative
+			// file path using the directory containing the module file as a base.
 			if (PathIsRelativePath(binaryFilePath))
 			{
 				binaryFilePath = PathCombinePaths(fileDir, binaryFilePath);
 			}
 
-			//Open the target file
+			// Open the target file
 			FileStreamReference binaryFileStreamReference(_guiExtensionInterface);
 			if (!binaryFileStreamReference.OpenExistingFileForRead(binaryFilePath))
 			{
@@ -243,7 +243,7 @@ bool System::LoadState(const Marshal::In<std::wstring>& filePath, FileType fileT
 		}
 	}
 
-	//Validate the root node
+	// Validate the root node
 	IHierarchicalStorageNode& rootNode = tree.GetRootNode();
 	if (rootNode.GetName() != L"State")
 	{
@@ -255,17 +255,17 @@ bool System::LoadState(const Marshal::In<std::wstring>& filePath, FileType fileT
 		return false;
 	}
 
-	//Restore system state from XML data
+	// Restore system state from XML data
 	ModuleRelationshipMap relationshipMap;
 	std::list<IHierarchicalStorageNode*> childList = rootNode.GetChildList();
 	for (std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
 		std::wstring elementName = (*i)->GetName();
 
-		//Load the device node
+		// Load the device node
 		if (elementName == L"Device")
 		{
-			//Extract the mandatory attributes
+			// Extract the mandatory attributes
 			IHierarchicalStorageAttribute* nameAttribute = (*i)->GetAttribute(L"Name");
 			IHierarchicalStorageAttribute* moduleIDAttribute = (*i)->GetAttribute(L"ModuleID");
 			if ((nameAttribute != 0) && (moduleIDAttribute != 0))
@@ -273,7 +273,7 @@ bool System::LoadState(const Marshal::In<std::wstring>& filePath, FileType fileT
 				std::wstring deviceName = nameAttribute->GetValue();
 				unsigned int savedModuleID = moduleIDAttribute->ExtractValue<unsigned int>();
 
-				//Attempt to locate a matching loaded device
+				// Attempt to locate a matching loaded device
 				bool foundDevice = false;
 				IDevice* device = 0;
 				ModuleRelationshipMap::const_iterator relationshipMapIterator = relationshipMap.find(savedModuleID);
@@ -290,7 +290,7 @@ bool System::LoadState(const Marshal::In<std::wstring>& filePath, FileType fileT
 					}
 				}
 
-				//If we found a matching device, load the state for this device.
+				// If we found a matching device, load the state for this device.
 				if (foundDevice)
 				{
 					if (debuggerState)
@@ -299,24 +299,24 @@ bool System::LoadState(const Marshal::In<std::wstring>& filePath, FileType fileT
 					}
 					else
 					{
-						//Note that we negate the output line state here, and re-assert it
-						//after loading the state data. This is technically unnecessary
-						//when loading complete system states, but is very important when
-						//loading partial system states.
+						// Note that we negate the output line state here, and re-assert it
+						// after loading the state data. This is technically unnecessary
+						// when loading complete system states, but is very important when
+						// loading partial system states.
 						device->NegateCurrentOutputLineState();
 						device->LoadState(*(*i));
 						device->AssertCurrentOutputLineState();
 					}
 				}
 
-				//If a matching loaded device couldn't be located, log an error.
+				// If a matching loaded device couldn't be located, log an error.
 				if (!foundDevice)
 				{
 					WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"While loading state data from file " + filePath + L" state data was found for device " + deviceName + L" , which could not be located in the system. The state data for this device will be ignored, and the state will continue to load, but note that the system may not run as expected."));
 				}
 			}
 		}
-		//Load the ModuleRelationships node
+		// Load the ModuleRelationships node
 		else if (elementName == L"ModuleRelationships")
 		{
 			if (!LoadModuleRelationshipsNode(*(*i), relationshipMap))
@@ -331,15 +331,15 @@ bool System::LoadState(const Marshal::In<std::wstring>& filePath, FileType fileT
 		}
 		else
 		{
-			//Log a warning for an unrecognized element
+			// Log a warning for an unrecognized element
 			WriteLogEvent(LogEntry(LogEntry::EventLevel::Warning, L"System", L"Unrecognized element: " + elementName + L" when loading state from file " + filePath + L"."));
 		}
 	}
 
-	//Log the event
+	// Log the event
 	WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", L"Loaded state from file " + filePath));
 
-	//Restore running state
+	// Restore running state
 	if (running)
 	{
 		RunSystem();
@@ -347,18 +347,18 @@ bool System::LoadState(const Marshal::In<std::wstring>& filePath, FileType fileT
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::SaveState(const Marshal::In<std::wstring>& filePath, FileType fileType, bool debuggerState)
 {
-	//Save running state and pause system
+	// Save running state and pause system
 	bool running = SystemRunning();
 	StopSystem();
 
-	//Create the new savestate XML tree
+	// Create the new savestate XML tree
 	HierarchicalStorageTree tree;
 	tree.GetRootNode().SetName(L"State");
 
-	//Fill in general information about the savestate
+	// Fill in general information about the savestate
 	IHierarchicalStorageNode& stateInfo = tree.GetRootNode().CreateChild(L"Info");
 	Timestamp timestamp = GetTimestamp();
 	stateInfo.CreateAttribute(L"CreationDate", timestamp.GetDate());
@@ -379,11 +379,11 @@ bool System::SaveState(const Marshal::In<std::wstring>& filePath, FileType fileT
 		}
 	}
 
-	//Save the ModuleRelationships node
+	// Save the ModuleRelationships node
 	IHierarchicalStorageNode& moduleRelationshipsNode = tree.GetRootNode().CreateChild(L"ModuleRelationships");
 	SaveModuleRelationshipsNode(moduleRelationshipsNode);
 
-	//Save the system state to the XML tree
+	// Save the system state to the XML tree
 	for (LoadedDeviceInfoList::const_iterator i = _loadedDeviceInfoList.begin(); i != _loadedDeviceInfoList.end(); ++i)
 	{
 		IHierarchicalStorageNode& node = tree.GetRootNode().CreateChild(L"Device");
@@ -401,7 +401,7 @@ bool System::SaveState(const Marshal::In<std::wstring>& filePath, FileType fileT
 
 	if (fileType == FileType::ZIP)
 	{
-		//Save the XML tree to a unicode buffer
+		// Save the XML tree to a unicode buffer
 		Stream::Buffer buffer(Stream::IStream::TextEncoding::UTF8, 0);
 		buffer.InsertByteOrderMark();
 		if (!tree.SaveTree(buffer))
@@ -429,7 +429,7 @@ bool System::SaveState(const Marshal::In<std::wstring>& filePath, FileType fileT
 		}
 		archive.AddFileEntry(entry);
 
-		//Save external binary data to separate files
+		// Save external binary data to separate files
 		std::list<IHierarchicalStorageNode*> binaryList;
 		binaryList = tree.GetBinaryDataNodeList();
 		for (std::list<IHierarchicalStorageNode*>::iterator i = binaryList.begin(); i != binaryList.end(); ++i)
@@ -451,7 +451,7 @@ bool System::SaveState(const Marshal::In<std::wstring>& filePath, FileType fileT
 			archive.AddFileEntry(entry);
 		}
 
-		//Add the screenshot file
+		// Add the screenshot file
 		if (screenshotPresent)
 		{
 			ZIPFileEntry entry;
@@ -479,7 +479,7 @@ bool System::SaveState(const Marshal::In<std::wstring>& filePath, FileType fileT
 			archive.AddFileEntry(entry);
 		}
 
-		//Create the target file
+		// Create the target file
 		Stream::File target;
 		if (!target.Open(filePath, Stream::File::OpenMode::ReadAndWrite, Stream::File::CreateMode::Create))
 		{
@@ -502,7 +502,7 @@ bool System::SaveState(const Marshal::In<std::wstring>& filePath, FileType fileT
 	}
 	else if (fileType == FileType::XML)
 	{
-		//Save XML tree to the target file
+		// Save XML tree to the target file
 		Stream::File file(Stream::IStream::TextEncoding::UTF8);
 		if (!file.Open(filePath, Stream::File::OpenMode::ReadAndWrite, Stream::File::CreateMode::Create))
 		{
@@ -524,7 +524,7 @@ bool System::SaveState(const Marshal::In<std::wstring>& filePath, FileType fileT
 			return false;
 		}
 
-		//Save external binary data to separate files
+		// Save external binary data to separate files
 		std::wstring fileName = PathGetFileName(filePath);
 		std::wstring fileDir = PathGetDirectory(filePath);
 		std::list<IHierarchicalStorageNode*> binaryList;
@@ -570,7 +570,7 @@ bool System::SaveState(const Marshal::In<std::wstring>& filePath, FileType fileT
 			}
 		}
 
-		//Save the screenshot file
+		// Save the screenshot file
 		if (screenshotPresent)
 		{
 			std::wstring screenshotFilenameFull = fileName + L" - " + screenshotFilename;
@@ -597,10 +597,10 @@ bool System::SaveState(const Marshal::In<std::wstring>& filePath, FileType fileT
 		}
 	}
 
-	//Log the event
+	// Log the event
 	WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", L"Saved state to file " + filePath));
 
-	//Restore running state
+	// Restore running state
 	if (running)
 	{
 		RunSystem();
@@ -608,10 +608,10 @@ bool System::SaveState(const Marshal::In<std::wstring>& filePath, FileType fileT
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadPersistentStateForModule(const std::wstring& filePath, unsigned int moduleID, FileType fileType, bool returnSuccessOnNoFilePresent)
 {
-	//Open the target file
+	// Open the target file
 	FileStreamReference sourceStreamReference(_guiExtensionInterface);
 	if (!sourceStreamReference.OpenExistingFileForRead(filePath))
 	{
@@ -630,7 +630,7 @@ bool System::LoadPersistentStateForModule(const std::wstring& filePath, unsigned
 	HierarchicalStorageTree tree;
 	if (fileType == FileType::ZIP)
 	{
-		//Load the ZIP header structure
+		// Load the ZIP header structure
 		ZIPArchive archive;
 		if (!archive.LoadFromStream(source))
 		{
@@ -638,7 +638,7 @@ bool System::LoadPersistentStateForModule(const std::wstring& filePath, unsigned
 			return false;
 		}
 
-		//Load XML tree from file
+		// Load XML tree from file
 		ZIPFileEntry* entry = archive.GetFileEntry(L"save.xml");
 		if (entry == 0)
 		{
@@ -660,7 +660,7 @@ bool System::LoadPersistentStateForModule(const std::wstring& filePath, unsigned
 			return false;
 		}
 
-		//Load external binary data into the XML tree
+		// Load external binary data into the XML tree
 		std::list<IHierarchicalStorageNode*> binaryList;
 		binaryList = tree.GetBinaryDataNodeList();
 		for (std::list<IHierarchicalStorageNode*>::iterator i = binaryList.begin(); i != binaryList.end(); ++i)
@@ -683,18 +683,18 @@ bool System::LoadPersistentStateForModule(const std::wstring& filePath, unsigned
 	}
 	else if (fileType == FileType::XML)
 	{
-		//Determine the text format for the target file
+		// Determine the text format for the target file
 		source.SetTextEncoding(Stream::IStream::TextEncoding::UTF8);
 		source.ProcessByteOrderMark();
 
-		//Attempt to load the XML tree from the file
+		// Attempt to load the XML tree from the file
 		if (!tree.LoadTree(source))
 		{
 			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to load persistent state from file " + filePath + L" because the xml structure could not be decoded! The xml decode error string is as follows: " + tree.GetErrorString()));
 			return false;
 		}
 
-		//Load external binary data into the XML tree
+		// Load external binary data into the XML tree
 		std::wstring fileDir = PathGetDirectory(filePath);
 		std::list<IHierarchicalStorageNode*> binaryList;
 		binaryList = tree.GetBinaryDataNodeList();
@@ -703,14 +703,14 @@ bool System::LoadPersistentStateForModule(const std::wstring& filePath, unsigned
 			std::wstring binaryFileName = (*i)->GetBinaryDataBufferName() + L".bin";
 			std::wstring binaryFilePath = binaryFileName;
 
-			//If the file path contains a relative path to the target, resolve the relative
-			//file path using the directory containing the module file as a base.
+			// If the file path contains a relative path to the target, resolve the relative
+			// file path using the directory containing the module file as a base.
 			if (PathIsRelativePath(binaryFilePath))
 			{
 				binaryFilePath = PathCombinePaths(fileDir, binaryFilePath);
 			}
 
-			//Open the target file
+			// Open the target file
 			FileStreamReference binaryFileStreamReference(_guiExtensionInterface);
 			if (!binaryFileStreamReference.OpenExistingFileForRead(binaryFilePath))
 			{
@@ -740,7 +740,7 @@ bool System::LoadPersistentStateForModule(const std::wstring& filePath, unsigned
 		}
 	}
 
-	//Validate the root node
+	// Validate the root node
 	IHierarchicalStorageNode& rootNode = tree.GetRootNode();
 	if (rootNode.GetName() != L"PersistentState")
 	{
@@ -748,22 +748,22 @@ bool System::LoadPersistentStateForModule(const std::wstring& filePath, unsigned
 		return false;
 	}
 
-	//Restore persistent system state from XML data
+	// Restore persistent system state from XML data
 	std::list<IHierarchicalStorageNode*> childList = rootNode.GetChildList();
 	for (std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
 		std::wstring elementName = (*i)->GetName();
 
-		//Load the device node
+		// Load the device node
 		if (elementName == L"Device")
 		{
-			//Extract the mandatory attributes
+			// Extract the mandatory attributes
 			IHierarchicalStorageAttribute* nameAttribute = (*i)->GetAttribute(L"Name");
 			if (nameAttribute != 0)
 			{
 				std::wstring deviceName = nameAttribute->GetValue();
 
-				//Attempt to locate a matching loaded device
+				// Attempt to locate a matching loaded device
 				bool foundDevice = false;
 				IDevice* device = GetDevice(moduleID, deviceName);
 				if (device != 0)
@@ -771,19 +771,19 @@ bool System::LoadPersistentStateForModule(const std::wstring& filePath, unsigned
 					foundDevice = true;
 				}
 
-				//If we found a matching device, load the state for this device.
+				// If we found a matching device, load the state for this device.
 				if (foundDevice)
 				{
-					//Note that we negate the output line state here, and re-assert it
-					//after loading the state data. This is technically unnecessary
-					//when loading complete system states, but is very important when
-					//loading partial system states.
+					// Note that we negate the output line state here, and re-assert it
+					// after loading the state data. This is technically unnecessary
+					// when loading complete system states, but is very important when
+					// loading partial system states.
 					device->NegateCurrentOutputLineState();
 					device->LoadState(*(*i));
 					device->AssertCurrentOutputLineState();
 				}
 
-				//If a matching loaded device couldn't be located, log an error.
+				// If a matching loaded device couldn't be located, log an error.
 				if (!foundDevice)
 				{
 					WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"While loading persistent state data from file " + filePath + L" state data was found for device " + deviceName + L" , which could not be located in the system. The state data for this device will be ignored, and the state will continue to load, but note that the system may not run as expected."));
@@ -792,25 +792,25 @@ bool System::LoadPersistentStateForModule(const std::wstring& filePath, unsigned
 		}
 		else
 		{
-			//Log a warning for an unrecognized element
+			// Log a warning for an unrecognized element
 			WriteLogEvent(LogEntry(LogEntry::EventLevel::Warning, L"System", L"Unrecognized element: " + elementName + L" when loading persistent state from file " + filePath + L"."));
 		}
 	}
 
-	//Log the event
+	// Log the event
 	WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", L"Loaded persistent state from file " + filePath));
 
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::SavePersistentStateForModule(const std::wstring& filePath, unsigned int moduleID, FileType fileType, bool generateNoFileIfNoContentPresent)
 {
-	//Create the new savestate XML tree
+	// Create the new savestate XML tree
 	HierarchicalStorageTree tree;
 	tree.GetRootNode().SetName(L"PersistentState");
 
-	//Save the system state to the XML tree
+	// Save the system state to the XML tree
 	for (LoadedDeviceInfoList::const_iterator i = _loadedDeviceInfoList.begin(); i != _loadedDeviceInfoList.end(); ++i)
 	{
 		if (i->moduleID == moduleID)
@@ -826,14 +826,14 @@ bool System::SavePersistentStateForModule(const std::wstring& filePath, unsigned
 		}
 	}
 
-	//If we've been requested not to generate a file if no content is present, and no
-	//devices saved any persistent state, abort any further processing, and return true.
+	// If we've been requested not to generate a file if no content is present, and no
+	// devices saved any persistent state, abort any further processing, and return true.
 	if (generateNoFileIfNoContentPresent && tree.GetRootNode().IsEmpty())
 	{
 		return true;
 	}
 
-	//Fill in general information about the savestate
+	// Fill in general information about the savestate
 	IHierarchicalStorageNode& stateInfo = tree.GetRootNode().CreateChild(L"Info");
 	Timestamp timestamp = GetTimestamp();
 	stateInfo.CreateAttribute(L"CreationDate", timestamp.GetDate());
@@ -841,7 +841,7 @@ bool System::SavePersistentStateForModule(const std::wstring& filePath, unsigned
 
 	if (fileType == FileType::ZIP)
 	{
-		//Save the XML tree to a unicode buffer
+		// Save the XML tree to a unicode buffer
 		Stream::Buffer buffer(Stream::IStream::TextEncoding::UTF8, 0);
 		buffer.InsertByteOrderMark();
 		if (!tree.SaveTree(buffer))
@@ -861,7 +861,7 @@ bool System::SavePersistentStateForModule(const std::wstring& filePath, unsigned
 		}
 		archive.AddFileEntry(entry);
 
-		//Save external binary data to separate files
+		// Save external binary data to separate files
 		std::list<IHierarchicalStorageNode*> binaryList;
 		binaryList = tree.GetBinaryDataNodeList();
 		for (std::list<IHierarchicalStorageNode*>::iterator i = binaryList.begin(); i != binaryList.end(); ++i)
@@ -879,7 +879,7 @@ bool System::SavePersistentStateForModule(const std::wstring& filePath, unsigned
 			archive.AddFileEntry(entry);
 		}
 
-		//Create the target file
+		// Create the target file
 		Stream::File target;
 		if (!target.Open(filePath, Stream::File::OpenMode::ReadAndWrite, Stream::File::CreateMode::Create))
 		{
@@ -894,7 +894,7 @@ bool System::SavePersistentStateForModule(const std::wstring& filePath, unsigned
 	}
 	else if (fileType == FileType::XML)
 	{
-		//Save XML tree to the target file
+		// Save XML tree to the target file
 		Stream::File file(Stream::IStream::TextEncoding::UTF8);
 		if (!file.Open(filePath, Stream::File::OpenMode::ReadAndWrite, Stream::File::CreateMode::Create))
 		{
@@ -908,7 +908,7 @@ bool System::SavePersistentStateForModule(const std::wstring& filePath, unsigned
 			return false;
 		}
 
-		//Save external binary data to separate files
+		// Save external binary data to separate files
 		std::wstring fileName = PathGetFileName(filePath);
 		std::wstring fileDir = PathGetDirectory(filePath);
 		std::list<IHierarchicalStorageNode*> binaryList;
@@ -943,19 +943,19 @@ bool System::SavePersistentStateForModule(const std::wstring& filePath, unsigned
 		}
 	}
 
-	//Log the event
+	// Log the event
 	WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", L"Saved persistent state to file " + filePath));
 
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Marshal::Ret<System::StateInfo> System::GetStateInfo(const Marshal::In<std::wstring>& filePath, FileType fileType) const
 {
 	StateInfo stateInfo;
 	stateInfo.valid = false;
 
-	//Open the target file
+	// Open the target file
 	FileStreamReference sourceStreamReference(_guiExtensionInterface);
 	if (!sourceStreamReference.OpenExistingFileForRead(filePath))
 	{
@@ -966,14 +966,14 @@ Marshal::Ret<System::StateInfo> System::GetStateInfo(const Marshal::In<std::wstr
 	HierarchicalStorageTree tree;
 	if (fileType == FileType::ZIP)
 	{
-		//Load the ZIP header structure
+		// Load the ZIP header structure
 		ZIPArchive archive;
 		if (!archive.LoadFromStream(source))
 		{
 			return stateInfo;
 		}
 
-		//Load XML tree from file
+		// Load XML tree from file
 		ZIPFileEntry* entry = archive.GetFileEntry(L"save.xml");
 		if (entry == 0)
 		{
@@ -1002,7 +1002,7 @@ Marshal::Ret<System::StateInfo> System::GetStateInfo(const Marshal::In<std::wstr
 		}
 	}
 
-	//Load savestate info from XML data
+	// Load savestate info from XML data
 	IHierarchicalStorageNode& rootNode = tree.GetRootNode();
 	if (rootNode.GetName() == L"State")
 	{
@@ -1032,29 +1032,29 @@ Marshal::Ret<System::StateInfo> System::GetStateInfo(const Marshal::In<std::wstr
 	return stateInfo;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadSavedRelationshipMap(IHierarchicalStorageNode& node, SavedRelationshipMap& relationshipMap) const
 {
-	//Validate the name of the node
+	// Validate the name of the node
 	if (node.GetName() != L"ModuleRelationships")
 	{
 		return false;
 	}
 
-	//Load the saved module relationship data
+	// Load the saved module relationship data
 	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
 	for (std::list<IHierarchicalStorageNode*>::const_iterator i = childList.begin(); i != childList.end(); ++i)
 	{
 		if ((*i)->GetName() == L"Module")
 		{
-			//Extract the mandatory attributes
+			// Extract the mandatory attributes
 			IHierarchicalStorageAttribute* moduleIDAttribute = (*i)->GetAttribute(L"ModuleID");
 			IHierarchicalStorageAttribute* systemClassNameAttribute = (*i)->GetAttribute(L"SystemClassName");
 			IHierarchicalStorageAttribute* moduleClassNameAttribute = (*i)->GetAttribute(L"ModuleClassName");
 			IHierarchicalStorageAttribute* moduleInstanceNameAttribute = (*i)->GetAttribute(L"ModuleInstanceName");
 			if ((moduleIDAttribute != 0) && (systemClassNameAttribute != 0) && (moduleClassNameAttribute != 0) && (moduleInstanceNameAttribute != 0))
 			{
-				//Extract info on this module
+				// Extract info on this module
 				SavedRelationshipModule savedData;
 				savedData.moduleID = moduleIDAttribute->ExtractValue<unsigned int>();
 				savedData.systemClassName = systemClassNameAttribute->GetValue();
@@ -1066,13 +1066,13 @@ bool System::LoadSavedRelationshipMap(IHierarchicalStorageNode& node, SavedRelat
 					savedData.filePath = filePathAttribute->GetValue();
 				}
 
-				//Extract any connector info
+				// Extract any connector info
 				std::list<IHierarchicalStorageNode*> moduleChildList = (*i)->GetChildList();
 				for (std::list<IHierarchicalStorageNode*>::const_iterator moduleChildIterator = moduleChildList.begin(); moduleChildIterator != moduleChildList.end(); ++moduleChildIterator)
 				{
 					if ((*moduleChildIterator)->GetName() == L"ExportConnector")
 					{
-						//Extract the mandatory attributes
+						// Extract the mandatory attributes
 						IHierarchicalStorageAttribute* connectorClassNameAttribute = (*moduleChildIterator)->GetAttribute(L"ConnectorClassName");
 						IHierarchicalStorageAttribute* connectorInstanceNameAttribute = (*moduleChildIterator)->GetAttribute(L"ConnectorInstanceName");
 						if ((connectorClassNameAttribute != 0) && (connectorInstanceNameAttribute != 0))
@@ -1085,7 +1085,7 @@ bool System::LoadSavedRelationshipMap(IHierarchicalStorageNode& node, SavedRelat
 					}
 					else if ((*moduleChildIterator)->GetName() == L"ImportConnector")
 					{
-						//Extract the mandatory attributes
+						// Extract the mandatory attributes
 						IHierarchicalStorageAttribute* connectorModuleIDAttribute = (*moduleChildIterator)->GetAttribute(L"ExportingModuleID");
 						IHierarchicalStorageAttribute* connectorClassNameAttribute = (*moduleChildIterator)->GetAttribute(L"ConnectorClassName");
 						IHierarchicalStorageAttribute* connectorInstanceNameLocalAttribute = (*moduleChildIterator)->GetAttribute(L"ConnectorInstanceNameLocal");
@@ -1102,7 +1102,7 @@ bool System::LoadSavedRelationshipMap(IHierarchicalStorageNode& node, SavedRelat
 					}
 				}
 
-				//Add info on this module to our list of modules
+				// Add info on this module to our list of modules
 				relationshipMap.insert(SavedRelationshipMapEntry(savedData.moduleID, savedData));
 			}
 		}
@@ -1111,17 +1111,17 @@ bool System::LoadSavedRelationshipMap(IHierarchicalStorageNode& node, SavedRelat
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModuleRelationshipsNode(IHierarchicalStorageNode& node, const Marshal::Out<ModuleRelationshipMap>& relationshipMap) const
 {
-	//Load the saved module relationship data
+	// Load the saved module relationship data
 	SavedRelationshipMap savedRelationshipData;
 	if (!LoadSavedRelationshipMap(node, savedRelationshipData))
 	{
 		return false;
 	}
 
-	//Build a copy of the connectorDetailsMap, keyed on the ID of the importing module.
+	// Build a copy of the connectorDetailsMap, keyed on the ID of the importing module.
 	ConnectorInfoMapOnImportingModuleID connectorInfoOnImportingModuleID;
 	for (ConnectorDetailsMap::const_iterator i = _connectorDetailsMap.begin(); i != _connectorDetailsMap.end(); ++i)
 	{
@@ -1141,24 +1141,24 @@ bool System::LoadModuleRelationshipsNode(IHierarchicalStorageNode& node, const M
 		}
 	}
 
-	//Examine each module referenced in the saved data, and try and find matching modules
-	//in the loaded module list. Store information on module associations in the
-	//relationshipMap.
+	// Examine each module referenced in the saved data, and try and find matching modules
+	// in the loaded module list. Store information on module associations in the
+	// relationshipMap.
 	ModuleRelationshipMap relationshipMapTemp;
 	for (SavedRelationshipMap::const_iterator i = savedRelationshipData.begin(); i != savedRelationshipData.end(); ++i)
 	{
-		//Look for a loaded module which matches the saved module data
+		// Look for a loaded module which matches the saved module data
 		bool foundMatchingModule = false;
 		const SavedRelationshipModule& savedModuleInfo = i->second;
 		LoadedModuleInfoMap::const_iterator loadedModuleIterator = _loadedModuleInfoMap.begin();
 		while (!foundMatchingModule && (loadedModuleIterator != _loadedModuleInfoMap.end()))
 		{
-			//Check if these modules match
+			// Check if these modules match
 			const LoadedModuleInfoInternal& loadedModuleInfo = loadedModuleIterator->second;
 			if (DoesLoadedModuleMatchSavedModule(savedRelationshipData, savedModuleInfo, loadedModuleInfo, connectorInfoOnImportingModuleID))
 			{
-				//If these modules match, store the association between the modules, and
-				//move on to the next module.
+				// If these modules match, store the association between the modules, and
+				// move on to the next module.
 				ModuleRelationship moduleRelationship;
 				moduleRelationship.foundMatch = true;
 				moduleRelationship.savedModuleID = savedModuleInfo.moduleID;
@@ -1172,8 +1172,8 @@ bool System::LoadModuleRelationshipsNode(IHierarchicalStorageNode& node, const M
 			++loadedModuleIterator;
 		}
 
-		//If no matching module was found, store information about the failed match,
-		//record that not all modules were found, and move on to the next module.
+		// If no matching module was found, store information about the failed match,
+		// record that not all modules were found, and move on to the next module.
 		if (!foundMatchingModule)
 		{
 			ModuleRelationship moduleRelationship;
@@ -1189,7 +1189,7 @@ bool System::LoadModuleRelationshipsNode(IHierarchicalStorageNode& node, const M
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::SaveModuleRelationshipsNode(IHierarchicalStorageNode& node, bool saveFilePathInfo, const Marshal::In<std::wstring>& relativePathBase) const
 {
 	for (LoadedModuleInfoMap::const_iterator i = _loadedModuleInfoMap.begin(); i != _loadedModuleInfoMap.end(); ++i)
@@ -1202,8 +1202,8 @@ void System::SaveModuleRelationshipsNode(IHierarchicalStorageNode& node, bool sa
 		moduleNode.CreateAttribute(L"ModuleInstanceName", loadedModuleInfo.instanceName);
 		if (saveFilePathInfo)
 		{
-			//Convert the file directory to a relative path from the base directory, if
-			//the target directory is the same or contained within the target path.
+			// Convert the file directory to a relative path from the base directory, if
+			// the target directory is the same or contained within the target path.
 			std::wstring fileDir = PathGetDirectory(loadedModuleInfo.filePath);
 			if (PathStartsWithBasePath(relativePathBase, fileDir))
 			{
@@ -1222,7 +1222,7 @@ void System::SaveModuleRelationshipsNode(IHierarchicalStorageNode& node, bool sa
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::SaveModuleRelationshipsExportConnectors(IHierarchicalStorageNode& moduleNode, unsigned int moduleID) const
 {
 	for (ConnectorDetailsMap::const_iterator i = _connectorDetailsMap.begin(); i != _connectorDetailsMap.end(); ++i)
@@ -1236,7 +1236,7 @@ void System::SaveModuleRelationshipsExportConnectors(IHierarchicalStorageNode& m
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::SaveModuleRelationshipsImportConnectors(IHierarchicalStorageNode& moduleNode, unsigned int moduleID) const
 {
 	for (ConnectorDetailsMap::const_iterator i = _connectorDetailsMap.begin(); i != _connectorDetailsMap.end(); ++i)
@@ -1252,46 +1252,46 @@ void System::SaveModuleRelationshipsImportConnectors(IHierarchicalStorageNode& m
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::DoesLoadedModuleMatchSavedModule(const SavedRelationshipMap& savedRelationshipData, const SavedRelationshipModule& savedModuleInfo, const LoadedModuleInfoInternal& loadedModuleInfo, const ConnectorInfoMapOnImportingModuleID& connectorDetailsOnImportingModuleID) const
 {
-	//Validate that the class and instance names of these modules match
+	// Validate that the class and instance names of these modules match
 	if ((loadedModuleInfo.systemClassName != savedModuleInfo.systemClassName) || (loadedModuleInfo.className != savedModuleInfo.className) || (loadedModuleInfo.instanceName != savedModuleInfo.instanceName))
 	{
 		return false;
 	}
 
-	//Validate that both modules import the same connectors from the same modules
+	// Validate that both modules import the same connectors from the same modules
 	bool allConnectorsFound = true;
 	ConnectorInfoMapOnImportingModuleID::const_iterator connectorDetailsIterator = connectorDetailsOnImportingModuleID.find(loadedModuleInfo.moduleID);
 	if (connectorDetailsIterator != connectorDetailsOnImportingModuleID.end())
 	{
-		//Look for connectors which are being imported in the saved module data, and
-		//correlate them with connectors which are being imported in the loaded module
-		//data.
+		// Look for connectors which are being imported in the saved module data, and
+		// correlate them with connectors which are being imported in the loaded module
+		// data.
 		const std::list<ConnectorInfo>& connectorList = connectorDetailsIterator->second;
 		for (std::list<SavedRelationshipImportConnector>::const_iterator i = savedModuleInfo.importedConnectors.begin(); i != savedModuleInfo.importedConnectors.end(); ++i)
 		{
-			//For this saved imported connector, iterate through all the imported
-			//connectors in the loaded module, looking for a match.
+			// For this saved imported connector, iterate through all the imported
+			// connectors in the loaded module, looking for a match.
 			bool foundMatchingConnector = false;
 			std::list<ConnectorInfo>::const_iterator connectorListIterator = connectorList.begin();
 			while (!foundMatchingConnector && (connectorListIterator != connectorList.end()))
 			{
-				//Check if the connector class and instance names match
+				// Check if the connector class and instance names match
 				const ConnectorInfo& connectorInfo = *connectorListIterator;
 				if ((connectorInfo.GetConnectorClassName() == i->className) && (connectorInfo.GetExportingModuleConnectorInstanceName() == i->instanceNameRemote) && (connectorInfo.GetImportingModuleConnectorInstanceName() == i->instanceNameLocal))
 				{
-					//Find the saved info on the module which exports this connector
+					// Find the saved info on the module which exports this connector
 					SavedRelationshipMap::const_iterator savedRelationshipDataForExportingModuleIterator = savedRelationshipData.find(i->moduleID);
 					if (savedRelationshipDataForExportingModuleIterator != savedRelationshipData.end())
 					{
 						const SavedRelationshipModule& savedModuleInfoForExportingModule = savedRelationshipDataForExportingModuleIterator->second;
 
-						//Find the loaded info on the module which exports the matching
-						//connector, and recursively validate that the exporting module,
-						//and all modules it is dependent on, match their corresponding
-						//saved module info.
+						// Find the loaded info on the module which exports the matching
+						// connector, and recursively validate that the exporting module,
+						// and all modules it is dependent on, match their corresponding
+						// saved module info.
 						LoadedModuleInfoMap::const_iterator loadedModuleIterator = _loadedModuleInfoMap.find(connectorInfo.GetExportingModuleID());
 						if (loadedModuleIterator != _loadedModuleInfoMap.end())
 						{
@@ -1306,14 +1306,14 @@ bool System::DoesLoadedModuleMatchSavedModule(const SavedRelationshipMap& savedR
 		}
 	}
 
-	//If all the imported connectors were found and matched to the loaded module info,
-	//the modules match.
+	// If all the imported connectors were found and matched to the loaded module info,
+	// the modules match.
 	return allConnectorsFound;
 }
 
-//----------------------------------------------------------------------------------------
-//Logging functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Logging functions
+//----------------------------------------------------------------------------------------------------------------------
 void System::WriteLogEvent(const ILogEntry& entry) const
 {
 	std::unique_lock<std::mutex> lock(_eventLogMutex);
@@ -1331,7 +1331,7 @@ void System::WriteLogEvent(const ILogEntry& entry) const
 	++_eventLogLastModifiedToken;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Marshal::Ret<std::vector<System::SystemLogEntry>> System::GetEventLog() const
 {
 	std::unique_lock<std::mutex> lock(_eventLogMutex);
@@ -1344,14 +1344,14 @@ Marshal::Ret<std::vector<System::SystemLogEntry>> System::GetEventLog() const
 	return eventLogCopy;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int System::GetEventLogLastModifiedToken() const
 {
 	std::unique_lock<std::mutex> lock(_eventLogMutex);
 	return _eventLogLastModifiedToken;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::ClearEventLog()
 {
 	std::unique_lock<std::mutex> lock(_eventLogMutex);
@@ -1359,14 +1359,14 @@ void System::ClearEventLog()
 	++_eventLogLastModifiedToken;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int System::GetEventLogSize() const
 {
 	std::unique_lock<std::mutex> lock(_eventLogMutex);
 	return _eventLogSize;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::SetEventLogSize(unsigned int logSize)
 {
 	std::unique_lock<std::mutex> lock(_eventLogMutex);
@@ -1378,9 +1378,9 @@ void System::SetEventLogSize(unsigned int logSize)
 	++_eventLogLastModifiedToken;
 }
 
-//----------------------------------------------------------------------------------------
-//Embedded ROM functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Embedded ROM functions
+//----------------------------------------------------------------------------------------------------------------------
 Marshal::Ret<std::list<unsigned int>> System::GetEmbeddedROMIDs() const
 {
 	std::unique_lock<std::mutex> lock(_embeddedROMMutex);
@@ -1392,17 +1392,17 @@ Marshal::Ret<std::list<unsigned int>> System::GetEmbeddedROMIDs() const
 	return embeddedROMIDList;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int System::GetEmbeddedROMInfoLastModifiedToken() const
 {
 	std::unique_lock<std::mutex> lock(_embeddedROMMutex);
 	return _embeddedROMInfoLastModifiedToken;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::GetEmbeddedROMInfo(unsigned int embeddedROMID, IEmbeddedROMInfo& embeddedROMInfo) const
 {
-	//Attempt to locate the target embedded ROM entry
+	// Attempt to locate the target embedded ROM entry
 	std::unique_lock<std::mutex> lock(_embeddedROMMutex);
 	std::map<unsigned int, EmbeddedROMInfoInternal>::const_iterator embeddedROMInfoIterator = _embeddedROMInfoSet.find(embeddedROMID);
 	if (embeddedROMInfoIterator == _embeddedROMInfoSet.end())
@@ -1411,7 +1411,7 @@ bool System::GetEmbeddedROMInfo(unsigned int embeddedROMID, IEmbeddedROMInfo& em
 	}
 	const EmbeddedROMInfoInternal& targetEmbeddedROMInfo = embeddedROMInfoIterator->second;
 
-	//Return info on the target embedded ROM entry to the caller
+	// Return info on the target embedded ROM entry to the caller
 	embeddedROMInfo.SetName(targetEmbeddedROMInfo.embeddedROMName);
 	embeddedROMInfo.SetDisplayName(targetEmbeddedROMInfo.displayName);
 	embeddedROMInfo.SetModuleID(targetEmbeddedROMInfo.moduleID);
@@ -1424,10 +1424,10 @@ bool System::GetEmbeddedROMInfo(unsigned int embeddedROMID, IEmbeddedROMInfo& em
 }
 
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::SetEmbeddedROMPath(unsigned int embeddedROMID, const Marshal::In<std::wstring>& filePath)
 {
-	//Attempt to locate the target embedded ROM entry
+	// Attempt to locate the target embedded ROM entry
 	std::unique_lock<std::mutex> lock(_embeddedROMMutex);
 	std::map<unsigned int, EmbeddedROMInfoInternal>::iterator embeddedROMInfoIterator = _embeddedROMInfoSet.find(embeddedROMID);
 	if (embeddedROMInfoIterator == _embeddedROMInfoSet.end())
@@ -1436,21 +1436,21 @@ bool System::SetEmbeddedROMPath(unsigned int embeddedROMID, const Marshal::In<st
 	}
 	EmbeddedROMInfoInternal& targetEmbeddedROMInfo = embeddedROMInfoIterator->second;
 
-	//Update the target file path for the embedded ROM info
+	// Update the target file path for the embedded ROM info
 	targetEmbeddedROMInfo.filePath = filePath;
 
-	//Update the last modified token for embedded ROM data
+	// Update the last modified token for embedded ROM data
 	++_embeddedROMInfoLastModifiedToken;
 
-	//Reload the embedded ROM data for the target entry
+	// Reload the embedded ROM data for the target entry
 	ReloadEmbeddedROMData(targetEmbeddedROMInfo);
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::ReloadEmbeddedROMData(unsigned int embeddedROMID)
 {
-	//Attempt to locate the target embedded ROM entry
+	// Attempt to locate the target embedded ROM entry
 	std::unique_lock<std::mutex> lock(_embeddedROMMutex);
 	std::map<unsigned int, EmbeddedROMInfoInternal>::const_iterator embeddedROMInfoIterator = _embeddedROMInfoSet.find(embeddedROMID);
 	if (embeddedROMInfoIterator == _embeddedROMInfoSet.end())
@@ -1459,19 +1459,19 @@ bool System::ReloadEmbeddedROMData(unsigned int embeddedROMID)
 	}
 	const EmbeddedROMInfoInternal& targetEmbeddedROMInfo = embeddedROMInfoIterator->second;
 
-	//Reload the embedded ROM data for the target entry
+	// Reload the embedded ROM data for the target entry
 	ReloadEmbeddedROMData(targetEmbeddedROMInfo);
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::ReloadEmbeddedROMData(const EmbeddedROMInfoInternal& targetEmbeddedROMInfo)
 {
-	//Save running state and pause system
+	// Save running state and pause system
 	bool running = SystemRunning();
 	StopSystem();
 
-	//Attempt to load this ROM data into the target device
+	// Attempt to load this ROM data into the target device
 	Stream::File file;
 	bool result = file.Open(targetEmbeddedROMInfo.filePath, Stream::File::OpenMode::ReadOnly, Stream::File::CreateMode::Open);
 	if (result)
@@ -1487,7 +1487,7 @@ bool System::ReloadEmbeddedROMData(const EmbeddedROMInfoInternal& targetEmbedded
 		}
 	}
 
-	//Restore the running state
+	// Restore the running state
 	if (running)
 	{
 		RunSystem();
@@ -1496,9 +1496,9 @@ bool System::ReloadEmbeddedROMData(const EmbeddedROMInfoInternal& targetEmbedded
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
-//Module setting functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Module setting functions
+//----------------------------------------------------------------------------------------------------------------------
 Marshal::Ret<std::list<unsigned int>> System::GetModuleSettingIDs(unsigned int moduleID) const
 {
 	std::unique_lock<std::recursive_mutex> lock(_moduleSettingMutex);
@@ -1511,10 +1511,10 @@ Marshal::Ret<std::list<unsigned int>> System::GetModuleSettingIDs(unsigned int m
 	return moduleSettingIDList;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::GetModuleSettingInfo(unsigned int moduleID, unsigned int moduleSettingID, IModuleSettingInfo& moduleSettingInfo) const
 {
-	//Locate the target module setting
+	// Locate the target module setting
 	std::unique_lock<std::recursive_mutex> lock(_moduleSettingMutex);
 	SystemSettingsMap::const_iterator systemSettingsIterator = _systemSettings.find(moduleSettingID);
 	if (systemSettingsIterator == _systemSettings.end())
@@ -1527,7 +1527,7 @@ bool System::GetModuleSettingInfo(unsigned int moduleID, unsigned int moduleSett
 		return false;
 	}
 
-	//Return info on the target module setting to the caller
+	// Return info on the target module setting to the caller
 	moduleSettingInfo.SetName(systemSettingInfo.name);
 	moduleSettingInfo.SetDisplayName(systemSettingInfo.displayName.empty()? systemSettingInfo.name: systemSettingInfo.displayName);
 	moduleSettingInfo.SetOptionCount((unsigned int)systemSettingInfo.options.size());
@@ -1538,10 +1538,10 @@ bool System::GetModuleSettingInfo(unsigned int moduleID, unsigned int moduleSett
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::GetModuleSettingOptionInfo(unsigned int moduleID, unsigned int moduleSettingID, unsigned int moduleSettingOptionIndex, IModuleSettingOptionInfo& moduleSettingOptionInfo) const
 {
-	//Locate the target module setting
+	// Locate the target module setting
 	std::unique_lock<std::recursive_mutex> lock(_moduleSettingMutex);
 	SystemSettingsMap::const_iterator systemSettingsIterator = _systemSettings.find(moduleSettingID);
 	if (systemSettingsIterator == _systemSettings.end())
@@ -1554,23 +1554,23 @@ bool System::GetModuleSettingOptionInfo(unsigned int moduleID, unsigned int modu
 		return false;
 	}
 
-	//Locate the target option within this setting
+	// Locate the target option within this setting
 	if (moduleSettingOptionIndex >= (unsigned int)systemSettingInfo.options.size())
 	{
 		return false;
 	}
 	const SystemSettingOption& settingOptionInfo = systemSettingInfo.options[moduleSettingOptionIndex];
 
-	//Return info on the target option to the caller
+	// Return info on the target option to the caller
 	moduleSettingOptionInfo.SetName(settingOptionInfo.name);
 	moduleSettingOptionInfo.SetDisplayName(settingOptionInfo.displayName.empty()? settingOptionInfo.name: settingOptionInfo.displayName);
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::GetModuleSettingActiveOptionIndex(unsigned int moduleID, unsigned int moduleSettingID, unsigned int& activeModuleOptionIndex) const
 {
-	//Locate the target module setting
+	// Locate the target module setting
 	std::unique_lock<std::recursive_mutex> lock(_moduleSettingMutex);
 	SystemSettingsMap::const_iterator systemSettingsIterator = _systemSettings.find(moduleSettingID);
 	if (systemSettingsIterator == _systemSettings.end())
@@ -1583,15 +1583,15 @@ bool System::GetModuleSettingActiveOptionIndex(unsigned int moduleID, unsigned i
 		return false;
 	}
 
-	//Return the index of the currently active option for this setting to the caller
+	// Return the index of the currently active option for this setting to the caller
 	activeModuleOptionIndex = systemSettingInfo.selectedOption;
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::SetModuleSettingActiveOptionIndex(unsigned int moduleID, unsigned int moduleSettingID, unsigned int activeOptionIndex)
 {
-	//Locate the target module setting
+	// Locate the target module setting
 	std::unique_lock<std::recursive_mutex> lock(_moduleSettingMutex);
 	SystemSettingsMap::iterator systemSettingsIterator = _systemSettings.find(moduleSettingID);
 	if (systemSettingsIterator == _systemSettings.end())
@@ -1604,45 +1604,45 @@ bool System::SetModuleSettingActiveOptionIndex(unsigned int moduleID, unsigned i
 		return false;
 	}
 
-	//Ensure the target option index is valid
+	// Ensure the target option index is valid
 	if (activeOptionIndex >= (unsigned int)systemSettingInfo.options.size())
 	{
 		return false;
 	}
 
-	//If the target option is already the selected option, abort any further processing.
+	// If the target option is already the selected option, abort any further processing.
 	if (systemSettingInfo.selectedOption == activeOptionIndex)
 	{
 		return true;
 	}
 
-	//Save the current system running state, and stop the system.
+	// Save the current system running state, and stop the system.
 	bool systemRunningState = SystemRunning();
 	StopSystem();
 
-	//Replace the current option selection
+	// Replace the current option selection
 	if (!systemSettingInfo.toggleSetting || !systemSettingInfo.toggleSettingAutoRevert)
 	{
 		systemSettingInfo.selectedOption = activeOptionIndex;
 	}
 
-	//If requested, execute a lead-in time before applying the setting change.
+	// If requested, execute a lead-in time before applying the setting change.
 	if (systemSettingInfo.settingChangeLeadInTime > 0)
 	{
-		//Calculate the time to execute until the setting should be changed. If a random
-		//time has been requested, we generate a random number between the specified
-		//minimum and maximum time constraints.
+		// Calculate the time to execute until the setting should be changed. If a random
+		// time has been requested, we generate a random number between the specified
+		// minimum and maximum time constraints.
 		double timeTillSettingChange = systemSettingInfo.settingChangeLeadInTime;
 		if (systemSettingInfo.settingChangeLeadInTimeRandom)
 		{
 			timeTillSettingChange = (double)rand() * ((systemSettingInfo.settingChangeLeadInTimeEnd - systemSettingInfo.settingChangeLeadInTime) / (double)RAND_MAX);
 		}
 
-		//Execute the system up to the setting change time
+		// Execute the system up to the setting change time
 		ExecuteSystemStep(timeTillSettingChange);
 	}
 
-	//Attempt to apply the new option selection
+	// Attempt to apply the new option selection
 	bool result = true;
 	SystemSettingOption& settingOption = systemSettingInfo.options[activeOptionIndex];
 	for (std::list<SystemStateChange>::const_iterator i = settingOption.stateChanges.begin(); i != settingOption.stateChanges.end(); ++i)
@@ -1650,53 +1650,53 @@ bool System::SetModuleSettingActiveOptionIndex(unsigned int moduleID, unsigned i
 		result &= ApplySystemStateChange(*i);
 	}
 
-	//Notify any registered observers about the option change
+	// Notify any registered observers about the option change
 	systemSettingInfo.settingChangeObservers.NotifyObservers();
 
-	//If this is an auto-reverting toggle option, advance until the required time, and
-	//revert to the previous setting.
+	// If this is an auto-reverting toggle option, advance until the required time, and
+	// revert to the previous setting.
 	if (systemSettingInfo.toggleSettingAutoRevert)
 	{
-		//Calculate the time to execute until the setting should be reverted. If a random
-		//time has been requested, we generate a random number between the specified
-		//minimum and maximum time constraints.
+		// Calculate the time to execute until the setting should be reverted. If a random
+		// time has been requested, we generate a random number between the specified
+		// minimum and maximum time constraints.
 		double timeTillAutoRevert = systemSettingInfo.toggleSettingAutoRevertTime;
 		if (systemSettingInfo.toggleSettingAutoRevertTimeRandom)
 		{
 			timeTillAutoRevert = (double)rand() * ((systemSettingInfo.toggleSettingAutoRevertTimeEnd - systemSettingInfo.toggleSettingAutoRevertTime) / (double)RAND_MAX);
 		}
 
-		//Execute the system up to the revert time
+		// Execute the system up to the revert time
 		ExecuteSystemStep(timeTillAutoRevert);
 
-		//Obtain info on the reverted option
+		// Obtain info on the reverted option
 		unsigned int revertTargetOption = systemSettingInfo.selectedOption;
 		const System::SystemSettingOption& revertOptionInfo = systemSettingInfo.options[revertTargetOption];
 
-		//Apply all settings to revert to the previous option state
+		// Apply all settings to revert to the previous option state
 		for (std::list<System::SystemStateChange>::const_iterator i = revertOptionInfo.stateChanges.begin(); i != revertOptionInfo.stateChanges.end(); ++i)
 		{
 			result &= ApplySystemStateChange(*i);
 		}
 
-		//Notify any registered observers about the option change
+		// Notify any registered observers about the option change
 		systemSettingInfo.settingChangeObservers.NotifyObservers();
 	}
 
-	//Restore the system running state
+	// Restore the system running state
 	if (systemRunningState)
 	{
 		RunSystem();
 	}
 
-	//Return the result to the caller
+	// Return the result to the caller
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::ModuleSettingActiveOptionChangeNotifyRegister(unsigned int moduleID, unsigned int moduleSettingID, IObserverSubscription& observer)
 {
-	//Locate the target module setting
+	// Locate the target module setting
 	std::unique_lock<std::recursive_mutex> lock(_moduleSettingMutex);
 	SystemSettingsMap::iterator systemSettingsIterator = _systemSettings.find(moduleSettingID);
 	if (systemSettingsIterator == _systemSettings.end())
@@ -1709,14 +1709,14 @@ void System::ModuleSettingActiveOptionChangeNotifyRegister(unsigned int moduleID
 		return;
 	}
 
-	//Add the specified observer to the list of observers for the target module setting
+	// Add the specified observer to the list of observers for the target module setting
 	systemSettingInfo.settingChangeObservers.AddObserver(observer);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::ModuleSettingActiveOptionChangeNotifyDeregister(unsigned int moduleID, unsigned int moduleSettingID, IObserverSubscription& observer)
 {
-	//Locate the target module setting
+	// Locate the target module setting
 	std::unique_lock<std::recursive_mutex> lock(_moduleSettingMutex);
 	SystemSettingsMap::iterator systemSettingsIterator = _systemSettings.find(moduleSettingID);
 	if (systemSettingsIterator == _systemSettings.end())
@@ -1729,28 +1729,28 @@ void System::ModuleSettingActiveOptionChangeNotifyDeregister(unsigned int module
 		return;
 	}
 
-	//Remove the specified observer from the list of observers for the target module
-	//setting
+	// Remove the specified observer from the list of observers for the target module
+	// setting
 	systemSettingInfo.settingChangeObservers.RemoveObserver(observer);
 }
 
-//----------------------------------------------------------------------------------------
-//Path functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Path functions
+//----------------------------------------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> System::GetCapturePath() const
 {
 	return _capturePath;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::SetCapturePath(const Marshal::In<std::wstring>& path)
 {
 	_capturePath = path;
 }
 
-//----------------------------------------------------------------------------------------
-//Loaded entity functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Loaded entity functions
+//----------------------------------------------------------------------------------------------------------------------
 IDevice* System::GetDevice(unsigned int moduleID, const std::wstring& deviceName) const
 {
 	for (LoadedDeviceInfoList::const_iterator i = _loadedDeviceInfoList.begin(); i != _loadedDeviceInfoList.end(); ++i)
@@ -1770,7 +1770,7 @@ IDevice* System::GetDevice(unsigned int moduleID, const std::wstring& deviceName
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 IExtension* System::GetExtension(unsigned int moduleID, const std::wstring& extensionName) const
 {
 	for (LoadedExtensionInfoList::const_iterator i = _loadedExtensionInfoList.begin(); i != _loadedExtensionInfoList.end(); ++i)
@@ -1790,7 +1790,7 @@ IExtension* System::GetExtension(unsigned int moduleID, const std::wstring& exte
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 IExtension* System::GetGlobalExtension(const std::wstring& extensionName) const
 {
 	LoadedGlobalExtensionInfoList::const_iterator globalExtensionIterator = _globalExtensionInfoList.find(extensionName);
@@ -1801,7 +1801,7 @@ IExtension* System::GetGlobalExtension(const std::wstring& extensionName) const
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 BusInterface* System::GetBusInterface(unsigned int moduleID, const std::wstring& busInterfaceName) const
 {
 	for (BusInterfaceList::const_iterator i = _busInterfaces.begin(); i != _busInterfaces.end(); ++i)
@@ -1821,7 +1821,7 @@ BusInterface* System::GetBusInterface(unsigned int moduleID, const std::wstring&
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 ClockSource* System::GetClockSource(unsigned int moduleID, const std::wstring& clockSourceName) const
 {
 	for (ClockSourceList::const_iterator i = _clockSources.begin(); i != _clockSources.end(); ++i)
@@ -1841,7 +1841,7 @@ ClockSource* System::GetClockSource(unsigned int moduleID, const std::wstring& c
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int System::GetSystemLineID(unsigned int moduleID, const std::wstring& systemLineName) const
 {
 	for (SystemLineMap::const_iterator i = _systemLines.begin(); i != _systemLines.end(); ++i)
@@ -1861,7 +1861,7 @@ unsigned int System::GetSystemLineID(unsigned int moduleID, const std::wstring& 
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int System::GetSystemSettingID(unsigned int moduleID, const std::wstring& systemSettingName) const
 {
 	ModuleSystemSettingMap::const_iterator moduleSettingsIterator = _moduleSettings.find(moduleID);
@@ -1869,7 +1869,7 @@ unsigned int System::GetSystemSettingID(unsigned int moduleID, const std::wstrin
 	{
 		for (SystemSettingsIDList::const_iterator i = moduleSettingsIterator->second.begin(); i != moduleSettingsIterator->second.end(); ++i)
 		{
-			//Retrieve info for this system setting
+			// Retrieve info for this system setting
 			SystemSettingsMap::const_iterator systemSettingsIterator = _systemSettings.find(*i);
 			if (systemSettingsIterator == _systemSettings.end())
 			{
@@ -1877,7 +1877,7 @@ unsigned int System::GetSystemSettingID(unsigned int moduleID, const std::wstrin
 			}
 			const SystemSettingInfo& systemSettingInfo = *(systemSettingsIterator->second);
 
-			//If this is the target system setting, return the setting ID number.
+			// If this is the target system setting, return the setting ID number.
 			if (systemSettingInfo.name == systemSettingName)
 			{
 				return systemSettingInfo.systemSettingID;
@@ -1894,9 +1894,9 @@ unsigned int System::GetSystemSettingID(unsigned int moduleID, const std::wstrin
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
-//System interface functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// System interface functions
+//----------------------------------------------------------------------------------------------------------------------
 bool System::ValidateSystem()
 {
 	bool result = true;
@@ -1914,46 +1914,46 @@ bool System::ValidateSystem()
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::FlagInitialize()
 {
 	_initialize = true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::Initialize()
 {
-	//Save running state and pause system
+	// Save running state and pause system
 	bool running = SystemRunning();
 	StopSystem();
 
-	//Initialize the system
+	// Initialize the system
 	InitializeInternal();
 
-	//Restore running state
+	// Restore running state
 	if (running)
 	{
 		RunSystem();
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::InitializeInternal()
 {
-	//Negate the current output line state for all devices we are about to initialize. We
-	//need to do this, as the Initialize routine may alter the internal state of the
-	//device in such a way that line state changes which have been conditionally asserted
-	//for a future point in time should no longer be triggered. The Initialize routine is
-	//not allowed to interact with external devices however, so it cannot revoke any
-	//pending line state changes that have already been asserted. By explicitly negating
-	//all output line state here, we ensure that there are no pending line state changes
-	//asserted before we initialize the devices.
+	// Negate the current output line state for all devices we are about to initialize. We
+	// need to do this, as the Initialize routine may alter the internal state of the
+	// device in such a way that line state changes which have been conditionally asserted
+	// for a future point in time should no longer be triggered. The Initialize routine is
+	// not allowed to interact with external devices however, so it cannot revoke any
+	// pending line state changes that have already been asserted. By explicitly negating
+	// all output line state here, we ensure that there are no pending line state changes
+	// asserted before we initialize the devices.
 	_executionManager.NegateCurrentOutputLineState();
 
-	//Initialize the devices
+	// Initialize the devices
 	_executionManager.Initialize();
 
-	//Load the persistent state for all loaded modules
+	// Load the persistent state for all loaded modules
 	if (_enablePersistentState)
 	{
 		for (LoadedModuleInfoMap::const_iterator i = _loadedModuleInfoMap.begin(); i != _loadedModuleInfoMap.end(); ++i)
@@ -1968,11 +1968,11 @@ void System::InitializeInternal()
 		}
 	}
 
-	//Assert the specified unmapped line state for any unmapped lines in the system that
-	//have an unmapped line state specified
+	// Assert the specified unmapped line state for any unmapped lines in the system that
+	// have an unmapped line state specified
 	for (UnmappedLineStateList::const_iterator i = _unmappedLineStateList.begin(); i != _unmappedLineStateList.end(); ++i)
 	{
-		//Retrieve information on the module that contains the target device
+		// Retrieve information on the module that contains the target device
 		unsigned int deviceModuleID = i->targetDevice->GetDeviceModuleID();
 		LoadedModuleInfoMap::const_iterator deviceLoadedModuleIterator = _loadedModuleInfoMap.find(deviceModuleID);
 		if (deviceLoadedModuleIterator == _loadedModuleInfoMap.end())
@@ -1981,15 +1981,15 @@ void System::InitializeInternal()
 		}
 		const LoadedModuleInfoInternal& deviceModuleInfo = deviceLoadedModuleIterator->second;
 
-		//If the module which contains this device has not been validated, skip any
-		//further processing for this device.
+		// If the module which contains this device has not been validated, skip any
+		// further processing for this device.
 		if (!deviceModuleInfo.moduleValidated)
 		{
 			continue;
 		}
 
-		//Check if at least one mapping exists to the target line on the device with the
-		//unmapped line state setting
+		// Check if at least one mapping exists to the target line on the device with the
+		// unmapped line state setting
 		bool foundMappingToLine = false;
 		BusInterfaceList::const_iterator busInterfaceIterator = _busInterfaces.begin();
 		while (!foundMappingToLine && (busInterfaceIterator != _busInterfaces.end()))
@@ -1998,98 +1998,98 @@ void System::InitializeInternal()
 			++busInterfaceIterator;
 		}
 
-		//If no mapping could be found to the target line, set the target line to the
-		//specified unmapped line state.
+		// If no mapping could be found to the target line, set the target line to the
+		// specified unmapped line state.
 		if (!foundMappingToLine)
 		{
 			i->targetDevice->TransparentSetLineState(i->lineNo, i->lineData);
 		}
 	}
 
-	//Re-assert the current output line state for all devices we just initialized. This is
-	//required, as the initialization routine for a device may change its internal state
-	//in a way that would affect its asserted output line state, but the Initialize method
-	//is not allowed to interact with external devices. A call to the
-	//AssertCurrentOutputLineState method ensures that the correct external line state can
-	//now be asserted for all initialized devices.
+	// Re-assert the current output line state for all devices we just initialized. This is
+	// required, as the initialization routine for a device may change its internal state
+	// in a way that would affect its asserted output line state, but the Initialize method
+	// is not allowed to interact with external devices. A call to the
+	// AssertCurrentOutputLineState method ensures that the correct external line state can
+	// now be asserted for all initialized devices.
 	_executionManager.AssertCurrentOutputLineState();
 
-	//Re-assert the current line state for all system lines. This is required, as devices
-	//reset their input line state as a result of a call to the Initialize method.
+	// Re-assert the current line state for all system lines. This is required, as devices
+	// reset their input line state as a result of a call to the Initialize method.
 	for (SystemLineMap::const_iterator i = _systemLines.begin(); i != _systemLines.end(); ++i)
 	{
 		SetSystemLineState(i->first, Data(i->second.lineWidth, i->second.currentValue));
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::InitializeDevice(IDevice* device)
 {
-	//Save running state and pause system
+	// Save running state and pause system
 	//##TODO## Determine if there are threading issues that need to be addressed for this
-	//method and other similar methods that are now exposed to extensions.
+	// method and other similar methods that are now exposed to extensions.
 	bool running = SystemRunning();
 	StopSystem();
 
-	//Initialize the target device
+	// Initialize the target device
 	//##TODO## See if there are additional initialize steps we should be performing here.
-	//Refer to the full InitializeInternal() method above for reference.
+	// Refer to the full InitializeInternal() method above for reference.
 	DeviceContext* deviceContext = (DeviceContext*)device->GetDeviceContext();
 	device->NegateCurrentOutputLineState();
 	deviceContext->Initialize();
 	device->AssertCurrentOutputLineState();
 
-	//Re-assert the current line state for all system lines. This is required, as devices
-	//reset their input line state as a result of a call to the Initialize method.
+	// Re-assert the current line state for all system lines. This is required, as devices
+	// reset their input line state as a result of a call to the Initialize method.
 	for (SystemLineMap::const_iterator i = _systemLines.begin(); i != _systemLines.end(); ++i)
 	{
 		SetSystemLineState(i->first, Data(i->second.lineWidth, i->second.currentValue));
 	}
 
-	//Restore running state
+	// Restore running state
 	if (running)
 	{
 		RunSystem();
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::GetThrottlingState() const
 {
 	return _enableThrottling;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::SetThrottlingState(bool state)
 {
 	_enableThrottling = state;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::GetRunWhenProgramModuleLoadedState() const
 {
 	return _runWhenProgramModuleLoaded;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::SetRunWhenProgramModuleLoadedState(bool state)
 {
 	_runWhenProgramModuleLoaded = state;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::GetEnablePersistentState() const
 {
 	return _enablePersistentState;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::SetEnablePersistentState(bool state)
 {
 	_enablePersistentState = state;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::SignalSystemStopped()
 {
 	std::unique_lock<std::mutex> lock(_systemStateMutex);
@@ -2097,20 +2097,20 @@ void System::SignalSystemStopped()
 	_notifySystemStopped.notify_all();
 }
 
-//----------------------------------------------------------------------------------------
-//System execution functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// System execution functions
+//----------------------------------------------------------------------------------------------------------------------
 bool System::SystemRunning() const
 {
 	return !_systemStopped;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::RunSystem()
 {
 	if (!SystemRunning())
 	{
-		//Log the event
+		// Log the event
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", L"System entered the running state"));
 
 		_stopSystem = false;
@@ -2120,7 +2120,7 @@ void System::RunSystem()
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::StopSystem()
 {
 	std::unique_lock<std::mutex> lock(_systemStateMutex);
@@ -2130,81 +2130,81 @@ void System::StopSystem()
 		_notifySystemStopped.wait(lock);
 		_stopSystem = false;
 
-		//Log the event
+		// Log the event
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", L"System halted"));
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::FlagStopSystem()
 {
 	_stopSystem = true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::ExecuteDeviceStep(IDevice* device)
 {
-	//Initialize all devices if it has been requested
+	// Initialize all devices if it has been requested
 	if (_initialize)
 	{
-		//Initialize the devices
+		// Initialize the devices
 		InitializeInternal();
 
-		//Clear the initialize flag
+		// Clear the initialize flag
 		_initialize = false;
 	}
 
-	//Start active device threads
+	// Start active device threads
 	_executionManager.BeginExecution();
 
-	//Commit the current state of each device. We perform this task here to ensure that
-	//manual changes made through the debug interface while the system was idle, and the
-	//initialize step above, are not lost in the event of a rollback.
+	// Commit the current state of each device. We perform this task here to ensure that
+	// manual changes made through the debug interface while the system was idle, and the
+	// initialize step above, are not lost in the event of a rollback.
 	_executionManager.Commit();
 
-	//Flag that we're performing a single device step
+	// Flag that we're performing a single device step
 	_performingSingleDeviceStep = true;
 
-	//Notify upcoming timeslice
+	// Notify upcoming timeslice
 	_executionManager.NotifyUpcomingTimeslice(0.0);
 
-	//Notify before execute called
+	// Notify before execute called
 	_executionManager.NotifyBeforeExecuteCalled();
 
-	//Step through the target device
+	// Step through the target device
 	//##FIX## This execution model is not only unusual, it now also causes a deadlock, due
-	//to the missed NotifyAfterExecuteStepFinishedTimeslice() event. It could also cause
-	//logic problems for timeslice execution devices, which receive a notification of an
-	//upcoming timeslice, but never receive the timeslice itself. I think perhaps it's
-	//time to unify device stepping with our normal execution model, and just make a
-	//device step execute a system step for a time of 0.0, then step through the device
-	//as a timing point. Actually, looking at our system implementation, it has the exact
-	//same problems and deadlock case. We need to review our execution model here.
+	// to the missed NotifyAfterExecuteStepFinishedTimeslice() event. It could also cause
+	// logic problems for timeslice execution devices, which receive a notification of an
+	// upcoming timeslice, but never receive the timeslice itself. I think perhaps it's
+	// time to unify device stepping with our normal execution model, and just make a
+	// device step execute a system step for a time of 0.0, then step through the device
+	// as a timing point. Actually, looking at our system implementation, it has the exact
+	// same problems and deadlock case. We need to review our execution model here.
 	_rollback = false;
 	DeviceContext* deviceContext = (DeviceContext*)device->GetDeviceContext();
 	double timeslice = deviceContext->ExecuteStep();
 
-	//Notify after execute called
+	// Notify after execute called
 	_executionManager.NotifyAfterExecuteCalled();
 
-	//Flag that we're no longer performing a single device step
+	// Flag that we're no longer performing a single device step
 	_performingSingleDeviceStep = false;
 
 	if (_rollback)
 	{
-		//If the device we're trying to step through is sitting on a timing point, commit
-		//now, since we've just advanced it through its timing point in lock step. We need
-		//to perform this operation here, as if we try and step through a device sitting
-		//on a timing point using the loop method below, only the device will advance, and
-		//ExecuteSystemStep will correctly return 0. This will leave us in an infinite
-		//loop.
+		// If the device we're trying to step through is sitting on a timing point, commit
+		// now, since we've just advanced it through its timing point in lock step. We need
+		// to perform this operation here, as if we try and step through a device sitting
+		// on a timing point using the loop method below, only the device will advance, and
+		// ExecuteSystemStep will correctly return 0. This will leave us in an infinite
+		// loop.
 		_executionManager.Commit();
 	}
 	else
 	{
-		//If the device we're trying to step through is not sitting on a timing point,
-		//roll back the execution, and pass the execution time to ExecuteSystemStep to
-		//advance the entire system by the target amount.
+		// If the device we're trying to step through is not sitting on a timing point,
+		// roll back the execution, and pass the execution time to ExecuteSystemStep to
+		// advance the entire system by the target amount.
 		_executionManager.Rollback();
 
 		double totalTimeExecuted = 0;
@@ -2214,25 +2214,25 @@ void System::ExecuteDeviceStep(IDevice* device)
 		}
 	}
 
-	//Stop active device threads
+	// Stop active device threads
 	_executionManager.SuspendExecution();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::ExecuteSystemStep(double targetTime)
 {
-	//Stop the system if it is currently running
+	// Stop the system if it is currently running
 	StopSystem();
 
-	//Start active device threads
+	// Start active device threads
 	_executionManager.BeginExecution();
 
-	//Commit the current state of each device. We perform this task here to ensure that
-	//manual changes made through the debug interface while the system was idle are not
-	//lost in the event of a rollback.
+	// Commit the current state of each device. We perform this task here to ensure that
+	// manual changes made through the debug interface while the system was idle are not
+	// lost in the event of a rollback.
 	_executionManager.Commit();
 
-	//Advance the system until we reach the target time
+	// Advance the system until we reach the target time
 	double totalSystemExecutionTime = 0;
 	while (totalSystemExecutionTime < targetTime)
 	{
@@ -2240,15 +2240,15 @@ void System::ExecuteSystemStep(double targetTime)
 		totalSystemExecutionTime += ExecuteSystemStepInternal(timeRemainingToTarget);
 	}
 
-	//Stop active device threads
+	// Stop active device threads
 	_executionManager.SuspendExecution();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 double System::ExecuteSystemStepInternal(double maximumTimeslice)
 {
-	//Determine the maximum length of time all devices can run unsynchronized before the
-	//next timing point
+	// Determine the maximum length of time all devices can run unsynchronized before the
+	// next timing point
 	DeviceContext* nextDeviceStep = 0;
 	unsigned int nextDeviceStepContext = 0;
 	double timeslice = _executionManager.GetNextTimingPoint(maximumTimeslice, nextDeviceStep, nextDeviceStepContext);
@@ -2260,47 +2260,47 @@ double System::ExecuteSystemStepInternal(double maximumTimeslice)
 	{
 		_rollback = false;
 
-		//Notify upcoming timeslice
+		// Notify upcoming timeslice
 		_executionManager.NotifyUpcomingTimeslice(timeslice);
 
-		//Send any buffered input events
+		// Send any buffered input events
 		SendStoredInputEvents();
 
 		//##DEBUG##
 //		std::wcout << "Timeslice\t" << timeslice << '\n';
 
-		//Notify before execute called
+		// Notify before execute called
 		_executionManager.NotifyBeforeExecuteCalled();
 
-		//Execute next timeslice
+		// Execute next timeslice
 		_executionManager.ExecuteTimeslice(timeslice);
 
-		//Notify after execute called
+		// Notify after execute called
 		_executionManager.NotifyAfterExecuteCalled();
 
 		//##TODO## Introduce the ability to "suspend" execution of a worker thread, until
-		//all other non-suspended worker threads have completed execution. At this point,
-		//any worker threads which are still suspended are notified all other devices have
-		//finished, and they can perform whatever tasks they need to in order to finalize
-		//the current timeslice.
-		//-In order to implement this, I recommend we introduce a new member function into
-		//the IDevice interface, called NotifyAllDevicesFinishedDuringSuspend() or
-		//something, which the device needs to implement if it uses suspend states.
-		//-I recommend another function in IDevice like UsesExecuteSuspend() or the like,
-		//which can be used to determine if a given device may issue a suspend operation
-		//at any time. This could be useful for optimizing the implementation.
-		//-I recommend we introduce a new class, called an ExecutionManager or the like,
-		//which has its own thread. The purpose of this class is to act as an intermediary
-		//between the system and the DeviceContext instances themselves, forwarding new
-		//timeslices on to the devices, and in this case, managing the issue of
-		//determining when all devices are finished executing in particular. In order to
-		//support suspension, we need the system to simply be able to wait for "all
-		//devices to finish", while the actual execution manager will keep track of how
-		//many devices are executing, how many are finished, and how many are suspended.
-		//When no devices are left executing, any suspended devices will be resumed, then
-		//when all devices are finished, the execution will be flagged as complete.
+		// all other non-suspended worker threads have completed execution. At this point,
+		// any worker threads which are still suspended are notified all other devices have
+		// finished, and they can perform whatever tasks they need to in order to finalize
+		// the current timeslice.
+		// -In order to implement this, I recommend we introduce a new member function into
+		// the IDevice interface, called NotifyAllDevicesFinishedDuringSuspend() or
+		// something, which the device needs to implement if it uses suspend states.
+		// -I recommend another function in IDevice like UsesExecuteSuspend() or the like,
+		// which can be used to determine if a given device may issue a suspend operation
+		// at any time. This could be useful for optimizing the implementation.
+		// -I recommend we introduce a new class, called an ExecutionManager or the like,
+		// which has its own thread. The purpose of this class is to act as an intermediary
+		// between the system and the DeviceContext instances themselves, forwarding new
+		// timeslices on to the devices, and in this case, managing the issue of
+		// determining when all devices are finished executing in particular. In order to
+		// support suspension, we need the system to simply be able to wait for "all
+		// devices to finish", while the actual execution manager will keep track of how
+		// many devices are executing, how many are finished, and how many are suspended.
+		// When no devices are left executing, any suspended devices will be resumed, then
+		// when all devices are finished, the execution will be flagged as complete.
 
-		//Roll back or commit changes
+		// Roll back or commit changes
 		if (_rollback)
 		{
 			//##DEBUG##
@@ -2328,16 +2328,16 @@ double System::ExecuteSystemStepInternal(double maximumTimeslice)
 	}
 	while (_rollback && (_rollbackTimeslice > 0));
 
-	//If we are currently sitting on a timing point for a device, step through it.
+	// If we are currently sitting on a timing point for a device, step through it.
 	if (nextDeviceStep != 0)
 	{
-		//Flag that we're performing a single device step
+		// Flag that we're performing a single device step
 		_performingSingleDeviceStep = true;
 
-		//Notify upcoming timeslice
+		// Notify upcoming timeslice
 		_executionManager.NotifyUpcomingTimeslice(0.0);
 
-		//Notify before execute called
+		// Notify before execute called
 		_executionManager.NotifyBeforeExecuteCalled();
 
 		if (!callbackStep)
@@ -2349,62 +2349,62 @@ double System::ExecuteSystemStepInternal(double maximumTimeslice)
 			callbackFunction(callbackParams);
 		}
 
-		//Notify after execute called
+		// Notify after execute called
 		_executionManager.NotifyAfterExecuteCalled();
 
-		//Flag that we're no longer performing a single device step
+		// Flag that we're no longer performing a single device step
 		_performingSingleDeviceStep = false;
 	}
 
-	//Commit all changes
+	// Commit all changes
 	_executionManager.Commit();
 
-	//Clear all input events which have been successfully processed
+	// Clear all input events which have been successfully processed
 	ClearSentStoredInputEvents();
 
 	return timeslice;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::ExecuteThread()
 {
-	//Set the name of this thread to assist in debugging
+	// Set the name of this thread to assist in debugging
 	SetCallingThreadName(L"SystemExecuteThread");
 
-	//Boost the system thread priority. This thread is always on the critical path. We
-	//don't want secondary threads from various devices in the system preventing this
-	//thread running.
+	// Boost the system thread priority. This thread is always on the critical path. We
+	// don't want secondary threads from various devices in the system preventing this
+	// thread running.
 	SetCurrentThreadPriority(THREADPRIORITY_HIGH);
 
-	//Start active device threads
+	// Start active device threads
 	_executionManager.BeginExecution();
 
-	//Commit the current state of each device. We perform this task here to ensure that
-	//manual changes made through the debug interface while the system was idle are not
-	//lost in the event of a rollback.
+	// Commit the current state of each device. We perform this task here to ensure that
+	// manual changes made through the debug interface while the system was idle are not
+	// lost in the event of a rollback.
 	_executionManager.Commit();
 
-	//Main system loop
+	// Main system loop
 	double accumulatedExecutionTime = 0;
 	PerformanceTimer timer;
 	while (!_stopSystem)
 	{
-		//Initialize all devices if it has been requested
+		// Initialize all devices if it has been requested
 		if (_initialize)
 		{
-			//Stop active device threads
+			// Stop active device threads
 			_executionManager.SuspendExecution();
 
-			//Initialize the devices
+			// Initialize the devices
 			InitializeInternal();
 
-			//Start active device threads
+			// Start active device threads
 			_executionManager.BeginExecution();
 
-			//Commit changes from initialization
+			// Commit changes from initialization
 			_executionManager.Commit();
 
-			//Clear the initialize flag
+			// Clear the initialize flag
 			_initialize = false;
 		}
 
@@ -2414,11 +2414,11 @@ void System::ExecuteThread()
 		accumulatedExecutionTime += systemStepTime;
 
 		//##DEBUG##
-		//Note that this kills performance
+		// Note that this kills performance
 //		std::wcout << std::setprecision(16) << "System Step: " << systemStepTime << '\t' << accumulatedExecutionTime << '\n';
 
-		//If we're running too fast (*chuckle*), delay execution until we get back in
-		//sync.
+		// If we're running too fast (*chuckle*), delay execution until we get back in
+		// sync.
 		if (accumulatedExecutionTime >= 20000000.0)
 //		if (accumulatedExecutionTime >= 1000000000.0)
 		{
@@ -2427,25 +2427,25 @@ void System::ExecuteThread()
 		}
 	}
 
-	//Stop active device threads
+	// Stop active device threads
 	_executionManager.SuspendExecution();
 
 	SignalSystemStopped();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::IsSystemRollbackFlagged() const
 {
 	return _rollback;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 double System::SystemRollbackTime() const
 {
 	return _rollbackTimeslice;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::SetSystemRollback(IDeviceContext* triggerDevice, IDeviceContext* rollbackDevice, double timeslice, unsigned int accessContext, void (*callbackFunction)(void*), void* callbackParams)
 {
 	//##DEBUG##
@@ -2465,15 +2465,15 @@ void System::SetSystemRollback(IDeviceContext* triggerDevice, IDeviceContext* ro
 		_rollbackContext = accessContext;
 		_rollbackDevice = rollbackDevice;
 
-		//If the device which triggered the rollback uses the step execution method, we
-		//trigger the rollback using the reported current timeslice progress of the device
-		//rather than the actual time at which the access occurred which triggered the
-		//rollback. We need to do this, otherwise devices which have multiple external
-		//access events within a single indivisible operation can trigger a rollback on
-		//a later access, which may occur with an access time past the start of the actual
-		//operation itself, which will then create a rollback target that we can't
-		//actually advance up to without triggering the rollback again. See EX-62 for more
-		//info.
+		// If the device which triggered the rollback uses the step execution method, we
+		// trigger the rollback using the reported current timeslice progress of the device
+		// rather than the actual time at which the access occurred which triggered the
+		// rollback. We need to do this, otherwise devices which have multiple external
+		// access events within a single indivisible operation can trigger a rollback on
+		// a later access, which may occur with an access time past the start of the actual
+		// operation itself, which will then create a rollback target that we can't
+		// actually advance up to without triggering the rollback again. See EX-62 for more
+		// info.
 		if ((rollbackDevice != 0) && (rollbackDevice->GetTargetDevice().GetUpdateMethod() == IDevice::UpdateMethod::Step))
 		{
 			_rollbackTimeslice = rollbackDevice->GetCurrentTimesliceProgress();
@@ -2493,53 +2493,53 @@ void System::SetSystemRollback(IDeviceContext* triggerDevice, IDeviceContext* ro
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::PerformingSingleDeviceStep() const
 {
 	return _performingSingleDeviceStep;
 }
 
-//----------------------------------------------------------------------------------------
-//Device registration
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Device registration
+//----------------------------------------------------------------------------------------------------------------------
 bool System::RegisterDevice(const IDeviceInfo& entry, AssemblyHandle assemblyHandle)
 {
-	//Make sure a valid device class name has been supplied
+	// Make sure a valid device class name has been supplied
 	if (entry.GetDeviceClassName().Get().empty())
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Error registering device. No device class name was supplied."));
 		return false;
 	}
 
-	//Make sure a valid device implementation name has been supplied
+	// Make sure a valid device implementation name has been supplied
 	if (entry.GetDeviceImplementationName().Get().empty())
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Error registering device. No device implementation name was supplied."));
 		return false;
 	}
 
-	//Make sure an allocator function has been supplied
+	// Make sure an allocator function has been supplied
 	if (entry.GetAllocator() == 0)
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Error registering device " + entry.GetDeviceImplementationName() + L". No allocator function was supplied."));
 		return false;
 	}
 
-	//Make sure a destructor function has been supplied
+	// Make sure a destructor function has been supplied
 	if (entry.GetDestructor() == 0)
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Error registering device " + entry.GetDeviceImplementationName() + L". No destructor function was supplied."));
 		return false;
 	}
 
-	//Check if we already have a device with the same name registered
+	// Check if we already have a device with the same name registered
 	DeviceLibraryList::iterator existingEntry = _deviceLibrary.find(entry.GetDeviceImplementationName());
 	if (existingEntry != _deviceLibrary.end())
 	{
 		if (existingEntry->second.versionNo >= entry.GetDeviceVersionNo())
 		{
-			//If we already have a newer version of this device registered, log the event, and
-			//return true.
+			// If we already have a newer version of this device registered, log the event, and
+			// return true.
 			std::wstringstream message;
 			message << L"Ignored device " << entry.GetDeviceImplementationName() << L" with version number " << entry.GetDeviceVersionNo() << L" because another version of this device has already been registered with a version number of " << existingEntry->second.versionNo << L".";
 			WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", message.str()));
@@ -2547,19 +2547,19 @@ bool System::RegisterDevice(const IDeviceInfo& entry, AssemblyHandle assemblyHan
 		}
 		else
 		{
-			//Log the fact we just overrode an existing device registration
+			// Log the fact we just overrode an existing device registration
 			std::wstringstream message;
 			message << L"Device " << entry.GetDeviceImplementationName() << L" with version number " << entry.GetDeviceVersionNo() << L" overrode the existing registration for this device with version number " << existingEntry->second.versionNo << L".";
 			WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", message.str()));
 
-			//If the existing device registration is for an older version, remove the old
-			//device registration. This new registration with a higher version number
-			//supersedes the old one.
+			// If the existing device registration is for an older version, remove the old
+			// device registration. This new registration with a higher version number
+			// supersedes the old one.
 			UnregisterDevice(entry.GetDeviceImplementationName());
 		}
 	}
 
-	//Register the device
+	// Register the device
 	DeviceLibraryEntry listEntry;
 	listEntry.Allocator = entry.GetAllocator();
 	listEntry.Destructor = entry.GetDestructor();
@@ -2571,13 +2571,13 @@ bool System::RegisterDevice(const IDeviceInfo& entry, AssemblyHandle assemblyHan
 	listEntry.assemblyHandle = assemblyHandle;
 	_deviceLibrary.insert(DeviceLibraryListEntry(entry.GetDeviceImplementationName(), listEntry));
 
-	//Log the device registration
+	// Log the device registration
 	WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", L"Successfully registered device " + entry.GetDeviceImplementationName() + L"."));
 
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::UnregisterDevice(const Marshal::In<std::wstring>& deviceName)
 {
 	DeviceLibraryList::iterator i = _deviceLibrary.find(deviceName);
@@ -2587,47 +2587,47 @@ void System::UnregisterDevice(const Marshal::In<std::wstring>& deviceName)
 	}
 }
 
-//----------------------------------------------------------------------------------------
-//Extension registration
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Extension registration
+//----------------------------------------------------------------------------------------------------------------------
 bool System::RegisterExtension(const IExtensionInfo& entry, AssemblyHandle assemblyHandle)
 {
-	//Make sure a valid extension class name has been supplied
+	// Make sure a valid extension class name has been supplied
 	if (entry.GetExtensionClassName().Get().empty())
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Error registering extension. No extension class name was supplied."));
 		return false;
 	}
 
-	//Make sure a valid extension implementation name has been supplied
+	// Make sure a valid extension implementation name has been supplied
 	if (entry.GetExtensionImplementationName().Get().empty())
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Error registering extension. No extension implementation name was supplied."));
 		return false;
 	}
 
-	//Make sure an allocator function has been supplied
+	// Make sure an allocator function has been supplied
 	if (entry.GetAllocator() == 0)
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Error registering extension " + entry.GetExtensionImplementationName() + L". No allocator function was supplied."));
 		return false;
 	}
 
-	//Make sure a destructor function has been supplied
+	// Make sure a destructor function has been supplied
 	if (entry.GetDestructor() == 0)
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Error registering extension " + entry.GetExtensionImplementationName() + L". No destructor function was supplied."));
 		return false;
 	}
 
-	//Check if we already have an extension with the same name registered
+	// Check if we already have an extension with the same name registered
 	ExtensionLibraryList::iterator existingEntry = _extensionLibrary.find(entry.GetExtensionImplementationName());
 	if (existingEntry != _extensionLibrary.end())
 	{
 		if (existingEntry->second.versionNo >= entry.GetExtensionVersionNo())
 		{
-			//If we already have a newer version of this extension registered, log the
-			//event, and return true.
+			// If we already have a newer version of this extension registered, log the
+			// event, and return true.
 			std::wstringstream message;
 			message << L"Ignored extension " << entry.GetExtensionImplementationName() << L" with version number " << entry.GetExtensionVersionNo() << L" because another version of this extension has already been registered with a version number of " << existingEntry->second.versionNo << L".";
 			WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", message.str()));
@@ -2635,19 +2635,19 @@ bool System::RegisterExtension(const IExtensionInfo& entry, AssemblyHandle assem
 		}
 		else
 		{
-			//Log the fact we just overrode an existing extension registration
+			// Log the fact we just overrode an existing extension registration
 			std::wstringstream message;
 			message << L"Extension " << entry.GetExtensionImplementationName() << L" with version number " << entry.GetExtensionVersionNo() << L" overrode the existing registration for this extension with version number " << existingEntry->second.versionNo << L".";
 			WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", message.str()));
 
-			//If the existing extension registration is for an older version, remove the
-			//old extension registration. This new registration with a higher version
-			//number supersedes the old one.
+			// If the existing extension registration is for an older version, remove the
+			// old extension registration. This new registration with a higher version
+			// number supersedes the old one.
 			UnregisterExtension(entry.GetExtensionImplementationName());
 		}
 	}
 
-	//Register the extension
+	// Register the extension
 	ExtensionLibraryEntry listEntry;
 	listEntry.Allocator = entry.GetAllocator();
 	listEntry.Destructor = entry.GetDestructor();
@@ -2660,18 +2660,18 @@ bool System::RegisterExtension(const IExtensionInfo& entry, AssemblyHandle assem
 	listEntry.assemblyHandle = assemblyHandle;
 	_extensionLibrary.insert(ExtensionLibraryListEntry(entry.GetExtensionImplementationName(), listEntry));
 
-	//Log the extension registration
+	// Log the extension registration
 	WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", L"Successfully registered extension " + entry.GetExtensionImplementationName() + L"."));
 
-	//If the registered extension is marked as a persistent global extension, attempt to
-	//create an instance of it now.
+	// If the registered extension is marked as a persistent global extension, attempt to
+	// create an instance of it now.
 	if (listEntry.persistentGlobalExtension)
 	{
-		//Log the creation attempt
+		// Log the creation attempt
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", L"Creating instance of registered persistent global extension " + entry.GetExtensionImplementationName() + L"."));
 
-		//Attempt to create an instance of the persistent global extension, and log an
-		//error if the attempt fails.
+		// Attempt to create an instance of the persistent global extension, and log an
+		// error if the attempt fails.
 		if (!LoadPersistentGlobalExtension(listEntry.implementationName))
 		{
 			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to create instance of persistent global extension " + entry.GetExtensionImplementationName() + L"!"));
@@ -2681,7 +2681,7 @@ bool System::RegisterExtension(const IExtensionInfo& entry, AssemblyHandle assem
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::UnregisterExtension(const Marshal::In<std::wstring>& extensionName)
 {
 	ExtensionLibraryList::iterator i = _extensionLibrary.find(extensionName);
@@ -2691,9 +2691,9 @@ void System::UnregisterExtension(const Marshal::In<std::wstring>& extensionName)
 	}
 }
 
-//----------------------------------------------------------------------------------------
-//Device creation and deletion
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Device creation and deletion
+//----------------------------------------------------------------------------------------------------------------------
 IDevice* System::CreateDevice(const std::wstring& deviceName, const std::wstring& instanceName, unsigned int moduleID) const
 {
 	IDevice* device = 0;
@@ -2705,7 +2705,7 @@ IDevice* System::CreateDevice(const std::wstring& deviceName, const std::wstring
 	return device;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::DestroyDevice(const std::wstring& deviceName, IDevice* device) const
 {
 	//##TODO## Log an error if a device cannot be located in the device library
@@ -2716,13 +2716,13 @@ void System::DestroyDevice(const std::wstring& deviceName, IDevice* device) cons
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::UnloadDevice(IDevice* device)
 {
-	//Remove all references to the device from our input mappings
+	// Remove all references to the device from our input mappings
 	UnmapAllKeyCodeMappingsForDevice(device);
 
-	//Remove all registered input targets for this device from our input registration list
+	// Remove all registered input targets for this device from our input registration list
 	std::unique_lock<std::mutex> inputLock(_inputMutex);
 	InputRegistrationList::iterator inputRegistrationListIterator = _inputRegistrationList.begin();
 	while (inputRegistrationListIterator != _inputRegistrationList.end())
@@ -2735,19 +2735,19 @@ void System::UnloadDevice(IDevice* device)
 		}
 	}
 
-	//Update the last modified token for the input device list
+	// Update the last modified token for the input device list
 	++_inputDeviceListLastModifiedToken;
 
-	//Release our lock on the input state
+	// Release our lock on the input state
 	inputLock.unlock();
 
-	//Remove all bus references to the device
+	// Remove all bus references to the device
 	for (BusInterfaceList::iterator i = _busInterfaces.begin(); i != _busInterfaces.end(); ++i)
 	{
 		i->busInterface->RemoveAllReferencesToDevice(device);
 	}
 
-	//Remove any unmapped line state entries which reference the device
+	// Remove any unmapped line state entries which reference the device
 	UnmappedLineStateList::iterator unmappedLineStateEntry = _unmappedLineStateList.begin();
 	while (unmappedLineStateEntry != _unmappedLineStateList.end())
 	{
@@ -2755,12 +2755,12 @@ void System::UnloadDevice(IDevice* device)
 		++unmappedLineStateEntry;
 		if (currentElement->targetDevice == device)
 		{
-			//Delete this unmapped line state entry
+			// Delete this unmapped line state entry
 			_unmappedLineStateList.erase(currentElement);
 		}
 	}
 
-	//Unregister each attached menu handler for this device
+	// Unregister each attached menu handler for this device
 	LoadedDeviceInfoList::iterator loadedDeviceInfoListIterator = _loadedDeviceInfoList.begin();
 	while (loadedDeviceInfoListIterator != _loadedDeviceInfoList.end())
 	{
@@ -2776,15 +2776,15 @@ void System::UnloadDevice(IDevice* device)
 		++loadedDeviceInfoListIterator;
 	}
 
-	//Remove the device itself from the system
+	// Remove the device itself from the system
 	_executionManager.RemoveDevice((DeviceContext*)device->GetDeviceContext());
 	RemoveDeviceFromDeviceList(_devices, device);
 
-	//Destroy the device
+	// Destroy the device
 	DestroyDevice(device->GetDeviceClassName(), device);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::RemoveDeviceFromDeviceList(DeviceArray& deviceList, IDevice* device) const
 {
 	IDeviceContext* deviceContext = device->GetDeviceContext();
@@ -2804,15 +2804,15 @@ void System::RemoveDeviceFromDeviceList(DeviceArray& deviceList, IDevice* device
 	}
 }
 
-//----------------------------------------------------------------------------------------
-//Extension creation and deletion
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Extension creation and deletion
+//----------------------------------------------------------------------------------------------------------------------
 IExtension* System::CreateGlobalExtension(const std::wstring& extensionName) const
 {
 	return CreateExtension(extensionName, extensionName, 0);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 IExtension* System::CreateExtension(const std::wstring& extensionName, const std::wstring& instanceName, unsigned int moduleID) const
 {
 	IExtension* extension = 0;
@@ -2825,10 +2825,10 @@ IExtension* System::CreateExtension(const std::wstring& extensionName, const std
 	return extension;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadPersistentGlobalExtension(const std::wstring& extensionName)
 {
-	//Create the new extension object
+	// Create the new extension object
 	IExtension* extension = CreateGlobalExtension(extensionName);
 	if (extension == 0)
 	{
@@ -2836,7 +2836,7 @@ bool System::LoadPersistentGlobalExtension(const std::wstring& extensionName)
 		return false;
 	}
 
-	//Bind to the system interface
+	// Bind to the system interface
 	if (!extension->BindToSystemInterface(this))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BindToSystemInterface failed for  " + extensionName + L"!"));
@@ -2844,7 +2844,7 @@ bool System::LoadPersistentGlobalExtension(const std::wstring& extensionName)
 		return false;
 	}
 
-	//Bind to the GUI interface
+	// Bind to the GUI interface
 	if (!extension->BindToGUIInterface(&_guiExtensionInterface))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BindToGUIInterface failed for  " + extensionName + L"!"));
@@ -2852,7 +2852,7 @@ bool System::LoadPersistentGlobalExtension(const std::wstring& extensionName)
 		return false;
 	}
 
-	//Construct the extension object
+	// Construct the extension object
 	HierarchicalStorageNode node;
 	if (!extension->Construct(node))
 	{
@@ -2861,8 +2861,8 @@ bool System::LoadPersistentGlobalExtension(const std::wstring& extensionName)
 		return false;
 	}
 
-	//Call BuildExtension() to perform any other required post-creation initialzation for
-	//the extension.
+	// Call BuildExtension() to perform any other required post-creation initialzation for
+	// the extension.
 	if (!extension->BuildExtension())
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BuildExtension failed for " + extensionName + L"!"));
@@ -2870,7 +2870,7 @@ bool System::LoadPersistentGlobalExtension(const std::wstring& extensionName)
 		return false;
 	}
 
-	//Record information on the loaded persistent global extension
+	// Record information on the loaded persistent global extension
 	std::unique_lock<std::mutex> loadedElementLock(_loadedElementMutex);
 	LoadedGlobalExtensionInfo extensionInfo;
 	extensionInfo.extension = extension;
@@ -2878,7 +2878,7 @@ bool System::LoadPersistentGlobalExtension(const std::wstring& extensionName)
 	extensionInfo.persistentExtension = true;
 	_globalExtensionInfoList.insert(LoadedGlobalExtensionInfoListEntry(extensionInfo.name, extensionInfo));
 
-	//Attempt to register the persistent global extension as a system menu handler
+	// Attempt to register the persistent global extension as a system menu handler
 	if (extension->RegisterSystemMenuHandler())
 	{
 		_systemMenuHandlers.insert(extension);
@@ -2887,7 +2887,7 @@ bool System::LoadPersistentGlobalExtension(const std::wstring& extensionName)
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::DestroyExtension(const std::wstring& extensionName, IExtension* extension) const
 {
 	ExtensionLibraryList::const_iterator extensionLibraryIterator = _extensionLibrary.find(extensionName);
@@ -2897,10 +2897,10 @@ void System::DestroyExtension(const std::wstring& extensionName, IExtension* ext
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::UnloadExtension(IExtension* extension)
 {
-	//Ensure this extension is removed as a system handler if it is currently bound as one
+	// Ensure this extension is removed as a system handler if it is currently bound as one
 	std::set<IExtension*>::iterator systemMenuHandlerIterator = _systemMenuHandlers.find(extension);
 	if (systemMenuHandlerIterator != _systemMenuHandlers.end())
 	{
@@ -2908,8 +2908,8 @@ void System::UnloadExtension(IExtension* extension)
 		_systemMenuHandlers.erase(systemMenuHandlerIterator);
 	}
 
-	//Ensure this extension is removed as a menu handler from any loaded modules it may be
-	//associated with
+	// Ensure this extension is removed as a menu handler from any loaded modules it may be
+	// associated with
 	for (LoadedModuleInfoMap::iterator i = _loadedModuleInfoMap.begin(); i != _loadedModuleInfoMap.end(); ++i)
 	{
 		LoadedModuleInfoInternal& loadedModuleInfo = i->second;
@@ -2921,8 +2921,8 @@ void System::UnloadExtension(IExtension* extension)
 		}
 	}
 
-	//Ensure this extension is removed as a menu handler from any loaded devices it may be
-	//associated with
+	// Ensure this extension is removed as a menu handler from any loaded devices it may be
+	// associated with
 	for (LoadedDeviceInfoList::iterator i = _loadedDeviceInfoList.begin(); i != _loadedDeviceInfoList.end(); ++i)
 	{
 		std::set<IExtension*>::iterator menuHandlerIterator = i->menuHandlers.find(extension);
@@ -2933,7 +2933,7 @@ void System::UnloadExtension(IExtension* extension)
 		}
 	}
 
-	//Unregister each attached menu handler for this extension
+	// Unregister each attached menu handler for this extension
 	LoadedExtensionInfoList::iterator loadedExtensionInfoListIterator = _loadedExtensionInfoList.begin();
 	while (loadedExtensionInfoListIterator != _loadedExtensionInfoList.end())
 	{
@@ -2949,13 +2949,13 @@ void System::UnloadExtension(IExtension* extension)
 		++loadedExtensionInfoListIterator;
 	}
 
-	//Destroy the extension
+	// Destroy the extension
 	DestroyExtension(extension->GetExtensionClassName(), extension);
 }
 
-//----------------------------------------------------------------------------------------
-//Module loading and unloading
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Module loading and unloading
+//----------------------------------------------------------------------------------------------------------------------
 void System::LoadModuleSynchronous(const Marshal::In<std::wstring>& filePath, const Marshal::In<ConnectorMappingList>& connectorMappings)
 {
 	_loadSystemComplete = false;
@@ -2965,57 +2965,57 @@ void System::LoadModuleSynchronous(const Marshal::In<std::wstring>& filePath, co
 	workerThread.detach();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::LoadModuleSynchronousAbort()
 {
 	_loadSystemAbort = true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 float System::LoadModuleSynchronousProgress() const
 {
 	return _loadSystemProgress;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModuleSynchronousComplete() const
 {
 	return _loadSystemComplete;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModuleSynchronousResult() const
 {
 	return _loadSystemResult;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModuleSynchronousAborted() const
 {
 	return _loadSystemAbort;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule(const Marshal::In<std::wstring>& filePath, const Marshal::In<ConnectorMappingList>& connectorMappings)
 {
 	std::unique_lock<std::mutex> lock(_moduleLoadMutex);
 
-	//Initialize the system load status
+	// Initialize the system load status
 	_loadSystemAbort = false;
 	_loadSystemResult = true;
 
-	//Save running state and pause system
+	// Save running state and pause system
 	bool running = SystemRunning();
 	StopSystem();
 
-	//Load the module file
+	// Load the module file
 	std::list<unsigned int> addedModuleIDs;
 	std::list<ViewOpenRequest> viewOpenRequests;
 	std::list<InputRegistration> inputRegistrationRequests;
 	std::list<SystemStateChange> systemSettingsChangeRequests;
 	if (!LoadModuleInternal(filePath, connectorMappings, viewOpenRequests, inputRegistrationRequests, systemSettingsChangeRequests, addedModuleIDs))
 	{
-		//If there's an error loading the module, log the failure, and return false.
+		// If there's an error loading the module, log the failure, and return false.
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to load module from file " + filePath + L"!"));
 		for (std::list<unsigned int>::const_iterator addedModuleIterator = addedModuleIDs.begin(); addedModuleIterator != addedModuleIDs.end(); ++addedModuleIterator)
 		{
@@ -3030,21 +3030,21 @@ bool System::LoadModule(const Marshal::In<std::wstring>& filePath, const Marshal
 		return false;
 	}
 
-	//Detect if we just loaded a program module
+	// Detect if we just loaded a program module
 	bool programModuleLoaded = false;
 	for (std::list<unsigned int>::const_iterator i = addedModuleIDs.begin(); i != addedModuleIDs.end(); ++i)
 	{
 		programModuleLoaded |= _loadedModuleInfoMap[*i].programModule;
 	}
 
-	//Bind all CE line mappings specified in all BusInterface objects to their referenced
-	//devices.
+	// Bind all CE line mappings specified in all BusInterface objects to their referenced
+	// devices.
 	for (BusInterfaceList::iterator i = _busInterfaces.begin(); i != _busInterfaces.end(); ++i)
 	{
 		if (!i->busInterface->BindCELineMappings())
 		{
-			//If there's an error binding the ce line mappings, log the failure, and
-			//return false.
+			// If there's an error binding the ce line mappings, log the failure, and
+			// return false.
 			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BindCELineMappings failed for BusInterface " + i->name + L" when loading module from file " + filePath + L"!"));
 			for (std::list<unsigned int>::const_iterator addedModuleIDsIterator = addedModuleIDs.begin(); addedModuleIDsIterator != addedModuleIDs.end(); ++addedModuleIDsIterator)
 			{
@@ -3060,7 +3060,7 @@ bool System::LoadModule(const Marshal::In<std::wstring>& filePath, const Marshal
 		}
 	}
 
-	//Explicitly initialize all devices we just loaded
+	// Explicitly initialize all devices we just loaded
 	for (LoadedDeviceInfoList::const_iterator i = _loadedDeviceInfoList.begin(); i != _loadedDeviceInfoList.end(); ++i)
 	{
 		if (std::find(addedModuleIDs.begin(), addedModuleIDs.end(), i->moduleID) != addedModuleIDs.end())
@@ -3069,16 +3069,16 @@ bool System::LoadModule(const Marshal::In<std::wstring>& filePath, const Marshal
 		}
 	}
 
-	//Ensure the initial clock states are set for all devices
+	// Ensure the initial clock states are set for all devices
 	for (ClockSourceList::const_iterator i = _clockSources.begin(); i != _clockSources.end(); ++i)
 	{
 		i->clockSource->PublishEffectiveClockFrequency();
 	}
 
-	//Perform any additional construction tasks the devices within the system require
+	// Perform any additional construction tasks the devices within the system require
 	if (!ValidateSystem())
 	{
-		//If there's an error building the system, log the failure, and return false.
+		// If there's an error building the system, log the failure, and return false.
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"System validation failed after loading module from file " + filePath + L"!"));
 		for (std::list<unsigned int>::const_iterator addedModuleIDsIterator = addedModuleIDs.begin(); addedModuleIDsIterator != addedModuleIDs.end(); ++addedModuleIDsIterator)
 		{
@@ -3093,28 +3093,28 @@ bool System::LoadModule(const Marshal::In<std::wstring>& filePath, const Marshal
 		return false;
 	}
 
-	//Flag that all loaded modules have passed validation. After this point, we want to
-	//call functions on a device which affect the state of other devices when unloading
-	//them from the system.
+	// Flag that all loaded modules have passed validation. After this point, we want to
+	// call functions on a device which affect the state of other devices when unloading
+	// them from the system.
 	for (std::list<unsigned int>::const_iterator i = addedModuleIDs.begin(); i != addedModuleIDs.end(); ++i)
 	{
 		_loadedModuleInfoMap[*i].moduleValidated = true;
 	}
 
-	//Synchronize the asserted line state for all devices in the system, now that this
-	//module has been loaded and all added devices have been fully initialized and
-	//validated.
+	// Synchronize the asserted line state for all devices in the system, now that this
+	// module has been loaded and all added devices have been fully initialized and
+	// validated.
 	for (LoadedDeviceInfoList::const_iterator i = _loadedDeviceInfoList.begin(); i != _loadedDeviceInfoList.end(); ++i)
 	{
 		i->device->AssertCurrentOutputLineState();
 	}
 
-	//Assert the specified unmapped line state for any unmapped lines in the system that
-	//have an unmapped line state specified
+	// Assert the specified unmapped line state for any unmapped lines in the system that
+	// have an unmapped line state specified
 	for (UnmappedLineStateList::const_iterator i = _unmappedLineStateList.begin(); i != _unmappedLineStateList.end(); ++i)
 	{
-		//Check if at least one mapping exists to the target line on the device with the
-		//unmapped line state setting
+		// Check if at least one mapping exists to the target line on the device with the
+		// unmapped line state setting
 		bool foundMappingToLine = false;
 		BusInterfaceList::const_iterator busInterfaceIterator = _busInterfaces.begin();
 		while (!foundMappingToLine && (busInterfaceIterator != _busInterfaces.end()))
@@ -3123,24 +3123,24 @@ bool System::LoadModule(const Marshal::In<std::wstring>& filePath, const Marshal
 			++busInterfaceIterator;
 		}
 
-		//If no mapping could be found to the target line, set the target line to the
-		//specified unmapped line state.
+		// If no mapping could be found to the target line, set the target line to the
+		// specified unmapped line state.
 		if (!foundMappingToLine)
 		{
 			i->targetDevice->TransparentSetLineState(i->lineNo, i->lineData);
 		}
 	}
 
-	//Re-assert the current line state for all system lines. We need to do this here so
-	//that any newly loaded devices which map to system lines receive the current output
-	//line state for those lines.
+	// Re-assert the current line state for all system lines. We need to do this here so
+	// that any newly loaded devices which map to system lines receive the current output
+	// line state for those lines.
 	for (SystemLineMap::const_iterator i = _systemLines.begin(); i != _systemLines.end(); ++i)
 	{
 		SetSystemLineState(i->first, Data(i->second.lineWidth, i->second.currentValue));
 	}
 
-	//Bind new system options to the system option menu, and apply the default settings
-	//for any system settings in the set of loaded modules.
+	// Bind new system options to the system option menu, and apply the default settings
+	// for any system settings in the set of loaded modules.
 	for (std::list<unsigned int>::const_iterator addedModuleIDsIterator = addedModuleIDs.begin(); addedModuleIDsIterator != addedModuleIDs.end(); ++addedModuleIDsIterator)
 	{
 		std::unique_lock<std::recursive_mutex> moduleSettingsLock(_moduleSettingMutex);
@@ -3149,7 +3149,7 @@ bool System::LoadModule(const Marshal::In<std::wstring>& filePath, const Marshal
 		{
 			for (SystemSettingsIDList::const_iterator settingsIDIterator = moduleSettingsIterator->second.begin(); settingsIDIterator != moduleSettingsIterator->second.end(); ++settingsIDIterator)
 			{
-				//Retrieve info for this system setting
+				// Retrieve info for this system setting
 				SystemSettingsMap::iterator systemSettingsIterator = _systemSettings.find(*settingsIDIterator);
 				if (systemSettingsIterator == _systemSettings.end())
 				{
@@ -3157,17 +3157,17 @@ bool System::LoadModule(const Marshal::In<std::wstring>& filePath, const Marshal
 				}
 				SystemSettingInfo& systemSettingInfo = *(systemSettingsIterator->second);
 
-				//Apply the default option for this setting
+				// Apply the default option for this setting
 				if (systemSettingInfo.defaultOption < (unsigned int)systemSettingInfo.options.size())
 				{
-					//Replace the current option selection
+					// Replace the current option selection
 					systemSettingInfo.selectedOption = systemSettingInfo.defaultOption;
 
-					//Apply the new option selection
+					// Apply the new option selection
 					SystemSettingOption& settingOption = systemSettingInfo.options[systemSettingInfo.selectedOption];
 					for (std::list<SystemStateChange>::const_iterator i = settingOption.stateChanges.begin(); i != settingOption.stateChanges.end(); ++i)
 					{
-						//Apply this system state change
+						// Apply this system state change
 						if (!ApplySystemStateChange(*i))
 						{
 							WriteLogEvent(LogEntry(LogEntry::EventLevel::Warning, L"System", L"Failed to apply system setting change for element with name \"" + i->targetElementName + L"\" in system option \"" + settingOption.name + L"\" on system setting \"" + systemSettingInfo.name + L"\" when loading module from file " + filePath + L"!"));
@@ -3178,33 +3178,33 @@ bool System::LoadModule(const Marshal::In<std::wstring>& filePath, const Marshal
 		}
 	}
 
-	//Apply any system settings changes specified in the loaded module
+	// Apply any system settings changes specified in the loaded module
 	for (std::list<SystemStateChange>::const_iterator i = systemSettingsChangeRequests.begin(); i != systemSettingsChangeRequests.end(); ++i)
 	{
-		//Apply this system state change
+		// Apply this system state change
 		if (!ApplySystemStateChange(*i))
 		{
 			WriteLogEvent(LogEntry(LogEntry::EventLevel::Warning, L"System", L"Failed to apply system setting change operating on element with name \"" + i->targetElementName + L"\" when loading module from file " + filePath + L"!"));
 		}
 	}
 
-	//Map any remaining unmapped controller inputs from the set of loaded devices that
-	//have their preferred input keys available.
+	// Map any remaining unmapped controller inputs from the set of loaded devices that
+	// have their preferred input keys available.
 	for (std::list<InputRegistration>::const_iterator i = inputRegistrationRequests.begin(); i != inputRegistrationRequests.end(); ++i)
 	{
 		const InputRegistration& defaultInputRegistration = *i;
 
-		//Attempt to map this input to the preferred system key code if one has been
-		//specified
+		// Attempt to map this input to the preferred system key code if one has been
+		// specified
 		if (defaultInputRegistration.preferredSystemKeyCodeSpecified)
 		{
-			//If this device input has already been mapped, skip it.
+			// If this device input has already been mapped, skip it.
 			if (IsDeviceKeyCodeMapped(defaultInputRegistration.targetDevice, defaultInputRegistration.deviceKeyCode))
 			{
 				continue;
 			}
 
-			//Map this input if the desired key is available
+			// Map this input if the desired key is available
 			if (!IsKeyCodeMapped(defaultInputRegistration.systemKeyCode))
 			{
 				if (!SetDeviceKeyCodeMapping(defaultInputRegistration.targetDevice, defaultInputRegistration.deviceKeyCode, defaultInputRegistration.systemKeyCode))
@@ -3215,16 +3215,16 @@ bool System::LoadModule(const Marshal::In<std::wstring>& filePath, const Marshal
 		}
 	}
 
-	//Bind all currently loaded global extensions as menu handlers where appropriate
+	// Bind all currently loaded global extensions as menu handlers where appropriate
 	for (LoadedGlobalExtensionInfoList::iterator globalExtensionIterator = _globalExtensionInfoList.begin(); globalExtensionIterator != _globalExtensionInfoList.end(); ++globalExtensionIterator)
 	{
-		//Retrieve information on the next global extension, and determine if this global
-		//extension was just loaded by the set of loaded modules.
+		// Retrieve information on the next global extension, and determine if this global
+		// extension was just loaded by the set of loaded modules.
 		LoadedGlobalExtensionInfo& globalExtensionInfo = globalExtensionIterator->second;
 		bool globalExtensionWasJustLoaded = (!globalExtensionInfo.persistentExtension && std::includes(addedModuleIDs.begin(), addedModuleIDs.end(), globalExtensionInfo.moduleIDs.begin(), globalExtensionInfo.moduleIDs.end()));
 
-		//If this global extension was just loaded, attempt to add it as a menu handler
-		//for the system.
+		// If this global extension was just loaded, attempt to add it as a menu handler
+		// for the system.
 		if (globalExtensionWasJustLoaded)
 		{
 			if (globalExtensionInfo.extension->RegisterSystemMenuHandler())
@@ -3233,9 +3233,9 @@ bool System::LoadModule(const Marshal::In<std::wstring>& filePath, const Marshal
 			}
 		}
 
-		//Attempt to add this global extension as a menu handler for all modules which
-		//were just loaded, or all currently loaded modules if this global extension was
-		//just loaded.
+		// Attempt to add this global extension as a menu handler for all modules which
+		// were just loaded, or all currently loaded modules if this global extension was
+		// just loaded.
 		for (LoadedModuleInfoMap::iterator moduleIterator = _loadedModuleInfoMap.begin(); moduleIterator != _loadedModuleInfoMap.end(); ++moduleIterator)
 		{
 			LoadedModuleInfoInternal& moduleInfo = moduleIterator->second;
@@ -3248,9 +3248,9 @@ bool System::LoadModule(const Marshal::In<std::wstring>& filePath, const Marshal
 			}
 		}
 
-		//Attempt to add this global extension as a menu handler for all devices which
-		//were just loaded, or all currently loaded devices if this global extension was
-		//just loaded itself.
+		// Attempt to add this global extension as a menu handler for all devices which
+		// were just loaded, or all currently loaded devices if this global extension was
+		// just loaded itself.
 		for (LoadedDeviceInfoList::iterator deviceIterator = _loadedDeviceInfoList.begin(); deviceIterator != _loadedDeviceInfoList.end(); ++deviceIterator)
 		{
 			LoadedDeviceInfo& deviceInfo = *deviceIterator;
@@ -3263,9 +3263,9 @@ bool System::LoadModule(const Marshal::In<std::wstring>& filePath, const Marshal
 			}
 		}
 
-		//Attempt to add this global extension as a menu handler for all extensions which
-		//were just loaded, or all currently loaded extensions if this global extension
-		//was just loaded itself.
+		// Attempt to add this global extension as a menu handler for all extensions which
+		// were just loaded, or all currently loaded extensions if this global extension
+		// was just loaded itself.
 		for (LoadedExtensionInfoList::iterator extensionIterator = _loadedExtensionInfoList.begin(); extensionIterator != _loadedExtensionInfoList.end(); ++extensionIterator)
 		{
 			LoadedExtensionInfo& extensionInfo = *extensionIterator;
@@ -3279,50 +3279,50 @@ bool System::LoadModule(const Marshal::In<std::wstring>& filePath, const Marshal
 		}
 	}
 
-	//Save all input registration requests from the list of loaded modules into the list
-	//of active input registrations.
+	// Save all input registration requests from the list of loaded modules into the list
+	// of active input registrations.
 	std::unique_lock<std::mutex> inputLock(_inputMutex);
 	_inputRegistrationList.splice(_inputRegistrationList.end(), inputRegistrationRequests);
 
-	//Update the last modified token for the input device list
+	// Update the last modified token for the input device list
 	++_inputDeviceListLastModifiedToken;
 
-	//Release our lock on the input state
+	// Release our lock on the input state
 	inputLock.unlock();
 
-	//Log the event
+	// Log the event
 	WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", L"Loaded module from file " + filePath + L"."));
 
-	//Process any view open requests we encountered during the system load
+	// Process any view open requests we encountered during the system load
 	LoadModule_ProcessViewQueue(viewOpenRequests);
 
-	//Restore running state, or trigger the system to run automatically if we just loaded
-	//a program module and the user has instructed the system to run automatically when
-	//program modules are loaded.
+	// Restore running state, or trigger the system to run automatically if we just loaded
+	// a program module and the user has instructed the system to run automatically when
+	// program modules are loaded.
 	if (running || (_runWhenProgramModuleLoaded && programModuleLoaded))
 	{
 		RunSystem();
 	}
 
-	//Flag that the load system operation is complete
+	// Flag that the load system operation is complete
 	_loadSystemComplete = true;
 
-	//Notify any registered observers that the set of loaded modules has now changed
+	// Notify any registered observers that the set of loaded modules has now changed
 	lock.unlock();
 	_loadedModuleChangeObservers.NotifyObservers();
 
-	//Return the system load result
+	// Return the system load result
 	return _loadSystemResult;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModuleInternal(const std::wstring& filePath, const ConnectorMappingList& connectorMappings, std::list<ViewOpenRequest>& viewOpenRequests, std::list<InputRegistration>& inputRegistrationRequests, std::list<SystemStateChange>& systemSettingsChangeRequests, std::list<unsigned int>& addedModuleIDs)
 {
-	//Update the name of the currently loading module
+	// Update the name of the currently loading module
 	std::wstring fileName = PathGetFileName(filePath);
 	PushLoadModuleCurrentModuleName(fileName);
 
-	//Open the target file
+	// Open the target file
 	FileStreamReference sourceStreamReference(_guiExtensionInterface);
 	if (!sourceStreamReference.OpenExistingFileForRead(filePath))
 	{
@@ -3332,11 +3332,11 @@ bool System::LoadModuleInternal(const std::wstring& filePath, const ConnectorMap
 	}
 	Stream::IStream& source = *sourceStreamReference;
 
-	//Determine the text format for the file, and strip any present byte order mark.
+	// Determine the text format for the file, and strip any present byte order mark.
 	source.SetTextEncoding(Stream::IStream::TextEncoding::UTF8);
 	source.ProcessByteOrderMark();
 
-	//Load the XML structure from the file
+	// Load the XML structure from the file
 	HierarchicalStorageTree tree;
 	if (!tree.LoadTree(source))
 	{
@@ -3346,7 +3346,7 @@ bool System::LoadModuleInternal(const std::wstring& filePath, const ConnectorMap
 	}
 	IHierarchicalStorageNode& rootNode = tree.GetRootNode();
 
-	//Load external binary data into the XML tree
+	// Load external binary data into the XML tree
 	std::list<IHierarchicalStorageNode*> binaryList;
 	binaryList = tree.GetBinaryDataNodeList();
 	for (std::list<IHierarchicalStorageNode*>::iterator i = binaryList.begin(); i != binaryList.end(); ++i)
@@ -3354,15 +3354,15 @@ bool System::LoadModuleInternal(const std::wstring& filePath, const ConnectorMap
 		std::wstring binaryFileName = (*i)->GetBinaryDataBufferName();
 		std::wstring binaryFilePath = binaryFileName;
 
-		//If the file path contains a relative path to the target, resolve the relative
-		//file path using the directory containing the module file as a base.
+		// If the file path contains a relative path to the target, resolve the relative
+		// file path using the directory containing the module file as a base.
 		std::wstring fileDir = PathGetDirectory(filePath);
 		if (PathIsRelativePath(binaryFilePath))
 		{
 			binaryFilePath = PathCombinePaths(fileDir, binaryFilePath);
 		}
 
-		//Open the target file
+		// Open the target file
 		FileStreamReference binaryFileStreamReference(_guiExtensionInterface);
 		if (!binaryFileStreamReference.OpenExistingFileForRead(binaryFilePath))
 		{
@@ -3372,11 +3372,11 @@ bool System::LoadModuleInternal(const std::wstring& filePath, const ConnectorMap
 		}
 		Stream::IStream& dataStream = *binaryFileStreamReference;
 
-		//Obtain a reference to the binary data stream within this XML element
+		// Obtain a reference to the binary data stream within this XML element
 		Stream::IStream& binaryData = (*i)->GetBinaryDataBufferStream();
 		binaryData.SetStreamPos(0);
 
-		//Load the external binary data into the binary data stream for this XML element
+		// Load the external binary data into the binary data stream for this XML element
 		unsigned int bufferSize = (unsigned int)dataStream.Size();
 		unsigned char* buffer = new unsigned char[bufferSize];
 		if (!dataStream.ReadData(buffer, bufferSize))
@@ -3396,8 +3396,8 @@ bool System::LoadModuleInternal(const std::wstring& filePath, const ConnectorMap
 		delete[] buffer;
 	}
 
-	//If this is a system module, defer processing of this module to the LoadSystem
-	//method, otherwise verify that this file is marked as a module.
+	// If this is a system module, defer processing of this module to the LoadSystem
+	// method, otherwise verify that this file is marked as a module.
 	if (rootNode.GetName() == L"System")
 	{
 		bool result = LoadSystem(filePath, rootNode, viewOpenRequests, inputRegistrationRequests, systemSettingsChangeRequests, addedModuleIDs);
@@ -3406,18 +3406,18 @@ bool System::LoadModuleInternal(const std::wstring& filePath, const ConnectorMap
 	}
 	else if (rootNode.GetName() != L"Module")
 	{
-		//Neither a system nor a module root node was found. Abort any further processing.
+		// Neither a system nor a module root node was found. Abort any further processing.
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Error loading module file " + filePath + L"! The root node was not of type System or Module!"));
 		PopLoadModuleCurrentModuleName();
 		return false;
 	}
 
-	//Create a new module info structure for this module
+	// Create a new module info structure for this module
 	LoadedModuleInfoInternal moduleInfo;
 	moduleInfo.moduleID = GenerateFreeModuleID();
 	moduleInfo.filePath = filePath;
 
-	//Extract mandatory module metadata
+	// Extract mandatory module metadata
 	IHierarchicalStorageAttribute* systemClassNameAttribute = rootNode.GetAttribute(L"SystemClassName");
 	IHierarchicalStorageAttribute* moduleClassNameAttribute = rootNode.GetAttribute(L"ModuleClassName");
 	IHierarchicalStorageAttribute* moduleInstanceNameAttribute = rootNode.GetAttribute(L"ModuleInstanceName");
@@ -3431,7 +3431,7 @@ bool System::LoadModuleInternal(const std::wstring& filePath, const ConnectorMap
 	moduleInfo.className = moduleClassNameAttribute->GetValue();
 	moduleInfo.instanceName = moduleInstanceNameAttribute->GetValue();
 
-	//Load any additional optional metadata
+	// Load any additional optional metadata
 	IHierarchicalStorageAttribute* programModuleAttribute = rootNode.GetAttribute(L"ProgramModule");
 	if (programModuleAttribute != 0)
 	{
@@ -3448,69 +3448,69 @@ bool System::LoadModuleInternal(const std::wstring& filePath, const ConnectorMap
 		moduleInfo.displayName = moduleDisplayNameAttribute->GetValue();
 	}
 
-	//Check for existing modules with the same instance name, and ensure a unique instance
-	//name is generated if a conflict is found.
+	// Check for existing modules with the same instance name, and ensure a unique instance
+	// name is generated if a conflict is found.
 	unsigned int instanceNameCurrentPostfixNumber = 0;
 	LoadedModuleInfoMap::const_iterator instanceNameModuleIterator = _loadedModuleInfoMap.begin();
 	std::wstring initialModuleInstanceName = moduleInfo.instanceName;
 	while (instanceNameModuleIterator != _loadedModuleInfoMap.end())
 	{
-		//If the instance name is the same, try and make a new unique instance name for
-		//our module.
+		// If the instance name is the same, try and make a new unique instance name for
+		// our module.
 		if (instanceNameModuleIterator->second.instanceName == moduleInfo.instanceName)
 		{
-			//Determine which postfix number to use
+			// Determine which postfix number to use
 			unsigned int numericPostfix = ++instanceNameCurrentPostfixNumber;
 
-			//Convert the numeric postfix to a string
+			// Convert the numeric postfix to a string
 			std::wstringstream numericPostfixToString;
 			numericPostfixToString << numericPostfix;
 
-			//Rebuild our instance name using the postfix
+			// Rebuild our instance name using the postfix
 			moduleInfo.instanceName = initialModuleInstanceName + L" [" + numericPostfixToString.str() + L"]";
 
-			//Restart the loop
+			// Restart the loop
 			instanceNameModuleIterator = _loadedModuleInfoMap.begin();
 			continue;
 		}
 		++instanceNameModuleIterator;
 	}
 
-	//Generate the display name for the module if one hasn't been specified
+	// Generate the display name for the module if one hasn't been specified
 	if (moduleInfo.displayName.empty())
 	{
 		moduleInfo.displayName = moduleInfo.instanceName;
 	}
 
-	//Check for existing modules with the same display name, and ensure a unique display
-	//name is generated if a conflict is found.
+	// Check for existing modules with the same display name, and ensure a unique display
+	// name is generated if a conflict is found.
 	unsigned int displayNameCurrentPostfixNumber = 0;
 	LoadedModuleInfoMap::const_iterator displayNameModuleIterator = _loadedModuleInfoMap.begin();
 	std::wstring initialModuleDisplayName = moduleInfo.displayName;
 	while (displayNameModuleIterator != _loadedModuleInfoMap.end())
 	{
-		//If the display name is the same, try and make a new unique display name for our
-		//module.
+		// If the display name is the same, try and make a new unique display name for our
+		// module.
 		if (displayNameModuleIterator->second.displayName == moduleInfo.displayName)
 		{
-			//Determine which postfix number to use
+			// Determine which postfix number to use
 			unsigned int numericPostfix = ++displayNameCurrentPostfixNumber;
 
-			//Convert the numeric postfix to a string
+			// Convert the numeric postfix to a string
 			std::wstringstream numericPostfixToString;
 			numericPostfixToString << numericPostfix;
 
-			//Rebuild our display name using the postfix
+			// Rebuild our display name using the postfix
 			moduleInfo.displayName = initialModuleDisplayName + L" [" + numericPostfixToString.str() + L"]";
 
-			//Restart the loop
+			// Restart the loop
 			displayNameModuleIterator = _loadedModuleInfoMap.begin();
 			continue;
 		}
 		++displayNameModuleIterator;
 	}
 
-	//Load the elements from the root node one by one
+	// Load the elements from the root node one by one
 	bool loadedWithoutErrors = true;
 	NameToIDMap connectorNameToIDMap;
 	NameToIDMap lineGroupNameToIDMap;
@@ -3636,11 +3636,11 @@ bool System::LoadModuleInternal(const std::wstring& filePath, const ConnectorMap
 		}
 		else if (elementName == L"System.OpenView")
 		{
-			//Note that we don't process view open requests immediately when they are
-			//encountered. These requests are only processed once we're sure the module
-			//has loaded successfully. This removes the need to worry about locked threads
-			//waiting for views to open preventing us from doing cleanup of this module,
-			//in the case that the load fails.
+			// Note that we don't process view open requests immediately when they are
+			// encountered. These requests are only processed once we're sure the module
+			// has loaded successfully. This removes the need to worry about locked threads
+			// waiting for views to open preventing us from doing cleanup of this module,
+			// in the case that the load fails.
 			loadedWithoutErrors &= LoadModule_System_OpenView(*(*i), moduleInfo.moduleID, viewOpenRequests);
 		}
 		else if (elementName == L"System.ExportConnector")
@@ -3673,10 +3673,10 @@ bool System::LoadModuleInternal(const std::wstring& filePath, const ConnectorMap
 		}
 		else if (elementName == L"System.ImportConnector")
 		{
-			//Note that we actually need to explicitly instruct the system on every
-			//connector to import, specifying a target connector. This is required, in
-			//order to allow the user to specify connections between modules before
-			//performing a load.
+			// Note that we actually need to explicitly instruct the system on every
+			// connector to import, specifying a target connector. This is required, in
+			// order to allow the user to specify connections between modules before
+			// performing a load.
 			loadedWithoutErrors &= LoadModule_System_ImportConnector(*(*i), moduleInfo.moduleID, moduleInfo.systemClassName, connectorMappings, connectorNameToIDMap);
 		}
 		else if (elementName == L"System.ImportDevice")
@@ -3757,16 +3757,16 @@ bool System::LoadModuleInternal(const std::wstring& filePath, const ConnectorMap
 		}
 		else
 		{
-			//Log a warning for an unrecognized element
+			// Log a warning for an unrecognized element
 			WriteLogEvent(LogEntry(LogEntry::EventLevel::Warning, L"System", L"Unrecognized element: " + elementName + L" when loading module file " + filePath + L"."));
 		}
 	}
 
-	//Add the info for this module to the list of loaded modules
+	// Add the info for this module to the list of loaded modules
 	addedModuleIDs.push_back(moduleInfo.moduleID);
 	_loadedModuleInfoMap.insert(LoadedModuleInfoMapEntry(moduleInfo.moduleID, moduleInfo));
 
-	//If the system load was aborted, log the event and return false.
+	// If the system load was aborted, log the event and return false.
 	if (_loadSystemAbort)
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", L"The user aborted loading module from file " + filePath + L"."));
@@ -3774,8 +3774,8 @@ bool System::LoadModuleInternal(const std::wstring& filePath, const ConnectorMap
 		return false;
 	}
 
-	//If any errors occurred while loading the module file, log the error and return
-	//false.
+	// If any errors occurred while loading the module file, log the error and return
+	// false.
 	if (!loadedWithoutErrors)
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Errors occurred while loading module from file " + filePath + L"."));
@@ -3783,16 +3783,16 @@ bool System::LoadModuleInternal(const std::wstring& filePath, const ConnectorMap
 		return false;
 	}
 
-	//Update the currently loading module name stack
+	// Update the currently loading module name stack
 	PopLoadModuleCurrentModuleName();
 
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadSystem_Device_Settings(IHierarchicalStorageNode& node, std::map<unsigned int, unsigned int>& savedModuleIDToLoadedModuleIDMap)
 {
-	//Load the external module ID and device name
+	// Load the external module ID and device name
 	IHierarchicalStorageAttribute* moduleIDAttribute = node.GetAttribute(L"ModuleID");
 	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 	if ((moduleIDAttribute == 0) || (deviceInstanceNameAttribute == 0))
@@ -3803,7 +3803,7 @@ bool System::LoadSystem_Device_Settings(IHierarchicalStorageNode& node, std::map
 	unsigned int moduleIDExternal = moduleIDAttribute->ExtractValue<unsigned int>();
 	std::wstring deviceName = deviceInstanceNameAttribute->GetValue();
 
-	//Resolve the loaded module ID from the external module ID
+	// Resolve the loaded module ID from the external module ID
 	std::map<unsigned int, unsigned int>::const_iterator loadedModuleIDIterator = savedModuleIDToLoadedModuleIDMap.find(moduleIDExternal);
 	if (loadedModuleIDIterator == savedModuleIDToLoadedModuleIDMap.end())
 	{
@@ -3814,7 +3814,7 @@ bool System::LoadSystem_Device_Settings(IHierarchicalStorageNode& node, std::map
 	}
 	unsigned int moduleID = loadedModuleIDIterator->second;
 
-	//Retrieve the specified device from the system
+	// Retrieve the specified device from the system
 	IDevice* device = GetDevice(moduleID, deviceName);
 	if (device == 0)
 	{
@@ -3822,16 +3822,16 @@ bool System::LoadSystem_Device_Settings(IHierarchicalStorageNode& node, std::map
 		return false;
 	}
 
-	//Load the device settings from this node
+	// Load the device settings from this node
 	device->LoadSettingsState(node);
 
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadSystem_Device_MapInput(IHierarchicalStorageNode& node, std::map<unsigned int, unsigned int>& savedModuleIDToLoadedModuleIDMap)
 {
-	//Load the external module ID, device name, system key code, and target key code.
+	// Load the external module ID, device name, system key code, and target key code.
 	IHierarchicalStorageAttribute* moduleIDAttribute = node.GetAttribute(L"ModuleID");
 	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 	IHierarchicalStorageAttribute* systemKeyCodeAttribute = node.GetAttribute(L"SystemKeyCode");
@@ -3846,7 +3846,7 @@ bool System::LoadSystem_Device_MapInput(IHierarchicalStorageNode& node, std::map
 	std::wstring systemKeyCodeString = systemKeyCodeAttribute->GetValue();
 	std::wstring deviceKeyCodeString = deviceKeyCodeAttribute->GetValue();
 
-	//Resolve the loaded module ID from the external module ID
+	// Resolve the loaded module ID from the external module ID
 	std::map<unsigned int, unsigned int>::const_iterator loadedModuleIDIterator = savedModuleIDToLoadedModuleIDMap.find(moduleIDExternal);
 	if (loadedModuleIDIterator == savedModuleIDToLoadedModuleIDMap.end())
 	{
@@ -3857,7 +3857,7 @@ bool System::LoadSystem_Device_MapInput(IHierarchicalStorageNode& node, std::map
 	}
 	unsigned int moduleID = loadedModuleIDIterator->second;
 
-	//Retrieve the specified device from the system
+	// Retrieve the specified device from the system
 	IDevice* device = GetDevice(moduleID, deviceName);
 	if (device == 0)
 	{
@@ -3865,7 +3865,7 @@ bool System::LoadSystem_Device_MapInput(IHierarchicalStorageNode& node, std::map
 		return false;
 	}
 
-	//Translate the device key code
+	// Translate the device key code
 	unsigned int deviceKeyCode = device->GetKeyCodeID(deviceKeyCodeString);
 	if (deviceKeyCode == 0)
 	{
@@ -3873,7 +3873,7 @@ bool System::LoadSystem_Device_MapInput(IHierarchicalStorageNode& node, std::map
 		return false;
 	}
 
-	//Translate the system key code
+	// Translate the system key code
 	KeyCode systemKeyCode = GetKeyCodeID(systemKeyCodeString);
 	if (systemKeyCode == ISystemDeviceInterface::KeyCode::None)
 	{
@@ -3881,7 +3881,7 @@ bool System::LoadSystem_Device_MapInput(IHierarchicalStorageNode& node, std::map
 		return false;
 	}
 
-	//Add the key code mapping to the system
+	// Add the key code mapping to the system
 	if (!SetDeviceKeyCodeMapping(device, deviceKeyCode, systemKeyCode))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Warning, L"System", L"SetDeviceKeyCodeMapping failed on Device.MapInput key for " + deviceName + L" with device key code " + deviceKeyCodeString + L" and system key code " + systemKeyCodeString + L" for Device.MapInput!"));
@@ -3890,10 +3890,10 @@ bool System::LoadSystem_Device_MapInput(IHierarchicalStorageNode& node, std::map
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadSystem_System_LoadEmbeddedROMData(const std::wstring& fileDir, IHierarchicalStorageNode& node, std::map<unsigned int, unsigned int>& savedModuleIDToLoadedModuleIDMap)
 {
-	//Load the external module ID, device name, system key code, and target key code.
+	// Load the external module ID, device name, system key code, and target key code.
 	IHierarchicalStorageAttribute* moduleIDAttribute = node.GetAttribute(L"ModuleID");
 	IHierarchicalStorageAttribute* embeddedROMNameAttribute = node.GetAttribute(L"EmbeddedROMName");
 	IHierarchicalStorageAttribute* filePathAttribute = node.GetAttribute(L"FilePath");
@@ -3906,7 +3906,7 @@ bool System::LoadSystem_System_LoadEmbeddedROMData(const std::wstring& fileDir, 
 	std::wstring embeddedROMName = embeddedROMNameAttribute->GetValue();
 	std::wstring filePath = filePathAttribute->GetValue();
 
-	//Resolve the loaded module ID from the external module ID
+	// Resolve the loaded module ID from the external module ID
 	std::map<unsigned int, unsigned int>::const_iterator loadedModuleIDIterator = savedModuleIDToLoadedModuleIDMap.find(moduleIDExternal);
 	if (loadedModuleIDIterator == savedModuleIDToLoadedModuleIDMap.end())
 	{
@@ -3917,7 +3917,7 @@ bool System::LoadSystem_System_LoadEmbeddedROMData(const std::wstring& fileDir, 
 	}
 	unsigned int moduleID = loadedModuleIDIterator->second;
 
-	//Locate the defined ROM info for this embedded ROM
+	// Locate the defined ROM info for this embedded ROM
 	std::unique_lock<std::mutex> embeddedROMLock(_embeddedROMMutex);
 	EmbeddedROMInfoInternal* embeddedROMInfoEntry = 0;
 	std::map<unsigned int, EmbeddedROMInfoInternal>::iterator embeddedROMInfoIterator = _embeddedROMInfoSet.begin();
@@ -3939,17 +3939,17 @@ bool System::LoadSystem_System_LoadEmbeddedROMData(const std::wstring& fileDir, 
 		return false;
 	}
 
-	//If the file path contains a relative path to the target, resolve the relative file
-	//path using the directory containing the system file as a base.
+	// If the file path contains a relative path to the target, resolve the relative file
+	// path using the directory containing the system file as a base.
 	if (PathIsRelativePath(filePath))
 	{
 		filePath = PathCombinePaths(fileDir, filePath);
 	}
 
-	//Save the new file path as the selected file path for this embedded ROM file
+	// Save the new file path as the selected file path for this embedded ROM file
 	embeddedROMInfoEntry->filePath = filePath;
 
-	//Open the target file
+	// Open the target file
 	FileStreamReference fileStreamReference(_guiExtensionInterface);
 	if (!fileStreamReference.OpenExistingFileForRead(filePath))
 	{
@@ -3958,7 +3958,7 @@ bool System::LoadSystem_System_LoadEmbeddedROMData(const std::wstring& fileDir, 
 	}
 	Stream::IStream& file = *fileStreamReference;
 
-	//Load the data from the target file into this embedded ROM
+	// Load the data from the target file into this embedded ROM
 	Data romDataEntry(embeddedROMInfoEntry->romEntryBitCount);
 	Stream::ViewBinary viewBinary(file);
 	unsigned int deviceAddress = 0;
@@ -3970,16 +3970,16 @@ bool System::LoadSystem_System_LoadEmbeddedROMData(const std::wstring& fileDir, 
 	}
 	bool romDataLoadedSuccessfully = viewBinary.NoErrorsOccurred();
 
-	//Update the last modified token for embedded ROM data
+	// Update the last modified token for embedded ROM data
 	++_embeddedROMInfoLastModifiedToken;
 
 	return romDataLoadedSuccessfully;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadSystem_System_SelectSettingOption(IHierarchicalStorageNode& node, std::map<unsigned int, unsigned int>& savedModuleIDToLoadedModuleIDMap, SystemStateChange& stateChange)
 {
-	//Load the external module ID, device name, system key code, and target key code.
+	// Load the external module ID, device name, system key code, and target key code.
 	IHierarchicalStorageAttribute* moduleIDAttribute = node.GetAttribute(L"ModuleID");
 	if (moduleIDAttribute == 0)
 	{
@@ -3988,7 +3988,7 @@ bool System::LoadSystem_System_SelectSettingOption(IHierarchicalStorageNode& nod
 	}
 	unsigned int moduleIDExternal = moduleIDAttribute->ExtractValue<unsigned int>();
 
-	//Resolve the loaded module ID from the external module ID
+	// Resolve the loaded module ID from the external module ID
 	std::map<unsigned int, unsigned int>::const_iterator loadedModuleIDIterator = savedModuleIDToLoadedModuleIDMap.find(moduleIDExternal);
 	if (loadedModuleIDIterator == savedModuleIDToLoadedModuleIDMap.end())
 	{
@@ -3999,34 +3999,34 @@ bool System::LoadSystem_System_SelectSettingOption(IHierarchicalStorageNode& nod
 	}
 	unsigned int moduleID = loadedModuleIDIterator->second;
 
-	//Defer the remainder of this load operation to the module loader method
+	// Defer the remainder of this load operation to the module loader method
 	return LoadModule_System_SelectSettingOption(node, moduleID, stateChange);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadSystem(const std::wstring& filePath, IHierarchicalStorageNode& rootNode, std::list<ViewOpenRequest>& viewOpenRequests, std::list<InputRegistration>& inputRegistrationRequests, std::list<SystemStateChange>& systemSettingsChangeRequests, std::list<unsigned int>& addedModuleIDs)
 {
-	//Extract the module relationships data from the file
+	// Extract the module relationships data from the file
 	bool moduleRelationshipsLoaded = false;
 	SavedRelationshipMap savedRelationshipData;
 	std::list<IHierarchicalStorageNode*> childList = rootNode.GetChildList();
 	for (std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
-		//Load the ModuleRelationships node
+		// Load the ModuleRelationships node
 		if ((*i)->GetName() == L"ModuleRelationships")
 		{
 			moduleRelationshipsLoaded = LoadSavedRelationshipMap(*(*i), savedRelationshipData);
 		}
 	}
 
-	//Validate that we managed to retrieve the module relationships data from the file
+	// Validate that we managed to retrieve the module relationships data from the file
 	if (!moduleRelationshipsLoaded)
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to load system from file " + filePath + L" because the ModuleRelationships node could not be loaded!"));
 		return false;
 	}
 
-	//Attempt to load each module referenced in the saved module relationship data
+	// Attempt to load each module referenced in the saved module relationship data
 	std::wstring fileDir = PathGetDirectory(filePath);
 	bool modulesLoadedWithoutErrors = true;
 	std::map<unsigned int, unsigned int> savedModuleIDToLoadedModuleIDMap;
@@ -4034,12 +4034,12 @@ bool System::LoadSystem(const std::wstring& filePath, IHierarchicalStorageNode& 
 	{
 		const SavedRelationshipModule& savedModuleInfo = i->second;
 
-		//Attempt to find available connectors to import that match the imported
-		//connectors in the saved system
+		// Attempt to find available connectors to import that match the imported
+		// connectors in the saved system
 		ConnectorMappingList targetModuleConnectorMappings;
 		for (std::list<SavedRelationshipImportConnector>::const_iterator importedConnector = savedModuleInfo.importedConnectors.begin(); importedConnector != savedModuleInfo.importedConnectors.end(); ++importedConnector)
 		{
-			//Retrieve the loaded module ID of the target module
+			// Retrieve the loaded module ID of the target module
 			std::map<unsigned int, unsigned int>::const_iterator loadedModuleIDIterator = savedModuleIDToLoadedModuleIDMap.find(importedConnector->moduleID);
 			if (loadedModuleIDIterator == savedModuleIDToLoadedModuleIDMap.end())
 			{
@@ -4047,7 +4047,7 @@ bool System::LoadSystem(const std::wstring& filePath, IHierarchicalStorageNode& 
 			}
 			unsigned int loadedModuleID = loadedModuleIDIterator->second;
 
-			//Attempt to find a matching available connector
+			// Attempt to find a matching available connector
 			bool foundMatchingConnector = false;
 			ConnectorDetailsMap::const_iterator connectorMapIterator = _connectorDetailsMap.begin();
 			while (!foundMatchingConnector && (connectorMapIterator != _connectorDetailsMap.end()))
@@ -4065,7 +4065,7 @@ bool System::LoadSystem(const std::wstring& filePath, IHierarchicalStorageNode& 
 				continue;
 			}
 
-			//Create a connector mapping for this connector
+			// Create a connector mapping for this connector
 			const ConnectorInfoInternal& connectorDetails = connectorMapIterator->second;
 			ConnectorMapping connectorMapping;
 			connectorMapping.connectorID = connectorDetails.connectorID;
@@ -4073,25 +4073,25 @@ bool System::LoadSystem(const std::wstring& filePath, IHierarchicalStorageNode& 
 			targetModuleConnectorMappings.push_back(connectorMapping);
 		}
 
-		//If the system file contains a relative path to this module, resolve the relative
-		//file path using the directory containing the system file as a base.
+		// If the system file contains a relative path to this module, resolve the relative
+		// file path using the directory containing the system file as a base.
 		std::wstring savedModuleFileDir = PathGetDirectory(savedModuleInfo.filePath);
 		if (PathIsRelativePath(savedModuleFileDir))
 		{
 			savedModuleFileDir = PathCombinePaths(fileDir, savedModuleFileDir);
 		}
 
-		//Attempt to load this module
+		// Attempt to load this module
 		std::wstring savedModuleFilePath = PathCombinePaths(savedModuleFileDir, PathGetFileName(savedModuleInfo.filePath));
 		modulesLoadedWithoutErrors &= LoadModuleInternal(savedModuleFilePath, targetModuleConnectorMappings, viewOpenRequests, inputRegistrationRequests, systemSettingsChangeRequests, addedModuleIDs);
 
-		//Save the mapping between the saved module ID and the loaded module ID for the
-		//module we just loaded.
+		// Save the mapping between the saved module ID and the loaded module ID for the
+		// module we just loaded.
 		//##FIX## If we referenced another system file, this module ID will be
-		//meaningless. But then again, we don't really want to support referencing a
-		//system file from within a system file. Add some kind of verification during
-		//module loading to prevent this. Once we've done that, this code below will be
-		//acceptable.
+		// meaningless. But then again, we don't really want to support referencing a
+		// system file from within a system file. Add some kind of verification during
+		// module loading to prevent this. Once we've done that, this code below will be
+		// acceptable.
 		std::list<unsigned int>::const_reverse_iterator addedModuleIterator = addedModuleIDs.rbegin();
 		if (addedModuleIterator != addedModuleIDs.rend())
 		{
@@ -4099,22 +4099,22 @@ bool System::LoadSystem(const std::wstring& filePath, IHierarchicalStorageNode& 
 		}
 	}
 
-	//If the system load was aborted, log the event and return false.
+	// If the system load was aborted, log the event and return false.
 	if (_loadSystemAbort)
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", L"The user aborted loading system from file " + filePath + L"."));
 		return false;
 	}
 
-	//If any errors occurred while loading the system file, log the error and return
-	//false.
+	// If any errors occurred while loading the system file, log the error and return
+	// false.
 	if (!modulesLoadedWithoutErrors)
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", L"One or more modules failed to load successfully when loading system from file " + filePath + L"."));
 		return false;
 	}
 
-	//Load the elements from the root node one by one
+	// Load the elements from the root node one by one
 	bool loadedWithoutErrors = true;
 	NameToIDMap connectorNameToIDMap;
 	NameToIDMap lineGroupNameToIDMap;
@@ -4123,13 +4123,13 @@ bool System::LoadSystem(const std::wstring& filePath, IHierarchicalStorageNode& 
 		std::wstring elementName = (*i)->GetName();
 		if (elementName == L"ModuleRelationships")
 		{
-			//We've already processed the ModuleRelationships node above, so we skip it
-			//here.
+			// We've already processed the ModuleRelationships node above, so we skip it
+			// here.
 		}
 		else if (elementName == L"Info")
 		{
-			//We expect an Info node to exist, but we're not interested in its contents at
-			//this stage, so we skip it here.
+			// We expect an Info node to exist, but we're not interested in its contents at
+			// this stage, so we skip it here.
 		}
 		else if (elementName == L"Device.Settings")
 		{
@@ -4157,20 +4157,20 @@ bool System::LoadSystem(const std::wstring& filePath, IHierarchicalStorageNode& 
 		}
 		else
 		{
-			//Log a warning for an unrecognized element
+			// Log a warning for an unrecognized element
 			WriteLogEvent(LogEntry(LogEntry::EventLevel::Warning, L"System", L"Unrecognized element: " + elementName + L" when loading system file " + filePath + L"."));
 		}
 	}
 
-	//If the system load was aborted, log the event, and flag the module to unload.
+	// If the system load was aborted, log the event, and flag the module to unload.
 	if (_loadSystemAbort)
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", L"The user aborted loading system from file " + filePath + L"."));
 		return false;
 	}
 
-	//If any errors occurred while loading the system file, log the error, and flag the
-	//module to unload.
+	// If any errors occurred while loading the system file, log the error, and flag the
+	// module to unload.
 	if (!loadedWithoutErrors)
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Errors occurred while loading system from file " + filePath + L"."));
@@ -4180,29 +4180,29 @@ bool System::LoadSystem(const std::wstring& filePath, IHierarchicalStorageNode& 
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::SaveSystem(const Marshal::In<std::wstring>& filePath)
 {
-	//Save running state and pause system
+	// Save running state and pause system
 	bool running = SystemRunning();
 	StopSystem();
 
-	//Create the new system XML tree
+	// Create the new system XML tree
 	HierarchicalStorageTree tree;
 	tree.GetRootNode().SetName(L"System");
 
-	//Fill in general information about the file
+	// Fill in general information about the file
 	IHierarchicalStorageNode& stateInfo = tree.GetRootNode().CreateChild(L"Info");
 	Timestamp timestamp = GetTimestamp();
 	stateInfo.CreateAttribute(L"CreationDate", timestamp.GetDate());
 	stateInfo.CreateAttribute(L"CreationTime", timestamp.GetTime());
 
-	//Save the ModuleRelationships node
+	// Save the ModuleRelationships node
 	std::wstring fileDir = PathGetDirectory(filePath);
 	IHierarchicalStorageNode& moduleRelationshipsNode = tree.GetRootNode().CreateChild(L"ModuleRelationships");
 	SaveModuleRelationshipsNode(moduleRelationshipsNode, true, fileDir);
 
-	//Save device settings to the system file
+	// Save device settings to the system file
 	for (LoadedDeviceInfoList::const_iterator i = _loadedDeviceInfoList.begin(); i != _loadedDeviceInfoList.end(); ++i)
 	{
 		IHierarchicalStorageNode& node = tree.GetRootNode().CreateChild(L"Device.Settings");
@@ -4211,13 +4211,13 @@ bool System::SaveSystem(const Marshal::In<std::wstring>& filePath)
 		(*i).device->SaveSettingsState(node);
 	}
 
-	//Save mapped key inputs to the system file
+	// Save mapped key inputs to the system file
 	std::unique_lock<std::mutex> inputLock(_inputMutex);
 	for (InputKeyMap::const_iterator i = _inputKeyMap.begin(); i != _inputKeyMap.end(); ++i)
 	{
 		const InputMapEntry& inputMapEntry = i->second;
 
-		//Find the module ID for the target device
+		// Find the module ID for the target device
 		unsigned int moduleID = 0;
 		bool foundModuleID = false;
 		LoadedDeviceInfoList::const_iterator deviceInfoListIterator = _loadedDeviceInfoList.begin();
@@ -4236,7 +4236,7 @@ bool System::SaveSystem(const Marshal::In<std::wstring>& filePath)
 			continue;
 		}
 
-		//Create the input registration node for this input key map entry
+		// Create the input registration node for this input key map entry
 		IHierarchicalStorageNode& registerInputNode = tree.GetRootNode().CreateChild(L"Device.MapInput");
 		registerInputNode.CreateAttribute(L"ModuleID", moduleID);
 		registerInputNode.CreateAttribute(L"DeviceInstanceName", inputMapEntry.targetDevice->GetDeviceInstanceName());
@@ -4245,14 +4245,14 @@ bool System::SaveSystem(const Marshal::In<std::wstring>& filePath)
 	}
 	inputLock.unlock();
 
-	//Save current system setting selections to the system file
+	// Save current system setting selections to the system file
 	std::unique_lock<std::recursive_mutex> moduleSettingsLock(_moduleSettingMutex);
 	for (SystemSettingsMap::const_iterator i = _systemSettings.begin(); i != _systemSettings.end(); ++i)
 	{
 		const SystemSettingInfo& systemSettingInfo = *(i->second);
 		if (systemSettingInfo.selectedOption < (unsigned int)systemSettingInfo.options.size())
 		{
-			//Create the system option selection node for this setting
+			// Create the system option selection node for this setting
 			IHierarchicalStorageNode& selectSettingOptionNode = tree.GetRootNode().CreateChild(L"System.SelectSettingOption");
 			selectSettingOptionNode.CreateAttribute(L"ModuleID", systemSettingInfo.moduleID);
 			selectSettingOptionNode.CreateAttribute(L"SettingName", systemSettingInfo.name);
@@ -4261,20 +4261,20 @@ bool System::SaveSystem(const Marshal::In<std::wstring>& filePath)
 	}
 	moduleSettingsLock.unlock();
 
-	//Save embedded ROM file selections to the system file
+	// Save embedded ROM file selections to the system file
 	std::unique_lock<std::mutex> embeddedROMLock(_embeddedROMMutex);
 	for (std::map<unsigned int, EmbeddedROMInfoInternal>::const_iterator i = _embeddedROMInfoSet.begin(); i != _embeddedROMInfoSet.end(); ++i)
 	{
-		//If no file path has been specified for this embedded ROM, skip it.
+		// If no file path has been specified for this embedded ROM, skip it.
 		const EmbeddedROMInfoInternal& embeddedROMInfo = i->second;
 		if (embeddedROMInfo.filePath.empty())
 		{
 			continue;
 		}
 
-		//If the target file is contained within the same directory or a subdirectory of
-		//the location where the system file is being saved, convert the path to the ROM
-		//file into a relative path.
+		// If the target file is contained within the same directory or a subdirectory of
+		// the location where the system file is being saved, convert the path to the ROM
+		// file into a relative path.
 		std::wstring filePath = embeddedROMInfo.filePath;
 		if (PathStartsWithBasePath(fileDir, filePath))
 		{
@@ -4285,7 +4285,7 @@ bool System::SaveSystem(const Marshal::In<std::wstring>& filePath)
 			}
 		}
 
-		//Create the embedded ROM selection node for this setting
+		// Create the embedded ROM selection node for this setting
 		IHierarchicalStorageNode& loadROMDataNode = tree.GetRootNode().CreateChild(L"System.LoadEmbeddedROMData");
 		loadROMDataNode.CreateAttribute(L"ModuleID", embeddedROMInfo.moduleID);
 		loadROMDataNode.CreateAttribute(L"EmbeddedROMName", embeddedROMInfo.targetDevice->GetDeviceInstanceName());
@@ -4294,7 +4294,7 @@ bool System::SaveSystem(const Marshal::In<std::wstring>& filePath)
 	}
 	embeddedROMLock.unlock();
 
-	//Save XML tree to the target file
+	// Save XML tree to the target file
 	Stream::File file(Stream::IStream::TextEncoding::UTF8);
 	if (!file.Open(filePath, Stream::File::OpenMode::ReadAndWrite, Stream::File::CreateMode::Create))
 	{
@@ -4316,10 +4316,10 @@ bool System::SaveSystem(const Marshal::In<std::wstring>& filePath)
 		return false;
 	}
 
-	//Log the event
+	// Log the event
 	WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", L"Saved system to file " + filePath));
 
-	//Restore running state
+	// Restore running state
 	if (running)
 	{
 		RunSystem();
@@ -4327,39 +4327,39 @@ bool System::SaveSystem(const Marshal::In<std::wstring>& filePath)
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::UnloadModule(unsigned int moduleID)
 {
 	std::unique_lock<std::mutex> lock(_moduleLoadMutex);
 
-	//Save running state and pause system
+	// Save running state and pause system
 	bool running = SystemRunning();
 	StopSystem();
 
-	//Unload the module
+	// Unload the module
 	UnloadModuleInternal(moduleID);
 
-	//Attempt to validate the system now that the module has been unloaded
+	// Attempt to validate the system now that the module has been unloaded
 	bool result = ValidateSystem();
 
-	//Restore running state
+	// Restore running state
 	if (running && result)
 	{
 		RunSystem();
 	}
 
-	//Notify any registered observers that the set of loaded modules has now changed
+	// Notify any registered observers that the set of loaded modules has now changed
 	lock.unlock();
 	_loadedModuleChangeObservers.NotifyObservers();
 
-	//Return the result to the caller
+	// Return the result to the caller
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::UnloadModuleInternal(unsigned int moduleID)
 {
-	//Retrieve information on the target module
+	// Retrieve information on the target module
 	LoadedModuleInfoMap::iterator loadedModuleIterator = _loadedModuleInfoMap.find(moduleID);
 	if (loadedModuleIterator == _loadedModuleInfoMap.end())
 	{
@@ -4367,12 +4367,12 @@ void System::UnloadModuleInternal(unsigned int moduleID)
 	}
 	LoadedModuleInfoInternal& moduleInfo = loadedModuleIterator->second;
 
-	//Update the name stack of the currently unloading module
+	// Update the name stack of the currently unloading module
 	std::wstring fileName = PathGetFileName(moduleInfo.filePath);
 	PushUnloadModuleCurrentModuleName(fileName);
 
-	//Build a list of any modules which import connectors exported by this module. These
-	//modules are dependent on our module, and must be unloaded first.
+	// Build a list of any modules which import connectors exported by this module. These
+	// modules are dependent on our module, and must be unloaded first.
 	std::list<unsigned int> dependentModulesToUnload;
 	for (ConnectorDetailsMap::const_iterator i = _connectorDetailsMap.begin(); i != _connectorDetailsMap.end(); ++i)
 	{
@@ -4383,20 +4383,20 @@ void System::UnloadModuleInternal(unsigned int moduleID)
 		}
 	}
 
-	//Unload any modules which are dependent on this module
+	// Unload any modules which are dependent on this module
 	for (std::list<unsigned int>::const_iterator i = dependentModulesToUnload.begin(); i != dependentModulesToUnload.end(); ++i)
 	{
 		//##TODO## Consider checking if the module ID is still valid. It's possible that
-		//one dependent device in our list will unload another dependent device before we
-		//get to it. This shouldn't be harmful, but isn't great design.
+		// one dependent device in our list will unload another dependent device before we
+		// get to it. This shouldn't be harmful, but isn't great design.
 		UnloadModuleInternal(*i);
 	}
 
-	//If this module passed validation, perform additional unloading tasks which require
-	//participation from the loaded elements within this module.
+	// If this module passed validation, perform additional unloading tasks which require
+	// participation from the loaded elements within this module.
 	if (moduleInfo.moduleValidated)
 	{
-		//Save any persistent state for the loaded devices within this module
+		// Save any persistent state for the loaded devices within this module
 		if (_enablePersistentState)
 		{
 			std::wstring persistentModuleFileName = moduleInfo.className + L".zip";
@@ -4407,12 +4407,12 @@ void System::UnloadModuleInternal(unsigned int moduleID)
 			}
 		}
 
-		//Negate any active output lines that are being asserted by devices in this
-		//module. This will allow other devices in the system that are not being unloaded
-		//with this module to correctly restore their input line state. We only perform
-		//this operation for validated modules, since modules that have not yet been
-		//validated have not yet asserted any output line state, and devices within that
-		//module may not yet have been initialized.
+		// Negate any active output lines that are being asserted by devices in this
+		// module. This will allow other devices in the system that are not being unloaded
+		// with this module to correctly restore their input line state. We only perform
+		// this operation for validated modules, since modules that have not yet been
+		// validated have not yet asserted any output line state, and devices within that
+		// module may not yet have been initialized.
 		for (LoadedDeviceInfoList::const_iterator i = _loadedDeviceInfoList.begin(); i != _loadedDeviceInfoList.end(); ++i)
 		{
 			if (i->moduleID == moduleID)
@@ -4422,14 +4422,14 @@ void System::UnloadModuleInternal(unsigned int moduleID)
 		}
 	}
 
-	//Unregister any menu handlers currently bound to this module
+	// Unregister any menu handlers currently bound to this module
 	for (std::set<IExtension*>::const_iterator i = moduleInfo.menuHandlers.begin(); i != moduleInfo.menuHandlers.end(); ++i)
 	{
 		(*i)->UnregisterModuleMenuHandler(moduleID);
 	}
 	moduleInfo.menuHandlers.clear();
 
-	//Free any connectors this module was importing
+	// Free any connectors this module was importing
 	for (ConnectorDetailsMap::iterator i = _connectorDetailsMap.begin(); i != _connectorDetailsMap.end(); ++i)
 	{
 		ConnectorInfoInternal& connectorDetails = i->second;
@@ -4440,7 +4440,7 @@ void System::UnloadModuleInternal(unsigned int moduleID)
 		}
 	}
 
-	//Remove any connectors this module was exporting
+	// Remove any connectors this module was exporting
 	ConnectorDetailsMap::iterator nextConnectorDetailsMapEntry = _connectorDetailsMap.begin();
 	while (nextConnectorDetailsMapEntry != _connectorDetailsMap.end())
 	{
@@ -4452,7 +4452,7 @@ void System::UnloadModuleInternal(unsigned int moduleID)
 		}
 	}
 
-	//Remove any clock sources which belong to the module
+	// Remove any clock sources which belong to the module
 	ClockSourceList::iterator nextclockSourceEntry = _clockSources.begin();
 	while (nextclockSourceEntry != _clockSources.end())
 	{
@@ -4460,8 +4460,8 @@ void System::UnloadModuleInternal(unsigned int moduleID)
 		++nextclockSourceEntry;
 		if (currentElement->moduleID == moduleID)
 		{
-			//Remove any references to this clock source, IE, through
-			//ReferenceClockSource.
+			// Remove any references to this clock source, IE, through
+			// ReferenceClockSource.
 			for (LoadedDeviceInfoList::const_iterator i = _loadedDeviceInfoList.begin(); i != _loadedDeviceInfoList.end(); ++i)
 			{
 				i->device->RemoveReference(currentElement->clockSource);
@@ -4471,25 +4471,25 @@ void System::UnloadModuleInternal(unsigned int moduleID)
 				i->extension->RemoveReference(currentElement->clockSource);
 			}
 
-			//If this clock source receives an input from another clock source, remove
-			//this clock source as a dependent clock source of the parent.
+			// If this clock source receives an input from another clock source, remove
+			// this clock source as a dependent clock source of the parent.
 			ClockSource* inputClockSource = currentElement->clockSource->GetInputClockSource();
 			if (inputClockSource != 0)
 			{
 				inputClockSource->RemoveDependentClockSource(currentElement->clockSource);
 			}
 
-			//Remove any input references other clock sources may have on this clock
-			//source
+			// Remove any input references other clock sources may have on this clock
+			// source
 			currentElement->clockSource->RemoveAllDependentClockSources();
 
-			//Delete the clock source
+			// Delete the clock source
 			delete currentElement->clockSource;
 			_clockSources.erase(currentElement);
 		}
 	}
 
-	//Remove any bus interfaces which belong to the module
+	// Remove any bus interfaces which belong to the module
 	BusInterfaceList::iterator nextBusInterfaceEntry = _busInterfaces.begin();
 	while (nextBusInterfaceEntry != _busInterfaces.end())
 	{
@@ -4497,7 +4497,7 @@ void System::UnloadModuleInternal(unsigned int moduleID)
 		++nextBusInterfaceEntry;
 		if (currentElement->moduleID == moduleID)
 		{
-			//Remove any references to this bus, IE, through ReferenceBus.
+			// Remove any references to this bus, IE, through ReferenceBus.
 			for (LoadedDeviceInfoList::const_iterator i = _loadedDeviceInfoList.begin(); i != _loadedDeviceInfoList.end(); ++i)
 			{
 				i->device->RemoveReference(currentElement->busInterface);
@@ -4507,13 +4507,13 @@ void System::UnloadModuleInternal(unsigned int moduleID)
 				i->extension->RemoveReference(currentElement->busInterface);
 			}
 
-			//Delete the bus interface
+			// Delete the bus interface
 			delete currentElement->busInterface;
 			_busInterfaces.erase(currentElement);
 		}
 	}
 
-	//Remove any devices which belong to the module
+	// Remove any devices which belong to the module
 	LoadedDeviceInfoList::iterator nextDeviceEntry = _loadedDeviceInfoList.begin();
 	while (nextDeviceEntry != _loadedDeviceInfoList.end())
 	{
@@ -4521,8 +4521,8 @@ void System::UnloadModuleInternal(unsigned int moduleID)
 		++nextDeviceEntry;
 		if (currentElement->moduleID == moduleID)
 		{
-			//Remove any references to this device, IE, through ReferenceDevice or
-			//SetDependentDevice.
+			// Remove any references to this device, IE, through ReferenceDevice or
+			// SetDependentDevice.
 			for (LoadedDeviceInfoList::const_iterator i = _loadedDeviceInfoList.begin(); i != _loadedDeviceInfoList.end(); ++i)
 			{
 				i->device->RemoveReference(currentElement->device);
@@ -4533,13 +4533,13 @@ void System::UnloadModuleInternal(unsigned int moduleID)
 				i->extension->RemoveReference(currentElement->device);
 			}
 
-			//Delete the device
+			// Delete the device
 			UnloadDevice(currentElement->device);
 			_loadedDeviceInfoList.erase(currentElement);
 		}
 	}
 
-	//Remove any extensions which belong to the module
+	// Remove any extensions which belong to the module
 	LoadedExtensionInfoList::iterator nextExtensionEntry = _loadedExtensionInfoList.begin();
 	while (nextExtensionEntry != _loadedExtensionInfoList.end())
 	{
@@ -4547,7 +4547,7 @@ void System::UnloadModuleInternal(unsigned int moduleID)
 		++nextExtensionEntry;
 		if (currentElement->moduleID == moduleID)
 		{
-			//Remove any references to this extension, IE, through ReferenceExtension.
+			// Remove any references to this extension, IE, through ReferenceExtension.
 			for (LoadedDeviceInfoList::const_iterator i = _loadedDeviceInfoList.begin(); i != _loadedDeviceInfoList.end(); ++i)
 			{
 				i->device->RemoveReference(currentElement->extension);
@@ -4557,13 +4557,13 @@ void System::UnloadModuleInternal(unsigned int moduleID)
 				i->extension->RemoveReference(currentElement->extension);
 			}
 
-			//Delete the extension
+			// Delete the extension
 			UnloadExtension(currentElement->extension);
 			_loadedExtensionInfoList.erase(currentElement);
 		}
 	}
 
-	//Remove references to any global extensions which are used by this module
+	// Remove references to any global extensions which are used by this module
 	LoadedGlobalExtensionInfoList::iterator nextGlobalExtensionEntry = _globalExtensionInfoList.begin();
 	while (nextGlobalExtensionEntry != _globalExtensionInfoList.end())
 	{
@@ -4571,14 +4571,14 @@ void System::UnloadModuleInternal(unsigned int moduleID)
 		LoadedGlobalExtensionInfo& extensionInfo = currentElement->second;
 		++nextGlobalExtensionEntry;
 
-		//Remove this module from the list of referencing modules for this global
-		//extension
+		// Remove this module from the list of referencing modules for this global
+		// extension
 		extensionInfo.moduleIDs.erase(moduleID);
 
-		//If the global extension is no longer referenced by any modules, remove it.
+		// If the global extension is no longer referenced by any modules, remove it.
 		if (!extensionInfo.persistentExtension && extensionInfo.moduleIDs.empty())
 		{
-			//Remove any references to this extension, IE, through ReferenceExtension.
+			// Remove any references to this extension, IE, through ReferenceExtension.
 			for (LoadedDeviceInfoList::const_iterator i = _loadedDeviceInfoList.begin(); i != _loadedDeviceInfoList.end(); ++i)
 			{
 				i->device->RemoveReference(extensionInfo.extension);
@@ -4588,13 +4588,13 @@ void System::UnloadModuleInternal(unsigned int moduleID)
 				i->extension->RemoveReference(extensionInfo.extension);
 			}
 
-			//Delete the extension
+			// Delete the extension
 			UnloadExtension(extensionInfo.extension);
 			_globalExtensionInfoList.erase(currentElement);
 		}
 	}
 
-	//Remove any clock source import entries which belong to the module
+	// Remove any clock source import entries which belong to the module
 	ImportedClockSourceList::iterator nextImportedClockSourceEntry = _importedClockSources.begin();
 	while (nextImportedClockSourceEntry != _importedClockSources.end())
 	{
@@ -4606,7 +4606,7 @@ void System::UnloadModuleInternal(unsigned int moduleID)
 		}
 	}
 
-	//Remove any system option import entries which belong to the module
+	// Remove any system option import entries which belong to the module
 	ImportedSystemSettingList::iterator nextImportedSystemSettingEntry = _importedSystemSettings.begin();
 	while (nextImportedSystemSettingEntry != _importedSystemSettings.end())
 	{
@@ -4618,7 +4618,7 @@ void System::UnloadModuleInternal(unsigned int moduleID)
 		}
 	}
 
-	//Remove any system line import entries which belong to the module
+	// Remove any system line import entries which belong to the module
 	ImportedSystemLineList::iterator nextImportedSystemLineEntry = _importedSystemLines.begin();
 	while (nextImportedSystemLineEntry != _importedSystemLines.end())
 	{
@@ -4630,7 +4630,7 @@ void System::UnloadModuleInternal(unsigned int moduleID)
 		}
 	}
 
-	//Remove any bus interface import entries which belong to this module
+	// Remove any bus interface import entries which belong to this module
 	ImportedBusInterfaceList::iterator nextImportedBusInterfaceEntry = _importedBusInterfaces.begin();
 	while (nextImportedBusInterfaceEntry != _importedBusInterfaces.end())
 	{
@@ -4642,7 +4642,7 @@ void System::UnloadModuleInternal(unsigned int moduleID)
 		}
 	}
 
-	//Remove any extension import entries which belong to this module
+	// Remove any extension import entries which belong to this module
 	ImportedExtensionInfoList::iterator nextImportedExtensionEntry = _importedExtensionInfoList.begin();
 	while (nextImportedExtensionEntry != _importedExtensionInfoList.end())
 	{
@@ -4654,7 +4654,7 @@ void System::UnloadModuleInternal(unsigned int moduleID)
 		}
 	}
 
-	//Remove any device import entries which belong to the module
+	// Remove any device import entries which belong to the module
 	ImportedDeviceInfoList::iterator nextImportedDeviceEntry = _importedDeviceInfoList.begin();
 	while (nextImportedDeviceEntry != _importedDeviceInfoList.end())
 	{
@@ -4666,7 +4666,7 @@ void System::UnloadModuleInternal(unsigned int moduleID)
 		}
 	}
 
-	//Remove any system lines defined by this module
+	// Remove any system lines defined by this module
 	SystemLineMap::iterator nextSystemLineEntry = _systemLines.begin();
 	while (nextSystemLineEntry != _systemLines.end())
 	{
@@ -4678,7 +4678,7 @@ void System::UnloadModuleInternal(unsigned int moduleID)
 		}
 	}
 
-	//Remove any system settings defined by this module
+	// Remove any system settings defined by this module
 	std::unique_lock<std::recursive_mutex> moduleSettingsLock(_moduleSettingMutex);
 	ModuleSystemSettingMap::iterator moduleSettingsEntry = _moduleSettings.find(moduleID);
 	if (moduleSettingsEntry != _moduleSettings.end())
@@ -4694,7 +4694,7 @@ void System::UnloadModuleInternal(unsigned int moduleID)
 	}
 	moduleSettingsLock.unlock();
 
-	//Remove any embedded ROM entries defined by this module
+	// Remove any embedded ROM entries defined by this module
 	std::unique_lock<std::mutex> embeddedROMLock(_embeddedROMMutex);
 	std::map<unsigned int, EmbeddedROMInfoInternal>::iterator nextEmbeddedROMInfoEntry = _embeddedROMInfoSet.begin();
 	while (nextEmbeddedROMInfoEntry != _embeddedROMInfoSet.end())
@@ -4709,14 +4709,14 @@ void System::UnloadModuleInternal(unsigned int moduleID)
 	}
 	embeddedROMLock.unlock();
 
-	//Remove this module from the list of loaded modules
+	// Remove this module from the list of loaded modules
 	_loadedModuleInfoMap.erase(moduleID);
 
-	//Assert the specified unmapped line state for any unmapped lines in the system that
-	//have an unmapped line state specified
+	// Assert the specified unmapped line state for any unmapped lines in the system that
+	// have an unmapped line state specified
 	for (UnmappedLineStateList::const_iterator i = _unmappedLineStateList.begin(); i != _unmappedLineStateList.end(); ++i)
 	{
-		//Retrieve information on the module that contains the target device
+		// Retrieve information on the module that contains the target device
 		LoadedModuleInfoMap::const_iterator deviceLoadedModuleIterator = _loadedModuleInfoMap.find(moduleID);
 		if (deviceLoadedModuleIterator == _loadedModuleInfoMap.end())
 		{
@@ -4724,15 +4724,15 @@ void System::UnloadModuleInternal(unsigned int moduleID)
 		}
 		const LoadedModuleInfoInternal& deviceModuleInfo = deviceLoadedModuleIterator->second;
 
-		//If the module which contains this device has not been validated, skip any
-		//further processing for this device.
+		// If the module which contains this device has not been validated, skip any
+		// further processing for this device.
 		if (!deviceModuleInfo.moduleValidated)
 		{
 			continue;
 		}
 
-		//Check if at least one mapping exists to the target line on the device with the
-		//unmapped line state setting
+		// Check if at least one mapping exists to the target line on the device with the
+		// unmapped line state setting
 		bool foundMappingToLine = false;
 		BusInterfaceList::const_iterator busInterfaceIterator = _busInterfaces.begin();
 		while (!foundMappingToLine && (busInterfaceIterator != _busInterfaces.end()))
@@ -4741,19 +4741,19 @@ void System::UnloadModuleInternal(unsigned int moduleID)
 			++busInterfaceIterator;
 		}
 
-		//If no mapping could be found to the target line, set the target line to the
-		//specified unmapped line state.
+		// If no mapping could be found to the target line, set the target line to the
+		// specified unmapped line state.
 		if (!foundMappingToLine)
 		{
 			i->targetDevice->TransparentSetLineState(i->lineNo, i->lineData);
 		}
 	}
 
-	//Update the name stack of the currently unloading module
+	// Update the name stack of the currently unloading module
 	PopUnloadModuleCurrentModuleName();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int System::GetFirstAvailableDeviceIndex() const
 {
 	bool deviceIndexFree;
@@ -4776,7 +4776,7 @@ unsigned int System::GetFirstAvailableDeviceIndex() const
 	return deviceIndex;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int System::GenerateFreeModuleID() const
 {
 	bool moduleIDFree;
@@ -4790,7 +4790,7 @@ unsigned int System::GenerateFreeModuleID() const
 	return moduleID;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int System::GenerateFreeConnectorID() const
 {
 	bool connectorIDFree;
@@ -4804,7 +4804,7 @@ unsigned int System::GenerateFreeConnectorID() const
 	return connectorID;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int System::GenerateFreeLineGroupID() const
 {
 	bool lineGroupIDFree;
@@ -4818,7 +4818,7 @@ unsigned int System::GenerateFreeLineGroupID() const
 	return lineGroupID;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int System::GenerateFreeSystemLineID() const
 {
 	bool systemLineIDFree;
@@ -4832,7 +4832,7 @@ unsigned int System::GenerateFreeSystemLineID() const
 	return systemLineID;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int System::GenerateFreeSystemSettingID() const
 {
 	bool systemSettingIDFree;
@@ -4846,7 +4846,7 @@ unsigned int System::GenerateFreeSystemSettingID() const
 	return systemSettingID;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int System::GenerateFreeEmbeddedROMID() const
 {
 	bool embeddedROMIDFree;
@@ -4860,10 +4860,10 @@ unsigned int System::GenerateFreeEmbeddedROMID() const
 	return embeddedROMID;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_Device(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
-	//Load the device class and instance names
+	// Load the device class and instance names
 	IHierarchicalStorageAttribute* deviceNameAttribute = node.GetAttribute(L"DeviceName");
 	IHierarchicalStorageAttribute* instanceNameAttribute = node.GetAttribute(L"InstanceName");
 	if ((deviceNameAttribute == 0) || (instanceNameAttribute == 0))
@@ -4874,7 +4874,7 @@ bool System::LoadModule_Device(IHierarchicalStorageNode& node, unsigned int modu
 	std::wstring deviceName = deviceNameAttribute->GetValue();
 	std::wstring instanceName = instanceNameAttribute->GetValue();
 
-	//Retrieve the optional DisplayName attribute
+	// Retrieve the optional DisplayName attribute
 	IHierarchicalStorageAttribute* displayNameAttribute = node.GetAttribute(L"DisplayName");
 	std::wstring displayName = instanceName;
 	if (displayNameAttribute != 0)
@@ -4882,7 +4882,7 @@ bool System::LoadModule_Device(IHierarchicalStorageNode& node, unsigned int modu
 		displayName = displayNameAttribute->GetValue();
 	}
 
-	//Create the new device object
+	// Create the new device object
 	IDevice* device = CreateDevice(deviceName, instanceName, moduleID);
 	if (device == 0)
 	{
@@ -4890,7 +4890,7 @@ bool System::LoadModule_Device(IHierarchicalStorageNode& node, unsigned int modu
 		return false;
 	}
 
-	//Bind to the system interface
+	// Bind to the system interface
 	if (!device->BindToSystemInterface(this))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BindToSystemInterface failed for  " + instanceName + L"!"));
@@ -4898,14 +4898,14 @@ bool System::LoadModule_Device(IHierarchicalStorageNode& node, unsigned int modu
 		return false;
 	}
 
-	//Create a new device context for this device
+	// Create a new device context for this device
 	DeviceContext* deviceContext = new DeviceContext(*device, *this);
 
-	//Associate this device with the first available device index number
+	// Associate this device with the first available device index number
 	unsigned int newDeviceIndexNumber = GetFirstAvailableDeviceIndex();
 	deviceContext->SetDeviceIndexNo(newDeviceIndexNumber);
 
-	//Bind our device to the device context object
+	// Bind our device to the device context object
 	if (!device->BindToDeviceContext(deviceContext))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BindToDeviceContext failed for  " + instanceName + L"!"));
@@ -4913,7 +4913,7 @@ bool System::LoadModule_Device(IHierarchicalStorageNode& node, unsigned int modu
 		return false;
 	}
 
-	//Construct the device object
+	// Construct the device object
 	if (!device->Construct(node))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Construct failed for " + instanceName + L"!"));
@@ -4921,8 +4921,8 @@ bool System::LoadModule_Device(IHierarchicalStorageNode& node, unsigned int modu
 		return false;
 	}
 
-	//Call BuildDevice() to perform any other required post-creation initialzation for the
-	//device
+	// Call BuildDevice() to perform any other required post-creation initialzation for the
+	// device
 	if (!device->BuildDevice())
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BuildDevice failed for " + instanceName + L"!"));
@@ -4930,7 +4930,7 @@ bool System::LoadModule_Device(IHierarchicalStorageNode& node, unsigned int modu
 		return false;
 	}
 
-	//Add the device object to the system
+	// Add the device object to the system
 	std::unique_lock<std::mutex> loadedElementLock(_loadedElementMutex);
 	LoadedDeviceInfo deviceInfo;
 	deviceInfo.moduleID = moduleID;
@@ -4946,10 +4946,10 @@ bool System::LoadModule_Device(IHierarchicalStorageNode& node, unsigned int modu
 
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_Device_SetDependentDevice(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
-	//Load the device names
+	// Load the device names
 	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 	IHierarchicalStorageAttribute* targetInstanceNameAttribute = node.GetAttribute(L"TargetInstanceName");
 	if ((deviceInstanceNameAttribute == 0) || (targetInstanceNameAttribute == 0))
@@ -4960,7 +4960,7 @@ bool System::LoadModule_Device_SetDependentDevice(IHierarchicalStorageNode& node
 	std::wstring deviceName = deviceInstanceNameAttribute->GetValue();
 	std::wstring targetName = targetInstanceNameAttribute->GetValue();
 
-	//Retrieve the specified devices from the system
+	// Retrieve the specified devices from the system
 	IDevice* device = GetDevice(moduleID, deviceName);
 	IDevice* target = GetDevice(moduleID, targetName);
 	if ((device == 0) || (target == 0))
@@ -4969,17 +4969,17 @@ bool System::LoadModule_Device_SetDependentDevice(IHierarchicalStorageNode& node
 		return false;
 	}
 
-	//Set the target device as a dependent device
+	// Set the target device as a dependent device
 	DeviceContext* deviceContext = (DeviceContext*)device->GetDeviceContext();
 	deviceContext->AddDeviceDependency((DeviceContext*)target->GetDeviceContext());
 
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_Device_ReferenceDevice(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
-	//Load the device names, and reference name.
+	// Load the device names, and reference name.
 	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 	IHierarchicalStorageAttribute* targetInstanceNameAttribute = node.GetAttribute(L"TargetInstanceName");
 	IHierarchicalStorageAttribute* referenceNameAttribute = node.GetAttribute(L"ReferenceName");
@@ -4992,7 +4992,7 @@ bool System::LoadModule_Device_ReferenceDevice(IHierarchicalStorageNode& node, u
 	std::wstring targetName = targetInstanceNameAttribute->GetValue();
 	std::wstring referenceName = referenceNameAttribute->GetValue();
 
-	//Retrieve the specified devices from the system
+	// Retrieve the specified devices from the system
 	IDevice* device = GetDevice(moduleID, deviceName);
 	IDevice* target = GetDevice(moduleID, targetName);
 	if ((device == 0) || (target == 0))
@@ -5001,7 +5001,7 @@ bool System::LoadModule_Device_ReferenceDevice(IHierarchicalStorageNode& node, u
 		return false;
 	}
 
-	//Add the specified device reference to the device
+	// Add the specified device reference to the device
 	if (!device->AddReference(referenceName, target))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Device.ReferenceDevice failed for reference from " + deviceName + L" to " + targetName + L" using reference name " + referenceName + L"!"));
@@ -5011,10 +5011,10 @@ bool System::LoadModule_Device_ReferenceDevice(IHierarchicalStorageNode& node, u
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_Device_ReferenceExtension(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
-	//Extract the GlobalExtensionName or ExtensionInstanceName attributes
+	// Extract the GlobalExtensionName or ExtensionInstanceName attributes
 	IHierarchicalStorageAttribute* extensionInstanceNameAttribute = node.GetAttribute(L"ExtensionInstanceName");
 	IHierarchicalStorageAttribute* globalExtensionNameAttribute = node.GetAttribute(L"GlobalExtensionName");
 	if ((extensionInstanceNameAttribute == 0) && (globalExtensionNameAttribute == 0))
@@ -5028,8 +5028,8 @@ bool System::LoadModule_Device_ReferenceExtension(IHierarchicalStorageNode& node
 		return false;
 	}
 
-	//Determine if a global extension is being referenced, and retrieve the name of the
-	//extension.
+	// Determine if a global extension is being referenced, and retrieve the name of the
+	// extension.
 	bool globalExtension = false;
 	std::wstring extensionName;
 	if (globalExtensionNameAttribute != 0)
@@ -5042,7 +5042,7 @@ bool System::LoadModule_Device_ReferenceExtension(IHierarchicalStorageNode& node
 		extensionName = extensionInstanceNameAttribute->GetValue();
 	}
 
-	//Retrieve the referenced extension
+	// Retrieve the referenced extension
 	IExtension* extension = 0;
 	if (globalExtension)
 	{
@@ -5067,7 +5067,7 @@ bool System::LoadModule_Device_ReferenceExtension(IHierarchicalStorageNode& node
 		}
 	}
 
-	//Load the device name and reference name.
+	// Load the device name and reference name.
 	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 	IHierarchicalStorageAttribute* referenceNameAttribute = node.GetAttribute(L"ReferenceName");
 	if ((deviceInstanceNameAttribute == 0) || (referenceNameAttribute == 0))
@@ -5078,7 +5078,7 @@ bool System::LoadModule_Device_ReferenceExtension(IHierarchicalStorageNode& node
 	std::wstring deviceName = deviceInstanceNameAttribute->GetValue();
 	std::wstring referenceName = referenceNameAttribute->GetValue();
 
-	//Retrieve the specified device object from the system
+	// Retrieve the specified device object from the system
 	IDevice* device = GetDevice(moduleID, deviceName);
 	if (device == 0)
 	{
@@ -5086,7 +5086,7 @@ bool System::LoadModule_Device_ReferenceExtension(IHierarchicalStorageNode& node
 		return false;
 	}
 
-	//Add the specified extension reference to the device
+	// Add the specified extension reference to the device
 	if (!device->AddReference(referenceName, extension))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Device.ReferenceExtension failed for reference from " + deviceName + L" to extension " + extensionName + L" using reference name " + referenceName + L"!"));
@@ -5096,10 +5096,10 @@ bool System::LoadModule_Device_ReferenceExtension(IHierarchicalStorageNode& node
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_Device_ReferenceBus(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
-	//Extract the BusInterfaceName attribute
+	// Extract the BusInterfaceName attribute
 	IHierarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
 	if (busInterfaceNameAttribute == 0)
 	{
@@ -5108,7 +5108,7 @@ bool System::LoadModule_Device_ReferenceBus(IHierarchicalStorageNode& node, unsi
 	}
 	std::wstring busInterfaceName = busInterfaceNameAttribute->GetValue();
 
-	//Retrieve the referenced bus interface
+	// Retrieve the referenced bus interface
 	BusInterface* busInterface = GetBusInterface(moduleID, busInterfaceName);
 	if (busInterface == 0)
 	{
@@ -5118,7 +5118,7 @@ bool System::LoadModule_Device_ReferenceBus(IHierarchicalStorageNode& node, unsi
 		return false;
 	}
 
-	//Load the device name and reference name.
+	// Load the device name and reference name.
 	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 	IHierarchicalStorageAttribute* referenceNameAttribute = node.GetAttribute(L"ReferenceName");
 	if ((deviceInstanceNameAttribute == 0) || (referenceNameAttribute == 0))
@@ -5129,7 +5129,7 @@ bool System::LoadModule_Device_ReferenceBus(IHierarchicalStorageNode& node, unsi
 	std::wstring deviceName = deviceInstanceNameAttribute->GetValue();
 	std::wstring referenceName = referenceNameAttribute->GetValue();
 
-	//Retrieve the specified device object from the system
+	// Retrieve the specified device object from the system
 	IDevice* device = GetDevice(moduleID, deviceName);
 	if (device == 0)
 	{
@@ -5137,7 +5137,7 @@ bool System::LoadModule_Device_ReferenceBus(IHierarchicalStorageNode& node, unsi
 		return false;
 	}
 
-	//Add the specified bus reference to the device
+	// Add the specified bus reference to the device
 	if (!device->AddReference(referenceName, busInterface))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Device.ReferenceBus failed for reference from " + deviceName + L" to bus " + busInterfaceName + L" using reference name " + referenceName + L"!"));
@@ -5147,10 +5147,10 @@ bool System::LoadModule_Device_ReferenceBus(IHierarchicalStorageNode& node, unsi
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_Device_ReferenceClockSource(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
-	//Load the clock source name, device name, and reference name.
+	// Load the clock source name, device name, and reference name.
 	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 	IHierarchicalStorageAttribute* clockSourceNameAttribute = node.GetAttribute(L"ClockSourceName");
 	IHierarchicalStorageAttribute* referenceNameAttribute = node.GetAttribute(L"ReferenceName");
@@ -5163,7 +5163,7 @@ bool System::LoadModule_Device_ReferenceClockSource(IHierarchicalStorageNode& no
 	std::wstring clockSourceName = clockSourceNameAttribute->GetValue();
 	std::wstring referenceName = referenceNameAttribute->GetValue();
 
-	//Retrieve the specified device from the system
+	// Retrieve the specified device from the system
 	IDevice* device = GetDevice(moduleID, deviceName);
 	if (device == 0)
 	{
@@ -5171,7 +5171,7 @@ bool System::LoadModule_Device_ReferenceClockSource(IHierarchicalStorageNode& no
 		return false;
 	}
 
-	//Retrieve the specified clock source from the system
+	// Retrieve the specified clock source from the system
 	IClockSource* clockSource = GetClockSource(moduleID, clockSourceName);
 	if (clockSource == 0)
 	{
@@ -5179,7 +5179,7 @@ bool System::LoadModule_Device_ReferenceClockSource(IHierarchicalStorageNode& no
 		return false;
 	}
 
-	//Add the specified clock source reference to the device
+	// Add the specified clock source reference to the device
 	if (!device->AddReference(referenceName, clockSource))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Device.ReferenceClockSource failed for reference from " + deviceName + L" to " + clockSourceName + L" using reference name " + referenceName + L"!"));
@@ -5189,10 +5189,10 @@ bool System::LoadModule_Device_ReferenceClockSource(IHierarchicalStorageNode& no
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_Device_RegisterInput(IHierarchicalStorageNode& node, unsigned int moduleID, std::list<InputRegistration>& inputRegistrationRequests)
 {
-	//Load the device name, system key code, and target key code.
+	// Load the device name, system key code, and target key code.
 	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 	IHierarchicalStorageAttribute* deviceKeyCodeAttribute = node.GetAttribute(L"DeviceKeyCode");
 	if ((deviceInstanceNameAttribute == 0) || (deviceKeyCodeAttribute == 0))
@@ -5203,7 +5203,7 @@ bool System::LoadModule_Device_RegisterInput(IHierarchicalStorageNode& node, uns
 	std::wstring deviceName = deviceInstanceNameAttribute->GetValue();
 	std::wstring deviceKeyCodeString = deviceKeyCodeAttribute->GetValue();
 
-	//Retrieve the specified device from the system
+	// Retrieve the specified device from the system
 	IDevice* device = GetDevice(moduleID, deviceName);
 	if (device == 0)
 	{
@@ -5211,7 +5211,7 @@ bool System::LoadModule_Device_RegisterInput(IHierarchicalStorageNode& node, uns
 		return false;
 	}
 
-	//Translate the device key code
+	// Translate the device key code
 	unsigned int deviceKeyCode = device->GetKeyCodeID(deviceKeyCodeString);
 	if (deviceKeyCode == 0)
 	{
@@ -5219,16 +5219,16 @@ bool System::LoadModule_Device_RegisterInput(IHierarchicalStorageNode& node, uns
 		return false;
 	}
 
-	//Retrieve the preferred system key code attribute if one has been specified
+	// Retrieve the preferred system key code attribute if one has been specified
 	bool preferredSystemKeyCodeSpecified = false;
 	KeyCode systemKeyCode = ISystemDeviceInterface::KeyCode::None;
 	IHierarchicalStorageAttribute* systemKeyCodeAttribute = node.GetAttribute(L"PreferredSystemKeyCode");
 	if (systemKeyCodeAttribute != 0)
 	{
-		//Extract the system key code string
+		// Extract the system key code string
 		std::wstring systemKeyCodeString = systemKeyCodeAttribute->GetValue();
 
-		//Translate the system key code
+		// Translate the system key code
 		systemKeyCode = GetKeyCodeID(systemKeyCodeString);
 		if (systemKeyCode == ISystemDeviceInterface::KeyCode::None)
 		{
@@ -5236,11 +5236,11 @@ bool System::LoadModule_Device_RegisterInput(IHierarchicalStorageNode& node, uns
 			return false;
 		}
 
-		//Flag that a preferred system key code has been specified
+		// Flag that a preferred system key code has been specified
 		preferredSystemKeyCodeSpecified = true;
 	}
 
-	//Add this input registration request to the list of input registration requests
+	// Add this input registration request to the list of input registration requests
 	InputRegistration inputRegistrationRequest;
 	inputRegistrationRequest.moduleID = moduleID;
 	inputRegistrationRequest.targetDevice = device;
@@ -5252,10 +5252,10 @@ bool System::LoadModule_Device_RegisterInput(IHierarchicalStorageNode& node, uns
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_GlobalExtension(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
-	//Load the extension class name
+	// Load the extension class name
 	IHierarchicalStorageAttribute* extensionNameAttribute = node.GetAttribute(L"ExtensionName");
 	if (extensionNameAttribute == 0)
 	{
@@ -5264,8 +5264,8 @@ bool System::LoadModule_GlobalExtension(IHierarchicalStorageNode& node, unsigned
 	}
 	std::wstring extensionName = extensionNameAttribute->GetValue();
 
-	//If the specified global extension is already loaded, add the calling module to the
-	//list of referencing modules, and abort any further processing.
+	// If the specified global extension is already loaded, add the calling module to the
+	// list of referencing modules, and abort any further processing.
 	LoadedGlobalExtensionInfoList::iterator loadedGlobalExtensionInfoIterator = _globalExtensionInfoList.find(extensionName);
 	if (loadedGlobalExtensionInfoIterator != _globalExtensionInfoList.end())
 	{
@@ -5273,7 +5273,7 @@ bool System::LoadModule_GlobalExtension(IHierarchicalStorageNode& node, unsigned
 		return true;
 	}
 
-	//Create the new extension object
+	// Create the new extension object
 	IExtension* extension = CreateGlobalExtension(extensionName);
 	if (extension == 0)
 	{
@@ -5281,7 +5281,7 @@ bool System::LoadModule_GlobalExtension(IHierarchicalStorageNode& node, unsigned
 		return false;
 	}
 
-	//Bind to the system interface
+	// Bind to the system interface
 	if (!extension->BindToSystemInterface(this))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BindToSystemInterface failed for  " + extensionName + L"!"));
@@ -5289,7 +5289,7 @@ bool System::LoadModule_GlobalExtension(IHierarchicalStorageNode& node, unsigned
 		return false;
 	}
 
-	//Bind to the GUI interface
+	// Bind to the GUI interface
 	if (!extension->BindToGUIInterface(&_guiExtensionInterface))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BindToGUIInterface failed for  " + extensionName + L"!"));
@@ -5297,7 +5297,7 @@ bool System::LoadModule_GlobalExtension(IHierarchicalStorageNode& node, unsigned
 		return false;
 	}
 
-	//Construct the extension object
+	// Construct the extension object
 	if (!extension->Construct(node))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Construct failed for " + extensionName + L"!"));
@@ -5305,8 +5305,8 @@ bool System::LoadModule_GlobalExtension(IHierarchicalStorageNode& node, unsigned
 		return false;
 	}
 
-	//Call BuildExtension() to perform any other required post-creation initialzation
-	//for the extension.
+	// Call BuildExtension() to perform any other required post-creation initialzation
+	// for the extension.
 	if (!extension->BuildExtension())
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BuildExtension failed for " + extensionName + L"!"));
@@ -5314,8 +5314,8 @@ bool System::LoadModule_GlobalExtension(IHierarchicalStorageNode& node, unsigned
 		return false;
 	}
 
-	//Record information on the loaded global extension, and add the specified module as a
-	//referencing module.
+	// Record information on the loaded global extension, and add the specified module as a
+	// referencing module.
 	std::unique_lock<std::mutex> loadedElementLock(_loadedElementMutex);
 	LoadedGlobalExtensionInfo extensionInfo;
 	extensionInfo.extension = extension;
@@ -5327,10 +5327,10 @@ bool System::LoadModule_GlobalExtension(IHierarchicalStorageNode& node, unsigned
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_Extension(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
-	//Load the extension class and instance names
+	// Load the extension class and instance names
 	IHierarchicalStorageAttribute* extensionNameAttribute = node.GetAttribute(L"ExtensionName");
 	IHierarchicalStorageAttribute* instanceNameAttribute = node.GetAttribute(L"InstanceName");
 	if ((extensionNameAttribute == 0) || (instanceNameAttribute == 0))
@@ -5341,7 +5341,7 @@ bool System::LoadModule_Extension(IHierarchicalStorageNode& node, unsigned int m
 	std::wstring extensionName = extensionNameAttribute->GetValue();
 	std::wstring instanceName = instanceNameAttribute->GetValue();
 
-	//Create the new extension object
+	// Create the new extension object
 	IExtension* extension = CreateExtension(extensionName, instanceName, moduleID);
 	if (extension == 0)
 	{
@@ -5349,7 +5349,7 @@ bool System::LoadModule_Extension(IHierarchicalStorageNode& node, unsigned int m
 		return false;
 	}
 
-	//Bind to the system interface
+	// Bind to the system interface
 	if (!extension->BindToSystemInterface(this))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BindToSystemInterface failed for  " + instanceName + L"!"));
@@ -5357,7 +5357,7 @@ bool System::LoadModule_Extension(IHierarchicalStorageNode& node, unsigned int m
 		return false;
 	}
 
-	//Bind to the GUI interface
+	// Bind to the GUI interface
 	if (!extension->BindToGUIInterface(&_guiExtensionInterface))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BindToGUIInterface failed for  " + instanceName + L"!"));
@@ -5365,7 +5365,7 @@ bool System::LoadModule_Extension(IHierarchicalStorageNode& node, unsigned int m
 		return false;
 	}
 
-	//Construct the extension object
+	// Construct the extension object
 	if (!extension->Construct(node))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Construct failed for " + instanceName + L"!"));
@@ -5373,8 +5373,8 @@ bool System::LoadModule_Extension(IHierarchicalStorageNode& node, unsigned int m
 		return false;
 	}
 
-	//Call BuildExtension() to perform any other required post-creation initialzation for
-	//the extension.
+	// Call BuildExtension() to perform any other required post-creation initialzation for
+	// the extension.
 	if (!extension->BuildExtension())
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BuildExtension failed for " + instanceName + L"!"));
@@ -5382,7 +5382,7 @@ bool System::LoadModule_Extension(IHierarchicalStorageNode& node, unsigned int m
 		return false;
 	}
 
-	//Save information on this loaded extension
+	// Save information on this loaded extension
 	std::unique_lock<std::mutex> loadedElementLock(_loadedElementMutex);
 	LoadedExtensionInfo extensionInfo;
 	extensionInfo.moduleID = moduleID;
@@ -5393,10 +5393,10 @@ bool System::LoadModule_Extension(IHierarchicalStorageNode& node, unsigned int m
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_Extension_ReferenceDevice(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
-	//Extract the ExtensionInstanceName attribute
+	// Extract the ExtensionInstanceName attribute
 	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 	if (deviceInstanceNameAttribute == 0)
 	{
@@ -5405,7 +5405,7 @@ bool System::LoadModule_Extension_ReferenceDevice(IHierarchicalStorageNode& node
 	}
 	std::wstring deviceInstanceName = deviceInstanceNameAttribute->GetValue();
 
-	//Retrieve the referenced device
+	// Retrieve the referenced device
 	IDevice* device = GetDevice(moduleID, deviceInstanceName);
 	if (device == 0)
 	{
@@ -5415,7 +5415,7 @@ bool System::LoadModule_Extension_ReferenceDevice(IHierarchicalStorageNode& node
 		return false;
 	}
 
-	//Load the device name and reference name.
+	// Load the device name and reference name.
 	IHierarchicalStorageAttribute* extensionInstanceNameAttribute = node.GetAttribute(L"ExtensionInstanceName");
 	IHierarchicalStorageAttribute* referenceNameAttribute = node.GetAttribute(L"ReferenceName");
 	if ((extensionInstanceNameAttribute == 0) || (referenceNameAttribute == 0))
@@ -5426,7 +5426,7 @@ bool System::LoadModule_Extension_ReferenceDevice(IHierarchicalStorageNode& node
 	std::wstring extensionName = extensionInstanceNameAttribute->GetValue();
 	std::wstring referenceName = referenceNameAttribute->GetValue();
 
-	//Retrieve the specified extension object from the system
+	// Retrieve the specified extension object from the system
 	IExtension* extension = GetExtension(moduleID, extensionName);
 	if (extension == 0)
 	{
@@ -5434,7 +5434,7 @@ bool System::LoadModule_Extension_ReferenceDevice(IHierarchicalStorageNode& node
 		return false;
 	}
 
-	//Add the specified device reference to the extension
+	// Add the specified device reference to the extension
 	if (!extension->AddReference(referenceName, device))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Extension.ReferenceDevice failed for reference from " + extensionName + L" to device " + deviceInstanceName + L" using reference name " + referenceName + L"!"));
@@ -5444,10 +5444,10 @@ bool System::LoadModule_Extension_ReferenceDevice(IHierarchicalStorageNode& node
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_Extension_ReferenceExtension(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
-	//Extract the GlobalExtensionName or ExtensionInstanceName attributes
+	// Extract the GlobalExtensionName or ExtensionInstanceName attributes
 	IHierarchicalStorageAttribute* targetInstanceNameAttribute = node.GetAttribute(L"TargetInstanceName");
 	IHierarchicalStorageAttribute* targetGlobalExtensionNameAttribute = node.GetAttribute(L"TargetGlobalExtensionName");
 	if ((targetInstanceNameAttribute == 0) && (targetGlobalExtensionNameAttribute == 0))
@@ -5461,8 +5461,8 @@ bool System::LoadModule_Extension_ReferenceExtension(IHierarchicalStorageNode& n
 		return false;
 	}
 
-	//Determine if a global extension is being referenced, and retrieve the name of the
-	//extension.
+	// Determine if a global extension is being referenced, and retrieve the name of the
+	// extension.
 	bool globalExtensionTarget = false;
 	std::wstring targetExtensionName;
 	if (targetGlobalExtensionNameAttribute != 0)
@@ -5475,7 +5475,7 @@ bool System::LoadModule_Extension_ReferenceExtension(IHierarchicalStorageNode& n
 		targetExtensionName = targetInstanceNameAttribute->GetValue();
 	}
 
-	//Retrieve the referenced extension
+	// Retrieve the referenced extension
 	IExtension* target = 0;
 	if (globalExtensionTarget)
 	{
@@ -5500,7 +5500,7 @@ bool System::LoadModule_Extension_ReferenceExtension(IHierarchicalStorageNode& n
 		}
 	}
 
-	//Load the ExtensionInstanceName and ReferenceName attributes
+	// Load the ExtensionInstanceName and ReferenceName attributes
 	IHierarchicalStorageAttribute* extensionInstanceNameAttribute = node.GetAttribute(L"ExtensionInstanceName");
 	IHierarchicalStorageAttribute* referenceNameAttribute = node.GetAttribute(L"ReferenceName");
 	if ((extensionInstanceNameAttribute == 0) || (referenceNameAttribute == 0))
@@ -5511,7 +5511,7 @@ bool System::LoadModule_Extension_ReferenceExtension(IHierarchicalStorageNode& n
 	std::wstring extensionName = extensionInstanceNameAttribute->GetValue();
 	std::wstring referenceName = referenceNameAttribute->GetValue();
 
-	//Retrieve the specified extensions from the system
+	// Retrieve the specified extensions from the system
 	IExtension* extension = GetExtension(moduleID, extensionName);
 	if (extension == 0)
 	{
@@ -5519,7 +5519,7 @@ bool System::LoadModule_Extension_ReferenceExtension(IHierarchicalStorageNode& n
 		return false;
 	}
 
-	//Add the specified extension reference to the extension
+	// Add the specified extension reference to the extension
 	if (!extension->AddReference(referenceName, target))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Extension.ReferenceExtension failed for reference from " + extensionName + L" to " + targetExtensionName + L" using reference name " + referenceName + L"!"));
@@ -5529,10 +5529,10 @@ bool System::LoadModule_Extension_ReferenceExtension(IHierarchicalStorageNode& n
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_Extension_ReferenceBus(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
-	//Extract the BusInterfaceName attribute
+	// Extract the BusInterfaceName attribute
 	IHierarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
 	if (busInterfaceNameAttribute == 0)
 	{
@@ -5541,7 +5541,7 @@ bool System::LoadModule_Extension_ReferenceBus(IHierarchicalStorageNode& node, u
 	}
 	std::wstring busInterfaceName = busInterfaceNameAttribute->GetValue();
 
-	//Retrieve the referenced bus interface
+	// Retrieve the referenced bus interface
 	BusInterface* busInterface = GetBusInterface(moduleID, busInterfaceName);
 	if (busInterface == 0)
 	{
@@ -5551,7 +5551,7 @@ bool System::LoadModule_Extension_ReferenceBus(IHierarchicalStorageNode& node, u
 		return false;
 	}
 
-	//Load the extension name and reference name.
+	// Load the extension name and reference name.
 	IHierarchicalStorageAttribute* extensionInstanceNameAttribute = node.GetAttribute(L"ExtensionInstanceName");
 	IHierarchicalStorageAttribute* referenceNameAttribute = node.GetAttribute(L"ReferenceName");
 	if ((extensionInstanceNameAttribute == 0) || (referenceNameAttribute == 0))
@@ -5562,7 +5562,7 @@ bool System::LoadModule_Extension_ReferenceBus(IHierarchicalStorageNode& node, u
 	std::wstring extensionName = extensionInstanceNameAttribute->GetValue();
 	std::wstring referenceName = referenceNameAttribute->GetValue();
 
-	//Retrieve the specified extension object from the system
+	// Retrieve the specified extension object from the system
 	IExtension* extension = GetExtension(moduleID, extensionName);
 	if (extension == 0)
 	{
@@ -5570,7 +5570,7 @@ bool System::LoadModule_Extension_ReferenceBus(IHierarchicalStorageNode& node, u
 		return false;
 	}
 
-	//Add the specified bus reference to the device
+	// Add the specified bus reference to the device
 	if (!extension->AddReference(referenceName, busInterface))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Extension.ReferenceBus failed for reference from " + extensionName + L" to bus " + busInterfaceName + L" using reference name " + referenceName + L"!"));
@@ -5580,10 +5580,10 @@ bool System::LoadModule_Extension_ReferenceBus(IHierarchicalStorageNode& node, u
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_Extension_ReferenceClockSource(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
-	//Load the clock source name, device name, and reference name.
+	// Load the clock source name, device name, and reference name.
 	IHierarchicalStorageAttribute* extensionInstanceNameAttribute = node.GetAttribute(L"ExtensionInstanceName");
 	IHierarchicalStorageAttribute* clockSourceNameAttribute = node.GetAttribute(L"ClockSourceName");
 	IHierarchicalStorageAttribute* referenceNameAttribute = node.GetAttribute(L"ReferenceName");
@@ -5596,7 +5596,7 @@ bool System::LoadModule_Extension_ReferenceClockSource(IHierarchicalStorageNode&
 	std::wstring clockSourceName = clockSourceNameAttribute->GetValue();
 	std::wstring referenceName = referenceNameAttribute->GetValue();
 
-	//Retrieve the specified extension from the system
+	// Retrieve the specified extension from the system
 	IExtension* extension = GetExtension(moduleID, extensionName);
 	if (extension == 0)
 	{
@@ -5604,7 +5604,7 @@ bool System::LoadModule_Extension_ReferenceClockSource(IHierarchicalStorageNode&
 		return false;
 	}
 
-	//Retrieve the specified clock source from the system
+	// Retrieve the specified clock source from the system
 	IClockSource* clockSource = GetClockSource(moduleID, clockSourceName);
 	if (clockSource == 0)
 	{
@@ -5612,7 +5612,7 @@ bool System::LoadModule_Extension_ReferenceClockSource(IHierarchicalStorageNode&
 		return false;
 	}
 
-	//Add the specified clock source reference to the device
+	// Add the specified clock source reference to the device
 	if (!extension->AddReference(referenceName, clockSource))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Extension.ReferenceClockSource failed for reference from " + extensionName + L" to " + clockSourceName + L" using reference name " + referenceName + L"!"));
@@ -5622,10 +5622,10 @@ bool System::LoadModule_Extension_ReferenceClockSource(IHierarchicalStorageNode&
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_BusInterface(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
-	//Load the bus name
+	// Load the bus name
 	IHierarchicalStorageAttribute* nameAttribute = node.GetAttribute(L"Name");
 	if (nameAttribute == 0)
 	{
@@ -5634,7 +5634,7 @@ bool System::LoadModule_BusInterface(IHierarchicalStorageNode& node, unsigned in
 	}
 	std::wstring busInterfaceName = nameAttribute->GetValue();
 
-	//Ensure a bus object with the specified name doesn't already exist in the system
+	// Ensure a bus object with the specified name doesn't already exist in the system
 	for (BusInterfaceList::const_iterator i = _busInterfaces.begin(); i != _busInterfaces.end(); ++i)
 	{
 		const LoadedBusInfo& busInfo = *i;
@@ -5645,7 +5645,7 @@ bool System::LoadModule_BusInterface(IHierarchicalStorageNode& node, unsigned in
 		}
 	}
 
-	//Create and construct a new bus interface object
+	// Create and construct a new bus interface object
 	BusInterface* busInterface = new BusInterface();
 	if (!busInterface->Construct(node))
 	{
@@ -5654,7 +5654,7 @@ bool System::LoadModule_BusInterface(IHierarchicalStorageNode& node, unsigned in
 		return false;
 	}
 
-	//Add the bus interface object to the system
+	// Add the bus interface object to the system
 	std::unique_lock<std::mutex> loadedElementLock(_loadedElementMutex);
 	LoadedBusInfo busInfo;
 	busInfo.busInterface = busInterface;
@@ -5665,16 +5665,16 @@ bool System::LoadModule_BusInterface(IHierarchicalStorageNode& node, unsigned in
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_BusInterface_DefineLineGroup(IHierarchicalStorageNode& node, unsigned int moduleID, NameToIDMap& lineGroupNameToIDMap)
 {
-	//Locate the bus interface name and module ID
+	// Locate the bus interface name and module ID
 	IHierarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
 	std::wstring busInterfaceName;
 	unsigned int busInterfaceModuleID;
 	if ((busInterfaceNameAttribute != 0))
 	{
-		//Save the target bus interface name and module ID
+		// Save the target bus interface name and module ID
 		busInterfaceName = busInterfaceNameAttribute->GetValue();
 		busInterfaceModuleID = moduleID;
 	}
@@ -5684,7 +5684,7 @@ bool System::LoadModule_BusInterface_DefineLineGroup(IHierarchicalStorageNode& n
 		return false;
 	}
 
-	//Extract the LineGroupName attribute
+	// Extract the LineGroupName attribute
 	IHierarchicalStorageAttribute* lineGroupNameAttribute = node.GetAttribute(L"LineGroupName");
 	if (lineGroupNameAttribute == 0)
 	{
@@ -5693,7 +5693,7 @@ bool System::LoadModule_BusInterface_DefineLineGroup(IHierarchicalStorageNode& n
 	}
 	std::wstring lineGroupName = lineGroupNameAttribute->GetValue();
 
-	//Retrieve the referenced bus interface
+	// Retrieve the referenced bus interface
 	BusInterface* busInterface = GetBusInterface(busInterfaceModuleID, busInterfaceName);
 	if (busInterface == 0)
 	{
@@ -5703,29 +5703,29 @@ bool System::LoadModule_BusInterface_DefineLineGroup(IHierarchicalStorageNode& n
 		return false;
 	}
 
-	//Add details of this line group to the list of line groups which have been defined
+	// Add details of this line group to the list of line groups which have been defined
 	LineGroupDetails lineGroupDetails;
 	lineGroupDetails.lineGroupID = GenerateFreeLineGroupID();
 	lineGroupDetails.busInterface = busInterface;
 	lineGroupDetails.lineGroupName = lineGroupName;
 	_lineGroupDetailsMap.insert(LineGroupDetailsMapEntry(lineGroupDetails.lineGroupID, lineGroupDetails));
 
-	//Add a mapping for this line group name back to the line group ID
+	// Add a mapping for this line group name back to the line group ID
 	lineGroupNameToIDMap.insert(NameToIDMapEntry(lineGroupName, lineGroupDetails.lineGroupID));
 
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_BusInterface_DefineCELineMemory(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
-	//Locate the bus interface name and module ID
+	// Locate the bus interface name and module ID
 	IHierarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
 	std::wstring busInterfaceName;
 	unsigned int busInterfaceModuleID;
 	if ((busInterfaceNameAttribute != 0))
 	{
-		//Save the target bus interface name and module ID
+		// Save the target bus interface name and module ID
 		busInterfaceName = busInterfaceNameAttribute->GetValue();
 		busInterfaceModuleID = moduleID;
 	}
@@ -5735,7 +5735,7 @@ bool System::LoadModule_BusInterface_DefineCELineMemory(IHierarchicalStorageNode
 		return false;
 	}
 
-	//Retrieve the referenced bus interface
+	// Retrieve the referenced bus interface
 	BusInterface* busInterface = GetBusInterface(busInterfaceModuleID, busInterfaceName);
 	if (busInterface == 0)
 	{
@@ -5745,7 +5745,7 @@ bool System::LoadModule_BusInterface_DefineCELineMemory(IHierarchicalStorageNode
 		return false;
 	}
 
-	//Define the CE line in the referenced bus interface
+	// Define the CE line in the referenced bus interface
 	if (!busInterface->DefineCELineMemory(node))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BusInterface.DefineCELineMemory failed on bus " + busInterfaceName + L"!"));
@@ -5755,16 +5755,16 @@ bool System::LoadModule_BusInterface_DefineCELineMemory(IHierarchicalStorageNode
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_BusInterface_DefineCELinePort(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
-	//Locate the bus interface name and module ID
+	// Locate the bus interface name and module ID
 	IHierarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
 	std::wstring busInterfaceName;
 	unsigned int busInterfaceModuleID;
 	if ((busInterfaceNameAttribute != 0))
 	{
-		//Save the target bus interface name and module ID
+		// Save the target bus interface name and module ID
 		busInterfaceName = busInterfaceNameAttribute->GetValue();
 		busInterfaceModuleID = moduleID;
 	}
@@ -5774,7 +5774,7 @@ bool System::LoadModule_BusInterface_DefineCELinePort(IHierarchicalStorageNode& 
 		return false;
 	}
 
-	//Retrieve the referenced bus interface
+	// Retrieve the referenced bus interface
 	BusInterface* busInterface = GetBusInterface(busInterfaceModuleID, busInterfaceName);
 	if (busInterface == 0)
 	{
@@ -5784,7 +5784,7 @@ bool System::LoadModule_BusInterface_DefineCELinePort(IHierarchicalStorageNode& 
 		return false;
 	}
 
-	//Define the CE line in the referenced bus interface
+	// Define the CE line in the referenced bus interface
 	if (!busInterface->DefineCELinePort(node))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BusInterface.DefineCELinePort failed on bus " + busInterfaceName + L"!"));
@@ -5794,16 +5794,16 @@ bool System::LoadModule_BusInterface_DefineCELinePort(IHierarchicalStorageNode& 
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_BusInterface_MapCELineInputMemory(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
-	//Locate the bus interface name and module ID
+	// Locate the bus interface name and module ID
 	IHierarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
 	std::wstring busInterfaceName;
 	unsigned int busInterfaceModuleID;
 	if ((busInterfaceNameAttribute != 0))
 	{
-		//Save the target bus interface name and module ID
+		// Save the target bus interface name and module ID
 		busInterfaceName = busInterfaceNameAttribute->GetValue();
 		busInterfaceModuleID = moduleID;
 	}
@@ -5813,7 +5813,7 @@ bool System::LoadModule_BusInterface_MapCELineInputMemory(IHierarchicalStorageNo
 		return false;
 	}
 
-	//Retrieve the referenced bus interface
+	// Retrieve the referenced bus interface
 	BusInterface* busInterface = GetBusInterface(busInterfaceModuleID, busInterfaceName);
 	if (busInterface == 0)
 	{
@@ -5823,7 +5823,7 @@ bool System::LoadModule_BusInterface_MapCELineInputMemory(IHierarchicalStorageNo
 		return false;
 	}
 
-	//Load the device name
+	// Load the device name
 	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 	if (deviceInstanceNameAttribute == 0)
 	{
@@ -5832,7 +5832,7 @@ bool System::LoadModule_BusInterface_MapCELineInputMemory(IHierarchicalStorageNo
 	}
 	std::wstring deviceName = deviceInstanceNameAttribute->GetValue();
 
-	//Retrieve the device object from the system
+	// Retrieve the device object from the system
 	IDevice* device = GetDevice(moduleID, deviceName);
 	if (device == 0)
 	{
@@ -5840,7 +5840,7 @@ bool System::LoadModule_BusInterface_MapCELineInputMemory(IHierarchicalStorageNo
 		return false;
 	}
 
-	//Define the CE line in the referenced bus interface
+	// Define the CE line in the referenced bus interface
 	if (!busInterface->MapCELineInputMemory(device, node))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BusInterface.MapCELineInputMemory failed for " + deviceName + L" on bus " + busInterfaceName + L"!"));
@@ -5850,16 +5850,16 @@ bool System::LoadModule_BusInterface_MapCELineInputMemory(IHierarchicalStorageNo
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_BusInterface_MapCELineInputPort(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
-	//Locate the bus interface name and module ID
+	// Locate the bus interface name and module ID
 	IHierarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
 	std::wstring busInterfaceName;
 	unsigned int busInterfaceModuleID;
 	if ((busInterfaceNameAttribute != 0))
 	{
-		//Save the target bus interface name and module ID
+		// Save the target bus interface name and module ID
 		busInterfaceName = busInterfaceNameAttribute->GetValue();
 		busInterfaceModuleID = moduleID;
 	}
@@ -5869,7 +5869,7 @@ bool System::LoadModule_BusInterface_MapCELineInputPort(IHierarchicalStorageNode
 		return false;
 	}
 
-	//Retrieve the referenced bus interface
+	// Retrieve the referenced bus interface
 	BusInterface* busInterface = GetBusInterface(busInterfaceModuleID, busInterfaceName);
 	if (busInterface == 0)
 	{
@@ -5879,7 +5879,7 @@ bool System::LoadModule_BusInterface_MapCELineInputPort(IHierarchicalStorageNode
 		return false;
 	}
 
-	//Load the device name
+	// Load the device name
 	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 	if (deviceInstanceNameAttribute == 0)
 	{
@@ -5888,7 +5888,7 @@ bool System::LoadModule_BusInterface_MapCELineInputPort(IHierarchicalStorageNode
 	}
 	std::wstring deviceName = deviceInstanceNameAttribute->GetValue();
 
-	//Retrieve the device object from the system
+	// Retrieve the device object from the system
 	IDevice* device = GetDevice(moduleID, deviceName);
 	if (device == 0)
 	{
@@ -5896,7 +5896,7 @@ bool System::LoadModule_BusInterface_MapCELineInputPort(IHierarchicalStorageNode
 		return false;
 	}
 
-	//Define the CE line in the referenced bus interface
+	// Define the CE line in the referenced bus interface
 	if (!busInterface->MapCELineInputPort(device, node))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BusInterface.MapCELineInputPort failed for " + deviceName + L" on bus " + busInterfaceName + L"!"));
@@ -5906,16 +5906,16 @@ bool System::LoadModule_BusInterface_MapCELineInputPort(IHierarchicalStorageNode
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_BusInterface_MapCELineOutputMemory(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
-	//Locate the bus interface name and module ID
+	// Locate the bus interface name and module ID
 	IHierarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
 	std::wstring busInterfaceName;
 	unsigned int busInterfaceModuleID;
 	if ((busInterfaceNameAttribute != 0))
 	{
-		//Save the target bus interface name and module ID
+		// Save the target bus interface name and module ID
 		busInterfaceName = busInterfaceNameAttribute->GetValue();
 		busInterfaceModuleID = moduleID;
 	}
@@ -5925,7 +5925,7 @@ bool System::LoadModule_BusInterface_MapCELineOutputMemory(IHierarchicalStorageN
 		return false;
 	}
 
-	//Retrieve the referenced bus interface
+	// Retrieve the referenced bus interface
 	BusInterface* busInterface = GetBusInterface(busInterfaceModuleID, busInterfaceName);
 	if (busInterface == 0)
 	{
@@ -5935,7 +5935,7 @@ bool System::LoadModule_BusInterface_MapCELineOutputMemory(IHierarchicalStorageN
 		return false;
 	}
 
-	//Load the device name
+	// Load the device name
 	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 	if (deviceInstanceNameAttribute == 0)
 	{
@@ -5944,7 +5944,7 @@ bool System::LoadModule_BusInterface_MapCELineOutputMemory(IHierarchicalStorageN
 	}
 	std::wstring deviceName = deviceInstanceNameAttribute->GetValue();
 
-	//Retrieve the device object from the system
+	// Retrieve the device object from the system
 	IDevice* device = GetDevice(moduleID, deviceName);
 	if (device == 0)
 	{
@@ -5952,7 +5952,7 @@ bool System::LoadModule_BusInterface_MapCELineOutputMemory(IHierarchicalStorageN
 		return false;
 	}
 
-	//Define the CE line in the referenced bus interface
+	// Define the CE line in the referenced bus interface
 	if (!busInterface->MapCELineOutputMemory(device, node))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BusInterface.MapCELineOutputMemory failed for " + deviceName + L" on bus " + busInterfaceName + L"!"));
@@ -5962,16 +5962,16 @@ bool System::LoadModule_BusInterface_MapCELineOutputMemory(IHierarchicalStorageN
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_BusInterface_MapCELineOutputPort(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
-	//Locate the bus interface name and module ID
+	// Locate the bus interface name and module ID
 	IHierarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
 	std::wstring busInterfaceName;
 	unsigned int busInterfaceModuleID;
 	if ((busInterfaceNameAttribute != 0))
 	{
-		//Save the target bus interface name and module ID
+		// Save the target bus interface name and module ID
 		busInterfaceName = busInterfaceNameAttribute->GetValue();
 		busInterfaceModuleID = moduleID;
 	}
@@ -5981,7 +5981,7 @@ bool System::LoadModule_BusInterface_MapCELineOutputPort(IHierarchicalStorageNod
 		return false;
 	}
 
-	//Retrieve the referenced bus interface
+	// Retrieve the referenced bus interface
 	BusInterface* busInterface = GetBusInterface(busInterfaceModuleID, busInterfaceName);
 	if (busInterface == 0)
 	{
@@ -5991,7 +5991,7 @@ bool System::LoadModule_BusInterface_MapCELineOutputPort(IHierarchicalStorageNod
 		return false;
 	}
 
-	//Load the device name
+	// Load the device name
 	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 	if (deviceInstanceNameAttribute == 0)
 	{
@@ -6000,7 +6000,7 @@ bool System::LoadModule_BusInterface_MapCELineOutputPort(IHierarchicalStorageNod
 	}
 	std::wstring deviceName = deviceInstanceNameAttribute->GetValue();
 
-	//Retrieve the device object from the system
+	// Retrieve the device object from the system
 	IDevice* device = GetDevice(moduleID, deviceName);
 	if (device == 0)
 	{
@@ -6008,7 +6008,7 @@ bool System::LoadModule_BusInterface_MapCELineOutputPort(IHierarchicalStorageNod
 		return false;
 	}
 
-	//Define the CE line in the referenced bus interface
+	// Define the CE line in the referenced bus interface
 	if (!busInterface->MapCELineOutputPort(device, node))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BusInterface.MapCELineOutputPort failed for " + deviceName + L" on bus " + busInterfaceName + L"!"));
@@ -6018,10 +6018,10 @@ bool System::LoadModule_BusInterface_MapCELineOutputPort(IHierarchicalStorageNod
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_BusInterface_MapDevice(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
-	//Extract the BusInterfaceName attribute
+	// Extract the BusInterfaceName attribute
 	IHierarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
 	if (busInterfaceNameAttribute == 0)
 	{
@@ -6030,7 +6030,7 @@ bool System::LoadModule_BusInterface_MapDevice(IHierarchicalStorageNode& node, u
 	}
 	std::wstring busInterfaceName = busInterfaceNameAttribute->GetValue();
 
-	//Retrieve the referenced bus interface
+	// Retrieve the referenced bus interface
 	BusInterface* busInterface = GetBusInterface(moduleID, busInterfaceName);
 	if (busInterface == 0)
 	{
@@ -6040,7 +6040,7 @@ bool System::LoadModule_BusInterface_MapDevice(IHierarchicalStorageNode& node, u
 		return false;
 	}
 
-	//Load the device name
+	// Load the device name
 	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 	if (deviceInstanceNameAttribute == 0)
 	{
@@ -6049,7 +6049,7 @@ bool System::LoadModule_BusInterface_MapDevice(IHierarchicalStorageNode& node, u
 	}
 	std::wstring deviceName = deviceInstanceNameAttribute->GetValue();
 
-	//Retrieve the device object from the system
+	// Retrieve the device object from the system
 	IDevice* device = GetDevice(moduleID, deviceName);
 	if (device == 0)
 	{
@@ -6057,7 +6057,7 @@ bool System::LoadModule_BusInterface_MapDevice(IHierarchicalStorageNode& node, u
 		return false;
 	}
 
-	//Add the bus interface mapping
+	// Add the bus interface mapping
 	if (!busInterface->MapDevice(device, node))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BusInterface.MapDevice failed for " + deviceName + L" on bus " + busInterfaceName + L"!"));
@@ -6067,10 +6067,10 @@ bool System::LoadModule_BusInterface_MapDevice(IHierarchicalStorageNode& node, u
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_BusInterface_MapPort(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
-	//Extract the BusInterfaceName attribute
+	// Extract the BusInterfaceName attribute
 	IHierarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
 	if (busInterfaceNameAttribute == 0)
 	{
@@ -6079,7 +6079,7 @@ bool System::LoadModule_BusInterface_MapPort(IHierarchicalStorageNode& node, uns
 	}
 	std::wstring busInterfaceName = busInterfaceNameAttribute->GetValue();
 
-	//Retrieve the referenced bus interface
+	// Retrieve the referenced bus interface
 	BusInterface* busInterface = GetBusInterface(moduleID, busInterfaceName);
 	if (busInterface == 0)
 	{
@@ -6089,7 +6089,7 @@ bool System::LoadModule_BusInterface_MapPort(IHierarchicalStorageNode& node, uns
 		return false;
 	}
 
-	//Load the device name
+	// Load the device name
 	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 	if (deviceInstanceNameAttribute == 0)
 	{
@@ -6098,7 +6098,7 @@ bool System::LoadModule_BusInterface_MapPort(IHierarchicalStorageNode& node, uns
 	}
 	std::wstring deviceName = deviceInstanceNameAttribute->GetValue();
 
-	//Retrieve the device object from the system
+	// Retrieve the device object from the system
 	IDevice* device = GetDevice(moduleID, deviceName);
 	if (device == 0)
 	{
@@ -6106,7 +6106,7 @@ bool System::LoadModule_BusInterface_MapPort(IHierarchicalStorageNode& node, uns
 		return false;
 	}
 
-	//Add the bus interface mapping
+	// Add the bus interface mapping
 	if (!busInterface->MapPort(device, node))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BusInterface.MapPort failed for " + deviceName + L" on bus " + busInterfaceName + L"!"));
@@ -6116,11 +6116,11 @@ bool System::LoadModule_BusInterface_MapPort(IHierarchicalStorageNode& node, uns
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_BusInterface_MapLine(IHierarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& lineGroupNameToIDMap)
 {
-	//Attempt to extract all possible attributes defining the source and target of the
-	//line mapping.
+	// Attempt to extract all possible attributes defining the source and target of the
+	// line mapping.
 	IHierarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
 	IHierarchicalStorageAttribute* sourceDeviceNameAttribute = node.GetAttribute(L"SourceDeviceInstanceName");
 	IHierarchicalStorageAttribute* sourceLineGroupNameAttribute = node.GetAttribute(L"SourceLineGroupName");
@@ -6128,12 +6128,12 @@ bool System::LoadModule_BusInterface_MapLine(IHierarchicalStorageNode& node, uns
 	IHierarchicalStorageAttribute* targetLineGroupNameAttribute = node.GetAttribute(L"TargetLineGroupName");
 	if ((sourceDeviceNameAttribute != 0) && (targetDeviceNameAttribute != 0) && (busInterfaceNameAttribute != 0))
 	{
-		//Load the bus, source device, and target device names.
+		// Load the bus, source device, and target device names.
 		std::wstring sourceDeviceName = sourceDeviceNameAttribute->GetValue();
 		std::wstring targetDeviceName = targetDeviceNameAttribute->GetValue();
 		std::wstring busInterfaceName = busInterfaceNameAttribute->GetValue();
 
-		//Retrieve the bus, source device, and target device objects from the system.
+		// Retrieve the bus, source device, and target device objects from the system.
 		BusInterface* busInterface = GetBusInterface(moduleID, busInterfaceName);
 		IDevice* sourceDevice = GetDevice(moduleID, sourceDeviceName);
 		IDevice* targetDevice = GetDevice(moduleID, targetDeviceName);
@@ -6143,7 +6143,7 @@ bool System::LoadModule_BusInterface_MapLine(IHierarchicalStorageNode& node, uns
 			return false;
 		}
 
-		//Add the bus interface mapping
+		// Add the bus interface mapping
 		if (!busInterface->MapLine(sourceDevice, targetDevice, node))
 		{
 			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BusInterface.MapLine failed for mapping from \"" + sourceDeviceName + L"\" to \"" + targetDeviceName + L"\" on bus \"" + busInterfaceName + L"\"!"));
@@ -6152,11 +6152,11 @@ bool System::LoadModule_BusInterface_MapLine(IHierarchicalStorageNode& node, uns
 	}
 	else if ((sourceDeviceNameAttribute != 0) && (targetLineGroupNameAttribute != 0))
 	{
-		//Load the source device and target line group names
+		// Load the source device and target line group names
 		std::wstring sourceDeviceName = sourceDeviceNameAttribute->GetValue();
 		std::wstring targetLineGroupName = targetLineGroupNameAttribute->GetValue();
 
-		//Retrieve the source device
+		// Retrieve the source device
 		IDevice* sourceDevice = GetDevice(moduleID, sourceDeviceName);
 		if (sourceDevice == 0)
 		{
@@ -6164,7 +6164,7 @@ bool System::LoadModule_BusInterface_MapLine(IHierarchicalStorageNode& node, uns
 			return false;
 		}
 
-		//Find the ID for the referenced line group
+		// Find the ID for the referenced line group
 		NameToIDMap::const_iterator lineGroupNameToIDMapIterator = lineGroupNameToIDMap.find(targetLineGroupName);
 		if (lineGroupNameToIDMapIterator == lineGroupNameToIDMap.end())
 		{
@@ -6173,7 +6173,7 @@ bool System::LoadModule_BusInterface_MapLine(IHierarchicalStorageNode& node, uns
 		}
 		unsigned int lineGroupID = lineGroupNameToIDMapIterator->second;
 
-		//Retrieve the target line group info
+		// Retrieve the target line group info
 		LineGroupDetailsMap::const_iterator lineGroupDetailsMapIterator = _lineGroupDetailsMap.find(lineGroupID);
 		if (lineGroupDetailsMapIterator == _lineGroupDetailsMap.end())
 		{
@@ -6182,10 +6182,10 @@ bool System::LoadModule_BusInterface_MapLine(IHierarchicalStorageNode& node, uns
 		}
 		const LineGroupDetails& lineGroupDetails = lineGroupDetailsMapIterator->second;
 
-		//Retrieve the referenced bus interface
+		// Retrieve the referenced bus interface
 		BusInterface* busInterface = lineGroupDetails.busInterface;
 
-		//Add the bus interface mapping
+		// Add the bus interface mapping
 		if (!busInterface->MapLine(sourceDevice, lineGroupID, node))
 		{
 			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BusInterface.MapLine failed for mapping from device \"" + sourceDeviceName + L"\" to line group \"" + targetLineGroupName + L"\"!"));
@@ -6194,11 +6194,11 @@ bool System::LoadModule_BusInterface_MapLine(IHierarchicalStorageNode& node, uns
 	}
 	else if ((sourceLineGroupNameAttribute != 0) && (targetDeviceNameAttribute != 0))
 	{
-		//Load the source line group and target device names
+		// Load the source line group and target device names
 		std::wstring sourceLineGroupName = sourceLineGroupNameAttribute->GetValue();
 		std::wstring targetDeviceName = targetDeviceNameAttribute->GetValue();
 
-		//Retrieve the target device
+		// Retrieve the target device
 		IDevice* targetDevice = GetDevice(moduleID, targetDeviceName);
 		if (targetDevice == 0)
 		{
@@ -6206,7 +6206,7 @@ bool System::LoadModule_BusInterface_MapLine(IHierarchicalStorageNode& node, uns
 			return false;
 		}
 
-		//Find the ID for the referenced line group
+		// Find the ID for the referenced line group
 		NameToIDMap::const_iterator lineGroupNameToIDMapIterator = lineGroupNameToIDMap.find(sourceLineGroupName);
 		if (lineGroupNameToIDMapIterator == lineGroupNameToIDMap.end())
 		{
@@ -6215,7 +6215,7 @@ bool System::LoadModule_BusInterface_MapLine(IHierarchicalStorageNode& node, uns
 		}
 		unsigned int lineGroupID = lineGroupNameToIDMapIterator->second;
 
-		//Retrieve the target line group info
+		// Retrieve the target line group info
 		LineGroupDetailsMap::const_iterator lineGroupDetailsMapIterator = _lineGroupDetailsMap.find(lineGroupID);
 		if (lineGroupDetailsMapIterator == _lineGroupDetailsMap.end())
 		{
@@ -6224,10 +6224,10 @@ bool System::LoadModule_BusInterface_MapLine(IHierarchicalStorageNode& node, uns
 		}
 		const LineGroupDetails& lineGroupDetails = lineGroupDetailsMapIterator->second;
 
-		//Retrieve the referenced bus interface
+		// Retrieve the referenced bus interface
 		BusInterface* busInterface = lineGroupDetails.busInterface;
 
-		//Add the bus interface mapping
+		// Add the bus interface mapping
 		if (!busInterface->MapLine(lineGroupID, targetDevice, node))
 		{
 			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BusInterface.MapLine failed for mapping from line group \"" + sourceLineGroupName + L"\" to device \"" + targetDeviceName + L"\"!"));
@@ -6243,10 +6243,10 @@ bool System::LoadModule_BusInterface_MapLine(IHierarchicalStorageNode& node, uns
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_BusInterface_MapClockSource(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
-	//Extract the BusInterfaceName attribute
+	// Extract the BusInterfaceName attribute
 	IHierarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
 	if (busInterfaceNameAttribute == 0)
 	{
@@ -6255,7 +6255,7 @@ bool System::LoadModule_BusInterface_MapClockSource(IHierarchicalStorageNode& no
 	}
 	std::wstring busInterfaceName = busInterfaceNameAttribute->GetValue();
 
-	//Retrieve the referenced bus interface
+	// Retrieve the referenced bus interface
 	BusInterface* busInterface = GetBusInterface(moduleID, busInterfaceName);
 	if (busInterface == 0)
 	{
@@ -6265,7 +6265,7 @@ bool System::LoadModule_BusInterface_MapClockSource(IHierarchicalStorageNode& no
 		return false;
 	}
 
-	//Extract the ClockSourceName attribute
+	// Extract the ClockSourceName attribute
 	IHierarchicalStorageAttribute* clockSourceNameAttribute = node.GetAttribute(L"ClockSourceName");
 	if (clockSourceNameAttribute == 0)
 	{
@@ -6274,7 +6274,7 @@ bool System::LoadModule_BusInterface_MapClockSource(IHierarchicalStorageNode& no
 	}
 	std::wstring clockSourceName = clockSourceNameAttribute->GetValue();
 
-	//Retrieve the referenced clock source
+	// Retrieve the referenced clock source
 	ClockSource* clockSource = GetClockSource(moduleID, clockSourceName);
 	if (clockSource == 0)
 	{
@@ -6284,7 +6284,7 @@ bool System::LoadModule_BusInterface_MapClockSource(IHierarchicalStorageNode& no
 		return false;
 	}
 
-	//Load the device name
+	// Load the device name
 	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 	if (deviceInstanceNameAttribute == 0)
 	{
@@ -6293,7 +6293,7 @@ bool System::LoadModule_BusInterface_MapClockSource(IHierarchicalStorageNode& no
 	}
 	std::wstring deviceName = deviceInstanceNameAttribute->GetValue();
 
-	//Retrieve the device object from the system
+	// Retrieve the device object from the system
 	IDevice* device = GetDevice(moduleID, deviceName);
 	if (device == 0)
 	{
@@ -6301,23 +6301,23 @@ bool System::LoadModule_BusInterface_MapClockSource(IHierarchicalStorageNode& no
 		return false;
 	}
 
-	//Add the bus interface mapping
+	// Add the bus interface mapping
 	if (!busInterface->MapClockSource(clockSource, device, node))
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"BusInterface.MapClockSource failed when mapping clock source with name " + clockSourceName + L" to device with name " + deviceName + L" on bus " + busInterfaceName + L"!"));
 		return false;
 	}
 
-	//Add a reference to the target bus interface to the clock source
+	// Add a reference to the target bus interface to the clock source
 	clockSource->AddReference(busInterface);
 
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_BusInterface_UnmappedLineState(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
-	//Extract all required attributes
+	// Extract all required attributes
 	IHierarchicalStorageAttribute* deviceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 	IHierarchicalStorageAttribute* targetLineAttribute = node.GetAttribute(L"TargetLine");
 	IHierarchicalStorageAttribute* valueAttribute = node.GetAttribute(L"Value");
@@ -6327,11 +6327,11 @@ bool System::LoadModule_BusInterface_UnmappedLineState(IHierarchicalStorageNode&
 		return false;
 	}
 
-	//Load the device name and target line name attributes
+	// Load the device name and target line name attributes
 	std::wstring deviceName = deviceNameAttribute->GetValue();
 	std::wstring targetLineName = targetLineAttribute->GetValue();
 
-	//Retrieve the device object from the system
+	// Retrieve the device object from the system
 	IDevice* device = GetDevice(moduleID, deviceName);
 	if (device == 0)
 	{
@@ -6339,7 +6339,7 @@ bool System::LoadModule_BusInterface_UnmappedLineState(IHierarchicalStorageNode&
 		return false;
 	}
 
-	//Obtain the line ID for the target line on the device
+	// Obtain the line ID for the target line on the device
 	unsigned int targetLineID = device->GetLineID(targetLineName);
 	if (targetLineID == 0)
 	{
@@ -6347,7 +6347,7 @@ bool System::LoadModule_BusInterface_UnmappedLineState(IHierarchicalStorageNode&
 		return false;
 	}
 
-	//Obtain the bit count for the target line
+	// Obtain the bit count for the target line
 	unsigned int lineBitCount = device->GetLineWidth(targetLineID);
 	if (lineBitCount == 0)
 	{
@@ -6355,20 +6355,20 @@ bool System::LoadModule_BusInterface_UnmappedLineState(IHierarchicalStorageNode&
 		return false;
 	}
 
-	//Extract the unmapped line value for the target line
+	// Extract the unmapped line value for the target line
 	unsigned int unmappedValue = valueAttribute->ExtractHexValue<unsigned int>();
 
-	//Add the UnmappedLineStateInfo object to the system
+	// Add the UnmappedLineStateInfo object to the system
 	UnmappedLineStateInfo unmappedLineInfo(moduleID, device, targetLineID, Data(lineBitCount, unmappedValue));
 	_unmappedLineStateList.push_back(unmappedLineInfo);
 
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_ClockSource(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
-	//Load the clock source name
+	// Load the clock source name
 	IHierarchicalStorageAttribute* nameAttribute = node.GetAttribute(L"Name");
 	if (nameAttribute == 0)
 	{
@@ -6377,8 +6377,8 @@ bool System::LoadModule_ClockSource(IHierarchicalStorageNode& node, unsigned int
 	}
 	std::wstring clockSourceName = nameAttribute->GetValue();
 
-	//Ensure a clock source object with the specified name doesn't already exist in the
-	//system
+	// Ensure a clock source object with the specified name doesn't already exist in the
+	// system
 	for (ClockSourceList::const_iterator i = _clockSources.begin(); i != _clockSources.end(); ++i)
 	{
 		const LoadedClockSourceInfo& clockSourceInfo = *i;
@@ -6389,7 +6389,7 @@ bool System::LoadModule_ClockSource(IHierarchicalStorageNode& node, unsigned int
 		}
 	}
 
-	//Create and construct a new clock source object
+	// Create and construct a new clock source object
 	ClockSource* clockSource = new ClockSource();
 	if (!clockSource->Construct(node))
 	{
@@ -6398,7 +6398,7 @@ bool System::LoadModule_ClockSource(IHierarchicalStorageNode& node, unsigned int
 		return false;
 	}
 
-	//Add the clock source object to the system
+	// Add the clock source object to the system
 	std::unique_lock<std::mutex> loadedElementLock(_loadedElementMutex);
 	LoadedClockSourceInfo clockSourceInfo;
 	clockSourceInfo.clockSource = clockSource;
@@ -6409,10 +6409,10 @@ bool System::LoadModule_ClockSource(IHierarchicalStorageNode& node, unsigned int
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_ClockSource_SetInputClockSource(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
-	//Load the source clock source name
+	// Load the source clock source name
 	IHierarchicalStorageAttribute* inputClockSourceNameAttribute = node.GetAttribute(L"InputClockSourceName");
 	if (inputClockSourceNameAttribute == 0)
 	{
@@ -6421,7 +6421,7 @@ bool System::LoadModule_ClockSource_SetInputClockSource(IHierarchicalStorageNode
 	}
 	std::wstring inputClockSourceName = inputClockSourceNameAttribute->GetValue();
 
-	//Load the target clock source name
+	// Load the target clock source name
 	IHierarchicalStorageAttribute* targetClockSourceNameAttribute = node.GetAttribute(L"TargetClockSourceName");
 	if (targetClockSourceNameAttribute == 0)
 	{
@@ -6430,7 +6430,7 @@ bool System::LoadModule_ClockSource_SetInputClockSource(IHierarchicalStorageNode
 	}
 	std::wstring targetClockSourceName = targetClockSourceNameAttribute->GetValue();
 
-	//Retrieve the referenced input clock source object
+	// Retrieve the referenced input clock source object
 	ClockSource* inputClockSource = GetClockSource(moduleID, inputClockSourceName);
 	if (inputClockSource == 0)
 	{
@@ -6440,7 +6440,7 @@ bool System::LoadModule_ClockSource_SetInputClockSource(IHierarchicalStorageNode
 		return false;
 	}
 
-	//Retrieve the referenced target clock source object
+	// Retrieve the referenced target clock source object
 	ClockSource* targetClockSource = GetClockSource(moduleID, targetClockSourceName);
 	if (targetClockSource == 0)
 	{
@@ -6450,14 +6450,14 @@ bool System::LoadModule_ClockSource_SetInputClockSource(IHierarchicalStorageNode
 		return false;
 	}
 
-	//Attempt to add the target clock source as a dependent clock source of the input
+	// Attempt to add the target clock source as a dependent clock source of the input
 	return inputClockSource->AddDependentClockSource(targetClockSource);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_System_OpenView(IHierarchicalStorageNode& node, unsigned int moduleID, std::list<ViewOpenRequest>& viewOpenRequests)
 {
-	//Extract the Owner, ViewGroupName, and ViewName attributes
+	// Extract the Owner, ViewGroupName, and ViewName attributes
 	IHierarchicalStorageAttribute* targetAttribute = node.GetAttribute(L"Target");
 	IHierarchicalStorageAttribute* viewGroupAttribute = node.GetAttribute(L"ViewGroupName");
 	IHierarchicalStorageAttribute* viewNameAttribute = node.GetAttribute(L"ViewName");
@@ -6472,7 +6472,7 @@ bool System::LoadModule_System_OpenView(IHierarchicalStorageNode& node, unsigned
 
 	if (target == L"System")
 	{
-		//Add the open request to the queue
+		// Add the open request to the queue
 		ViewOpenRequest openRequest;
 		openRequest.viewTarget = IViewPresenter::ViewTarget::System;
 		openRequest.viewGroupName = viewGroupName;
@@ -6481,7 +6481,7 @@ bool System::LoadModule_System_OpenView(IHierarchicalStorageNode& node, unsigned
 	}
 	else if (target == L"Module")
 	{
-		//Add the open request to the queue
+		// Add the open request to the queue
 		ViewOpenRequest openRequest;
 		openRequest.viewTarget = IViewPresenter::ViewTarget::Module;
 		openRequest.moduleID = moduleID;
@@ -6491,7 +6491,7 @@ bool System::LoadModule_System_OpenView(IHierarchicalStorageNode& node, unsigned
 	}
 	else if (target == L"Device")
 	{
-		//Extract the device instance name attribute
+		// Extract the device instance name attribute
 		IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 		if (deviceInstanceNameAttribute == 0)
 		{
@@ -6500,7 +6500,7 @@ bool System::LoadModule_System_OpenView(IHierarchicalStorageNode& node, unsigned
 		}
 		std::wstring deviceInstanceName = deviceInstanceNameAttribute->GetValue();
 
-		//Add the open request to the queue
+		// Add the open request to the queue
 		ViewOpenRequest openRequest;
 		openRequest.viewTarget = IViewPresenter::ViewTarget::Device;
 		openRequest.moduleID = moduleID;
@@ -6511,7 +6511,7 @@ bool System::LoadModule_System_OpenView(IHierarchicalStorageNode& node, unsigned
 	}
 	else if (target == L"Extension")
 	{
-		//Extract the extension instance name attribute
+		// Extract the extension instance name attribute
 		IHierarchicalStorageAttribute* extensionInstanceNameAttribute = node.GetAttribute(L"ExtensionInstanceName");
 		if (extensionInstanceNameAttribute == 0)
 		{
@@ -6520,7 +6520,7 @@ bool System::LoadModule_System_OpenView(IHierarchicalStorageNode& node, unsigned
 		}
 		std::wstring extensionInstanceName = extensionInstanceNameAttribute->GetValue();
 
-		//Extract the global extension attribute
+		// Extract the global extension attribute
 		bool globalExtension = false;
 		IHierarchicalStorageAttribute* globalExtensionAttribute = node.GetAttribute(L"GlobalExtension");
 		if (globalExtensionAttribute != 0)
@@ -6528,7 +6528,7 @@ bool System::LoadModule_System_OpenView(IHierarchicalStorageNode& node, unsigned
 			globalExtension = globalExtensionAttribute->ExtractValue<bool>();
 		}
 
-		//Add the open request to the queue
+		// Add the open request to the queue
 		ViewOpenRequest openRequest;
 		openRequest.viewTarget = IViewPresenter::ViewTarget::Device;
 		openRequest.moduleID = moduleID;
@@ -6547,10 +6547,10 @@ bool System::LoadModule_System_OpenView(IHierarchicalStorageNode& node, unsigned
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_System_ExportConnector(IHierarchicalStorageNode& node, unsigned int moduleID, const std::wstring& systemClassName, NameToIDMap& connectorNameToIDMap)
 {
-	//Extract the BusInterfaceName, ConnectorClassName, and ConnectorInstanceName attributes
+	// Extract the BusInterfaceName, ConnectorClassName, and ConnectorInstanceName attributes
 	IHierarchicalStorageAttribute* connectorClassNameAttribute = node.GetAttribute(L"ConnectorClassName");
 	IHierarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
 	if ((connectorClassNameAttribute == 0) || (connectorInstanceNameAttribute == 0))
@@ -6561,7 +6561,7 @@ bool System::LoadModule_System_ExportConnector(IHierarchicalStorageNode& node, u
 	std::wstring connectorClassName = connectorClassNameAttribute->GetValue();
 	std::wstring connectorInstanceName = connectorInstanceNameAttribute->GetValue();
 
-	//Add details of this connector to the list of connectors which have been defined
+	// Add details of this connector to the list of connectors which have been defined
 	std::unique_lock<std::mutex> loadedElementLock(_loadedElementMutex);
 	ConnectorInfoInternal connectorDetails;
 	connectorDetails.connectorID = GenerateFreeConnectorID();
@@ -6576,10 +6576,10 @@ bool System::LoadModule_System_ExportConnector(IHierarchicalStorageNode& node, u
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_System_ExportDevice(IHierarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap)
 {
-	//Extract the ConnectorInstanceName, DeviceInstanceName, and ImportName attributes
+	// Extract the ConnectorInstanceName, DeviceInstanceName, and ImportName attributes
 	IHierarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
 	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 	IHierarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
@@ -6592,7 +6592,7 @@ bool System::LoadModule_System_ExportDevice(IHierarchicalStorageNode& node, unsi
 	std::wstring deviceInstanceName = deviceInstanceNameAttribute->GetValue();
 	std::wstring importName = importNameAttribute->GetValue();
 
-	//Retrieve the referenced device
+	// Retrieve the referenced device
 	IDevice* device = GetDevice(moduleID, deviceInstanceName);
 	if (device == 0)
 	{
@@ -6602,7 +6602,7 @@ bool System::LoadModule_System_ExportDevice(IHierarchicalStorageNode& node, unsi
 		return false;
 	}
 
-	//Retrieve the connector ID for the referenced connector
+	// Retrieve the connector ID for the referenced connector
 	NameToIDMap::const_iterator connectorNameToIDMapIterator = connectorNameToIDMap.find(connectorInstanceName);
 	if (connectorNameToIDMapIterator == connectorNameToIDMap.end())
 	{
@@ -6610,7 +6610,7 @@ bool System::LoadModule_System_ExportDevice(IHierarchicalStorageNode& node, unsi
 		return false;
 	}
 
-	//Retrieve the details for the referenced connector
+	// Retrieve the details for the referenced connector
 	ConnectorDetailsMap::iterator connectorDetailsIterator = _connectorDetailsMap.find(connectorNameToIDMapIterator->second);
 	if (connectorDetailsIterator == _connectorDetailsMap.end())
 	{
@@ -6619,11 +6619,11 @@ bool System::LoadModule_System_ExportDevice(IHierarchicalStorageNode& node, unsi
 	}
 	ConnectorInfoInternal& connectorDetails = connectorDetailsIterator->second;
 
-	//Add details of this exported object to the connector details
+	// Add details of this exported object to the connector details
 	ExportedDeviceInfo exportedDeviceInfo;
 	exportedDeviceInfo.device = device;
 	//##TODO## Find a way to remove this cast. It may be safe, but we should be able to
-	//avoid it.
+	// avoid it.
 	exportedDeviceInfo.deviceContext = (DeviceContext*)device->GetDeviceContext();
 	exportedDeviceInfo.exportingModuleDeviceInstanceName = deviceInstanceName;
 	exportedDeviceInfo.importName = importName;
@@ -6632,10 +6632,10 @@ bool System::LoadModule_System_ExportDevice(IHierarchicalStorageNode& node, unsi
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_System_ExportExtension(IHierarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap)
 {
-	//Extract the ConnectorInstanceName, ExtensionInstanceName, and ImportName attributes
+	// Extract the ConnectorInstanceName, ExtensionInstanceName, and ImportName attributes
 	IHierarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
 	IHierarchicalStorageAttribute* extensionInstanceNameAttribute = node.GetAttribute(L"ExtensionInstanceName");
 	IHierarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
@@ -6648,7 +6648,7 @@ bool System::LoadModule_System_ExportExtension(IHierarchicalStorageNode& node, u
 	std::wstring extensionInstanceName = extensionInstanceNameAttribute->GetValue();
 	std::wstring importName = importNameAttribute->GetValue();
 
-	//Retrieve the referenced extension
+	// Retrieve the referenced extension
 	IExtension* extension = GetExtension(moduleID, extensionInstanceName);
 	if (extension == 0)
 	{
@@ -6658,7 +6658,7 @@ bool System::LoadModule_System_ExportExtension(IHierarchicalStorageNode& node, u
 		return false;
 	}
 
-	//Retrieve the connector ID for the referenced connector
+	// Retrieve the connector ID for the referenced connector
 	NameToIDMap::const_iterator connectorNameToIDMapIterator = connectorNameToIDMap.find(connectorInstanceName);
 	if (connectorNameToIDMapIterator == connectorNameToIDMap.end())
 	{
@@ -6666,7 +6666,7 @@ bool System::LoadModule_System_ExportExtension(IHierarchicalStorageNode& node, u
 		return false;
 	}
 
-	//Retrieve the details for the referenced connector
+	// Retrieve the details for the referenced connector
 	ConnectorDetailsMap::iterator connectorDetailsIterator = _connectorDetailsMap.find(connectorNameToIDMapIterator->second);
 	if (connectorDetailsIterator == _connectorDetailsMap.end())
 	{
@@ -6675,7 +6675,7 @@ bool System::LoadModule_System_ExportExtension(IHierarchicalStorageNode& node, u
 	}
 	ConnectorInfoInternal& connectorDetails = connectorDetailsIterator->second;
 
-	//Add details of this exported object to the connector details
+	// Add details of this exported object to the connector details
 	ExportedExtensionInfo exportedExtensionInfo;
 	exportedExtensionInfo.extension = extension;
 	exportedExtensionInfo.exportingModuleExtensionInstanceName = extensionInstanceName;
@@ -6685,10 +6685,10 @@ bool System::LoadModule_System_ExportExtension(IHierarchicalStorageNode& node, u
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_System_ExportBusInterface(IHierarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap, const NameToIDMap& lineGroupNameToIDMap)
 {
-	//Extract the ConnectorInstanceName, BusInterfaceName, and ImportName attributes
+	// Extract the ConnectorInstanceName, BusInterfaceName, and ImportName attributes
 	IHierarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
 	IHierarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
 	IHierarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
@@ -6701,7 +6701,7 @@ bool System::LoadModule_System_ExportBusInterface(IHierarchicalStorageNode& node
 	std::wstring busInterfaceName = busInterfaceNameAttribute->GetValue();
 	std::wstring importName = importNameAttribute->GetValue();
 
-	//Retrieve the referenced bus interface
+	// Retrieve the referenced bus interface
 	BusInterface* busInterface = GetBusInterface(moduleID, busInterfaceName);
 	if (busInterface == 0)
 	{
@@ -6711,7 +6711,7 @@ bool System::LoadModule_System_ExportBusInterface(IHierarchicalStorageNode& node
 		return false;
 	}
 
-	//Retrieve the connector ID for the referenced connector
+	// Retrieve the connector ID for the referenced connector
 	NameToIDMap::const_iterator connectorNameToIDMapIterator = connectorNameToIDMap.find(connectorInstanceName);
 	if (connectorNameToIDMapIterator == connectorNameToIDMap.end())
 	{
@@ -6719,7 +6719,7 @@ bool System::LoadModule_System_ExportBusInterface(IHierarchicalStorageNode& node
 		return false;
 	}
 
-	//Retrieve the details for the referenced connector
+	// Retrieve the details for the referenced connector
 	ConnectorDetailsMap::iterator connectorDetailsIterator = _connectorDetailsMap.find(connectorNameToIDMapIterator->second);
 	if (connectorDetailsIterator == _connectorDetailsMap.end())
 	{
@@ -6728,13 +6728,13 @@ bool System::LoadModule_System_ExportBusInterface(IHierarchicalStorageNode& node
 	}
 	ConnectorInfoInternal& connectorDetails = connectorDetailsIterator->second;
 
-	//Build the info about this exported bus interface
+	// Build the info about this exported bus interface
 	ExportedBusInfo exportedBusInfo;
 	exportedBusInfo.busInterface = busInterface;
 	exportedBusInfo.exportingModuleBusInterfaceName = busInterfaceName;
 	exportedBusInfo.importName = importName;
 
-	//Process any child elements of this node
+	// Process any child elements of this node
 	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
 	for (std::list<IHierarchicalStorageNode*>::const_iterator i = childList.begin(); i != childList.end(); ++i)
 	{
@@ -6742,7 +6742,7 @@ bool System::LoadModule_System_ExportBusInterface(IHierarchicalStorageNode& node
 		std::wstring elementName = childNode.GetName();
 		if (elementName == L"ExportLineGroup")
 		{
-			//Extract the LineGroupName and ImportName attributes
+			// Extract the LineGroupName and ImportName attributes
 			IHierarchicalStorageAttribute* childLineGroupNameAttribute = childNode.GetAttribute(L"LineGroupName");
 			IHierarchicalStorageAttribute* childImportNameAttribute = childNode.GetAttribute(L"ImportName");
 			if ((childLineGroupNameAttribute == 0) || (childImportNameAttribute == 0))
@@ -6753,7 +6753,7 @@ bool System::LoadModule_System_ExportBusInterface(IHierarchicalStorageNode& node
 			std::wstring lineGroupName = childLineGroupNameAttribute->GetValue();
 			std::wstring importName = childImportNameAttribute->GetValue();
 
-			//Find the ID for the referenced line group
+			// Find the ID for the referenced line group
 			NameToIDMap::const_iterator lineGroupNameToIDMapIterator = lineGroupNameToIDMap.find(lineGroupName);
 			if (lineGroupNameToIDMapIterator == lineGroupNameToIDMap.end())
 			{
@@ -6762,7 +6762,7 @@ bool System::LoadModule_System_ExportBusInterface(IHierarchicalStorageNode& node
 			}
 			unsigned int lineGroupID = lineGroupNameToIDMapIterator->second;
 
-			//Retrieve the target line group info
+			// Retrieve the target line group info
 			LineGroupDetailsMap::const_iterator lineGroupDetailsMapIterator = _lineGroupDetailsMap.find(lineGroupID);
 			if (lineGroupDetailsMapIterator == _lineGroupDetailsMap.end())
 			{
@@ -6771,16 +6771,16 @@ bool System::LoadModule_System_ExportBusInterface(IHierarchicalStorageNode& node
 			}
 			const LineGroupDetails& lineGroupDetails = lineGroupDetailsMapIterator->second;
 
-			//Verify that the specified line group belongs to the BusInterface object
-			//being exported.
+			// Verify that the specified line group belongs to the BusInterface object
+			// being exported.
 			if (lineGroupDetails.busInterface != busInterface)
 			{
 				WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"The specified line group with name \"" + lineGroupName + L"\" does not belong to the specified bus interface with name \"" + busInterfaceName + L"\" for ExportLineGroup on System.ExportBusInterface!"));
 				return false;
 			}
 
-			//Build info about this exported line group, and add it to the info about this
-			//exported bus interface.
+			// Build info about this exported line group, and add it to the info about this
+			// exported bus interface.
 			ExportedLineGroupInfo exportedLineGroupInfo;
 			exportedLineGroupInfo.lineGroupID = lineGroupID;
 			exportedLineGroupInfo.importName = importName;
@@ -6789,23 +6789,23 @@ bool System::LoadModule_System_ExportBusInterface(IHierarchicalStorageNode& node
 		}
 		else
 		{
-			//If we've encountered an unrecognized child element, log an error, and return
-			//false.
+			// If we've encountered an unrecognized child element, log an error, and return
+			// false.
 			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Unrecognized child element: \"" + elementName + L"\" encountered when processing System.ExportBusInterface!"));
 			return false;
 		}
 	}
 
-	//Add details of this exported object to the connector details
+	// Add details of this exported object to the connector details
 	connectorDetails.exportedBusInfo.insert(std::pair<std::wstring, ExportedBusInfo>(exportedBusInfo.importName, exportedBusInfo));
 
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_System_ExportClockSource(IHierarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap)
 {
-	//Extract the ConnectorInstanceName, ClockSourceName, and ImportName attributes
+	// Extract the ConnectorInstanceName, ClockSourceName, and ImportName attributes
 	IHierarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
 	IHierarchicalStorageAttribute* clockSourceNameAttribute = node.GetAttribute(L"ClockSourceName");
 	IHierarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
@@ -6818,7 +6818,7 @@ bool System::LoadModule_System_ExportClockSource(IHierarchicalStorageNode& node,
 	std::wstring clockSourceName = clockSourceNameAttribute->GetValue();
 	std::wstring importName = importNameAttribute->GetValue();
 
-	//Retrieve the referenced clock source
+	// Retrieve the referenced clock source
 	ClockSource* clockSource = GetClockSource(moduleID, clockSourceName);
 	if (clockSource == 0)
 	{
@@ -6828,7 +6828,7 @@ bool System::LoadModule_System_ExportClockSource(IHierarchicalStorageNode& node,
 		return false;
 	}
 
-	//Retrieve the connector ID for the referenced connector
+	// Retrieve the connector ID for the referenced connector
 	NameToIDMap::const_iterator connectorNameToIDMapIterator = connectorNameToIDMap.find(connectorInstanceName);
 	if (connectorNameToIDMapIterator == connectorNameToIDMap.end())
 	{
@@ -6836,7 +6836,7 @@ bool System::LoadModule_System_ExportClockSource(IHierarchicalStorageNode& node,
 		return false;
 	}
 
-	//Retrieve the details for the referenced connector
+	// Retrieve the details for the referenced connector
 	ConnectorDetailsMap::iterator connectorDetailsIterator = _connectorDetailsMap.find(connectorNameToIDMapIterator->second);
 	if (connectorDetailsIterator == _connectorDetailsMap.end())
 	{
@@ -6845,7 +6845,7 @@ bool System::LoadModule_System_ExportClockSource(IHierarchicalStorageNode& node,
 	}
 	ConnectorInfoInternal& connectorDetails = connectorDetailsIterator->second;
 
-	//Add details of this exported object to the connector details
+	// Add details of this exported object to the connector details
 	ExportedClockSourceInfo exportedClockSourceInfo;
 	exportedClockSourceInfo.clockSource = clockSource;
 	exportedClockSourceInfo.exportingModuleClockSourceName = clockSourceName;
@@ -6855,10 +6855,10 @@ bool System::LoadModule_System_ExportClockSource(IHierarchicalStorageNode& node,
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_System_ExportSystemLine(IHierarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap)
 {
-	//Extract the ConnectorInstanceName, SystemLineName, and ImportName attributes
+	// Extract the ConnectorInstanceName, SystemLineName, and ImportName attributes
 	IHierarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
 	IHierarchicalStorageAttribute* systemLineNameAttribute = node.GetAttribute(L"SystemLineName");
 	IHierarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
@@ -6871,7 +6871,7 @@ bool System::LoadModule_System_ExportSystemLine(IHierarchicalStorageNode& node, 
 	std::wstring systemLineName = systemLineNameAttribute->GetValue();
 	std::wstring importName = importNameAttribute->GetValue();
 
-	//Retrieve the ID number for the referenced system line
+	// Retrieve the ID number for the referenced system line
 	unsigned int systemLineID = GetSystemLineID(moduleID, systemLineName);
 	if (systemLineID == 0)
 	{
@@ -6881,7 +6881,7 @@ bool System::LoadModule_System_ExportSystemLine(IHierarchicalStorageNode& node, 
 		return false;
 	}
 
-	//Retrieve the connector ID for the referenced connector
+	// Retrieve the connector ID for the referenced connector
 	NameToIDMap::const_iterator connectorNameToIDMapIterator = connectorNameToIDMap.find(connectorInstanceName);
 	if (connectorNameToIDMapIterator == connectorNameToIDMap.end())
 	{
@@ -6889,7 +6889,7 @@ bool System::LoadModule_System_ExportSystemLine(IHierarchicalStorageNode& node, 
 		return false;
 	}
 
-	//Retrieve the details for the referenced connector
+	// Retrieve the details for the referenced connector
 	ConnectorDetailsMap::iterator connectorDetailsIterator = _connectorDetailsMap.find(connectorNameToIDMapIterator->second);
 	if (connectorDetailsIterator == _connectorDetailsMap.end())
 	{
@@ -6898,7 +6898,7 @@ bool System::LoadModule_System_ExportSystemLine(IHierarchicalStorageNode& node, 
 	}
 	ConnectorInfoInternal& connectorDetails = connectorDetailsIterator->second;
 
-	//Add details of this exported object to the connector details
+	// Add details of this exported object to the connector details
 	ExportedSystemLineInfo exportedSystemLineInfo;
 	exportedSystemLineInfo.systemLineID = systemLineID;
 	exportedSystemLineInfo.exportingModuleSystemLineName = systemLineName;
@@ -6908,10 +6908,10 @@ bool System::LoadModule_System_ExportSystemLine(IHierarchicalStorageNode& node, 
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_System_ExportSystemSetting(IHierarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap)
 {
-	//Extract the ConnectorInstanceName, SystemSettingName, and ImportName attributes
+	// Extract the ConnectorInstanceName, SystemSettingName, and ImportName attributes
 	IHierarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
 	IHierarchicalStorageAttribute* systemSettingNameAttribute = node.GetAttribute(L"SystemSettingName");
 	IHierarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
@@ -6924,7 +6924,7 @@ bool System::LoadModule_System_ExportSystemSetting(IHierarchicalStorageNode& nod
 	std::wstring systemSettingName = systemSettingNameAttribute->GetValue();
 	std::wstring importName = importNameAttribute->GetValue();
 
-	//Retrieve the ID number for the referenced system setting
+	// Retrieve the ID number for the referenced system setting
 	std::unique_lock<std::recursive_mutex> moduleSettingsLock(_moduleSettingMutex);
 	unsigned int systemSettingID = GetSystemSettingID(moduleID, systemSettingName);
 	if (systemSettingID == 0)
@@ -6936,7 +6936,7 @@ bool System::LoadModule_System_ExportSystemSetting(IHierarchicalStorageNode& nod
 	}
 	moduleSettingsLock.unlock();
 
-	//Retrieve the connector ID for the referenced connector
+	// Retrieve the connector ID for the referenced connector
 	NameToIDMap::const_iterator connectorNameToIDMapIterator = connectorNameToIDMap.find(connectorInstanceName);
 	if (connectorNameToIDMapIterator == connectorNameToIDMap.end())
 	{
@@ -6944,7 +6944,7 @@ bool System::LoadModule_System_ExportSystemSetting(IHierarchicalStorageNode& nod
 		return false;
 	}
 
-	//Retrieve the details for the referenced connector
+	// Retrieve the details for the referenced connector
 	ConnectorDetailsMap::iterator connectorDetailsIterator = _connectorDetailsMap.find(connectorNameToIDMapIterator->second);
 	if (connectorDetailsIterator == _connectorDetailsMap.end())
 	{
@@ -6953,7 +6953,7 @@ bool System::LoadModule_System_ExportSystemSetting(IHierarchicalStorageNode& nod
 	}
 	ConnectorInfoInternal& connectorDetails = connectorDetailsIterator->second;
 
-	//Add details of this exported object to the connector details
+	// Add details of this exported object to the connector details
 	ExportedSystemSettingInfo exportedSystemSettingInfo;
 	exportedSystemSettingInfo.systemSettingID = systemSettingID;
 	exportedSystemSettingInfo.exportingModuleSystemSettingName = systemSettingName;
@@ -6963,10 +6963,10 @@ bool System::LoadModule_System_ExportSystemSetting(IHierarchicalStorageNode& nod
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_System_ImportConnector(IHierarchicalStorageNode& node, unsigned int moduleID, const std::wstring& systemClassName, const ConnectorMappingList& connectorMappings, NameToIDMap& connectorNameToIDMap)
 {
-	//Extract the ConnectorClassName and ConnectorInstanceName attributes
+	// Extract the ConnectorClassName and ConnectorInstanceName attributes
 	IHierarchicalStorageAttribute* connectorClassNameAttribute = node.GetAttribute(L"ConnectorClassName");
 	IHierarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
 	if ((connectorClassNameAttribute == 0) || (connectorInstanceNameAttribute == 0))
@@ -6977,22 +6977,22 @@ bool System::LoadModule_System_ImportConnector(IHierarchicalStorageNode& node, u
 	std::wstring connectorClassName = connectorClassNameAttribute->GetValue();
 	std::wstring connectorInstanceName = connectorInstanceNameAttribute->GetValue();
 
-	//Locate a corresponding connector mapping for this connector
+	// Locate a corresponding connector mapping for this connector
 	bool connectorImportSucceeded = false;
 	bool foundConnectorMapping = false;
 	ConnectorMappingList::const_iterator connectorMappingIterator = connectorMappings.begin();
 	while (!foundConnectorMapping && (connectorMappingIterator != connectorMappings.end()))
 	{
-		//If we've found a matching connector mapping, process it.
+		// If we've found a matching connector mapping, process it.
 		const ConnectorMapping& connectorMapping = *connectorMappingIterator;
 		if (connectorMapping.importingModuleConnectorInstanceName == connectorInstanceName)
 		{
-			//Locate the corresponding connector that is being referenced
+			// Locate the corresponding connector that is being referenced
 			foundConnectorMapping = true;
 			ConnectorDetailsMap::iterator connectorDetailsMapIterator = _connectorDetailsMap.find(connectorMapping.connectorID);
 			if (connectorDetailsMapIterator != _connectorDetailsMap.end())
 			{
-				//If the connector is not currently in use, import it.
+				// If the connector is not currently in use, import it.
 				ConnectorInfoInternal& connectorDetails = connectorDetailsMapIterator->second;
 				if ((connectorDetails.systemClassName != systemClassName) || (connectorDetails.connectorClassName != connectorClassName))
 				{
@@ -7015,7 +7015,7 @@ bool System::LoadModule_System_ImportConnector(IHierarchicalStorageNode& node, u
 		++connectorMappingIterator;
 	}
 
-	//Report any errors while importing the connector
+	// Report any errors while importing the connector
 	if (!foundConnectorMapping)
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"No connector mapping was specified for connector of class \"" + connectorClassName + L"\" with instance name \"" + connectorInstanceName + L"\" while processing System.ImportConnector!"));
@@ -7025,14 +7025,14 @@ bool System::LoadModule_System_ImportConnector(IHierarchicalStorageNode& node, u
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"A connector import mapping was found for connector of class \"" + connectorClassName + L"\" with instance name \"" + connectorInstanceName + L"\", however the target connector was already in use when processing System.ImportConnector!"));
 	}
 
-	//Return the result of the connector import operation
+	// Return the result of the connector import operation
 	return foundConnectorMapping && connectorImportSucceeded;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_System_ImportDevice(IHierarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap)
 {
-	//Extract the ConnectorInstanceName, DeviceInstanceName, and ImportName attributes
+	// Extract the ConnectorInstanceName, DeviceInstanceName, and ImportName attributes
 	IHierarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
 	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"DeviceInstanceName");
 	IHierarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
@@ -7045,7 +7045,7 @@ bool System::LoadModule_System_ImportDevice(IHierarchicalStorageNode& node, unsi
 	std::wstring deviceInstanceName = deviceInstanceNameAttribute->GetValue();
 	std::wstring importName = importNameAttribute->GetValue();
 
-	//Retrieve the connector ID for the referenced connector
+	// Retrieve the connector ID for the referenced connector
 	NameToIDMap::const_iterator connectorNameToIDMapIterator = connectorNameToIDMap.find(connectorInstanceName);
 	if (connectorNameToIDMapIterator == connectorNameToIDMap.end())
 	{
@@ -7054,7 +7054,7 @@ bool System::LoadModule_System_ImportDevice(IHierarchicalStorageNode& node, unsi
 	}
 	unsigned int connectorID = connectorNameToIDMapIterator->second;
 
-	//Retrieve the details for the referenced connector
+	// Retrieve the details for the referenced connector
 	ConnectorDetailsMap::iterator connectorDetailsIterator = _connectorDetailsMap.find(connectorID);
 	if (connectorDetailsIterator == _connectorDetailsMap.end())
 	{
@@ -7063,7 +7063,7 @@ bool System::LoadModule_System_ImportDevice(IHierarchicalStorageNode& node, unsi
 	}
 	const ConnectorInfoInternal& connectorDetails = connectorDetailsIterator->second;
 
-	//Retrieve the details of the target exported device
+	// Retrieve the details of the target exported device
 	std::map<std::wstring, ExportedDeviceInfo>::const_iterator exportedDeviceInfoIterator = connectorDetails.exportedDeviceInfo.find(importName);
 	if (exportedDeviceInfoIterator == connectorDetails.exportedDeviceInfo.end())
 	{
@@ -7072,7 +7072,7 @@ bool System::LoadModule_System_ImportDevice(IHierarchicalStorageNode& node, unsi
 	}
 	const ExportedDeviceInfo& exportedDeviceInfo = exportedDeviceInfoIterator->second;
 
-	//Record details of this imported object
+	// Record details of this imported object
 	ImportedDeviceInfo importedDeviceInfo;
 	importedDeviceInfo.device = exportedDeviceInfo.device;
 	importedDeviceInfo.deviceContext = exportedDeviceInfo.deviceContext;
@@ -7086,10 +7086,10 @@ bool System::LoadModule_System_ImportDevice(IHierarchicalStorageNode& node, unsi
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_System_ImportExtension(IHierarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap)
 {
-	//Extract the ConnectorInstanceName, ExtensionInstanceName, and ImportName attributes
+	// Extract the ConnectorInstanceName, ExtensionInstanceName, and ImportName attributes
 	IHierarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
 	IHierarchicalStorageAttribute* extensionInstanceNameAttribute = node.GetAttribute(L"ExtensionInstanceName");
 	IHierarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
@@ -7102,7 +7102,7 @@ bool System::LoadModule_System_ImportExtension(IHierarchicalStorageNode& node, u
 	std::wstring extensionInstanceName = extensionInstanceNameAttribute->GetValue();
 	std::wstring importName = importNameAttribute->GetValue();
 
-	//Retrieve the connector ID for the referenced connector
+	// Retrieve the connector ID for the referenced connector
 	NameToIDMap::const_iterator connectorNameToIDMapIterator = connectorNameToIDMap.find(connectorInstanceName);
 	if (connectorNameToIDMapIterator == connectorNameToIDMap.end())
 	{
@@ -7111,7 +7111,7 @@ bool System::LoadModule_System_ImportExtension(IHierarchicalStorageNode& node, u
 	}
 	unsigned int connectorID = connectorNameToIDMapIterator->second;
 
-	//Retrieve the details for the referenced connector
+	// Retrieve the details for the referenced connector
 	ConnectorDetailsMap::iterator connectorDetailsIterator = _connectorDetailsMap.find(connectorID);
 	if (connectorDetailsIterator == _connectorDetailsMap.end())
 	{
@@ -7120,7 +7120,7 @@ bool System::LoadModule_System_ImportExtension(IHierarchicalStorageNode& node, u
 	}
 	const ConnectorInfoInternal& connectorDetails = connectorDetailsIterator->second;
 
-	//Retrieve the details of the target exported extension
+	// Retrieve the details of the target exported extension
 	std::map<std::wstring, ExportedExtensionInfo>::const_iterator exportedExtensionInfoIterator = connectorDetails.exportedExtensionInfo.find(importName);
 	if (exportedExtensionInfoIterator == connectorDetails.exportedExtensionInfo.end())
 	{
@@ -7129,7 +7129,7 @@ bool System::LoadModule_System_ImportExtension(IHierarchicalStorageNode& node, u
 	}
 	const ExportedExtensionInfo& exportedExtensionInfo = exportedExtensionInfoIterator->second;
 
-	//Record details of this imported object
+	// Record details of this imported object
 	ImportedExtensionInfo importedExtensionInfo;
 	importedExtensionInfo.extension = exportedExtensionInfo.extension;
 	importedExtensionInfo.exportingModuleExtensionInstanceName = exportedExtensionInfo.exportingModuleExtensionInstanceName;
@@ -7142,10 +7142,10 @@ bool System::LoadModule_System_ImportExtension(IHierarchicalStorageNode& node, u
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_System_ImportBusInterface(IHierarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap, NameToIDMap& lineGroupNameToIDMap)
 {
-	//Extract the ConnectorInstanceName, BusInterfaceName, and ImportName attributes
+	// Extract the ConnectorInstanceName, BusInterfaceName, and ImportName attributes
 	IHierarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
 	IHierarchicalStorageAttribute* busInterfaceNameAttribute = node.GetAttribute(L"BusInterfaceName");
 	IHierarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
@@ -7158,7 +7158,7 @@ bool System::LoadModule_System_ImportBusInterface(IHierarchicalStorageNode& node
 	std::wstring busInterfaceName = busInterfaceNameAttribute->GetValue();
 	std::wstring importName = importNameAttribute->GetValue();
 
-	//Retrieve the connector ID for the referenced connector
+	// Retrieve the connector ID for the referenced connector
 	NameToIDMap::const_iterator connectorNameToIDMapIterator = connectorNameToIDMap.find(connectorInstanceName);
 	if (connectorNameToIDMapIterator == connectorNameToIDMap.end())
 	{
@@ -7167,7 +7167,7 @@ bool System::LoadModule_System_ImportBusInterface(IHierarchicalStorageNode& node
 	}
 	unsigned int connectorID = connectorNameToIDMapIterator->second;
 
-	//Retrieve the details for the referenced connector
+	// Retrieve the details for the referenced connector
 	ConnectorDetailsMap::iterator connectorDetailsIterator = _connectorDetailsMap.find(connectorID);
 	if (connectorDetailsIterator == _connectorDetailsMap.end())
 	{
@@ -7176,7 +7176,7 @@ bool System::LoadModule_System_ImportBusInterface(IHierarchicalStorageNode& node
 	}
 	const ConnectorInfoInternal& connectorDetails = connectorDetailsIterator->second;
 
-	//Retrieve the details of the target exported bus interface
+	// Retrieve the details of the target exported bus interface
 	std::map<std::wstring, ExportedBusInfo>::const_iterator exportedBusInfoIterator = connectorDetails.exportedBusInfo.find(importName);
 	if (exportedBusInfoIterator == connectorDetails.exportedBusInfo.end())
 	{
@@ -7185,7 +7185,7 @@ bool System::LoadModule_System_ImportBusInterface(IHierarchicalStorageNode& node
 	}
 	const ExportedBusInfo& exportedBusInfo = exportedBusInfoIterator->second;
 
-	//Build the info about this imported bus interface
+	// Build the info about this imported bus interface
 	ImportedBusInfo importedBusInfo;
 	importedBusInfo.busInterface = exportedBusInfo.busInterface;
 	importedBusInfo.exportingModuleBusInterfaceName = exportedBusInfo.exportingModuleBusInterfaceName;
@@ -7194,7 +7194,7 @@ bool System::LoadModule_System_ImportBusInterface(IHierarchicalStorageNode& node
 	importedBusInfo.importingModuleBusInterfaceName = busInterfaceName;
 	importedBusInfo.connectorID = connectorID;
 
-	//Process any child elements of this node
+	// Process any child elements of this node
 	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
 	for (std::list<IHierarchicalStorageNode*>::const_iterator i = childList.begin(); i != childList.end(); ++i)
 	{
@@ -7202,7 +7202,7 @@ bool System::LoadModule_System_ImportBusInterface(IHierarchicalStorageNode& node
 		std::wstring elementName = childNode.GetName();
 		if (elementName == L"ImportLineGroup")
 		{
-			//Extract the LineGroupName and ImportName attributes
+			// Extract the LineGroupName and ImportName attributes
 			IHierarchicalStorageAttribute* childLineGroupNameAttribute = childNode.GetAttribute(L"LineGroupName");
 			IHierarchicalStorageAttribute* childImportNameAttribute = childNode.GetAttribute(L"ImportName");
 			if ((childLineGroupNameAttribute == 0) || (childImportNameAttribute == 0))
@@ -7213,7 +7213,7 @@ bool System::LoadModule_System_ImportBusInterface(IHierarchicalStorageNode& node
 			std::wstring lineGroupName = childLineGroupNameAttribute->GetValue();
 			std::wstring importName = childImportNameAttribute->GetValue();
 
-			//Find the definition of the referenced exported line group
+			// Find the definition of the referenced exported line group
 			bool foundReferencedLineGroup = false;
 			unsigned int lineGroupID = 0;
 			std::list<ExportedLineGroupInfo>::const_iterator exportedLineGroupIterator = exportedBusInfo.exportedLineGroups.begin();
@@ -7229,44 +7229,44 @@ bool System::LoadModule_System_ImportBusInterface(IHierarchicalStorageNode& node
 				++exportedLineGroupIterator;
 			}
 
-			//If the target line group could not be located, log an error, and return
-			//false.
+			// If the target line group could not be located, log an error, and return
+			// false.
 			if (!foundReferencedLineGroup)
 			{
 				WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Could not locate exported line group with name " + lineGroupName + L" on exported bus interface with name " + busInterfaceName + L" for ImportLineGroup on System.ImportBusInterface!"));
 				return false;
 			}
 
-			//Build info about this imported line group, and add it to the info about this
-			//imported bus interface.
+			// Build info about this imported line group, and add it to the info about this
+			// imported bus interface.
 			ImportedLineGroupInfo importedLineGroupInfo;
 			importedLineGroupInfo.lineGroupID = lineGroupID;
 			importedLineGroupInfo.localName = lineGroupName;
 			importedLineGroupInfo.importName = importName;
 			importedBusInfo.importedLineGroups.push_back(importedLineGroupInfo);
 
-			//Add a mapping for this line group name back to the line group ID
+			// Add a mapping for this line group name back to the line group ID
 			lineGroupNameToIDMap.insert(NameToIDMapEntry(lineGroupName, lineGroupID));
 		}
 		else
 		{
-			//If we've encountered an unrecognized child element, log an error, and return
-			//false.
+			// If we've encountered an unrecognized child element, log an error, and return
+			// false.
 			WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Unrecognized child element: " + elementName + L" encountered when processing System.ImportBusInterface!"));
 			return false;
 		}
 	}
 
-	//Store the details of this imported bus interface
+	// Store the details of this imported bus interface
 	_importedBusInterfaces.push_back(importedBusInfo);
 
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_System_ImportClockSource(IHierarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap)
 {
-	//Extract the ConnectorInstanceName, ClockSourceName, and ImportName attributes
+	// Extract the ConnectorInstanceName, ClockSourceName, and ImportName attributes
 	IHierarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
 	IHierarchicalStorageAttribute* clockSourceNameAttribute = node.GetAttribute(L"ClockSourceName");
 	IHierarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
@@ -7279,7 +7279,7 @@ bool System::LoadModule_System_ImportClockSource(IHierarchicalStorageNode& node,
 	std::wstring clockSourceName = clockSourceNameAttribute->GetValue();
 	std::wstring importName = importNameAttribute->GetValue();
 
-	//Retrieve the connector ID for the referenced connector
+	// Retrieve the connector ID for the referenced connector
 	NameToIDMap::const_iterator connectorNameToIDMapIterator = connectorNameToIDMap.find(connectorInstanceName);
 	if (connectorNameToIDMapIterator == connectorNameToIDMap.end())
 	{
@@ -7288,7 +7288,7 @@ bool System::LoadModule_System_ImportClockSource(IHierarchicalStorageNode& node,
 	}
 	unsigned int connectorID = connectorNameToIDMapIterator->second;
 
-	//Retrieve the details for the referenced connector
+	// Retrieve the details for the referenced connector
 	ConnectorDetailsMap::iterator connectorDetailsIterator = _connectorDetailsMap.find(connectorID);
 	if (connectorDetailsIterator == _connectorDetailsMap.end())
 	{
@@ -7297,7 +7297,7 @@ bool System::LoadModule_System_ImportClockSource(IHierarchicalStorageNode& node,
 	}
 	const ConnectorInfoInternal& connectorDetails = connectorDetailsIterator->second;
 
-	//Retrieve the details of the target exported clock source
+	// Retrieve the details of the target exported clock source
 	std::map<std::wstring, ExportedClockSourceInfo>::const_iterator exportedClockSourceInfoIterator = connectorDetails.exportedClockSourceInfo.find(importName);
 	if (exportedClockSourceInfoIterator == connectorDetails.exportedClockSourceInfo.end())
 	{
@@ -7306,7 +7306,7 @@ bool System::LoadModule_System_ImportClockSource(IHierarchicalStorageNode& node,
 	}
 	const ExportedClockSourceInfo& exportedClockSourceInfo = exportedClockSourceInfoIterator->second;
 
-	//Record details of this imported object
+	// Record details of this imported object
 	ImportedClockSourceInfo importedClockSourceInfo;
 	importedClockSourceInfo.clockSource = exportedClockSourceInfo.clockSource;
 	importedClockSourceInfo.exportingModuleClockSourceName = exportedClockSourceInfo.exportingModuleClockSourceName;
@@ -7319,10 +7319,10 @@ bool System::LoadModule_System_ImportClockSource(IHierarchicalStorageNode& node,
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_System_ImportSystemLine(IHierarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap)
 {
-	//Extract the ConnectorInstanceName, SystemLineName, and ImportName attributes
+	// Extract the ConnectorInstanceName, SystemLineName, and ImportName attributes
 	IHierarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
 	IHierarchicalStorageAttribute* systemLineNameAttribute = node.GetAttribute(L"SystemLineName");
 	IHierarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
@@ -7335,7 +7335,7 @@ bool System::LoadModule_System_ImportSystemLine(IHierarchicalStorageNode& node, 
 	std::wstring systemLineName = systemLineNameAttribute->GetValue();
 	std::wstring importName = importNameAttribute->GetValue();
 
-	//Retrieve the connector ID for the referenced connector
+	// Retrieve the connector ID for the referenced connector
 	NameToIDMap::const_iterator connectorNameToIDMapIterator = connectorNameToIDMap.find(connectorInstanceName);
 	if (connectorNameToIDMapIterator == connectorNameToIDMap.end())
 	{
@@ -7344,7 +7344,7 @@ bool System::LoadModule_System_ImportSystemLine(IHierarchicalStorageNode& node, 
 	}
 	unsigned int connectorID = connectorNameToIDMapIterator->second;
 
-	//Retrieve the details for the referenced connector
+	// Retrieve the details for the referenced connector
 	ConnectorDetailsMap::iterator connectorDetailsIterator = _connectorDetailsMap.find(connectorID);
 	if (connectorDetailsIterator == _connectorDetailsMap.end())
 	{
@@ -7353,7 +7353,7 @@ bool System::LoadModule_System_ImportSystemLine(IHierarchicalStorageNode& node, 
 	}
 	const ConnectorInfoInternal& connectorDetails = connectorDetailsIterator->second;
 
-	//Retrieve the details of the target exported system line
+	// Retrieve the details of the target exported system line
 	std::map<std::wstring, ExportedSystemLineInfo>::const_iterator exportedSystemLineInfoIterator = connectorDetails.exportedSystemLineInfo.find(importName);
 	if (exportedSystemLineInfoIterator == connectorDetails.exportedSystemLineInfo.end())
 	{
@@ -7362,7 +7362,7 @@ bool System::LoadModule_System_ImportSystemLine(IHierarchicalStorageNode& node, 
 	}
 	const ExportedSystemLineInfo& exportedSystemLineInfo = exportedSystemLineInfoIterator->second;
 
-	//Record details of this imported object
+	// Record details of this imported object
 	ImportedSystemLineInfo importedSystemLineInfo;
 	importedSystemLineInfo.systemLineID = exportedSystemLineInfo.systemLineID;
 	importedSystemLineInfo.exportingModuleSystemLineName = exportedSystemLineInfo.exportingModuleSystemLineName;
@@ -7375,10 +7375,10 @@ bool System::LoadModule_System_ImportSystemLine(IHierarchicalStorageNode& node, 
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_System_ImportSystemSetting(IHierarchicalStorageNode& node, unsigned int moduleID, const NameToIDMap& connectorNameToIDMap)
 {
-	//Extract the ConnectorInstanceName, SystemOptionName, and ImportName attributes
+	// Extract the ConnectorInstanceName, SystemOptionName, and ImportName attributes
 	IHierarchicalStorageAttribute* connectorInstanceNameAttribute = node.GetAttribute(L"ConnectorInstanceName");
 	IHierarchicalStorageAttribute* systemSettingNameAttribute = node.GetAttribute(L"SystemSettingName");
 	IHierarchicalStorageAttribute* importNameAttribute = node.GetAttribute(L"ImportName");
@@ -7391,7 +7391,7 @@ bool System::LoadModule_System_ImportSystemSetting(IHierarchicalStorageNode& nod
 	std::wstring systemSettingName = systemSettingNameAttribute->GetValue();
 	std::wstring importName = importNameAttribute->GetValue();
 
-	//Retrieve the connector ID for the referenced connector
+	// Retrieve the connector ID for the referenced connector
 	NameToIDMap::const_iterator connectorNameToIDMapIterator = connectorNameToIDMap.find(connectorInstanceName);
 	if (connectorNameToIDMapIterator == connectorNameToIDMap.end())
 	{
@@ -7400,7 +7400,7 @@ bool System::LoadModule_System_ImportSystemSetting(IHierarchicalStorageNode& nod
 	}
 	unsigned int connectorID = connectorNameToIDMapIterator->second;
 
-	//Retrieve the details for the referenced connector
+	// Retrieve the details for the referenced connector
 	ConnectorDetailsMap::iterator connectorDetailsIterator = _connectorDetailsMap.find(connectorID);
 	if (connectorDetailsIterator == _connectorDetailsMap.end())
 	{
@@ -7409,7 +7409,7 @@ bool System::LoadModule_System_ImportSystemSetting(IHierarchicalStorageNode& nod
 	}
 	const ConnectorInfoInternal& connectorDetails = connectorDetailsIterator->second;
 
-	//Retrieve the details of the target exported system line
+	// Retrieve the details of the target exported system line
 	std::map<std::wstring, ExportedSystemSettingInfo>::const_iterator exportedSystemSettingInfoIterator = connectorDetails.exportedSystemSettingInfo.find(importName);
 	if (exportedSystemSettingInfoIterator == connectorDetails.exportedSystemSettingInfo.end())
 	{
@@ -7418,7 +7418,7 @@ bool System::LoadModule_System_ImportSystemSetting(IHierarchicalStorageNode& nod
 	}
 	const ExportedSystemSettingInfo& exportedSystemSettingInfo = exportedSystemSettingInfoIterator->second;
 
-	//Record details of this imported object
+	// Record details of this imported object
 	ImportedSystemSettingInfo importedSystemSettingInfo;
 	importedSystemSettingInfo.systemSettingID = exportedSystemSettingInfo.systemSettingID;
 	importedSystemSettingInfo.exportingModuleSystemSettingName = exportedSystemSettingInfo.exportingModuleSystemSettingName;
@@ -7431,10 +7431,10 @@ bool System::LoadModule_System_ImportSystemSetting(IHierarchicalStorageNode& nod
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_System_DefineEmbeddedROM(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
-	//Extract all the required attributes
+	// Extract all the required attributes
 	IHierarchicalStorageAttribute* embeddedROMNameAttribute = node.GetAttribute(L"EmbeddedROMName");
 	IHierarchicalStorageAttribute* deviceInstanceNameAttribute = node.GetAttribute(L"TargetDeviceInstanceName");
 	IHierarchicalStorageAttribute* interfaceNumberAttribute = node.GetAttribute(L"InterfaceNumber");
@@ -7451,7 +7451,7 @@ bool System::LoadModule_System_DefineEmbeddedROM(IHierarchicalStorageNode& node,
 	unsigned int romRegionSize = romRegionSizeAttribute->ExtractHexValue<unsigned int>();
 	unsigned int romEntryBitCount = romEntryBitCountAttribute->ExtractValue<unsigned int>();
 
-	//Retrieve the optional DisplayName attribute
+	// Retrieve the optional DisplayName attribute
 	IHierarchicalStorageAttribute* displayNameAttribute = node.GetAttribute(L"DisplayName");
 	std::wstring displayName = embeddedROMName;
 	if (displayNameAttribute != 0)
@@ -7459,7 +7459,7 @@ bool System::LoadModule_System_DefineEmbeddedROM(IHierarchicalStorageNode& node,
 		displayName = displayNameAttribute->GetValue();
 	}
 
-	//Retrieve the referenced device
+	// Retrieve the referenced device
 	IDevice* device = GetDevice(moduleID, deviceInstanceName);
 	if (device == 0)
 	{
@@ -7469,11 +7469,11 @@ bool System::LoadModule_System_DefineEmbeddedROM(IHierarchicalStorageNode& node,
 		return false;
 	}
 
-	//Generate an ID number for this embedded ROM
+	// Generate an ID number for this embedded ROM
 	std::unique_lock<std::mutex> embeddedROMLock(_embeddedROMMutex);
 	unsigned int embeddedROMID = GenerateFreeEmbeddedROMID();
 
-	//Record details of this embedded ROM
+	// Record details of this embedded ROM
 	EmbeddedROMInfoInternal embeddedROM;
 	embeddedROM.moduleID = moduleID;
 	embeddedROM.embeddedROMName = embeddedROMName;
@@ -7484,16 +7484,16 @@ bool System::LoadModule_System_DefineEmbeddedROM(IHierarchicalStorageNode& node,
 	embeddedROM.romEntryBitCount = romEntryBitCount;
 	_embeddedROMInfoSet[embeddedROMID] = embeddedROM;
 
-	//Update the last modified token for embedded ROM data
+	// Update the last modified token for embedded ROM data
 	++_embeddedROMInfoLastModifiedToken;
 
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_System_DefineSystemLine(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
-	//Extract the Name and Width attributes
+	// Extract the Name and Width attributes
 	IHierarchicalStorageAttribute* nameAttribute = node.GetAttribute(L"Name");
 	IHierarchicalStorageAttribute* widthAttribute = node.GetAttribute(L"Width");
 	if ((nameAttribute == 0) || (widthAttribute == 0))
@@ -7504,14 +7504,14 @@ bool System::LoadModule_System_DefineSystemLine(IHierarchicalStorageNode& node, 
 	std::wstring lineName = nameAttribute->GetValue();
 	unsigned int lineWidth = widthAttribute->ExtractValue<unsigned int>();
 
-	//Validate the supplied line width
+	// Validate the supplied line width
 	if (lineWidth == 0)
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"The system line with name \"" + lineName + L"\" was declared with a specified width of 0 for System.DefineSystemLine!"));
 		return false;
 	}
 
-	//Record details of this system line
+	// Record details of this system line
 	SystemLineInfo systemLine;
 	systemLine.moduleID = moduleID;
 	systemLine.lineName = lineName;
@@ -7523,10 +7523,10 @@ bool System::LoadModule_System_DefineSystemLine(IHierarchicalStorageNode& node, 
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_System_MapSystemLine(IHierarchicalStorageNode& node, unsigned int moduleID)
 {
-	//Extract the Name and Width attributes
+	// Extract the Name and Width attributes
 	IHierarchicalStorageAttribute* sourceSystemLineNameAttribute = node.GetAttribute(L"SourceSystemLineName");
 	IHierarchicalStorageAttribute* targetDeviceInstanceNameAttribute = node.GetAttribute(L"TargetDeviceInstanceName");
 	IHierarchicalStorageAttribute* targetLineAttribute = node.GetAttribute(L"TargetLine");
@@ -7539,7 +7539,7 @@ bool System::LoadModule_System_MapSystemLine(IHierarchicalStorageNode& node, uns
 	std::wstring targetDeviceName = targetDeviceInstanceNameAttribute->GetValue();
 	std::wstring targetLineName = targetLineAttribute->GetValue();
 
-	//Extract the LineMapping attribute if one has been specified
+	// Extract the LineMapping attribute if one has been specified
 	bool lineMappingSpecified = false;
 	std::wstring lineMapping;
 	IHierarchicalStorageAttribute* lineMappingAttribute = node.GetAttribute(L"LineMapping");
@@ -7549,7 +7549,7 @@ bool System::LoadModule_System_MapSystemLine(IHierarchicalStorageNode& node, uns
 		lineMapping = lineMappingAttribute->GetValue();
 	}
 
-	//Retrieve the target device object from the system
+	// Retrieve the target device object from the system
 	IDevice* targetDevice = GetDevice(moduleID, targetDeviceName);
 	if (targetDevice == 0)
 	{
@@ -7557,7 +7557,7 @@ bool System::LoadModule_System_MapSystemLine(IHierarchicalStorageNode& node, uns
 		return false;
 	}
 
-	//Obtain the ID number for the system line
+	// Obtain the ID number for the system line
 	unsigned int systemLineID = GetSystemLineID(moduleID, systemLineName);
 	if (systemLineID == 0)
 	{
@@ -7565,7 +7565,7 @@ bool System::LoadModule_System_MapSystemLine(IHierarchicalStorageNode& node, uns
 		return false;
 	}
 
-	//Obtain the width of the system line
+	// Obtain the width of the system line
 	unsigned int systemLineWidth = GetSystemLineWidth(systemLineID);
 	if (systemLineWidth == 0)
 	{
@@ -7573,7 +7573,7 @@ bool System::LoadModule_System_MapSystemLine(IHierarchicalStorageNode& node, uns
 		return false;
 	}
 
-	//Obtain the ID number for the target line
+	// Obtain the ID number for the target line
 	unsigned int targetLineID = targetDevice->GetLineID(targetLineName);
 	if (targetLineID == 0)
 	{
@@ -7581,7 +7581,7 @@ bool System::LoadModule_System_MapSystemLine(IHierarchicalStorageNode& node, uns
 		return false;
 	}
 
-	//Obtain the width of the target line
+	// Obtain the width of the target line
 	unsigned int targetLineWidth = targetDevice->GetLineWidth(targetLineID);
 	if (targetLineWidth == 0)
 	{
@@ -7589,7 +7589,7 @@ bool System::LoadModule_System_MapSystemLine(IHierarchicalStorageNode& node, uns
 		return false;
 	}
 
-	//Extract any line bitmasks that have been specified
+	// Extract any line bitmasks that have been specified
 	unsigned int lineMaskAND = 0xFFFFFFFF;
 	IHierarchicalStorageAttribute* lineMaskANDAttribute = node.GetAttribute(L"ANDMask");
 	if (lineMaskANDAttribute != 0)
@@ -7609,7 +7609,7 @@ bool System::LoadModule_System_MapSystemLine(IHierarchicalStorageNode& node, uns
 		lineMaskXOR = lineMaskXORAttribute->ExtractHexValue<unsigned int>();
 	}
 
-	//Record details of this system line
+	// Record details of this system line
 	SystemLineMapping systemLineMapping;
 	systemLineMapping.moduleID = moduleID;
 	systemLineMapping.targetDevice = targetDevice;
@@ -7624,14 +7624,14 @@ bool System::LoadModule_System_MapSystemLine(IHierarchicalStorageNode& node, uns
 	_systemLineMappings.push_back(systemLineMapping);
 	SystemLineMapping& systemLineMappingAdded = *_systemLineMappings.rbegin();
 
-	//Attempt to build a line remap table if requested. Note that we do this after the
-	//line has already been added to the list of system lines, so that we don't have to
-	//copy the line remap table over to a new object when adding the line info to the
-	//system line list.
+	// Attempt to build a line remap table if requested. Note that we do this after the
+	// line has already been added to the list of system lines, so that we don't have to
+	// copy the line remap table over to a new object when adding the line info to the
+	// system line list.
 	if (!systemLineMappingAdded.lineRemapTable.SetDataMapping(lineMapping, systemLineWidth))
 	{
-		//If we fail to successfully construct the line remap table, remove this system
-		//line from the list of system lines, log an error, and return false.
+		// If we fail to successfully construct the line remap table, remove this system
+		// line from the list of system lines, log an error, and return false.
 		_systemLineMappings.pop_back();
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to load the system line with name \"" + systemLineName + L"\" because an error occurred attempting to construct a DataRemapTable from the LineMapping attribute for System.MapSystemLine!"));
 		return false;
@@ -7640,10 +7640,10 @@ bool System::LoadModule_System_MapSystemLine(IHierarchicalStorageNode& node, uns
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_System_Setting(IHierarchicalStorageNode& node, unsigned int moduleID, const std::wstring& fileName)
 {
-	//Extract the Name attribute
+	// Extract the Name attribute
 	IHierarchicalStorageAttribute* settingNameAttribute = node.GetAttribute(L"Name");
 	if (settingNameAttribute == 0)
 	{
@@ -7652,7 +7652,7 @@ bool System::LoadModule_System_Setting(IHierarchicalStorageNode& node, unsigned 
 	}
 	std::wstring settingName = settingNameAttribute->GetValue();
 
-	//Build the display name
+	// Build the display name
 	std::wstring displayName = settingName;
 	IHierarchicalStorageAttribute* displayNameAttribute = node.GetAttribute(L"DisplayName");
 	if (displayNameAttribute != 0)
@@ -7660,7 +7660,7 @@ bool System::LoadModule_System_Setting(IHierarchicalStorageNode& node, unsigned 
 		displayName = displayNameAttribute->GetValue();
 	}
 
-	//Extract any supplied optional lead-in time attributes
+	// Extract any supplied optional lead-in time attributes
 	bool settingChangeLeadInTimeRandom = false;
 	double settingChangeLeadInTime = 0;
 	double settingChangeLeadInTimeEnd = 0;
@@ -7691,8 +7691,8 @@ bool System::LoadModule_System_Setting(IHierarchicalStorageNode& node, unsigned 
 	}
 
 	//##TODO## Finish migrating over all other setting attributes to discrete variables as
-	//per the above
-	//Extract any optional toggle setting attributes
+	// per the above
+	// Extract any optional toggle setting attributes
 	bool toggleSetting = false;
 	IHierarchicalStorageAttribute* toggleSettingAttribute = node.GetAttribute(L"ToggleSetting");
 	if (toggleSettingAttribute != 0)
@@ -7700,7 +7700,7 @@ bool System::LoadModule_System_Setting(IHierarchicalStorageNode& node, unsigned 
 		toggleSetting = toggleSettingAttribute->ExtractValue<bool>();
 	}
 
-	//Extract any optional toggle setting auto-revert attributes
+	// Extract any optional toggle setting auto-revert attributes
 	bool toggleSettingAutoRevert = false;
 	bool toggleSettingAutoRevertTimeRandom = false;
 	double toggleSettingAutoRevertTime = 0;
@@ -7740,7 +7740,7 @@ bool System::LoadModule_System_Setting(IHierarchicalStorageNode& node, unsigned 
 		}
 	}
 
-	//Load the child elements from this setting node
+	// Load the child elements from this setting node
 	unsigned int defaultOption = 0;
 	unsigned int toggleSettingOnOptionIndex;
 	bool toggleSettingOnOptionIndexDefined = false;
@@ -7759,43 +7759,43 @@ bool System::LoadModule_System_Setting(IHierarchicalStorageNode& node, unsigned 
 		}
 		else
 		{
-			//Log a warning for an unrecognized element
+			// Log a warning for an unrecognized element
 			WriteLogEvent(LogEntry(LogEntry::EventLevel::Warning, L"System", L"Unrecognized child element: " + elementName + L" when loading System.Setting node under module file " + fileName + L"."));
 			continue;
 		}
 
-		//If this option defines the on state for a toggle setting, latch this option
-		//index.
+		// If this option defines the on state for a toggle setting, latch this option
+		// index.
 		if (toggleSettingOnOption)
 		{
 			toggleSettingOnOptionIndex = (unsigned int)options.size();
 			toggleSettingOnOptionIndexDefined = true;
 		}
 
-		//If we managed to load the setting option node successfully, record its
-		//information within this system setting, otherwise log an error and return false.
+		// If we managed to load the setting option node successfully, record its
+		// information within this system setting, otherwise log an error and return false.
 		if (loadedSettingOptionSuccessfully)
 		{
-			//Store the index for this new option as the default option for this setting
-			//if it was flagged as the default option
+			// Store the index for this new option as the default option for this setting
+			// if it was flagged as the default option
 			if (thisSettingIsDefaultOption)
 			{
 				defaultOption = (unsigned int)options.size();
 			}
 
-			//Store this option within this system setting
+			// Store this option within this system setting
 			options.push_back(settingOption);
 		}
 		else
 		{
-			//Log an error if we failed to load an element correctly, and return false.
+			// Log an error if we failed to load an element correctly, and return false.
 			WriteLogEvent(LogEntry(LogEntry::EventLevel::Warning, L"System", L"Unrecognized child element: " + elementName + L" when loading System.Setting node under module file " + fileName + L"."));
 			return false;
 		}
 	}
 
-	//If this setting is a toggle setting, and there are more or less than 2 options
-	//defined for this setting, log an error, and return false.
+	// If this setting is a toggle setting, and there are more or less than 2 options
+	// defined for this setting, log an error, and return false.
 	unsigned int optionCount = (unsigned int)options.size();
 	if (toggleSetting && (optionCount != 2))
 	{
@@ -7805,16 +7805,16 @@ bool System::LoadModule_System_Setting(IHierarchicalStorageNode& node, unsigned 
 		return false;
 	}
 
-	//If this setting is a toggle setting, and no option was defined as the on state for
-	//the toggle setting, log an error, and return false.
+	// If this setting is a toggle setting, and no option was defined as the on state for
+	// the toggle setting, log an error, and return false.
 	if (toggleSetting && !toggleSettingOnOptionIndexDefined)
 	{
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Warning, L"System", L"No options set the ToggleSettingOnOption attribute for toggle setting with name : " + settingName + L" when loading System.Setting node under module file " + fileName + L"."));
 		return false;
 	}
 
-	//If this setting is a toggle setting, set the option index numbers for the on and off
-	//options.
+	// If this setting is a toggle setting, set the option index numbers for the on and off
+	// options.
 	unsigned int onOption = 0;
 	unsigned int offOption = 0;
 	if (toggleSetting)
@@ -7823,11 +7823,11 @@ bool System::LoadModule_System_Setting(IHierarchicalStorageNode& node, unsigned 
 		offOption = (toggleSettingOnOptionIndex != 0)? 0: 1;
 	}
 
-	//Generate an ID number for this system setting
+	// Generate an ID number for this system setting
 	std::unique_lock<std::recursive_mutex> moduleSettingsLock(_moduleSettingMutex);
 	unsigned int systemSettingID = GenerateFreeSystemSettingID();
 
-	//Populate the system setting object with this setting info
+	// Populate the system setting object with this setting info
 	SystemSettingInfo* setting = new SystemSettingInfo();
 	setting->systemSettingID = systemSettingID;
 	setting->moduleID = moduleID;
@@ -7846,7 +7846,7 @@ bool System::LoadModule_System_Setting(IHierarchicalStorageNode& node, unsigned 
 	setting->offOption = offOption;
 	setting->options = options;
 
-	//Add this system setting to the set of defined system settings
+	// Add this system setting to the set of defined system settings
 	_systemSettingsObjects.insert(setting);
 	_systemSettings.insert(SystemSettingsMapEntry(setting->systemSettingID, setting));
 	_moduleSettings[moduleID].push_back(setting->systemSettingID);
@@ -7854,10 +7854,10 @@ bool System::LoadModule_System_Setting(IHierarchicalStorageNode& node, unsigned 
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_System_Setting_Option(IHierarchicalStorageNode& node, unsigned int moduleID, const std::wstring& fileName, SystemSettingOption& option, bool& defaultOption, bool& toggleSettingOnOption)
 {
-	//Extract the Name attribute
+	// Extract the Name attribute
 	IHierarchicalStorageAttribute* optionNameAttribute = node.GetAttribute(L"Name");
 	if (optionNameAttribute == 0)
 	{
@@ -7866,7 +7866,7 @@ bool System::LoadModule_System_Setting_Option(IHierarchicalStorageNode& node, un
 	}
 	std::wstring optionName = optionNameAttribute->GetValue();
 
-	//Build the display name
+	// Build the display name
 	std::wstring displayName = optionName;
 	IHierarchicalStorageAttribute* displayNameAttribute = node.GetAttribute(L"DisplayName");
 	if (displayNameAttribute != 0)
@@ -7874,7 +7874,7 @@ bool System::LoadModule_System_Setting_Option(IHierarchicalStorageNode& node, un
 		displayName = displayNameAttribute->GetValue();
 	}
 
-	//Extract the Default attribute
+	// Extract the Default attribute
 	defaultOption = false;
 	IHierarchicalStorageAttribute* defaultAttribute = node.GetAttribute(L"Default");
 	if (defaultAttribute != 0)
@@ -7882,7 +7882,7 @@ bool System::LoadModule_System_Setting_Option(IHierarchicalStorageNode& node, un
 		defaultOption = defaultAttribute->ExtractValue<bool>();
 	}
 
-	//Extract the ToggleSettingOnOption attribute
+	// Extract the ToggleSettingOnOption attribute
 	toggleSettingOnOption = false;
 	IHierarchicalStorageAttribute* toggleSettingOnOptionAttribute = node.GetAttribute(L"ToggleSettingOnOption");
 	if (toggleSettingOnOptionAttribute != 0)
@@ -7890,11 +7890,11 @@ bool System::LoadModule_System_Setting_Option(IHierarchicalStorageNode& node, un
 		toggleSettingOnOption = toggleSettingOnOptionAttribute->ExtractValue<bool>();
 	}
 
-	//Populate the system setting option object with this option info
+	// Populate the system setting option object with this option info
 	option.name = optionName;
 	option.displayName = displayName;
 
-	//Load the child elements from this option node
+	// Load the child elements from this option node
 	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
 	for (std::list<IHierarchicalStorageNode*>::const_iterator i = childList.begin(); i != childList.end(); ++i)
 	{
@@ -7911,21 +7911,21 @@ bool System::LoadModule_System_Setting_Option(IHierarchicalStorageNode& node, un
 		}
 		else
 		{
-			//Log a warning for an unrecognized element
+			// Log a warning for an unrecognized element
 			WriteLogEvent(LogEntry(LogEntry::EventLevel::Warning, L"System", L"Unrecognized child element: " + elementName + L" when loading System.Setting.Option node under module file " + fileName + L"."));
 			continue;
 		}
 
-		//If we managed to load the settings change node successfully, record its
-		//information within this system option, otherwise log an error and return false.
+		// If we managed to load the settings change node successfully, record its
+		// information within this system option, otherwise log an error and return false.
 		if (loadedSettingChangeSuccessfully)
 		{
-			//Store this settings change within this option
+			// Store this settings change within this option
 			option.stateChanges.push_back(settingChange);
 		}
 		else
 		{
-			//Log an error if we failed to load an element correctly, and return false.
+			// Log an error if we failed to load an element correctly, and return false.
 			WriteLogEvent(LogEntry(LogEntry::EventLevel::Warning, L"System", L"Unrecognized child element: " + elementName + L" when loading System.Setting.Option node under module file " + fileName + L"."));
 			return false;
 		}
@@ -7934,10 +7934,10 @@ bool System::LoadModule_System_Setting_Option(IHierarchicalStorageNode& node, un
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_System_SelectSettingOption(IHierarchicalStorageNode& node, unsigned int moduleID, SystemStateChange& stateChange)
 {
-	//Extract the SettingName and OptionName attributes
+	// Extract the SettingName and OptionName attributes
 	IHierarchicalStorageAttribute* settingNameAttribute = node.GetAttribute(L"SettingName");
 	IHierarchicalStorageAttribute* optionNameAttribute = node.GetAttribute(L"OptionName");
 	if ((settingNameAttribute == 0) || (optionNameAttribute == 0))
@@ -7948,7 +7948,7 @@ bool System::LoadModule_System_SelectSettingOption(IHierarchicalStorageNode& nod
 	std::wstring settingName = settingNameAttribute->GetValue();
 	std::wstring optionName = optionNameAttribute->GetValue();
 
-	//Populate the system state change object with this state change info
+	// Populate the system state change object with this state change info
 	stateChange.moduleID = moduleID;
 	stateChange.type = SystemStateChangeType::SetSystemOption;
 	stateChange.targetElementName = settingName;
@@ -7957,10 +7957,10 @@ bool System::LoadModule_System_SelectSettingOption(IHierarchicalStorageNode& nod
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_System_SetClockFrequency(IHierarchicalStorageNode& node, unsigned int moduleID, SystemStateChange& stateChange)
 {
-	//Extract the TargetClockName, ClockType, and Value attributes
+	// Extract the TargetClockName, ClockType, and Value attributes
 	IHierarchicalStorageAttribute* targetClockNameAttribute = node.GetAttribute(L"TargetClockName");
 	IHierarchicalStorageAttribute* clockTypeAttribute = node.GetAttribute(L"ClockType");
 	IHierarchicalStorageAttribute* valueAttribute = node.GetAttribute(L"Value");
@@ -7973,7 +7973,7 @@ bool System::LoadModule_System_SetClockFrequency(IHierarchicalStorageNode& node,
 	std::wstring clockTypeString = clockTypeAttribute->GetValue();
 	double clockRate = valueAttribute->ExtractValue<double>();
 
-	//Decode the clock type string
+	// Decode the clock type string
 	ClockSource::ClockType clockType;
 	if (!ClockSource::DecodeClockTypeString(clockTypeString, clockType))
 	{
@@ -7981,7 +7981,7 @@ bool System::LoadModule_System_SetClockFrequency(IHierarchicalStorageNode& node,
 		return false;
 	}
 
-	//Populate the system state change object with this state change info
+	// Populate the system state change object with this state change info
 	stateChange.moduleID = moduleID;
 	stateChange.type = SystemStateChangeType::SetClockFrequency;
 	stateChange.targetElementName = targetClockName;
@@ -7991,10 +7991,10 @@ bool System::LoadModule_System_SetClockFrequency(IHierarchicalStorageNode& node,
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_System_SetLineState(IHierarchicalStorageNode& node, unsigned int moduleID, SystemStateChange& stateChange)
 {
-	//Extract the SystemLineName and Value attributes
+	// Extract the SystemLineName and Value attributes
 	IHierarchicalStorageAttribute* systemLineNameAttribute = node.GetAttribute(L"SystemLineName");
 	IHierarchicalStorageAttribute* valueAttribute = node.GetAttribute(L"Value");
 	if ((systemLineNameAttribute == 0) || (valueAttribute == 0))
@@ -8005,7 +8005,7 @@ bool System::LoadModule_System_SetLineState(IHierarchicalStorageNode& node, unsi
 	std::wstring systemLineName = systemLineNameAttribute->GetValue();
 	unsigned int lineValue = valueAttribute->ExtractHexValue<unsigned int>();
 
-	//Populate the system state change object with this state change info
+	// Populate the system state change object with this state change info
 	stateChange.moduleID = moduleID;
 	stateChange.type = SystemStateChangeType::SetSystemLineState;
 	stateChange.targetElementName = systemLineName;
@@ -8014,10 +8014,10 @@ bool System::LoadModule_System_SetLineState(IHierarchicalStorageNode& node, unsi
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::LoadModule_ProcessViewQueue(const std::list<ViewOpenRequest>& viewOpenRequests)
 {
-	//Process each view open request
+	// Process each view open request
 	bool result = true;
 	for (std::list<ViewOpenRequest>::const_iterator i = viewOpenRequests.begin(); i != viewOpenRequests.end(); ++i)
 	{
@@ -8025,7 +8025,7 @@ bool System::LoadModule_ProcessViewQueue(const std::list<ViewOpenRequest>& viewO
 		const ViewOpenRequest& request = *i;
 		if (request.viewTarget == IViewPresenter::ViewTarget::System)
 		{
-			//Open the view
+			// Open the view
 			for (std::set<IExtension*>::const_iterator menuHandlerIterator = _systemMenuHandlers.begin(); menuHandlerIterator != _systemMenuHandlers.end(); ++menuHandlerIterator)
 			{
 				requestResult |= (*menuHandlerIterator)->OpenSystemView(request.viewGroupName, request.viewName);
@@ -8033,7 +8033,7 @@ bool System::LoadModule_ProcessViewQueue(const std::list<ViewOpenRequest>& viewO
 		}
 		else if (request.viewTarget == IViewPresenter::ViewTarget::Module)
 		{
-			//Retrieve info on the target module
+			// Retrieve info on the target module
 			LoadedModuleInfoMap::const_iterator loadedModuleInfoIterator = _loadedModuleInfoMap.find(request.moduleID);
 			if (loadedModuleInfoIterator == _loadedModuleInfoMap.end())
 			{
@@ -8045,7 +8045,7 @@ bool System::LoadModule_ProcessViewQueue(const std::list<ViewOpenRequest>& viewO
 			}
 			const LoadedModuleInfoInternal& loadedModuleInfo = loadedModuleInfoIterator->second;
 
-			//Open the view
+			// Open the view
 			for (std::set<IExtension*>::const_iterator menuHandlerIterator = loadedModuleInfo.menuHandlers.begin(); menuHandlerIterator != loadedModuleInfo.menuHandlers.end(); ++menuHandlerIterator)
 			{
 				requestResult |= (*menuHandlerIterator)->OpenModuleView(request.viewGroupName, request.viewName, request.moduleID);
@@ -8053,7 +8053,7 @@ bool System::LoadModule_ProcessViewQueue(const std::list<ViewOpenRequest>& viewO
 		}
 		else if (request.viewTarget == IViewPresenter::ViewTarget::Device)
 		{
-			//Retrieve the device object from the system
+			// Retrieve the device object from the system
 			IDevice* device = GetDevice(request.moduleID, request.deviceInstanceName);
 			if (device == 0)
 			{
@@ -8062,7 +8062,7 @@ bool System::LoadModule_ProcessViewQueue(const std::list<ViewOpenRequest>& viewO
 				continue;
 			}
 
-			//Open the view
+			// Open the view
 			for (LoadedDeviceInfoList::iterator loadedDeviceIterator = _loadedDeviceInfoList.begin(); loadedDeviceIterator != _loadedDeviceInfoList.end(); ++loadedDeviceIterator)
 			{
 				if (loadedDeviceIterator->device == device)
@@ -8076,7 +8076,7 @@ bool System::LoadModule_ProcessViewQueue(const std::list<ViewOpenRequest>& viewO
 		}
 		else if ((request.viewTarget == IViewPresenter::ViewTarget::Extension) && !request.globalExtension)
 		{
-			//Retrieve the extension object from the system
+			// Retrieve the extension object from the system
 			IExtension* extension = GetExtension(request.moduleID, request.extensionInstanceName);
 			if (extension == 0)
 			{
@@ -8085,7 +8085,7 @@ bool System::LoadModule_ProcessViewQueue(const std::list<ViewOpenRequest>& viewO
 				continue;
 			}
 
-			//Open the view
+			// Open the view
 			for (LoadedExtensionInfoList::iterator loadedExtensionIterator = _loadedExtensionInfoList.begin(); loadedExtensionIterator != _loadedExtensionInfoList.end(); ++loadedExtensionIterator)
 			{
 				if (loadedExtensionIterator->extension == extension)
@@ -8099,7 +8099,7 @@ bool System::LoadModule_ProcessViewQueue(const std::list<ViewOpenRequest>& viewO
 		}
 		else if ((request.viewTarget == IViewPresenter::ViewTarget::Extension) && request.globalExtension)
 		{
-			//Retrieve the extension object from the system
+			// Retrieve the extension object from the system
 			IExtension* extension = GetGlobalExtension(request.extensionInstanceName);
 			if (extension == 0)
 			{
@@ -8108,7 +8108,7 @@ bool System::LoadModule_ProcessViewQueue(const std::list<ViewOpenRequest>& viewO
 				continue;
 			}
 
-			//Open the view
+			// Open the view
 			for (LoadedGlobalExtensionInfoList::iterator loadedGlobalExtensionIterator = _globalExtensionInfoList.begin(); loadedGlobalExtensionIterator != _globalExtensionInfoList.end(); ++loadedGlobalExtensionIterator)
 			{
 				LoadedGlobalExtensionInfo& globalExtensionInfo = loadedGlobalExtensionIterator->second;
@@ -8134,7 +8134,7 @@ bool System::LoadModule_ProcessViewQueue(const std::list<ViewOpenRequest>& viewO
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::UnloadAllModulesSynchronous()
 {
 	_clearSystemComplete = false;
@@ -8142,39 +8142,39 @@ void System::UnloadAllModulesSynchronous()
 	workerThread.detach();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::UnloadAllModulesSynchronousComplete() const
 {
 	return _clearSystemComplete;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::UnloadAllModules()
 {
 	std::unique_lock<std::mutex> lock(_moduleLoadMutex);
 
-	//Stop the system if it is currently running
+	// Stop the system if it is currently running
 	StopSystem();
 
-	//Unload each loaded module
+	// Unload each loaded module
 	while (!_loadedModuleInfoMap.empty())
 	{
 		const LoadedModuleInfoInternal& moduleInfo = _loadedModuleInfoMap.begin()->second;
 		UnloadModuleInternal(moduleInfo.moduleID);
 	}
 
-	//Flag that the operation is complete
+	// Flag that the operation is complete
 	_clearSystemComplete = true;
 
-	//Notify any registered observers that the set of loaded modules has now changed
+	// Notify any registered observers that the set of loaded modules has now changed
 	lock.unlock();
 	_loadedModuleChangeObservers.NotifyObservers();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::ReadModuleConnectorInfo(const Marshal::In<std::wstring>& filePath, const Marshal::Out<std::wstring>& systemClassName, const Marshal::Out<ConnectorImportList>& connectorsImported, const Marshal::Out<ConnectorExportList>& connectorsExported) const
 {
-	//Open the target file
+	// Open the target file
 	FileStreamReference streamReference(_guiExtensionInterface);
 	if (!streamReference.OpenExistingFileForRead(filePath))
 	{
@@ -8183,11 +8183,11 @@ bool System::ReadModuleConnectorInfo(const Marshal::In<std::wstring>& filePath, 
 	}
 	Stream::IStream& source = *streamReference;
 
-	//Determine the text format for the file, and strip any present byte order mark.
+	// Determine the text format for the file, and strip any present byte order mark.
 	source.SetTextEncoding(Stream::IStream::TextEncoding::UTF8);
 	source.ProcessByteOrderMark();
 
-	//Load the XML structure from the file
+	// Load the XML structure from the file
 	HierarchicalStorageTree tree;
 	if (!tree.LoadTree(source))
 	{
@@ -8196,14 +8196,14 @@ bool System::ReadModuleConnectorInfo(const Marshal::In<std::wstring>& filePath, 
 	}
 	IHierarchicalStorageNode& rootNode = tree.GetRootNode();
 
-	//If this is a system module, no connector info exists. In this case, return true with
-	//no data in the connector import and export lists, and a blank system class name.
+	// If this is a system module, no connector info exists. In this case, return true with
+	// no data in the connector import and export lists, and a blank system class name.
 	if (rootNode.GetName() == L"System")
 	{
 		return true;
 	}
 
-	//Extract the system class name
+	// Extract the system class name
 	IHierarchicalStorageAttribute* systemClassNameAttribute = rootNode.GetAttribute(L"SystemClassName");
 	if (systemClassNameAttribute == 0)
 	{
@@ -8212,7 +8212,7 @@ bool System::ReadModuleConnectorInfo(const Marshal::In<std::wstring>& filePath, 
 	}
 	systemClassName = systemClassNameAttribute->GetValue();
 
-	//Extract connector definitions
+	// Extract connector definitions
 	ConnectorImportList connectorsImportedTemp;
 	ConnectorExportList connectorsExportedTemp;
 	std::list<IHierarchicalStorageNode*> childList = rootNode.GetChildList();
@@ -8254,7 +8254,7 @@ bool System::ReadModuleConnectorInfo(const Marshal::In<std::wstring>& filePath, 
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> System::LoadModuleSynchronousCurrentModuleName() const
 {
 	std::unique_lock<std::mutex> lock(_moduleNameMutex);
@@ -8266,21 +8266,21 @@ Marshal::Ret<std::wstring> System::LoadModuleSynchronousCurrentModuleName() cons
 	return moduleName;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::PushLoadModuleCurrentModuleName(const std::wstring& moduleName)
 {
 	std::unique_lock<std::mutex> lock(_moduleNameMutex);
 	_loadSystemCurrentModuleNameStack.push_back(moduleName);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::PopLoadModuleCurrentModuleName()
 {
 	std::unique_lock<std::mutex> lock(_moduleNameMutex);
 	_loadSystemCurrentModuleNameStack.pop_back();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> System::UnloadModuleSynchronousCurrentModuleName() const
 {
 	std::unique_lock<std::mutex> lock(_moduleNameMutex);
@@ -8292,23 +8292,23 @@ Marshal::Ret<std::wstring> System::UnloadModuleSynchronousCurrentModuleName() co
 	return moduleName;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::PushUnloadModuleCurrentModuleName(const std::wstring& moduleName)
 {
 	std::unique_lock<std::mutex> lock(_moduleNameMutex);
 	_unloadSystemCurrentModuleNameStack.push_back(moduleName);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::PopUnloadModuleCurrentModuleName()
 {
 	std::unique_lock<std::mutex> lock(_moduleNameMutex);
 	_unloadSystemCurrentModuleNameStack.pop_back();
 }
 
-//----------------------------------------------------------------------------------------
-//Loaded module info functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Loaded module info functions
+//----------------------------------------------------------------------------------------------------------------------
 Marshal::Ret<std::list<unsigned int>> System::GetLoadedModuleIDs() const
 {
 	std::list<unsigned int> idList;
@@ -8319,7 +8319,7 @@ Marshal::Ret<std::list<unsigned int>> System::GetLoadedModuleIDs() const
 	return idList;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::GetLoadedModuleInfo(unsigned int moduleID, ILoadedModuleInfo& moduleInfo) const
 {
 	LoadedModuleInfoMap::const_iterator loadedModuleIterator = _loadedModuleInfoMap.find(moduleID);
@@ -8342,7 +8342,7 @@ bool System::GetLoadedModuleInfo(unsigned int moduleID, ILoadedModuleInfo& modul
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::GetModuleDisplayName(unsigned int moduleID, const Marshal::Out<std::wstring>& moduleDisplayName) const
 {
 	LoadedModuleInfoMap::const_iterator loadedModuleIterator = _loadedModuleInfoMap.find(moduleID);
@@ -8356,7 +8356,7 @@ bool System::GetModuleDisplayName(unsigned int moduleID, const Marshal::Out<std:
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::GetModuleInstanceName(unsigned int moduleID, const Marshal::Out<std::wstring>& moduleInstanceName) const
 {
 	LoadedModuleInfoMap::const_iterator loadedModuleIterator = _loadedModuleInfoMap.find(moduleID);
@@ -8370,21 +8370,21 @@ bool System::GetModuleInstanceName(unsigned int moduleID, const Marshal::Out<std
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::LoadedModulesChangeNotifyRegister(IObserverSubscription& observer)
 {
 	_loadedModuleChangeObservers.AddObserver(observer);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::LoadedModulesChangeNotifyDeregister(IObserverSubscription& observer)
 {
 	_loadedModuleChangeObservers.RemoveObserver(observer);
 }
 
-//----------------------------------------------------------------------------------------
-//Connector info functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Connector info functions
+//----------------------------------------------------------------------------------------------------------------------
 Marshal::Ret<std::list<unsigned int>> System::GetConnectorIDs() const
 {
 	std::list<unsigned int> idList;
@@ -8395,7 +8395,7 @@ Marshal::Ret<std::list<unsigned int>> System::GetConnectorIDs() const
 	return idList;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::GetConnectorInfo(unsigned int connectorID, IConnectorInfo& connectorInfo) const
 {
 	bool foundEntry = false;
@@ -8421,13 +8421,13 @@ bool System::GetConnectorInfo(unsigned int connectorID, IConnectorInfo& connecto
 	return foundEntry;
 }
 
-//----------------------------------------------------------------------------------------
-//Loaded device info functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Loaded device info functions
+//----------------------------------------------------------------------------------------------------------------------
 Marshal::Ret<std::list<IDevice*>> System::GetLoadedDevices() const
 {
 	//##TODO## Consider thread safety for all functions exposed over the system extension
-	//interface
+	// interface
 	std::unique_lock<std::mutex> loadedElementLock(_loadedElementMutex);
 	std::list<IDevice*> deviceList;
 	for (LoadedDeviceInfoList::const_iterator i = _loadedDeviceInfoList.begin(); i != _loadedDeviceInfoList.end(); ++i)
@@ -8437,10 +8437,10 @@ Marshal::Ret<std::list<IDevice*>> System::GetLoadedDevices() const
 	return deviceList;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::GetDeviceDisplayName(IDevice* device, const Marshal::Out<std::wstring>& deviceDisplayName) const
 {
-	//Ensure the specified target device is one of the currently loaded devices
+	// Ensure the specified target device is one of the currently loaded devices
 	std::unique_lock<std::mutex> loadedElementLock(_loadedElementMutex);
 	bool foundTargetDevice = false;
 	LoadedDeviceInfoList::const_iterator loadedDeviceInfoListIterator = _loadedDeviceInfoList.begin();
@@ -8459,15 +8459,15 @@ bool System::GetDeviceDisplayName(IDevice* device, const Marshal::Out<std::wstri
 	}
 	const LoadedDeviceInfo& loadedDeviceInfo = *loadedDeviceInfoListIterator;
 
-	//Return the device display name to the caller
+	// Return the device display name to the caller
 	deviceDisplayName = loadedDeviceInfo.displayName;
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::GetDeviceInstanceName(IDevice* device, const Marshal::Out<std::wstring>& deviceInstanceName) const
 {
-	//Ensure the specified target device is one of the currently loaded devices
+	// Ensure the specified target device is one of the currently loaded devices
 	bool foundTargetDevice = false;
 	LoadedDeviceInfoList::const_iterator loadedDeviceInfoListIterator = _loadedDeviceInfoList.begin();
 	while (!foundTargetDevice && (loadedDeviceInfoListIterator != _loadedDeviceInfoList.end()))
@@ -8485,15 +8485,15 @@ bool System::GetDeviceInstanceName(IDevice* device, const Marshal::Out<std::wstr
 	}
 	const LoadedDeviceInfo& loadedDeviceInfo = *loadedDeviceInfoListIterator;
 
-	//Return the device instance name to the caller
+	// Return the device instance name to the caller
 	deviceInstanceName = loadedDeviceInfo.name;
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::GetFullyQualifiedDeviceDisplayName(IDevice* device, const Marshal::Out<std::wstring>& fullyQualifiedDeviceDisplayName) const
 {
-	//Ensure the specified target device is one of the currently loaded devices
+	// Ensure the specified target device is one of the currently loaded devices
 	std::unique_lock<std::mutex> loadedElementLock(_loadedElementMutex);
 	bool foundTargetDevice = false;
 	LoadedDeviceInfoList::const_iterator loadedDeviceInfoListIterator = _loadedDeviceInfoList.begin();
@@ -8512,10 +8512,10 @@ bool System::GetFullyQualifiedDeviceDisplayName(IDevice* device, const Marshal::
 	}
 	const LoadedDeviceInfo& loadedDeviceInfo = *loadedDeviceInfoListIterator;
 
-	//Build a list of each connector that's imported by the module containing the target
-	//device
+	// Build a list of each connector that's imported by the module containing the target
+	// device
 	//##TODO## Ensure that we use a mutex to protect access to connectorDetailsMap in all
-	//cases
+	// cases
 	std::list<const ConnectorInfoInternal*> importedConnectorList;
 	for (ConnectorDetailsMap::const_iterator connectorDetailsMapIterator = _connectorDetailsMap.begin(); connectorDetailsMapIterator != _connectorDetailsMap.end(); ++connectorDetailsMapIterator)
 	{
@@ -8526,13 +8526,13 @@ bool System::GetFullyQualifiedDeviceDisplayName(IDevice* device, const Marshal::
 		}
 	}
 
-	//Build a list of connectors imported by the parent module of the target device which
-	//should have the connector name qualified
+	// Build a list of connectors imported by the parent module of the target device which
+	// should have the connector name qualified
 	//##TODO## Extend this operation to all parent modules of the module which contains
-	//the target device, so that each connector in each parent module is listed where more
-	//than one eligible connector for importing exists.
+	// the target device, so that each connector in each parent module is listed where more
+	// than one eligible connector for importing exists.
 	//##TODO## For each root module we reach, if there is more than one root module of the
-	//same type, include the root module display name in the device display name.
+	// same type, include the root module display name in the device display name.
 	std::list<const ConnectorInfoInternal*> connectorsToQualify;
 	for (std::list<const ConnectorInfoInternal*>::const_iterator importedConnectorListIterator = importedConnectorList.begin(); importedConnectorListIterator != importedConnectorList.end(); ++importedConnectorListIterator)
 	{
@@ -8547,15 +8547,15 @@ bool System::GetFullyQualifiedDeviceDisplayName(IDevice* device, const Marshal::
 			}
 		}
 
-		//If we found more than one compatible connector which could be imported, add this
-		//connector to the list of connectors to qualify in the device display name.
+		// If we found more than one compatible connector which could be imported, add this
+		// connector to the list of connectors to qualify in the device display name.
 		if (compatibleConnectorList.size() > 1)
 		{
 			connectorsToQualify.push_back(&importedConnectorDetails);
 		}
 	}
 
-	//Generate the fully qualified device display name, and return it to the caller.
+	// Generate the fully qualified device display name, and return it to the caller.
 	std::wstring fullyQualifiedDeviceDisplayNameTemp = loadedDeviceInfo.displayName;
 	if (!connectorsToQualify.empty())
 	{
@@ -8574,13 +8574,13 @@ bool System::GetFullyQualifiedDeviceDisplayName(IDevice* device, const Marshal::
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
-//Loaded extension info functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Loaded extension info functions
+//----------------------------------------------------------------------------------------------------------------------
 Marshal::Ret<std::list<IExtension*>> System::GetLoadedExtensions() const
 {
 	//##TODO## Consider thread safety for all functions exposed over the system extension
-	//interface
+	// interface
 	std::list<IExtension*> extensionList;
 	for (LoadedGlobalExtensionInfoList::const_iterator i = _globalExtensionInfoList.begin(); i != _globalExtensionInfoList.end(); ++i)
 	{
@@ -8593,12 +8593,12 @@ Marshal::Ret<std::list<IExtension*>> System::GetLoadedExtensions() const
 	return extensionList;
 }
 
-//----------------------------------------------------------------------------------------
-//Input functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Input functions
+//----------------------------------------------------------------------------------------------------------------------
 System::KeyCode System::GetKeyCodeID(const Marshal::In<std::wstring>& keyCodeName) const
 {
-	//Control keys
+	// Control keys
 	std::wstring keyCodeNameTemp = keyCodeName.Get();
 	if (keyCodeNameTemp == L"Esc")             return ISystemDeviceInterface::KeyCode::Escape;
 	else if (keyCodeNameTemp == L"Tab")        return ISystemDeviceInterface::KeyCode::Tab;
@@ -8623,11 +8623,11 @@ System::KeyCode System::GetKeyCodeID(const Marshal::In<std::wstring>& keyCodeNam
 	else if (keyCodeNameTemp == L"LeftWin")    return ISystemDeviceInterface::KeyCode::LeftWindows;
 	else if (keyCodeNameTemp == L"RightWin")   return ISystemDeviceInterface::KeyCode::RightWindows;
 	else if (keyCodeNameTemp == L"Menu")       return ISystemDeviceInterface::KeyCode::Menu;
-	//Modifier keys
+	// Modifier keys
 	else if (keyCodeNameTemp == L"Ctrl")       return ISystemDeviceInterface::KeyCode::Ctrl;
 	else if (keyCodeNameTemp == L"Alt")        return ISystemDeviceInterface::KeyCode::Alt;
 	else if (keyCodeNameTemp == L"Shift")      return ISystemDeviceInterface::KeyCode::Shift;
-	//Function keys
+	// Function keys
 	else if (keyCodeNameTemp == L"F1")         return ISystemDeviceInterface::KeyCode::F1;
 	else if (keyCodeNameTemp == L"F2")         return ISystemDeviceInterface::KeyCode::F2;
 	else if (keyCodeNameTemp == L"F3")         return ISystemDeviceInterface::KeyCode::F3;
@@ -8640,7 +8640,7 @@ System::KeyCode System::GetKeyCodeID(const Marshal::In<std::wstring>& keyCodeNam
 	else if (keyCodeNameTemp == L"F10")        return ISystemDeviceInterface::KeyCode::F10;
 	else if (keyCodeNameTemp == L"F11")        return ISystemDeviceInterface::KeyCode::F11;
 	else if (keyCodeNameTemp == L"F12")        return ISystemDeviceInterface::KeyCode::F12;
-	//Numbers
+	// Numbers
 	else if (keyCodeNameTemp == L"0")          return ISystemDeviceInterface::KeyCode::Number0;
 	else if (keyCodeNameTemp == L"1")          return ISystemDeviceInterface::KeyCode::Number1;
 	else if (keyCodeNameTemp == L"2")          return ISystemDeviceInterface::KeyCode::Number2;
@@ -8651,7 +8651,7 @@ System::KeyCode System::GetKeyCodeID(const Marshal::In<std::wstring>& keyCodeNam
 	else if (keyCodeNameTemp == L"7")          return ISystemDeviceInterface::KeyCode::Number7;
 	else if (keyCodeNameTemp == L"8")          return ISystemDeviceInterface::KeyCode::Number8;
 	else if (keyCodeNameTemp == L"9")          return ISystemDeviceInterface::KeyCode::Number9;
-	//Letters
+	// Letters
 	else if (keyCodeNameTemp == L"A")          return ISystemDeviceInterface::KeyCode::A;
 	else if (keyCodeNameTemp == L"B")          return ISystemDeviceInterface::KeyCode::B;
 	else if (keyCodeNameTemp == L"C")          return ISystemDeviceInterface::KeyCode::C;
@@ -8678,7 +8678,7 @@ System::KeyCode System::GetKeyCodeID(const Marshal::In<std::wstring>& keyCodeNam
 	else if (keyCodeNameTemp == L"X")          return ISystemDeviceInterface::KeyCode::X;
 	else if (keyCodeNameTemp == L"Y")          return ISystemDeviceInterface::KeyCode::Y;
 	else if (keyCodeNameTemp == L"Z")          return ISystemDeviceInterface::KeyCode::Z;
-	//Symbol keys
+	// Symbol keys
 	else if (keyCodeNameTemp == L"OEM1")       return ISystemDeviceInterface::KeyCode::OEM1;
 	else if (keyCodeNameTemp == L"OEMPlus")    return ISystemDeviceInterface::KeyCode::OEMPLUS;
 	else if (keyCodeNameTemp == L"OEMComma")   return ISystemDeviceInterface::KeyCode::OEMCOMMA;
@@ -8693,7 +8693,7 @@ System::KeyCode System::GetKeyCodeID(const Marshal::In<std::wstring>& keyCodeNam
 	else if (keyCodeNameTemp == L"OEM8")       return ISystemDeviceInterface::KeyCode::OEM8;
 	else if (keyCodeNameTemp == L"OEMAX")      return ISystemDeviceInterface::KeyCode::OEMAX;
 	else if (keyCodeNameTemp == L"OEM102")     return ISystemDeviceInterface::KeyCode::OEM102;
-	//Numpad keys
+	// Numpad keys
 	else if (keyCodeNameTemp == L"Numpad0")    return ISystemDeviceInterface::KeyCode::NUMPAD0;
 	else if (keyCodeNameTemp == L"Numpad1")    return ISystemDeviceInterface::KeyCode::NUMPAD1;
 	else if (keyCodeNameTemp == L"Numpad2")    return ISystemDeviceInterface::KeyCode::NUMPAD2;
@@ -8709,12 +8709,12 @@ System::KeyCode System::GetKeyCodeID(const Marshal::In<std::wstring>& keyCodeNam
 	else if (keyCodeNameTemp == L"Numpad-")    return ISystemDeviceInterface::KeyCode::NUMPADSUBTRACT;
 	else if (keyCodeNameTemp == L"Numpad+")    return ISystemDeviceInterface::KeyCode::NUMPADADD;
 	else if (keyCodeNameTemp == L"Numpad.")    return ISystemDeviceInterface::KeyCode::NUMPADDECIMAL;
-	//Joysticks
+	// Joysticks
 	else if (keyCodeNameTemp.compare(0, 3, L"Joy") == 0)
 	{
 		if (keyCodeNameTemp.find(L"Btn") != std::wstring::npos)
 		{
-			//Extract the joystick and button numbers from the string
+			// Extract the joystick and button numbers from the string
 			std::wstring joystickText = L"Joy";
 			std::wstring buttonText = L"Btn";
 			unsigned int joystickNo;
@@ -8726,13 +8726,13 @@ System::KeyCode System::GetKeyCodeID(const Marshal::In<std::wstring>& keyCodeNam
 			keyCodeStream.read(&buttonText[0], 3);
 			keyCodeStream >> buttonNo;
 
-			//Validate the text string components
+			// Validate the text string components
 			if ((joystickText != L"Joy") || (buttonText != L"Btn"))
 			{
 				return ISystemDeviceInterface::KeyCode::None;
 			}
 
-			//Ensure the joystick and button numbers are within the valid range
+			// Ensure the joystick and button numbers are within the valid range
 			const unsigned int maxJoystickCount = 16;
 			const unsigned int maxJoystickButtonCount = 32;
 			if ((joystickNo >= maxJoystickCount) || (buttonNo >= maxJoystickButtonCount))
@@ -8740,13 +8740,13 @@ System::KeyCode System::GetKeyCodeID(const Marshal::In<std::wstring>& keyCodeNam
 				return ISystemDeviceInterface::KeyCode::None;
 			}
 
-			//Return the corresponding key code for the target joystick button
+			// Return the corresponding key code for the target joystick button
 			return (KeyCode)((unsigned int)ISystemDeviceInterface::KeyCode::JOYSTICK00BUTTON00 + (joystickNo * maxJoystickButtonCount) + buttonNo);
 		}
 		else if (keyCodeNameTemp.find(L"Axis") != std::wstring::npos)
 		{
-			//Extract the joystick and axis numbers, and the axis direction, from the
-			//string.
+			// Extract the joystick and axis numbers, and the axis direction, from the
+			// string.
 			std::wstring joystickText = L"Joy";
 			std::wstring axisText = L"Axis";
 			std::wstring directionText = L" ";
@@ -8760,13 +8760,13 @@ System::KeyCode System::GetKeyCodeID(const Marshal::In<std::wstring>& keyCodeNam
 			keyCodeStream >> axisNo;
 			keyCodeStream.read(&directionText[0], 1);
 
-			//Validate the text string components
+			// Validate the text string components
 			if ((joystickText != L"Joy") || (axisText != L"Axis") || ((directionText != L"+") && (directionText != L"-")))
 			{
 				return ISystemDeviceInterface::KeyCode::None;
 			}
 
-			//Ensure the joystick and axis numbers are within the valid range
+			// Ensure the joystick and axis numbers are within the valid range
 			const unsigned int maxJoystickCount = 16;
 			const unsigned int maxJoystickAxisCount = 6;
 			const unsigned int joystickAxisDirectionCount = 2;
@@ -8775,12 +8775,12 @@ System::KeyCode System::GetKeyCodeID(const Marshal::In<std::wstring>& keyCodeNam
 				return ISystemDeviceInterface::KeyCode::None;
 			}
 
-			//Decode the axis direction
+			// Decode the axis direction
 			bool axisPlus = (directionText[0] == L'+');
 			unsigned int axisDirectionOffset = (axisPlus)? 0: 1;
 
-			//Return the corresponding key code for the target joystick axis acting as a
-			//button
+			// Return the corresponding key code for the target joystick axis acting as a
+			// button
 			return (KeyCode)((unsigned int)ISystemDeviceInterface::KeyCode::JOYSTICK00AXIS0PLUS + (joystickNo * maxJoystickAxisCount * joystickAxisDirectionCount) + (axisNo * joystickAxisDirectionCount) + axisDirectionOffset);
 		}
 	}
@@ -8788,12 +8788,12 @@ System::KeyCode System::GetKeyCodeID(const Marshal::In<std::wstring>& keyCodeNam
 	return ISystemDeviceInterface::KeyCode::None;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> System::GetKeyCodeName(KeyCode keyCode) const
 {
 	switch (keyCode)
 	{
-	//Control keys
+	// Control keys
 	case ISystemDeviceInterface::KeyCode::Escape:            return L"Esc";
 	case ISystemDeviceInterface::KeyCode::Tab:               return L"Tab";
 	case ISystemDeviceInterface::KeyCode::Enter:             return L"Enter";
@@ -8817,11 +8817,11 @@ Marshal::Ret<std::wstring> System::GetKeyCodeName(KeyCode keyCode) const
 	case ISystemDeviceInterface::KeyCode::LeftWindows:       return L"LeftWin";
 	case ISystemDeviceInterface::KeyCode::RightWindows:      return L"RightWin";
 	case ISystemDeviceInterface::KeyCode::Menu:              return L"Menu";
-	//Modifier keys
+	// Modifier keys
 	case ISystemDeviceInterface::KeyCode::Ctrl:              return L"Ctrl";
 	case ISystemDeviceInterface::KeyCode::Alt:               return L"Alt";
 	case ISystemDeviceInterface::KeyCode::Shift:             return L"Shift";
-	//Function keys
+	// Function keys
 	case ISystemDeviceInterface::KeyCode::F1:                return L"F1";
 	case ISystemDeviceInterface::KeyCode::F2:                return L"F2";
 	case ISystemDeviceInterface::KeyCode::F3:                return L"F3";
@@ -8834,7 +8834,7 @@ Marshal::Ret<std::wstring> System::GetKeyCodeName(KeyCode keyCode) const
 	case ISystemDeviceInterface::KeyCode::F10:               return L"F10";
 	case ISystemDeviceInterface::KeyCode::F11:               return L"F11";
 	case ISystemDeviceInterface::KeyCode::F12:               return L"F12";
-	//Numbers
+	// Numbers
 	case ISystemDeviceInterface::KeyCode::Number0:                 return L"0";
 	case ISystemDeviceInterface::KeyCode::Number1:                 return L"1";
 	case ISystemDeviceInterface::KeyCode::Number2:                 return L"2";
@@ -8845,7 +8845,7 @@ Marshal::Ret<std::wstring> System::GetKeyCodeName(KeyCode keyCode) const
 	case ISystemDeviceInterface::KeyCode::Number7:                 return L"7";
 	case ISystemDeviceInterface::KeyCode::Number8:                 return L"8";
 	case ISystemDeviceInterface::KeyCode::Number9:                 return L"9";
-	//Letters
+	// Letters
 	case ISystemDeviceInterface::KeyCode::A:                 return L"A";
 	case ISystemDeviceInterface::KeyCode::B:                 return L"B";
 	case ISystemDeviceInterface::KeyCode::C:                 return L"C";
@@ -8872,7 +8872,7 @@ Marshal::Ret<std::wstring> System::GetKeyCodeName(KeyCode keyCode) const
 	case ISystemDeviceInterface::KeyCode::X:                 return L"X";
 	case ISystemDeviceInterface::KeyCode::Y:                 return L"Y";
 	case ISystemDeviceInterface::KeyCode::Z:                 return L"Z";
-	//Symbol keys
+	// Symbol keys
 	case ISystemDeviceInterface::KeyCode::OEM1:              return L"OEM1";
 	case ISystemDeviceInterface::KeyCode::OEMPLUS:           return L"OEMPlus";
 	case ISystemDeviceInterface::KeyCode::OEMCOMMA:          return L"OEMComma";
@@ -8887,7 +8887,7 @@ Marshal::Ret<std::wstring> System::GetKeyCodeName(KeyCode keyCode) const
 	case ISystemDeviceInterface::KeyCode::OEM8:              return L"OEM8";
 	case ISystemDeviceInterface::KeyCode::OEMAX:             return L"OEMAX";
 	case ISystemDeviceInterface::KeyCode::OEM102:            return L"OEM102";
-	//Numpad keys
+	// Numpad keys
 	case ISystemDeviceInterface::KeyCode::NUMPAD0:           return L"Numpad0";
 	case ISystemDeviceInterface::KeyCode::NUMPAD1:           return L"Numpad1";
 	case ISystemDeviceInterface::KeyCode::NUMPAD2:           return L"Numpad2";
@@ -8905,25 +8905,25 @@ Marshal::Ret<std::wstring> System::GetKeyCodeName(KeyCode keyCode) const
 	case ISystemDeviceInterface::KeyCode::NUMPADDECIMAL:     return L"Numpad.";
 	}
 
-	//Joystick buttons
+	// Joystick buttons
 	if ((keyCode >= ISystemDeviceInterface::KeyCode::JOYSTICK00BUTTON00) && (keyCode <= ISystemDeviceInterface::KeyCode::JOYSTICK15BUTTON31))
 	{
-		//Calculate the joystick and button numbers for this keycode
+		// Calculate the joystick and button numbers for this keycode
 		const unsigned int maxJoystickButtonCount = 32;
 		unsigned int keyCodeRebased = (unsigned int)keyCode - (unsigned int)ISystemDeviceInterface::KeyCode::JOYSTICK00BUTTON00;
 		unsigned int joystickNo = keyCodeRebased / maxJoystickButtonCount;
 		unsigned int buttonNo = keyCodeRebased % maxJoystickButtonCount;
 
-		//Build a string representing this joystick button keycode
+		// Build a string representing this joystick button keycode
 		std::wstringstream keyCodeStream;
 		keyCodeStream << L"Joy" << joystickNo << L"Btn" << buttonNo;
 		return keyCodeStream.str();
 	}
 
-	//Joystick axes
+	// Joystick axes
 	if ((keyCode >= ISystemDeviceInterface::KeyCode::JOYSTICK00AXIS0PLUS) && (keyCode <= ISystemDeviceInterface::KeyCode::JOYSTICK15AXIS5MINUS))
 	{
-		//Calculate the joystick, axis numbers, and direction, for this keycode.
+		// Calculate the joystick, axis numbers, and direction, for this keycode.
 		const unsigned int maxJoystickAxisCount = 6;
 		const unsigned int joystickAxisDirectionCount = 2;
 		unsigned int keyCodeRebased = (unsigned int)keyCode - (unsigned int)ISystemDeviceInterface::KeyCode::JOYSTICK00AXIS0PLUS;
@@ -8931,7 +8931,7 @@ Marshal::Ret<std::wstring> System::GetKeyCodeName(KeyCode keyCode) const
 		unsigned int axesNo = (keyCodeRebased % (maxJoystickAxisCount * joystickAxisDirectionCount)) / joystickAxisDirectionCount;
 		bool axisPlus = ((keyCodeRebased % (maxJoystickAxisCount * joystickAxisDirectionCount)) % joystickAxisDirectionCount) == 0;
 
-		//Build a string representing this joystick axis keycode acting as a button
+		// Build a string representing this joystick axis keycode acting as a button
 		std::wstring directionString = (axisPlus)? L"+": L"-";
 		std::wstringstream keyCodeStream;
 		keyCodeStream << L"Joy" << joystickNo << L"Axis" << axesNo << directionString;
@@ -8941,12 +8941,12 @@ Marshal::Ret<std::wstring> System::GetKeyCodeName(KeyCode keyCode) const
 	return L"None";
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::TranslateKeyCode(unsigned int platformKeyCode, KeyCode& inputKeyCode) const
 {
 	switch (platformKeyCode)
 	{
-		//Control keys
+		// Control keys
 	case VK_ESCAPE:
 		inputKeyCode = ISystemDeviceInterface::KeyCode::Escape;
 		return true;
@@ -9017,7 +9017,7 @@ bool System::TranslateKeyCode(unsigned int platformKeyCode, KeyCode& inputKeyCod
 		inputKeyCode = ISystemDeviceInterface::KeyCode::Menu;
 		return true;
 
-		//Modifier keys
+		// Modifier keys
 	case VK_CONTROL:
 		inputKeyCode = ISystemDeviceInterface::KeyCode::Ctrl;
 		return true;
@@ -9028,7 +9028,7 @@ bool System::TranslateKeyCode(unsigned int platformKeyCode, KeyCode& inputKeyCod
 		inputKeyCode = ISystemDeviceInterface::KeyCode::Shift;
 		return true;
 
-		//Function keys
+		// Function keys
 	case VK_F1:
 		inputKeyCode = ISystemDeviceInterface::KeyCode::F1;
 		return true;
@@ -9066,7 +9066,7 @@ bool System::TranslateKeyCode(unsigned int platformKeyCode, KeyCode& inputKeyCod
 		inputKeyCode = ISystemDeviceInterface::KeyCode::F12;
 		return true;
 
-		//Numbers
+		// Numbers
 	case '0':
 		inputKeyCode = ISystemDeviceInterface::KeyCode::Number0;
 		return true;
@@ -9098,7 +9098,7 @@ bool System::TranslateKeyCode(unsigned int platformKeyCode, KeyCode& inputKeyCod
 		inputKeyCode = ISystemDeviceInterface::KeyCode::Number9;
 		return true;
 
-		//Letters
+		// Letters
 	case 'A':
 		inputKeyCode = ISystemDeviceInterface::KeyCode::A;
 		return true;
@@ -9178,7 +9178,7 @@ bool System::TranslateKeyCode(unsigned int platformKeyCode, KeyCode& inputKeyCod
 		inputKeyCode = ISystemDeviceInterface::KeyCode::Z;
 		return true;
 
-		//Symbol keys
+		// Symbol keys
 	case VK_OEM_1:
 		inputKeyCode = ISystemDeviceInterface::KeyCode::OEM1;
 		return true;
@@ -9222,7 +9222,7 @@ bool System::TranslateKeyCode(unsigned int platformKeyCode, KeyCode& inputKeyCod
 		inputKeyCode = ISystemDeviceInterface::KeyCode::OEM102;
 		return true;
 
-		//Numpad keys
+		// Numpad keys
 	case VK_NUMPAD0:
 		inputKeyCode = ISystemDeviceInterface::KeyCode::NUMPAD0;
 		return true;
@@ -9272,10 +9272,10 @@ bool System::TranslateKeyCode(unsigned int platformKeyCode, KeyCode& inputKeyCod
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::TranslateJoystickButton(unsigned int joystickNo, unsigned int buttonNo, KeyCode& inputKeyCode) const
 {
-	//Ensure the joystick and button numbers are within the valid range
+	// Ensure the joystick and button numbers are within the valid range
 	const unsigned int maxJoystickCount = 16;
 	const unsigned int maxJoystickButtonCount = 32;
 	if ((joystickNo >= maxJoystickCount) || (buttonNo >= maxJoystickButtonCount))
@@ -9283,15 +9283,15 @@ bool System::TranslateJoystickButton(unsigned int joystickNo, unsigned int butto
 		return false;
 	}
 
-	//Map the input joystick and button numbers to the corresponding keycode
+	// Map the input joystick and button numbers to the corresponding keycode
 	inputKeyCode = (KeyCode)((unsigned int)KeyCode::JOYSTICK00BUTTON00 + (joystickNo * maxJoystickButtonCount) + buttonNo);
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::TranslateJoystickAxisAsButton(unsigned int joystickNo, unsigned int axisNo, bool positiveAxis, KeyCode& inputKeyCode) const
 {
-	//Ensure the joystick and axis numbers are within the valid range
+	// Ensure the joystick and axis numbers are within the valid range
 	const unsigned int maxJoystickCount = 16;
 	const unsigned int maxJoystickAxisCount = 6;
 	const unsigned int joystickAxisDirectionCount = 2;
@@ -9300,16 +9300,16 @@ bool System::TranslateJoystickAxisAsButton(unsigned int joystickNo, unsigned int
 		return false;
 	}
 
-	//Map the input joystick and axis numbers to the corresponding keycode
+	// Map the input joystick and axis numbers to the corresponding keycode
 	unsigned int axisDirectionOffset = (positiveAxis)? 0: 1;
 	inputKeyCode = (KeyCode)((unsigned int)KeyCode::JOYSTICK00AXIS0PLUS + (joystickNo * maxJoystickAxisCount * joystickAxisDirectionCount) + (axisNo * joystickAxisDirectionCount) + axisDirectionOffset);
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::TranslateJoystickAxis(unsigned int joystickNo, unsigned int axisNo, AxisCode& inputAxisCode) const
 {
-	//Ensure the joystick and axis numbers are within the valid range
+	// Ensure the joystick and axis numbers are within the valid range
 	const unsigned int maxJoystickCount = 16;
 	const unsigned int maxJoystickAxisCount = 6;
 	if ((joystickNo >= maxJoystickCount) || (axisNo >= maxJoystickAxisCount))
@@ -9317,12 +9317,12 @@ bool System::TranslateJoystickAxis(unsigned int joystickNo, unsigned int axisNo,
 		return false;
 	}
 
-	//Map the input joystick and axis numbers to the corresponding axis code
+	// Map the input joystick and axis numbers to the corresponding axis code
 	inputAxisCode = (AxisCode)((unsigned int)AxisCode::Joystick00Axis0 + (joystickNo * maxJoystickAxisCount) + axisNo);
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::HandleInputKeyDown(KeyCode keyCode)
 {
 	std::unique_lock<std::mutex> lock(_inputMutex);
@@ -9340,7 +9340,7 @@ void System::HandleInputKeyDown(KeyCode keyCode)
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::HandleInputKeyUp(KeyCode keyCode)
 {
 	std::unique_lock<std::mutex> lock(_inputMutex);
@@ -9358,26 +9358,26 @@ void System::HandleInputKeyUp(KeyCode keyCode)
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::HandleInputAxisUpdate(AxisCode axisCode, float newValue)
 {
 	//##TODO## Add support for axis devices
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::HandleInputScrollUpdate(ScrollCode scrollCode, int scrollTicks)
 {
 	//##TODO## Add support for scroll devices
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int System::GetInputDeviceListLastModifiedToken() const
 {
 	std::unique_lock<std::mutex> lock(_inputMutex);
 	return _inputDeviceListLastModifiedToken;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Marshal::Ret<std::list<IDevice*>> System::GetInputDeviceList() const
 {
 	std::unique_lock<std::mutex> lock(_inputMutex);
@@ -9391,7 +9391,7 @@ Marshal::Ret<std::list<IDevice*>> System::GetInputDeviceList() const
 	return inputDeviceList;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Marshal::Ret<std::list<unsigned int>> System::GetDeviceKeyCodeList(IDevice* targetDevice) const
 {
 	std::unique_lock<std::mutex> lock(_inputMutex);
@@ -9407,7 +9407,7 @@ Marshal::Ret<std::list<unsigned int>> System::GetDeviceKeyCodeList(IDevice* targ
 	return deviceKeyCodeList;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Marshal::Ret<std::list<System::KeyCode>> System::GetDeviceKeyCodePreferredDefaultMappingList(IDevice* targetDevice, unsigned int targetDeviceKeyCode) const
 {
 	std::unique_lock<std::mutex> lock(_inputMutex);
@@ -9429,14 +9429,14 @@ Marshal::Ret<std::list<System::KeyCode>> System::GetDeviceKeyCodePreferredDefaul
 	return preferredDefaultMappingList;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::IsKeyCodeMapped(KeyCode keyCode) const
 {
 	std::unique_lock<std::mutex> lock(_inputMutex);
 	return (_inputKeyMap.find(keyCode) != _inputKeyMap.end());
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::IsDeviceKeyCodeMapped(IDevice* targetDevice, unsigned int targetDeviceKeyCode) const
 {
 	std::unique_lock<std::mutex> lock(_inputMutex);
@@ -9454,7 +9454,7 @@ bool System::IsDeviceKeyCodeMapped(IDevice* targetDevice, unsigned int targetDev
 	return foundMapping;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 System::KeyCode System::GetDeviceKeyCodeMapping(IDevice* targetDevice, unsigned int targetDeviceKeyCode) const
 {
 	std::unique_lock<std::mutex> lock(_inputMutex);
@@ -9471,10 +9471,10 @@ System::KeyCode System::GetDeviceKeyCodeMapping(IDevice* targetDevice, unsigned 
 	return ISystemDeviceInterface::KeyCode::None;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::SetDeviceKeyCodeMapping(IDevice* targetDevice, unsigned int deviceKeyCode, KeyCode systemKeyCode)
 {
-	//If the target device key code is already mapped, remove the existing mapping.
+	// If the target device key code is already mapped, remove the existing mapping.
 	std::unique_lock<std::mutex> lock(_inputMutex);
 	InputKeyMap::const_iterator inputKeyMapIterator = _inputKeyMap.begin();
 	while (inputKeyMapIterator != _inputKeyMap.end())
@@ -9488,8 +9488,8 @@ bool System::SetDeviceKeyCodeMapping(IDevice* targetDevice, unsigned int deviceK
 		++inputKeyMapIterator;
 	}
 
-	//If the target device key code is being assigned to a system key code, perform the
-	//mapping now.
+	// If the target device key code is being assigned to a system key code, perform the
+	// mapping now.
 	if (systemKeyCode != KeyCode::None)
 	{
 		InputMapEntry mapEntry;
@@ -9501,7 +9501,7 @@ bool System::SetDeviceKeyCodeMapping(IDevice* targetDevice, unsigned int deviceK
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::UnmapAllKeyCodeMappingsForDevice(IDevice* device)
 {
 	std::unique_lock<std::mutex> lock(_inputMutex);
@@ -9519,7 +9519,7 @@ void System::UnmapAllKeyCodeMappingsForDevice(IDevice* device)
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::SendStoredInputEvents()
 {
 	std::unique_lock<std::mutex> lock(_inputMutex);
@@ -9542,7 +9542,7 @@ void System::SendStoredInputEvents()
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void System::ClearSentStoredInputEvents()
 {
 	std::unique_lock<std::mutex> lock(_inputMutex);
@@ -9554,16 +9554,16 @@ void System::ClearSentStoredInputEvents()
 	_inputEvents.erase(_inputEvents.begin(), i);
 }
 
-//----------------------------------------------------------------------------------------
-//System setting functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// System setting functions
+//----------------------------------------------------------------------------------------------------------------------
 bool System::ApplySystemStateChange(const SystemStateChange& stateChange)
 {
-	//Apply the specified system state change
+	// Apply the specified system state change
 	switch (stateChange.type)
 	{
 	case SystemStateChangeType::SetClockFrequency:{
-		//Retrieve the target clock source
+		// Retrieve the target clock source
 		ClockSource* clockSource = GetClockSource(stateChange.moduleID, stateChange.targetElementName);
 		if (clockSource == 0)
 		{
@@ -9573,7 +9573,7 @@ bool System::ApplySystemStateChange(const SystemStateChange& stateChange)
 			return false;
 		}
 
-		//Apply the clock rate change
+		// Apply the clock rate change
 		switch (stateChange.setClockRateClockType)
 		{
 		case ClockSource::ClockType::Direct:
@@ -9590,7 +9590,7 @@ bool System::ApplySystemStateChange(const SystemStateChange& stateChange)
 		}
 		break;}
 	case SystemStateChangeType::SetSystemLineState:{
-		//Retrieve the target system line ID
+		// Retrieve the target system line ID
 		unsigned int systemLineID = GetSystemLineID(stateChange.moduleID, stateChange.targetElementName);
 		if (systemLineID == 0)
 		{
@@ -9600,13 +9600,13 @@ bool System::ApplySystemStateChange(const SystemStateChange& stateChange)
 			return false;
 		}
 
-		//Retrieve the width of the target system line
+		// Retrieve the width of the target system line
 		unsigned int systemLineWidth = GetSystemLineWidth(systemLineID);
 
-		//Apply the line state change
+		// Apply the line state change
 		return SetSystemLineState(systemLineID, Data(systemLineWidth, stateChange.setLineStateValue));}
 	case SystemStateChangeType::SetSystemOption:{
-		//Retrieve the target system setting ID
+		// Retrieve the target system setting ID
 		unsigned int systemSettingID = GetSystemSettingID(stateChange.moduleID, stateChange.targetElementName);
 		if (systemSettingID == 0)
 		{
@@ -9616,7 +9616,7 @@ bool System::ApplySystemStateChange(const SystemStateChange& stateChange)
 			return false;
 		}
 
-		//Retrieve the target system setting
+		// Retrieve the target system setting
 		SystemSettingsMap::iterator systemSettingsIterator = _systemSettings.find(systemSettingID);
 		if (systemSettingsIterator == _systemSettings.end())
 		{
@@ -9627,12 +9627,12 @@ bool System::ApplySystemStateChange(const SystemStateChange& stateChange)
 		}
 		SystemSettingInfo& systemSettingInfo = *(systemSettingsIterator->second);
 
-		//Attempt to locate the target option, and apply that option if it is found.
+		// Attempt to locate the target option, and apply that option if it is found.
 		for (unsigned int i = 0; i < systemSettingInfo.options.size(); ++i)
 		{
 			if (systemSettingInfo.options[i].name == stateChange.setSystemOptionValue)
 			{
-				//Replace the current option selection
+				// Replace the current option selection
 				if (systemSettingInfo.options[systemSettingInfo.selectedOption].menuItemEntry != 0)
 				{
 					systemSettingInfo.options[systemSettingInfo.selectedOption].menuItemEntry->SetCheckedState(false);
@@ -9643,12 +9643,12 @@ bool System::ApplySystemStateChange(const SystemStateChange& stateChange)
 					systemSettingInfo.options[systemSettingInfo.selectedOption].menuItemEntry->SetCheckedState(true);
 				}
 
-				//Attempt to apply all settings changes listed under this option
+				// Attempt to apply all settings changes listed under this option
 				bool appliedWithoutErrors = true;
 				SystemSettingOption& settingOption = systemSettingInfo.options[systemSettingInfo.selectedOption];
 				for (std::list<SystemStateChange>::const_iterator i = settingOption.stateChanges.begin(); i != settingOption.stateChanges.end(); ++i)
 				{
-					//Apply this system state change
+					// Apply this system state change
 					if (!ApplySystemStateChange(*i))
 					{
 						WriteLogEvent(LogEntry(LogEntry::EventLevel::Warning, L"System", L"Failed to apply system setting change while setting option \"" + stateChange.setSystemOptionValue + L"\" on setting \"" + systemSettingInfo.name + L"\" in System::ApplySystemStateChange!"));
@@ -9656,12 +9656,12 @@ bool System::ApplySystemStateChange(const SystemStateChange& stateChange)
 					}
 				}
 
-				//Return the result of this settings change operation
+				// Return the result of this settings change operation
 				return appliedWithoutErrors;
 			}
 		}
 
-		//If we failed to find the target option, log the error, and return false.
+		// If we failed to find the target option, log the error, and return false.
 		LogEntry logEntry(LogEntry::EventLevel::Warning, L"System", L"");
 		logEntry << L"Could not locate option with name \"" << stateChange.setSystemOptionValue << L"\" under setting with name \"" << systemSettingInfo.name << L"\" on module with ID \"" << systemSettingInfo.moduleID << L"\" in System::ApplySystemStateChange!";
 		WriteLogEvent(logEntry);
@@ -9674,12 +9674,12 @@ bool System::ApplySystemStateChange(const SystemStateChange& stateChange)
 	}
 }
 
-//----------------------------------------------------------------------------------------
-//System line functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// System line functions
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int System::GetSystemLineWidth(unsigned int systemLineID) const
 {
-	//Retrieve the info for this system line
+	// Retrieve the info for this system line
 	SystemLineMap::const_iterator systemLinesIterator = _systemLines.find(systemLineID);
 	if (systemLinesIterator == _systemLines.end())
 	{
@@ -9687,14 +9687,14 @@ unsigned int System::GetSystemLineWidth(unsigned int systemLineID) const
 	}
 	const SystemLineInfo& systemLineInfo = systemLinesIterator->second;
 
-	//Return the width of this system line
+	// Return the width of this system line
 	return systemLineInfo.lineWidth;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool System::SetSystemLineState(unsigned int systemLineID, const Data& lineData)
 {
-	//Retrieve the info for this system line
+	// Retrieve the info for this system line
 	SystemLineMap::iterator systemLinesIterator = _systemLines.find(systemLineID);
 	if (systemLinesIterator == _systemLines.end())
 	{
@@ -9705,10 +9705,10 @@ bool System::SetSystemLineState(unsigned int systemLineID, const Data& lineData)
 	}
 	SystemLineInfo& systemLineInfo = systemLinesIterator->second;
 
-	//Record the new value for the system line
+	// Record the new value for the system line
 	systemLineInfo.currentValue = lineData.GetData();
 
-	//Propagate the line state change to all devices which import this system line
+	// Propagate the line state change to all devices which import this system line
 	for (SystemLineMappingList::const_iterator i = _systemLineMappings.begin(); i != _systemLineMappings.end(); ++i)
 	{
 		const SystemLineMapping& lineMapping = *i;
@@ -9717,7 +9717,7 @@ bool System::SetSystemLineState(unsigned int systemLineID, const Data& lineData)
 			Data tempData(lineMapping.targetLineBitCount, lineData.GetData());
 			if (lineMapping.remapLines)
 			{
-				//Remap lines
+				// Remap lines
 				tempData = lineMapping.lineRemapTable.ConvertTo(lineData.GetData());
 			}
 			tempData &= lineMapping.lineMaskAND;

@@ -5,11 +5,11 @@
 class IGenericAccessDataValueBool :public IGenericAccessDataValue
 {
 public:
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisIGenericAccessDataValueBoolVersion() { return 1; }
 	virtual unsigned int GetIGenericAccessDataValueBoolVersion() const = 0;
 
-	//Value read functions
+	// Value read functions
 	virtual bool GetValue() const = 0;
 };
 

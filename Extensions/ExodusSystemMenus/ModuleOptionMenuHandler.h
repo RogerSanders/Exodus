@@ -8,21 +8,21 @@
 class ModuleOptionMenuHandler :public IMenuHandler
 {
 public:
-	//Constructors
+	// Constructors
 	ModuleOptionMenuHandler(ExodusSystemMenus& owner, ISystemGUIInterface& model, unsigned int moduleID);
 	~ModuleOptionMenuHandler();
 
-	//Interface version functions
+	// Interface version functions
 	virtual unsigned int GetIMenuHandlerVersion() const;
 
-	//Menu binding functions
+	// Menu binding functions
 	void AddMenuItems(IMenuSegment& menuSegment);
 
-	//Menu item handler functions
+	// Menu item handler functions
 	virtual void HandleMenuItemSelect(int menuItemID);
 
 private:
-	//Structures
+	// Structures
 	struct MenuOption
 	{
 		MenuOption(unsigned int asettingID = 0, unsigned int aoptionID = 0)
@@ -63,7 +63,7 @@ private:
 	};
 
 private:
-	//Menu binding functions
+	// Menu binding functions
 	std::map<unsigned int, SettingEntry*> BuildModuleSettingsList();
 	void RefreshActiveMenuSettingOption(unsigned int settingID);
 

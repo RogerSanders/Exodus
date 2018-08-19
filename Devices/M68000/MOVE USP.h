@@ -31,12 +31,12 @@ public:
 
 		if (_dr == 0)
 		{
-			//MOVE	An,USP
+			// MOVE	An,USP
 			argumentDisassembly = _source.Disassemble(labelSettings) + L", USP";
 		}
 		else
 		{
-			//MOVE	USP,An
+			// MOVE	USP,An
 			argumentDisassembly = L"USP, " + _source.Disassemble(labelSettings);
 		}
 
@@ -62,21 +62,21 @@ public:
 		double additionalTime = 0;
 		M68000Long result;
 
-		//Perform the operation
+		// Perform the operation
 		if (_dr == 0)
 		{
-		//MOVE	An,USP
+		// MOVE	An,USP
 			additionalTime += _source.Read(cpu, result, GetInstructionRegister());
 			cpu->SetUSP(result);
 		}
 		else
 		{
-		//MOVE	USP,An
+		// MOVE	USP,An
 			cpu->GetUSP(result);
 			additionalTime += _source.Write(cpu, result, GetInstructionRegister());
 		}
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -91,5 +91,5 @@ private:
 	EffectiveAddress _source;
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #endif

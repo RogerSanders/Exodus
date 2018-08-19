@@ -10,32 +10,32 @@ using namespace MarshalSupport::Operators;
 class IView
 {
 public:
-	//Enumerations
+	// Enumerations
 	enum class DockPos;
 	enum class DialogPos;
 	enum class ViewType;
 	enum class DialogMode;
 
 public:
-	//Constructors
+	// Constructors
 	virtual ~IView() = 0 {}
 
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisIViewVersion() { return 1; }
 	virtual unsigned int GetIViewVersion() const = 0;
 
-	//View management functions
+	// View management functions
 	virtual bool OpenView(IHierarchicalStorageNode* viewState) = 0;
 	virtual void CloseView() = 0;
 	virtual void ShowView() = 0;
 	virtual void HideView() = 0;
 	virtual void ActivateView() = 0;
 
-	//State functions
+	// State functions
 	virtual bool LoadViewState(IHierarchicalStorageNode& viewState) = 0;
 	virtual bool SaveViewState(IHierarchicalStorageNode& viewState) const = 0;
 
-	//New window state
+	// New window state
 	virtual Marshal::Ret<std::wstring> GetViewDockingGroup() const = 0;
 	virtual bool IsViewInitiallyDocked() const = 0;
 	virtual bool IsViewInitiallyCollapsed() const = 0;

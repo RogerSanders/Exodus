@@ -2,9 +2,9 @@
 #include "DataConversion/DataConversion.pkg"
 #include "resource.h"
 
-//----------------------------------------------------------------------------------------
-//Constructors
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Constructors
+//----------------------------------------------------------------------------------------------------------------------
 CreateDashboardView::CreateDashboardView(IUIManager& uiManager, CreateDashboardViewPresenter& presenter, ExodusInterface& model)
 :ViewBase(uiManager, presenter), _presenter(presenter), _model(model)
 {
@@ -12,9 +12,9 @@ CreateDashboardView::CreateDashboardView(IUIManager& uiManager, CreateDashboardV
 	SetDialogViewType(DialogMode::Modeless, false, DialogPos::Center);
 }
 
-//----------------------------------------------------------------------------------------
-//Member window procedure
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Member window procedure
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR CreateDashboardView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	WndProcDialogImplementSaveFieldWhenLostFocus(hwnd, msg, wparam, lparam);
@@ -28,16 +28,16 @@ INT_PTR CreateDashboardView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, L
 	return FALSE;
 }
 
-//----------------------------------------------------------------------------------------
-//Event handlers
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Event handlers
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR CreateDashboardView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	EnableWindow(GetDlgItem(hwnd, IDC_CREATEDASHBOARD_OK), FALSE);
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR CreateDashboardView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	if (HIWORD(wparam) == EN_CHANGE)

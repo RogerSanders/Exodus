@@ -73,7 +73,7 @@ inline void CreateSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarsha
 template<class ElementType>
 inline void CreateSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const ElementType* elementPointer);
 
-} //Close namespace Internal
-} //Close namespace MarshalSupport
+} // Close namespace Internal
+} // Close namespace MarshalSupport
 #include "CreateSTLContainerKeyMarshallers.inl"
 #endif

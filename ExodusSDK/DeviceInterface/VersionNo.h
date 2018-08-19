@@ -6,12 +6,12 @@
 class VersionNo
 {
 public:
-	//Constructors
+	// Constructors
 	inline VersionNo(unsigned int major, unsigned int minor = 0);
 	inline VersionNo(unsigned int major, unsigned int minor, unsigned int patch);
 	inline VersionNo(unsigned int major, unsigned int minor, unsigned int patch, unsigned int build);
 
-	//Build version functions
+	// Build version functions
 	unsigned int GetMajorVersionNo() const;
 	unsigned int GetMinorVersionNo() const;
 	unsigned int GetPatchVersionNo() const;

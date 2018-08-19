@@ -42,11 +42,11 @@ public:
 
 		if (data.GetBit(0))
 		{
-			//RET		//11001001
+			// RET		// 11001001
 		}
 		else
 		{
-			//RET cc		//11ccc000
+			// RET cc		// 11ccc000
 			_conditionCode = (ConditionCode)data.GetDataSegment(3, 3);
 			AddExecuteCycleCount(1);
 		}
@@ -61,10 +61,10 @@ public:
 		double additionalTime = 0;
 		ExecuteTime additionalCycles;
 
-		//Test the condition code
+		// Test the condition code
 		if (ConditionCodeTrue(cpu, _conditionCode))
 		{
-			//If the condition is true, restore the PC from the stack.
+			// If the condition is true, restore the PC from the stack.
 			Z80Word oldPC;
 			additionalTime += _target.Read(cpu, location + GetInstructionSize(), oldPC);
 			cpu->PopCallStack(oldPC.GetData());
@@ -73,12 +73,12 @@ public:
 		}
 		else
 		{
-			//If the condition is false, continue execution at the next instruction.
+			// If the condition is false, continue execution at the next instruction.
 			cpu->SetPC(location + GetInstructionSize());
 			additionalCycles.cycles = 4;
 		}
 
-		//Return the execution time
+		// Return the execution time
 		return GetExecuteCycleCount(additionalTime) + additionalCycles;
 	}
 
@@ -87,5 +87,5 @@ private:
 	ConditionCode _conditionCode;
 };
 
-} //Close namespace Z80
+} // Close namespace Z80
 #endif

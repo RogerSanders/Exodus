@@ -5,14 +5,14 @@
 template<class T> class ROMBase :public MemoryRead
 {
 public:
-	//Constructors
+	// Constructors
 	inline ROMBase(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 	virtual ~ROMBase();
 
-	//Initialization functions
+	// Initialization functions
 	virtual bool Construct(IHierarchicalStorageNode& node);
 
-	//Memory size functions
+	// Memory size functions
 	virtual unsigned int GetMemoryEntrySizeInBytes() const;
 
 protected:

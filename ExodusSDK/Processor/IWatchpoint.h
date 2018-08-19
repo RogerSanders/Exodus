@@ -7,18 +7,18 @@ using namespace MarshalSupport::Operators;
 class IWatchpoint
 {
 public:
-	//Enumerations
+	// Enumerations
 	enum class Condition;
 
 public:
-	//Constructors
+	// Constructors
 	virtual ~IWatchpoint() = 0 {}
 
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisIWatchpointVersion() { return 1; }
 	virtual unsigned int GetIWatchpointVersion() const = 0;
 
-	//Watchpoint event triggers
+	// Watchpoint event triggers
 	virtual bool GetEnabled() const = 0;
 	virtual void SetEnabled(bool state) = 0;
 	virtual bool GetLogEvent() const = 0;
@@ -26,12 +26,12 @@ public:
 	virtual bool GetBreakEvent() const = 0;
 	virtual void SetBreakEvent(bool state) = 0;
 
-	//Name functions
+	// Name functions
 	virtual Marshal::Ret<std::wstring> GetName() const = 0;
 	virtual void SetName(const Marshal::In<std::wstring>& name) = 0;
 	virtual Marshal::Ret<std::wstring> GenerateName() const = 0;
 
-	//Location condition functions
+	// Location condition functions
 	virtual bool GetLocationConditionNot() const = 0;
 	virtual void SetLocationConditionNot(bool state) = 0;
 	virtual Condition GetLocationCondition() const = 0;
@@ -44,7 +44,7 @@ public:
 	virtual void SetLocationMask(unsigned int data) = 0;
 	virtual bool PassesLocationCondition(unsigned int location) = 0;
 
-	//Hit counter functions
+	// Hit counter functions
 	virtual unsigned int GetHitCounter() const = 0;
 	virtual void SetHitCounter(unsigned int hitCounter) = 0;
 	virtual bool GetBreakOnCounter() const = 0;
@@ -52,13 +52,13 @@ public:
 	virtual unsigned int GetBreakCounter() const = 0;
 	virtual void SetBreakCounter(unsigned int breakCounter) = 0;
 
-	//Read/write condition flag functions
+	// Read/write condition flag functions
 	virtual bool GetOnRead() const = 0;
 	virtual void SetOnRead(bool state) = 0;
 	virtual bool GetOnWrite() const = 0;
 	virtual void SetOnWrite(bool state) = 0;
 
-	//Read condition functions
+	// Read condition functions
 	virtual bool GetReadConditionEnabled() const = 0;
 	virtual void SetReadConditionEnabled(bool state) = 0;
 	virtual bool GetReadConditionNot() const = 0;
@@ -71,7 +71,7 @@ public:
 	virtual void SetReadConditionData2(unsigned int data) = 0;
 	virtual bool PassesReadCondition(unsigned int data) = 0;
 
-	//Write condition functions
+	// Write condition functions
 	virtual bool GetWriteConditionEnabled() const = 0;
 	virtual void SetWriteConditionEnabled(bool state) = 0;
 	virtual bool GetWriteConditionNot() const = 0;

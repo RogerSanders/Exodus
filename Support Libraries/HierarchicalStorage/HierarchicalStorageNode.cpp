@@ -1,24 +1,24 @@
 #include "HierarchicalStorageNode.h"
 
-//----------------------------------------------------------------------------------------
-//Constructors
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Constructors
+//----------------------------------------------------------------------------------------------------------------------
 HierarchicalStorageNode::HierarchicalStorageNode()
 :_parent(0), _binaryDataPresent(false), _inlineBinaryData(false), _dataStream(Stream::IStream::TextEncoding::UTF16, Stream::IStream::NewLineEncoding::Unix, Stream::IStream::ByteOrder::BigEndian, 0)
 {}
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 HierarchicalStorageNode::HierarchicalStorageNode(const std::wstring& name)
 :_name(name), _parent(0), _binaryDataPresent(false), _inlineBinaryData(false), _dataStream(Stream::IStream::TextEncoding::UTF16, Stream::IStream::NewLineEncoding::Unix, Stream::IStream::ByteOrder::BigEndian, 0)
 {}
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 HierarchicalStorageNode::~HierarchicalStorageNode()
 {
 	Initialize();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void HierarchicalStorageNode::Initialize()
 {
 	for (ChildList::iterator i = _children.begin(); i != _children.end(); ++i)
@@ -35,59 +35,59 @@ void HierarchicalStorageNode::Initialize()
 	_binaryDataPresent = false;
 }
 
-//----------------------------------------------------------------------------------------
-//Name functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Name functions
+//----------------------------------------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> HierarchicalStorageNode::GetName() const
 {
 	return _name;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void HierarchicalStorageNode::SetName(const Marshal::In<std::wstring>& name)
 {
 	_name = name;
 }
 
-//----------------------------------------------------------------------------------------
-//Parent functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Parent functions
+//----------------------------------------------------------------------------------------------------------------------
 IHierarchicalStorageNode& HierarchicalStorageNode::GetParent() const
 {
 	return *_parent;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void HierarchicalStorageNode::SetParent(HierarchicalStorageNode* parent)
 {
 	_parent = parent;
 }
 
-//----------------------------------------------------------------------------------------
-//Content functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Content functions
+//----------------------------------------------------------------------------------------------------------------------
 bool HierarchicalStorageNode::IsEmpty() const
 {
 	return (_children.empty() && _attributes.empty() && !_binaryDataPresent && (_dataStream.Size() == 0));
 }
 
-//----------------------------------------------------------------------------------------
-//Stream functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Stream functions
+//----------------------------------------------------------------------------------------------------------------------
 void HierarchicalStorageNode::ResetInternalStreamPosition() const
 {
 	_dataStream.SetStreamPos(0);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Stream::IStream& HierarchicalStorageNode::GetInternalStream() const
 {
 	return _dataStream;
 }
 
-//----------------------------------------------------------------------------------------
-//Child functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Child functions
+//----------------------------------------------------------------------------------------------------------------------
 IHierarchicalStorageNode& HierarchicalStorageNode::CreateChild()
 {
 	HierarchicalStorageNode* child = new HierarchicalStorageNode();
@@ -96,7 +96,7 @@ IHierarchicalStorageNode& HierarchicalStorageNode::CreateChild()
 	return *child;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 IHierarchicalStorageNode& HierarchicalStorageNode::CreateChild(const Marshal::In<std::wstring>& name)
 {
 	HierarchicalStorageNode* child = new HierarchicalStorageNode(name);
@@ -105,7 +105,7 @@ IHierarchicalStorageNode& HierarchicalStorageNode::CreateChild(const Marshal::In
 	return *child;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void HierarchicalStorageNode::DeleteChild(IHierarchicalStorageNode& node)
 {
 	ChildList::iterator childListIterator = _children.begin();
@@ -120,7 +120,7 @@ void HierarchicalStorageNode::DeleteChild(IHierarchicalStorageNode& node)
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Marshal::Ret<std::list<IHierarchicalStorageNode*>> HierarchicalStorageNode::GetChildList() const
 {
 	std::list<IHierarchicalStorageNode*> childList;
@@ -131,7 +131,7 @@ Marshal::Ret<std::list<IHierarchicalStorageNode*>> HierarchicalStorageNode::GetC
 	return childList;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool HierarchicalStorageNode::IsChildPresent(const Marshal::In<std::wstring>& name) const
 {
 	std::wstring nameResolved = name.Get();
@@ -146,7 +146,7 @@ bool HierarchicalStorageNode::IsChildPresent(const Marshal::In<std::wstring>& na
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 IHierarchicalStorageNode* HierarchicalStorageNode::GetChild(const Marshal::In<std::wstring>& name, const IHierarchicalStorageNode* searchAfterChildNode) const
 {
 	std::wstring nameResolved = name.Get();
@@ -163,9 +163,9 @@ IHierarchicalStorageNode* HierarchicalStorageNode::GetChild(const Marshal::In<st
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
-//Attribute functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Attribute functions
+//----------------------------------------------------------------------------------------------------------------------
 bool HierarchicalStorageNode::IsAttributePresent(const Marshal::In<std::wstring>& name) const
 {
 	std::wstring nameResolved = name.Get();
@@ -179,7 +179,7 @@ bool HierarchicalStorageNode::IsAttributePresent(const Marshal::In<std::wstring>
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 IHierarchicalStorageAttribute* HierarchicalStorageNode::GetAttribute(const Marshal::In<std::wstring>& name) const
 {
 	std::wstring nameResolved = name.Get();
@@ -193,7 +193,7 @@ IHierarchicalStorageAttribute* HierarchicalStorageNode::GetAttribute(const Marsh
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 IHierarchicalStorageAttribute& HierarchicalStorageNode::CreateAttribute(const Marshal::In<std::wstring>& name)
 {
 	IHierarchicalStorageAttribute* attribute = GetAttribute(name);
@@ -206,7 +206,7 @@ IHierarchicalStorageAttribute& HierarchicalStorageNode::CreateAttribute(const Ma
 	return *attribute;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void HierarchicalStorageNode::DeleteAttribute(IHierarchicalStorageAttribute& attribute)
 {
 	AttributeList::iterator attributeIterator = _attributes.begin();
@@ -220,7 +220,7 @@ void HierarchicalStorageNode::DeleteAttribute(IHierarchicalStorageAttribute& att
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Marshal::Ret<std::list<IHierarchicalStorageAttribute*>> HierarchicalStorageNode::GetAttributeList() const
 {
 	std::list<IHierarchicalStorageAttribute*> attributeList;
@@ -231,9 +231,9 @@ Marshal::Ret<std::list<IHierarchicalStorageAttribute*>> HierarchicalStorageNode:
 	return attributeList;
 }
 
-//----------------------------------------------------------------------------------------
-//Common data functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Common data functions
+//----------------------------------------------------------------------------------------------------------------------
 void HierarchicalStorageNode::ClearData()
 {
 	_binaryDataPresent = false;
@@ -242,51 +242,51 @@ void HierarchicalStorageNode::ClearData()
 	_dataStream.Resize(0);
 }
 
-//----------------------------------------------------------------------------------------
-//Binary data functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Binary data functions
+//----------------------------------------------------------------------------------------------------------------------
 bool HierarchicalStorageNode::GetBinaryDataPresent() const
 {
 	return _binaryDataPresent;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void HierarchicalStorageNode::SetBinaryDataPresent(bool state)
 {
 	_binaryDataPresent = state;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> HierarchicalStorageNode::GetBinaryDataBufferName() const
 {
 	return _binaryDataName.c_str();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void HierarchicalStorageNode::SetBinaryDataBufferName(const Marshal::In<std::wstring>& name)
 {
 	_binaryDataName = name;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Stream::IStream& HierarchicalStorageNode::GetBinaryDataBufferStream()
 {
 	return _dataStream;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool HierarchicalStorageNode::GetInlineBinaryDataEnabled() const
 {
 	return _inlineBinaryData;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void HierarchicalStorageNode::SetInlineBinaryDataEnabled(bool state)
 {
 	_inlineBinaryData = state;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void HierarchicalStorageNode::AddBinaryDataEntitiesToList(std::list<IHierarchicalStorageNode*>& binaryEntityList)
 {
 	if (_binaryDataPresent && !_inlineBinaryData)

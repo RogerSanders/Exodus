@@ -1,28 +1,28 @@
 //Disable warning about the presence of virtual functions without a virtual destructor.
-//Our structures below use virtual functions to create code barriers between assemblies so
-//that they can be marshalled, but they are never derived from, so a virtual destructor is
-//not required.
+// Our structures below use virtual functions to create code barriers between assemblies so
+// that they can be marshalled, but they are never derived from, so a virtual destructor is
+// not required.
 #ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable:4265)
 #endif
 
-//----------------------------------------------------------------------------------------
-//Enumerations
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Enumerations
+//----------------------------------------------------------------------------------------------------------------------
 enum class ISystemGUIInterface::FileType
 {
 	ZIP,
 	XML
 };
 
-//----------------------------------------------------------------------------------------
-//Structures
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Structures
+//----------------------------------------------------------------------------------------------------------------------
 struct ISystemGUIInterface::StateInfo
 {
 public:
-	//Constructors
+	// Constructors
 	StateInfo()
 	:valid(false), debuggerState(false), screenshotPresent(false)
 	{}
@@ -32,7 +32,7 @@ public:
 	}
 
 private:
-	//Marshalling methods
+	// Marshalling methods
 	virtual void MarshalToTarget(bool& validMarshaller, bool& debuggerStateMarshaller, const Marshal::Out<std::wstring>& creationDateMarshaller, const Marshal::Out<std::wstring>& creationTimeMarshaller, const Marshal::Out<std::wstring>& commentsMarshaller, bool& screenshotPresentMarshaller, const Marshal::Out<std::wstring>& screenshotFilenameMarshaller) const
 	{
 		validMarshaller = valid;
@@ -54,11 +54,11 @@ public:
 	std::wstring screenshotFilename;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct ISystemGUIInterface::ModuleRelationship
 {
 public:
-	//Constructors
+	// Constructors
 	ModuleRelationship()
 	{}
 	ModuleRelationship(MarshalSupport::marshal_object_tag, const ModuleRelationship& source)
@@ -67,7 +67,7 @@ public:
 	}
 
 private:
-	//Marshalling methods
+	// Marshalling methods
 	virtual void MarshalToTarget(unsigned int& savedModuleIDMarshaller, const Marshal::Out<std::wstring>& savedModuleClassNameMarshaller, const Marshal::Out<std::wstring>& savedModuleInstanceNameMarshaller, bool& foundMatchMarshaller, unsigned int& loadedModuleIDMarshaller) const
 	{
 		savedModuleIDMarshaller = savedModuleID;
@@ -78,21 +78,21 @@ private:
 	}
 
 public:
-	//Saved module info
+	// Saved module info
 	unsigned int savedModuleID;
 	std::wstring savedModuleClassName;
 	std::wstring savedModuleInstanceName;
 
-	//Loaded module info
+	// Loaded module info
 	bool foundMatch;
 	unsigned int loadedModuleID;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct ISystemGUIInterface::SavedRelationshipImportConnector
 {
 public:
-	//Constructors
+	// Constructors
 	SavedRelationshipImportConnector()
 	{}
 	SavedRelationshipImportConnector(MarshalSupport::marshal_object_tag, const SavedRelationshipImportConnector& source)
@@ -101,7 +101,7 @@ public:
 	}
 
 private:
-	//Marshalling methods
+	// Marshalling methods
 	virtual void MarshalToTarget(unsigned int& moduleIDMarshaller, const Marshal::Out<std::wstring>& classNameMarshaller, const Marshal::Out<std::wstring>& instanceNameLocalMarshaller, const Marshal::Out<std::wstring>& instanceNameRemoteMarshaller) const
 	{
 		moduleIDMarshaller = moduleID;
@@ -117,11 +117,11 @@ public:
 	std::wstring instanceNameRemote;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct ISystemGUIInterface::SavedRelationshipExportConnector
 {
 public:
-	//Constructors
+	// Constructors
 	SavedRelationshipExportConnector()
 	{}
 	SavedRelationshipExportConnector(MarshalSupport::marshal_object_tag, const SavedRelationshipExportConnector& source)
@@ -130,7 +130,7 @@ public:
 	}
 
 private:
-	//Marshalling methods
+	// Marshalling methods
 	virtual void MarshalToTarget(const Marshal::Out<std::wstring>& classNameMarshaller, const Marshal::Out<std::wstring>& instanceNameMarshaller) const
 	{
 		classNameMarshaller = className;
@@ -142,11 +142,11 @@ public:
 	std::wstring instanceName;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct ISystemGUIInterface::SavedRelationshipModule
 {
 public:
-	//Constructors
+	// Constructors
 	SavedRelationshipModule()
 	{}
 	SavedRelationshipModule(MarshalSupport::marshal_object_tag, const SavedRelationshipModule& source)
@@ -155,7 +155,7 @@ public:
 	}
 
 private:
-	//Marshalling methods
+	// Marshalling methods
 	virtual void MarshalToTarget(unsigned int& moduleIDMarshaller, const Marshal::Out<std::wstring>& systemClassNameMarshaller, const Marshal::Out<std::wstring>& classNameMarshaller, const Marshal::Out<std::wstring>& instanceNameMarshaller, const Marshal::Out<std::wstring>& filePathMarshaller, const Marshal::Out<std::list<SavedRelationshipExportConnector>>& exportedConnectorsMarshaller, const Marshal::Out<std::list<SavedRelationshipImportConnector>>& importedConnectorsMarshaller) const
 	{
 		moduleIDMarshaller = moduleID;
@@ -177,11 +177,11 @@ public:
 	std::list<SavedRelationshipImportConnector> importedConnectors;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct ISystemGUIInterface::ConnectorMapping
 {
 public:
-	//Constructors
+	// Constructors
 	ConnectorMapping()
 	{}
 	ConnectorMapping(MarshalSupport::marshal_object_tag, const ConnectorMapping& source)
@@ -190,7 +190,7 @@ public:
 	}
 
 private:
-	//Marshalling methods
+	// Marshalling methods
 	virtual void MarshalToTarget(unsigned int& connectorIDMarshaller, const Marshal::Out<std::wstring>& importingModuleConnectorInstanceNameMarshaller) const
 	{
 		connectorIDMarshaller = connectorID;
@@ -202,11 +202,11 @@ public:
 	std::wstring importingModuleConnectorInstanceName;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct ISystemGUIInterface::ConnectorDefinitionImport
 {
 public:
-	//Constructors
+	// Constructors
 	ConnectorDefinitionImport()
 	{}
 	ConnectorDefinitionImport(MarshalSupport::marshal_object_tag, const ConnectorDefinitionImport& source)
@@ -215,7 +215,7 @@ public:
 	}
 
 private:
-	//Marshalling methods
+	// Marshalling methods
 	virtual void MarshalToTarget(const Marshal::Out<std::wstring>& classNameMarshaller, const Marshal::Out<std::wstring>& instanceNameMarshaller) const
 	{
 		classNameMarshaller = className;
@@ -227,11 +227,11 @@ public:
 	std::wstring instanceName;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct ISystemGUIInterface::ConnectorDefinitionExport
 {
 public:
-	//Constructors
+	// Constructors
 	ConnectorDefinitionExport()
 	{}
 	ConnectorDefinitionExport(MarshalSupport::marshal_object_tag, const ConnectorDefinitionExport& source)
@@ -240,7 +240,7 @@ public:
 	}
 
 private:
-	//Marshalling methods
+	// Marshalling methods
 	virtual void MarshalToTarget(const Marshal::Out<std::wstring>& classNameMarshaller, const Marshal::Out<std::wstring>& instanceNameMarshaller) const
 	{
 		classNameMarshaller = className;
@@ -252,11 +252,11 @@ public:
 	std::wstring instanceName;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct ISystemGUIInterface::SystemLogEntry
 {
 public:
-	//Constructors
+	// Constructors
 	SystemLogEntry()
 	{}
 	SystemLogEntry(MarshalSupport::marshal_object_tag, const SystemLogEntry& sourceObject)
@@ -265,7 +265,7 @@ public:
 	}
 
 private:
-	//Marshalling methods
+	// Marshalling methods
 	virtual void MarshalToTarget(ILogEntry::EventLevel& eventLevelMarshaller, const Marshal::Out<std::wstring>& textMarshaller, const Marshal::Out<std::wstring>& sourceMarshaller, const Marshal::Out<std::wstring>& eventLevelStringMarshaller, const Marshal::Out<std::wstring>& eventTimeStringMarshaller) const
 	{
 		eventLevelMarshaller = eventLevel;
@@ -277,10 +277,10 @@ private:
 
 public:
 	//##FIX## Improve the definition of a log entry. We should have a list of source path
-	//elements, and a timestamp which records integer components for the time, and builds
-	//a string from those elements on demand. We also shouldn't have any string
-	//representation of the event level stored or associated with the log entry, that
-	//should be built by the GUI.
+	// elements, and a timestamp which records integer components for the time, and builds
+	// a string from those elements on demand. We also shouldn't have any string
+	// representation of the event level stored or associated with the log entry, that
+	// should be built by the GUI.
 	ILogEntry::EventLevel eventLevel;
 	std::wstring text;
 	std::wstring source;
@@ -288,7 +288,7 @@ public:
 	std::wstring eventTimeString;
 };
 
-//Restore the disabled warnings
+// Restore the disabled warnings
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif

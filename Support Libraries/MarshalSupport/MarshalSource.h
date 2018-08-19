@@ -21,24 +21,24 @@ namespace MarshalSupport {
 
 #ifdef _MSC_VER
 #pragma warning(push)
-//Disable warning about using "this" pointer in initializer list. Our usage here is safe, and guaranteed by the
-//standard. See section 12.6.2 [class.base.init] paragraph 7 of the standard for clarification.
+// Disable warning about using "this" pointer in initializer list. Our usage here is safe, and guaranteed by the
+// standard. See section 12.6.2 [class.base.init] paragraph 7 of the standard for clarification.
 #pragma warning(disable:4355)
-//Disable warning about our use of type traits causing conditional expressions to be constant. The code behaves as
-//intended, and the compiler is free to optimize away the dead branch.
+// Disable warning about our use of type traits causing conditional expressions to be constant. The code behaves as
+// intended, and the compiler is free to optimize away the dead branch.
 #pragma warning(disable:4127)
-//Disable warning about classes with virtual functions without a virtual destructor. We use protected inlined
-//destructors where appropriate to prevent destruction through base class pointers.
+// Disable warning about classes with virtual functions without a virtual destructor. We use protected inlined
+// destructors where appropriate to prevent destruction through base class pointers.
 #pragma warning(disable:4265)
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 namespace Internal {
 template<class ContainerType, bool IsThisOrNextElementLastElement = Internal::is_this_or_nested_element_last_nested_container_element<ContainerType>::value, bool IsOnlyMovable = Internal::is_only_movable<typename Internal::get_last_nested_container_element_type<ContainerType>::type>::value>
 class MarshalSourceInternal :public IMarshalSource<ContainerType, false, IsThisOrNextElementLastElement, IsOnlyMovable>
 {
 public:
-	//Constructors
+	// Constructors
 	MarshalSourceInternal(const ContainerType& _sourceObject)
 	:__sourceObject(&_sourceObject), __sourceDataMovable(false)
 	{ }
@@ -51,23 +51,23 @@ public:
 	{ }
 
 protected:
-	//Marshalling methods
+	// Marshalling methods
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION RetrieveData(size_t& elementByteSize, void*& itemArray, const size_t*& elementSizeArray, Internal::INestedMarshallerBase* const*& nestedMarshallerArray, bool allowMove) const
 	{
-		//Retrieve the byte size of the innermost element to be contained in our flat arrays
+		// Retrieve the byte size of the innermost element to be contained in our flat arrays
 		elementByteSize = sizeof(typename Internal::get_last_nested_container_element_type<ContainerType>::type);
 
-		//Calculate the required size of our flat arrays in order to hold a decomposed version of the specified object
+		// Calculate the required size of our flat arrays in order to hold a decomposed version of the specified object
 		size_t itemArraySize = 0;
 		size_t elementSizeArraySize = 0;
 		Internal::CalculateDecomposedSTLContainerSize(itemArraySize, elementSizeArraySize, *__sourceObject);
 
-		//Allocate our flat arrays to hold the decomposed object data
+		// Allocate our flat arrays to hold the decomposed object data
 		itemArray = Internal::CreateSTLContainerItemArray(itemArraySize, __sourceObject);
 		size_t* elementSizeArrayTemp = new size_t[elementSizeArraySize];
 		elementSizeArray = elementSizeArrayTemp;
 
-		//Allocate key marshallers for any keyed containers in the _source object
+		// Allocate key marshallers for any keyed containers in the _source object
 		if (Internal::nested_container_has_keys<ContainerType>::value)
 		{
 			MARSHALSUPPORT_CONSTEXPR size_t nestingDepth = Internal::CalculateSTLContainerNestingDepth(0, (ContainerType*)0);
@@ -76,8 +76,8 @@ protected:
 			nestedMarshallerArray = nestedMarshallerArrayTemp;
 		}
 
-		//Decompose the container hierarchy into a flat array of the innermost elements, with a corresponding array of
-		//sizes for the intermediate containers.
+		// Decompose the container hierarchy into a flat array of the innermost elements, with a corresponding array of
+		// sizes for the intermediate containers.
 		size_t elementArrayIndex = 0;
 		size_t elementSizeArrayIndex = 0;
 		size_t nestedMarshallerArrayIndex = 0;
@@ -94,7 +94,7 @@ protected:
 	}
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION FreeDataArrays(void* itemArray, const size_t* elementSizeArray, Internal::INestedMarshallerBase* const* nestedMarshallerArray) const
 	{
-		//Release the allocated data arrays
+		// Release the allocated data arrays
 		Internal::DeleteSTLContainerItemArray(itemArray, __sourceObject);
 		delete[] elementSizeArray;
 		if (Internal::nested_container_has_keys<ContainerType>::value)
@@ -105,7 +105,7 @@ protected:
 	}
 
 private:
-	//Disable copying and moving
+	// Disable copying and moving
 	MarshalSourceInternal(const MarshalSourceInternal& _source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalSourceInternal& operator=(const MarshalSourceInternal& _source) MARSHALSUPPORT_DELETEMETHOD;
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
@@ -119,12 +119,12 @@ private:
 };
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ContainerType, bool IsThisOrNextElementLastElement>
 class MarshalSourceInternal<ContainerType, IsThisOrNextElementLastElement, true> :public IMarshalSource<ContainerType, false, IsThisOrNextElementLastElement, true>
 {
 public:
-	//Constructors
+	// Constructors
 	MarshalSourceInternal(ContainerType&& _sourceObject)
 	:__sourceObject(&_sourceObject)
 	{ }
@@ -132,23 +132,23 @@ public:
 	{ }
 
 protected:
-	//Marshalling methods
+	// Marshalling methods
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION RetrieveData(size_t& elementByteSize, void*& itemArray, const size_t*& elementSizeArray, Internal::INestedMarshallerBase* const*& nestedMarshallerArray) const
 	{
-		//Retrieve the byte size of the innermost element to be contained in our flat arrays
+		// Retrieve the byte size of the innermost element to be contained in our flat arrays
 		elementByteSize = sizeof(typename Internal::get_last_nested_container_element_type<ContainerType>::type);
 
-		//Calculate the required size of our flat arrays in order to hold a decomposed version of the specified object
+		// Calculate the required size of our flat arrays in order to hold a decomposed version of the specified object
 		size_t itemArraySize = 0;
 		size_t elementSizeArraySize = 0;
 		Internal::CalculateDecomposedSTLContainerSize(itemArraySize, elementSizeArraySize, *__sourceObject);
 
-		//Allocate our flat arrays to hold the decomposed object data
+		// Allocate our flat arrays to hold the decomposed object data
 		itemArray = Internal::CreateSTLContainerItemArray(itemArraySize, __sourceObject);
 		size_t* elementSizeArrayTemp = new size_t[elementSizeArraySize];
 		elementSizeArray = elementSizeArrayTemp;
 
-		//Allocate key marshallers for any keyed containers in the _source object
+		// Allocate key marshallers for any keyed containers in the _source object
 		if (Internal::nested_container_has_keys<ContainerType>::value)
 		{
 			MARSHALSUPPORT_CONSTEXPR size_t nestingDepth = Internal::CalculateSTLContainerNestingDepth(0, (ContainerType*)0);
@@ -157,8 +157,8 @@ protected:
 			nestedMarshallerArray = nestedMarshallerArrayTemp;
 		}
 
-		//Decompose the container hierarchy into a flat array of the innermost elements, with a corresponding array of
-		//sizes for the intermediate containers.
+		// Decompose the container hierarchy into a flat array of the innermost elements, with a corresponding array of
+		// sizes for the intermediate containers.
 		size_t elementArrayIndex = 0;
 		size_t elementSizeArrayIndex = 0;
 		size_t nestedMarshallerArrayIndex = 0;
@@ -166,7 +166,7 @@ protected:
 	}
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION FreeDataArrays(void* itemArray, const size_t* elementSizeArray, Internal::INestedMarshallerBase* const* nestedMarshallerArray) const
 	{
-		//Release the allocated data arrays
+		// Release the allocated data arrays
 		Internal::DeleteSTLContainerItemArray(itemArray, __sourceObject);
 		delete[] elementSizeArray;
 		if (Internal::nested_container_has_keys<ContainerType>::value)
@@ -177,7 +177,7 @@ protected:
 	}
 
 private:
-	//Disable copying and moving
+	// Disable copying and moving
 	MarshalSourceInternal(const MarshalSourceInternal& _source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalSourceInternal& operator=(const MarshalSourceInternal& _source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalSourceInternal(MarshalSourceInternal&& _source) MARSHALSUPPORT_DELETEMETHOD;
@@ -187,19 +187,19 @@ private:
 	ContainerType* __sourceObject;
 };
 #endif
-} //Close namespace Internal
+} // Close namespace Internal
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ContainerType, bool IsLastElement = Internal::is_last_nested_container_element<ContainerType>::value, bool IsThisOrNextElementLastElement = Internal::is_this_or_nested_element_last_nested_container_element<ContainerType>::value, bool IsOnlyMovable = Internal::is_only_movable<typename Internal::get_last_nested_container_element_type<ContainerType>::type>::value>
 class MarshalSource
 { };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ContainerType, bool IsThisOrNextElementLastElement>
 class MarshalSource<ContainerType, false, IsThisOrNextElementLastElement, false> :public Internal::MarshalSourceInternal<ContainerType, IsThisOrNextElementLastElement, false>
 {
 public:
-	//Constructors
+	// Constructors
 	MarshalSource(const ContainerType& a_sourceObject)
 	:Internal::MarshalSourceInternal<ContainerType, IsThisOrNextElementLastElement, false>(a_sourceObject)
 	{ }
@@ -213,7 +213,7 @@ public:
 	{ }
 
 private:
-	//Disable copying and moving
+	// Disable copying and moving
 	MarshalSource(const MarshalSource& _source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalSource& operator=(const MarshalSource& _source) MARSHALSUPPORT_DELETEMETHOD;
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
@@ -223,12 +223,12 @@ private:
 };
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ContainerType, bool IsThisOrNextElementLastElement>
 class MarshalSource<ContainerType, false, IsThisOrNextElementLastElement, true> :public Internal::MarshalSourceInternal<ContainerType, IsThisOrNextElementLastElement, true>
 {
 public:
-	//Constructors
+	// Constructors
 	MarshalSource(const ContainerType& a_sourceObject)
 	:Internal::MarshalSourceInternal<ContainerType, IsThisOrNextElementLastElement, true>(a_sourceObject)
 	{ }
@@ -240,7 +240,7 @@ public:
 	{ }
 
 private:
-	//Disable copying and moving
+	// Disable copying and moving
 	MarshalSource(const MarshalSource& _source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalSource& operator=(const MarshalSource& _source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalSource(MarshalSource&& _source) MARSHALSUPPORT_DELETEMETHOD;
@@ -248,12 +248,12 @@ private:
 };
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ContainerType>
 class MarshalSource<ContainerType, true, true, false> :public IMarshalSource<ContainerType, true, true, false>
 {
 public:
-	//Constructors
+	// Constructors
 	MarshalSource(const ContainerType& _sourceObject)
 	:__sourceObject(&_sourceObject), __sourceDataMovable(false)
 	{ }
@@ -266,7 +266,7 @@ public:
 	{ }
 
 protected:
-	//Marshalling methods
+	// Marshalling methods
 	virtual bool MARSHALSUPPORT_CALLINGCONVENTION RetrieveData(size_t& elementByteSize, const ContainerType*& _sourceData) const
 	{
 		elementByteSize = sizeof(typename Internal::get_last_nested_container_element_type<ContainerType>::type);
@@ -275,7 +275,7 @@ protected:
 	}
 
 private:
-	//Disable copying and moving
+	// Disable copying and moving
 	MarshalSource(const MarshalSource& _source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalSource& operator=(const MarshalSource& _source) MARSHALSUPPORT_DELETEMETHOD;
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
@@ -289,12 +289,12 @@ private:
 };
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ContainerType>
 class MarshalSource<ContainerType, true, true, true> :public IMarshalSource<ContainerType, true, true, true>
 {
 public:
-	//Constructors
+	// Constructors
 	MarshalSource(ContainerType&& _sourceObject)
 	:__sourceObject(&_sourceObject)
 	{ }
@@ -302,7 +302,7 @@ public:
 	{ }
 
 protected:
-	//Marshalling methods
+	// Marshalling methods
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION RetrieveData(size_t& elementByteSize, ContainerType*& _sourceData) const
 	{
 		elementByteSize = sizeof(typename Internal::get_last_nested_container_element_type<ContainerType>::type);
@@ -310,7 +310,7 @@ protected:
 	}
 
 private:
-	//Disable copying and moving
+	// Disable copying and moving
 	MarshalSource(const MarshalSource& _source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalSource& operator=(const MarshalSource& _source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalSource(MarshalSource&& _source) MARSHALSUPPORT_DELETEMETHOD;
@@ -321,12 +321,12 @@ private:
 };
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Alloc>
 class MarshalSource<std::vector<ElementType, Alloc>, false, true, false> :public IMarshalSource<std::vector<ElementType, Alloc>, false, true, false>
 {
 public:
-	//Constructors
+	// Constructors
 	MarshalSource(const std::vector<ElementType, Alloc>& _sourceObject)
 	:__sourceObject(&_sourceObject), __sourceDataMovable(false)
 	{ }
@@ -339,7 +339,7 @@ public:
 	{ }
 
 protected:
-	//Marshalling methods
+	// Marshalling methods
 	virtual bool MARSHALSUPPORT_CALLINGCONVENTION RetrieveData(size_t& elementByteSize, const ElementType*& _sourceData, size_t& _sourceDataLength) const
 	{
 		elementByteSize = sizeof(typename Internal::get_last_nested_container_element_type<ElementType>::type);
@@ -352,7 +352,7 @@ protected:
 		return __sourceDataMovable;
 	}
 
-	//Size methods
+	// Size methods
 	virtual size_t MARSHALSUPPORT_CALLINGCONVENTION GetSize() const
 	{
 		return static_cast<size_t>(__sourceObject->size());
@@ -363,7 +363,7 @@ protected:
 	}
 
 private:
-	//Disable copying and moving
+	// Disable copying and moving
 	MarshalSource(const MarshalSource& _source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalSource& operator=(const MarshalSource& _source) MARSHALSUPPORT_DELETEMETHOD;
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
@@ -377,12 +377,12 @@ private:
 };
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Alloc>
 class MarshalSource<std::vector<ElementType, Alloc>, false, true, true> :public IMarshalSource<std::vector<ElementType, Alloc>, false, true, true>
 {
 public:
-	//Constructors
+	// Constructors
 	MarshalSource(std::vector<ElementType, Alloc>&& _sourceObject)
 	:__sourceObject(&_sourceObject)
 	{ }
@@ -390,7 +390,7 @@ public:
 	{ }
 
 protected:
-	//Marshalling methods
+	// Marshalling methods
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION RetrieveData(size_t& elementByteSize, ElementType*& _sourceData, size_t& _sourceDataLength) const
 	{
 		elementByteSize = sizeof(typename Internal::get_last_nested_container_element_type<ElementType>::type);
@@ -398,7 +398,7 @@ protected:
 		_sourceDataLength = __sourceObject->size();
 	}
 
-	//Size methods
+	// Size methods
 	virtual size_t MARSHALSUPPORT_CALLINGCONVENTION GetSize() const
 	{
 		return static_cast<size_t>(__sourceObject->size());
@@ -409,7 +409,7 @@ protected:
 	}
 
 private:
-	//Disable copying and moving
+	// Disable copying and moving
 	MarshalSource(const MarshalSource& _source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalSource& operator=(const MarshalSource& _source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalSource(MarshalSource&& _source) MARSHALSUPPORT_DELETEMETHOD;
@@ -420,12 +420,12 @@ private:
 };
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class Alloc>
 class MarshalSource<std::vector<bool, Alloc>, false, true, false> :public IMarshalSource<std::vector<bool, Alloc>, false, true, false>
 {
 public:
-	//Constructors
+	// Constructors
 	MarshalSource(const std::vector<bool, Alloc>& _sourceObject)
 	:__sourceObject(&_sourceObject)
 	{ }
@@ -433,13 +433,13 @@ public:
 	{ }
 
 protected:
-	//Marshalling methods
+	// Marshalling methods
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION RetrieveData(const bool*& _sourceData, size_t& _sourceDataLength) const
 	{
-		//Since the C++ standard defines a rather poor specialization of std::vector for the bool type which is intended
-		//to allow multiple boolean values to be packed into shared integer values values, and therefore can't provide a
-		//reference to its underlying data members like the vector container normally can, we need to repack the
-		//elements of this boolean vector here into a flat array so that we can marshal it.
+		// Since the C++ standard defines a rather poor specialization of std::vector for the bool type which is intended
+		// to allow multiple boolean values to be packed into shared integer values values, and therefore can't provide a
+		// reference to its underlying data members like the vector container normally can, we need to repack the
+		// elements of this boolean vector here into a flat array so that we can marshal it.
 		size_t _sourceObjectLength = __sourceObject->size();
 		bool* itemArray = new bool[_sourceObjectLength];
 		for (size_t i = 0; i < _sourceObjectLength; ++i)
@@ -447,7 +447,7 @@ protected:
 			itemArray[i] = (*__sourceObject)[(typename std::vector<bool, Alloc>::size_type)i];
 		}
 
-		//Return the raw vector data to the caller
+		// Return the raw vector data to the caller
 		_sourceData = itemArray;
 		_sourceDataLength = _sourceObjectLength;
 	}
@@ -457,7 +457,7 @@ protected:
 	}
 
 private:
-	//Disable copying and moving
+	// Disable copying and moving
 	MarshalSource(const MarshalSource& _source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalSource& operator=(const MarshalSource& _source) MARSHALSUPPORT_DELETEMETHOD;
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
@@ -470,12 +470,12 @@ private:
 };
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, size_t ArraySize>
 class MarshalSource<std::array<ElementType, ArraySize>, false, true, false> :public IMarshalSource<std::array<ElementType, ArraySize>, false, true, false>
 {
 public:
-	//Constructors
+	// Constructors
 	MarshalSource(const std::array<ElementType, ArraySize>& _sourceObject)
 	:__sourceObject(&_sourceObject), __sourceDataMovable(false)
 	{ }
@@ -486,7 +486,7 @@ public:
 	{ }
 
 protected:
-	//Marshalling methods
+	// Marshalling methods
 	virtual bool MARSHALSUPPORT_CALLINGCONVENTION RetrieveData(size_t& elementByteSize, const ElementType*& _sourceData) const
 	{
 		elementByteSize = sizeof(typename Internal::get_last_nested_container_element_type<ElementType>::type);
@@ -495,7 +495,7 @@ protected:
 	}
 
 private:
-	//Disable copying and moving
+	// Disable copying and moving
 	MarshalSource(const MarshalSource& _source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalSource& operator=(const MarshalSource& _source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalSource(MarshalSource&& _source) MARSHALSUPPORT_DELETEMETHOD;
@@ -506,12 +506,12 @@ private:
 	bool __sourceDataMovable;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, size_t ArraySize>
 class MarshalSource<std::array<ElementType, ArraySize>, false, true, true> :public IMarshalSource<std::array<ElementType, ArraySize>, false, true, true>
 {
 public:
-	//Constructors
+	// Constructors
 	MarshalSource(std::array<ElementType, ArraySize>&& _sourceObject)
 	:__sourceObject(&_sourceObject)
 	{ }
@@ -519,7 +519,7 @@ public:
 	{ }
 
 protected:
-	//Marshalling methods
+	// Marshalling methods
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION RetrieveData(size_t& elementByteSize, ElementType*& _sourceData) const
 	{
 		elementByteSize = sizeof(typename Internal::get_last_nested_container_element_type<ElementType>::type);
@@ -527,7 +527,7 @@ protected:
 	}
 
 private:
-	//Disable copying and moving
+	// Disable copying and moving
 	MarshalSource(const MarshalSource& _source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalSource& operator=(const MarshalSource& _source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalSource(MarshalSource&& _source) MARSHALSUPPORT_DELETEMETHOD;
@@ -538,12 +538,12 @@ private:
 };
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class traits, class Alloc>
 class MarshalSource<std::basic_string<ElementType, traits, Alloc>, false, true, false> :public IMarshalSource<std::basic_string<ElementType, traits, Alloc>, false, true, false>
 {
 public:
-	//Constructors
+	// Constructors
 	MarshalSource(const std::basic_string<ElementType, traits, Alloc>& _sourceObject)
 	:__sourceObject(&_sourceObject), __sourceDataMovable(false)
 	{ }
@@ -559,7 +559,7 @@ public:
 	{ }
 
 protected:
-	//Marshalling methods
+	// Marshalling methods
 	virtual bool MARSHALSUPPORT_CALLINGCONVENTION RetrieveData(size_t& elementByteSize, const ElementType*& _sourceData, size_t& _sourceDataLength) const
 	{
 		elementByteSize = sizeof(typename Internal::get_last_nested_container_element_type<ElementType>::type);
@@ -569,7 +569,7 @@ protected:
 	}
 
 private:
-	//Disable copying and moving
+	// Disable copying and moving
 	MarshalSource(const MarshalSource& _source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalSource& operator=(const MarshalSource& _source) MARSHALSUPPORT_DELETEMETHOD;
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
@@ -583,12 +583,12 @@ private:
 	bool __sourceDataMovable;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class T1, class T2>
 class MarshalSource<std::pair<T1, T2>, false, true, false> :public IMarshalSource<std::pair<T1, T2>, false, true, false>
 {
 public:
-	//Constructors
+	// Constructors
 	MarshalSource(const std::pair<T1, T2>& _sourceObject)
 	:__sourceObject(&_sourceObject), __sourceDataMovable(false)
 	{ }
@@ -601,7 +601,7 @@ public:
 	{ }
 
 protected:
-	//Marshalling methods
+	// Marshalling methods
 	virtual Marshal::Ret<T1, false> MARSHALSUPPORT_CALLINGCONVENTION RetrieveFirstElement(bool allowMove) const
 	{
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
@@ -624,7 +624,7 @@ protected:
 	}
 
 private:
-	//Disable copying and moving
+	// Disable copying and moving
 	MarshalSource(const MarshalSource& _source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalSource& operator=(const MarshalSource& _source) MARSHALSUPPORT_DELETEMETHOD;
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
@@ -637,13 +637,13 @@ private:
 	bool __sourceDataMovable;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
 template<class T1, class T2>
 class MarshalSource<std::pair<T1, T2>, false, true, true> :public IMarshalSource<std::pair<T1, T2>, false, true, true>
 {
 public:
-	//Constructors
+	// Constructors
 	MarshalSource(std::pair<T1, T2>&& _sourceObject)
 	:__sourceObject(&_sourceObject)
 	{ }
@@ -651,7 +651,7 @@ public:
 	{ }
 
 protected:
-	//Marshalling methods
+	// Marshalling methods
 	virtual Marshal::Ret<T1, true> MARSHALSUPPORT_CALLINGCONVENTION RetrieveFirstElement() const
 	{
 		return std::move(__sourceObject->first);
@@ -662,7 +662,7 @@ protected:
 	}
 
 private:
-	//Disable copying and moving
+	// Disable copying and moving
 	MarshalSource(const MarshalSource& _source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalSource& operator=(const MarshalSource& _source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalSource(MarshalSource&& _source) MARSHALSUPPORT_DELETEMETHOD;
@@ -674,12 +674,12 @@ private:
 #endif
 
 #if defined(MARSHALSUPPORT_CPP11SUPPORTED) && !defined(MARSHALSUPPORT_NOVARIADICTEMPLATES)
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<>
 class MarshalSource<std::tuple<>, false, true, false> :public IMarshalSource<std::tuple<>, false, true, false>
 {
 public:
-	//Constructors
+	// Constructors
 	MarshalSource(const std::tuple<>& _sourceObject)
 	{ }
 	MarshalSource(std::tuple<>&& _sourceObject)
@@ -688,19 +688,19 @@ public:
 	{ }
 
 private:
-	//Disable copying and moving
+	// Disable copying and moving
 	MarshalSource(const MarshalSource& _source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalSource& operator=(const MarshalSource& _source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalSource(MarshalSource&& _source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalSource& operator=(MarshalSource&& _source) MARSHALSUPPORT_DELETEMETHOD;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class... Args>
 class MarshalSource<std::tuple<Args...>, false, true, false> :public IMarshalSource<std::tuple<Args...>, false, true, false>
 {
 public:
-	//Constructors
+	// Constructors
 	MarshalSource(const std::tuple<Args...>& _sourceObject)
 	:__sourceObject(&_sourceObject), __sourceDataMovable(false)
 	{ }
@@ -711,7 +711,7 @@ public:
 	{ }
 
 protected:
-	//Marshalling methods
+	// Marshalling methods
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION CreateElementMarshallers(Internal::INestedMarshallerBase* (&elementMarshallers)[std::tuple_size<std::tuple<Args...>>::value], bool allowMove) const
 	{
 		if (__sourceDataMovable && allowMove)
@@ -732,7 +732,7 @@ protected:
 	}
 
 private:
-	//Marshalling methods
+	// Marshalling methods
 	template<bool performMove, size_t TupleElementNo, class... Args>
 	class CreateElementMarshallersHelper { };
 	template<size_t TupleElementNo, class... Args>
@@ -774,7 +774,7 @@ private:
 		}
 	};
 
-	//Disable copying and moving
+	// Disable copying and moving
 	MarshalSource(const MarshalSource& _source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalSource& operator=(const MarshalSource& _source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalSource(MarshalSource&& _source) MARSHALSUPPORT_DELETEMETHOD;
@@ -785,12 +785,12 @@ private:
 	bool __sourceDataMovable;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class... Args>
 class MarshalSource<std::tuple<Args...>, false, true, true> :public IMarshalSource<std::tuple<Args...>, false, true, true>
 {
 public:
-	//Constructors
+	// Constructors
 	MarshalSource(std::tuple<Args...>&& _sourceObject)
 	:__sourceObject(&_sourceObject)
 	{ }
@@ -798,7 +798,7 @@ public:
 	{ }
 
 protected:
-	//Marshalling methods
+	// Marshalling methods
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION CreateElementMarshallers(Internal::INestedMarshallerBase* (&elementMarshallers)[std::tuple_size<std::tuple<Args...>>::value]) const
 	{
 		CreateElementMarshallersHelper<std::tuple_size<std::tuple<Args...>>::value-1, Args...>::CreateElementMarshallers(elementMarshallers, *__sourceObject);
@@ -812,7 +812,7 @@ protected:
 	}
 
 private:
-	//Marshalling methods
+	// Marshalling methods
 	template<size_t TupleElementNo, class... Args>
 	class CreateElementMarshallersHelper
 	{
@@ -833,7 +833,7 @@ private:
 		}
 	};
 
-	//Disable copying and moving
+	// Disable copying and moving
 	MarshalSource(const MarshalSource& _source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalSource& operator=(const MarshalSource& _source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalSource(MarshalSource&& _source) MARSHALSUPPORT_DELETEMETHOD;
@@ -844,10 +844,10 @@ private:
 };
 #endif
 
-//Restore the disabled warnings
+// Restore the disabled warnings
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
 
-} //Close namespace MarshalSupport
+} // Close namespace MarshalSupport
 #endif

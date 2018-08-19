@@ -31,7 +31,7 @@ public:
 		_target.SetIndexState(GetIndexState(), GetIndexOffset());
 		_target.SetMode(EffectiveAddress::Mode::HL);
 
-		//SBC HL,ss		11101101 01ss0010
+		// SBC HL,ss		11101101 01ss0010
 		_source.Decode16BitRegister(data.GetDataSegment(4, 2));
 
 		AddInstructionSize(GetIndexOffsetSize(_source.UsesIndexOffset() || _target.UsesIndexOffset()));
@@ -48,14 +48,14 @@ public:
 		Z80Word result;
 		Z80Word carry;
 
-		//Perform the operation
+		// Perform the operation
 		additionalTime += _source.Read(cpu, location, op1);
 		additionalTime += _target.Read(cpu, location, op2);
 		carry = (unsigned int)cpu->GetFlagC();
 		result = op2 - (op1 + carry);
 		additionalTime += _target.Write(cpu, location, result);
 
-		//Set the flag results
+		// Set the flag results
 		cpu->SetFlagS(result.Negative());
 		cpu->SetFlagZ(result.Zero());
 		cpu->SetFlagY(result.GetBit(8+5));
@@ -65,7 +65,7 @@ public:
 		cpu->SetFlagN(true);
 		cpu->SetFlagC((op1.GetData() + carry.GetData()) > op2.GetData());
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -75,5 +75,5 @@ private:
 	EffectiveAddress _target;
 };
 
-} //Close namespace Z80
+} // Close namespace Z80
 #endif

@@ -6,10 +6,10 @@
 class ISN76489 :public virtual IGenericAccess
 {
 public:
-	//Enumerations
+	// Enumerations
 	enum class ISN76489DataSource;
 
-	//Constants
+	// Constants
 	static const unsigned int ChannelCount = 4;
 	static const unsigned int NoiseChannelNo = 3;
 	static const unsigned int ToneRegisterBitCount = 10;
@@ -17,11 +17,11 @@ public:
 	static const unsigned int NoiseRegisterBitCount = 3;
 
 public:
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisISN76489Version() { return 1; }
 	virtual unsigned int GetISN76489Version() const = 0;
 
-	//Raw register functions
+	// Raw register functions
 	inline unsigned int GetVolumeRegisterExternal(unsigned int channelNo) const;
 	inline void SetVolumeRegisterExternal(unsigned int channelNo, unsigned int data);
 	inline unsigned int GetToneRegisterExternal(unsigned int channelNo) const;
@@ -29,13 +29,13 @@ public:
 	inline unsigned int GetNoiseShiftRegisterExternal() const;
 	inline void SetNoiseShiftRegisterExternal(unsigned int data);
 
-	//Latched register functions
+	// Latched register functions
 	inline unsigned int GetLatchedChannelNoExternal() const;
 	inline void SetLatchedChannelNoExternal(unsigned int data);
 	inline bool GetVolumeRegisterLatchedExternal() const;
 	inline void SetVolumeRegisterLatchedExternal(bool data);
 
-	//Device property functions
+	// Device property functions
 	inline double GetExternalClockRate() const;
 	inline void SetExternalClockRate(double data);
 	inline double GetExternalClockDivider() const;
@@ -49,7 +49,7 @@ public:
 	inline unsigned int GetNoiseChannelPeriodicNoiseTappedBitMask() const;
 	inline void SetNoiseChannelPeriodicNoiseTappedBitMask(unsigned int data);
 
-	//Audio logging functions
+	// Audio logging functions
 	inline bool IsAudioLoggingEnabled() const;
 	inline void SetAudioLoggingEnabled(bool data);
 	inline bool IsChannelAudioLoggingEnabled(unsigned int channelNo) const;

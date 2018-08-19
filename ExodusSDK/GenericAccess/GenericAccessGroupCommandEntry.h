@@ -5,26 +5,26 @@
 class GenericAccessGroupCommandEntry :public IGenericAccessGroupCommandEntry
 {
 public:
-	//Constructors
+	// Constructors
 	template<class T> inline GenericAccessGroupCommandEntry(T commandID, const std::wstring& name);
 	inline ~GenericAccessGroupCommandEntry();
 
-	//Interface version functions
+	// Interface version functions
 	virtual unsigned int GetIGenericAccessGroupEntryVersion() const;
 	virtual unsigned int GetIGenericAccessGroupCommandEntryVersion() const;
 
-	//Type functions
+	// Type functions
 	virtual GroupEntryType GetGroupEntryType() const;
 	virtual bool IsGroup() const;
 
-	//Parent functions
+	// Parent functions
 	virtual IGenericAccessGroup* GetParent() const;
 
-	//Data context functions
+	// Data context functions
 	virtual const IGenericAccess::DataContext* GetDataContext() const;
 	inline GenericAccessGroupCommandEntry* SetDataContext(const IGenericAccess::DataContext* dataContext);
 
-	//Command info methods
+	// Command info methods
 	virtual unsigned int GetCommandID() const;
 	virtual Marshal::Ret<std::wstring> GetName() const;
 	inline GenericAccessGroupCommandEntry* SetName(const std::wstring& name);
@@ -34,7 +34,7 @@ public:
 	inline GenericAccessGroupCommandEntry* SetHelpFileLink(const std::wstring& helpFileLink);
 
 protected:
-	//Parent functions
+	// Parent functions
 	virtual void SetParent(IGenericAccessGroup* parent);
 
 private:

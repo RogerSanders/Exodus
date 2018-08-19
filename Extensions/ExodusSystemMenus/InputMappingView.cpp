@@ -1,9 +1,9 @@
 #include "InputMappingView.h"
 #include "resource.h"
 
-//----------------------------------------------------------------------------------------
-//Constructors
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Constructors
+//----------------------------------------------------------------------------------------------------------------------
 InputMappingView::InputMappingView(IUIManager& uiManager, InputMappingViewPresenter& presenter, ISystemGUIInterface& model)
 :ViewBase(uiManager, presenter), _presenter(presenter), _model(model)
 {
@@ -13,9 +13,9 @@ InputMappingView::InputMappingView(IUIManager& uiManager, InputMappingViewPresen
 	SetDialogViewType();
 }
 
-//----------------------------------------------------------------------------------------
-//Member window procedure
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Member window procedure
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR InputMappingView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	WndProcDialogImplementSaveFieldWhenLostFocus(hwnd, msg, wparam, lparam);
@@ -33,9 +33,9 @@ INT_PTR InputMappingView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPAR
 	return FALSE;
 }
 
-//----------------------------------------------------------------------------------------
-//Event handlers
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Event handlers
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR InputMappingView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	SetTimer(hwnd, 1, 200, NULL);
@@ -43,7 +43,7 @@ INT_PTR InputMappingView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lpar
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR InputMappingView::msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	KillTimer(hwnd, 1);
@@ -51,29 +51,29 @@ INT_PTR InputMappingView::msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	return FALSE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR InputMappingView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	//If the input device list hasn't been modified, abort any further processing.
+	// If the input device list hasn't been modified, abort any further processing.
 	unsigned int newInputDeviceListLastModifiedToken = _model.GetInputDeviceListLastModifiedToken();
 	if (_inputDeviceListLastModifiedToken == newInputDeviceListLastModifiedToken)
 	{
 		return TRUE;
 	}
 
-	//Obtain the current set of input devices
+	// Obtain the current set of input devices
 	std::list<IDevice*> inputDeviceList = _model.GetInputDeviceList();
 
-	//Disable visual updates to the input device list
+	// Disable visual updates to the input device list
 	SendMessage(GetDlgItem(hwnd, IDC_INPUTMAPPING_LIST), WM_SETREDRAW, FALSE, 0);
 
-	//Update the embedded ROM list
+	// Update the embedded ROM list
 	bool foundCurrentlySelectedInputDevice = false;
 	LRESULT top = SendMessage(GetDlgItem(hwnd, IDC_INPUTMAPPING_LIST), LB_GETTOPINDEX, 0, 0);
 	SendMessage(GetDlgItem(hwnd, IDC_INPUTMAPPING_LIST), LB_RESETCONTENT, 0, NULL);
 	for (std::list<IDevice*>::const_iterator i = inputDeviceList.begin(); i != inputDeviceList.end(); ++i)
 	{
-		//Attempt to retrieve the display name of the next input device
+		// Attempt to retrieve the display name of the next input device
 		IDevice* inputDevice = *i;
 		std::wstring deviceDisplayName;
 		if (!_model.GetFullyQualifiedDeviceDisplayName(inputDevice, deviceDisplayName))
@@ -81,12 +81,12 @@ INT_PTR InputMappingView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			continue;
 		}
 
-		//Add an entry for this input device to the list
+		// Add an entry for this input device to the list
 		LRESULT newItemIndex = SendMessage(GetDlgItem(hwnd, IDC_INPUTMAPPING_LIST), LB_ADDSTRING, 0, (LPARAM)deviceDisplayName.c_str());
 		SendMessage(GetDlgItem(hwnd, IDC_INPUTMAPPING_LIST), LB_SETITEMDATA, newItemIndex, (LPARAM)inputDevice);
 
-		//If this input device was the previously selected input device, record its index
-		//in the list.
+		// If this input device was the previously selected input device, record its index
+		// in the list.
 		if (inputDevice == _selectedInputDevice)
 		{
 			SendMessage(GetDlgItem(hwnd, IDC_INPUTMAPPING_LIST), LB_SETCURSEL, newItemIndex, 0);
@@ -95,30 +95,30 @@ INT_PTR InputMappingView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	}
 	SendMessage(GetDlgItem(hwnd, IDC_INPUTMAPPING_LIST), LB_SETTOPINDEX, top, 0);
 
-	//If the previously selected input device was not found, clear the current selection
-	//in the list.
+	// If the previously selected input device was not found, clear the current selection
+	// in the list.
 	if (!foundCurrentlySelectedInputDevice)
 	{
 		_selectedInputDevice = 0;
 		SendMessage(GetDlgItem(hwnd, IDC_INPUTMAPPING_LIST), LB_SETCURSEL, (WPARAM)-1, 0);
 	}
 
-	//Enable visual updates to the input device list, and trigger a refresh.
+	// Enable visual updates to the input device list, and trigger a refresh.
 	SendMessage(GetDlgItem(hwnd, IDC_INPUTMAPPING_LIST), WM_SETREDRAW, TRUE, 0);
 	InvalidateRect(GetDlgItem(hwnd, IDC_INPUTMAPPING_LIST), NULL, FALSE);
 
-	//Save the new last modified token as the current last modified token
+	// Save the new last modified token as the current last modified token
 	_inputDeviceListLastModifiedToken = newInputDeviceListLastModifiedToken;
 
-	//If we currently have an open details view looking at input mappings for a particular
-	//device, ensure that device still exists, and close the details view if it does not,
-	//since it will now have a pointer to a device object that has been destroyed.
+	// If we currently have an open details view looking at input mappings for a particular
+	// device, ensure that device still exists, and close the details view if it does not,
+	// since it will now have a pointer to a device object that has been destroyed.
 	//##FIX## This isn't entirely safe. System windows such as this one need a hook into
-	//the module unload process, where they can be notified before a device is unloaded,
-	//and have a chance to fully process the event before the device is removed from the
-	//model. Windows such as our input mapping details view must subscribe to this
-	//message, and ensure they clean up any references to the device which is being
-	//removed when the message is received.
+	// the module unload process, where they can be notified before a device is unloaded,
+	// and have a chance to fully process the event before the device is removed from the
+	// model. Windows such as our input mapping details view must subscribe to this
+	// message, and ensure they clean up any references to the device which is being
+	// removed when the message is received.
 	if (!foundCurrentlySelectedInputDevice)
 	{
 		_presenter.CloseInputMappingDetailsView();
@@ -127,12 +127,12 @@ INT_PTR InputMappingView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR InputMappingView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	if (HIWORD(wparam) == LBN_DBLCLK)
 	{
-		//Display the input mapping details dialog for the selected input device
+		// Display the input mapping details dialog for the selected input device
 		switch (LOWORD(wparam))
 		{
 		case IDC_INPUTMAPPING_LIST:{

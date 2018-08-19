@@ -42,7 +42,7 @@ public:
 //	|            16 BITS OFFSET, IF 8 BITS OFFSET = $00             |
 //	-----------------------------------------------------------------
 
-		//BRA	<label>
+		// BRA	<label>
 		if (data.GetDataSegment(0, 8) != 0)
 		{
 			_size = BITCOUNT_BYTE;
@@ -62,20 +62,20 @@ public:
 		double additionalTime = 0;
 		M68000Long newPC;
 
-		//Return the execution time
+		// Return the execution time
 		Data offset(_size);
 		additionalTime += _target.Read(cpu, offset, GetInstructionRegister());
 		newPC = _target.GetSavedPC() + M68000Long(offset.SignExtend(BITCOUNT_LONG));
 		cpu->SetPC(newPC);
 
-		//Return the execution time
+		// Return the execution time
 		return GetExecuteCycleCount(additionalTime);
 	}
 
 	virtual void GetResultantPCLocations(std::set<unsigned int>& resultantPCLocations, bool& undeterminedResultantPCLocation) const
 	{
-		//Return the branch location from executing this opcode as the only possible
-		//resultant PC location from executing this opcode.
+		// Return the branch location from executing this opcode as the only possible
+		// resultant PC location from executing this opcode.
 		undeterminedResultantPCLocation = false;
 		unsigned int branchOpcodeAddress = (_target.GetSavedPC() + _target.ExtractProcessedImmediateData()).GetData();
 		resultantPCLocations.insert(branchOpcodeAddress);
@@ -92,5 +92,5 @@ private:
 	EffectiveAddress _target;
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #endif

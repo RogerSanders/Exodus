@@ -7,17 +7,17 @@ namespace Stream {
 class ViewText
 {
 public:
-	//Constructors
+	// Constructors
 	inline ViewText(IStream& stream);
 
-	//State functions
+	// State functions
 	inline bool NoErrorsOccurred() const;
 	inline void ClearErrorState();
 	inline bool IsAtEnd() const;
 	inline IStream::ByteOrder GetViewByteOrder() const;
 	inline void SetViewByteOrder(IStream::ByteOrder byteOrder);
 
-	//Text-based access functions
+	// Text-based access functions
 	template<class T> bool Read(T& data);
 	template<> bool Read(bool& data);
 	template<> bool Read(std::string& data);
@@ -44,16 +44,16 @@ public:
 	template<> bool Write(const signed char& data);
 	template<> bool Write(const unsigned char& data);
 
-	//Text string read functions
+	// Text string read functions
 	inline bool ReadTextString(std::string& data, bool stopAtNewline = true);
 	inline bool ReadTextString(std::wstring& data, bool stopAtNewline = true);
 
-	//Text stream functions
+	// Text stream functions
 	template<class T> ViewText& operator>>(T& data);
 	template<class T> ViewText& operator<<(const T& data);
 
 private:
-	//String length functions
+	// String length functions
 	inline static IStream::SizeType GetStringLength(const char* data);
 	inline static IStream::SizeType GetStringLength(const wchar_t* data);
 	inline static IStream::SizeType GetStringLength(const char* data, size_t bufferSize);
@@ -66,6 +66,6 @@ private:
 	bool _noErrorState;
 };
 
-} //Close namespace Stream
+} // Close namespace Stream
 #include "ViewText.inl"
 #endif

@@ -84,9 +84,9 @@ public:
 		double additionalTime = 0;
 		M68000Long result;
 
-		//If the _target location was read from a memory address, and the read value hasn't
-		//been modified up to this point, record the _source memory address as a pointer to
-		//code for disassembly purposes.
+		// If the _target location was read from a memory address, and the read value hasn't
+		// been modified up to this point, record the _source memory address as a pointer to
+		// code for disassembly purposes.
 		unsigned int _targetReadFromAddress;
 		bool dataIsOffset;
 		unsigned int offsetBaseAddress;
@@ -95,11 +95,11 @@ public:
 		//##FIX## Clean all this junk up
 		dataUnmodified &= !dataIsOffset;
 
-		//Perform the operation
+		// Perform the operation
 		_source.GetAddress(cpu, result);
 		additionalTime += _target.Write(cpu, result, GetInstructionRegister(), false, false, dataUnmodified, _targetReadFromAddress, dataSize);
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -115,5 +115,5 @@ private:
 	EffectiveAddress _target;
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #endif

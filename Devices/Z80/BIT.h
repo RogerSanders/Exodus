@@ -32,14 +32,14 @@ public:
 
 		if (_target.Decode8BitRegister(data.GetDataSegment(0, 3)))
 		{
-			//BIT b,r		11001011 01bbbrrr
+			// BIT b,r		11001011 01bbbrrr
 			AddExecuteCycleCount(4);
 		}
 		else
 		{
-			//BIT b,(HL)		11001011 01bbb110
-			//BIT b,(IX+d)		11011101 11001011 dddddddd 01bbb110
-			//BIT b,(IY+d)		11111101 11001011 dddddddd 01bbb110
+			// BIT b,(HL)		11001011 01bbb110
+			// BIT b,(IX+d)		11011101 11001011 dddddddd 01bbb110
+			// BIT b,(IY+d)		11111101 11001011 dddddddd 01bbb110
 			_target.SetMode(EffectiveAddress::Mode::HLIndirect);
 			AddExecuteCycleCount(8);
 
@@ -63,7 +63,7 @@ public:
 		Z80Byte op1;
 		bool result;
 
-		//Perform the operation
+		// Perform the operation
 		if (_doubleOutput)
 		{
 			additionalTime += _targetHL.Read(cpu, location, op1);
@@ -76,12 +76,12 @@ public:
 		additionalTime += _source.Read(cpu, location, bitNumber);
 		result = op1.GetBit(bitNumber.GetData());
 
-		//Set the flag results
+		// Set the flag results
 		//##NOTE## These flag calculations are right in the general case, but the results
-		//for the undocumented flags Y and X are known to be incorrect in the case of the
+		// for the undocumented flags Y and X are known to be incorrect in the case of the
 		//"BIT n,(HL)", "BIT n,(IX+d)", and "BIT n,(IY+d)" forms. The full correct
-		//behaviour is unknown at this time, and it looks like it will be a pain to
-		//implement. See "The Undocumented Z80 Documented", section 4.1.
+		// behaviour is unknown at this time, and it looks like it will be a pain to
+		// implement. See "The Undocumented Z80 Documented", section 4.1.
 		cpu->SetFlagS((bitNumber == 7) && result);
 		cpu->SetFlagZ(!result);
 		cpu->SetFlagY((bitNumber == 5) && result);
@@ -90,7 +90,7 @@ public:
 		cpu->SetFlagPV(!result);
 		cpu->SetFlagN(false);
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -102,5 +102,5 @@ private:
 	bool _doubleOutput;
 };
 
-} //Close namespace Z80
+} // Close namespace Z80
 #endif

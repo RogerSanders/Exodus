@@ -1,6 +1,6 @@
 #ifndef __INTERFACEVERSION_H__
 #define __INTERFACEVERSION_H__
-//We include a file from the STL here in order to ensure _CPPLIB_VER has been defined
+// We include a file from the STL here in order to ensure _CPPLIB_VER has been defined
 //#include <string>
 
 //#ifndef _CPPLIB_VER

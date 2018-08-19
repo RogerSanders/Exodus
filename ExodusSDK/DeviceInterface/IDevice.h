@@ -17,18 +17,18 @@ using namespace MarshalSupport::Operators;
 class IDevice
 {
 public:
-	//Enumerations
+	// Enumerations
 	enum class UpdateMethod;
 
 public:
-	//Constructors
+	// Constructors
 	virtual ~IDevice() = 0 {}
 
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisIDeviceVersion() { return 1; }
 	virtual unsigned int GetIDeviceVersion() const = 0;
 
-	//Initialization functions
+	// Initialization functions
 	virtual bool BindToSystemInterface(ISystemDeviceInterface* systemInterface) = 0;
 	virtual bool BindToDeviceContext(IDeviceContext* deviceContext) = 0;
 	virtual bool Construct(IHierarchicalStorageNode& node) = 0;
@@ -36,7 +36,7 @@ public:
 	virtual bool ValidateDevice() = 0;
 	virtual void Initialize() = 0;
 
-	//Reference functions
+	// Reference functions
 	virtual bool AddReference(const Marshal::In<std::wstring>& referenceName, IDevice* target) = 0;
 	virtual bool AddReference(const Marshal::In<std::wstring>& referenceName, IExtension* target) = 0;
 	virtual bool AddReference(const Marshal::In<std::wstring>& referenceName, IBusInterface* target) = 0;
@@ -46,16 +46,16 @@ public:
 	virtual void RemoveReference(IBusInterface* target) = 0;
 	virtual void RemoveReference(IClockSource* target) = 0;
 
-	//Device context functions
+	// Device context functions
 	//##FIX## Make this return a reference rather than a pointer
 	virtual IDeviceContext* GetDeviceContext() const = 0;
 	virtual double GetCurrentTimesliceProgress() const = 0;
 
-	//Suspend functions
+	// Suspend functions
 	virtual bool UsesExecuteSuspend() const = 0;
 	virtual bool UsesTransientExecution() const = 0;
 
-	//Execute functions
+	// Execute functions
 	virtual void BeginExecution() = 0;
 	virtual void SuspendExecution() = 0;
 	virtual double ExecuteStep() = 0;
@@ -73,23 +73,23 @@ public:
 	virtual void NotifyAfterExecuteCalled() = 0;
 	virtual void NotifyAfterExecuteStepFinishedTimeslice() = 0;
 
-	//Name functions
+	// Name functions
 	//##TODO## Here are the rules for display name generation for a device or extension:
-	//-The display name for a device is exactly what is specified in the module definition
-	//-Where no display name has been specified for a device, the display name is the
-	//instance name
-	//-Where only one instance of a module which contains a given device is loaded, and
-	//that module doesn't import any connectors, the fully qualified display name for a
-	//device is the display name.
-	//-Where multiple instances of a module are loaded which contain a given device, the
-	//fully qualified display name for the device is the display name, followed by a
-	//period, followed by the display name for the containing module.
-	//-Where the parent module imports a connector, and there is more than one connector
-	//in the loaded system which is compatible, the fully qualified display name for a
-	//device is the display name, followed by the parent module name, followed by a space,
-	//followed by the imported connector name surrounded in braces.
+	// -The display name for a device is exactly what is specified in the module definition
+	// -Where no display name has been specified for a device, the display name is the
+	// instance name
+	// -Where only one instance of a module which contains a given device is loaded, and
+	// that module doesn't import any connectors, the fully qualified display name for a
+	// device is the display name.
+	// -Where multiple instances of a module are loaded which contain a given device, the
+	// fully qualified display name for the device is the display name, followed by a
+	// period, followed by the display name for the containing module.
+	// -Where the parent module imports a connector, and there is more than one connector
+	// in the loaded system which is compatible, the fully qualified display name for a
+	// device is the display name, followed by the parent module name, followed by a space,
+	// followed by the imported connector name surrounded in braces.
 	//##TODO## Remove all these name functions from the device interface entirely, and
-	//only store this data and allow retrieval of it through the system interface.
+	// only store this data and allow retrieval of it through the system interface.
 	virtual Marshal::Ret<std::wstring> GetDeviceClassName() const = 0;
 	virtual Marshal::Ret<std::wstring> GetDeviceInstanceName() const = 0;
 	virtual Marshal::Ret<std::wstring> GetFullyQualifiedDeviceInstanceName() const = 0;
@@ -97,7 +97,7 @@ public:
 	virtual Marshal::Ret<std::wstring> GetModuleInstanceName() const = 0;
 	virtual unsigned int GetDeviceModuleID() const = 0;
 
-	//Savestate functions
+	// Savestate functions
 	virtual bool GetScreenshot(IImage& image) const = 0;
 	virtual void LoadState(IHierarchicalStorageNode& node) = 0;
 	virtual void SaveState(IHierarchicalStorageNode& node) const = 0;
@@ -108,7 +108,7 @@ public:
 	virtual void LoadDebuggerState(IHierarchicalStorageNode& node) = 0;
 	virtual void SaveDebuggerState(IHierarchicalStorageNode& node) const = 0;
 
-	//CE line state functions
+	// CE line state functions
 	virtual unsigned int GetCELineID(const Marshal::In<std::wstring>& lineName, bool inputLine) const = 0;
 	virtual void SetCELineInput(unsigned int lineID, bool lineMapped, unsigned int lineStartBitNumber) = 0;
 	virtual void SetCELineOutput(unsigned int lineID, bool lineMapped, unsigned int lineStartBitNumber) = 0;
@@ -117,19 +117,19 @@ public:
 	virtual unsigned int CalculateCELineStatePort(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext, double accessTime) const = 0;
 	virtual unsigned int CalculateCELineStatePortTransparent(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext) const = 0;
 
-	//Memory functions
+	// Memory functions
 	virtual IBusInterface::AccessResult ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext) = 0;
 	virtual IBusInterface::AccessResult WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext) = 0;
 	virtual void TransparentReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, unsigned int accessContext) = 0;
 	virtual void TransparentWriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, unsigned int accessContext) = 0;
 
-	//Port functions
+	// Port functions
 	virtual IBusInterface::AccessResult ReadPort(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext) = 0;
 	virtual IBusInterface::AccessResult WritePort(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext) = 0;
 	virtual void TransparentReadPort(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, unsigned int accessContext) = 0;
 	virtual void TransparentWritePort(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, unsigned int accessContext) = 0;
 
-	//Line functions
+	// Line functions
 	virtual unsigned int GetLineID(const Marshal::In<std::wstring>& lineName) const = 0;
 	virtual Marshal::Ret<std::wstring> GetLineName(unsigned int lineID) const = 0;
 	virtual unsigned int GetLineWidth(unsigned int lineID) const = 0;
@@ -140,13 +140,13 @@ public:
 	virtual void AssertCurrentOutputLineState() const = 0;
 	virtual void NegateCurrentOutputLineState() const = 0;
 
-	//Clock source functions
+	// Clock source functions
 	virtual unsigned int GetClockSourceID(const Marshal::In<std::wstring>& clockSourceName) const = 0;
 	virtual Marshal::Ret<std::wstring> GetClockSourceName(unsigned int clockSourceID) const = 0;
 	virtual void SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceContext* caller, double accessTime, unsigned int accessContext) = 0;
 	virtual void TransparentSetClockSourceRate(unsigned int clockInput, double clockRate) = 0;
 
-	//Input functions
+	// Input functions
 	virtual unsigned int GetKeyCodeID(const Marshal::In<std::wstring>& keyCodeName) const = 0;
 	virtual Marshal::Ret<std::wstring> GetKeyCodeName(unsigned int keyCodeID) const = 0;
 	virtual void HandleInputKeyDown(unsigned int keyCodeID) = 0;

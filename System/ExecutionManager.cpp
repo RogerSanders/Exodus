@@ -1,11 +1,11 @@
 #include "ExecutionManager.h"
 
-//----------------------------------------------------------------------------------------
-//Suspend functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Suspend functions
+//----------------------------------------------------------------------------------------------------------------------
 void ExecutionManager::EnableTimesliceExecutionSuspend()
 {
-	//Go through each device that supports suspension and enable the suspend feature
+	// Go through each device that supports suspension and enable the suspend feature
 	for (size_t i = 0; i < _suspendDeviceCount; ++i)
 	{
 		DeviceContext* device = _suspendDeviceArray[i];
@@ -13,10 +13,10 @@ void ExecutionManager::EnableTimesliceExecutionSuspend()
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void ExecutionManager::DisableTimesliceExecutionSuspend()
 {
-	//Go through each device that supports suspension and disable the suspend feature
+	// Go through each device that supports suspension and disable the suspend feature
 	for (size_t i = 0; i < _suspendDeviceCount; ++i)
 	{
 		DeviceContext* device = _suspendDeviceArray[i];
@@ -24,11 +24,11 @@ void ExecutionManager::DisableTimesliceExecutionSuspend()
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool ExecutionManager::AllDevicesSuspended(volatile ReferenceCounterType& suspendedThreadCount, volatile ReferenceCounterType& remainingThreadCount) const
 {
-	//Go through each device that supports transient execution, and see if any of them are
-	//currently executing.
+	// Go through each device that supports transient execution, and see if any of them are
+	// currently executing.
 	for (size_t transientDeviceNo = 0; transientDeviceNo < _transientDeviceCount; ++transientDeviceNo)
 	{
 		const DeviceContext* transientDevice = _transientDeviceArray[transientDeviceNo];
@@ -38,31 +38,31 @@ bool ExecutionManager::AllDevicesSuspended(volatile ReferenceCounterType& suspen
 		}
 	}
 
-	//Go through each device that supports suspension and build a set of dependent devices
-	//that are still executing, not suspended, and not finished their timeslice.
+	// Go through each device that supports suspension and build a set of dependent devices
+	// that are still executing, not suspended, and not finished their timeslice.
 	std::set<const DeviceContext*> dependentDeviceSet;
 	for (size_t suspendedDeviceNo = 0; suspendedDeviceNo < _suspendDeviceCount; ++suspendedDeviceNo)
 	{
 		const DeviceContext* suspendedDevice = _suspendDeviceArray[suspendedDeviceNo];
 		if (suspendedDevice->TimesliceExecutionSuspended())
 		{
-			//Recursively iterate through each directly or indirectly dependent device for
-			//the suspended device, and confirm which devices are currently blocked by it
-			//being suspended.
+			// Recursively iterate through each directly or indirectly dependent device for
+			// the suspended device, and confirm which devices are currently blocked by it
+			// being suspended.
 			BuildBlockedDependentDeviceSet(suspendedDevice, dependentDeviceSet);
 		}
 	}
 
-	//Calculate the total number of devices that are blocked or suspended
+	// Calculate the total number of devices that are blocked or suspended
 	unsigned int blockedDeviceCount = (unsigned int)suspendedThreadCount + (unsigned int)dependentDeviceSet.size();
 
-	//Determine if all remaining devices are blocked or suspended, and return the result
-	//to the caller.
+	// Determine if all remaining devices are blocked or suspended, and return the result
+	// to the caller.
 	bool allDevicesBlocked = ((unsigned int)remainingThreadCount == blockedDeviceCount);
 	return allDevicesBlocked;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void ExecutionManager::BuildBlockedDependentDeviceSet(const DeviceContext* sourceDevice, std::set<const DeviceContext*>& dependentDeviceSet) const
 {
 	const std::vector<DeviceContext*>& dependentDeviceArray = sourceDevice->GetDependentDeviceArray();

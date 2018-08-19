@@ -30,7 +30,7 @@ public:
 		_hl.SetIndexState(GetIndexState(), GetIndexOffset());
 		_a.SetIndexState(GetIndexState(), GetIndexOffset());
 
-		//RLD		11101101 01101111
+		// RLD		11101101 01101111
 		_hl.SetMode(EffectiveAddress::Mode::HLIndirect);
 		_a.SetMode(EffectiveAddress::Mode::A);
 		AddExecuteCycleCount(14);
@@ -48,7 +48,7 @@ public:
 		Z80Byte hlResult;
 		Z80Byte aResult;
 
-		//Perform the operation
+		// Perform the operation
 		additionalTime += _hl.Read(cpu, location, hlSource);
 		additionalTime += _a.Read(cpu, location, aSource);
 
@@ -60,7 +60,7 @@ public:
 		additionalTime += _hl.Write(cpu, location, hlResult);
 		additionalTime += _a.Write(cpu, location, aResult);
 
-		//Set the flag results
+		// Set the flag results
 		cpu->SetFlagS(aResult.Negative());
 		cpu->SetFlagZ(aResult.Zero());
 		cpu->SetFlagY(aResult.GetBit(5));
@@ -69,7 +69,7 @@ public:
 		cpu->SetFlagPV(aResult.ParityEven());
 		cpu->SetFlagN(false);
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -79,5 +79,5 @@ private:
 	EffectiveAddress _a;
 };
 
-} //Close namespace Z80
+} // Close namespace Z80
 #endif

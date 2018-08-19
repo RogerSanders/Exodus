@@ -5,11 +5,11 @@
 template<class DataType, class TimesliceType> class TimedBufferTimeslice :public ITimedBufferTimeslice<DataType, TimesliceType>
 {
 public:
-	//Constructors
+	// Constructors
 	inline TimedBufferTimeslice(typename RandomTimeAccessBuffer<DataType, TimesliceType>::Timeslice atimeslice);
 
 public:
-	//Data members
+	// Data members
 	typename RandomTimeAccessBuffer<DataType, TimesliceType>::Timeslice timeslice;
 };
 

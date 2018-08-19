@@ -25,12 +25,12 @@ template<class T>
 struct is_last_nested_container_element
 {
 private:
-	//Typedefs
+	// Typedefs
 	typedef char(&yes)[1];
 	typedef char(&no)[2];
 
 private:
-	//Check function
+	// Check function
 	template<class ElementType, class Alloc>
 	static no check(std::vector<ElementType, Alloc>*);
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
@@ -87,10 +87,10 @@ private:
 	static yes check(ElementType*);
 
 public:
-	//Result
+	// Result
 	static const bool value = (sizeof(check((T*)0)) == sizeof(yes));
 };
 
-} //Close namespace Internal
-} //Close namespace MarshalSupport
+} // Close namespace Internal
+} // Close namespace MarshalSupport
 #endif

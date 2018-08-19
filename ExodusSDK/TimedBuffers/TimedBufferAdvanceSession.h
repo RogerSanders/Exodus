@@ -4,11 +4,11 @@
 template<class DataType, class TimesliceType> struct TimedBufferAdvanceSession
 {
 public:
-	//Constructors
+	// Constructors
 	inline TimedBufferAdvanceSession(const DataType& writeDataDefaultValue);
 
 public:
-	//Data members
+	// Data members
 	bool retrieveWriteInfo;
 	TimesliceType timeRemovedDuringSession;
 	TimesliceType initialTimeOffset;

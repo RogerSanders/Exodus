@@ -7,14 +7,14 @@ class ViewText;
 struct Hex
 {
 public:
-	//Constructors
+	// Constructors
 	inline Hex(unsigned int length = 0);
 
-	//Character length functions
+	// Character length functions
 	inline unsigned int GetLength() const;
 	inline void SetLength(unsigned int length);
 
-	//Stream operators
+	// Stream operators
 	friend inline ViewText& operator>>(ViewText& stream, const Hex& object);
 	friend inline ViewText& operator<<(ViewText& stream, const Hex& object);
 
@@ -22,6 +22,6 @@ private:
 	unsigned int _length;
 };
 
-} //Close namespace Stream
+} // Close namespace Stream
 #include "ViewManipulatorHex.inl"
 #endif

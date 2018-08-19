@@ -5,9 +5,9 @@
 #include <list>
 #include "WindowFunctions.h"
 
-//Path handling functions
+// Path handling functions
 //##TODO## Fix the PathGetDirectory and PathGetFileName functions to handle prefixes
-//correctly
+// correctly
 std::wstring PathGetFileName(const std::wstring& path);
 std::wstring PathGetFileExtension(const std::wstring& path);
 std::wstring PathGetDirectory(const std::wstring& path);
@@ -21,7 +21,7 @@ bool PathBuildRelativePathToTarget(const std::wstring& sourcePath, const std::ws
 std::wstring PathGetCurrentWorkingDirectory();
 void PathSetCurrentWorkingDirectory(const std::wstring& path);
 
-//File and directory handling functions
+// File and directory handling functions
 struct FileSelectionType
 {
 	std::wstring typeName;

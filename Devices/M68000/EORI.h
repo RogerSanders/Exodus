@@ -39,18 +39,18 @@ public:
 //	-----------------------------------------------------------------
 		switch (data.GetDataSegment(6, 2))
 		{
-		case 0:	//00
+		case 0:	// 00
 			_size = BITCOUNT_BYTE;
 			break;
-		case 1:	//01
+		case 1:	// 01
 			_size = BITCOUNT_WORD;
 			break;
-		case 2:	//10
+		case 2:	// 10
 			_size = BITCOUNT_LONG;
 			break;
 		}
 
-		//EORI	#<data>,<ea>
+		// EORI	#<data>,<ea>
 		_source.BuildImmediateData(_size, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
 		AddInstructionSize(_source.ExtensionSize());
 		_target.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), _size, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
@@ -88,19 +88,19 @@ public:
 		Data op2(_size);
 		Data result(_size);
 
-		//Perform the operation
+		// Perform the operation
 		additionalTime += _source.Read(cpu, op1, GetInstructionRegister());
 		additionalTime += _target.ReadWithoutAdjustingAddress(cpu, op2, GetInstructionRegister());
 		result = op1 ^ op2;
 		additionalTime += _target.Write(cpu, result, GetInstructionRegister());
 
-		//Set the flag results
+		// Set the flag results
 		cpu->SetN(result.Negative());
 		cpu->SetZ(result.Zero());
 		cpu->SetV(false);
 		cpu->SetC(false);
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -117,5 +117,5 @@ private:
 	Bitcount _size;
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #endif

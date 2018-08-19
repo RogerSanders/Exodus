@@ -57,6 +57,6 @@ template<class T>
 struct is_only_movable { static const bool value = false; };
 #endif
 
-} //Close namespace Internal
-} //Close namespace MarshalSupport
+} // Close namespace Internal
+} // Close namespace MarshalSupport
 #endif

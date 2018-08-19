@@ -5,21 +5,21 @@
 class Extension :public IExtension
 {
 public:
-	//Constructors
+	// Constructors
 	inline Extension(const std::wstring& className, const std::wstring& instanceName, unsigned int moduleID);
 	virtual ~Extension();
 
-	//Interface version functions
+	// Interface version functions
 	virtual unsigned int GetIExtensionVersion() const;
 
-	//Initialization functions
+	// Initialization functions
 	virtual bool BindToSystemInterface(ISystemExtensionInterface* systemInterface);
 	virtual bool BindToGUIInterface(IGUIExtensionInterface* guiInterface);
 	virtual bool Construct(IHierarchicalStorageNode& node);
 	virtual bool BuildExtension();
 	virtual bool ValidateExtension();
 
-	//Reference functions
+	// Reference functions
 	virtual bool AddReference(const Marshal::In<std::wstring>& referenceName, IDevice* target);
 	virtual bool AddReference(const Marshal::In<std::wstring>& referenceName, IExtension* target);
 	virtual bool AddReference(const Marshal::In<std::wstring>& referenceName, IBusInterface* target);
@@ -29,23 +29,23 @@ public:
 	virtual bool RemoveReference(IBusInterface* target);
 	virtual bool RemoveReference(IClockSource* target);
 
-	//Interface functions
+	// Interface functions
 	inline ISystemExtensionInterface& GetSystemInterface() const;
 	inline IGUIExtensionInterface& GetGUIInterface() const;
 	inline IViewManager& GetViewManager() const;
 
-	//Name functions
+	// Name functions
 	virtual Marshal::Ret<std::wstring> GetExtensionClassName() const;
 	virtual Marshal::Ret<std::wstring> GetExtensionInstanceName() const;
 	virtual unsigned int GetExtensionModuleID() const;
 
-	//Savestate functions
+	// Savestate functions
 	virtual void LoadSettingsState(IHierarchicalStorageNode& node);
 	virtual void SaveSettingsState(IHierarchicalStorageNode& node) const;
 	virtual void LoadDebuggerState(IHierarchicalStorageNode& node);
 	virtual void SaveDebuggerState(IHierarchicalStorageNode& node) const;
 
-	//Window functions
+	// Window functions
 	virtual AssemblyHandle GetAssemblyHandle() const;
 	virtual void SetAssemblyHandle(AssemblyHandle assemblyHandle);
 	virtual bool RegisterSystemMenuHandler();

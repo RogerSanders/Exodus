@@ -58,59 +58,59 @@ class MenuHandler;
 class ExodusInterface :public IGUIExtensionInterface
 {
 public:
-	//Structures
+	// Structures
 	struct PluginInfo;
 	struct RegisteredDeviceInfo;
 	struct RegisteredExtensionInfo;
 
 public:
-	//Constructors
+	// Constructors
 	//##TODO## Implement a destructor, which cleans up our views.
 	ExodusInterface();
 	virtual ~ExodusInterface();
 
-	//System interface functions
+	// System interface functions
 	void BindToSystem(ISystemGUIInterface* system);
 	void UnbindFromSystem();
 	ISystemGUIInterface* GetSystemInterface() const;
 
-	//Initialization functions
+	// Initialization functions
 	bool InitializePrefs();
 	HWND CreateMainInterface(HINSTANCE hinstance);
 
-	//Interface version functions
+	// Interface version functions
 	virtual unsigned int GetIGUIExtensionInterfaceVersion() const;
 
-	//View manager functions
+	// View manager functions
 	virtual IViewManager& GetViewManager() const;
 	HWND CreateDashboard(const std::wstring& dashboardTitle) const;
 
-	//Window functions
+	// Window functions
 	AssemblyHandle GetAssemblyHandle() const;
 	virtual void* GetMainWindowHandle() const;
 	HWND GetCurrentActiveDialogWindowHandle() const;
 
-	//Savestate functions
+	// Savestate functions
 	void LoadState(const std::wstring& folder, bool debuggerState);
 	void LoadStateFromFile(const std::wstring& filePath, ISystemGUIInterface::FileType fileType, bool debuggerState);
 	void SaveState(const std::wstring& folder, bool debuggerState);
 	void SaveStateToFile(const std::wstring& filePath, ISystemGUIInterface::FileType fileType, bool debuggerState);
 
-	//Savestate quick-select popup functions
+	// Savestate quick-select popup functions
 	void QuickLoadState(bool debuggerState);
 	void QuickSaveState(bool debuggerState);
 	void IncrementSaveSlot();
 	void DecrementSaveSlot();
 	void SelectSaveSlot(unsigned int slotNo);
 
-	//Workspace functions
+	// Workspace functions
 	void LoadWorkspace(const std::wstring& folder);
 	bool LoadWorkspaceFromFile(const std::wstring& filePath);
 	bool ReadMainWindowSizeFromWorkspaceFile(const std::wstring& filePath, bool& maximized, int& sizeX, int& sizeY) const;
 	void SaveWorkspace(const std::wstring& folder);
 	bool SaveWorkspaceToFile(const std::wstring& filePath);
 
-	//Module functions
+	// Module functions
 	virtual bool CanModuleBeLoaded(const Marshal::In<std::wstring>& filePath) const;
 	bool LoadModule(const std::wstring& folder);
 	virtual bool LoadModuleFromFile(const Marshal::In<std::wstring>& filePath);
@@ -119,7 +119,7 @@ public:
 	virtual void UnloadModule(unsigned int moduleID);
 	virtual void UnloadAllModules();
 
-	//Global preference functions
+	// Global preference functions
 	bool LoadPrefs(const std::wstring& filePath);
 	void SavePrefs(const std::wstring& filePath);
 	virtual Marshal::Ret<std::wstring> GetPreferenceDirectoryPath() const;
@@ -150,27 +150,27 @@ public:
 	void SetGlobalPreferenceLoadWorkspaceWithDebugState(bool state);
 	void SetGlobalPreferenceShowDebugConsole(bool state);
 
-	//Assembly functions
+	// Assembly functions
 	bool LoadAssembliesFromFolder(const std::wstring& folderPath);
 	bool LoadAssembliesFromFolderSynchronous(const std::wstring& folderPath);
 	virtual bool LoadAssembly(const Marshal::In<std::wstring>& filePath);
 	bool LoadAssemblyInfo(const std::wstring& filePath, PluginInfo& pluginInfo);
 
-	//File selection functions
+	// File selection functions
 	virtual bool SelectExistingFile(const Marshal::In<std::wstring>& selectionTypeString, const Marshal::In<std::wstring>& defaultExtension, const Marshal::In<std::wstring>& initialFilePath, const Marshal::In<std::wstring>& initialDirectory, bool scanIntoArchives, const Marshal::Out<std::wstring>& selectedFilePath) const;
 	virtual bool SelectNewFile(const Marshal::In<std::wstring>& selectionTypeString, const Marshal::In<std::wstring>& defaultExtension, const Marshal::In<std::wstring>& initialFilePath, const Marshal::In<std::wstring>& initialDirectory, const Marshal::Out<std::wstring>& selectedFilePath) const;
 	virtual Marshal::Ret<std::vector<std::wstring>> PathSplitElements(const Marshal::In<std::wstring>& path) const;
 	virtual Stream::IStream* OpenExistingFileForRead(const Marshal::In<std::wstring>& path) const;
 	virtual void DeleteFileStream(Stream::IStream* stream) const;
 
-	//Device functions
+	// Device functions
 	std::list<RegisteredDeviceInfo> GetRegisteredDevices() const;
 
-	//Extension functions
+	// Extension functions
 	std::list<RegisteredExtensionInfo> GetRegisteredExtensions() const;
 
 private:
-	//Structures
+	// Structures
 	struct SystemPrefs
 	{
 		std::wstring pathModules;
@@ -193,26 +193,26 @@ private:
 	struct SelectCompressedFileDialogParams;
 	struct SelectCompressedFileDialogParamsFileEntry;
 
-	//Typedefs
+	// Typedefs
 	typedef std::map<unsigned int, NewMenuItem> NewMenuList;
 	typedef std::pair<unsigned int, NewMenuItem> NewMenuListEntry;
 
 private:
-	//Initialization functions
+	// Initialization functions
 	bool InitializeAfterMainWindowLoad();
 
-	//Savestate functions
+	// Savestate functions
 	std::wstring GetSavestateAutoFileNamePrefix() const;
 
-	//Savestate quick-select popup functions
+	// Savestate quick-select popup functions
 	//##FIX## Replace this function with a loaded module callback notification, since
-	//requests to load modules may not come through the GUI.
+	// requests to load modules may not come through the GUI.
 	void UpdateSaveSlots();
 
-	//File selection functions
+	// File selection functions
 	bool SelectExistingFileScanIntoArchive(const std::list<FileSelectionType>& selectionTypes, const std::wstring archivePath, std::wstring& selectedFilePath) const;
 
-	//Menu functions
+	// Menu functions
 	bool BuildMenuRecursive(HMENU parentMenu, IMenuItem& menuItem, unsigned int& nextMenuID, int& insertPos, bool& leadingMenuItemsPresent, bool& trailingSeparatorPresent, bool& insertLeadingSeparatorBeforeNextItem);
 	bool InsertMenuItemSeparator(HMENU parentMenu, int& insertPos);
 	bool BuildFileMenu();
@@ -220,12 +220,12 @@ private:
 	bool BuildSettingsMenu();
 	bool BuildDebugMenu();
 
-	//Thread handlers
+	// Thread handlers
 	void UnloadModuleThread(unsigned int moduleID);
 	void UnloadSystemThread();
 	void DestroySystemInterfaceThread();
 
-	//Window callbacks
+	// Window callbacks
 	static INT_PTR CALLBACK MapConnectorProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam);
 	static INT_PTR CALLBACK LoadPluginProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam);
 	static INT_PTR CALLBACK LoadModuleProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam);
@@ -236,11 +236,11 @@ private:
 	static LRESULT CALLBACK WndSavestateProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	static LRESULT CALLBACK WndWindowSelectProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-	//Joystick functions
+	// Joystick functions
 	void JoystickInputWorkerThread();
 
 private:
-	//Constants
+	// Constants
 	static const unsigned int CellCount = 10;
 
 private:
@@ -299,7 +299,7 @@ private:
 	unsigned int _windowSelectColumns;
 	unsigned int _windowSelectEntriesPerColumn;
 
-	//Plugin load progress
+	// Plugin load progress
 	mutable std::mutex _loadPluginsMutex;
 	volatile float _loadPluginsProgress;
 	volatile bool _loadPluginsComplete;
@@ -307,7 +307,7 @@ private:
 	volatile bool _loadPluginsAborted;
 	std::wstring _loadPluginsCurrentPluginName;
 
-	//Menu handling
+	// Menu handling
 	MenuHandler* _menuHandler;
 };
 

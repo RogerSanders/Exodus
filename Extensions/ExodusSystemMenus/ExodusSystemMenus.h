@@ -11,11 +11,11 @@ class ModuleOptionMenuHandler;
 class ExodusSystemMenus :public Extension
 {
 public:
-	//Constructors
+	// Constructors
 	ExodusSystemMenus(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 	~ExodusSystemMenus();
 
-	//Window functions
+	// Window functions
 	virtual bool RegisterSystemMenuHandler();
 	virtual bool RegisterModuleMenuHandler(unsigned int moduleID);
 	virtual void UnregisterModuleMenuHandler(unsigned int moduleID);

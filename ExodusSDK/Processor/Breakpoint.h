@@ -6,20 +6,20 @@
 class Breakpoint :public IBreakpoint
 {
 public:
-	//Constructors
+	// Constructors
 	inline Breakpoint(unsigned int addressBusWidth, unsigned int dataBusWidth, unsigned int addressBusCharWidth);
 
-	//Interface version functions
+	// Interface version functions
 	virtual unsigned int GetIBreakpointVersion() const;
 
-	//Execute functions
+	// Execute functions
 	inline void Commit();
 	inline void Rollback();
 
-	//Breakpoint logging functions
+	// Breakpoint logging functions
 	std::wstring GetLogString() const;
 
-	//Breakpoint event triggers
+	// Breakpoint event triggers
 	virtual bool GetEnabled() const;
 	virtual void SetEnabled(bool state);
 	virtual bool GetLogEvent() const;
@@ -27,12 +27,12 @@ public:
 	virtual bool GetBreakEvent() const;
 	virtual void SetBreakEvent(bool state);
 
-	//Name functions
+	// Name functions
 	virtual Marshal::Ret<std::wstring> GetName() const;
 	virtual void SetName(const Marshal::In<std::wstring>& name);
 	virtual Marshal::Ret<std::wstring> GenerateName() const;
 
-	//Location condition functions
+	// Location condition functions
 	virtual bool GetLocationConditionNot() const;
 	virtual void SetLocationConditionNot(bool state);
 	virtual Condition GetLocationCondition() const;
@@ -45,7 +45,7 @@ public:
 	virtual void SetLocationMask(unsigned int data);
 	virtual bool PassesLocationCondition(unsigned int location);
 
-	//Hit counter functions
+	// Hit counter functions
 	virtual unsigned int GetHitCounter() const;
 	virtual void SetHitCounter(unsigned int hitCounter);
 	inline unsigned int GetLiveHitCounter() const;
@@ -57,32 +57,32 @@ public:
 	virtual void SetBreakCounter(unsigned int breakCounter);
 	bool CheckHitCounter();
 
-	//Savestate functions
+	// Savestate functions
 	virtual void LoadState(IHierarchicalStorageNode& node);
 	virtual void SaveState(IHierarchicalStorageNode& node) const;
 
 private:
-	//Bus sizes
+	// Bus sizes
 	unsigned int _addressBusWidth;
 	unsigned int _dataBusWidth;
 	unsigned int _addressBusCharWidth;
 
-	//Breakpoint name
+	// Breakpoint name
 	std::wstring _name;
 
-	//Breakpoint event triggers
+	// Breakpoint event triggers
 	bool _enabled;
 	bool _logEvent;
 	bool _breakEvent;
 
-	//Location condition data
+	// Location condition data
 	bool _locationConditionNot;
 	Condition _locationCondition;
 	unsigned int _locationConditionData1;
 	unsigned int _locationConditionData2;
 	unsigned int _locationMask;
 
-	//Hit counter data
+	// Hit counter data
 	unsigned int _hitCounter;
 	unsigned int _hitCounterIncrement;
 	bool _preIncrementCounter;

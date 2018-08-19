@@ -1,15 +1,15 @@
 //Disable warning about the presence of virtual functions without a virtual destructor.
-//Our structures below use virtual functions to create code barriers between assemblies so
-//that they can be marshalled, but they are never derived from, so a virtual destructor is
-//not required.
+// Our structures below use virtual functions to create code barriers between assemblies so
+// that they can be marshalled, but they are never derived from, so a virtual destructor is
+// not required.
 #ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable:4265)
 #endif
 
-//----------------------------------------------------------------------------------------
-//Enumerations
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Enumerations
+//----------------------------------------------------------------------------------------------------------------------
 enum class IS315_5313::IS315_5313DataSource
 {
 	RawRegister = 1,
@@ -148,7 +148,7 @@ enum class IS315_5313::IS315_5313DataSource
 	SettingsVideoEnableSpriteLow
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 enum class IS315_5313::PixelSource
 {
 	Sprite,
@@ -161,9 +161,9 @@ enum class IS315_5313::PixelSource
 	Blanking
 };
 
-//----------------------------------------------------------------------------------------
-//Structures
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Structures
+//----------------------------------------------------------------------------------------------------------------------
 struct IS315_5313::RegisterDataContext :public IGenericAccess::DataContext
 {
 	RegisterDataContext(unsigned int aregisterNo = 0)
@@ -173,7 +173,7 @@ struct IS315_5313::RegisterDataContext :public IGenericAccess::DataContext
 	unsigned int registerNo;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct IS315_5313::FIFOEntryDataContext :public IGenericAccess::DataContext
 {
 	FIFOEntryDataContext(unsigned int aentryNo = 0)
@@ -183,11 +183,11 @@ struct IS315_5313::FIFOEntryDataContext :public IGenericAccess::DataContext
 	unsigned int entryNo;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct IS315_5313::PortMonitorEntry
 {
 public:
-	//Constructors
+	// Constructors
 	PortMonitorEntry(const std::wstring& atarget, const std::wstring& asource, unsigned int adata, double aaccessTime, unsigned int ahcounterPos, unsigned int avcounterPos)
 	:target(atarget), source(asource), data(adata), accessTime(aaccessTime), hcounterPos(ahcounterPos), vcounterPos(avcounterPos)
 	{}
@@ -197,7 +197,7 @@ public:
 	}
 
 private:
-	//Marshalling methods
+	// Marshalling methods
 	virtual void MarshalToTarget(const Marshal::Out<std::wstring>& sourceMarshaller, const Marshal::Out<std::wstring>& targetMarshaller, unsigned int& dataMarshaller, double& accessTimeMarshaller, unsigned int& hcounterPosMarshaller, unsigned int& vcounterPosMarshaller) const
 	{
 		sourceMarshaller = source;
@@ -217,7 +217,7 @@ public:
 	unsigned int vcounterPos;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct IS315_5313::SpriteMappingTableEntry
 {
 	SpriteMappingTableEntry()
@@ -241,7 +241,7 @@ struct IS315_5313::SpriteMappingTableEntry
 	bool hflip;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct IS315_5313::DecodedPaletteColorEntry
 {
 	unsigned int r;
@@ -249,7 +249,7 @@ struct IS315_5313::DecodedPaletteColorEntry
 	unsigned int b;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct IS315_5313::SpriteBoundaryLineEntry
 {
 	int linePosXStart;
@@ -258,7 +258,7 @@ struct IS315_5313::SpriteBoundaryLineEntry
 	int linePosYEnd;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct IS315_5313::ImageBufferInfo
 {
 	ImageBufferInfo()
@@ -290,9 +290,9 @@ struct IS315_5313::ImageBufferInfo
 	unsigned int spriteCellPosY;
 };
 
-//----------------------------------------------------------------------------------------
-//Debug output
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Debug output
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::GetOutputPortAccessDebugMessages() const
 {
 	GenericAccessDataValueBool genericData;
@@ -300,14 +300,14 @@ bool IS315_5313::GetOutputPortAccessDebugMessages() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetOutputPortAccessDebugMessages(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsOutputPortAccessDebugMessages, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::GetOutputTimingDebugMessages() const
 {
 	GenericAccessDataValueBool genericData;
@@ -315,14 +315,14 @@ bool IS315_5313::GetOutputTimingDebugMessages() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetOutputTimingDebugMessages(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsOutputTimingDebugMessages, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::GetOutputRenderSyncMessages() const
 {
 	GenericAccessDataValueBool genericData;
@@ -330,14 +330,14 @@ bool IS315_5313::GetOutputRenderSyncMessages() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetOutputRenderSyncMessages(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsOutputRenderSyncDebugMessages, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::GetOutputInterruptDebugMessages() const
 {
 	GenericAccessDataValueBool genericData;
@@ -345,14 +345,14 @@ bool IS315_5313::GetOutputInterruptDebugMessages() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetOutputInterruptDebugMessages(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsOutputInterruptDebugMessages, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::GetVideoDisableRenderOutput() const
 {
 	GenericAccessDataValueBool genericData;
@@ -360,14 +360,14 @@ bool IS315_5313::GetVideoDisableRenderOutput() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetVideoDisableRenderOutput(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsVideoDisableRenderOutput, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::GetVideoEnableSpriteBoxing() const
 {
 	GenericAccessDataValueBool genericData;
@@ -375,14 +375,14 @@ bool IS315_5313::GetVideoEnableSpriteBoxing() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetVideoEnableSpriteBoxing(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsVideoEnableSpriteBoxing, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::GetVideoHighlightRenderPos() const
 {
 	GenericAccessDataValueBool genericData;
@@ -390,14 +390,14 @@ bool IS315_5313::GetVideoHighlightRenderPos() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetVideoHighlightRenderPos(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsVideoHighlightRenderPos, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::GetVideoSingleBuffering() const
 {
 	GenericAccessDataValueBool genericData;
@@ -405,14 +405,14 @@ bool IS315_5313::GetVideoSingleBuffering() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetVideoSingleBuffering(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsVideoSingleBuffering, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::GetVideoFixedAspectRatio() const
 {
 	GenericAccessDataValueBool genericData;
@@ -420,14 +420,14 @@ bool IS315_5313::GetVideoFixedAspectRatio() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetVideoFixedAspectRatio(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsVideoFixedAspectRatio, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::GetVideoShowStatusBar() const
 {
 	GenericAccessDataValueBool genericData;
@@ -435,14 +435,14 @@ bool IS315_5313::GetVideoShowStatusBar() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetVideoShowStatusBar(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsVideoShowStatusBar, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::GetVideoEnableLineSmoothing() const
 {
 	GenericAccessDataValueBool genericData;
@@ -450,14 +450,14 @@ bool IS315_5313::GetVideoEnableLineSmoothing() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetVideoEnableLineSmoothing(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsVideoEnableLineSmoothing, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::GetCurrentRenderPosOnScreen() const
 {
 	GenericAccessDataValueBool genericData;
@@ -465,14 +465,14 @@ bool IS315_5313::GetCurrentRenderPosOnScreen() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetCurrentRenderPosOnScreen(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsCurrentRenderPosOnScreen, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::GetCurrentRenderPosScreenX() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -480,14 +480,14 @@ unsigned int IS315_5313::GetCurrentRenderPosScreenX() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetCurrentRenderPosScreenX(unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsCurrentRenderPosScreenX, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::GetCurrentRenderPosScreenY() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -495,14 +495,14 @@ unsigned int IS315_5313::GetCurrentRenderPosScreenY() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetCurrentRenderPosScreenY(unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsCurrentRenderPosScreenY, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::GetVideoShowBoundaryActiveImage() const
 {
 	GenericAccessDataValueBool genericData;
@@ -510,14 +510,14 @@ bool IS315_5313::GetVideoShowBoundaryActiveImage() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetVideoShowBoundaryActiveImage(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsVideoShowBoundaryActiveImage, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::GetVideoShowBoundaryActionSafe() const
 {
 	GenericAccessDataValueBool genericData;
@@ -525,14 +525,14 @@ bool IS315_5313::GetVideoShowBoundaryActionSafe() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetVideoShowBoundaryActionSafe(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsVideoShowBoundaryActionSafe, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::GetVideoShowBoundaryTitleSafe() const
 {
 	GenericAccessDataValueBool genericData;
@@ -540,14 +540,14 @@ bool IS315_5313::GetVideoShowBoundaryTitleSafe() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetVideoShowBoundaryTitleSafe(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsVideoShowBoundaryTitleSafe, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::GetVideoEnableFullImageBufferInfo() const
 {
 	GenericAccessDataValueBool genericData;
@@ -555,16 +555,16 @@ bool IS315_5313::GetVideoEnableFullImageBufferInfo() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetVideoEnableFullImageBufferInfo(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsVideoEnableFullImageBufferInfo, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
-//Layer removal
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Layer removal
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::GetEnableLayerA() const
 {
 	GenericAccessDataValueBool genericData;
@@ -572,14 +572,14 @@ bool IS315_5313::GetEnableLayerA() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetEnableLayerA(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsVideoEnableLayerA, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::GetEnableLayerAHigh() const
 {
 	GenericAccessDataValueBool genericData;
@@ -587,14 +587,14 @@ bool IS315_5313::GetEnableLayerAHigh() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetEnableLayerAHigh(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsVideoEnableLayerAHigh, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::GetEnableLayerALow() const
 {
 	GenericAccessDataValueBool genericData;
@@ -602,14 +602,14 @@ bool IS315_5313::GetEnableLayerALow() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetEnableLayerALow(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsVideoEnableLayerALow, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::GetEnableLayerB() const
 {
 	GenericAccessDataValueBool genericData;
@@ -617,14 +617,14 @@ bool IS315_5313::GetEnableLayerB() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetEnableLayerB(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsVideoEnableLayerB, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::GetEnableLayerBHigh() const
 {
 	GenericAccessDataValueBool genericData;
@@ -632,14 +632,14 @@ bool IS315_5313::GetEnableLayerBHigh() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetEnableLayerBHigh(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsVideoEnableLayerBHigh, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::GetEnableLayerBLow() const
 {
 	GenericAccessDataValueBool genericData;
@@ -647,14 +647,14 @@ bool IS315_5313::GetEnableLayerBLow() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetEnableLayerBLow(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsVideoEnableLayerBLow, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::GetEnableWindow() const
 {
 	GenericAccessDataValueBool genericData;
@@ -662,14 +662,14 @@ bool IS315_5313::GetEnableWindow() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetEnableWindow(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsVideoEnableWindow, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::GetEnableWindowHigh() const
 {
 	GenericAccessDataValueBool genericData;
@@ -677,14 +677,14 @@ bool IS315_5313::GetEnableWindowHigh() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetEnableWindowHigh(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsVideoEnableWindowHigh, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::GetEnableWindowLow() const
 {
 	GenericAccessDataValueBool genericData;
@@ -692,14 +692,14 @@ bool IS315_5313::GetEnableWindowLow() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetEnableWindowLow(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsVideoEnableWindowLow, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::GetEnableSprite() const
 {
 	GenericAccessDataValueBool genericData;
@@ -707,14 +707,14 @@ bool IS315_5313::GetEnableSprite() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetEnableSprite(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsVideoEnableSprite, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::GetEnableSpriteHigh() const
 {
 	GenericAccessDataValueBool genericData;
@@ -722,14 +722,14 @@ bool IS315_5313::GetEnableSpriteHigh() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetEnableSpriteHigh(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsVideoEnableSpriteHigh, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::GetEnableSpriteLow() const
 {
 	GenericAccessDataValueBool genericData;
@@ -737,16 +737,16 @@ bool IS315_5313::GetEnableSpriteLow() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetEnableSpriteLow(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsVideoEnableSpriteLow, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
-//Raw register functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Raw register functions
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::GetRegisterData(unsigned int location) const
 {
 	GenericAccessDataValueUInt genericData;
@@ -755,7 +755,7 @@ unsigned int IS315_5313::GetRegisterData(unsigned int location) const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetRegisterData(unsigned int location, unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
@@ -763,9 +763,9 @@ void IS315_5313::SetRegisterData(unsigned int location, unsigned int data)
 	WriteGenericData((unsigned int)IS315_5313DataSource::RawRegister, &dataContext, genericData);
 }
 
-//----------------------------------------------------------------------------------------
-//Interpreted register functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Interpreted register functions
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetVSI() const
 {
 	GenericAccessDataValueBool genericData;
@@ -773,14 +773,14 @@ bool IS315_5313::RegGetVSI() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetVSI(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegVSI, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetHSI() const
 {
 	GenericAccessDataValueBool genericData;
@@ -788,14 +788,14 @@ bool IS315_5313::RegGetHSI() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetHSI(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegHSI, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetLCB() const
 {
 	GenericAccessDataValueBool genericData;
@@ -803,14 +803,14 @@ bool IS315_5313::RegGetLCB() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetLCB(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegLCB, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetIE1() const
 {
 	GenericAccessDataValueBool genericData;
@@ -818,14 +818,14 @@ bool IS315_5313::RegGetIE1() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetIE1(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegIE1, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetSS() const
 {
 	GenericAccessDataValueBool genericData;
@@ -833,14 +833,14 @@ bool IS315_5313::RegGetSS() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetSS(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegSS, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetPS() const
 {
 	GenericAccessDataValueBool genericData;
@@ -848,14 +848,14 @@ bool IS315_5313::RegGetPS() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetPS(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegPS, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetM2() const
 {
 	GenericAccessDataValueBool genericData;
@@ -863,14 +863,14 @@ bool IS315_5313::RegGetM2() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetM2(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegM2, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetES() const
 {
 	GenericAccessDataValueBool genericData;
@@ -878,14 +878,14 @@ bool IS315_5313::RegGetES() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetES(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegES, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetEVRAM() const
 {
 	GenericAccessDataValueBool genericData;
@@ -893,14 +893,14 @@ bool IS315_5313::RegGetEVRAM() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetEVRAM(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegEVRAM, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetDisplayEnabled() const
 {
 	GenericAccessDataValueBool genericData;
@@ -908,14 +908,14 @@ bool IS315_5313::RegGetDisplayEnabled() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetDisplayEnabled(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegDisplayEnabled, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetIE0() const
 {
 	GenericAccessDataValueBool genericData;
@@ -923,14 +923,14 @@ bool IS315_5313::RegGetIE0() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetIE0(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegIE0, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetDMAEnabled() const
 {
 	GenericAccessDataValueBool genericData;
@@ -938,14 +938,14 @@ bool IS315_5313::RegGetDMAEnabled() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetDMAEnabled(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegDMAEnabled, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetM3() const
 {
 	GenericAccessDataValueBool genericData;
@@ -953,14 +953,14 @@ bool IS315_5313::RegGetM3() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetM3(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegM3, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetMode5() const
 {
 	GenericAccessDataValueBool genericData;
@@ -968,14 +968,14 @@ bool IS315_5313::RegGetMode5() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetMode5(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegMode5, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetSZ() const
 {
 	GenericAccessDataValueBool genericData;
@@ -983,14 +983,14 @@ bool IS315_5313::RegGetSZ() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetSZ(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegSZ, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetMAG() const
 {
 	GenericAccessDataValueBool genericData;
@@ -998,14 +998,14 @@ bool IS315_5313::RegGetMAG() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetMAG(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegMAG, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGetNameTableBaseScrollA() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -1013,14 +1013,14 @@ unsigned int IS315_5313::RegGetNameTableBaseScrollA() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetNameTableBaseScrollA(unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegNameTableBaseA, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGetNameTableBaseWindow() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -1028,14 +1028,14 @@ unsigned int IS315_5313::RegGetNameTableBaseWindow() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetNameTableBaseWindow(unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegNameTableBaseWindow, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGetNameTableBaseScrollB() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -1043,14 +1043,14 @@ unsigned int IS315_5313::RegGetNameTableBaseScrollB() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetNameTableBaseScrollB(unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegNameTableBaseB, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGetNameTableBaseSprite() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -1058,14 +1058,14 @@ unsigned int IS315_5313::RegGetNameTableBaseSprite() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetNameTableBaseSprite(unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegNameTableBaseSprite, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGetPatternBaseSprite() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -1073,14 +1073,14 @@ unsigned int IS315_5313::RegGetPatternBaseSprite() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetPatternBaseSprite(unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegPatternBaseSprite, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGet077() const
 {
 	GenericAccessDataValueBool genericData;
@@ -1088,14 +1088,14 @@ bool IS315_5313::RegGet077() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSet077(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::Reg077, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGet076() const
 {
 	GenericAccessDataValueBool genericData;
@@ -1103,14 +1103,14 @@ bool IS315_5313::RegGet076() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSet076(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::Reg076, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGetBackgroundPaletteRow() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -1118,14 +1118,14 @@ unsigned int IS315_5313::RegGetBackgroundPaletteRow() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetBackgroundPaletteRow(unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegBackgroundPaletteRow, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGetBackgroundPaletteColumn() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -1133,14 +1133,14 @@ unsigned int IS315_5313::RegGetBackgroundPaletteColumn() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetBackgroundPaletteColumn(unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegBackgroundPaletteColumn, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGetBackgroundScrollX() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -1148,14 +1148,14 @@ unsigned int IS315_5313::RegGetBackgroundScrollX() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetBackgroundScrollX(unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegBackgroundScrollX, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGetBackgroundScrollY() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -1163,14 +1163,14 @@ unsigned int IS315_5313::RegGetBackgroundScrollY() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetBackgroundScrollY(unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegBackgroundScrollY, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGetHInterruptData() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -1178,14 +1178,14 @@ unsigned int IS315_5313::RegGetHInterruptData() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetHInterruptData(unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegHINTData, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGet0B7() const
 {
 	GenericAccessDataValueBool genericData;
@@ -1193,14 +1193,14 @@ bool IS315_5313::RegGet0B7() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSet0B7(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::Reg0B7, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGet0B6() const
 {
 	GenericAccessDataValueBool genericData;
@@ -1208,14 +1208,14 @@ bool IS315_5313::RegGet0B6() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSet0B6(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::Reg0B6, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGet0B5() const
 {
 	GenericAccessDataValueBool genericData;
@@ -1223,14 +1223,14 @@ bool IS315_5313::RegGet0B5() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSet0B5(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::Reg0B5, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGet0B4() const
 {
 	GenericAccessDataValueBool genericData;
@@ -1238,14 +1238,14 @@ bool IS315_5313::RegGet0B4() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSet0B4(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::Reg0B4, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetIE2() const
 {
 	GenericAccessDataValueBool genericData;
@@ -1253,14 +1253,14 @@ bool IS315_5313::RegGetIE2() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetIE2(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegIE2, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetVSCR() const
 {
 	GenericAccessDataValueBool genericData;
@@ -1268,14 +1268,14 @@ bool IS315_5313::RegGetVSCR() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetVSCR(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegVSCR, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetHSCR() const
 {
 	GenericAccessDataValueBool genericData;
@@ -1283,14 +1283,14 @@ bool IS315_5313::RegGetHSCR() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetHSCR(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegHSCR, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetLSCR() const
 {
 	GenericAccessDataValueBool genericData;
@@ -1298,14 +1298,14 @@ bool IS315_5313::RegGetLSCR() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetLSCR(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegLSCR, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetRS0() const
 {
 	GenericAccessDataValueBool genericData;
@@ -1313,14 +1313,14 @@ bool IS315_5313::RegGetRS0() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetRS0(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegRS0, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetU1() const
 {
 	GenericAccessDataValueBool genericData;
@@ -1328,14 +1328,14 @@ bool IS315_5313::RegGetU1() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetU1(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegU1, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetU2() const
 {
 	GenericAccessDataValueBool genericData;
@@ -1343,14 +1343,14 @@ bool IS315_5313::RegGetU2() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetU2(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegU2, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetU3() const
 {
 	GenericAccessDataValueBool genericData;
@@ -1358,14 +1358,14 @@ bool IS315_5313::RegGetU3() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetU3(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegU3, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetSTE() const
 {
 	GenericAccessDataValueBool genericData;
@@ -1373,14 +1373,14 @@ bool IS315_5313::RegGetSTE() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetSTE(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegSTE, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetLSM1() const
 {
 	GenericAccessDataValueBool genericData;
@@ -1388,14 +1388,14 @@ bool IS315_5313::RegGetLSM1() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetLSM1(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegLSM1, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetLSM0() const
 {
 	GenericAccessDataValueBool genericData;
@@ -1403,14 +1403,14 @@ bool IS315_5313::RegGetLSM0() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetLSM0(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegLSM0, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetRS1() const
 {
 	GenericAccessDataValueBool genericData;
@@ -1418,14 +1418,14 @@ bool IS315_5313::RegGetRS1() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetRS1(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegRS1, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGetHScrollDataBase() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -1433,14 +1433,14 @@ unsigned int IS315_5313::RegGetHScrollDataBase() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetHScrollDataBase(unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegHScrollDataBase, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGet0E57() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -1448,14 +1448,14 @@ unsigned int IS315_5313::RegGet0E57() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSet0E57(unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::Reg0E57, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGetPatternBaseScrollA() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -1463,14 +1463,14 @@ unsigned int IS315_5313::RegGetPatternBaseScrollA() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetPatternBaseScrollA(unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegPatternBaseA, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGet0E13() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -1478,14 +1478,14 @@ unsigned int IS315_5313::RegGet0E13() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSet0E13(unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegPatternBaseA, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGetPatternBaseScrollB() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -1493,14 +1493,14 @@ unsigned int IS315_5313::RegGetPatternBaseScrollB() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetPatternBaseScrollB(unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegPatternBaseB, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGetAutoIncrementData() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -1508,14 +1508,14 @@ unsigned int IS315_5313::RegGetAutoIncrementData() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetAutoIncrementData(unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegAutoIncrementData, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGet1067() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -1523,14 +1523,14 @@ unsigned int IS315_5313::RegGet1067() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSet1067(unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::Reg1067, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGetVSZ() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -1538,14 +1538,14 @@ unsigned int IS315_5313::RegGetVSZ() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetVSZ(unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegVSZ, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetVSZ1() const
 {
 	GenericAccessDataValueBool genericData;
@@ -1553,14 +1553,14 @@ bool IS315_5313::RegGetVSZ1() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetVSZ1(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegVSZ1, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetVSZ0() const
 {
 	GenericAccessDataValueBool genericData;
@@ -1568,14 +1568,14 @@ bool IS315_5313::RegGetVSZ0() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetVSZ0(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegVSZ0, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGet1023() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -1583,14 +1583,14 @@ unsigned int IS315_5313::RegGet1023() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSet1023(unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::Reg1023, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGetHSZ() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -1598,14 +1598,14 @@ unsigned int IS315_5313::RegGetHSZ() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetHSZ(unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegHSZ, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetHSZ1() const
 {
 	GenericAccessDataValueBool genericData;
@@ -1613,14 +1613,14 @@ bool IS315_5313::RegGetHSZ1() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetHSZ1(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegHSZ1, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetHSZ0() const
 {
 	GenericAccessDataValueBool genericData;
@@ -1628,14 +1628,14 @@ bool IS315_5313::RegGetHSZ0() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetHSZ0(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegHSZ0, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGet1156() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -1643,14 +1643,14 @@ unsigned int IS315_5313::RegGet1156() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSet1156(unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::Reg1156, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetWindowRightAligned() const
 {
 	GenericAccessDataValueBool genericData;
@@ -1658,14 +1658,14 @@ bool IS315_5313::RegGetWindowRightAligned() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetWindowRightAligned(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegWindowRight, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGetWindowBasePointX() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -1673,14 +1673,14 @@ unsigned int IS315_5313::RegGetWindowBasePointX() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetWindowBasePointX(unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegWindowBaseX, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGet1256() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -1688,14 +1688,14 @@ unsigned int IS315_5313::RegGet1256() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSet1256(unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::Reg1256, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetWindowBottomAligned() const
 {
 	GenericAccessDataValueBool genericData;
@@ -1703,14 +1703,14 @@ bool IS315_5313::RegGetWindowBottomAligned() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetWindowBottomAligned(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegWindowBottom, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGetWindowBasePointY() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -1718,14 +1718,14 @@ unsigned int IS315_5313::RegGetWindowBasePointY() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetWindowBasePointY(unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegWindowBaseY, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGetDMALengthCounter() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -1733,14 +1733,14 @@ unsigned int IS315_5313::RegGetDMALengthCounter() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetDMALengthCounter(unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegDMALength, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGetDMASourceAddress() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -1748,14 +1748,14 @@ unsigned int IS315_5313::RegGetDMASourceAddress() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetDMASourceAddress(unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegDMASource, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGetDMASourceAddressByte1() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -1763,14 +1763,14 @@ unsigned int IS315_5313::RegGetDMASourceAddressByte1() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetDMASourceAddressByte1(unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegDMASourceData1, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGetDMASourceAddressByte2() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -1778,14 +1778,14 @@ unsigned int IS315_5313::RegGetDMASourceAddressByte2() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetDMASourceAddressByte2(unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegDMASourceData2, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGetDMASourceAddressByte3() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -1793,14 +1793,14 @@ unsigned int IS315_5313::RegGetDMASourceAddressByte3() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetDMASourceAddressByte3(unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegDMASourceData3, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetDMD1() const
 {
 	GenericAccessDataValueBool genericData;
@@ -1808,14 +1808,14 @@ bool IS315_5313::RegGetDMD1() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetDMD1(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegDMD1, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetDMD0() const
 {
 	GenericAccessDataValueBool genericData;
@@ -1823,16 +1823,16 @@ bool IS315_5313::RegGetDMD0() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetDMD0(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegDMD0, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
-//Status register functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Status register functions
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::GetStatus() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -1840,14 +1840,14 @@ unsigned int IS315_5313::GetStatus() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetStatus(unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegStatus, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::GetStatusFlagFIFOEmpty() const
 {
 	GenericAccessDataValueBool genericData;
@@ -1855,14 +1855,14 @@ bool IS315_5313::GetStatusFlagFIFOEmpty() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetStatusFlagFIFOEmpty(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::FlagFIFOEmpty, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::GetStatusFlagFIFOFull() const
 {
 	GenericAccessDataValueBool genericData;
@@ -1870,14 +1870,14 @@ bool IS315_5313::GetStatusFlagFIFOFull() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetStatusFlagFIFOFull(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::FlagFIFOFull, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::GetStatusFlagF() const
 {
 	GenericAccessDataValueBool genericData;
@@ -1885,14 +1885,14 @@ bool IS315_5313::GetStatusFlagF() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetStatusFlagF(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::FlagF, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::GetStatusFlagSpriteOverflow() const
 {
 	GenericAccessDataValueBool genericData;
@@ -1900,14 +1900,14 @@ bool IS315_5313::GetStatusFlagSpriteOverflow() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetStatusFlagSpriteOverflow(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::FlagSpriteOverflow, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::GetStatusFlagSpriteCollision() const
 {
 	GenericAccessDataValueBool genericData;
@@ -1915,14 +1915,14 @@ bool IS315_5313::GetStatusFlagSpriteCollision() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetStatusFlagSpriteCollision(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::FlagSpriteCollision, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::GetStatusFlagOddInterlaceFrame() const
 {
 	GenericAccessDataValueBool genericData;
@@ -1930,14 +1930,14 @@ bool IS315_5313::GetStatusFlagOddInterlaceFrame() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetStatusFlagOddInterlaceFrame(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::FlagOddInterlaceFrame, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::GetStatusFlagVBlank() const
 {
 	GenericAccessDataValueBool genericData;
@@ -1945,14 +1945,14 @@ bool IS315_5313::GetStatusFlagVBlank() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetStatusFlagVBlank(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::FlagVBlank, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::GetStatusFlagHBlank() const
 {
 	GenericAccessDataValueBool genericData;
@@ -1960,14 +1960,14 @@ bool IS315_5313::GetStatusFlagHBlank() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetStatusFlagHBlank(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::FlagHBlank, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::GetStatusFlagDMA() const
 {
 	GenericAccessDataValueBool genericData;
@@ -1975,14 +1975,14 @@ bool IS315_5313::GetStatusFlagDMA() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetStatusFlagDMA(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::FlagDMA, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::GetStatusFlagPAL() const
 {
 	GenericAccessDataValueBool genericData;
@@ -1990,16 +1990,16 @@ bool IS315_5313::GetStatusFlagPAL() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::SetStatusFlagPAL(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::FlagPAL, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
-//Port register functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Port register functions
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGetPortCode() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -2007,14 +2007,14 @@ unsigned int IS315_5313::RegGetPortCode() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetPortCode(unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegCode, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGetPortAddress() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -2022,14 +2022,14 @@ unsigned int IS315_5313::RegGetPortAddress() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetPortAddress(unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegAddress, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetPortWritePending() const
 {
 	GenericAccessDataValueBool genericData;
@@ -2037,14 +2037,14 @@ bool IS315_5313::RegGetPortWritePending() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetPortWritePending(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegPortWritePending, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGetReadBuffer() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -2052,14 +2052,14 @@ unsigned int IS315_5313::RegGetReadBuffer() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetReadBuffer(unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegReadBuffer, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetReadHalfCached() const
 {
 	GenericAccessDataValueBool genericData;
@@ -2067,14 +2067,14 @@ bool IS315_5313::RegGetReadHalfCached() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetReadHalfCached(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegReadHalfCached, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetReadFullyCached() const
 {
 	GenericAccessDataValueBool genericData;
@@ -2082,16 +2082,16 @@ bool IS315_5313::RegGetReadFullyCached() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetReadFullyCached(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegReadFullyCached, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
-//Interrupt register functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Interrupt register functions
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetVINTPending() const
 {
 	GenericAccessDataValueBool genericData;
@@ -2099,14 +2099,14 @@ bool IS315_5313::RegGetVINTPending() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetVINTPending(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegVINTPending, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetHINTPending() const
 {
 	GenericAccessDataValueBool genericData;
@@ -2114,14 +2114,14 @@ bool IS315_5313::RegGetHINTPending() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetHINTPending(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegHINTPending, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetEXINTPending() const
 {
 	GenericAccessDataValueBool genericData;
@@ -2129,16 +2129,16 @@ bool IS315_5313::RegGetEXINTPending() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetEXINTPending(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegEXINTPending, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
-//HV counter register functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// HV counter register functions
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGetHVCounterExternal() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -2146,7 +2146,7 @@ unsigned int IS315_5313::RegGetHVCounterExternal() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGetHCounterInternal() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -2154,14 +2154,14 @@ unsigned int IS315_5313::RegGetHCounterInternal() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetHCounterInternal(unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegHCounterInternal, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGetVCounterInternal() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -2169,14 +2169,14 @@ unsigned int IS315_5313::RegGetVCounterInternal() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetVCounterInternal(unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegVCounterInternal, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGetHCounterLatched() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -2184,14 +2184,14 @@ unsigned int IS315_5313::RegGetHCounterLatched() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetHCounterLatched(unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegHCounterLatched, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGetVCounterLatched() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -2199,16 +2199,16 @@ unsigned int IS315_5313::RegGetVCounterLatched() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetVCounterLatched(unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegVCounterLatched, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
-//FIFO register functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// FIFO register functions
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGetFIFOCode(unsigned int entryNo) const
 {
 	GenericAccessDataValueUInt genericData;
@@ -2217,7 +2217,7 @@ unsigned int IS315_5313::RegGetFIFOCode(unsigned int entryNo) const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetFIFOCode(unsigned int entryNo, unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
@@ -2225,7 +2225,7 @@ void IS315_5313::RegSetFIFOCode(unsigned int entryNo, unsigned int data)
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegFIFOCode, &dataContext, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGetFIFOAddress(unsigned int entryNo) const
 {
 	GenericAccessDataValueUInt genericData;
@@ -2234,7 +2234,7 @@ unsigned int IS315_5313::RegGetFIFOAddress(unsigned int entryNo) const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetFIFOAddress(unsigned int entryNo, unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
@@ -2242,7 +2242,7 @@ void IS315_5313::RegSetFIFOAddress(unsigned int entryNo, unsigned int data)
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegFIFOAddress, &dataContext, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGetFIFOData(unsigned int entryNo) const
 {
 	GenericAccessDataValueUInt genericData;
@@ -2251,7 +2251,7 @@ unsigned int IS315_5313::RegGetFIFOData(unsigned int entryNo) const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetFIFOData(unsigned int entryNo, unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
@@ -2259,7 +2259,7 @@ void IS315_5313::RegSetFIFOData(unsigned int entryNo, unsigned int data)
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegFIFOData, &dataContext, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetFIFOWritePending(unsigned int entryNo) const
 {
 	GenericAccessDataValueBool genericData;
@@ -2268,7 +2268,7 @@ bool IS315_5313::RegGetFIFOWritePending(unsigned int entryNo) const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetFIFOWritePending(unsigned int entryNo, bool data)
 {
 	GenericAccessDataValueBool genericData(data);
@@ -2276,7 +2276,7 @@ void IS315_5313::RegSetFIFOWritePending(unsigned int entryNo, bool data)
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegFIFOWritePending, &dataContext, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool IS315_5313::RegGetFIFOHalfWritten(unsigned int entryNo) const
 {
 	GenericAccessDataValueBool genericData;
@@ -2285,7 +2285,7 @@ bool IS315_5313::RegGetFIFOHalfWritten(unsigned int entryNo) const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetFIFOHalfWritten(unsigned int entryNo, bool data)
 {
 	GenericAccessDataValueBool genericData(data);
@@ -2293,7 +2293,7 @@ void IS315_5313::RegSetFIFOHalfWritten(unsigned int entryNo, bool data)
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegFIFOWriteHalfWritten, &dataContext, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGetFIFONextReadEntry() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -2301,14 +2301,14 @@ unsigned int IS315_5313::RegGetFIFONextReadEntry() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetFIFONextReadEntry(unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegNextFIFOReadEntry, 0, genericData);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int IS315_5313::RegGetFIFONextWriteEntry() const
 {
 	GenericAccessDataValueUInt genericData;
@@ -2316,14 +2316,14 @@ unsigned int IS315_5313::RegGetFIFONextWriteEntry() const
 	return genericData.GetValue();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void IS315_5313::RegSetFIFONextWriteEntry(unsigned int data)
 {
 	GenericAccessDataValueUInt genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::RegNextFIFOWriteEntry, 0, genericData);
 }
 
-//Restore the disabled warnings
+// Restore the disabled warnings
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif

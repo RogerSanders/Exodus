@@ -4,22 +4,22 @@
 #include "resource.h"
 #include <sstream>
 
-//----------------------------------------------------------------------------------------
-//Constructors
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Constructors
+//----------------------------------------------------------------------------------------------------------------------
 GenericDataView::GenericDataView(IUIManager& uiManager, GenericDataViewPresenter& presenter, IGenericAccess& model, const IGenericAccessPage* page)
 :ViewBase(uiManager, presenter), _presenter(presenter), _model(model), _page(page)
 {
 	SetWindowSettings(_page->GetTitle(), 0, 0, 500, 300);
 	//##TODO## Allow the device to give a hint here to assist in picking an appropriate
-	//docking group. At the very least, a hint about whether it should be a vertical or a
-	//horizontal window would be useful.
+	// docking group. At the very least, a hint about whether it should be a vertical or a
+	// horizontal window would be useful.
 	SetDockableViewType(true, DockPos::Right, false, L"Exodus.RegisterGroup");
 }
 
-//----------------------------------------------------------------------------------------
-//Member window procedure
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Member window procedure
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT GenericDataView::WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	switch (msg)
@@ -44,12 +44,12 @@ LRESULT GenericDataView::WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARA
 	return DefWindowProc(hwnd, msg, wparam, lparam);
 }
 
-//----------------------------------------------------------------------------------------
-//Event handlers
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Event handlers
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT GenericDataView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	//Create the default font for this window
+	// Create the default font for this window
 	int fontPointSize = 8;
 	HDC hdc = GetDC(hwnd);
 	int fontnHeight = -MulDiv(fontPointSize, GetDeviceCaps(hdc, LOGPIXELSY), 72);
@@ -57,23 +57,23 @@ LRESULT GenericDataView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	std::wstring fontTypefaceName = L"MS Shell Dlg";
 	_valueFont = CreateFont(fontnHeight, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FIXED_PITCH | FF_MODERN, &fontTypefaceName[0]);
 
-	//Register the DataGrid window class
+	// Register the DataGrid window class
 	WC_DataGrid::RegisterWindowClass(GetAssemblyHandle());
 
-	//Create the DataGrid child control
+	// Create the DataGrid child control
 	_hwndDataList = CreateWindowEx(WS_EX_CLIENTEDGE, WC_DataGrid::WindowClassName, L"", WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_VSCROLL | WS_HSCROLL, 0, 0, 0, 0, hwnd, (HMENU)DataListControlID, GetAssemblyHandle(), NULL);
 
-	//Set the default font for the child controls
+	// Set the default font for the child controls
 	SendMessage(_hwndDataList, WM_SETFONT, (WPARAM)_valueFont, TRUE);
 
-	//Insert our columns into the device DataGrid control
+	// Insert our columns into the device DataGrid control
 	WC_DataGrid::Grid_InsertColumn nameColumn(L"Name", NameColumnID);
 	WC_DataGrid::Grid_InsertColumn valueColumn(L"Value", ValueColumnID, true);
 	valueColumn.sizeMode = WC_DataGrid::ColumnSizeMode::Proportional;
 	SendMessage(_hwndDataList, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&nameColumn);
 	SendMessage(_hwndDataList, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&valueColumn);
 
-	//Check if the root node contains any child groups
+	// Check if the root node contains any child groups
 	const IGenericAccessGroup* rootNode = _page->GetContentRoot();
 	bool rootNodeContainsChildGroups = false;
 	std::list<IGenericAccessGroupEntry*> rootNodeEntries = rootNode->GetEntries();
@@ -83,7 +83,7 @@ LRESULT GenericDataView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		rootNodeContainsChildGroups |= (groupEntryType == IGenericAccessGroup::GroupEntryType::Group) || (groupEntryType == IGenericAccessGroup::GroupEntryType::Collection);
 	}
 
-	//Set the initial state of the data grid
+	// Set the initial state of the data grid
 	unsigned int initialIndentLevel = (rootNodeContainsChildGroups)? 1: 0;
 	unsigned int currentRow = 0;
 	std::list<ExpandStateInfo> preservedExpandState;
@@ -102,7 +102,7 @@ LRESULT GenericDataView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT GenericDataView::msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	KillTimer(hwnd, 1);
@@ -110,10 +110,10 @@ LRESULT GenericDataView::msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	return DefWindowProc(hwnd, WM_DESTROY, wparam, lparam);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT GenericDataView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	//Update the contents of the data grid
+	// Update the contents of the data grid
 	unsigned int currentRow = 0;
 	while (currentRow < (unsigned int)_rowInfo.size())
 	{
@@ -122,22 +122,22 @@ LRESULT GenericDataView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT GenericDataView::msgWM_SIZE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	//Dimensions and relative positions of the controls
+	// Dimensions and relative positions of the controls
 	unsigned int dataListControlLeftOffset = 0;
 	unsigned int dataListControlRightOffset = dataListControlLeftOffset;
 	unsigned int dataListControlTopOffset = 0;
 	unsigned int dataListControlBottomOffset = 0;
 
-	//Read the new client size of the window
+	// Read the new client size of the window
 	RECT rect;
 	GetClientRect(hwnd, &rect);
 	unsigned int controlWidth = rect.right;
 	unsigned int controlHeight = rect.bottom;
 
-	//Resize the HexEdit control to match
+	// Resize the HexEdit control to match
 	MoveWindow(_hwndDataList, dataListControlLeftOffset, dataListControlTopOffset, controlWidth - dataListControlLeftOffset - dataListControlRightOffset, controlHeight - dataListControlTopOffset - dataListControlBottomOffset, TRUE);
 
 	//##TODO## Autosize the columns to fit to the available space
@@ -145,10 +145,10 @@ LRESULT GenericDataView::msgWM_SIZE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT GenericDataView::msgWM_PAINT(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	//Fill the background of the control with the dialog background colour
+	// Fill the background of the control with the dialog background colour
 	HDC hdc = GetDC(hwnd);
 	HBRUSH hbrush = CreateSolidBrush(GetSysColor(COLOR_BTNFACE));
 	HBRUSH hbrushOld = (HBRUSH)SelectObject(hdc, hbrush);
@@ -164,7 +164,7 @@ LRESULT GenericDataView::msgWM_PAINT(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	return DefWindowProc(hwnd, WM_PAINT, wparam, lparam);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT GenericDataView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	if (LOWORD(wparam) == DataListControlID)
@@ -177,9 +177,9 @@ LRESULT GenericDataView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 				const GridRowInfo& targetRowInfo = _rowInfo[cellEditEventInfo->targetRowNo];
 				if ((targetRowInfo.entryType == IGenericAccessGroup::GroupEntryType::Data) || (targetRowInfo.entryType == IGenericAccessGroup::GroupEntryType::SingleSelectionList))
 				{
-					//Obtain the data ID and data context for the edited data value, and
-					//determine the actual value to apply as the new value for this data
-					//item.
+					// Obtain the data ID and data context for the edited data value, and
+					// determine the actual value to apply as the new value for this data
+					// item.
 					unsigned int dataID;
 					const IGenericAccess::DataContext* dataContext;
 					std::wstring newData = cellEditEventInfo->newData;
@@ -195,8 +195,8 @@ LRESULT GenericDataView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 						dataID = selectionListEntry->GetDataID();
 						dataContext = selectionListEntry->GetDataContext();
 
-						//Attempt to map the new data value for this selection list item
-						//from the display name to the associated backing data value.
+						// Attempt to map the new data value for this selection list item
+						// from the display name to the associated backing data value.
 						std::list<std::pair<const IGenericAccessDataValue*, const IGenericAccessDataValue*>> selectionList = selectionListEntry->GetSelectionList();
 						std::list<std::pair<const IGenericAccessDataValue*, const IGenericAccessDataValue*>>::const_iterator selectionListIterator = selectionList.begin();
 						bool convertedValue = false;
@@ -212,25 +212,25 @@ LRESULT GenericDataView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 						}
 					}
 
-					//Write the edited data to the device
+					// Write the edited data to the device
 					_model.WriteGenericData(dataID, dataContext, newData);
 
-					//Now that the edited data has been written to the device, read it
-					//back again and send it back to the edited cell. We do this because
-					//the cell doesn't change itself when an edit occurs, it merely
-					//requests the edit to be processed. Additionally, the device may
-					//restrict or alter the input value, meaning the final value will be
-					//different to what the user entered. Sending the final value back
-					//immediately here ensures that the control will immediately change to
-					//reflect the final value, and won't flicker briefly back to the
-					//original value before the edit occurred.
+					// Now that the edited data has been written to the device, read it
+					// back again and send it back to the edited cell. We do this because
+					// the cell doesn't change itself when an edit occurs, it merely
+					// requests the edit to be processed. Additionally, the device may
+					// restrict or alter the input value, meaning the final value will be
+					// different to what the user entered. Sending the final value back
+					// immediately here ensures that the control will immediately change to
+					// reflect the final value, and won't flicker briefly back to the
+					// original value before the edit occurred.
 					WC_DataGrid::Grid_UpdateCellText updateCellTextParams;
 					updateCellTextParams.columnID = cellEditEventInfo->targetColumnID;
 					updateCellTextParams.rowNo = cellEditEventInfo->targetRowNo;
 					if (_model.ReadGenericData(dataID, dataContext, updateCellTextParams.newText))
 					{
-						//If this entry has a selection list, map the new value back from
-						//a literal value to its corresponding selection list entry.
+						// If this entry has a selection list, map the new value back from
+						// a literal value to its corresponding selection list entry.
 						if (targetRowInfo.entryType == IGenericAccessGroup::GroupEntryType::SingleSelectionList)
 						{
 							const IGenericAccessGroupSingleSelectionList* selectionListEntry = static_cast<const IGenericAccessGroupSingleSelectionList*>(targetRowInfo.entry);
@@ -249,12 +249,12 @@ LRESULT GenericDataView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 							}
 						}
 
-						//Update the data value for this cell
+						// Update the data value for this cell
 						SendMessage(_hwndDataList, (UINT)WC_DataGrid::WindowMessages::UpdateCellText, 0, (LPARAM)&updateCellTextParams);
 					}
 				}
 
-				//Unlock the target row entry now that we're finished accessing its data
+				// Unlock the target row entry now that we're finished accessing its data
 				UnlockTargetRowEntry(cellEditEventInfo->targetRowNo);
 			}
 		}
@@ -266,13 +266,13 @@ LRESULT GenericDataView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 				const GridRowInfo& targetRowInfo = _rowInfo[cellButtonClickEventInfo->targetRowNo];
 				if (targetRowInfo.entryType == IGenericAccessGroupEntry::GroupEntryType::Command)
 				{
-					//Execute the specified command on the device
+					// Execute the specified command on the device
 					const IGenericAccessGroupCommandEntry* commandEntry = static_cast<const IGenericAccessGroupCommandEntry*>(targetRowInfo.entry);
 					_model.ExecuteGenericCommand(commandEntry->GetCommandID(), commandEntry->GetDataContext());
 				}
 				else if (targetRowInfo.entryType == IGenericAccessGroupEntry::GroupEntryType::Data)
 				{
-					//Open a file or folder browse dialog
+					// Open a file or folder browse dialog
 					const IGenericAccessGroupDataEntry* dataEntry = static_cast<const IGenericAccessGroupDataEntry*>(targetRowInfo.entry);
 					const IGenericAccessDataInfo* dataInfo = _model.GetGenericDataInfo(dataEntry->GetDataID());
 					IGenericAccessDataValue::DataType dataType = dataInfo->GetType();
@@ -296,7 +296,7 @@ LRESULT GenericDataView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 					}
 				}
 
-				//Unlock the target row entry now that we're finished accessing its data
+				// Unlock the target row entry now that we're finished accessing its data
 				UnlockTargetRowEntry(cellButtonClickEventInfo->targetRowNo);
 			}
 		}
@@ -304,20 +304,20 @@ LRESULT GenericDataView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		{
 			WC_DataGrid::Grid_SelectionEvent* info = (WC_DataGrid::Grid_SelectionEvent*)lparam;
 
-			//If the CTRL key was pressed when a row selection was made, toggle the locked
-			//state of the data item referenced by the target row.
+			// If the CTRL key was pressed when a row selection was made, toggle the locked
+			// state of the data item referenced by the target row.
 			//##TODO## Instead of having this ctrl+click locking behaviour, add a padlock
-			//icon on the left side of the value column for controls that support locking,
-			//which is defined as a custom action button that when clicked, toggles the
-			//locked state of the register, and changes the padlock icon between open and
-			//closed. There are padlock characters defined in the unicode standard we can
-			//use. This will make the behaviour more obvious, allow the user to easily see
-			//which registers support locking, and free up text colour changes to
-			//represent other information, like the highlight concept we want to introduce
-			//for changed register values for the M68000.
+			// icon on the left side of the value column for controls that support locking,
+			// which is defined as a custom action button that when clicked, toggles the
+			// locked state of the register, and changes the padlock icon between open and
+			// closed. There are padlock characters defined in the unicode standard we can
+			// use. This will make the behaviour more obvious, allow the user to easily see
+			// which registers support locking, and free up text colour changes to
+			// represent other information, like the highlight concept we want to introduce
+			// for changed register values for the M68000.
 			if (info->rowSelected && info->keyPressedCtrl)
 			{
-				//Toggle the locked state of the target data item
+				// Toggle the locked state of the target data item
 				if ((info->selectedRowNo < _rowInfo.size()) && LockTargetRowEntry(info->selectedRowNo))
 				{
 					const GridRowInfo& targetRowInfo = _rowInfo[info->selectedRowNo];
@@ -341,21 +341,21 @@ LRESULT GenericDataView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 						_model.SetGenericDataLocked(dataID, dataContext, newLockedState);
 					}
 
-					//Unlock the target row entry now that we're finished accessing its
-					//data
+					// Unlock the target row entry now that we're finished accessing its
+					// data
 					UnlockTargetRowEntry(info->selectedRowNo);
 				}
 
-				//Since we're handling this selection event ourselves, and we don't want a
-				//grid selection to occur in response, instruct the data grid to ignore
-				//the selection.
+				// Since we're handling this selection event ourselves, and we don't want a
+				// grid selection to occur in response, instruct the data grid to ignore
+				// the selection.
 				info->ignoreSelectionEvent = true;
 			}
 
-			//Don't allow read-only cells to enter edit mode
+			// Don't allow read-only cells to enter edit mode
 			if (info->rowSelected && info->columnSelected)
 			{
-				//Don't allow group summary or read only data cells to be edited
+				// Don't allow group summary or read only data cells to be edited
 				if ((info->selectedRowNo < _rowInfo.size()) && LockTargetRowEntry(info->selectedRowNo))
 				{
 					const GridRowInfo& targetRowInfo = _rowInfo[info->selectedRowNo];
@@ -386,8 +386,8 @@ LRESULT GenericDataView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 						}
 					}
 
-					//Unlock the target row entry now that we're finished accessing its
-					//data
+					// Unlock the target row entry now that we're finished accessing its
+					// data
 					UnlockTargetRowEntry(info->selectedRowNo);
 				}
 			}
@@ -396,14 +396,14 @@ LRESULT GenericDataView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		{
 			WC_DataGrid::Grid_TreeEntryExpandEvent* info = (WC_DataGrid::Grid_TreeEntryExpandEvent*)lparam;
 
-			//Toggle the expand state of the target group
+			// Toggle the expand state of the target group
 			if ((info->targetColumnID == NameColumnID) && (info->targetRowNo < _rowInfo.size()) && LockTargetRowEntry(info->targetRowNo))
 			{
 				GridRowInfo* targetRowInfo = &_rowInfo[info->targetRowNo];
 				if (info->expand != targetRowInfo->expandState)
 				{
-					//Record the new expand state, adding or removing the child elements
-					//of this group from the tree as required.
+					// Record the new expand state, adding or removing the child elements
+					// of this group from the tree as required.
 					if (!info->expand)
 					{
 						std::list<ExpandStateInfo> preservedExpandStateBuffer;
@@ -423,11 +423,11 @@ LRESULT GenericDataView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 						targetRowInfo->preservedExpandState = preservedExpandStateBuffer;
 					}
 
-					//Update the expand state of this group
+					// Update the expand state of this group
 					SendMessage(_hwndDataList, (UINT)WC_DataGrid::WindowMessages::SetCellInfo, 0, (LPARAM)&(const WC_DataGrid::Grid_SetCellInfo&)WC_DataGrid::Grid_SetCellInfo(NameColumnID, info->targetRowNo, WC_DataGrid::CellControlType::TreeEntry, targetRowInfo->nestingLevel, true, targetRowInfo->expandState));
 				}
 
-				//Unlock the target row entry now that we're finished accessing its data
+				// Unlock the target row entry now that we're finished accessing its data
 				UnlockTargetRowEntry(info->targetRowNo);
 			}
 		}
@@ -436,39 +436,39 @@ LRESULT GenericDataView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT GenericDataView::msgWM_SETFOCUS(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	SetFocus(_hwndDataList);
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT GenericDataView::msgWM_KILLFOCUS(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	SendMessage(_hwndDataList, WM_KILLFOCUS, NULL, 0);
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
-//Data update methods
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Data update methods
+//----------------------------------------------------------------------------------------------------------------------
 void GenericDataView::PopulateDataGrid(const IGenericAccessGroupEntry* entry, unsigned int& currentRow, unsigned int indentLevel, bool addChildrenOnly, bool usePreservedExpandState, bool preservedExpandState, unsigned int preservedExpandStateCollectionEntryCount, std::list<ExpandStateInfo>& preservedExpandStateBuffer, const std::list<ParentCollectionInfo>& parentCollectionInfo, const std::wstring& collectionEntryKey, bool useNameOverride, const std::wstring& nameOverride)
 {
-	//Retrieve the type of the target entry
+	// Retrieve the type of the target entry
 	IGenericAccessGroupEntry::GroupEntryType entryType = entry->GetGroupEntryType();
 
-	//Add the target entry to the data grid if required
+	// Add the target entry to the data grid if required
 	if (!addChildrenOnly)
 	{
-		//Explicitly insert this row into the data grid
+		// Explicitly insert this row into the data grid
 		WC_DataGrid::Grid_InsertRows insertRowsInfo;
 		insertRowsInfo.targetRowNo = currentRow;
 		insertRowsInfo.rowCount = 1;
 		SendMessage(_hwndDataList, (UINT)WC_DataGrid::WindowMessages::InsertRows, 0, (LPARAM)&insertRowsInfo);
 
-		//Obtain information on this entry, and setup the value cell correctly for this
-		//entry type.
+		// Obtain information on this entry, and setup the value cell correctly for this
+		// entry type.
 		bool entryHasChildren = false;
 		bool childrenExpandedByDefault = false;
 		unsigned int childEntryCount = 0;
@@ -488,7 +488,7 @@ void GenericDataView::PopulateDataGrid(const IGenericAccessGroupEntry* entry, un
 				childrenExpandedByDefault = entryHasChildren && groupEntry->GetOpenByDefault();
 			}
 
-			//Set a gray colour for the summary text on a group
+			// Set a gray colour for the summary text on a group
 			WC_DataGrid::Grid_SetCellColor setCellColorParams;
 			setCellColorParams.targetRowNo = currentRow;
 			setCellColorParams.targetColumnID = ValueColumnID;
@@ -512,7 +512,7 @@ void GenericDataView::PopulateDataGrid(const IGenericAccessGroupEntry* entry, un
 				childrenExpandedByDefault = collectionEntry->GetOpenByDefault();
 			}
 
-			//Set a gray colour for the summary text on a collection
+			// Set a gray colour for the summary text on a collection
 			WC_DataGrid::Grid_SetCellColor setCellColorParams;
 			setCellColorParams.targetRowNo = currentRow;
 			setCellColorParams.targetColumnID = ValueColumnID;
@@ -523,10 +523,10 @@ void GenericDataView::PopulateDataGrid(const IGenericAccessGroupEntry* entry, un
 		}
 		else if (entryType == IGenericAccessGroup::GroupEntryType::Command)
 		{
-			//const IGenericAccessGroupCommandEntry* commandEntry = static_cast<const IGenericAccessGroupCommandEntry*>(entry);
+			// const IGenericAccessGroupCommandEntry* commandEntry = static_cast<const IGenericAccessGroupCommandEntry*>(entry);
 			name = L"";
 
-			//Set the correct control type for the value column
+			// Set the correct control type for the value column
 			WC_DataGrid::Grid_SetCellInfo setCellInfo(ValueColumnID, currentRow, WC_DataGrid::CellControlType::Button);
 			SendMessage(_hwndDataList, (UINT)WC_DataGrid::WindowMessages::SetCellInfo, 0, (LPARAM)&setCellInfo);
 		}
@@ -536,8 +536,8 @@ void GenericDataView::PopulateDataGrid(const IGenericAccessGroupEntry* entry, un
 			const IGenericAccessDataInfo* dataInfo = _model.GetGenericDataInfo(dataEntry->GetDataID());
 			name = dataEntry->GetName();
 
-			//If this data entry supports locking or highlighting, add an entry to the
-			//cached state map.
+			// If this data entry supports locking or highlighting, add an entry to the
+			// cached state map.
 			bool supportsLocking = dataInfo->GetLockingSupported();
 			bool supportsHighlighting = dataInfo->GetHighlightUsed();
 			if (supportsLocking || supportsHighlighting)
@@ -549,7 +549,7 @@ void GenericDataView::PopulateDataGrid(const IGenericAccessGroupEntry* entry, un
 				cachedState.highlightState = false;
 			}
 
-			//Set the correct control type for the value column
+			// Set the correct control type for the value column
 			if (dataInfo->GetType() == IGenericAccessDataValue::DataType::Bool)
 			{
 				SendMessage(_hwndDataList, (UINT)WC_DataGrid::WindowMessages::SetCellInfo, 0, (LPARAM)&(const WC_DataGrid::Grid_SetCellInfo&)WC_DataGrid::Grid_SetCellInfo(ValueColumnID, currentRow, WC_DataGrid::CellControlType::CheckBox));
@@ -568,8 +568,8 @@ void GenericDataView::PopulateDataGrid(const IGenericAccessGroupEntry* entry, un
 			const IGenericAccessDataInfo* dataInfo = _model.GetGenericDataInfo(selectionListEntry->GetDataID());
 			name = selectionListEntry->GetName();
 
-			//If this data entry supports locking or highlighting, add an entry to the
-			//cached state map.
+			// If this data entry supports locking or highlighting, add an entry to the
+			// cached state map.
 			bool supportsLocking = dataInfo->GetLockingSupported();
 			bool supportsHighlighting = dataInfo->GetHighlightUsed();
 			if (supportsLocking || supportsHighlighting)
@@ -581,7 +581,7 @@ void GenericDataView::PopulateDataGrid(const IGenericAccessGroupEntry* entry, un
 				cachedState.highlightState = false;
 			}
 
-			//Set the correct control type for the value column
+			// Set the correct control type for the value column
 			WC_DataGrid::Grid_SetCellInfo setCellInfo(ValueColumnID, currentRow, WC_DataGrid::CellControlType::ComboBox);
 			setCellInfo.pickFromSelectionListOnly = !selectionListEntry->GetAllowNewItemEntry();
 			std::list<std::pair<const IGenericAccessDataValue*, const IGenericAccessDataValue*>> selectionList = selectionListEntry->GetSelectionList();
@@ -594,17 +594,17 @@ void GenericDataView::PopulateDataGrid(const IGenericAccessGroupEntry* entry, un
 			SendMessage(_hwndDataList, (UINT)WC_DataGrid::WindowMessages::SetCellInfo, 0, (LPARAM)&setCellInfo);
 		}
 
-		//Set the control type for the name column
+		// Set the control type for the name column
 		SendMessage(_hwndDataList, (UINT)WC_DataGrid::WindowMessages::SetCellInfo, 0, (LPARAM)&(const WC_DataGrid::Grid_SetCellInfo&)WC_DataGrid::Grid_SetCellInfo(NameColumnID, currentRow, WC_DataGrid::CellControlType::TreeEntry, indentLevel, entryHasChildren, childrenExpandedByDefault));
 
-		//Update the name cell data for this child entry
+		// Update the name cell data for this child entry
 		WC_DataGrid::Grid_UpdateCellText updateCellTextInfo;
 		updateCellTextInfo.columnID = NameColumnID;
 		updateCellTextInfo.newText = (useNameOverride)? nameOverride: name;
 		updateCellTextInfo.rowNo = currentRow;
 		SendMessage(_hwndDataList, (UINT)WC_DataGrid::WindowMessages::UpdateCellText, 0, (LPARAM)&updateCellTextInfo);
 
-		//Add this entry into our state array
+		// Add this entry into our state array
 		GridRowInfo entryRowInfo;
 		entryRowInfo.entry = entry;
 		entryRowInfo.entryType = entryType;
@@ -617,12 +617,12 @@ void GenericDataView::PopulateDataGrid(const IGenericAccessGroupEntry* entry, un
 		_rowInfo.insert(_rowInfo.begin() + currentRow, entryRowInfo);
 	}
 
-	//Advance the current grid row number
+	// Advance the current grid row number
 	unsigned int targetRowNo = currentRow;
 	++currentRow;
 
-	//If this child entry is a group or collection with children that needs to be expanded
-	//by default, recurse into it to update each of its children.
+	// If this child entry is a group or collection with children that needs to be expanded
+	// by default, recurse into it to update each of its children.
 	if (_rowInfo[targetRowNo].expandState)
 	{
 		if (entryType == IGenericAccessGroup::GroupEntryType::Group)
@@ -649,16 +649,16 @@ void GenericDataView::PopulateDataGrid(const IGenericAccessGroupEntry* entry, un
 		}
 		else if (entryType == IGenericAccessGroup::GroupEntryType::Collection)
 		{
-			//Build a map of of preserved expand state for the previous collection entries
-			//based on the saved collection key values, if required.
+			// Build a map of of preserved expand state for the previous collection entries
+			// based on the saved collection key values, if required.
 			std::map<std::wstring, ExpandStateInfo> expandStateInfoForCollectionEntries;
 			if (usePreservedExpandState)
 			{
 				//##FIX## This won't work correctly with child groups or collection
-				//entries, because the children of each entry in our group will appear
-				//inline following each entry. If our child expand data was physically
-				//nested under our expand data, rather than just appearing sequentially
-				//after it, we could avoid this issue.
+				// entries, because the children of each entry in our group will appear
+				// inline following each entry. If our child expand data was physically
+				// nested under our expand data, rather than just appearing sequentially
+				// after it, we could avoid this issue.
 				for (unsigned int i = 0; i < preservedExpandStateCollectionEntryCount; ++i)
 				{
 					const ExpandStateInfo& childExpandStateInfo = preservedExpandStateBuffer.front();
@@ -667,7 +667,7 @@ void GenericDataView::PopulateDataGrid(const IGenericAccessGroupEntry* entry, un
 				}
 			}
 
-			//Populate the child entries for this collection
+			// Populate the child entries for this collection
 			const IGenericAccessGroupCollectionEntry* collectionEntry = static_cast<const IGenericAccessGroupCollectionEntry*>(entry);
 			collectionEntry->ObtainReadLock();
 			std::list<IGenericAccessGroupCollectionEntry::CollectionEntry> collectionEntries = collectionEntry->GetCollectionEntries();
@@ -680,7 +680,7 @@ void GenericDataView::PopulateDataGrid(const IGenericAccessGroupEntry* entry, un
 				if (usePreservedExpandState)
 				{
 					//##FIX## We're only supposed to extract expand state info for group
-					//or collection children
+					// or collection children
 					std::map<std::wstring, ExpandStateInfo>::const_iterator collectionEntryExpandStateIterator = expandStateInfoForCollectionEntries.find(collectionChild.key->GetValueString());
 					if (collectionEntryExpandStateIterator != expandStateInfoForCollectionEntries.end())
 					{
@@ -697,10 +697,10 @@ void GenericDataView::PopulateDataGrid(const IGenericAccessGroupEntry* entry, un
 				parentCollectionInfoForChild.push_back(ParentCollectionInfo(collectionEntry, childCollectionEntryKey, collectionChild.value));
 				PopulateDataGrid(collectionChild.value, currentRow, indentLevel + 1, false, childExpandStatePresent, childExpandState, childCollectionEntryCount, preservedExpandStateBuffer, parentCollectionInfoForChild, childCollectionEntryKey, true, childCollectionEntryKeyText);
 			}
-			//Note that we could not keep a reference to the target row info from earlier,
-			//as after a single call to PopulateDataGrid, the rowInfo structure and all
-			//existing references are potentially invalidated, due to a change in the
-			//array contents.
+			// Note that we could not keep a reference to the target row info from earlier,
+			// as after a single call to PopulateDataGrid, the rowInfo structure and all
+			// existing references are potentially invalidated, due to a change in the
+			// array contents.
 			GridRowInfo& targetRowInfo = _rowInfo[targetRowNo];
 			targetRowInfo.childEntryCount = (unsigned int)collectionEntries.size();
 			targetRowInfo.lastCollectionModifiedToken = collectionEntry->GetLastModifiedToken();
@@ -709,32 +709,32 @@ void GenericDataView::PopulateDataGrid(const IGenericAccessGroupEntry* entry, un
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void GenericDataView::DepopulateDataGrid(unsigned int targetRowNo, bool removeChildrenOnly, std::list<ExpandStateInfo>& preservedExpandState)
 {
 	unsigned int rowsToRemove = 0;
 	DepopulateDataGrid(0, targetRowNo, rowsToRemove, removeChildrenOnly, preservedExpandState);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void GenericDataView::DepopulateDataGrid(unsigned int recursionDepth, unsigned int& targetRowNo, unsigned int& rowsToRemove, bool removeChildrenOnly, std::list<ExpandStateInfo>& preservedExpandState)
 {
-	//If this is the lowest entry in the recursion stack, initialize the preserved expand
-	//state list.
+	// If this is the lowest entry in the recursion stack, initialize the preserved expand
+	// state list.
 	if (recursionDepth == 0)
 	{
 		preservedExpandState.clear();
 	}
 
-	//Add this row to the set of rows to remove if required
+	// Add this row to the set of rows to remove if required
 	const GridRowInfo& entryRowInfo = _rowInfo[targetRowNo];
 	if ((recursionDepth != 0) || !removeChildrenOnly)
 	{
-		//Increment the count of rows to remove
+		// Increment the count of rows to remove
 		++rowsToRemove;
 
-		//If this entry can contain child entries, save its current expand state to the
-		//preserved expand state list.
+		// If this entry can contain child entries, save its current expand state to the
+		// preserved expand state list.
 		if ((entryRowInfo.entryType == IGenericAccessGroup::GroupEntryType::Group) || (entryRowInfo.entryType == IGenericAccessGroup::GroupEntryType::Collection))
 		{
 			ExpandStateInfo expandStateInfo;
@@ -745,15 +745,15 @@ void GenericDataView::DepopulateDataGrid(unsigned int recursionDepth, unsigned i
 		}
 	}
 
-	//Calculate the first row number of the removed items if this is the lowest entry in
-	//the recursion stack
+	// Calculate the first row number of the removed items if this is the lowest entry in
+	// the recursion stack
 	unsigned int firstRowNo = targetRowNo + (removeChildrenOnly? 1: 0);
 
-	//Advance to the next row
+	// Advance to the next row
 	++targetRowNo;
 
-	//If this row contained visible children, add each child row to the set of rows to
-	//remove.
+	// If this row contained visible children, add each child row to the set of rows to
+	// remove.
 	if (entryRowInfo.expandState)
 	{
 		for (unsigned int i = 0; i < entryRowInfo.childEntryCount; ++i)
@@ -762,34 +762,34 @@ void GenericDataView::DepopulateDataGrid(unsigned int recursionDepth, unsigned i
 		}
 	}
 
-	//If this is the lowest entry in the recursion stack, remove the target set of rows.
+	// If this is the lowest entry in the recursion stack, remove the target set of rows.
 	if (recursionDepth == 0)
 	{
-		//Delete the rows from the data grid
+		// Delete the rows from the data grid
 		WC_DataGrid::Grid_DeleteRows deleteRowsInfo;
 		deleteRowsInfo.targetRowNo = firstRowNo;
 		deleteRowsInfo.rowCount = rowsToRemove;
 		SendMessage(_hwndDataList, (UINT)WC_DataGrid::WindowMessages::DeleteRows, 0, (LPARAM)&deleteRowsInfo);
 
-		//Remove the rows from our state array
+		// Remove the rows from our state array
 		_rowInfo.erase(_rowInfo.begin() + firstRowNo, _rowInfo.begin() + firstRowNo + rowsToRemove);
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void GenericDataView::UpdateDataGrid(unsigned int& currentRow, bool parentLockSucceeded)
 {
-	//Attempt to obtain a lock on the target value
+	// Attempt to obtain a lock on the target value
 	unsigned int originalRowNo = currentRow;
 	bool lockSucceeded = parentLockSucceeded && LockTargetRowEntry(currentRow);
 
-	//If we successfully obtained a lock, update the data value for this row.
+	// If we successfully obtained a lock, update the data value for this row.
 	if (lockSucceeded)
 	{
-		//Retrieve info on the target row
+		// Retrieve info on the target row
 		GridRowInfo& targetRowInfo = _rowInfo[currentRow];
 
-		//Obtain the value for this child entry
+		// Obtain the value for this child entry
 		std::wstring value;
 		if (targetRowInfo.entryType == IGenericAccessGroup::GroupEntryType::Group)
 		{
@@ -842,7 +842,7 @@ void GenericDataView::UpdateDataGrid(unsigned int& currentRow, bool parentLockSu
 				}
 			}
 
-			//Update the cached lock and highlight state of the control
+			// Update the cached lock and highlight state of the control
 			bool changedLockedState = false;
 			bool changedHighlightState = false;
 			bool newLockedState = false;
@@ -853,7 +853,7 @@ void GenericDataView::UpdateDataGrid(unsigned int& currentRow, bool parentLockSu
 				std::map<const IGenericAccess::DataContext*, CachedState>::iterator cachedStateIteratorForDataValue = cachedStateIterator->second.find(dataContext);
 				if (cachedStateIteratorForDataValue != cachedStateIterator->second.end())
 				{
-					//Update the locked state of the data cell for this data value
+					// Update the locked state of the data cell for this data value
 					CachedState& cachedState = cachedStateIteratorForDataValue->second;
 					if (cachedState.supportsLocking)
 					{
@@ -862,7 +862,7 @@ void GenericDataView::UpdateDataGrid(unsigned int& currentRow, bool parentLockSu
 						cachedState.lockedState = newLockedState;
 					}
 
-					//Update the highlight state of the data cell for this data value
+					// Update the highlight state of the data cell for this data value
 					if (cachedState.supportsHighlighting)
 					{
 						newHighlightState = _model.GetGenericDataHighlightState(dataID, dataContext);
@@ -872,7 +872,7 @@ void GenericDataView::UpdateDataGrid(unsigned int& currentRow, bool parentLockSu
 				}
 			}
 
-			//Update the visual lock or highlight state of the control if required
+			// Update the visual lock or highlight state of the control if required
 			if (changedLockedState || changedHighlightState)
 			{
 				WinColor lockedBackgroundColor(255, 127, 127);
@@ -889,15 +889,15 @@ void GenericDataView::UpdateDataGrid(unsigned int& currentRow, bool parentLockSu
 			}
 		}
 
-		//Update the value cell data for this child entry
+		// Update the value cell data for this child entry
 		WC_DataGrid::Grid_UpdateCellText updateCellTextInfo;
 		updateCellTextInfo.columnID = ValueColumnID;
 		updateCellTextInfo.newText = value;
 		updateCellTextInfo.rowNo = currentRow;
 		SendMessage(_hwndDataList, (UINT)WC_DataGrid::WindowMessages::UpdateCellText, 0, (LPARAM)&updateCellTextInfo);
 
-		//If this entry is an expanded collection entry, refresh the child item list if it
-		//has been modified.
+		// If this entry is an expanded collection entry, refresh the child item list if it
+		// has been modified.
 		if ((targetRowInfo.entryType == IGenericAccessGroup::GroupEntryType::Collection) && targetRowInfo.expandState)
 		{
 			const IGenericAccessGroupCollectionEntry* collectionEntry = static_cast<const IGenericAccessGroupCollectionEntry*>(targetRowInfo.entry);
@@ -907,9 +907,9 @@ void GenericDataView::UpdateDataGrid(unsigned int& currentRow, bool parentLockSu
 				std::list<ParentCollectionInfo> parentCollectionInfo = targetRowInfo.parentCollectionInfo;
 				std::list<ExpandStateInfo> preservedExpandStateBuffer;
 				unsigned int nestingLevel = targetRowInfo.nestingLevel;
-				//Note that after the call to DepopulateDataGrid below, our targetRowInfo
-				//reference is invalidated, due to potential reallocation of the rowInfo
-				//array.
+				// Note that after the call to DepopulateDataGrid below, our targetRowInfo
+				// reference is invalidated, due to potential reallocation of the rowInfo
+				// array.
 				DepopulateDataGrid(currentRow, true, preservedExpandStateBuffer);
 				//##FIX## Make a simple entry wrapper to this recursive method
 				unsigned int currentRowTemp = currentRow;
@@ -918,11 +918,11 @@ void GenericDataView::UpdateDataGrid(unsigned int& currentRow, bool parentLockSu
 		}
 	}
 
-	//Advance the current grid row number
+	// Advance the current grid row number
 	++currentRow;
 
-	//If this child entry is a currently expanded group or collection, recurse into it to
-	//update each of its children.
+	// If this child entry is a currently expanded group or collection, recurse into it to
+	// update each of its children.
 	if (_rowInfo[originalRowNo].expandState)
 	{
 		for (unsigned int childNo = 0; childNo < _rowInfo[originalRowNo].childEntryCount; ++childNo)
@@ -931,14 +931,14 @@ void GenericDataView::UpdateDataGrid(unsigned int& currentRow, bool parentLockSu
 		}
 	}
 
-	//If we successfully obtained a lock, release the lock now.
+	// If we successfully obtained a lock, release the lock now.
 	if (lockSucceeded)
 	{
 		UnlockTargetRowEntry(originalRowNo);
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::wstring GenericDataView::BuildGroupSummaryText(const IGenericAccessGroup* group)
 {
 	std::wstringstream summaryText;
@@ -980,14 +980,14 @@ std::wstring GenericDataView::BuildGroupSummaryText(const IGenericAccessGroup* g
 	return summaryText.str();
 }
 
-//----------------------------------------------------------------------------------------
-//Collection locking methods
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Collection locking methods
+//----------------------------------------------------------------------------------------------------------------------
 bool GenericDataView::LockTargetRowEntry(unsigned int rowNo)
 {
 	//##TODO## Introduce some kind of lock buffer so that we only obtain and release locks
-	//when required. Right now, we perform the parent validation check for each child,
-	//which is quite inefficient, since we'll already have a lock in most cases.
+	// when required. Right now, we perform the parent validation check for each child,
+	// which is quite inefficient, since we'll already have a lock in most cases.
 	const GridRowInfo& targetRowInfo = _rowInfo[rowNo];
 	for (std::list<ParentCollectionInfo>::const_iterator i = targetRowInfo.parentCollectionInfo.begin(); i != targetRowInfo.parentCollectionInfo.end(); ++i)
 	{
@@ -1008,7 +1008,7 @@ bool GenericDataView::LockTargetRowEntry(unsigned int rowNo)
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void GenericDataView::UnlockTargetRowEntry(unsigned int rowNo)
 {
 	const GridRowInfo& targetRowInfo = _rowInfo[rowNo];

@@ -1,6 +1,6 @@
-//----------------------------------------------------------------------------------------
-//Enumerations
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Enumerations
+//----------------------------------------------------------------------------------------------------------------------
 enum class Processor::DisassemblyEntryType
 {
 	Code,
@@ -10,7 +10,7 @@ enum class Processor::DisassemblyEntryType
 	OffsetData
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 enum class Processor::DisassemblyDataType
 {
 	Integer,
@@ -18,9 +18,9 @@ enum class Processor::DisassemblyDataType
 	Character
 };
 
-//----------------------------------------------------------------------------------------
-//Structures
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Structures
+//----------------------------------------------------------------------------------------------------------------------
 struct Processor::LabelSubstitutionSettings
 {
 	LabelSubstitutionSettings()
@@ -34,7 +34,7 @@ struct Processor::LabelSubstitutionSettings
 	unsigned int detectedLabelCount;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct Processor::LabelSubstitutionEntry
 {
 	unsigned int targetAddress;
@@ -43,7 +43,7 @@ struct Processor::LabelSubstitutionEntry
 	std::wstring usageLabel;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct Processor::LabelEntry
 {
 	LabelEntry()
@@ -55,53 +55,53 @@ struct Processor::LabelEntry
 	bool predicted;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct Processor::BreakpointCallbackParams
 {
 	Processor* object;
 	Breakpoint* breakpoint;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct Processor::WatchpointCallbackParams
 {
 	Processor* object;
 	Watchpoint* watchpoint;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct Processor::DisassemblyAddressInfo
 {
 	DisassemblyAddressInfo()
 	:conflictsWithKnownCode(false), arrayStartingHereDefined(false), entryDefinedOutsideArray(false)
 	{}
 
-	//Comment info
+	// Comment info
 	std::wstring comment;
 
-	//Entry info
+	// Entry info
 	DisassemblyEntryType entryType;
 	unsigned int baseMemoryAddress;
 	unsigned int memoryBlockSize;
 
-	//Data info
+	// Data info
 	DisassemblyDataType dataType;
 
-	//Conflict info
+	// Conflict info
 	bool conflictsWithKnownCode;
 
-	//Offset info
+	// Offset info
 	bool relativeOffset;
 	unsigned int relativeOffsetBaseAddress;
 
-	//Array info
+	// Array info
 	bool entryDefinedOutsideArray;
 	bool arrayStartingHereDefined;
 	unsigned int arrayIDStartingHere;
 	std::set<unsigned int> arraysMemberOf;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct Processor::DisassemblyArrayInfo
 {
 	DisassemblyArrayInfo()
@@ -116,7 +116,7 @@ struct Processor::DisassemblyArrayInfo
 	bool conflictsWithKnownCode;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct Processor::DisassemblyJumpTableInfo
 {
 	unsigned int baseMemoryAddress;
@@ -124,7 +124,7 @@ struct Processor::DisassemblyJumpTableInfo
 	std::set<unsigned int> knownEntries;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct Processor::ActiveDisassemblyAnalysisData
 {
 	~ActiveDisassemblyAnalysisData()
@@ -133,7 +133,7 @@ struct Processor::ActiveDisassemblyAnalysisData
 	}
 	void Initialize()
 	{
-		//Erase all our allocated data items
+		// Erase all our allocated data items
 		for (std::map<unsigned int, DisassemblyAddressInfo*>::const_iterator i = disassemblyCodeSorted.begin(); i != disassemblyCodeSorted.end(); ++i)
 		{
 			delete i->second;
@@ -179,74 +179,74 @@ struct Processor::ActiveDisassemblyAnalysisData
 	std::vector<std::list<DisassemblyAddressInfo*>> disassemblyAddressInfo;
 };
 
-//----------------------------------------------------------------------------------------
-//Control functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Control functions
+//----------------------------------------------------------------------------------------------------------------------
 double Processor::CalculateExecutionTime(unsigned int cycles) const
 {
 	return ((double)cycles * (1000000000.0 / _reportedClockSpeed));
 }
 
-//----------------------------------------------------------------------------------------
-//Breakpoint functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Breakpoint functions
+//----------------------------------------------------------------------------------------------------------------------
 void Processor::CheckExecution(unsigned int location) const
 {
-	//Note that we split the internals of this method outside this inline wrapper function
-	//for performance. If we fold all the logic into one method, we can't effectively
-	//inline it, and we get a big performance penalty in the case that this test fails,
-	//which we expect it will almost all the time, due to a lack of inlining and needing
-	//to prepare the stack and registers for inner variables that never get used. This has
-	//been verified through profiling as a performance bottleneck.
+	// Note that we split the internals of this method outside this inline wrapper function
+	// for performance. If we fold all the logic into one method, we can't effectively
+	// inline it, and we get a big performance penalty in the case that this test fails,
+	// which we expect it will almost all the time, due to a lack of inlining and needing
+	// to prepare the stack and registers for inner variables that never get used. This has
+	// been verified through profiling as a performance bottleneck.
 	if (_breakpointExists || _breakOnNextOpcode || _stepOver)
 	{
 		CheckExecutionInternal(location);
 	}
 }
 
-//----------------------------------------------------------------------------------------
-//Watchpoint functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Watchpoint functions
+//----------------------------------------------------------------------------------------------------------------------
 void Processor::CheckMemoryRead(unsigned int location, unsigned int data) const
 {
-	//Note that we split the internals of this method outside this inline wrapper function
-	//for performance. If we fold all the logic into one method, we can't effectively
-	//inline it, and we get a big performance penalty in the case that this test fails,
-	//which we expect it will almost all the time, due to a lack of inlining and needing
-	//to prepare the stack and registers for inner variables that never get used. This has
-	//been verified through profiling as a performance bottleneck.
+	// Note that we split the internals of this method outside this inline wrapper function
+	// for performance. If we fold all the logic into one method, we can't effectively
+	// inline it, and we get a big performance penalty in the case that this test fails,
+	// which we expect it will almost all the time, due to a lack of inlining and needing
+	// to prepare the stack and registers for inner variables that never get used. This has
+	// been verified through profiling as a performance bottleneck.
 	if (_watchpointExists)
 	{
 		CheckMemoryReadInternal(location, data);
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Processor::CheckMemoryWrite(unsigned int location, unsigned int data) const
 {
-	//Note that we split the internals of this method outside this inline wrapper function
-	//for performance. If we fold all the logic into one method, we can't effectively
-	//inline it, and we get a big performance penalty in the case that this test fails,
-	//which we expect it will almost all the time, due to a lack of inlining and needing
-	//to prepare the stack and registers for inner variables that never get used. This has
-	//been verified through profiling as a performance bottleneck.
+	// Note that we split the internals of this method outside this inline wrapper function
+	// for performance. If we fold all the logic into one method, we can't effectively
+	// inline it, and we get a big performance penalty in the case that this test fails,
+	// which we expect it will almost all the time, due to a lack of inlining and needing
+	// to prepare the stack and registers for inner variables that never get used. This has
+	// been verified through profiling as a performance bottleneck.
 	if (_watchpointExists)
 	{
 		CheckMemoryWriteInternal(location, data);
 	}
 }
 
-//----------------------------------------------------------------------------------------
-//Trace functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Trace functions
+//----------------------------------------------------------------------------------------------------------------------
 void Processor::RecordTrace(unsigned int pc)
 {
-	//Note that we split the internals of this method outside this inline wrapper function
-	//for performance. If we fold all the logic into one method, we can't effectively
-	//inline it, and we get a big performance penalty in the case that this test fails,
-	//which we expect it will almost all the time, due to a lack of inlining and needing
-	//to prepare the stack and registers for inner variables that never get used. This has
-	//been verified through profiling as a performance bottleneck.
+	// Note that we split the internals of this method outside this inline wrapper function
+	// for performance. If we fold all the logic into one method, we can't effectively
+	// inline it, and we get a big performance penalty in the case that this test fails,
+	// which we expect it will almost all the time, due to a lack of inlining and needing
+	// to prepare the stack and registers for inner variables that never get used. This has
+	// been verified through profiling as a performance bottleneck.
 	if (_traceLogEnabled)
 	{
 		return RecordTraceInternal(pc);

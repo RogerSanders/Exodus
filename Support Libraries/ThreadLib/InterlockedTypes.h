@@ -2,9 +2,9 @@
 #define __INTERLOCKEDTYPES_H__
 #include "WindowsSupport/WindowsSupport.pkg"
 
-//In VS2005, these intrinsics are defined within the WinNT.h file as well as intrin.h, so
-//including both results in a compilation error. We work around that issue here by forcing
-//the second set of definitions in intrin.h to use a different name.
+// In VS2005, these intrinsics are defined within the WinNT.h file as well as intrin.h, so
+// including both results in a compilation error. We work around that issue here by forcing
+// the second set of definitions in intrin.h to use a different name.
 #if _MSC_VER == 1400
 #define _interlockedbittestandset _interlockedbittestandset_NAME_CHANGED_TO_AVOID_MSVS2005_ERROR
 #define _interlockedbittestandreset _interlockedbittestandreset_NAME_CHANGED_TO_AVOID_MSVS2005_ERROR
@@ -19,7 +19,7 @@
 #undef _interlockedbittestandreset64
 #endif
 
-//Ensure these methods are flagged as intrinsics, to avoid linking errors.
+// Ensure these methods are flagged as intrinsics, to avoid linking errors.
 #ifdef _interlockedbittestandset
 #pragma intrinsic(_interlockedbittestandset)
 #endif

@@ -4,14 +4,14 @@
 class IMenuHandler
 {
 public:
-	//Constructors
+	// Constructors
 	virtual ~IMenuHandler() = 0 {}
 
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisIMenuHandlerVersion() { return 1; }
 	virtual unsigned int GetIMenuHandlerVersion() const = 0;
 
-	//Menu item handler functions
+	// Menu item handler functions
 	virtual void HandleMenuItemSelect(int menuItemID) = 0;
 };
 

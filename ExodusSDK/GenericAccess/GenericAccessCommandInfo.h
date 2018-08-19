@@ -6,13 +6,13 @@
 class GenericAccessCommandInfo :public IGenericAccessCommandInfo
 {
 public:
-	//Constructors
+	// Constructors
 	template<class T> inline GenericAccessCommandInfo(T id);
 
-	//Interface version functions
+	// Interface version functions
 	virtual unsigned int GetIGenericAccessCommandInfoVersion() const;
 
-	//Command info functions
+	// Command info functions
 	virtual unsigned int GetID() const;
 	inline GenericAccessCommandInfo* SetID(unsigned int id);
 	virtual bool GetCanExecute() const;

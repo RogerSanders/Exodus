@@ -6,31 +6,31 @@
 #include <map>
 #include <set>
 
-//Notes:
-//-Locks are re-entrant. The same calling thread can take multiple write locks for example
+// Notes:
+// -Locks are re-entrant. The same calling thread can take multiple write locks for example
 // without deadlocking itself.
-//-Read locks can be taken by multiple threads at any one given time
-//-Write locks are exclusive, and can only be held by one thread at any given time, and
+// -Read locks can be taken by multiple threads at any one given time
+// -Write locks are exclusive, and can only be held by one thread at any given time, and
 // no read locks are allowed at the same time as a write lock, unless those read locks are
 // also held by the thread with the write lock, or are held by other threads waiting for a
 // write lock.
-//-A single thread can hold both a read and write lock at the same time, however, if a
+// -A single thread can hold both a read and write lock at the same time, however, if a
 // read lock is held, and a write lock is then obtained, the locked item is permitted to
 // change while the write lock is being obtained. This means any state previously observed
 // on the target item is potentially invalidated at the time a write lock is obtained,
 // regardless of whether a read lock was already held. If this was not the case, two
 // threads could deadlock each other if they both obtained read locks, then both requested
 // write locks.
-//-Write lock requests will not be blocked forever by constant overlapping requests for
+// -Write lock requests will not be blocked forever by constant overlapping requests for
 // read locks from other threads, as write lock attempts take priority, and attempts to
 // obtain read locks are blocked while any requests for write locks are pending.
 class ReadWriteLock
 {
 public:
-	//Constructors
+	// Constructors
 	ReadWriteLock();
 
-	//Lock functions
+	// Lock functions
 	void ObtainReadLock();
 	bool TryObtainReadLock();
 	void ReleaseReadLock();
@@ -39,19 +39,19 @@ public:
 	void ReleaseWriteLock();
 
 private:
-	//Lock functions
+	// Lock functions
 	bool IsNewWriteLockAvailableForThread(DWORD threadID);
 
 private:
-	//Thread synchronization
+	// Thread synchronization
 	std::mutex _accessMutex;
 	std::condition_variable _writeLockReleased;
 	std::condition_variable _writeLockAvailable;
 
-	//Read lock info
+	// Read lock info
 	std::map<DWORD, unsigned int> _readLockCount;
 
-	//Write lock info
+	// Write lock info
 	bool _writeLocked;
 	DWORD _writeLockThreadID;
 	unsigned int _writeLockCount;

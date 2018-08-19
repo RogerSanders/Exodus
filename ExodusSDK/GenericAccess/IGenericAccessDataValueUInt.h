@@ -5,21 +5,21 @@
 class IGenericAccessDataValueUInt :public IGenericAccessDataValue
 {
 public:
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisIGenericAccessDataValueUIntVersion() { return 1; }
 	virtual unsigned int GetIGenericAccessDataValueUIntVersion() const = 0;
 
-	//Value read functions
+	// Value read functions
 	virtual unsigned int GetValue() const = 0;
 
-	//Value display functions
+	// Value display functions
 	virtual IntDisplayMode GetDisplayMode() const = 0;
 	virtual void SetDisplayMode(IntDisplayMode state) = 0;
 	virtual unsigned int GetMinChars() const = 0;
 	virtual void SetMinChars(unsigned int state) = 0;
 	virtual unsigned int CalculateDisplayChars(IntDisplayMode displayMode, unsigned int minValue, unsigned int maxValue) const = 0;
 
-	//Value limit functions
+	// Value limit functions
 	virtual unsigned int GetMinValue() const = 0;
 	virtual void SetMinValue(unsigned int state) = 0;
 	virtual unsigned int GetMaxValue() const = 0;

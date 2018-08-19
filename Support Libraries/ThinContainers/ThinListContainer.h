@@ -4,25 +4,25 @@
 template<class T> struct ThinListContainer
 {
 public:
-	//Typedefs
+	// Typedefs
 	typedef ThinList<T> Element;
 
-	//Constructors
+	// Constructors
 	ThinListContainer();
 	~ThinListContainer();
 
-	//Iteration functions
+	// Iteration functions
 	Element* GetFirstEntry() const;
 
-	//Insert functions
+	// Insert functions
 	void PushToFront(const T& entry);
 	void InsertAfter(Element* element, const T& entry);
 
-	//Erase functions
+	// Erase functions
 	void EraseFromBackToElement(Element* targetElement);
 	void Clear();
 
-	//Query functions
+	// Query functions
 	bool Empty() const;
 
 public:

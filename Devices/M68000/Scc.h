@@ -35,7 +35,7 @@ public:
 //	                                        |----------<ea>---------|
 		conditionCode = (ConditionCode)data.GetDataSegment(8, 4);
 
-		//Scc	<ea>
+		// Scc	<ea>
 		_target.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), BITCOUNT_BYTE, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
 		AddInstructionSize(_target.ExtensionSize());
 
@@ -55,19 +55,19 @@ public:
 		double additionalTime = 0;
 		bool result = ConditionCodeTrue(cpu, conditionCode);
 
-		//Perform the operation
+		// Perform the operation
 		M68000Byte temp;
 		temp = (result)? 0xFF: 0x00;
 		additionalTime += _target.Write(cpu, temp, GetInstructionRegister());
 
-		//Calculate the additional execution time
+		// Calculate the additional execution time
 		ExecuteTime additionalCycles;
 		if (result && ((_target.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect) || (_target.GetAddressMode() == EffectiveAddress::Mode::AddRegDirect)))
 		{
 			additionalCycles.Set(2, 0, 0);
 		}
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime) + additionalCycles;
 	}
@@ -82,5 +82,5 @@ private:
 	EffectiveAddress _target;
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #endif

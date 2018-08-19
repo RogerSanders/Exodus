@@ -73,7 +73,7 @@ inline void DeleteSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarsha
 template<class ElementType>
 inline void DeleteSTLContainerKeyMarshallers(INestedMarshallerBase* nestedMarshallerArray[], size_t nestedMarshallerArrayIndex, const ElementType* elementPointer);
 
-} //Close namespace Internal
-} //Close namespace MarshalSupport
+} // Close namespace Internal
+} // Close namespace MarshalSupport
 #include "DeleteSTLContainerKeyMarshallers.inl"
 #endif

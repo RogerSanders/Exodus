@@ -5,37 +5,37 @@
 #include "Device/Device.pkg"
 
 //##TODO## Introduce a new interface for classes derived from this class, which
-//provides a high-performance alternative to the Read/Write Transparent functions
-//which specifically provide memory access for the debugger. The functions should
-//work with arrays of data rather than individual values. In our TimedRAM class, we
-//will implement the functions to work on the committed state rather than building
-//information on the latest state. Actually, I'm not sure this will work, because
-//isn't the "committed" state for a TimedRAM buffer defined as the baseline which
-//has been advanced to, which is governed by our render thread?
+// provides a high-performance alternative to the Read/Write Transparent functions
+// which specifically provide memory access for the debugger. The functions should
+// work with arrays of data rather than individual values. In our TimedRAM class, we
+// will implement the functions to work on the committed state rather than building
+// information on the latest state. Actually, I'm not sure this will work, because
+// isn't the "committed" state for a TimedRAM buffer defined as the baseline which
+// has been advanced to, which is governed by our render thread?
 class MemoryRead :public Device, public IMemory
 {
 public:
-	//Constructors
+	// Constructors
 	MemoryRead(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 
-	//Interface version functions
+	// Interface version functions
 	virtual unsigned int GetIMemoryVersion() const;
 
-	//Initialization functions
+	// Initialization functions
 	virtual bool Construct(IHierarchicalStorageNode& node);
 
-	//Memory size functions
+	// Memory size functions
 	virtual unsigned int GetMemoryEntryCount() const;
 	void SetMemoryEntryCount(unsigned int memoryEntryCount);
 
 protected:
-	//Memory locking functions
+	// Memory locking functions
 	virtual bool IsMemoryLockingSupported() const;
 	virtual void LockMemoryBlock(unsigned int location, unsigned int size, bool state);
 	virtual bool IsAddressLocked(unsigned int location) const;
 
 private:
-	//Memory size
+	// Memory size
 	unsigned int _memoryEntryCount;
 };
 

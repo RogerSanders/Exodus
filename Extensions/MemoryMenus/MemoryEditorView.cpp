@@ -3,9 +3,9 @@
 #include "WindowsSupport/WindowsSupport.pkg"
 #include "WindowsControls/WindowsControls.pkg"
 
-//----------------------------------------------------------------------------------------
-//Constructors
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Constructors
+//----------------------------------------------------------------------------------------------------------------------
 MemoryEditorView::MemoryEditorView(IUIManager& uiManager, MemoryEditorViewPresenter& presenter, IMemory& model)
 :ViewBase(uiManager, presenter), _presenter(presenter), _model(model)
 {
@@ -14,9 +14,9 @@ MemoryEditorView::MemoryEditorView(IUIManager& uiManager, MemoryEditorViewPresen
 	SetDockableViewType(true, DockPos::Right, false, L"Exodus.VerticalWatchers");
 }
 
-//----------------------------------------------------------------------------------------
-//Member window procedure
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Member window procedure
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT MemoryEditorView::WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	WndProcDialogImplementGiveFocusToChildWindowOnClick(hwnd, msg, wparam, lparam);
@@ -42,12 +42,12 @@ LRESULT MemoryEditorView::WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPAR
 	return DefWindowProc(hwnd, msg, wparam, lparam);
 }
 
-//----------------------------------------------------------------------------------------
-//Event handlers
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Event handlers
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT MemoryEditorView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	//Calculate the maximum number of significant digits in the address
+	// Calculate the maximum number of significant digits in the address
 	unsigned int totalMemorySize = (_model.GetMemoryEntryCount() * _model.GetMemoryEntrySizeInBytes());
 	unsigned int addressWidth = 0;
 	unsigned int maxAddressValue = totalMemorySize - 1;
@@ -62,10 +62,10 @@ LRESULT MemoryEditorView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	}
 	addressWidth /= 4;
 
-	//Register the HexEdit window class
+	// Register the HexEdit window class
 	WC_HexEdit::RegisterWindowClass(GetAssemblyHandle());
 
-	//Create the HexEdit control
+	// Create the HexEdit control
 	_hwndMem = CreateWindowEx(WS_EX_CLIENTEDGE, WC_HexEdit::WindowClassName, L"", WS_CHILD | WS_VSCROLL, 0, 0, 0, 0, hwnd, (HMENU)HexEditControlID, GetAssemblyHandle(), NULL);
 	SendMessage(_hwndMem, (UINT)WC_HexEdit::WindowMessages::SetWindowSize, totalMemorySize, 0);
 	SendMessage(_hwndMem, (UINT)WC_HexEdit::WindowMessages::SetWindowAddressWidth, addressWidth, 0);
@@ -88,7 +88,7 @@ LRESULT MemoryEditorView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT MemoryEditorView::msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	KillTimer(hwnd, 1);
@@ -96,7 +96,7 @@ LRESULT MemoryEditorView::msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	return DefWindowProc(hwnd, WM_DESTROY, wparam, lparam);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT MemoryEditorView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	unsigned int totalMemorySize = (_model.GetMemoryEntryCount() * _model.GetMemoryEntrySizeInBytes());
@@ -133,7 +133,7 @@ LRESULT MemoryEditorView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT MemoryEditorView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	if (LOWORD(wparam) == HexEditControlID)
@@ -262,31 +262,31 @@ LRESULT MemoryEditorView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT MemoryEditorView::msgWM_SIZE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	//Dimensions and relative positions of the controls
+	// Dimensions and relative positions of the controls
 	unsigned int hexEditControlLeftOffset = 0;
 	unsigned int hexEditControlRightOffset = hexEditControlLeftOffset;
 	unsigned int hexEditControlTopOffset = 0;
 	unsigned int hexEditControlBottomOffset = 0;
 
-	//Read the new client size of the window
+	// Read the new client size of the window
 	RECT rect;
 	GetClientRect(hwnd, &rect);
 	unsigned int controlWidth = rect.right;
 	unsigned int controlHeight = rect.bottom;
 
-	//Resize the HexEdit control to match
+	// Resize the HexEdit control to match
 	MoveWindow(_hwndMem, hexEditControlLeftOffset, hexEditControlTopOffset, controlWidth - hexEditControlLeftOffset - hexEditControlRightOffset, controlHeight - hexEditControlTopOffset - hexEditControlBottomOffset, TRUE);
 
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT MemoryEditorView::msgWM_PAINT(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	//Fill the background of the control with the dialog background colour
+	// Fill the background of the control with the dialog background colour
 	HDC hdc = GetDC(hwnd);
 	HBRUSH hbrush = CreateSolidBrush(GetSysColor(COLOR_BTNFACE));
 	HBRUSH hbrushOld = (HBRUSH)SelectObject(hdc, hbrush);
@@ -302,14 +302,14 @@ LRESULT MemoryEditorView::msgWM_PAINT(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	return DefWindowProc(hwnd, WM_PAINT, wparam, lparam);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT MemoryEditorView::msgWM_SETFOCUS(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	SetFocus(_hwndMem);
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT MemoryEditorView::msgWM_KILLFOCUS(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	SendMessage(_hwndMem, WM_KILLFOCUS, NULL, 0);

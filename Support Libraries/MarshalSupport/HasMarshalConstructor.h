@@ -15,7 +15,7 @@ template<class T>
 struct has_marshal_constructor
 {
 public:
-	//Result
+	// Result
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
 	static const bool value = std::is_constructible<T, marshal_object_tag, const T&>::value;
 #else
@@ -23,6 +23,6 @@ public:
 #endif
 };
 
-} //Close namespace Internal
-} //Close namespace MarshalSupport
+} // Close namespace Internal
+} // Close namespace MarshalSupport
 #endif

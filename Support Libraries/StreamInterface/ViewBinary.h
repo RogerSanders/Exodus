@@ -8,17 +8,17 @@ namespace Stream {
 class ViewBinary
 {
 public:
-	//Constructors
+	// Constructors
 	inline ViewBinary(IStreamNonSeekable& stream);
 
-	//State functions
+	// State functions
 	inline bool NoErrorsOccurred() const;
 	inline void ClearErrorState();
 	inline bool IsAtEnd() const;
 	inline IStream::ByteOrder GetViewByteOrder() const;
 	inline void SetViewByteOrder(IStream::ByteOrder byteOrder);
 
-	//Binary stream functions
+	// Binary stream functions
 	template<class T> ViewBinary& operator>>(T& data);
 	template<class T> ViewBinary& operator<<(const T& data);
 	template<class T> ViewBinary& operator>>(std::vector<T>& data);
@@ -62,6 +62,6 @@ private:
 	bool _noErrorState;
 };
 
-} //Close namespace Stream
+} // Close namespace Stream
 #include "ViewBinary.inl"
 #endif

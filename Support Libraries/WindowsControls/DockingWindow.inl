@@ -1,6 +1,6 @@
-//----------------------------------------------------------------------------------------
-//Enumerations
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Enumerations
+//----------------------------------------------------------------------------------------------------------------------
 enum class DockingWindow::WindowMessages :unsigned int
 {
 	WMBase = WM_USER + 0x100,
@@ -20,7 +20,7 @@ enum class DockingWindow::WindowMessages :unsigned int
 	PerformTabHitTest
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 enum class DockingWindow::ContentWindowInfo :unsigned int
 {
 	Handle = 0x00000001,
@@ -33,7 +33,7 @@ inline bool operator!=(unsigned int a, DockingWindow::ContentWindowInfo b) { ret
 inline bool operator==(DockingWindow::ContentWindowInfo a, unsigned int b) { return (unsigned int)a == b; }
 inline bool operator==(unsigned int a, DockingWindow::ContentWindowInfo b) { return (unsigned int)a == b; }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 enum class DockingWindow::DockedWindowInfo :unsigned int
 {
 	Handle = 0x00000001
@@ -45,16 +45,16 @@ inline bool operator!=(unsigned int a, DockingWindow::DockedWindowInfo b) { retu
 inline bool operator==(DockingWindow::DockedWindowInfo a, unsigned int b) { return (unsigned int)a == b; }
 inline bool operator==(unsigned int a, DockingWindow::DockedWindowInfo b) { return (unsigned int)a == b; }
 
-//----------------------------------------------------------------------------------------
-//Structures
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Structures
+//----------------------------------------------------------------------------------------------------------------------
 struct DockingWindow::AddContentWindowParams
 {
 	HWND hwnd;
 	const wchar_t* windowTitle;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct DockingWindow::ModifyContentWindowParams
 {
 	ContentWindowInfo contentWindowInfo;
@@ -62,7 +62,7 @@ struct DockingWindow::ModifyContentWindowParams
 	const wchar_t* windowTitle;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct DockingWindow::AddDockedWindowParams
 {
 	AddDockedWindowParams()
@@ -75,7 +75,7 @@ struct DockingWindow::AddDockedWindowParams
 	bool autoHide;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct DockingWindow::GetContentWindowInfo
 {
 	GetContentWindowInfo()
@@ -88,7 +88,7 @@ struct DockingWindow::GetContentWindowInfo
 	int tabIndex;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct DockingWindow::GetDockedWindowInfo
 {
 	GetDockedWindowInfo()
@@ -102,7 +102,7 @@ struct DockingWindow::GetDockedWindowInfo
 	int desiredHeight;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct DockingWindow::ChildContainerEntry
 {
 	IDockingWindow* childContainer;
@@ -110,7 +110,7 @@ struct DockingWindow::ChildContainerEntry
 	bool autoHide;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct DockingWindow::ContentEntry
 {
 	ContentEntry()
@@ -124,7 +124,7 @@ struct DockingWindow::ContentEntry
 	IDockingWindow* contentWindowAsDockingWindow;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct DockingWindow::AutoHideDockTab
 {
 	AutoHideDockTab()
@@ -138,7 +138,7 @@ struct DockingWindow::AutoHideDockTab
 	int tabHeight;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct DockingWindow::AutoHideDockTabGroup
 {
 	AutoHideDockTabGroup()
@@ -149,7 +149,7 @@ struct DockingWindow::AutoHideDockTabGroup
 	std::list<AutoHideDockTab> dockTabs;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct DockingWindow::AutoHideDockInfo
 {
 	AutoHideDockInfo()
@@ -162,7 +162,7 @@ struct DockingWindow::AutoHideDockInfo
 	std::list<AutoHideDockTabGroup> dockTabGroups;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct DockingWindow::TabRenderInfo
 {
 	TabRenderInfo(AutoHideDockTab& adockTabInfo, const std::wstring& awindowTitle)
@@ -181,17 +181,17 @@ struct DockingWindow::TabRenderInfo
 	int borderHeight;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct DockingWindow::DockingWindowDropTargetInfo :public IDockingWindowDropTargetInfo
 {
 public:
-	//Constructors
+	// Constructors
 	virtual void Destroy()
 	{
 		delete this;
 	}
 
-	//Info functions
+	// Info functions
 	virtual HWND GetOwningDockingWindow()
 	{
 		return owningDockingWindow;

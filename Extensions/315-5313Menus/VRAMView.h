@@ -9,35 +9,35 @@
 class VRAMView :public ViewBase
 {
 public:
-	//Constructors
+	// Constructors
 	VRAMView(IUIManager& uiManager, VRAMViewPresenter& presenter, IS315_5313& model);
 
 protected:
-	//Member window procedure
+	// Member window procedure
 	virtual LRESULT WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
 private:
-	//Event handlers
+	// Event handlers
 	LRESULT msgWM_CREATE(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_SIZE(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_ERASEBKGND(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_BOUNCE(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
-	//Control dialog window procedure
+	// Control dialog window procedure
 	INT_PTR WndProcControlDialog1(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 	INT_PTR WndProcControlDialog2(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
-	//Control dialog event handlers
+	// Control dialog event handlers
 	INT_PTR msgControlDialog1WM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam);
 	INT_PTR msgControlDialog1WM_COMMAND(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgControlDialog2WM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam);
 	INT_PTR msgControlDialog2WM_COMMAND(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
-	//Render window procedure
+	// Render window procedure
 	LRESULT WndProcRender(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
-	//Render window event handlers
+	// Render window event handlers
 	LRESULT msgRenderWM_CREATE(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgRenderWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgRenderWM_PAINT(HWND hwnd, WPARAM wParam, LPARAM lParam);
@@ -45,18 +45,18 @@ private:
 	LRESULT msgRenderWM_MOUSEMOVE(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgRenderWM_MOUSELEAVE(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
-	//Render window helper methods
+	// Render window helper methods
 	void UpdateRenderWindowSizeIfRequired();
 
-	//Details dialog window procedure
+	// Details dialog window procedure
 	INT_PTR WndProcDetails(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
-	//Details dialog event handlers
+	// Details dialog event handlers
 	INT_PTR msgDetailsWM_INITDIALOG(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgDetailsWM_TIMER(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
 private:
-	//Enumerations
+	// Enumerations
 	enum BlockSize
 	{
 		BLOCKSIZE_AUTO,
@@ -73,7 +73,7 @@ private:
 		PALETTE_HIGHLOW = 5
 	};
 
-	//Structures
+	// Structures
 	struct TileEntry
 	{
 		TileEntry()

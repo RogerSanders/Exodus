@@ -9,20 +9,20 @@ using namespace MarshalSupport::Operators;
 class IGenericAccessGroup :public IGenericAccessGroupEntry
 {
 public:
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisIGenericAccessGroupVersion() { return 1; }
 	virtual unsigned int GetIGenericAccessGroupVersion() const = 0;
 
-	//Group info functions
+	// Group info functions
 	virtual Marshal::Ret<std::wstring> GetName() const = 0;
 	virtual bool GetOpenByDefault() const = 0;
 
-	//Entry functions
+	// Entry functions
 	virtual unsigned int GetEntryCount() const = 0;
 	virtual Marshal::Ret<std::list<IGenericAccessGroupEntry*>> GetEntries() const = 0;
 
 protected:
-	//Parent functions
+	// Parent functions
 	inline void SetParentForTargetEntry(IGenericAccessGroupEntry* entry, IGenericAccessGroup* parent) const;
 };
 

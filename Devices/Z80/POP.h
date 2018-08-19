@@ -30,9 +30,9 @@ public:
 		_source.SetIndexState(GetIndexState(), GetIndexOffset());
 		_target.SetIndexState(GetIndexState(), GetIndexOffset());
 
-		//POP qq		11qq0001
-		//POP IX		11011101 11100001
-		//POP IY		11111101 11100001
+		// POP qq		11qq0001
+		// POP IX		11011101 11100001
+		// POP IY		11111101 11100001
 		_source.SetMode(EffectiveAddress::Mode::SPPostInc);
 		switch (data.GetDataSegment(4, 2))
 		{
@@ -61,11 +61,11 @@ public:
 		double additionalTime = 0;
 		Z80Word result;
 
-		//Perform the operation
+		// Perform the operation
 		additionalTime += _source.Read(cpu, location, result);
 		additionalTime += _target.Write(cpu, location, result);
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -75,5 +75,5 @@ private:
 	EffectiveAddress _target;
 };
 
-} //Close namespace Z80
+} // Close namespace Z80
 #endif

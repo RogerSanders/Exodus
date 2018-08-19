@@ -8,19 +8,19 @@ using namespace MarshalSupport::Operators;
 class IDeviceInfo
 {
 public:
-	//Typedefs
+	// Typedefs
 	typedef IDevice* (*AllocatorPointer)(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID);
 	typedef void (*DestructorPointer)(IDevice* device);
 
 public:
-	//Constructors
+	// Constructors
 	virtual ~IDeviceInfo() = 0 {}
 
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisIDeviceInfoVersion() { return 1; }
 	virtual unsigned int GetIDeviceInfoVersion() const = 0;
 
-	//Getters
+	// Getters
 	virtual AllocatorPointer GetAllocator() const = 0;
 	virtual DestructorPointer GetDestructor() const = 0;
 	virtual Marshal::Ret<std::wstring> GetDeviceClassName() const = 0;
@@ -29,7 +29,7 @@ public:
 	virtual Marshal::Ret<std::wstring> GetDeviceCopyright() const = 0;
 	virtual Marshal::Ret<std::wstring> GetDeviceComments() const = 0;
 
-	//Setters
+	// Setters
 	virtual void SetDeviceSettings(AllocatorPointer allocator, DestructorPointer destructor, const Marshal::In<std::wstring>& deviceClassName, const Marshal::In<std::wstring>& deviceImplementationName, unsigned int deviceVersionNo, const Marshal::In<std::wstring>& deviceCopyright, const Marshal::In<std::wstring>& deviceComments) = 0;
 	virtual void SetDeviceAllocators(AllocatorPointer allocator, DestructorPointer destructor) = 0;
 	virtual void SetDeviceClassName(const Marshal::In<std::wstring>& deviceClassName) = 0;

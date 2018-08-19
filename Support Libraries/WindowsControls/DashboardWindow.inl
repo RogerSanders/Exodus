@@ -1,6 +1,6 @@
-//----------------------------------------------------------------------------------------
-//Enumerations
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Enumerations
+//----------------------------------------------------------------------------------------------------------------------
 enum class DashboardWindow::WindowMessages :unsigned int
 {
 	WMBase = WM_USER + 0x100,
@@ -14,7 +14,7 @@ enum class DashboardWindow::WindowMessages :unsigned int
 	LoadLayoutFromDividerList
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 enum class DashboardWindow::InsertDirection
 {
 	Top,
@@ -23,7 +23,7 @@ enum class DashboardWindow::InsertDirection
 	Right
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 enum class DashboardWindow::DockTargetPos
 {
 	Left,
@@ -33,9 +33,9 @@ enum class DashboardWindow::DockTargetPos
 	Center
 };
 
-//----------------------------------------------------------------------------------------
-//Structures
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Structures
+//----------------------------------------------------------------------------------------------------------------------
 struct DashboardWindow::AddWindowParams
 {
 	AddWindowParams(HWND awindowHandle)
@@ -51,7 +51,7 @@ struct DashboardWindow::AddWindowParams
 	double regionProportion;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct DashboardWindow::DividerListEntry
 {
 	int dividerID;
@@ -59,7 +59,7 @@ struct DashboardWindow::DividerListEntry
 	int dividerDistanceAlongParent;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct DashboardWindow::DividerContentEntry
 {
 	DividerContentEntry()
@@ -72,7 +72,7 @@ struct DashboardWindow::DividerContentEntry
 	Divider* followingContentDivider;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct DashboardWindow::Divider
 {
 	Divider* startAnchorDivider;
@@ -86,7 +86,7 @@ struct DashboardWindow::Divider
 	int cachedHeight;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct DashboardWindow::ContentRegion
 {
 	ContentRegion()
@@ -109,17 +109,17 @@ struct DashboardWindow::ContentRegion
 	int windowPosY;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct DashboardWindow::DashboardWindowDropTargetInfo :public IDockingWindowDropTargetInfo
 {
 public:
-	//Constructors
+	// Constructors
 	virtual void Destroy()
 	{
 		delete this;
 	}
 
-	//Info functions
+	// Info functions
 	virtual HWND GetOwningDockingWindow()
 	{
 		return owningDockingWindow;
@@ -133,7 +133,7 @@ public:
 	HWND owningDockingWindow;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct DashboardWindow::DividerSplitPosition
 {
 	DividerSplitPosition()
@@ -149,7 +149,7 @@ struct DashboardWindow::DividerSplitPosition
 	Divider* endFollowingMergeDivider;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct DashboardWindow::DividerExtendButtonPosition
 {
 	DividerExtendButtonPosition()

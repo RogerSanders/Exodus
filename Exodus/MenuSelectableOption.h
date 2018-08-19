@@ -5,30 +5,30 @@
 class MenuSelectableOption :public IMenuSelectableOption
 {
 public:
-	//Constructors
+	// Constructors
 	MenuSelectableOption(IMenuHandler& menuHandler, int menuItemID, const std::wstring& title);
 
-	//Interface version functions
+	// Interface version functions
 	virtual unsigned int GetIMenuItemVersion() const;
 	virtual unsigned int GetIMenuSelectableOptionVersion() const;
 
-	//Type functions
+	// Type functions
 	virtual Type GetType() const;
 
-	//Menu title functions
+	// Menu title functions
 	virtual Marshal::Ret<std::wstring> GetMenuTitle() const;
 
-	//Menu handler functions
+	// Menu handler functions
 	virtual IMenuHandler& GetMenuHandler() const;
 	virtual int GetMenuItemID() const;
 
-	//Physical menu functions
+	// Physical menu functions
 	HMENU GetPhysicalMenuHandle() const;
 	void SetPhysicalMenuHandle(HMENU physicalMenuHandle);
 	unsigned int GetPhysicalMenuItemID() const;
 	void SetPhysicalMenuItemID(unsigned int physicalMenuItemID);
 
-	//Checked state functions
+	// Checked state functions
 	virtual bool GetCheckedState() const;
 	virtual void SetCheckedState(bool checkedState);
 

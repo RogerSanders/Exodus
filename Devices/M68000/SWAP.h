@@ -42,19 +42,19 @@ public:
 		M68000Long op1;
 		M68000Long result;
 
-		//Perform the operation
+		// Perform the operation
 		additionalTime += _target.Read(cpu, op1, GetInstructionRegister());
 		result.SetLowerBits(BITCOUNT_WORD, op1.GetUpperBits(BITCOUNT_WORD));
 		result.SetUpperBits(BITCOUNT_WORD, op1.GetLowerBits(BITCOUNT_WORD));
 		additionalTime += _target.Write(cpu, result, GetInstructionRegister());
 
-		//Set the flag results
+		// Set the flag results
 		cpu->SetN(result.Negative());
 		cpu->SetZ(result.Zero());
 		cpu->SetV(false);
 		cpu->SetC(false);
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -68,5 +68,5 @@ private:
 	EffectiveAddress _target;
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #endif

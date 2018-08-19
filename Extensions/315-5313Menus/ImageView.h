@@ -8,33 +8,33 @@
 class ImageView :public ViewBase
 {
 public:
-	//Constructors
+	// Constructors
 	ImageView(IUIManager& uiManager, ImageViewPresenter& presenter, IS315_5313& model);
 
 protected:
-	//Member window procedure
+	// Member window procedure
 	virtual LRESULT WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
 private:
-	//Event handlers
+	// Event handlers
 	LRESULT msgWM_CREATE(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_SIZE(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_NCHITTEST(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_TIMER(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
-	//Child window procedure
+	// Child window procedure
 	LRESULT WndProcChildGroup(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
-	//Child event handlers
+	// Child event handlers
 	LRESULT msgChildWM_KEYUP(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgChildWM_KEYDOWN(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgChildWM_SYSKEYDOWN(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
-	//OpenGL window procedure
+	// OpenGL window procedure
 	LRESULT WndProcRender(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
-	//OpenGL window event handlers
+	// OpenGL window event handlers
 	LRESULT msgRenderWM_CREATE(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgRenderWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgRenderWM_SIZE(HWND hwnd, WPARAM wParam, LPARAM lParam);
@@ -43,18 +43,18 @@ private:
 	LRESULT msgRenderWM_MOUSELEAVE(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	void HidePixelInfoWindow();
 
-	//Image update functions
+	// Image update functions
 	void UpdateImage();
 
-	//Screen mode functions
+	// Screen mode functions
 	void UpdateOpenGLViewport();
 	void UpdateRenderWindowSize();
 	void SetFullScreen(bool fullScreenModeNew);
 
-	//Pixel info dialog window procedure
+	// Pixel info dialog window procedure
 	INT_PTR WndProcPixelInfo(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
-	//Pixel info dialog event handlers
+	// Pixel info dialog event handlers
 	INT_PTR msgPixelInfoWM_INITDIALOG(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgPixelInfoWM_TIMER(HWND hwnd, WPARAM wParam, LPARAM lParam);
 

@@ -7,26 +7,26 @@
 class EventLogView :public ViewBase
 {
 public:
-	//Constructors
+	// Constructors
 	EventLogView(IUIManager& uiManager, EventLogViewPresenter& presenter, ISystemGUIInterface& model);
 
 protected:
-	//Member window procedure
+	// Member window procedure
 	virtual LRESULT WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
 private:
-	//Event handlers
+	// Event handlers
 	LRESULT msgWM_CREATE(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_SIZE(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_ERASEBKGND(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_TIMER(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
-	//Panel dialog window procedure
+	// Panel dialog window procedure
 	static INT_PTR CALLBACK WndProcPanelStatic(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 	INT_PTR WndProcPanel(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
-	//Panel dialog event handlers
+	// Panel dialog event handlers
 	INT_PTR msgPanelWM_INITDIALOG(HWND hwnd, WPARAM wParam, LPARAM lParam);
 	INT_PTR msgPanelWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam);
 

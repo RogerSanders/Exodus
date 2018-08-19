@@ -71,6 +71,6 @@ template<class... Args>
 struct nested_container_has_keys<std::tuple<Args...>> { static const bool value = true; };
 #endif
 
-} //Close namespace Internal
-} //Close namespace MarshalSupport
+} // Close namespace Internal
+} // Close namespace MarshalSupport
 #endif

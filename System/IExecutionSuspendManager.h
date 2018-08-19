@@ -4,10 +4,10 @@
 class IExecutionSuspendManager
 {
 public:
-	//Constructors
+	// Constructors
 	virtual ~IExecutionSuspendManager() = 0 {}
 
-	//Suspend functions
+	// Suspend functions
 	virtual void EnableTimesliceExecutionSuspend() = 0;
 	virtual void DisableTimesliceExecutionSuspend() = 0;
 	virtual bool AllDevicesSuspended(volatile ReferenceCounterType& suspendedThreadCount, volatile ReferenceCounterType& remainingThreadCount) const = 0;

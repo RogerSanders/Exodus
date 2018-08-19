@@ -7,10 +7,10 @@ using namespace MarshalSupport::Operators;
 template<class B> class GenericAccessDataValueBase :public B
 {
 public:
-	//Interface version functions
+	// Interface version functions
 	virtual inline unsigned int GetIGenericAccessDataValueVersion() const;
 
-	//Value write functions
+	// Value write functions
 	virtual inline bool SetValueBool(bool value);
 	virtual inline bool SetValueInt(int value);
 	virtual inline bool SetValueUInt(unsigned int value);

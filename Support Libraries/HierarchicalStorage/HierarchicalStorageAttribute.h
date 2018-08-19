@@ -6,16 +6,16 @@
 class HierarchicalStorageAttribute :public IHierarchicalStorageAttribute
 {
 public:
-	//Constructors
+	// Constructors
 	HierarchicalStorageAttribute();
 	explicit HierarchicalStorageAttribute(const std::wstring& name);
 
-	//Name functions
+	// Name functions
 	virtual Marshal::Ret<std::wstring> GetName() const;
 	virtual void SetName(const Marshal::In<std::wstring>& name);
 
 protected:
-	//Stream functions
+	// Stream functions
 	virtual void ResetInternalStreamPosition() const;
 	virtual void EmptyInternalStream();
 	virtual Stream::IStream& GetInternalStream() const;

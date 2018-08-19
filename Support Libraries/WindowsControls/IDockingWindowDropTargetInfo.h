@@ -5,11 +5,11 @@
 class IDockingWindowDropTargetInfo
 {
 public:
-	//Constructors
+	// Constructors
 	virtual ~IDockingWindowDropTargetInfo() = 0 {}
 	virtual void Destroy() = 0;
 
-	//Info functions
+	// Info functions
 	virtual HWND GetOwningDockingWindow() = 0;
 };
 

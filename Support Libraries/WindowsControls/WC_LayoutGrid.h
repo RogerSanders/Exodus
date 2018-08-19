@@ -6,41 +6,41 @@
 class WC_LayoutGrid
 {
 public:
-	//Enumerations
+	// Enumerations
 	enum class WindowMessages :unsigned int;
 	enum class SizeMode;
 	enum class WindowSizeMode;
 	enum class VerticalAlignment;
 	enum class HorizontalAlignment;
 
-	//Structures
+	// Structures
 	struct AddWindowParams;
 	struct AddRowParams;
 	struct AddColumnParams;
 	struct UpdateWindowSizesParams;
 
-	//Constants
+	// Constants
 	static const wchar_t* WindowClassName;
 
 public:
-	//Constructors
+	// Constructors
 	WC_LayoutGrid(HINSTANCE moduleHandle, HWND hwnd);
 
-	//Class registration
+	// Class registration
 	static bool RegisterWindowClass(HINSTANCE moduleHandle);
 	static bool UnregisterWindowClass(HINSTANCE moduleHandle);
 
-	//Message handlers
+	// Message handlers
 	static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 private:
-	//Structures
+	// Structures
 	struct RowInfo;
 	struct ColumnInfo;
 	struct HostedWindowInfo;
 
 private:
-	//Message handlers
+	// Message handlers
 	LRESULT WndProcPrivate(UINT message, WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_CREATE(WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_SIZE(WPARAM wParam, LPARAM lParam);
@@ -56,16 +56,16 @@ private:
 	LRESULT msgGRID_UPDATEWINDOWSIZES(WPARAM wParam, LPARAM lParam);
 	LRESULT msgGRID_RECALCULATESIZES(WPARAM wParam, LPARAM lParam);
 
-	//Cell methods
+	// Cell methods
 	void AddRow(int minHeight, int maxHeight, SizeMode sizeMode, double proportionalRatio);
 	void AddColumn(int minWidth, int maxWidth, SizeMode sizeMode, double proportionalRatio);
 
-	//Hosted window methods
+	// Hosted window methods
 	void AddWindow(const HostedWindowInfo& windowInfo);
 	void RemoveWindow(HWND windowHandle);
 	void UpdateWindowSizes(const UpdateWindowSizesParams& params);
 
-	//Sizing methods
+	// Sizing methods
 	void HandleSizeChanged(int newWidth, int newHeight);
 	void UpdateChildWindowSizes();
 

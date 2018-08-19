@@ -7,11 +7,11 @@
 class SettingsMenuHandler :public MenuHandlerBase
 {
 public:
-	//Constructors
+	// Constructors
 	SettingsMenuHandler(GenericAccessMenus& owner, const IDevice& modelInstanceKey, IGenericAccess& model);
 
 protected:
-	//Management functions
+	// Management functions
 	virtual void GetMenuItems(std::list<MenuItemDefinition>& menuItems) const;
 	virtual IViewPresenter* CreateViewForItem(int menuItemID, const std::wstring& viewName);
 	virtual void DeleteViewForItem(int menuItemID, IViewPresenter* viewPresenter);

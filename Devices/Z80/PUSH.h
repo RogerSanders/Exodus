@@ -30,9 +30,9 @@ public:
 		_source.SetIndexState(GetIndexState(), GetIndexOffset());
 		_target.SetIndexState(GetIndexState(), GetIndexOffset());
 
-		//PUSH qq		11qq0101
-		//PUSH IX		11011101 11100101
-		//PUSH IY		11111101 11100101
+		// PUSH qq		11qq0101
+		// PUSH IX		11011101 11100101
+		// PUSH IY		11111101 11100101
 		switch (data.GetDataSegment(4, 2))
 		{
 		case 0:
@@ -61,11 +61,11 @@ public:
 		double additionalTime = 0;
 		Z80Word result;
 
-		//Perform the operation
+		// Perform the operation
 		additionalTime += _source.Read(cpu, location, result);
 		additionalTime += _target.Write(cpu, location, result);
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -75,5 +75,5 @@ private:
 	EffectiveAddress _target;
 };
 
-} //Close namespace Z80
+} // Close namespace Z80
 #endif

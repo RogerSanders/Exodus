@@ -7,27 +7,27 @@
 template<class T> class RAMBase :public MemoryWrite
 {
 public:
-	//Constructors
+	// Constructors
 	inline RAMBase(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 	virtual ~RAMBase();
 
-	//Initialization functions
+	// Initialization functions
 	virtual bool Construct(IHierarchicalStorageNode& node);
 	virtual void Initialize();
 
-	//Memory size functions
+	// Memory size functions
 	virtual unsigned int GetMemoryEntrySizeInBytes() const;
 
-	//Execute functions
+	// Execute functions
 	virtual void ExecuteRollback();
 	virtual void ExecuteCommit();
 
-	//Memory locking functions
+	// Memory locking functions
 	virtual bool IsMemoryLockingSupported() const;
 	virtual void LockMemoryBlock(unsigned int location, unsigned int size, bool state);
 	virtual bool IsAddressLocked(unsigned int location) const;
 
-	//Savestate functions
+	// Savestate functions
 	virtual void LoadState(IHierarchicalStorageNode& node);
 	virtual void SaveState(IHierarchicalStorageNode& node) const;
 	virtual void LoadPersistentState(IHierarchicalStorageNode& node);
@@ -36,7 +36,7 @@ public:
 	virtual void SaveDebuggerState(IHierarchicalStorageNode& node) const;
 
 protected:
-	//Access helper functions
+	// Access helper functions
 	inline void WriteArrayValueWithLockCheckAndRollback(unsigned int arrayEntryPos, T newValue);
 
 protected:

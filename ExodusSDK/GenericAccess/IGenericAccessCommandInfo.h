@@ -6,18 +6,18 @@
 class IGenericAccessCommandInfo
 {
 public:
-	//Typedefs
+	// Typedefs
 	typedef void* CommandID;
 
 public:
-	//Constructors
+	// Constructors
 	virtual ~IGenericAccessCommandInfo() = 0 {}
 
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisIGenericAccessCommandInfoVersion() { return 1; }
 	virtual unsigned int GetIGenericAccessCommandInfoVersion() const = 0;
 
-	//Command info functions
+	// Command info functions
 	virtual unsigned int GetID() const = 0;
 	virtual bool GetCanExecute() const = 0;
 };

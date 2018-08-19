@@ -10,31 +10,31 @@
 #include "MenuHandler.h"
 #include <thread>
 
-//----------------------------------------------------------------------------------------
-//Constructors
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Constructors
+//----------------------------------------------------------------------------------------------------------------------
 ExodusInterface::ExodusInterface()
 :_system(0), _viewManager(0), _menuHandler(0)
 {
-	//Set the size of the savestate window cell array
+	// Set the size of the savestate window cell array
 	_cell.resize(CellCount);
 
-	//Set the next menu ID number to use when building menus
+	// Set the next menu ID number to use when building menus
 	_nextFreeMenuID = 1;
 
-	//Create our submenu objects
+	// Create our submenu objects
 	_fileSubmenu = new MenuSubmenu(L"File");
 	_systemSubmenu = new MenuSubmenu(L"System");
 	_settingsSubmenu = new MenuSubmenu(L"System");
 	_debugSubmenu = new MenuSubmenu(L"Debug");
 
-	//Initialize the main window state
+	// Initialize the main window state
 	_mainWindowHandle = NULL;
 	_mainDockingWindowHandle = NULL;
 	_hfont = NULL;
 	_mainWindowPosCaptured = false;
 
-	//Initialize the savestate popup window settings
+	// Initialize the savestate popup window settings
 	_selectedSaveCell = 0;
 	_savestatePopupTimeout = 5000;
 	_savestateMonitorPosX = 0;
@@ -42,21 +42,21 @@ ExodusInterface::ExodusInterface()
 	_savestateMonitorWidth = 0;
 	_savestateMonitorHeight = 0;
 
-	//Initialize the system load state
+	// Initialize the system load state
 	_systemLoaded = false;
 	_systemDestructionInProgress = false;
 
-	//Initialize the joystick worker thread state
+	// Initialize the joystick worker thread state
 	_joystickWorkerThreadActive = false;
 
-	//Initialize other system options
+	// Initialize other system options
 	_debugConsoleOpen = false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 ExodusInterface::~ExodusInterface()
 {
-	//Stop the joystick worker thread
+	// Stop the joystick worker thread
 	std::unique_lock<std::mutex> lock(_joystickWorkerThreadMutex);
 	if (_joystickWorkerThreadActive)
 	{
@@ -64,48 +64,48 @@ ExodusInterface::~ExodusInterface()
 		_joystickWorkerThreadStopped.wait(lock);
 	}
 
-	//Delete the view manager
+	// Delete the view manager
 	delete _viewManager;
 
-	//Delete our submenu objects
+	// Delete our submenu objects
 	delete _fileSubmenu;
 	delete _systemSubmenu;
 	delete _settingsSubmenu;
 	delete _debugSubmenu;
 
-	//Delete our menu handler
+	// Delete our menu handler
 	delete _menuHandler;
 }
 
-//----------------------------------------------------------------------------------------
-//System interface functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// System interface functions
+//----------------------------------------------------------------------------------------------------------------------
 void ExodusInterface::BindToSystem(ISystemGUIInterface* system)
 {
 	_system = system;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void ExodusInterface::UnbindFromSystem()
 {
 	_system = 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 ISystemGUIInterface* ExodusInterface::GetSystemInterface() const
 {
 	return _system;
 }
 
-//----------------------------------------------------------------------------------------
-//Initialization functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Initialization functions
+//----------------------------------------------------------------------------------------------------------------------
 bool ExodusInterface::InitializePrefs()
 {
-	//Save the initial working directory of the process as the preference directory
+	// Save the initial working directory of the process as the preference directory
 	_preferenceDirectoryPath = PathGetCurrentWorkingDirectory();
 
-	//Initialize the system prefs to their default values
+	// Initialize the system prefs to their default values
 	SetGlobalPreferencePathModules(L"Modules");
 	SetGlobalPreferencePathSavestates(L"Savestates");
 	SetGlobalPreferencePathPersistentState(L"PersistentState");
@@ -118,24 +118,24 @@ bool ExodusInterface::InitializePrefs()
 	SetGlobalPreferenceLoadWorkspaceWithDebugState(true);
 	SetGlobalPreferenceShowDebugConsole(false);
 
-	//Load preferences from the settings.xml file if present
+	// Load preferences from the settings.xml file if present
 	std::wstring preferenceFilePath = PathCombinePaths(_preferenceDirectoryPath, L"settings.xml");
 	LoadPrefs(preferenceFilePath);
 
-	//Return the result to the caller
+	// Return the result to the caller
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 HWND ExodusInterface::CreateMainInterface(HINSTANCE hinstance)
 {
-	//Determine the style settings of the main window
+	// Determine the style settings of the main window
 	DWORD mainWindowStyle = WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN;
 	DWORD mainWindowStyleEx = WS_EX_CONTROLPARENT | WS_EX_CLIENTEDGE;
 
-	//Determine the initial size and state of the main window. Note that we need to set
-	//initial values here ourselves, as the settings will not be modified if they are not
-	//present in the target workspace file, even if the operation reports success.
+	// Determine the initial size and state of the main window. Note that we need to set
+	// initial values here ourselves, as the settings will not be modified if they are not
+	// present in the target workspace file, even if the operation reports success.
 	bool mainWindowMaximized = false;
 	int mainWindowWidth = DPIScaleWidth(1024);
 	int mainWindowHeight = DPIScaleWidth(768);
@@ -144,7 +144,7 @@ HWND ExodusInterface::CreateMainInterface(HINSTANCE hinstance)
 		ReadMainWindowSizeFromWorkspaceFile(_prefs.loadWorkspace, mainWindowMaximized, mainWindowWidth, mainWindowHeight);
 	}
 
-	//Calculate the default dimensions of the main window.
+	// Calculate the default dimensions of the main window.
 	RECT clientRect;
 	clientRect.left = 0;
 	clientRect.top = 0;
@@ -159,7 +159,7 @@ HWND ExodusInterface::CreateMainInterface(HINSTANCE hinstance)
 	mainWindowWidth = clientRect.right - clientRect.left;
 	mainWindowHeight = clientRect.bottom - clientRect.top;
 
-	//Register the main window class
+	// Register the main window class
 	WNDCLASSEX wc;
 	std::wstring windowClassName = L"ExodusWC";
 	std::wstring windowName = L"Exodus";
@@ -180,20 +180,20 @@ HWND ExodusInterface::CreateMainInterface(HINSTANCE hinstance)
 		return NULL;
 	}
 
-	//Create the main window
+	// Create the main window
 	_mainWindowHandle = CreateWindowEx(mainWindowStyleEx, windowClassName.c_str(), windowName.c_str(), mainWindowStyle, CW_USEDEFAULT, CW_USEDEFAULT, mainWindowWidth, mainWindowHeight, NULL, NULL, hinstance, (LPVOID)this);
 	if (_mainWindowHandle == NULL)
 	{
 		return NULL;
 	}
 
-	//Add the main docking window to the main window
+	// Add the main docking window to the main window
 	DockingWindow::RegisterWindowClass((HINSTANCE)GetModuleHandle(NULL));
 	_mainDockingWindowHandle = CreateWindowEx(0, DockingWindow::WindowClassName, L"", WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0, 0, 0, 0, _mainWindowHandle, NULL, (HINSTANCE)GetModuleHandle(NULL), NULL);
 	ShowWindow(_mainDockingWindowHandle, SW_SHOWNORMAL);
 	UpdateWindow(_mainDockingWindowHandle);
 
-	//Create the font for our main window
+	// Create the font for our main window
 	int fontPointSize = 8;
 	HDC hdc = GetDC(_mainWindowHandle);
 	int fontnHeight = -MulDiv(fontPointSize, GetDeviceCaps(hdc, LOGPIXELSY), 72);
@@ -201,25 +201,25 @@ HWND ExodusInterface::CreateMainInterface(HINSTANCE hinstance)
 	std::wstring fontTypefaceName = L"MS Shell Dlg";
 	_hfont = CreateFont(fontnHeight, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FIXED_PITCH | FF_MODERN, &fontTypefaceName[0]);
 
-	//Set the font for our main window and main docking window
+	// Set the font for our main window and main docking window
 	SendMessage(_mainWindowHandle, WM_SETFONT, (WPARAM)_hfont, (LPARAM)TRUE);
 	SendMessage(_mainDockingWindowHandle, WM_SETFONT, (WPARAM)_hfont, (LPARAM)TRUE);
 
-	//Create the view manager
+	// Create the view manager
 	_viewManager = new ViewManager(hinstance, _mainWindowHandle, _mainDockingWindowHandle, *_system);
 
-	//Create our menu handler
+	// Create our menu handler
 	_menuHandler = new MenuHandler(*this, *this);
 	_menuHandler->LoadMenuItems();
 
-	//Retrieve the handle for the menu
+	// Retrieve the handle for the menu
 	HMENU mainMenu = GetMenu(_mainWindowHandle);
 	if (mainMenu == NULL)
 	{
 		return NULL;
 	}
 
-	//Obtain the location of the dynamic portion of the file menu
+	// Obtain the location of the dynamic portion of the file menu
 	MENUITEMINFO fileMenuItemInfo;
 	fileMenuItemInfo.cbSize = sizeof(MENUITEMINFO);
 	fileMenuItemInfo.fMask = MIIM_SUBMENU;
@@ -235,13 +235,13 @@ HWND ExodusInterface::CreateMainInterface(HINSTANCE hinstance)
 	_fileMenu = fileMenuItemInfo.hSubMenu;
 	_fileMenuNonDynamicMenuItemCount = GetMenuItemCount(_fileMenu)-1;
 
-	//Build the dynamic portion of the file menu
+	// Build the dynamic portion of the file menu
 	if (!BuildFileMenu())
 	{
 		return NULL;
 	}
 
-	//Obtain the location of the dynamic portion of the system menu
+	// Obtain the location of the dynamic portion of the system menu
 	MENUITEMINFO systemMenuItemInfo;
 	systemMenuItemInfo.cbSize = sizeof(MENUITEMINFO);
 	systemMenuItemInfo.fMask = MIIM_SUBMENU;
@@ -257,13 +257,13 @@ HWND ExodusInterface::CreateMainInterface(HINSTANCE hinstance)
 	_systemMenu = systemMenuItemInfo.hSubMenu;
 	_systemMenuFirstItemIndex = GetMenuItemCount(_systemMenu)-1;
 
-	//Build the dynamic portion of the system menu
+	// Build the dynamic portion of the system menu
 	if (!BuildSystemMenu())
 	{
 		return NULL;
 	}
 
-	//Obtain the location of the dynamic portion of the settings menu
+	// Obtain the location of the dynamic portion of the settings menu
 	MENUITEMINFO settingsMenuItemInfo;
 	settingsMenuItemInfo.cbSize = sizeof(MENUITEMINFO);
 	settingsMenuItemInfo.fMask = MIIM_SUBMENU;
@@ -279,13 +279,13 @@ HWND ExodusInterface::CreateMainInterface(HINSTANCE hinstance)
 	_settingsMenu = settingsMenuItemInfo.hSubMenu;
 	_settingsMenuFirstItemIndex = GetMenuItemCount(_settingsMenu)-1;
 
-	//Build the dynamic portion of the settings menu
+	// Build the dynamic portion of the settings menu
 	if (!BuildSettingsMenu())
 	{
 		return NULL;
 	}
 
-	//Obtain the location of the dynamic portion of the debug menu
+	// Obtain the location of the dynamic portion of the debug menu
 	MENUITEMINFO debugMenuItemInfo;
 	debugMenuItemInfo.cbSize = sizeof(MENUITEMINFO);
 	debugMenuItemInfo.fMask = MIIM_SUBMENU;
@@ -301,13 +301,13 @@ HWND ExodusInterface::CreateMainInterface(HINSTANCE hinstance)
 	_debugMenu = debugMenuItemInfo.hSubMenu;
 	_debugMenuFirstItemIndex = GetMenuItemCount(_debugMenu)-1;
 
-	//Build the dynamic portion of the debug menu
+	// Build the dynamic portion of the debug menu
 	if (!BuildDebugMenu())
 	{
 		return NULL;
 	}
 
-	//Register the window class for our savestate popup window
+	// Register the window class for our savestate popup window
 	WNDCLASSEX wcSave;
 	std::wstring saveClassName = L"ExodusWCSave";
 	std::wstring saveWindowName = L"ExodusSave";
@@ -329,7 +329,7 @@ HWND ExodusInterface::CreateMainInterface(HINSTANCE hinstance)
 		return NULL;
 	}
 
-	//Create the savestate popup window
+	// Create the savestate popup window
 	_savestatePopup = CreateWindowEx(0, saveClassName.c_str(), saveWindowName.c_str(), WS_POPUP, 1, 1, 1, 1, _mainWindowHandle, NULL, GetModuleHandle(NULL), (LPVOID)this);
 	if (_savestatePopup == NULL)
 	{
@@ -337,7 +337,7 @@ HWND ExodusInterface::CreateMainInterface(HINSTANCE hinstance)
 		return NULL;
 	}
 
-	//Register the window class for our ctrl+tab window selection popup
+	// Register the window class for our ctrl+tab window selection popup
 	WNDCLASSEX wcSelect;
 	std::wstring selectClassName = L"ExodusWCWindowSelect";
 	std::wstring selectWindowName = L"ExodusWindowSelect";
@@ -360,7 +360,7 @@ HWND ExodusInterface::CreateMainInterface(HINSTANCE hinstance)
 		return NULL;
 	}
 
-	//Create the ctrl+tab window selection popup
+	// Create the ctrl+tab window selection popup
 	_windowSelectHandle = CreateWindowEx(0, selectClassName.c_str(), selectWindowName.c_str(), WS_POPUP, 1, 1, 1, 1, _mainWindowHandle, NULL, GetModuleHandle(NULL), (LPVOID)this);
 	if (_windowSelectHandle == NULL)
 	{
@@ -369,63 +369,63 @@ HWND ExodusInterface::CreateMainInterface(HINSTANCE hinstance)
 		return NULL;
 	}
 
-	//Show the main window
+	// Show the main window
 	ShowWindow(_mainWindowHandle, (mainWindowMaximized? SW_SHOWMAXIMIZED: SW_SHOWDEFAULT));
 	UpdateWindow(_mainWindowHandle);
 
-	//Save the initial position of the main window, so we can reposition child
-	//windows relative to it when the main window is moved.
+	// Save the initial position of the main window, so we can reposition child
+	// windows relative to it when the main window is moved.
 	RECT windowRect;
 	GetWindowRect(_mainWindowHandle, &windowRect);
 	_mainWindowPosX = windowRect.left;
 	_mainWindowPosY = windowRect.top;
 
-	//Return the handle of the main window
+	// Return the handle of the main window
 	return _mainWindowHandle;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool ExodusInterface::InitializeAfterMainWindowLoad()
 {
-	//Load addon modules
+	// Load addon modules
 	LoadAssembliesFromFolder(_prefs.pathAssemblies);
 
-	//Since we might have just loaded a persistent global extension which has registered
-	//menu handlers, rebuild the menu segments now.
+	// Since we might have just loaded a persistent global extension which has registered
+	// menu handlers, rebuild the menu segments now.
 	BuildFileMenu();
 	BuildSystemMenu();
 	BuildSettingsMenu();
 	BuildDebugMenu();
 
-	//Load the default system
+	// Load the default system
 	if (!_prefs.loadSystem.empty())
 	{
 		if (LoadModuleFromFile(_prefs.loadSystem))
 		{
-			//Load the default workspace
+			// Load the default workspace
 			if (!_prefs.loadWorkspace.empty())
 			{
-				//Spawn a worker thread to handle loading of the workspace. We do this in
-				//a separate thread so that view requests are still processed during the
-				//operation, which is important in order to make sure views can actually
-				//be loaded. Note that we specifically take a copy of the path string,
-				//rather than pass it by reference.
+				// Spawn a worker thread to handle loading of the workspace. We do this in
+				// a separate thread so that view requests are still processed during the
+				// operation, which is important in order to make sure views can actually
+				// be loaded. Note that we specifically take a copy of the path string,
+				// rather than pass it by reference.
 				std::thread workerThread(std::bind(std::mem_fn(&ExodusInterface::LoadWorkspaceFromFile), this, _prefs.loadWorkspace));
 				workerThread.detach();
 			}
 		}
 	}
 
-	//Retrieve info on each connected joystick
+	// Retrieve info on each connected joystick
 	//##TODO## Either detect when joystick information has changed, or refresh the
-	//joystick info at some point, probably each time the system is started. We've split
-	//the retrieval of joystick info out of the joystick worker thread since it was shown
-	//to be a very expensive process, but we now won't be able to pick up newly connected
-	//joysticks until the program is restarted.
+	// joystick info at some point, probably each time the system is started. We've split
+	// the retrieval of joystick info out of the joystick worker thread since it was shown
+	// to be a very expensive process, but we now won't be able to pick up newly connected
+	// joysticks until the program is restarted.
 	UINT maxJoystickCount = joyGetNumDevs();
 	for (unsigned int i = 0; i < maxJoystickCount; ++i)
 	{
-		//Obtain info on this joystick if present
+		// Obtain info on this joystick if present
 		JOYCAPS joystickCapabilities;
 		MMRESULT joyGetDevCapsReturn = joyGetDevCaps(i, &joystickCapabilities, sizeof(joystickCapabilities));
 		if (joyGetDevCapsReturn != JOYERR_NOERROR)
@@ -433,11 +433,11 @@ bool ExodusInterface::InitializeAfterMainWindowLoad()
 			continue;
 		}
 
-		//Save information on this joystick
+		// Save information on this joystick
 		_connectedJoystickInfo[i] = joystickCapabilities;
 	}
 
-	//Start the joystick worker thread if required
+	// Start the joystick worker thread if required
 	if (!_connectedJoystickInfo.empty())
 	{
 		std::unique_lock<std::mutex> lock(_joystickWorkerThreadMutex);
@@ -449,23 +449,23 @@ bool ExodusInterface::InitializeAfterMainWindowLoad()
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
-//Interface version functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Interface version functions
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int ExodusInterface::GetIGUIExtensionInterfaceVersion() const
 {
 	return ThisIGUIExtensionInterfaceVersion();
 }
 
-//----------------------------------------------------------------------------------------
-//View manager functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// View manager functions
+//----------------------------------------------------------------------------------------------------------------------
 IViewManager& ExodusInterface::GetViewManager() const
 {
 	return *_viewManager;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 HWND ExodusInterface::CreateDashboard(const std::wstring& dashboardTitle) const
 {
 	DashboardWindow::RegisterWindowClass((HINSTANCE)GetAssemblyHandle());
@@ -473,34 +473,34 @@ HWND ExodusInterface::CreateDashboard(const std::wstring& dashboardTitle) const
 	return hwndDashboard;
 }
 
-//----------------------------------------------------------------------------------------
-//Window functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Window functions
+//----------------------------------------------------------------------------------------------------------------------
 AssemblyHandle ExodusInterface::GetAssemblyHandle() const
 {
 	//##TODO## Pass the module handle into the constructor
 	return GetModuleHandle(NULL);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void* ExodusInterface::GetMainWindowHandle() const
 {
 	return _mainWindowHandle;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 HWND ExodusInterface::GetCurrentActiveDialogWindowHandle() const
 {
 	return _viewManager->GetActiveDialogWindow();
 }
 
-//----------------------------------------------------------------------------------------
-//Savestate functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Savestate functions
+//----------------------------------------------------------------------------------------------------------------------
 std::wstring ExodusInterface::GetSavestateAutoFileNamePrefix() const
 {
-	//Obtain lists of full identifier names of all loaded module instances, and the
-	//instance names of all loaded program modules.
+	// Obtain lists of full identifier names of all loaded module instances, and the
+	// instance names of all loaded program modules.
 	std::list<std::wstring> moduleIdentifierStrings;
 	std::list<std::wstring> loadedProgramModuleInstanceNames;
 	std::list<unsigned int> loadedModuleIDs = _system->GetLoadedModuleIDs();
@@ -518,7 +518,7 @@ std::wstring ExodusInterface::GetSavestateAutoFileNamePrefix() const
 		}
 	}
 
-	//Obtain a list of all current connector mapping identifier strings
+	// Obtain a list of all current connector mapping identifier strings
 	std::list<std::wstring> connectorMappingStrings;
 	std::list<unsigned int> connectorIDs = _system->GetConnectorIDs();
 	for (std::list<unsigned int>::const_iterator i = connectorIDs.begin(); i != connectorIDs.end(); ++i)
@@ -526,41 +526,41 @@ std::wstring ExodusInterface::GetSavestateAutoFileNamePrefix() const
 		ConnectorInfo connectorInfo;
 		if (_system->GetConnectorInfo(*i, connectorInfo))
 		{
-			//If this connector is used, add information about the connector mapping to
-			//the list of connector mappings.
+			// If this connector is used, add information about the connector mapping to
+			// the list of connector mappings.
 			if (connectorInfo.GetIsConnectorUsed())
 			{
-				//Load information on the module which exports this connector
+				// Load information on the module which exports this connector
 				LoadedModuleInfo exportingModuleInfo;
 				if (!_system->GetLoadedModuleInfo(connectorInfo.GetExportingModuleID(), exportingModuleInfo))
 				{
 					continue;
 				}
 
-				//Load information on the module which imports this connector
+				// Load information on the module which imports this connector
 				LoadedModuleInfo importingModuleInfo;
 				if (!_system->GetLoadedModuleInfo(connectorInfo.GetImportingModuleID(), importingModuleInfo))
 				{
 					continue;
 				}
 
-				//Build a string describing the connector mapping
+				// Build a string describing the connector mapping
 				std::wstring connectorMappingString = L"(" + importingModuleInfo.GetSystemClassName() + L"." + importingModuleInfo.GetModuleClassName() + L"." + importingModuleInfo.GetModuleInstanceName() + L"." + connectorInfo.GetImportingModuleConnectorInstanceName() + L"@" + exportingModuleInfo.GetSystemClassName() + L"." + exportingModuleInfo.GetModuleClassName() + L"." + exportingModuleInfo.GetModuleInstanceName() + L"." + connectorInfo.GetExportingModuleConnectorInstanceName() + L")";
 
-				//Add the connector mapping string to the list of connector mappings
+				// Add the connector mapping string to the list of connector mappings
 				connectorMappingStrings.push_back(connectorMappingString);
 			}
 		}
 	}
 
-	//Sort our lists. This ensures that all elements will be processed in the same order,
-	//regardless of the order they were loaded in.
+	// Sort our lists. This ensures that all elements will be processed in the same order,
+	// regardless of the order they were loaded in.
 	moduleIdentifierStrings.sort();
 	loadedProgramModuleInstanceNames.sort();
 	connectorMappingStrings.sort();
 
-	//Build a system identifier string using the module identifier and connector mapping
-	//identifier strings
+	// Build a system identifier string using the module identifier and connector mapping
+	// identifier strings
 	std::wstring systemIdentifierString;
 	for (std::list<std::wstring>::const_iterator i = moduleIdentifierStrings.begin(); i != moduleIdentifierStrings.end(); ++i)
 	{
@@ -579,11 +579,11 @@ std::wstring ExodusInterface::GetSavestateAutoFileNamePrefix() const
 		systemIdentifierString += *i;
 	}
 
-	//Build a hash of the system identifier string. We encode this into the filename to try and
-	//ensure that only savestates compatible with the current system configuration are offered to
-	//the user. Note that our original code used boost::hash. We've eliminated boost from our
-	//library dependencies at this time, and implemented the same logic as the boost hashing
-	//algorithm used below.
+	// Build a hash of the system identifier string. We encode this into the filename to try and
+	// ensure that only savestates compatible with the current system configuration are offered to
+	// the user. Note that our original code used boost::hash. We've eliminated boost from our
+	// library dependencies at this time, and implemented the same logic as the boost hashing
+	// algorithm used below.
 	size_t systemIdentifierHashRaw = 0;
 	for (std::wstring::size_type i = 0; i < systemIdentifierString.size(); ++i)
 	{
@@ -592,7 +592,7 @@ std::wstring ExodusInterface::GetSavestateAutoFileNamePrefix() const
 	std::wstring systemIdentifierHash;
 	IntToStringBase16((unsigned int)systemIdentifierHashRaw, systemIdentifierHash, 8, false);
 
-	//Build the filename for the savestate
+	// Build the filename for the savestate
 	std::wstring fileName;
 	for (std::list<std::wstring>::const_iterator i = loadedProgramModuleInstanceNames.begin(); i != loadedProgramModuleInstanceNames.end(); ++i)
 	{
@@ -604,7 +604,7 @@ std::wstring ExodusInterface::GetSavestateAutoFileNamePrefix() const
 	}
 	fileName += L" {" + systemIdentifierHash + L"}";
 
-	//Escape out any invalid characters in the filename
+	// Escape out any invalid characters in the filename
 	std::wstring invalidFilenameChars = L"\\/:?\"<>|";
 	wchar_t invalidCharReplacement = L'_';
 	for (size_t i = 0; i < fileName.size(); ++i)
@@ -615,21 +615,21 @@ std::wstring ExodusInterface::GetSavestateAutoFileNamePrefix() const
 		}
 	}
 
-	//Return the constructed filename
+	// Return the constructed filename
 	return fileName;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void ExodusInterface::LoadState(const std::wstring& folder, bool debuggerState)
 {
 	bool running = _system->SystemRunning();
 	_system->StopSystem();
 
-	//Load a state file
+	// Load a state file
 	std::wstring selectedFilePath;
 	if (SelectExistingFile(L"Compressed savestate files|exs;Uncompressed savestate files|xml", L"exs", L"", folder, true, selectedFilePath))
 	{
-		//Determine the type of state file being loaded
+		// Determine the type of state file being loaded
 		std::wstring fileExtension = PathGetFileExtension(selectedFilePath);
 		ISystemGUIInterface::FileType fileType = ISystemGUIInterface::FileType::ZIP;
 		if (fileExtension == L"xml")
@@ -637,7 +637,7 @@ void ExodusInterface::LoadState(const std::wstring& folder, bool debuggerState)
 			fileType = ISystemGUIInterface::FileType::XML;
 		}
 
-		//Perform the state load operation
+		// Perform the state load operation
 		LoadStateFromFile(selectedFilePath, fileType, debuggerState);
 	}
 
@@ -647,23 +647,23 @@ void ExodusInterface::LoadState(const std::wstring& folder, bool debuggerState)
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void ExodusInterface::LoadStateFromFile(const std::wstring& filePath, ISystemGUIInterface::FileType fileType, bool debuggerState)
 {
 	_system->LoadState(filePath, fileType, debuggerState);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void ExodusInterface::SaveState(const std::wstring& folder, bool debuggerState)
 {
 	bool running = _system->SystemRunning();
 	_system->StopSystem();
 
-	//Save a state file
+	// Save a state file
 	std::wstring selectedFilePath;
 	if (SelectNewFile(L"Compressed savestate files|exs;Uncompressed savestate files|xml", L"exs", L"", folder, selectedFilePath))
 	{
-		//Determine the type of state file being saved
+		// Determine the type of state file being saved
 		std::wstring fileExtension = PathGetFileExtension(selectedFilePath);
 		ISystemGUIInterface::FileType fileType = ISystemGUIInterface::FileType::ZIP;
 		if (fileExtension == L"xml")
@@ -671,7 +671,7 @@ void ExodusInterface::SaveState(const std::wstring& folder, bool debuggerState)
 			fileType = ISystemGUIInterface::FileType::XML;
 		}
 
-		//Perform the state save operation
+		// Perform the state save operation
 		SaveStateToFile(selectedFilePath, fileType, debuggerState);
 	}
 
@@ -681,15 +681,15 @@ void ExodusInterface::SaveState(const std::wstring& folder, bool debuggerState)
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void ExodusInterface::SaveStateToFile(const std::wstring& filePath, ISystemGUIInterface::FileType fileType, bool debuggerState)
 {
 	_system->SaveState(filePath, fileType, debuggerState);
 }
 
-//----------------------------------------------------------------------------------------
-//Savestate quick-select popup functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Savestate quick-select popup functions
+//----------------------------------------------------------------------------------------------------------------------
 void ExodusInterface::QuickLoadState(bool debuggerState)
 {
 	std::wstring filePostfix = _cell[_selectedSaveCell].slotName;
@@ -709,17 +709,17 @@ void ExodusInterface::QuickLoadState(bool debuggerState)
 		std::wstring workspaceFileName = GetSavestateAutoFileNamePrefix() + L" - " + filePostfix + L" - DebugWorkspace" + L".xml";
 		std::wstring workspaceFilePath = PathCombinePaths(_prefs.pathSavestates, workspaceFileName);
 
-		//Spawn a worker thread to handle loading of the workspace. We do this in a
-		//separate thread so that view requests are still processed during the operation,
-		//which is important in order to make sure views can actually be loaded. Note that
-		//we specifically take a copy of the path string, rather than pass it by
-		//reference.
+		// Spawn a worker thread to handle loading of the workspace. We do this in a
+		// separate thread so that view requests are still processed during the operation,
+		// which is important in order to make sure views can actually be loaded. Note that
+		// we specifically take a copy of the path string, rather than pass it by
+		// reference.
 		std::thread workerThread(std::bind(std::mem_fn(&ExodusInterface::LoadWorkspaceFromFile), this, workspaceFilePath));
 		workerThread.detach();
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void ExodusInterface::QuickSaveState(bool debuggerState)
 {
 	std::wstring filePostfix = _cell[_selectedSaveCell].slotName;
@@ -743,41 +743,41 @@ void ExodusInterface::QuickSaveState(bool debuggerState)
 	PostMessage(_cell[_selectedSaveCell].hwnd, WM_USER, 0, (LPARAM)this);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void ExodusInterface::IncrementSaveSlot()
 {
 	unsigned int newSaveSlot = (_selectedSaveCell == (CellCount - 1))? 0: _selectedSaveCell + 1;
 	SelectSaveSlot(newSaveSlot);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void ExodusInterface::DecrementSaveSlot()
 {
 	unsigned int newSaveSlot = (_selectedSaveCell == 0)? (CellCount - 1): _selectedSaveCell - 1;
 	SelectSaveSlot(newSaveSlot);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void ExodusInterface::SelectSaveSlot(unsigned int slotNo)
 {
-	//Switch the savestate cell focus to the new target cell, and force both the newly
-	//selected cell and previously selected cell to redraw.
+	// Switch the savestate cell focus to the new target cell, and force both the newly
+	// selected cell and previously selected cell to redraw.
 	_cell[_selectedSaveCell].savestateSlotSelected = false;
 	InvalidateRect(_cell[_selectedSaveCell].hwnd, NULL, FALSE);
 	_selectedSaveCell = slotNo;
 	_cell[_selectedSaveCell].savestateSlotSelected = true;
 	InvalidateRect(_cell[_selectedSaveCell].hwnd, NULL, FALSE);
 
-	//Move the savestate selection popup to the top of the Z order, and make it visible
-	//if it is currently hidden. We also initialize the timer to hide the popup window
-	//after the timeout period has expired.
+	// Move the savestate selection popup to the top of the Z order, and make it visible
+	// if it is currently hidden. We also initialize the timer to hide the popup window
+	// after the timeout period has expired.
 	SetWindowPos(_savestatePopup, HWND_TOP, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
 	ShowWindow(_savestatePopup, SW_SHOWNOACTIVATE);
 	KillTimer(_savestatePopup, 1);
 	SetTimer(_savestatePopup, 1, _savestatePopupTimeout, NULL);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void ExodusInterface::UpdateSaveSlots()
 {
 	for (unsigned int i = 0; i < CellCount; ++i)
@@ -786,29 +786,29 @@ void ExodusInterface::UpdateSaveSlots()
 	}
 }
 
-//----------------------------------------------------------------------------------------
-//Workspace functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Workspace functions
+//----------------------------------------------------------------------------------------------------------------------
 void ExodusInterface::LoadWorkspace(const std::wstring& folder)
 {
-	//Load a state file
+	// Load a state file
 	std::wstring selectedFilePath;
 	if (SelectExistingFile(L"Workspace Files|xml", L"xml", L"", folder, true, selectedFilePath))
 	{
-		//Spawn a worker thread to handle loading of the workspace. We do this in a
-		//separate thread so that view requests are still processed during the operation,
-		//which is important in order to make sure views can actually be loaded. Note that
-		//we specifically take a copy of the path string, rather than pass it by
-		//reference, since it's going to go out of scope when we leave this function.
+		// Spawn a worker thread to handle loading of the workspace. We do this in a
+		// separate thread so that view requests are still processed during the operation,
+		// which is important in order to make sure views can actually be loaded. Note that
+		// we specifically take a copy of the path string, rather than pass it by
+		// reference, since it's going to go out of scope when we leave this function.
 		std::thread workerThread(std::bind(std::mem_fn(&ExodusInterface::LoadWorkspaceFromFile), this, selectedFilePath));
 		workerThread.detach();
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool ExodusInterface::LoadWorkspaceFromFile(const std::wstring& filePath)
 {
-	//Open the target file
+	// Open the target file
 	FileStreamReference fileStreamReference(*this);
 	if (!fileStreamReference.OpenExistingFileForRead(filePath))
 	{
@@ -816,7 +816,7 @@ bool ExodusInterface::LoadWorkspaceFromFile(const std::wstring& filePath)
 	}
 	Stream::IStream& file = *fileStreamReference;
 
-	//Attempt to load an XML structure from the file
+	// Attempt to load an XML structure from the file
 	file.SetTextEncoding(Stream::IStream::TextEncoding::UTF8);
 	file.ProcessByteOrderMark();
 	HierarchicalStorageTree tree;
@@ -825,14 +825,14 @@ bool ExodusInterface::LoadWorkspaceFromFile(const std::wstring& filePath)
 		return false;
 	}
 
-	//Validate the root node type of the XML structure
+	// Validate the root node type of the XML structure
 	IHierarchicalStorageNode& rootNode = tree.GetRootNode();
 	if (rootNode.GetName() != L"Workspace")
 	{
 		return false;
 	}
 
-	//Attempt to retrieve the required child entries in this workspace state
+	// Attempt to retrieve the required child entries in this workspace state
 	IHierarchicalStorageNode* moduleRelationshipsNode = rootNode.GetChild(L"ModuleRelationships");
 	IHierarchicalStorageNode* viewLayoutNode = rootNode.GetChild(L"ViewLayout");
 	if ((moduleRelationshipsNode == 0) || (viewLayoutNode == 0))
@@ -840,27 +840,27 @@ bool ExodusInterface::LoadWorkspaceFromFile(const std::wstring& filePath)
 		return false;
 	}
 
-	//Load the ModuleRelationships node
+	// Load the ModuleRelationships node
 	ISystemGUIInterface::ModuleRelationshipMap relationshipMap;
 	if (!_system->LoadModuleRelationshipsNode(*moduleRelationshipsNode, relationshipMap))
 	{
 		return false;
 	}
 
-	//Load the view layout
+	// Load the view layout
 	if (!_viewManager->LoadViewLayout(*viewLayoutNode, relationshipMap))
 	{
 		return false;
 	}
 
-	//Return the result to the caller
+	// Return the result to the caller
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool ExodusInterface::ReadMainWindowSizeFromWorkspaceFile(const std::wstring& filePath, bool& maximized, int& sizeX, int& sizeY) const
 {
-	//Open the target file
+	// Open the target file
 	FileStreamReference fileStreamReference(*this);
 	if (!fileStreamReference.OpenExistingFileForRead(filePath))
 	{
@@ -868,7 +868,7 @@ bool ExodusInterface::ReadMainWindowSizeFromWorkspaceFile(const std::wstring& fi
 	}
 	Stream::IStream& file = *fileStreamReference;
 
-	//Attempt to load an XML structure from the file
+	// Attempt to load an XML structure from the file
 	file.SetTextEncoding(Stream::IStream::TextEncoding::UTF8);
 	file.ProcessByteOrderMark();
 	HierarchicalStorageTree tree;
@@ -877,31 +877,31 @@ bool ExodusInterface::ReadMainWindowSizeFromWorkspaceFile(const std::wstring& fi
 		return false;
 	}
 
-	//Validate the root node type of the XML structure
+	// Validate the root node type of the XML structure
 	IHierarchicalStorageNode& rootNode = tree.GetRootNode();
 	if (rootNode.GetName() != L"Workspace")
 	{
 		return false;
 	}
 
-	//Attempt to retrieve the required child entries in this workspace state
+	// Attempt to retrieve the required child entries in this workspace state
 	IHierarchicalStorageNode* viewLayoutNode = rootNode.GetChild(L"ViewLayout");
 	if (viewLayoutNode == 0)
 	{
 		return false;
 	}
 
-	//Load the view layout
+	// Load the view layout
 	if (!_viewManager->ReadMainWindowSizeFromViewLayout(*viewLayoutNode, maximized, sizeX, sizeY))
 	{
 		return false;
 	}
 
-	//Return the result to the caller
+	// Return the result to the caller
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void ExodusInterface::SaveWorkspace(const std::wstring& folder)
 {
 	std::wstring selectedFilePath;
@@ -911,23 +911,23 @@ void ExodusInterface::SaveWorkspace(const std::wstring& folder)
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool ExodusInterface::SaveWorkspaceToFile(const std::wstring& filePath)
 {
-	//Create a new XML tree to store our saved workspace info
+	// Create a new XML tree to store our saved workspace info
 	HierarchicalStorageTree tree;
 	IHierarchicalStorageNode& rootNode = tree.GetRootNode();
 	rootNode.SetName(L"Workspace");
 
-	//Save the ModuleRelationships node
+	// Save the ModuleRelationships node
 	IHierarchicalStorageNode& moduleRelationshipsNode = rootNode.CreateChild(L"ModuleRelationships");
 	_system->SaveModuleRelationshipsNode(moduleRelationshipsNode);
 
-	//Save the view layout
+	// Save the view layout
 	IHierarchicalStorageNode& viewLayoutNode = rootNode.CreateChild(L"ViewLayout");
 	_viewManager->SaveViewLayout(viewLayoutNode);
 
-	//Save the workspace XML tree to the target workspace file
+	// Save the workspace XML tree to the target workspace file
 	Stream::File file(Stream::IStream::TextEncoding::UTF8);
 	if (!file.Open(filePath, Stream::File::OpenMode::ReadAndWrite, Stream::File::CreateMode::Create))
 	{
@@ -936,16 +936,16 @@ bool ExodusInterface::SaveWorkspaceToFile(const std::wstring& filePath)
 	file.InsertByteOrderMark();
 	tree.SaveTree(file);
 
-	//Return the result to the caller
+	// Return the result to the caller
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
-//Module functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Module functions
+//----------------------------------------------------------------------------------------------------------------------
 bool ExodusInterface::CanModuleBeLoaded(const Marshal::In<std::wstring>& filePath) const
 {
-	//Read the connector info for the module
+	// Read the connector info for the module
 	ISystemGUIInterface::ConnectorImportList connectorsImported;
 	ISystemGUIInterface::ConnectorExportList connectorsExported;
 	std::wstring systemClassName;
@@ -954,12 +954,12 @@ bool ExodusInterface::CanModuleBeLoaded(const Marshal::In<std::wstring>& filePat
 		return false;
 	}
 
-	//Ensure that all connectors required by this module are available
+	// Ensure that all connectors required by this module are available
 	ISystemGUIInterface::ConnectorMappingList connectorMappings;
 	std::list<unsigned int> loadedConnectorIDList = _system->GetConnectorIDs();
 	for (ISystemGUIInterface::ConnectorImportList::const_iterator i = connectorsImported.begin(); i != connectorsImported.end(); ++i)
 	{
-		//Build a list of all available, loaded connectors which match the desired type.
+		// Build a list of all available, loaded connectors which match the desired type.
 		std::list<ConnectorInfo> availableConnectors;
 		std::list<unsigned int>::const_iterator loadedConnectorID = loadedConnectorIDList.begin();
 		while (loadedConnectorID != loadedConnectorIDList.end())
@@ -967,8 +967,8 @@ bool ExodusInterface::CanModuleBeLoaded(const Marshal::In<std::wstring>& filePat
 			ConnectorInfo connectorInfo;
 			if (_system->GetConnectorInfo(*loadedConnectorID, connectorInfo))
 			{
-				//If this connector matches the connector type the module wants to import,
-				//and the connector is free, add it to the available connector list.
+				// If this connector matches the connector type the module wants to import,
+				// and the connector is free, add it to the available connector list.
 				if (!connectorInfo.GetIsConnectorUsed() && (connectorInfo.GetSystemClassName() == systemClassName) && (i->className == connectorInfo.GetConnectorClassName()))
 				{
 					availableConnectors.push_back(connectorInfo);
@@ -977,7 +977,7 @@ bool ExodusInterface::CanModuleBeLoaded(const Marshal::In<std::wstring>& filePat
 			++loadedConnectorID;
 		}
 
-		//Ensure that at least one compatible connector was found
+		// Ensure that at least one compatible connector was found
 		if (availableConnectors.empty())
 		{
 			return false;
@@ -987,29 +987,29 @@ bool ExodusInterface::CanModuleBeLoaded(const Marshal::In<std::wstring>& filePat
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool ExodusInterface::LoadModule(const std::wstring& folder)
 {
-	//Select a module definition
+	// Select a module definition
 	std::wstring selectedFilePath;
 	if (!SelectExistingFile(L"Module Definitions|xml", L"xml", L"", folder, true, selectedFilePath))
 	{
 		return false;
 	}
 
-	//Return the result of the module load process
+	// Return the result of the module load process
 	return LoadModuleFromFile(selectedFilePath);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool ExodusInterface::LoadModuleFromFile(const Marshal::In<std::wstring>& filePath)
 {
-	//Pause view event processing while the system load is in progress. We do this to
-	//ensure any views which are flagged to be displayed in the system definition don't
-	//appear until after the load is complete.
+	// Pause view event processing while the system load is in progress. We do this to
+	// ensure any views which are flagged to be displayed in the system definition don't
+	// appear until after the load is complete.
 	_viewManager->PauseEventProcessing();
 
-	//Read the connector info for the module
+	// Read the connector info for the module
 	ISystemGUIInterface::ConnectorImportList connectorsImported;
 	ISystemGUIInterface::ConnectorExportList connectorsExported;
 	std::wstring systemClassName;
@@ -1023,14 +1023,14 @@ bool ExodusInterface::LoadModuleFromFile(const Marshal::In<std::wstring>& filePa
 		return false;
 	}
 
-	//Map all imported connectors to available connectors in the system
+	// Map all imported connectors to available connectors in the system
 	//##TODO## Cache this information in our module database when the modules are scanned,
-	//so that we only have to access the module definition file once for a module load.
+	// so that we only have to access the module definition file once for a module load.
 	ISystemGUIInterface::ConnectorMappingList connectorMappings;
 	std::list<unsigned int> loadedConnectorIDList = _system->GetConnectorIDs();
 	for (ISystemGUIInterface::ConnectorImportList::const_iterator i = connectorsImported.begin(); i != connectorsImported.end(); ++i)
 	{
-		//Build a list of all available, loaded connectors which match the desired type.
+		// Build a list of all available, loaded connectors which match the desired type.
 		std::list<ConnectorInfo> availableConnectors;
 		std::list<unsigned int>::const_iterator loadedConnectorID = loadedConnectorIDList.begin();
 		while (loadedConnectorID != loadedConnectorIDList.end())
@@ -1038,8 +1038,8 @@ bool ExodusInterface::LoadModuleFromFile(const Marshal::In<std::wstring>& filePa
 			ConnectorInfo connectorInfo;
 			if (_system->GetConnectorInfo(*loadedConnectorID, connectorInfo))
 			{
-				//If this connector matches the connector type the module wants to import,
-				//and the connector is free, add it to the available connector list.
+				// If this connector matches the connector type the module wants to import,
+				// and the connector is free, add it to the available connector list.
 				if (!connectorInfo.GetIsConnectorUsed() && (connectorInfo.GetSystemClassName() == systemClassName) && (i->className == connectorInfo.GetConnectorClassName()))
 				{
 					availableConnectors.push_back(connectorInfo);
@@ -1048,7 +1048,7 @@ bool ExodusInterface::LoadModuleFromFile(const Marshal::In<std::wstring>& filePa
 			++loadedConnectorID;
 		}
 
-		//Ensure that at least one compatible connector was found
+		// Ensure that at least one compatible connector was found
 		if (availableConnectors.empty())
 		{
 			std::wstring text = L"No available connector of type " + systemClassName + L"." + i->className + L" could be found!";
@@ -1059,10 +1059,10 @@ bool ExodusInterface::LoadModuleFromFile(const Marshal::In<std::wstring>& filePa
 			return false;
 		}
 
-		//Map the connector
+		// Map the connector
 		if (availableConnectors.size() == 1)
 		{
-			//If only one connector was found that matches the required type, map it.
+			// If only one connector was found that matches the required type, map it.
 			ConnectorInfo connector = *availableConnectors.begin();
 			ISystemGUIInterface::ConnectorMapping connectorMapping;
 			connectorMapping.connectorID = connector.GetConnectorID();
@@ -1071,8 +1071,8 @@ bool ExodusInterface::LoadModuleFromFile(const Marshal::In<std::wstring>& filePa
 		}
 		else
 		{
-			//If multiple compatible connectors are available, open a dialog allowing the
-			//user to select a connector from the list of available connectors.
+			// If multiple compatible connectors are available, open a dialog allowing the
+			// user to select a connector from the list of available connectors.
 			MapConnectorDialogParams mapConnectorDialogParams;
 			mapConnectorDialogParams.system = _system;
 			mapConnectorDialogParams.connectorList = availableConnectors;
@@ -1080,7 +1080,7 @@ bool ExodusInterface::LoadModuleFromFile(const Marshal::In<std::wstring>& filePa
 			mapConnectorDialogBoxParamResult = SafeDialogBoxParam(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_MAPCONNECTOR), _mainWindowHandle, MapConnectorProc, (LPARAM)&mapConnectorDialogParams);
 			bool connectorMapped = ((mapConnectorDialogBoxParamResult == 1) && (mapConnectorDialogParams.selectionMade));
 
-			//Ensure that a connector mapping has been made
+			// Ensure that a connector mapping has been made
 			if (!connectorMapped)
 			{
 				std::wstring text = L"No connector mapping specified for imported connector " + systemClassName + L"." + i->className + L"!";
@@ -1091,7 +1091,7 @@ bool ExodusInterface::LoadModuleFromFile(const Marshal::In<std::wstring>& filePa
 				return false;
 			}
 
-			//Map the selected connector
+			// Map the selected connector
 			ISystemGUIInterface::ConnectorMapping connectorMapping;
 			connectorMapping.connectorID = mapConnectorDialogParams.selectedConnector.GetConnectorID();
 			connectorMapping.importingModuleConnectorInstanceName = i->instanceName;
@@ -1099,17 +1099,17 @@ bool ExodusInterface::LoadModuleFromFile(const Marshal::In<std::wstring>& filePa
 		}
 	}
 
-	//Begin the module load process
+	// Begin the module load process
 	_system->LoadModuleSynchronous(filePath, connectorMappings);
 
-	//Spawn a modal dialog to display the module load progress
+	// Spawn a modal dialog to display the module load progress
 	bool result = false;
 	INT_PTR dialogBoxParamResult;
 	dialogBoxParamResult = SafeDialogBoxParam(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_LOADMODULE), _mainWindowHandle, LoadModuleProc, (LPARAM)this);
 	bool moduleLoadSucceeded = (dialogBoxParamResult == 1);
 	if (moduleLoadSucceeded)
 	{
-		//Since the system loaded successfully, construct our dynamic menus.
+		// Since the system loaded successfully, construct our dynamic menus.
 		result = BuildFileMenu();
 		result &= BuildSystemMenu();
 		result &= BuildSettingsMenu();
@@ -1127,25 +1127,25 @@ bool ExodusInterface::LoadModuleFromFile(const Marshal::In<std::wstring>& filePa
 	}
 	if (dialogBoxParamResult == 0)
 	{
-		//If there was an error loading the system, report it to the user. Note that a
-		//return code of -1 indicates the user aborted the load, in which case, we don't
-		//display this message.
+		// If there was an error loading the system, report it to the user. Note that a
+		// return code of -1 indicates the user aborted the load, in which case, we don't
+		// display this message.
 		std::wstring text = L"An error occurred while trying to load the module file.\nCheck the log window for more information.";
 		std::wstring title = L"Error loading module!";
 		SafeMessageBox(_mainWindowHandle, text, title, MB_ICONEXCLAMATION);
 	}
 
-	//Now that the operation is complete, resume view event processing.
+	// Now that the operation is complete, resume view event processing.
 	_viewManager->ResumeEventProcessing();
 
-	//Since the loaded system configuration has now changed, update any display info which
-	//is dependent on the loaded modules.
+	// Since the loaded system configuration has now changed, update any display info which
+	// is dependent on the loaded modules.
 	UpdateSaveSlots();
 
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool ExodusInterface::SaveSystem(const std::wstring& folder)
 {
 	std::wstring selectedFilePath;
@@ -1157,57 +1157,57 @@ bool ExodusInterface::SaveSystem(const std::wstring& folder)
 	return SaveSystemToFile(selectedFilePath);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool ExodusInterface::SaveSystemToFile(const std::wstring& filePath)
 {
 	return _system->SaveSystem(filePath);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void ExodusInterface::UnloadModule(unsigned int moduleID)
 {
-	//Spawn a worker thread to perform the module unload
+	// Spawn a worker thread to perform the module unload
 	_moduleCommandComplete = false;
 	std::thread workerThread(std::bind(std::mem_fn(&ExodusInterface::UnloadModuleThread), this, moduleID));
 	workerThread.detach();
 
-	//Open the unload system progress dialog
+	// Open the unload system progress dialog
 	INT_PTR dialogBoxParamResult;
 	dialogBoxParamResult = SafeDialogBoxParam(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_UNLOADMODULE), _mainWindowHandle, UnloadModuleProc, (LPARAM)this);
 
-	//Initialize the menu
+	// Initialize the menu
 	BuildFileMenu();
 	BuildSystemMenu();
 	BuildSettingsMenu();
 	BuildDebugMenu();
 
-	//Since the loaded system configuration has now changed, update any display info which
-	//is dependent on the loaded modules.
+	// Since the loaded system configuration has now changed, update any display info which
+	// is dependent on the loaded modules.
 	UpdateSaveSlots();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void ExodusInterface::UnloadAllModules()
 {
 	if (_systemLoaded)
 	{
-		//Spawn a worker thread to perform the system unload
+		// Spawn a worker thread to perform the system unload
 		_moduleCommandComplete = false;
 		std::thread workerThread(std::bind(std::mem_fn(&ExodusInterface::UnloadSystemThread), this));
 		workerThread.detach();
 
-		//Open the unload system progress dialog
+		// Open the unload system progress dialog
 		INT_PTR dialogBoxParamResult;
 		dialogBoxParamResult = SafeDialogBoxParam(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_UNLOADMODULE), _mainWindowHandle, UnloadModuleProc, (LPARAM)this);
 
-		//Initialize the menu
+		// Initialize the menu
 		BuildFileMenu();
 		BuildSystemMenu();
 		BuildSettingsMenu();
 		BuildDebugMenu();
 
-		//Since the loaded system configuration has now changed, update any display info
-		//which is dependent on the loaded modules.
+		// Since the loaded system configuration has now changed, update any display info
+		// which is dependent on the loaded modules.
 		UpdateSaveSlots();
 
 		_systemLoaded = false;
@@ -1215,19 +1215,19 @@ void ExodusInterface::UnloadAllModules()
 	}
 }
 
-//----------------------------------------------------------------------------------------
-//Global preference functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Global preference functions
+//----------------------------------------------------------------------------------------------------------------------
 bool ExodusInterface::LoadPrefs(const std::wstring& filePath)
 {
-	//Attempt to open the target preference file
+	// Attempt to open the target preference file
 	Stream::File file;
 	if (!file.Open(filePath, Stream::File::OpenMode::ReadOnly, Stream::File::CreateMode::Open))
 	{
 		return false;
 	}
 
-	//Attempt to decode the XML contents of the file
+	// Attempt to decode the XML contents of the file
 	file.SetTextEncoding(Stream::IStream::TextEncoding::UTF8);
 	file.ProcessByteOrderMark();
 	HierarchicalStorageTree tree;
@@ -1236,14 +1236,14 @@ bool ExodusInterface::LoadPrefs(const std::wstring& filePath)
 		return false;
 	}
 
-	//Validate the root node of the XML tree
+	// Validate the root node of the XML tree
 	IHierarchicalStorageNode& rootNode = tree.GetRootNode();
 	if (rootNode.GetName() != L"Settings")
 	{
 		return false;
 	}
 
-	//Extract each preference from the loaded data
+	// Extract each preference from the loaded data
 	std::list<IHierarchicalStorageNode*> childList = rootNode.GetChildList();
 	for (std::list<IHierarchicalStorageNode*>::const_iterator i = childList.begin(); i != childList.end(); ++i)
 	{
@@ -1304,7 +1304,7 @@ bool ExodusInterface::LoadPrefs(const std::wstring& filePath)
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void ExodusInterface::SavePrefs(const std::wstring& filePath)
 {
 	HierarchicalStorageTree tree;
@@ -1332,297 +1332,297 @@ void ExodusInterface::SavePrefs(const std::wstring& filePath)
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> ExodusInterface::GetPreferenceDirectoryPath() const
 {
 	return _preferenceDirectoryPath;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> ExodusInterface::GetGlobalPreferencePathModules() const
 {
 	return _prefs.pathModules;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> ExodusInterface::GetGlobalPreferencePathSavestates() const
 {
 	return _prefs.pathSavestates;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> ExodusInterface::GetGlobalPreferencePathPersistentState() const
 {
 	return _prefs.pathPersistentState;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> ExodusInterface::GetGlobalPreferencePathWorkspaces() const
 {
 	return _prefs.pathWorkspaces;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> ExodusInterface::GetGlobalPreferencePathCaptures() const
 {
 	return _prefs.pathCaptures;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> ExodusInterface::GetGlobalPreferencePathAssemblies() const
 {
 	return _prefs.pathAssemblies;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> ExodusInterface::GetGlobalPreferenceInitialSystem() const
 {
 	return _prefs.loadSystem;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> ExodusInterface::GetGlobalPreferenceInitialWorkspace() const
 {
 	return _prefs.loadWorkspace;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool ExodusInterface::GetGlobalPreferenceEnableThrottling() const
 {
 	return _prefs.enableThrottling;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool ExodusInterface::GetGlobalPreferenceRunWhenProgramModuleLoaded() const
 {
 	return _prefs.runWhenProgramModuleLoaded;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool ExodusInterface::GetGlobalPreferenceEnablePersistentState() const
 {
 	return _prefs.enablePersistentState;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool ExodusInterface::GetGlobalPreferenceLoadWorkspaceWithDebugState() const
 {
 	return _prefs.loadWorkspaceWithDebugState;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool ExodusInterface::GetGlobalPreferenceShowDebugConsole() const
 {
 	return _prefs.showDebugConsole;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void ExodusInterface::SetGlobalPreferencePathModules(const std::wstring& state)
 {
-	//Ensure the specified path is an absolute path
+	// Ensure the specified path is an absolute path
 	std::wstring absolutePath = state;
 	if (PathIsRelativePath(state))
 	{
 		absolutePath = PathCombinePaths(_preferenceDirectoryPath, state);
 	}
 
-	//Ensure the target directory exists
+	// Ensure the target directory exists
 	CreateDirectory(absolutePath, true);
 
-	//Apply the new preference setting
+	// Apply the new preference setting
 	_prefs.pathModules = absolutePath;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void ExodusInterface::SetGlobalPreferencePathSavestates(const std::wstring& state)
 {
-	//Ensure the specified path is an absolute path
+	// Ensure the specified path is an absolute path
 	std::wstring absolutePath = state;
 	if (PathIsRelativePath(state))
 	{
 		absolutePath = PathCombinePaths(_preferenceDirectoryPath, state);
 	}
 
-	//Ensure the target directory exists
+	// Ensure the target directory exists
 	CreateDirectory(absolutePath, true);
 
-	//Apply the new preference setting
+	// Apply the new preference setting
 	_prefs.pathSavestates = absolutePath;
 
-	//Update our savestate cell slots
+	// Update our savestate cell slots
 	UpdateSaveSlots();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void ExodusInterface::SetGlobalPreferencePathPersistentState(const std::wstring& state)
 {
-	//Ensure the specified path is an absolute path
+	// Ensure the specified path is an absolute path
 	std::wstring absolutePath = state;
 	if (PathIsRelativePath(state))
 	{
 		absolutePath = PathCombinePaths(_preferenceDirectoryPath, state);
 	}
 
-	//Ensure the target directory exists
+	// Ensure the target directory exists
 	CreateDirectory(absolutePath, true);
 
-	//Apply the new preference setting
+	// Apply the new preference setting
 	_prefs.pathPersistentState = absolutePath;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void ExodusInterface::SetGlobalPreferencePathWorkspaces(const std::wstring& state)
 {
-	//Ensure the specified path is an absolute path
+	// Ensure the specified path is an absolute path
 	std::wstring absolutePath = state;
 	if (PathIsRelativePath(state))
 	{
 		absolutePath = PathCombinePaths(_preferenceDirectoryPath, state);
 	}
 
-	//Ensure the target directory exists
+	// Ensure the target directory exists
 	CreateDirectory(absolutePath, true);
 
-	//Apply the new preference setting
+	// Apply the new preference setting
 	_prefs.pathWorkspaces = absolutePath;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void ExodusInterface::SetGlobalPreferencePathCaptures(const std::wstring& state)
 {
-	//Ensure the specified path is an absolute path
+	// Ensure the specified path is an absolute path
 	std::wstring absolutePath = state;
 	if (PathIsRelativePath(state))
 	{
 		absolutePath = PathCombinePaths(_preferenceDirectoryPath, state);
 	}
 
-	//Ensure the target directory exists
+	// Ensure the target directory exists
 	CreateDirectory(absolutePath, true);
 
-	//Apply the new preference setting
+	// Apply the new preference setting
 	_prefs.pathCaptures = absolutePath;
 	_system->SetCapturePath(_prefs.pathCaptures);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void ExodusInterface::SetGlobalPreferencePathAssemblies(const std::wstring& state)
 {
-	//Ensure the specified path is an absolute path
+	// Ensure the specified path is an absolute path
 	std::wstring absolutePath = state;
 	if (PathIsRelativePath(state))
 	{
 		absolutePath = PathCombinePaths(_preferenceDirectoryPath, state);
 	}
 
-	//Ensure the target directory exists
+	// Ensure the target directory exists
 	CreateDirectory(absolutePath, true);
 
-	//Apply the new preference setting
+	// Apply the new preference setting
 	_prefs.pathAssemblies = absolutePath;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void ExodusInterface::SetGlobalPreferenceInitialSystem(const std::wstring& state)
 {
-	//Ensure the specified path is an absolute path
+	// Ensure the specified path is an absolute path
 	std::wstring absolutePath = state;
 	if (!absolutePath.empty() && PathIsRelativePath(state))
 	{
 		absolutePath = PathCombinePaths(_prefs.pathModules, state);
 	}
 
-	//Apply the new preference setting
+	// Apply the new preference setting
 	_prefs.loadSystem = absolutePath;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void ExodusInterface::SetGlobalPreferenceInitialWorkspace(const std::wstring& state)
 {
-	//Ensure the specified path is an absolute path
+	// Ensure the specified path is an absolute path
 	std::wstring absolutePath = state;
 	if (!absolutePath.empty() && PathIsRelativePath(state))
 	{
 		absolutePath = PathCombinePaths(_prefs.pathWorkspaces, state);
 	}
 
-	//Apply the new preference setting
+	// Apply the new preference setting
 	_prefs.loadWorkspace = absolutePath;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void ExodusInterface::SetGlobalPreferenceEnableThrottling(bool state)
 {
-	//Apply the new preference setting
+	// Apply the new preference setting
 	_prefs.enableThrottling = state;
 	_system->SetThrottlingState(_prefs.enableThrottling);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void ExodusInterface::SetGlobalPreferenceRunWhenProgramModuleLoaded(bool state)
 {
-	//Apply the new preference setting
+	// Apply the new preference setting
 	_prefs.runWhenProgramModuleLoaded = state;
 	_system->SetRunWhenProgramModuleLoadedState(_prefs.runWhenProgramModuleLoaded);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void ExodusInterface::SetGlobalPreferenceEnablePersistentState(bool state)
 {
-	//Apply the new preference setting
+	// Apply the new preference setting
 	_prefs.enablePersistentState = state;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void ExodusInterface::SetGlobalPreferenceLoadWorkspaceWithDebugState(bool state)
 {
-	//Apply the new preference setting
+	// Apply the new preference setting
 	_prefs.loadWorkspaceWithDebugState = state;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void ExodusInterface::SetGlobalPreferenceShowDebugConsole(bool state)
 {
-	//Apply the new preference setting
+	// Apply the new preference setting
 	_prefs.showDebugConsole = state;
 	if (_debugConsoleOpen != _prefs.showDebugConsole)
 	{
 		if (!_debugConsoleOpen)
 		{
-			//Create a debug command console
+			// Create a debug command console
 			AllocConsole();
 			BindStdHandlesToConsole();
 		}
 		else
 		{
-			//Close the current debug command console
+			// Close the current debug command console
 			FreeConsole();
 		}
 		_debugConsoleOpen = _prefs.showDebugConsole;
 	}
 }
 
-//----------------------------------------------------------------------------------------
-//Assembly functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Assembly functions
+//----------------------------------------------------------------------------------------------------------------------
 bool ExodusInterface::LoadAssembliesFromFolder(const std::wstring& folderPath)
 {
-	//Begin the plugin load process
+	// Begin the plugin load process
 	_loadPluginsComplete = false;
 	_loadPluginsProgress = 0;
 	_loadPluginsAborted = false;
 	std::thread workerThread(std::bind(std::mem_fn(&ExodusInterface::LoadAssembliesFromFolderSynchronous), this, std::ref(folderPath)));
 	workerThread.detach();
 
-	//Spawn a modal dialog to display the plugin load progress
+	// Spawn a modal dialog to display the plugin load progress
 	bool result = true;
 	INT_PTR dialogBoxParamResult;
 	dialogBoxParamResult = SafeDialogBoxParam(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_LOADPLUGIN), _mainWindowHandle, LoadPluginProc, (LPARAM)this);
 	if (dialogBoxParamResult == 0)
 	{
-		//If there was an error loading the system, report it to the user. Note that a
-		//return code of -1 indicates the user aborted the load, in which case, we don't
-		//display this message.
+		// If there was an error loading the system, report it to the user. Note that a
+		// return code of -1 indicates the user aborted the load, in which case, we don't
+		// display this message.
 		std::wstring text = L"An error occurred while trying to load one or more plugins.\nCheck the log window for more information.";
 		std::wstring title = L"Error loading plugin!";
 		SafeMessageBox(_mainWindowHandle, text, title, MB_ICONEXCLAMATION);
@@ -1632,10 +1632,10 @@ bool ExodusInterface::LoadAssembliesFromFolder(const std::wstring& folderPath)
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool ExodusInterface::LoadAssembliesFromFolderSynchronous(const std::wstring& folderPath)
 {
-	//Begin the folder search
+	// Begin the folder search
 	std::wstring fileSearchString = PathCombinePaths(folderPath, L"*.dll");
 	WIN32_FIND_DATA findData;
 	HANDLE findFileHandle;
@@ -1647,71 +1647,71 @@ bool ExodusInterface::LoadAssembliesFromFolderSynchronous(const std::wstring& fo
 		return false;
 	}
 
-	//Build a list of all possible plugins in the target folder
+	// Build a list of all possible plugins in the target folder
 	std::list<std::wstring> pluginPaths;
 	bool foundFile = true;
 	while (foundFile)
 	{
-		//Build the name and path of this entry
+		// Build the name and path of this entry
 		std::wstring entryName = findData.cFileName;
 		std::wstring entryPath = PathCombinePaths(folderPath, entryName);
 
-		//Ensure this isn't a virtual navigation folder
+		// Ensure this isn't a virtual navigation folder
 		if (entryName.find_first_not_of(L'.') != std::wstring::npos)
 		{
-			//Ensure we're actually looking at a file
+			// Ensure we're actually looking at a file
 			if ((findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
 			{
 				pluginPaths.push_back(entryPath);
 			}
 		}
 
-		//Advance to the next matching entry in the folder
+		// Advance to the next matching entry in the folder
 		foundFile = FindNextFile(findFileHandle, &findData) != 0;
 	}
 
-	//End the folder search
+	// End the folder search
 	FindClose(findFileHandle);
 
-	//Attempt to load all possible plugins found in the target path
+	// Attempt to load all possible plugins found in the target path
 	unsigned int entriesProcessed = 0;
 	unsigned int entryCount = (unsigned int)pluginPaths.size();
 	for (std::list<std::wstring>::const_iterator i = pluginPaths.begin(); !_loadPluginsAborted && (i != pluginPaths.end()); ++i)
 	{
-		//Update the progress and current plugin name
+		// Update the progress and current plugin name
 		std::unique_lock<std::mutex> lock(_loadPluginsMutex);
 		_loadPluginsCurrentPluginName = *i;
 		_loadPluginsProgress = ((float)++entriesProcessed / (float)entryCount);
 		lock.unlock();
 
-		//Load this plugin
+		// Load this plugin
 		LoadAssembly(*i);
 	}
 
-	//Set the result of the plugin load operation, and flag the load operation as
-	//complete.
+	// Set the result of the plugin load operation, and flag the load operation as
+	// complete.
 	_loadPluginsResult = true;
 	_loadPluginsComplete = true;
 
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool ExodusInterface::LoadAssembly(const Marshal::In<std::wstring>& filePath)
 {
-	//Attempt to load the target assembly and retrieve information on its plugin interface
+	// Attempt to load the target assembly and retrieve information on its plugin interface
 	PluginInfo pluginInfo;
 	if (!LoadAssemblyInfo(filePath, pluginInfo))
 	{
 		return false;
 	}
 
-	//Write an entry in the event log about this assembly load operation
+	// Write an entry in the event log about this assembly load operation
 	LogEntry logEntry(LogEntry::EventLevel::Info, L"System", L"");
 	logEntry << L"Loading plugins from assembly \"" << filePath << "\".";
 	_system->WriteLogEvent(logEntry);
 
-	//Register each device in the assembly
+	// Register each device in the assembly
 	bool result = true;
 	if (pluginInfo.GetDeviceEntry != 0)
 	{
@@ -1736,7 +1736,7 @@ bool ExodusInterface::LoadAssembly(const Marshal::In<std::wstring>& filePath)
 		}
 	}
 
-	//Register each extension in the assembly
+	// Register each extension in the assembly
 	if (pluginInfo.GetExtensionEntry != 0)
 	{
 		unsigned int entryNo = 0;
@@ -1760,7 +1760,7 @@ bool ExodusInterface::LoadAssembly(const Marshal::In<std::wstring>& filePath)
 		}
 	}
 
-	//Write an entry in the event log about the success of this assembly load operation
+	// Write an entry in the event log about the success of this assembly load operation
 	if (!result)
 	{
 		LogEntry logEntry(LogEntry::EventLevel::Warning, L"System", L"");
@@ -1777,10 +1777,10 @@ bool ExodusInterface::LoadAssembly(const Marshal::In<std::wstring>& filePath)
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool ExodusInterface::LoadAssemblyInfo(const std::wstring& filePath, PluginInfo& pluginInfo)
 {
-	//Attach the assembly to the process
+	// Attach the assembly to the process
 	HMODULE dllHandle = LoadLibrary(filePath.c_str());
 	if (dllHandle == NULL)
 	{
@@ -1790,8 +1790,8 @@ bool ExodusInterface::LoadAssemblyInfo(const std::wstring& filePath, PluginInfo&
 		return false;
 	}
 
-	//Ensure the assembly exports the core GetInterfaceVersion function, and obtain a
-	//pointer to it.
+	// Ensure the assembly exports the core GetInterfaceVersion function, and obtain a
+	// pointer to it.
 	unsigned int (*GetInterfaceVersion)();
 	GetInterfaceVersion = (unsigned int (*)())GetProcAddress(dllHandle, "GetInterfaceVersion");
 	if (GetInterfaceVersion == 0)
@@ -1803,7 +1803,7 @@ bool ExodusInterface::LoadAssemblyInfo(const std::wstring& filePath, PluginInfo&
 		return false;
 	}
 
-	//Validate the interface version of the assembly
+	// Validate the interface version of the assembly
 	unsigned int interfaceVersion = GetInterfaceVersion();
 	if (interfaceVersion < EXODUS_INTERFACEVERSION)
 	{
@@ -1816,7 +1816,7 @@ bool ExodusInterface::LoadAssemblyInfo(const std::wstring& filePath, PluginInfo&
 		return false;
 	}
 
-	//Obtain pointers to all the interface functions for the assembly
+	// Obtain pointers to all the interface functions for the assembly
 	bool (*GetDeviceEntry)(unsigned int entryNo, IDeviceInfo& entry);
 	bool (*GetExtensionEntry)(unsigned int entryNo, IExtensionInfo& entry);
 	bool (*GetSystemEntry)(unsigned int entryNo, ISystemInfo& entry);
@@ -1832,7 +1832,7 @@ bool ExodusInterface::LoadAssemblyInfo(const std::wstring& filePath, PluginInfo&
 		return false;
 	}
 
-	//Return information on this plugin to the caller
+	// Return information on this plugin to the caller
 	pluginInfo.assemblyHandle = (AssemblyHandle)dllHandle;
 	pluginInfo.interfaceVersion = interfaceVersion;
 	pluginInfo.GetDeviceEntry = GetDeviceEntry;
@@ -1841,16 +1841,16 @@ bool ExodusInterface::LoadAssemblyInfo(const std::wstring& filePath, PluginInfo&
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
-//File selection functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// File selection functions
+//----------------------------------------------------------------------------------------------------------------------
 bool ExodusInterface::SelectExistingFile(const Marshal::In<std::wstring>& selectionTypeString, const Marshal::In<std::wstring>& defaultExtension, const Marshal::In<std::wstring>& initialFilePath, const Marshal::In<std::wstring>& initialDirectory, bool scanIntoArchives, const Marshal::Out<std::wstring>& selectedFilePath) const
 {
-	//Break the supplied selection type string down into individual type entries
+	// Break the supplied selection type string down into individual type entries
 	std::list<FileSelectionType> selectionTypes = ParseSelectionTypeString(selectionTypeString);
 
-	//Build a modified selection type list, adding all supported archive formats to each
-	//type entry if scanning into archives has been requested.
+	// Build a modified selection type list, adding all supported archive formats to each
+	// type entry if scanning into archives has been requested.
 	std::list<FileSelectionType> fullSelectionTypes = selectionTypes;
 	if (scanIntoArchives)
 	{
@@ -1860,28 +1860,28 @@ bool ExodusInterface::SelectExistingFile(const Marshal::In<std::wstring>& select
 		}
 	}
 
-	//Extract the first component from our combined path
+	// Extract the first component from our combined path
 	std::vector<std::wstring> initialPathElements = PathSplitElements(initialFilePath);
 	std::wstring initialPathFirstElement = initialPathElements[0];
 
-	//Attempt to select the target file until one is selected, or the selection process is
-	//aborted.
+	// Attempt to select the target file until one is selected, or the selection process is
+	// aborted.
 	std::wstring selectedFilePathTemp;
 	bool fileSelected = false;
 	bool fileSelectionAborted = false;
 	while (!fileSelected && !fileSelectionAborted)
 	{
-		//Select a target file, using the first element in the supplied path as the
-		//initial target.
+		// Select a target file, using the first element in the supplied path as the
+		// initial target.
 		if (!::SelectExistingFile(_mainWindowHandle, fullSelectionTypes, defaultExtension, initialPathFirstElement, initialDirectory, selectedFilePathTemp))
 		{
 			fileSelectionAborted = true;
 			continue;
 		}
 
-		//If the user has requested that we scan into archives for the target file, and a
-		//supported archive format has been selected, scan into that archive for a
-		//compatible target file.
+		// If the user has requested that we scan into archives for the target file, and a
+		// supported archive format has been selected, scan into that archive for a
+		// compatible target file.
 		if (scanIntoArchives)
 		{
 			//##TODO## Add support for more compression archive formats
@@ -1889,21 +1889,21 @@ bool ExodusInterface::SelectExistingFile(const Marshal::In<std::wstring>& select
 			std::wstring selectedFileExtension = PathGetFileExtension(selectedFilePathTemp);
 			if (selectedFileExtension == L"zip")
 			{
-				//Attempt to find a compatible file in this archive. Note that we pass the
-				//original selection types here, not the modified selection type list,
-				//since we only want to match types that were originally specified.
+				// Attempt to find a compatible file in this archive. Note that we pass the
+				// original selection types here, not the modified selection type list,
+				// since we only want to match types that were originally specified.
 				std::wstring relativePathWithinArchive;
 				if (!SelectExistingFileScanIntoArchive(selectionTypes, selectedFilePathTemp, relativePathWithinArchive))
 				{
 					continue;
 				}
 
-				//Build the full path to the selected file within the archive
+				// Build the full path to the selected file within the archive
 				selectedFilePathTemp = selectedFilePathTemp + L'|' + relativePathWithinArchive;
 			}
 		}
 
-		//Flag that a file has been selected
+		// Flag that a file has been selected
 		fileSelected = true;
 	}
 	selectedFilePath = selectedFilePathTemp;
@@ -1911,10 +1911,10 @@ bool ExodusInterface::SelectExistingFile(const Marshal::In<std::wstring>& select
 	return fileSelected;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool ExodusInterface::SelectExistingFileScanIntoArchive(const std::list<FileSelectionType>& selectionTypes, const std::wstring archivePath, std::wstring& selectedFilePath) const
 {
-	//Open the target archive file
+	// Open the target archive file
 	Stream::File archiveFile;
 	if (!archiveFile.Open(archivePath, Stream::File::OpenMode::ReadOnly, Stream::File::CreateMode::Open))
 	{
@@ -1924,7 +1924,7 @@ bool ExodusInterface::SelectExistingFileScanIntoArchive(const std::list<FileSele
 		return false;
 	}
 
-	//Load the archive from the file
+	// Load the archive from the file
 	ZIPArchive archive;
 	if (!archive.LoadFromStream(archiveFile))
 	{
@@ -1934,12 +1934,12 @@ bool ExodusInterface::SelectExistingFileScanIntoArchive(const std::list<FileSele
 		return false;
 	}
 
-	//Build list of all files in the archive that match the target type
+	// Build list of all files in the archive that match the target type
 	std::map<unsigned int, std::wstring> fileNamesInArchive;
 	unsigned int archiveEntryCount = archive.GetFileEntryCount();
 	for (unsigned int i = 0; i < archiveEntryCount; ++i)
 	{
-		//Retrieve this file entry
+		// Retrieve this file entry
 		ZIPFileEntry* fileEntry = archive.GetFileEntry(i);
 		if (fileEntry == 0)
 		{
@@ -1949,12 +1949,12 @@ bool ExodusInterface::SelectExistingFileScanIntoArchive(const std::list<FileSele
 			return false;
 		}
 
-		//Obtain the name and extension of this file entry
+		// Obtain the name and extension of this file entry
 		std::wstring fileName = fileEntry->GetFileName();
 		std::wstring fileExtension = PathGetFileExtension(fileName);
 
-		//Ensure that this file extension matches one of the target file extensions, and
-		//skip it if it does not.
+		// Ensure that this file extension matches one of the target file extensions, and
+		// skip it if it does not.
 		bool foundMatchingExtension = false;
 		std::list<FileSelectionType>::const_iterator selectionTypeIterator = selectionTypes.begin();
 		while (!foundMatchingExtension && (selectionTypeIterator != selectionTypes.end()))
@@ -1963,7 +1963,7 @@ bool ExodusInterface::SelectExistingFileScanIntoArchive(const std::list<FileSele
 			while (!foundMatchingExtension && (extensionFilterIterator != selectionTypeIterator->extensionFilters.end()))
 			{
 				//##TODO## Add support for wildcards and unknown characters in extension
-				//filter expressions.
+				// filter expressions.
 				if (*extensionFilterIterator == fileExtension)
 				{
 					foundMatchingExtension = true;
@@ -1977,11 +1977,11 @@ bool ExodusInterface::SelectExistingFileScanIntoArchive(const std::list<FileSele
 			continue;
 		}
 
-		//Insert this file entry into the list of possible target files
+		// Insert this file entry into the list of possible target files
 		fileNamesInArchive.insert(std::pair<unsigned int, std::wstring>(i, fileEntry->GetFileName()));
 	}
 
-	//If no possible target files were found, return an error.
+	// If no possible target files were found, return an error.
 	if (fileNamesInArchive.empty())
 	{
 		std::wstring title = L"Error opening file!";
@@ -1990,15 +1990,15 @@ bool ExodusInterface::SelectExistingFileScanIntoArchive(const std::list<FileSele
 		return false;
 	}
 
-	//If there was only one matching file in the target archive, select that file,
-	//otherwise ask the user to select the file to use.
+	// If there was only one matching file in the target archive, select that file,
+	// otherwise ask the user to select the file to use.
 	if (fileNamesInArchive.size() == 1)
 	{
 		selectedFilePath = fileNamesInArchive.begin()->second;
 	}
 	else
 	{
-		//Build the list of files to choose from for the selection dialog
+		// Build the list of files to choose from for the selection dialog
 		std::list<SelectCompressedFileDialogParamsFileEntry> fileListForSelection;
 		for (std::map<unsigned int, std::wstring>::const_iterator i = fileNamesInArchive.begin(); i != fileNamesInArchive.end(); ++i)
 		{
@@ -2008,7 +2008,7 @@ bool ExodusInterface::SelectExistingFileScanIntoArchive(const std::list<FileSele
 			fileListForSelection.push_back(entry);
 		}
 
-		//Open a dialog allowing the user to select a file from the list of matching files
+		// Open a dialog allowing the user to select a file from the list of matching files
 		SelectCompressedFileDialogParams selectCompressedFileDialogParams;
 		selectCompressedFileDialogParams.fileList = fileListForSelection;
 		INT_PTR selectCompressedFileDialogBoxParamResult;
@@ -2021,37 +2021,37 @@ bool ExodusInterface::SelectExistingFileScanIntoArchive(const std::list<FileSele
 			return false;
 		}
 
-		//If no selection was made in the dialog because the user canceled the selection,
-		//we return false, but we don't report an error to the user, because this state
-		//only occurs when the user specifically cancels the file selection.
+		// If no selection was made in the dialog because the user canceled the selection,
+		// we return false, but we don't report an error to the user, because this state
+		// only occurs when the user specifically cancels the file selection.
 		if (!selectCompressedFileDialogParams.selectionMade)
 		{
 			return false;
 		}
 
-		//Load the path to the selected file into the selected file path
+		// Load the path to the selected file into the selected file path
 		selectedFilePath = fileNamesInArchive[selectCompressedFileDialogParams.selectedEntryID];
 	}
 
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool ExodusInterface::SelectNewFile(const Marshal::In<std::wstring>& selectionTypeString, const Marshal::In<std::wstring>& defaultExtension, const Marshal::In<std::wstring>& initialFilePath, const Marshal::In<std::wstring>& initialDirectory, const Marshal::Out<std::wstring>& selectedFilePath) const
 {
-	//Extract the first component from our combined path
+	// Extract the first component from our combined path
 	std::vector<std::wstring> initialPathElements = PathSplitElements(initialFilePath);
 	std::wstring initialPathFirstElement = initialPathElements[0];
 
-	//Select a target file, using the first element in the supplied path as the initial
-	//target.
+	// Select a target file, using the first element in the supplied path as the initial
+	// target.
 	std::wstring selectedFilePathTemp;
 	bool result = ::SelectNewFile(_mainWindowHandle, selectionTypeString, defaultExtension, initialPathFirstElement, initialDirectory, selectedFilePathTemp);
 	selectedFilePath = selectedFilePathTemp;
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Marshal::Ret<std::vector<std::wstring>> ExodusInterface::PathSplitElements(const Marshal::In<std::wstring>& path) const
 {
 	//##TODO## Format and comment this
@@ -2070,7 +2070,7 @@ Marshal::Ret<std::vector<std::wstring>> ExodusInterface::PathSplitElements(const
 	return pathElements;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Stream::IStream* ExodusInterface::OpenExistingFileForRead(const Marshal::In<std::wstring>& path) const
 {
 	//##TODO## Provide more comments
@@ -2080,7 +2080,7 @@ Stream::IStream* ExodusInterface::OpenExistingFileForRead(const Marshal::In<std:
 	{
 		if (tempStream == 0)
 		{
-			//Open the target file
+			// Open the target file
 			Stream::File* file = new Stream::File();
 			tempStream = file;
 			if (!file->Open(pathElements[i], Stream::File::OpenMode::ReadOnly, Stream::File::CreateMode::Open))
@@ -2091,7 +2091,7 @@ Stream::IStream* ExodusInterface::OpenExistingFileForRead(const Marshal::In<std:
 		}
 		else
 		{
-			//Load the ZIP header structure
+			// Load the ZIP header structure
 			ZIPArchive archive;
 			bool archiveLoadResult = false;
 			archiveLoadResult = archive.LoadFromStream(*tempStream);
@@ -2101,7 +2101,7 @@ Stream::IStream* ExodusInterface::OpenExistingFileForRead(const Marshal::In<std:
 				return 0;
 			}
 
-			//Retrieve the target file entry from the archive
+			// Retrieve the target file entry from the archive
 			ZIPFileEntry* entry = archive.GetFileEntry(pathElements[i]);
 			if (entry == 0)
 			{
@@ -2109,7 +2109,7 @@ Stream::IStream* ExodusInterface::OpenExistingFileForRead(const Marshal::In<std:
 				return 0;
 			}
 
-			//Decompress the target file
+			// Decompress the target file
 			Stream::Buffer* buffer = new Stream::Buffer(0);
 			if (!entry->Decompress(*buffer))
 			{
@@ -2119,7 +2119,7 @@ Stream::IStream* ExodusInterface::OpenExistingFileForRead(const Marshal::In<std:
 			}
 			buffer->SetStreamPos(0);
 
-			//Replace the current stream with the decompressed target file stream
+			// Replace the current stream with the decompressed target file stream
 			delete tempStream;
 			tempStream = buffer;
 		}
@@ -2128,33 +2128,33 @@ Stream::IStream* ExodusInterface::OpenExistingFileForRead(const Marshal::In<std:
 	return tempStream;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void ExodusInterface::DeleteFileStream(Stream::IStream* stream) const
 {
 	delete stream;
 }
 
-//----------------------------------------------------------------------------------------
-//Device functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Device functions
+//----------------------------------------------------------------------------------------------------------------------
 std::list<ExodusInterface::RegisteredDeviceInfo> ExodusInterface::GetRegisteredDevices() const
 {
 	std::unique_lock<std::mutex> lock(_registeredElementMutex);
 	return _registeredDevices;
 }
 
-//----------------------------------------------------------------------------------------
-//Extension functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Extension functions
+//----------------------------------------------------------------------------------------------------------------------
 std::list<ExodusInterface::RegisteredExtensionInfo> ExodusInterface::GetRegisteredExtensions() const
 {
 	std::unique_lock<std::mutex> lock(_registeredElementMutex);
 	return _registeredExtensions;
 }
 
-//----------------------------------------------------------------------------------------
-//Menu functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Menu functions
+//----------------------------------------------------------------------------------------------------------------------
 bool ExodusInterface::BuildMenuRecursive(HMENU parentMenu, IMenuItem& menuItem, unsigned int& nextMenuID, int& insertPos, bool& leadingMenuItemsPresent, bool& trailingSeparatorPresent, bool& insertLeadingSeparatorBeforeNextItem)
 {
 	bool result = true;
@@ -2267,7 +2267,7 @@ bool ExodusInterface::BuildMenuRecursive(HMENU parentMenu, IMenuItem& menuItem, 
 				++insertPos;
 			}
 
-			//Associate nextMenuID with this menu item
+			// Associate nextMenuID with this menu item
 			menuItemResolved.SetPhysicalMenuHandle(parentMenu);
 			menuItemResolved.SetPhysicalMenuItemID(nextMenuID);
 			NewMenuItem item(parentMenu, nextMenuID, menuItemResolved);
@@ -2279,7 +2279,7 @@ bool ExodusInterface::BuildMenuRecursive(HMENU parentMenu, IMenuItem& menuItem, 
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool ExodusInterface::InsertMenuItemSeparator(HMENU parentMenu, int& insertPos)
 {
 	bool result = true;
@@ -2305,12 +2305,12 @@ bool ExodusInterface::InsertMenuItemSeparator(HMENU parentMenu, int& insertPos)
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool ExodusInterface::BuildFileMenu()
 {
 	bool result = true;
 
-	//Clear all existing dynamic items from the physical file menu
+	// Clear all existing dynamic items from the physical file menu
 	int menuItemCount = GetMenuItemCount(_fileMenu);
 	int currentDyanmicMenuItemCount = menuItemCount - _fileMenuNonDynamicMenuItemCount;
 	for (int i = 0; i < currentDyanmicMenuItemCount; ++i)
@@ -2318,13 +2318,13 @@ bool ExodusInterface::BuildFileMenu()
 		DeleteMenu(_fileMenu, 0, MF_BYPOSITION);
 	}
 
-	//Clear all items from our file submenu structure
+	// Clear all items from our file submenu structure
 	_fileSubmenu->DeleteAllMenuItems();
 
-	//Add menu items to the submenu
+	// Add menu items to the submenu
 	_system->BuildFileOpenMenu(*_fileSubmenu);
 
-	//Build the actual menu using the menu structure
+	// Build the actual menu using the menu structure
 	int insertPos = 0;
 	bool leadingMenuItemsPresent = false;
 	bool trailingSeparatorPresent = false;
@@ -2335,8 +2335,8 @@ bool ExodusInterface::BuildFileMenu()
 		result &= BuildMenuRecursive(_fileMenu, *(*i), _nextFreeMenuID, insertPos, leadingMenuItemsPresent, trailingSeparatorPresent, insertLeadingSeparatorBeforeNextItem);
 	}
 
-	//Ensure a trailing separator is added to the menu between any dynamic menu items and
-	//our static menu items
+	// Ensure a trailing separator is added to the menu between any dynamic menu items and
+	// our static menu items
 	if (leadingMenuItemsPresent)
 	{
 		InsertMenuItemSeparator(_fileMenu, insertPos);
@@ -2346,12 +2346,12 @@ bool ExodusInterface::BuildFileMenu()
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool ExodusInterface::BuildSystemMenu()
 {
 	bool result = true;
 
-	//Clear all existing dynamic items from the physical system menu
+	// Clear all existing dynamic items from the physical system menu
 	int menuItemCount = GetMenuItemCount(_systemMenu);
 	for (int i = _systemMenuFirstItemIndex; i < menuItemCount; ++i)
 	{
@@ -2359,13 +2359,13 @@ bool ExodusInterface::BuildSystemMenu()
 		DeleteMenu(_systemMenu, menuItemIndex, MF_BYPOSITION);
 	}
 
-	//Clear all items from our submenu structure
+	// Clear all items from our submenu structure
 	_systemSubmenu->DeleteAllMenuItems();
 
-	//Add menu items to the submenu
+	// Add menu items to the submenu
 	_system->BuildSystemMenu(*_systemSubmenu);
 
-	//Build the actual menu using the menu structure
+	// Build the actual menu using the menu structure
 	int insertPos = -1;
 	bool leadingMenuItemsPresent = true;
 	bool trailingSeparatorPresent = false;
@@ -2380,12 +2380,12 @@ bool ExodusInterface::BuildSystemMenu()
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool ExodusInterface::BuildSettingsMenu()
 {
 	bool result = true;
 
-	//Clear all existing dynamic items from the physical settings menu
+	// Clear all existing dynamic items from the physical settings menu
 	int menuItemCount = GetMenuItemCount(_settingsMenu);
 	for (int i = _settingsMenuFirstItemIndex; i < menuItemCount; ++i)
 	{
@@ -2393,13 +2393,13 @@ bool ExodusInterface::BuildSettingsMenu()
 		DeleteMenu(_settingsMenu, menuItemIndex, MF_BYPOSITION);
 	}
 
-	//Clear all items from our submenu structure
+	// Clear all items from our submenu structure
 	_settingsSubmenu->DeleteAllMenuItems();
 
-	//Add menu items to the submenu
+	// Add menu items to the submenu
 	_system->BuildSettingsMenu(*_settingsSubmenu);
 
-	//Build the actual menu using the menu structure
+	// Build the actual menu using the menu structure
 	int insertPos = -1;
 	bool leadingMenuItemsPresent = true;
 	bool trailingSeparatorPresent = false;
@@ -2414,12 +2414,12 @@ bool ExodusInterface::BuildSettingsMenu()
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool ExodusInterface::BuildDebugMenu()
 {
 	bool result = true;
 
-	//Clear all existing dynamic items from the physical debug menu
+	// Clear all existing dynamic items from the physical debug menu
 	int menuItemCount = GetMenuItemCount(_debugMenu);
 	for (int i = _debugMenuFirstItemIndex; i < menuItemCount; ++i)
 	{
@@ -2427,13 +2427,13 @@ bool ExodusInterface::BuildDebugMenu()
 		DeleteMenu(_debugMenu, menuItemIndex, MF_BYPOSITION);
 	}
 
-	//Clear all items from our submenu structure
+	// Clear all items from our submenu structure
 	_debugSubmenu->DeleteAllMenuItems();
 
-	//Add menu items to the submenu
+	// Add menu items to the submenu
 	_system->BuildDebugMenu(*_debugSubmenu);
 
-	//Build the actual menu using the menu structure
+	// Build the actual menu using the menu structure
 	int insertPos = -1;
 	bool leadingMenuItemsPresent = false;
 	bool trailingSeparatorPresent = false;
@@ -2448,23 +2448,23 @@ bool ExodusInterface::BuildDebugMenu()
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
-//Thread handlers
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Thread handlers
+//----------------------------------------------------------------------------------------------------------------------
 void ExodusInterface::UnloadModuleThread(unsigned int moduleID)
 {
-	//Unload the specified module
+	// Unload the specified module
 	_system->UnloadModule(moduleID);
 
 	_moduleCommandComplete = true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void ExodusInterface::UnloadSystemThread()
 {
 	if (_systemLoaded)
 	{
-		//Clear all previously loaded system info
+		// Clear all previously loaded system info
 		_system->UnloadAllModules();
 	}
 
@@ -2472,32 +2472,32 @@ void ExodusInterface::UnloadSystemThread()
 	_moduleCommandComplete = true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void ExodusInterface::DestroySystemInterfaceThread()
 {
-	//Stop the system if it is currently running
+	// Stop the system if it is currently running
 	_system->StopSystem();
 
-	//Explicitly close all currently open views
+	// Explicitly close all currently open views
 	_viewManager->CloseAllViews();
 
-	//Unload the system, to ensure all device menus are cleaned up.
+	// Unload the system, to ensure all device menus are cleaned up.
 	UnloadAllModules();
 
-	//Save settings.xml
+	// Save settings.xml
 	std::wstring preferenceFilePath = PathCombinePaths(_preferenceDirectoryPath, L"settings.xml");
 	SavePrefs(preferenceFilePath);
 
-	//Send a message to the main window, requesting it to close.
+	// Send a message to the main window, requesting it to close.
 	SendMessage(_mainWindowHandle, WM_USER+2, 0, 0);
 }
 
-//----------------------------------------------------------------------------------------
-//Window callbacks
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Window callbacks
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR CALLBACK ExodusInterface::MapConnectorProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 {
-	//Obtain the object pointer
+	// Obtain the object pointer
 	MapConnectorDialogParams* state = (MapConnectorDialogParams*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
 	switch (Message)
@@ -2541,7 +2541,7 @@ INT_PTR CALLBACK ExodusInterface::MapConnectorProc(HWND hwnd, UINT Message, WPAR
 		}
 		break;}
 	case WM_INITDIALOG:{
-		//Set the object pointer
+		// Set the object pointer
 		state = (MapConnectorDialogParams*)lParam;
 		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)(state));
 
@@ -2565,10 +2565,10 @@ INT_PTR CALLBACK ExodusInterface::MapConnectorProc(HWND hwnd, UINT Message, WPAR
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR CALLBACK ExodusInterface::LoadPluginProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 {
-	//Obtain the object pointer
+	// Obtain the object pointer
 	ExodusInterface* state = (ExodusInterface*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
 	switch (Message)
@@ -2612,7 +2612,7 @@ INT_PTR CALLBACK ExodusInterface::LoadPluginProc(HWND hwnd, UINT Message, WPARAM
 		}
 		break;
 	case WM_INITDIALOG:{
-		//Set the object pointer
+		// Set the object pointer
 		state = (ExodusInterface*)lParam;
 		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)(state));
 
@@ -2625,10 +2625,10 @@ INT_PTR CALLBACK ExodusInterface::LoadPluginProc(HWND hwnd, UINT Message, WPARAM
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR CALLBACK ExodusInterface::LoadModuleProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 {
-	//Obtain the object pointer
+	// Obtain the object pointer
 	ExodusInterface* state = (ExodusInterface*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
 	switch (Message)
@@ -2670,7 +2670,7 @@ INT_PTR CALLBACK ExodusInterface::LoadModuleProc(HWND hwnd, UINT Message, WPARAM
 		}
 		break;
 	case WM_INITDIALOG:{
-		//Set the object pointer
+		// Set the object pointer
 		state = (ExodusInterface*)lParam;
 		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)(state));
 
@@ -2683,10 +2683,10 @@ INT_PTR CALLBACK ExodusInterface::LoadModuleProc(HWND hwnd, UINT Message, WPARAM
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR CALLBACK ExodusInterface::UnloadModuleProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 {
-	//Obtain the object pointer
+	// Obtain the object pointer
 	ExodusInterface* state = (ExodusInterface*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
 	switch (Message)
@@ -2709,7 +2709,7 @@ INT_PTR CALLBACK ExodusInterface::UnloadModuleProc(HWND hwnd, UINT Message, WPAR
 	case WM_CLOSE:
 		break;
 	case WM_INITDIALOG:{
-		//Set the object pointer
+		// Set the object pointer
 		state = (ExodusInterface*)lParam;
 		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)(state));
 
@@ -2731,10 +2731,10 @@ INT_PTR CALLBACK ExodusInterface::UnloadModuleProc(HWND hwnd, UINT Message, WPAR
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR CALLBACK ExodusInterface::SelectCompressedFileProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 {
-	//Obtain the object pointer
+	// Obtain the object pointer
 	SelectCompressedFileDialogParams* state = (SelectCompressedFileDialogParams*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
 	switch (Message)
@@ -2778,7 +2778,7 @@ INT_PTR CALLBACK ExodusInterface::SelectCompressedFileProc(HWND hwnd, UINT Messa
 		}
 		break;}
 	case WM_INITDIALOG:{
-		//Set the object pointer
+		// Set the object pointer
 		state = (SelectCompressedFileDialogParams*)lParam;
 		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)(state));
 
@@ -2796,15 +2796,15 @@ INT_PTR CALLBACK ExodusInterface::SelectCompressedFileProc(HWND hwnd, UINT Messa
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT CALLBACK ExodusInterface::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	//Obtain the object pointer
+	// Obtain the object pointer
 	ExodusInterface* state = (ExodusInterface*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
 	switch (msg)
 	{
-	case WM_USER+2: //Closing main interface
+	case WM_USER+2: // Closing main interface
 		if (state == 0)
 		{
 			break;
@@ -2812,23 +2812,23 @@ LRESULT CALLBACK ExodusInterface::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LP
 
 		if (state->_systemDestructionInProgress)
 		{
-			//Destroy the main window
+			// Destroy the main window
 			DestroyWindow(hwnd);
 		}
 		break;
-	case WM_USER+3: //Initialize platform
+	case WM_USER+3: // Initialize platform
 		state->InitializeAfterMainWindowLoad();
 		break;
 	case WM_NCHITTEST:{
-		//If a hit test reports the current cursor position as in the border region, the
-		//cursor may be against the edge of the window while in a maximized state, as
-		//Windows appears to provide a thin border in this case. This causes problems with
-		//our child docking window, as tabs for docked containers in auto hide mode won't
-		//trigger if the cursor is against the edge of the screen. We explicitly perform
-		//a hit test operation here to handle this case, so that tabs will trigger if the
-		//mouse is within the extended hit region for a tab. The docking window hit test
-		//functions provide an extended hit region which allows for the presence of this
-		//border when performing the hit testing.
+		// If a hit test reports the current cursor position as in the border region, the
+		// cursor may be against the edge of the window while in a maximized state, as
+		// Windows appears to provide a thin border in this case. This causes problems with
+		// our child docking window, as tabs for docked containers in auto hide mode won't
+		// trigger if the cursor is against the edge of the screen. We explicitly perform
+		// a hit test operation here to handle this case, so that tabs will trigger if the
+		// mouse is within the extended hit region for a tab. The docking window hit test
+		// functions provide an extended hit region which allows for the presence of this
+		// border when performing the hit testing.
 		LRESULT result = DefWindowProc(hwnd, WM_NCHITTEST, wParam, lParam);
 		if (result == HTBORDER)
 		{
@@ -2845,7 +2845,7 @@ LRESULT CALLBACK ExodusInterface::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LP
 			break;
 		}
 
-		//Menu commands
+		// Menu commands
 		int menuID = LOWORD(wParam);
 		switch (menuID)
 		{
@@ -2942,8 +2942,8 @@ LRESULT CALLBACK ExodusInterface::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LP
 			}
 			else
 			{
-				//Only show the window selection screen if more than one active child
-				//window exists
+				// Only show the window selection screen if more than one active child
+				// window exists
 				std::list<HWND> windowList = state->_viewManager->GetOpenFloatingWindows();
 				state->_topLevelWindowList = std::vector<HWND>(windowList.begin(), windowList.end());
 				if (state->_topLevelWindowList.size() > 1)
@@ -2962,8 +2962,8 @@ LRESULT CALLBACK ExodusInterface::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LP
 			}
 			else
 			{
-				//Only show the window selection screen if more than one active child
-				//window exists
+				// Only show the window selection screen if more than one active child
+				// window exists
 				std::list<HWND> openViewList = state->_viewManager->GetOpenFloatingWindows();
 				state->_topLevelWindowList = std::vector<HWND>(openViewList.begin(), openViewList.end());
 				if (state->_topLevelWindowList.size() > 1)
@@ -2991,7 +2991,7 @@ LRESULT CALLBACK ExodusInterface::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LP
 		}
 		break;}
 
-	//Windows messages
+	// Windows messages
 	case WM_MOVE:{
 		if (state == 0)
 		{
@@ -3002,14 +3002,14 @@ LRESULT CALLBACK ExodusInterface::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LP
 			break;
 		}
 
-		//Retrieve the new position of the main window
+		// Retrieve the new position of the main window
 		RECT windowRect;
 		GetWindowRect(hwnd, &windowRect);
 		int newWindowPosX = (int)(windowRect.left);
 		int newWindowPosY = (int)(windowRect.top);
 
-		//If we had a previous position of the main window captured, move each floating
-		//window to keep the same relative position to the main window.
+		// If we had a previous position of the main window captured, move each floating
+		// window to keep the same relative position to the main window.
 		if (state->_mainWindowPosCaptured)
 		{
 			int windowMoveX = newWindowPosX - state->_mainWindowPosX;
@@ -3017,26 +3017,26 @@ LRESULT CALLBACK ExodusInterface::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LP
 			state->_viewManager->AdjustFloatingWindowPositions(windowMoveX, windowMoveY);
 		}
 
-		//Record the new position of the main window
+		// Record the new position of the main window
 		state->_mainWindowPosX = newWindowPosX;
 		state->_mainWindowPosY = newWindowPosY;
 		state->_mainWindowPosCaptured = true;
 
 		break;}
 	case WM_SIZE:
-		//Resize the child docking window to match the new main window size
+		// Resize the child docking window to match the new main window size
 		if (state != 0)
 		{
 			SetWindowPos(state->_mainDockingWindowHandle, NULL, 0, 0, LOWORD(lParam), HIWORD(lParam), SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOREPOSITION);
 		}
 		break;
 	case WM_CREATE:{
-		//Set the object pointer
+		// Set the object pointer
 		state = (ExodusInterface*)((CREATESTRUCT*)lParam)->lpCreateParams;
 		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)(state));
 
-		//Post a message to the back of the message queue, to perform further
-		//initialization of the main window.
+		// Post a message to the back of the message queue, to perform further
+		// initialization of the main window.
 		PostMessage(hwnd, WM_USER+3, 0, 0);
 		break;}
 	case WM_CLOSE:
@@ -3060,10 +3060,10 @@ LRESULT CALLBACK ExodusInterface::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LP
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT CALLBACK ExodusInterface::WndSavestateCellProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	//Obtain the object pointer
+	// Obtain the object pointer
 	SavestateCellWindowState* state = (SavestateCellWindowState*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
 	switch (msg)
@@ -3104,29 +3104,29 @@ LRESULT CALLBACK ExodusInterface::WndSavestateCellProc(HWND hwnd, UINT msg, WPAR
 			state->initializedBitmap = false;
 		}
 
-		//Load the screenshot
+		// Load the screenshot
 		state->screenshotPresent = stateInfo.valid && stateInfo.screenshotPresent;
 		if (stateInfo.screenshotPresent)
 		{
-			//Open the target file
+			// Open the target file
 			std::wstring filePath = PathCombinePaths(exodusInterface->_prefs.pathSavestates, saveFileName);
 			Stream::File source;
 			if (source.Open(filePath, Stream::File::OpenMode::ReadOnly, Stream::File::CreateMode::Open))
 			{
-				//Load the ZIP header structure
+				// Load the ZIP header structure
 				ZIPArchive archive;
 				if (archive.LoadFromStream(source))
 				{
-					//Decompress the screenshot file to memory
+					// Decompress the screenshot file to memory
 					ZIPFileEntry* entry = archive.GetFileEntry(stateInfo.screenshotFilename);
 					if (entry != 0)
 					{
 						Stream::Buffer buffer(0);
 						if (entry->Decompress(buffer))
 						{
-							//Decode the image file from the memory buffer. Note that we
-							//use the generic image load function, so the image can be
-							//stored in any recognized format.
+							// Decode the image file from the memory buffer. Note that we
+							// use the generic image load function, so the image can be
+							// stored in any recognized format.
 							buffer.SetStreamPos(0);
 							if (state->originalImage.LoadImageFile(buffer))
 							{
@@ -3143,7 +3143,7 @@ LRESULT CALLBACK ExodusInterface::WndSavestateCellProc(HWND hwnd, UINT msg, WPAR
 		ShowWindow(hwnd, SW_SHOWNOACTIVATE);
 		break;}
 	case WM_CREATE:{
-		//Set the object pointer
+		// Set the object pointer
 		state = (SavestateCellWindowState*)(((CREATESTRUCT*)lParam)->lpCreateParams);
 		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)(state));
 		break;}
@@ -3156,17 +3156,17 @@ LRESULT CALLBACK ExodusInterface::WndSavestateCellProc(HWND hwnd, UINT msg, WPAR
 		PAINTSTRUCT ps;
 		HDC hdc = BeginPaint(hwnd, &ps);
 
-		//Calculate the dimensions of the drawable client region of the window
+		// Calculate the dimensions of the drawable client region of the window
 		RECT rect;
 		GetClientRect(hwnd, &rect);
 		unsigned int controlWidth = rect.right - rect.left;
 		unsigned int controlHeight = rect.bottom - rect.top;
 
-		//Fixed window size properties
+		// Fixed window size properties
 		unsigned int borderSize = 3;
 		unsigned int infoRectangleHeight = state->infoRectangleHeight;
 
-		//Select the fill and border colours for the information rectangle
+		// Select the fill and border colours for the information rectangle
 		COLORREF borderColorSelected = RGB(0, 255, 0);
 		COLORREF borderColorInactive = RGB(0, 0, 0);
 		COLORREF fillColorPresent = RGB(255, 0, 0);
@@ -3176,7 +3176,7 @@ LRESULT CALLBACK ExodusInterface::WndSavestateCellProc(HWND hwnd, UINT msg, WPAR
 		COLORREF fillColor = (state->savestatePresent)? fillColorPresent: (state->debugStatePresent? fillColorDebugPresent: fillColorEmpty);
 		COLORREF debugFillColor = (state->debugStatePresent)? fillColorDebugPresent: (state->savestatePresent? fillColorPresent: fillColorEmpty);
 
-		//Draw the outer rectangle
+		// Draw the outer rectangle
 		unsigned int outerRectangleWidth = controlWidth;
 		unsigned int outerRectangleHeight = infoRectangleHeight;
 		unsigned int outerRectanglePosX = 0;
@@ -3187,7 +3187,7 @@ LRESULT CALLBACK ExodusInterface::WndSavestateCellProc(HWND hwnd, UINT msg, WPAR
 		SelectObject(hdc, outerRectangleBrushOld);
 		DeleteObject(outerRectangleBrush);
 
-		//Draw the inner rectangle
+		// Draw the inner rectangle
 		unsigned int innerRectangleWidth = outerRectangleWidth - (borderSize * 2);
 		unsigned int innerRectangleHeight = outerRectangleHeight - (borderSize * 2);
 		unsigned int innerRectanglePosX = outerRectanglePosX + borderSize;
@@ -3198,7 +3198,7 @@ LRESULT CALLBACK ExodusInterface::WndSavestateCellProc(HWND hwnd, UINT msg, WPAR
 		SelectObject(hdc, innerRectangleBrushOld);
 		DeleteObject(innerRectangleBrush);
 
-		//Draw the debug present rectangle
+		// Draw the debug present rectangle
 		unsigned int debugRectangleWidth = innerRectangleWidth;
 		unsigned int debugRectangleHeight = innerRectangleHeight / 2;
 		unsigned int debugRectanglePosX = innerRectanglePosX;
@@ -3209,8 +3209,8 @@ LRESULT CALLBACK ExodusInterface::WndSavestateCellProc(HWND hwnd, UINT msg, WPAR
 		SelectObject(hdc, debugRectangleBrushOld);
 		DeleteObject(debugRectangleBrush);
 
-		//Calculate the maximum font width and height which will allow two lines of text
-		//to be displayed in the information rectangle, with 20 characters per line.
+		// Calculate the maximum font width and height which will allow two lines of text
+		// to be displayed in the information rectangle, with 20 characters per line.
 		unsigned int minimumCharacterWidth = 20;
 		unsigned int minimumCharacterHeight = 2;
 		unsigned int fontWidthPixels = innerRectangleWidth / minimumCharacterWidth;
@@ -3222,11 +3222,11 @@ LRESULT CALLBACK ExodusInterface::WndSavestateCellProc(HWND hwnd, UINT msg, WPAR
 		unsigned int fontWidthLogical = fontPoint.x;
 		unsigned int fontHeightLogical = fontPoint.y;
 
-		//Create a logical font to display our text
+		// Create a logical font to display our text
 		HFONT hfont = CreateFont(fontHeightLogical, fontWidthLogical, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, NULL);
 		HFONT hfontOld = (HFONT)SelectObject(hdc, (HGDIOBJ)hfont);
 
-		//Calculate the position of the info rectangle in logical coordinates
+		// Calculate the position of the info rectangle in logical coordinates
 		POINT infoPos[2];
 		infoPos[0].x = innerRectanglePosX;
 		infoPos[0].y = innerRectanglePosY;
@@ -3239,32 +3239,32 @@ LRESULT CALLBACK ExodusInterface::WndSavestateCellProc(HWND hwnd, UINT msg, WPAR
 		infoRect.right = infoPos[1].x;
 		infoRect.bottom = infoPos[1].y;
 
-		//Set the text colour
+		// Set the text colour
 		SetTextColor(hdc, RGB(255, 255, 255));
 		SetBkMode(hdc, TRANSPARENT);
 
-		//Write the savestate creation timestamp
+		// Write the savestate creation timestamp
 		DrawText(hdc, &state->timestamp[0], (int)state->timestamp.length(), &infoRect, DT_SINGLELINE | DT_CENTER | DT_TOP);
 //		DrawText(hdc, &state->date[0], (int)state->date.length(), &infoRect, DT_SINGLELINE | DT_LEFT);
 //		DrawText(hdc, &state->time[0], (int)state->time.length(), &infoRect, DT_SINGLELINE | DT_RIGHT);
 
-		//Write the slot number
+		// Write the slot number
 		DrawText(hdc, &state->slotName[0], (int)state->slotName.length(), &infoRect, DT_SINGLELINE | DT_CENTER | DT_BOTTOM);
 
-		//Switch back to the previously selected font, and delete our logical font object.
+		// Switch back to the previously selected font, and delete our logical font object.
 		SelectObject(hdc, (HGDIOBJ)hfontOld);
 		DeleteObject(hfont);
 
 		if (state->screenshotPresent)
 		{
-			//Calculate the dimensions of the picture box
+			// Calculate the dimensions of the picture box
 			unsigned int pictureBoxWidth = controlWidth - (borderSize * 2);
 			unsigned int pictureBoxHeight = controlHeight - outerRectangleHeight;
 			unsigned int pictureBoxXPos = borderSize;
 			unsigned int pictureBoxYPos = 0;
 
-			//If we haven't already created a GDI bitmap object containing our image,
-			//build the object.
+			// If we haven't already created a GDI bitmap object containing our image,
+			// build the object.
 			if (!state->initializedBitmap)
 			{
 				state->initializedBitmap = true;
@@ -3275,8 +3275,8 @@ LRESULT CALLBACK ExodusInterface::WndSavestateCellProc(HWND hwnd, UINT msg, WPAR
 				float displayAspect = (float)pictureBoxWidth / (float)pictureBoxHeight;
 				if (imageAspect > displayAspect)
 				{
-					//Our image has a wider aspect ratio than the screen region.
-					//Resize the image to maximize the horizontal resolution.
+					// Our image has a wider aspect ratio than the screen region.
+					// Resize the image to maximize the horizontal resolution.
 					state->bitmapWidth = pictureBoxWidth;
 					state->bitmapHeight = (unsigned int)(((float)pictureBoxWidth * ((float)imageHeight / (float)imageWidth)) + 0.5f);
 					state->bitmapXPos = 0;
@@ -3284,8 +3284,8 @@ LRESULT CALLBACK ExodusInterface::WndSavestateCellProc(HWND hwnd, UINT msg, WPAR
 				}
 				else
 				{
-					//Our image has a taller aspect ratio than the screen region.
-					//Resize the image to maximize the vertical resolution.
+					// Our image has a taller aspect ratio than the screen region.
+					// Resize the image to maximize the vertical resolution.
 					state->bitmapWidth = (unsigned int)(((float)pictureBoxHeight * ((float)imageWidth / (float)imageHeight)) + 0.5f);
 					state->bitmapHeight = pictureBoxHeight;
 					state->bitmapXPos = (pictureBoxWidth - state->bitmapWidth) / 2;
@@ -3306,10 +3306,10 @@ LRESULT CALLBACK ExodusInterface::WndSavestateCellProc(HWND hwnd, UINT msg, WPAR
 			HDC hdcMem = CreateCompatibleDC(hdc);
 			HBITMAP hbmOld = (HBITMAP)SelectObject(hdcMem, state->hbitmap);
 
-			//Pre-fill the picture box with black
+			// Pre-fill the picture box with black
 			BitBlt(hdc, pictureBoxXPos, pictureBoxYPos, pictureBoxWidth, pictureBoxHeight, hdcMem, 0, 0, BLACKNESS);
 
-			//Draw our image centered in the picture box
+			// Draw our image centered in the picture box
 			BitBlt(hdc, pictureBoxXPos + state->bitmapXPos, pictureBoxYPos + state->bitmapYPos, state->bitmapWidth, state->bitmapHeight, hdcMem, 0, 0, SRCCOPY);
 
 			SelectObject(hdcMem, hbmOld);
@@ -3330,10 +3330,10 @@ LRESULT CALLBACK ExodusInterface::WndSavestateCellProc(HWND hwnd, UINT msg, WPAR
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT CALLBACK ExodusInterface::WndSavestateProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	//Obtain the object pointer
+	// Obtain the object pointer
 	ExodusInterface* state = (ExodusInterface*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
 	switch (msg)
@@ -3343,11 +3343,11 @@ LRESULT CALLBACK ExodusInterface::WndSavestateProc(HWND hwnd, UINT msg, WPARAM w
 		KillTimer(hwnd, 1);
 	break;}
 	case WM_CREATE:{
-		//Set the object pointer
+		// Set the object pointer
 		state = (ExodusInterface*)(((CREATESTRUCT*)lParam)->lpCreateParams);
 		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)(state));
 
-		//Register the window class for a cell within our savestate window
+		// Register the window class for a cell within our savestate window
 		WNDCLASSEX wc;
 		std::wstring windowClassName = L"ExodusWCSaveCell";
 		std::wstring windowName = L"ExodusSaveCell";
@@ -3368,7 +3368,7 @@ LRESULT CALLBACK ExodusInterface::WndSavestateProc(HWND hwnd, UINT msg, WPARAM w
 			return NULL;
 		}
 
-		//Initialize the info for each child cell, and create the child cell windows.
+		// Initialize the info for each child cell, and create the child cell windows.
 		for (unsigned int i = 0; i < state->CellCount; ++i)
 		{
 			unsigned int slotNo = ((i + 1) % 10);
@@ -3392,7 +3392,7 @@ LRESULT CALLBACK ExodusInterface::WndSavestateProc(HWND hwnd, UINT msg, WPARAM w
 
 		if (wParam == TRUE)
 		{
-			//Obtain information on the dimensions of the screen
+			// Obtain information on the dimensions of the screen
 			HMONITOR monitor = MonitorFromWindow(state->_mainWindowHandle, MONITOR_DEFAULTTONEAREST);
 			MONITORINFO monitorInfo;
 			monitorInfo.cbSize = sizeof(monitorInfo);
@@ -3402,25 +3402,25 @@ LRESULT CALLBACK ExodusInterface::WndSavestateProc(HWND hwnd, UINT msg, WPARAM w
 			int monitorWidth = monitorInfo.rcWork.right - monitorInfo.rcWork.left;
 			int monitorHeight = monitorInfo.rcWork.bottom - monitorInfo.rcWork.top;
 
-			//If the savestate popup window has changed monitors since the last time it
-			//was displayed, calculate the new position and dimensions for the window.
+			// If the savestate popup window has changed monitors since the last time it
+			// was displayed, calculate the new position and dimensions for the window.
 			if ((state->_savestateMonitorPosX != monitorPosX) || (state->_mainWindowPosY != monitorPosY) || (state->_savestateMonitorWidth != monitorWidth) || (state->_savestateMonitorHeight != monitorHeight))
 			{
-				//Save the new monitor info
+				// Save the new monitor info
 				state->_savestateMonitorPosX = monitorPosX;
 				state->_savestateMonitorPosY = monitorPosY;
 				state->_savestateMonitorWidth = monitorWidth;
 				state->_savestateMonitorHeight = monitorHeight;
 
-				//Fixed window size properties
+				// Fixed window size properties
 				float imageAspect = 3.0f / 4.0f;
 				unsigned int cellsPerLine = 10;
 				unsigned int lineCount = 1;
 				int imageBoxHeight = (int)((((float)monitorWidth * imageAspect) / (float)cellsPerLine) * (float)lineCount);
 				int infoRectangleHeight = (int)((float)(monitorWidth / cellsPerLine) * (1.2f / 4.0f));
 
-				//Calculate the new position and dimensions for the main savestate popup
-				//window, and apply the new settings.
+				// Calculate the new position and dimensions for the main savestate popup
+				// window, and apply the new settings.
 				int savestateWindowWidth = monitorWidth;
 				int savestateWindowHeight = infoRectangleHeight + imageBoxHeight;
 				int savestateWindowPosX = monitorPosX;
@@ -3429,16 +3429,16 @@ LRESULT CALLBACK ExodusInterface::WndSavestateProc(HWND hwnd, UINT msg, WPARAM w
 				int heightPerCell = savestateWindowHeight / (int)lineCount;
 				MoveWindow(hwnd, savestateWindowPosX, savestateWindowPosY, savestateWindowWidth, savestateWindowHeight, TRUE);
 
-				//Update settings for each child cell window
+				// Update settings for each child cell window
 				for (unsigned int i = 0; i < state->CellCount; ++i)
 				{
-					//Free the bitmap object for the child cell, and force it to be
-					//recalculated the next time the window is drawn.
+					// Free the bitmap object for the child cell, and force it to be
+					// recalculated the next time the window is drawn.
 					state->_cell[i].initializedBitmap = false;
 					DeleteObject(state->_cell[i].hbitmap);
 
-					//Calculate the new position and size of the child cell, and apply
-					//the new settings.
+					// Calculate the new position and size of the child cell, and apply
+					// the new settings.
 					state->_cell[i].infoRectangleHeight = (unsigned int)infoRectangleHeight;
 					int cellPosX = (i % cellsPerLine) * widthPerCell;
 					int cellPosY = (i / cellsPerLine) * heightPerCell;
@@ -3470,16 +3470,16 @@ LRESULT CALLBACK ExodusInterface::WndSavestateProc(HWND hwnd, UINT msg, WPARAM w
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT CALLBACK ExodusInterface::WndWindowSelectProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	//Obtain the object pointer
+	// Obtain the object pointer
 	ExodusInterface* state = (ExodusInterface*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
 	switch (msg)
 	{
 	case WM_CREATE:{
-		//Set the object pointer
+		// Set the object pointer
 		state = (ExodusInterface*)(((CREATESTRUCT*)lParam)->lpCreateParams);
 		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)(state));
 	break;}
@@ -3586,7 +3586,7 @@ LRESULT CALLBACK ExodusInterface::WndWindowSelectProc(HWND hwnd, UINT msg, WPARA
 
 		if (wParam == TRUE)
 		{
-			//Fixed window size properties
+			// Fixed window size properties
 			unsigned int windowEntries = (unsigned int)state->_topLevelWindowList.size();
 			unsigned int cellOffsetX = 5;
 			unsigned int cellOffsetY = 5;
@@ -3594,7 +3594,7 @@ LRESULT CALLBACK ExodusInterface::WndWindowSelectProc(HWND hwnd, UINT msg, WPARA
 			unsigned int cellHeight = 20;
 			unsigned int columnBreakWidth = 4;
 
-			//Obtain information on the dimensions of the screen
+			// Obtain information on the dimensions of the screen
 			HMONITOR monitor = MonitorFromWindow(state->_mainWindowHandle, MONITOR_DEFAULTTONEAREST);
 			MONITORINFO monitorInfo;
 			monitorInfo.cbSize = sizeof(monitorInfo);
@@ -3607,10 +3607,10 @@ LRESULT CALLBACK ExodusInterface::WndWindowSelectProc(HWND hwnd, UINT msg, WPARA
 			unsigned int maxEntrierPerColumn = (unsigned int)monitorHeight / cellHeight;
 			float aspectRatioScreen = (float)monitorWidth / (float)monitorHeight;
 
-			//Calculate the number of columns to show, and the number of entries per
-			//column, which gives us a window select screen whose aspect ratio is closest
-			//to that of the screen, with a minimal number of blank entries in additional
-			//columns.
+			// Calculate the number of columns to show, and the number of entries per
+			// column, which gives us a window select screen whose aspect ratio is closest
+			// to that of the screen, with a minimal number of blank entries in additional
+			// columns.
 			state->_windowSelectColumns = 1;
 			state->_windowSelectEntriesPerColumn = windowEntries;
 			bool done = false;
@@ -3636,9 +3636,9 @@ LRESULT CALLBACK ExodusInterface::WndWindowSelectProc(HWND hwnd, UINT msg, WPARA
 				}
 			}
 
-			//Resize the window to the required height to fit the specified number of
-			//columns and entries per column, and position it in the center of the
-			//screen.
+			// Resize the window to the required height to fit the specified number of
+			// columns and entries per column, and position it in the center of the
+			// screen.
 			int windowWidth = (cellOffsetX * 2) + (state->_windowSelectColumns * cellWidth) + ((state->_windowSelectColumns - 1) * columnBreakWidth);
 			int windowHeight = (cellOffsetY * 2) + (state->_windowSelectEntriesPerColumn * cellHeight);
 			int windowPosX = monitorPosX + ((monitorWidth - windowWidth) / 2);
@@ -3651,30 +3651,30 @@ LRESULT CALLBACK ExodusInterface::WndWindowSelectProc(HWND hwnd, UINT msg, WPARA
 		BeginPaint(hwnd, &paintInfo);
 		HDC hdc = paintInfo.hdc;
 
-		//Calculate the width and height of this window
+		// Calculate the width and height of this window
 		RECT windowRect;
 		GetClientRect(hwnd, &windowRect);
 		int windowWidth = windowRect.right - windowRect.left;
 		int windowHeight = windowRect.bottom - windowRect.top;
 
-		//Create a bitmap we can render the control onto
+		// Create a bitmap we can render the control onto
 		HDC hdcControl = hdc;
 		HDC hdcBitmap = CreateCompatibleDC(hdcControl);
 		HBITMAP hbitmap = CreateCompatibleBitmap(hdcControl, windowWidth, windowHeight);
 		HBITMAP hbitmapOriginal = (HBITMAP)SelectObject(hdcBitmap, hbitmap);
 
-		//Send a WM_PRINTCLIENT message to get the window to render into the bitmap
+		// Send a WM_PRINTCLIENT message to get the window to render into the bitmap
 		SendMessage(hwnd, WM_PRINTCLIENT, (WPARAM)hdcBitmap, PRF_ERASEBKGND | PRF_CLIENT | PRF_NONCLIENT);
 
-		//Transfer the final bitmap for the control into the screen buffer
+		// Transfer the final bitmap for the control into the screen buffer
 		BitBlt(hdcControl, 0, 0, windowWidth, windowHeight, hdcBitmap, 0, 0, SRCCOPY);
 
-		//Validate the entire client area of the control. It's REALLY important that we
-		//call this here, otherwise Windows is going to send WM_PAINT messages over and
-		//over again waiting for the region to be validated.
+		// Validate the entire client area of the control. It's REALLY important that we
+		// call this here, otherwise Windows is going to send WM_PAINT messages over and
+		// over again waiting for the region to be validated.
 		ValidateRect(hwnd, NULL);
 
-		//Clean up the allocated handles
+		// Clean up the allocated handles
 		SelectObject(hdcBitmap, hbitmapOriginal);
 		DeleteObject(hbitmap);
 		DeleteDC(hdcBitmap);
@@ -3690,7 +3690,7 @@ LRESULT CALLBACK ExodusInterface::WndWindowSelectProc(HWND hwnd, UINT msg, WPARA
 
 		HDC hdc = (HDC)wParam;
 
-		//Fill the background of the window
+		// Fill the background of the window
 		RECT backgroundRect;
 		GetClientRect(hwnd, &backgroundRect);
 		HBRUSH backgroundBrush = GetSysColorBrush(COLOR_3DFACE);
@@ -3698,9 +3698,9 @@ LRESULT CALLBACK ExodusInterface::WndWindowSelectProc(HWND hwnd, UINT msg, WPARA
 		HBRUSH backgroundBorderBrush = (HBRUSH)GetStockObject(BLACK_BRUSH);
 		FrameRect(hdc, &backgroundRect, backgroundBorderBrush);
 
-		//Calculate a font height which will allow the largest font to be used to display
-		//the window names in each cell, without overlapping the cell border.
-		//Fixed window size properties
+		// Calculate a font height which will allow the largest font to be used to display
+		// the window names in each cell, without overlapping the cell border.
+		// Fixed window size properties
 		unsigned int windowEntries = (unsigned int)state->_topLevelWindowList.size();
 		unsigned int cellOffsetX = 5;
 		unsigned int cellOffsetY = 5;
@@ -3715,21 +3715,21 @@ LRESULT CALLBACK ExodusInterface::WndWindowSelectProc(HWND hwnd, UINT msg, WPARA
 		DPtoLP(hdc, &point, 1);
 		unsigned int fontHeightLogical = point.y;
 
-		//Create a logical font to display our text
+		// Create a logical font to display our text
 		HFONT hfont = CreateFont(fontHeightLogical, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, NULL);
 		HFONT hfontOld = (HFONT)SelectObject(hdc, (HGDIOBJ)hfont);
 		SetBkMode(hdc, TRANSPARENT);
 		SetTextColor(hdc, RGB(0, 0, 0));
 
-		//Draw each item in the window
+		// Draw each item in the window
 		for (unsigned int i = 0; i < windowEntries; ++i)
 		{
-			//Calculate the position of this cell in the window
+			// Calculate the position of this cell in the window
 			unsigned int cellPosX = cellOffsetX + ((i / state->_windowSelectEntriesPerColumn) * (cellWidth + columnBreakWidth));
 			unsigned int cellPosY = cellOffsetY + ((i % state->_windowSelectEntriesPerColumn) * cellHeight);
 
-			//If this is the currently selected item, draw a selection rectangle around
-			//the cell.
+			// If this is the currently selected item, draw a selection rectangle around
+			// the cell.
 			if (i == state->_selectedWindow)
 			{
 				HBRUSH rectangleBrush = CreateSolidBrush(RGB(128, 128, 192));
@@ -3743,11 +3743,11 @@ LRESULT CALLBACK ExodusInterface::WndWindowSelectProc(HWND hwnd, UINT msg, WPARA
 				DeleteObject(rectangleBrush);
 			}
 
-			//Retrieve the title of the target window
+			// Retrieve the title of the target window
 			HWND windowHandle = state->_topLevelWindowList[i];
 			std::wstring windowTitle = GetWindowText(windowHandle);
 
-			//Write the name of the window this cell corresponds to
+			// Write the name of the window this cell corresponds to
 			RECT textRect;
 			textRect.left = cellPosX + fontOffset;
 			textRect.right = cellPosX + cellWidth;
@@ -3756,7 +3756,7 @@ LRESULT CALLBACK ExodusInterface::WndWindowSelectProc(HWND hwnd, UINT msg, WPARA
 			DrawText(hdc, windowTitle.c_str(), (int)windowTitle.length(), &textRect, DT_SINGLELINE | DT_VCENTER | DT_END_ELLIPSIS);
 		}
 
-		//Switch back to the previously selected font, and delete our logical font object.
+		// Switch back to the previously selected font, and delete our logical font object.
 		SelectObject(hdc, (HGDIOBJ)hfontOld);
 		DeleteObject(hfont);
 	break;}
@@ -3766,17 +3766,17 @@ LRESULT CALLBACK ExodusInterface::WndWindowSelectProc(HWND hwnd, UINT msg, WPARA
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
-//Joystick functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Joystick functions
+//----------------------------------------------------------------------------------------------------------------------
 void ExodusInterface::JoystickInputWorkerThread()
 {
-	//Calculate the maximum number of joysticks, and the maximum number of buttons and
-	//axis per joystick.
+	// Calculate the maximum number of joysticks, and the maximum number of buttons and
+	// axis per joystick.
 	const unsigned int maxButtonCount = 32;
 	const unsigned int maxAxisCount = 6;
 
-	//Initialize the button and axis state for each joystick
+	// Initialize the button and axis state for each joystick
 	std::map<unsigned int, std::vector<bool>> buttonState;
 	std::map<unsigned int, std::vector<float>> axisState;
 	for (std::map<unsigned int, JOYCAPS>::const_iterator connectedJoystickInfoIterator = _connectedJoystickInfo.begin(); connectedJoystickInfoIterator != _connectedJoystickInfo.end(); ++connectedJoystickInfoIterator)
@@ -3786,13 +3786,13 @@ void ExodusInterface::JoystickInputWorkerThread()
 		axisState[joystickNo].resize(maxAxisCount);
 	}
 
-	//Process input state changes from joysticks until we're requested to stop
+	// Process input state changes from joysticks until we're requested to stop
 	while (_joystickWorkerThreadActive)
 	{
-		//Latch new values from each joystick
+		// Latch new values from each joystick
 		for (std::map<unsigned int, JOYCAPS>::const_iterator connectedJoystickInfoIterator = _connectedJoystickInfo.begin(); connectedJoystickInfoIterator != _connectedJoystickInfo.end(); ++connectedJoystickInfoIterator)
 		{
-			//Retrieve info for the target joystick
+			// Retrieve info for the target joystick
 			unsigned int joystickNo = connectedJoystickInfoIterator->first;
 			const JOYCAPS& joystickCapabilities = connectedJoystickInfoIterator->second;
 			std::map<unsigned int, std::vector<bool>>::iterator buttonStateIterator = buttonState.find(joystickNo);
@@ -3804,7 +3804,7 @@ void ExodusInterface::JoystickInputWorkerThread()
 			std::vector<bool>& buttonStateForJoystick = buttonStateIterator->second;
 			std::vector<float>& axisStateForJoystick = axisStateIterator->second;
 
-			//Obtain info on the current button state for this joystick
+			// Obtain info on the current button state for this joystick
 			JOYINFOEX joystickInfo;
 			joystickInfo.dwSize = sizeof(joystickInfo);
 			joystickInfo.dwFlags = JOY_RETURNALL;
@@ -3814,23 +3814,23 @@ void ExodusInterface::JoystickInputWorkerThread()
 				continue;
 			}
 
-			//Latch the new state for each button in this joystick
+			// Latch the new state for each button in this joystick
 			unsigned int activeButtonCount = (joystickCapabilities.wNumButtons > maxButtonCount)? maxButtonCount: joystickCapabilities.wNumButtons;
 			Data buttonData(activeButtonCount, joystickInfo.dwButtons);
 			for (unsigned int buttonNo = 0; buttonNo < activeButtonCount; ++buttonNo)
 			{
-				//If the current button state matches the previous button state, advance
-				//to the next button.
+				// If the current button state matches the previous button state, advance
+				// to the next button.
 				bool buttonStateNew = buttonData.GetBit(buttonNo);
 				if (buttonStateForJoystick[buttonNo] == buttonStateNew)
 				{
 					continue;
 				}
 
-				//Latch the new button state
+				// Latch the new button state
 				buttonStateForJoystick[buttonNo] = buttonStateNew;
 
-				//Notify the system of the button state change
+				// Notify the system of the button state change
 				ISystemGUIInterface::KeyCode keyCode;
 				if (_system->TranslateJoystickButton(joystickNo, buttonNo, keyCode))
 				{
@@ -3845,7 +3845,7 @@ void ExodusInterface::JoystickInputWorkerThread()
 				}
 			}
 
-			//Latch the new state for each axis in this joystick
+			// Latch the new state for each axis in this joystick
 			unsigned int reportedAxesCount = joystickCapabilities.wNumAxes;
 			bool hasAxisZ = (joystickCapabilities.wCaps & JOYCAPS_HASZ) != 0;
 			bool hasAxisR = (joystickCapabilities.wCaps & JOYCAPS_HASR) != 0;
@@ -3887,26 +3887,26 @@ void ExodusInterface::JoystickInputWorkerThread()
 			}
 			for (unsigned int axisNo = 0; axisNo < (unsigned int)newAxisState.size(); ++axisNo)
 			{
-				//If the current axis state matches the previous axis state, advance to
-				//the next axis.
+				// If the current axis state matches the previous axis state, advance to
+				// the next axis.
 				if (axisStateForJoystick[axisNo] == newAxisState[axisNo])
 				{
 					continue;
 				}
 
-				//Latch the new axis state
+				// Latch the new axis state
 				float axisStateNew = newAxisState[axisNo];
 				float axisStateOld = axisStateForJoystick[axisNo];
 				axisStateForJoystick[axisNo] = axisStateNew;
 
-				//Notify the system of axis state changes
+				// Notify the system of axis state changes
 				ISystemDeviceInterface::AxisCode axisCode;
 				if (_system->TranslateJoystickAxis(joystickNo, axisNo, axisCode))
 				{
 					_system->HandleInputAxisUpdate(axisCode, axisStateNew);
 				}
 
-				//Notify the system of button state changes linked to this axis
+				// Notify the system of button state changes linked to this axis
 				static const float axisButtonTolerance = 0.25f;
 				if ((axisStateOld >= axisButtonTolerance) && (axisStateNew < axisButtonTolerance))
 				{
@@ -3943,11 +3943,11 @@ void ExodusInterface::JoystickInputWorkerThread()
 			}
 		}
 
-		//Delay until it's time to latch the joystick input state again
+		// Delay until it's time to latch the joystick input state again
 		Sleep(10);
 	}
 
-	//Since this thread is terminating, notify any waiting threads.
+	// Since this thread is terminating, notify any waiting threads.
 	std::unique_lock<std::mutex> lock(_joystickWorkerThreadMutex);
 	_joystickWorkerThreadStopped.notify_all();
 }

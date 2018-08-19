@@ -42,15 +42,15 @@ public:
 		{
 			if (data.GetDataSegment(0, 3) == 6)
 			{
-				//LD r,(HL)		01rrr110
-				//LD r,(IX+d)	11011101 01rrr110 dddddddd
-				//LD r,(IY+d)	11111101 01rrr110 dddddddd
+				// LD r,(HL)		01rrr110
+				// LD r,(IX+d)	11011101 01rrr110 dddddddd
+				// LD r,(IY+d)	11111101 01rrr110 dddddddd
 				_source.SetMode(EffectiveAddress::Mode::HLIndirect);
 				//##NOTE## We override the index state for the _target in this form of the
-				//opcode. Just to be difficult, this form doesn't apply the index mode to
-				//the _target field, but it does apply it to the _source field. The same is
-				//true of the reverse form below. The only other opcode where there are
-				//exceptions to the indexing rule is EX.
+				// opcode. Just to be difficult, this form doesn't apply the index mode to
+				// the _target field, but it does apply it to the _source field. The same is
+				// true of the reverse form below. The only other opcode where there are
+				// exceptions to the indexing rule is EX.
 				_target.SetIndexState(EffectiveAddress::IndexState::None, 0);
 				_target.Decode8BitRegister(data.GetDataSegment(3, 3));
 				if (GetIndexState() == EffectiveAddress::IndexState::None)
@@ -64,9 +64,9 @@ public:
 			}
 			else if (data.GetDataSegment(3, 3) == 6)
 			{
-				//LD (HL),r		01110rrr
-				//LD (IX+d),r	11011101 01110rrr dddddddd
-				//LD (IY+d),r	11111101 01110rrr dddddddd
+				// LD (HL),r		01110rrr
+				// LD (IX+d),r	11011101 01110rrr dddddddd
+				// LD (IY+d),r	11111101 01110rrr dddddddd
 				//##NOTE## See notes on reverse form above.
 				_source.SetIndexState(EffectiveAddress::IndexState::None, 0);
 				_source.Decode8BitRegister(data.GetDataSegment(0, 3));
@@ -83,8 +83,8 @@ public:
 			else
 			{
 				//##NOTE## The notation r' doesn't refer to a shadow register, just a
-				//second normal register
-				//LD r,r'		01rrrddd
+				// second normal register
+				// LD r,r'		01rrrddd
 				_source.Decode8BitRegister(data.GetDataSegment(0, 3));
 				_target.Decode8BitRegister(data.GetDataSegment(3, 3));
 				AddExecuteCycleCount(4);
@@ -94,51 +94,51 @@ public:
 		{
 			if (data == 0x0A)
 			{
-				//LD A,(BC)		00001010
+				// LD A,(BC)		00001010
 				_source.SetMode(EffectiveAddress::Mode::BCIndirect);
 				_target.SetMode(EffectiveAddress::Mode::A);
 				AddExecuteCycleCount(7);
 			}
 			else if (data == 0x1A)
 			{
-				//LD A,(DE)		00011010
+				// LD A,(DE)		00011010
 				_source.SetMode(EffectiveAddress::Mode::DEIndirect);
 				_target.SetMode(EffectiveAddress::Mode::A);
 				AddExecuteCycleCount(7);
 			}
 			else if (data == 0x3A)
 			{
-				//LD A,(nn)		00111010 nnnnnnnn nnnnnnnn
+				// LD A,(nn)		00111010 nnnnnnnn nnnnnnnn
 				_source.BuildAbsoluteAddress(location + GetInstructionSize(), cpu, transparent);
 				_target.SetMode(EffectiveAddress::Mode::A);
 				AddExecuteCycleCount(13);
 			}
 			else if (data == 0x02)
 			{
-				//LD (BC),A		00000010
+				// LD (BC),A		00000010
 				_source.SetMode(EffectiveAddress::Mode::A);
 				_target.SetMode(EffectiveAddress::Mode::BCIndirect);
 				AddExecuteCycleCount(7);
 			}
 			else if (data == 0x12)
 			{
-				//LD (DE),A		00010010
+				// LD (DE),A		00010010
 				_source.SetMode(EffectiveAddress::Mode::A);
 				_target.SetMode(EffectiveAddress::Mode::DEIndirect);
 				AddExecuteCycleCount(7);
 			}
 			else if (data == 0x32)
 			{
-				//LD (nn),A		00110010 nnnnnnnn nnnnnnnn
+				// LD (nn),A		00110010 nnnnnnnn nnnnnnnn
 				_source.SetMode(EffectiveAddress::Mode::A);
 				_target.BuildAbsoluteAddress(location + GetInstructionSize(), cpu, transparent);
 				AddExecuteCycleCount(13);
 			}
 			else if (data == 0x36)
 			{
-				//LD (HL),n		00110110 nnnnnnnn
-				//LD (IX+d),n	11011101 00110110 nnnnnnnn
-				//LD (IY+d),n	11111101 00110110 nnnnnnnn
+				// LD (HL),n		00110110 nnnnnnnn
+				// LD (IX+d),n	11011101 00110110 nnnnnnnn
+				// LD (IY+d),n	11111101 00110110 nnnnnnnn
 				_target.SetMode(EffectiveAddress::Mode::HLIndirect);
 				_source.BuildImmediateData(BITCOUNT_BYTE, location + GetInstructionSize() + GetIndexOffsetSize(_target.UsesIndexOffset()), cpu, transparent);
 				if (GetIndexState() == EffectiveAddress::IndexState::None)
@@ -152,7 +152,7 @@ public:
 			}
 			else
 			{
-				//LD r,n		00rrr110 nnnnnnnn
+				// LD r,n		00rrr110 nnnnnnnn
 				_source.BuildImmediateData(BITCOUNT_BYTE, location + GetInstructionSize(), cpu, transparent);
 				_target.Decode8BitRegister(data.GetDataSegment(3, 3));
 				AddExecuteCycleCount(7);
@@ -169,11 +169,11 @@ public:
 		double additionalTime = 0;
 		Z80Byte result;
 
-		//Perform the operation
+		// Perform the operation
 		additionalTime += _source.Read(cpu, location, result);
 		additionalTime += _target.Write(cpu, location, result);
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -183,5 +183,5 @@ private:
 	EffectiveAddress _target;
 };
 
-} //Close namespace Z80
+} // Close namespace Z80
 #endif

@@ -13,14 +13,14 @@
 namespace MarshalSupport {
 namespace Internal {
 
-//Disable warning about our use of type traits causing conditional expressions to be constant. The code behaves as
-//intended, and the compiler is free to optimize away the dead branch.
+// Disable warning about our use of type traits causing conditional expressions to be constant. The code behaves as
+// intended, and the compiler is free to optimize away the dead branch.
 #ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable:4127)
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType>
 void RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, ElementType& element)
 {
@@ -35,7 +35,7 @@ void RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t
 	RecomposeSTLContainerHelper<is_this_or_nested_element_last_nested_container_element<ElementType>::value, is_only_movable<typename get_last_nested_container_element_type<ElementType>::type>::value>::RecomposeSTLContainer(elementByteSize, itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex, element);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<bool IsLastElement, bool IsOnlyMovable>
 template<class ElementType, class Alloc>
 void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::vector<ElementType, Alloc>& element)
@@ -48,7 +48,7 @@ void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLCont
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<bool IsOnlyMovable>
 template<class ElementType, class Alloc>
 void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::vector<ElementType, Alloc>& element)
@@ -76,7 +76,7 @@ void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(siz
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Alloc>
 void RecomposeSTLContainerHelper<true, true>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::vector<ElementType, Alloc>& element)
 {
@@ -93,7 +93,7 @@ void RecomposeSTLContainerHelper<true, true>::RecomposeSTLContainer(size_t eleme
 }
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<bool IsLastElement, bool IsOnlyMovable>
 template<class ElementType, size_t ArraySize>
 void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::array<ElementType, ArraySize>& element)
@@ -104,7 +104,7 @@ void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLCont
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<bool IsOnlyMovable>
 template<class ElementType, size_t ArraySize>
 void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::array<ElementType, ArraySize>& element)
@@ -127,7 +127,7 @@ void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(siz
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, size_t ArraySize>
 void RecomposeSTLContainerHelper<true, true>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::array<ElementType, ArraySize>& element)
 {
@@ -141,7 +141,7 @@ void RecomposeSTLContainerHelper<true, true>::RecomposeSTLContainer(size_t eleme
 }
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<bool IsLastElement, bool IsOnlyMovable>
 template<class ElementType, class Alloc>
 void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::list<ElementType, Alloc>& element)
@@ -156,7 +156,7 @@ void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLCont
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<bool IsOnlyMovable>
 template<class ElementType, class Alloc>
 void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::list<ElementType, Alloc>& element)
@@ -172,7 +172,7 @@ void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(siz
 }
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<bool IsLastElement, bool IsOnlyMovable>
 template<class ElementType, class Alloc>
 void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::forward_list<ElementType, Alloc>& element)
@@ -187,7 +187,7 @@ void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLCont
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<bool IsOnlyMovable>
 template<class ElementType, class Alloc>
 void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::forward_list<ElementType, Alloc>& element)
@@ -204,7 +204,7 @@ void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(siz
 }
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<bool IsLastElement, bool IsOnlyMovable>
 template<class ElementType, class Alloc>
 void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::deque<ElementType, Alloc>& element)
@@ -219,7 +219,7 @@ void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLCont
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<bool IsOnlyMovable>
 template<class ElementType, class Alloc>
 void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::deque<ElementType, Alloc>& element)
@@ -234,7 +234,7 @@ void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(siz
 	elementArrayIndex += containerEntryCount;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<bool IsLastElement, bool IsOnlyMovable>
 template<class ElementType, class Compare, class Alloc>
 void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::set<ElementType, Compare, Alloc>& element)
@@ -248,7 +248,7 @@ void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLCont
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<bool IsOnlyMovable>
 template<class ElementType, class Compare, class Alloc>
 void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::set<ElementType, Compare, Alloc>& element)
@@ -264,7 +264,7 @@ void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(siz
 	elementArrayIndex += containerEntryCount;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<bool IsLastElement, bool IsOnlyMovable>
 template<class ElementType, class Compare, class Alloc>
 void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::multiset<ElementType, Compare, Alloc>& element)
@@ -278,7 +278,7 @@ void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLCont
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<bool IsOnlyMovable>
 template<class ElementType, class Compare, class Alloc>
 void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::multiset<ElementType, Compare, Alloc>& element)
@@ -295,7 +295,7 @@ void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(siz
 }
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<bool IsLastElement, bool IsOnlyMovable>
 template<class ElementType, class Hash, class Pred, class Alloc>
 void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::unordered_set<ElementType, Hash, Pred, Alloc>& element)
@@ -309,7 +309,7 @@ void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLCont
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<bool IsOnlyMovable>
 template<class ElementType, class Hash, class Pred, class Alloc>
 void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::unordered_set<ElementType, Hash, Pred, Alloc>& element)
@@ -324,7 +324,7 @@ void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(siz
 	elementArrayIndex += containerEntryCount;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<bool IsLastElement, bool IsOnlyMovable>
 template<class ElementType, class Hash, class Pred, class Alloc>
 void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::unordered_multiset<ElementType, Hash, Pred, Alloc>& element)
@@ -338,7 +338,7 @@ void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLCont
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<bool IsOnlyMovable>
 template<class ElementType, class Hash, class Pred, class Alloc>
 void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::unordered_multiset<ElementType, Hash, Pred, Alloc>& element)
@@ -354,7 +354,7 @@ void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(siz
 }
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<bool IsLastElement, bool IsOnlyMovable>
 template<class KeyType, class ElementType, class Compare, class Alloc>
 void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::map<KeyType, ElementType, Compare, Alloc>& element)
@@ -369,7 +369,7 @@ void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLCont
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<bool IsOnlyMovable>
 template<class KeyType, class ElementType, class Compare, class Alloc>
 void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::map<KeyType, ElementType, Compare, Alloc>& element)
@@ -386,7 +386,7 @@ void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(siz
 	elementArrayIndex += containerEntryCount;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<bool IsLastElement, bool IsOnlyMovable>
 template<class KeyType, class ElementType, class Compare, class Alloc>
 void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::multimap<KeyType, ElementType, Compare, Alloc>& element)
@@ -401,7 +401,7 @@ void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLCont
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<bool IsOnlyMovable>
 template<class KeyType, class ElementType, class Compare, class Alloc>
 void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::multimap<KeyType, ElementType, Compare, Alloc>& element)
@@ -419,7 +419,7 @@ void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(siz
 }
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<bool IsLastElement, bool IsOnlyMovable>
 template<class KeyType, class ElementType, class Hash, class Pred, class Alloc>
 void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::unordered_map<KeyType, ElementType, Hash, Pred, Alloc>& element)
@@ -434,7 +434,7 @@ void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLCont
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<bool IsOnlyMovable>
 template<class KeyType, class ElementType, class Hash, class Pred, class Alloc>
 void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::unordered_map<KeyType, ElementType, Hash, Pred, Alloc>& element)
@@ -450,7 +450,7 @@ void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(siz
 	elementArrayIndex += containerEntryCount;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<bool IsLastElement, bool IsOnlyMovable>
 template<class KeyType, class ElementType, class Hash, class Pred, class Alloc>
 void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::unordered_multimap<KeyType, ElementType, Hash, Pred, Alloc>& element)
@@ -465,7 +465,7 @@ void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLCont
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<bool IsOnlyMovable>
 template<class KeyType, class ElementType, class Hash, class Pred, class Alloc>
 void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::unordered_multimap<KeyType, ElementType, Hash, Pred, Alloc>& element)
@@ -482,7 +482,7 @@ void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(siz
 }
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<bool IsLastElement, bool IsOnlyMovable>
 template<class ElementType, class Container>
 void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::stack<ElementType, Container>& element)
@@ -496,7 +496,7 @@ void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLCont
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<bool IsOnlyMovable>
 template<class ElementType, class Container>
 void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::stack<ElementType, Container>& element)
@@ -510,7 +510,7 @@ void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(siz
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<bool IsLastElement, bool IsOnlyMovable>
 template<class ElementType, class Container>
 void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::queue<ElementType, Container>& element)
@@ -524,7 +524,7 @@ void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLCont
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<bool IsOnlyMovable>
 template<class ElementType, class Container>
 void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::queue<ElementType, Container>& element)
@@ -538,7 +538,7 @@ void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(siz
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<bool IsLastElement, bool IsOnlyMovable>
 template<class ElementType, class Container, class Compare>
 void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::priority_queue<ElementType, Container, Compare>& element)
@@ -552,7 +552,7 @@ void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLCont
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<bool IsOnlyMovable>
 template<class ElementType, class Container, class Compare>
 void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::priority_queue<ElementType, Container, Compare>& element)
@@ -566,7 +566,7 @@ void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(siz
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<bool IsLastElement, bool IsOnlyMovable>
 template<class ElementType, class traits, class Alloc>
 void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::basic_string<ElementType, traits, Alloc>& element)
@@ -579,7 +579,7 @@ void RecomposeSTLContainerHelper<IsLastElement, IsOnlyMovable>::RecomposeSTLCont
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<bool IsOnlyMovable>
 template<class ElementType, class traits, class Alloc>
 void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::basic_string<ElementType, traits, Alloc>& element)
@@ -607,7 +607,7 @@ void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(siz
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<bool IsOnlyMovable>
 template<class T1, class T2>
 void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::pair<T1, T2>& element)
@@ -619,12 +619,12 @@ void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(siz
 }
 
 #if defined(MARSHALSUPPORT_CPP11SUPPORTED) && !defined(MARSHALSUPPORT_NOVARIADICTEMPLATES)
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<bool IsOnlyMovable>
 void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::tuple<>& element)
 { }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<bool IsOnlyMovable>
 template<class... Args>
 void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::tuple<Args...>& element)
@@ -632,7 +632,7 @@ void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(siz
 	TupleHelper<std::tuple_size<std::tuple<Args...>>::value-1, Args...>::RecomposeSTLContainer(elementByteSize, itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex, element);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<size_t TupleElementNo, class... Args>
 void TupleHelper<TupleElementNo, Args...>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::tuple<Args...>& element)
 {
@@ -641,7 +641,7 @@ void TupleHelper<TupleElementNo, Args...>::RecomposeSTLContainer(size_t elementB
 	TupleHelper<TupleElementNo-1, Args...>::RecomposeSTLContainer(elementByteSize, itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex+1, element);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class... Args>
 void TupleHelper<0, Args...>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, std::tuple<Args...>& element)
 {
@@ -650,7 +650,7 @@ void TupleHelper<0, Args...>::RecomposeSTLContainer(size_t elementByteSize, void
 }
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<bool IsOnlyMovable>
 template<class ElementType>
 void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, ElementType& element)
@@ -660,17 +660,17 @@ void RecomposeSTLContainerHelper<true, IsOnlyMovable>::RecomposeSTLContainer(siz
 	++elementArrayIndex;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType>
 void RecomposeSTLContainerHelper<true, true>::RecomposeSTLContainer(size_t elementByteSize, void* itemArray, const size_t elementSizeArray[], INestedMarshallerBase* const nestedMarshallerArray[], size_t& elementArrayIndex, size_t& elementSizeArrayIndex, size_t nestedMarshallerArrayIndex, ElementType& element)
 {
 	RecomposeSTLContainerHelper<true, false>::RecomposeSTLContainer(elementByteSize, itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, nestedMarshallerArrayIndex, element);
 }
 
-//Restore the disabled warnings
+// Restore the disabled warnings
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
 
-} //Close namespace Internal
-} //Close namespace MarshalSupport
+} // Close namespace Internal
+} // Close namespace MarshalSupport

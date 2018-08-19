@@ -8,11 +8,11 @@
 class IGenericAccessGroupSingleSelectionList :public IGenericAccessGroupEntry
 {
 public:
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisIGenericAccessGroupSingleSelectionListVersion() { return 1; }
 	virtual unsigned int GetIGenericAccessGroupSingleSelectionListVersion() const = 0;
 
-	//List info functions
+	// List info functions
 	virtual unsigned int GetDataID() const = 0;
 	virtual Marshal::Ret<std::list<std::pair<const IGenericAccessDataValue*, const IGenericAccessDataValue*>>> GetSelectionList() const = 0;
 	virtual bool GetAllowNewItemEntry() const = 0;

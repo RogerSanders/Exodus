@@ -63,6 +63,6 @@ struct get_last_nested_container_element_type<std::priority_queue<ElementType, C
 template<class ElementType, class traits, class Alloc>
 struct get_last_nested_container_element_type<std::basic_string<ElementType, traits, Alloc>> { typedef typename get_last_nested_container_element_type<ElementType>::type type; };
 
-} //Close namespace Internal
-} //Close namespace MarshalSupport
+} // Close namespace Internal
+} // Close namespace MarshalSupport
 #endif

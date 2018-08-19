@@ -7,20 +7,20 @@
 struct ZIPChunkCentralFileHeader
 {
 public:
-	//Constructors
+	// Constructors
 	inline ZIPChunkCentralFileHeader();
 	inline ZIPChunkCentralFileHeader(const ZIPChunkLocalFileHeader& localFileHeader);
 	inline void Initialize();
 
-	//Serialization functions
+	// Serialization functions
 	inline bool LoadFromStream(Stream::IStream& stream);
 	inline bool SaveToStream(Stream::IStream& stream) const;
 
-	//Size functions
+	// Size functions
 	inline unsigned int GetSize();
 
 public:
-	//Constants
+	// Constants
 	static const unsigned int ValidSignature = 0x02014B50;
 
 public:

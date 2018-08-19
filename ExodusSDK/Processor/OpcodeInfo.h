@@ -5,13 +5,13 @@
 class OpcodeInfo :public IOpcodeInfo
 {
 public:
-	//Constructors
+	// Constructors
 	OpcodeInfo();
 
-	//Interface version functions
+	// Interface version functions
 	virtual unsigned int GetIOpcodeInfoVersion() const;
 
-	//Opcode info functions
+	// Opcode info functions
 	virtual bool GetIsValidOpcode() const;
 	virtual void SetIsValidOpcode(bool state);
 	virtual unsigned int GetOpcodeSize() const;

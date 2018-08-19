@@ -7,25 +7,25 @@
 class MenuSubmenu :public IMenuSubmenu
 {
 public:
-	//Constructors
+	// Constructors
 	MenuSubmenu(const std::wstring& title);
 	~MenuSubmenu();
 
-	//Interface version functions
+	// Interface version functions
 	virtual unsigned int GetIMenuItemVersion() const;
 	virtual unsigned int GetIMenuSubmenuVersion() const;
 
-	//Type functions
+	// Type functions
 	virtual Type GetType() const;
 
-	//Menu title functions
+	// Menu title functions
 	virtual Marshal::Ret<std::wstring> GetMenuTitle() const;
 
-	//Item management functions
+	// Item management functions
 	virtual bool NoMenuItemsExist() const;
 	Marshal::Ret<std::list<IMenuItem*>> GetMenuItems() const;
 
-	//Menu item creation and deletion
+	// Menu item creation and deletion
 	virtual IMenuSegment& AddMenuItemSegment(bool surroundWithSeparators = true, IMenuSegment::SortMode sortMode = IMenuSegment::SORTMODE_ADDITIONORDER);
 	virtual IMenuSubmenu& AddMenuItemSubmenu(const Marshal::In<std::wstring>& title);
 	virtual IMenuSelectableOption& AddMenuItemSelectableOption(IMenuHandler& menuHandler, int menuItemID, const Marshal::In<std::wstring>& title);

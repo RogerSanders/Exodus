@@ -2,7 +2,7 @@
 #define __CRASHREPORT_H__
 #include <string>
 
-//Minidump functions
+// Minidump functions
 bool RegisterMinidumpExceptionHandler(const std::wstring& minidumpName, const std::wstring& minidumpPath, bool largeMinidump);
 
 #endif

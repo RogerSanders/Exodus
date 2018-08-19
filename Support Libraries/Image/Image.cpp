@@ -2,45 +2,45 @@
 #include "Stream/Stream.pkg"
 #include <climits>
 
-//----------------------------------------------------------------------------------------
-//Image format functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Image format functions
+//----------------------------------------------------------------------------------------------------------------------
 void Image::ResizeBuffer(unsigned int newSize)
 {
 	_imageData.resize(newSize);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int Image::GetImageWidth() const
 {
 	return _imageWidth;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int Image::GetImageHeight() const
 {
 	return _imageHeight;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Image::PixelFormat Image::GetPixelFormat() const
 {
 	return _pixelFormat;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Image::DataFormat Image::GetDataFormat() const
 {
 	return _dataFormat;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int Image::GetDataPlaneCount() const
 {
 	return _dataPlaneCount;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Image::SetImageFormat(unsigned int imageWidth, unsigned int imageHeight, PixelFormat pixelFormat, DataFormat dataFormat)
 {
 	_imageWidth = imageWidth;
@@ -69,183 +69,183 @@ void Image::SetImageFormat(unsigned int imageWidth, unsigned int imageHeight, Pi
 	ResizeBuffer(newDataBufferSize);
 }
 
-//----------------------------------------------------------------------------------------
-//Pixel data manipulation
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Pixel data manipulation
+//----------------------------------------------------------------------------------------------------------------------
 void Image::GetRawPixelData(unsigned int posX, unsigned int posY, unsigned int planeNo, PixelData& data) const
 {
 	GetRawPixelDataInternal(posX, posY, planeNo, data);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Image::SetRawPixelData(unsigned int posX, unsigned int posY, unsigned int planeNo, PixelData data)
 {
 	SetRawPixelDataInternal(posX, posY, planeNo, data);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Image::ReadPixelData(unsigned int posX, unsigned int posY, unsigned int planeNo, float& data) const
 {
 	ReadPixelDataInternal(posX, posY, planeNo, data);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Image::ReadPixelData(unsigned int posX, unsigned int posY, unsigned int planeNo, unsigned char& data) const
 {
 	ReadPixelDataInternal(posX, posY, planeNo, data);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Image::ReadPixelData(unsigned int posX, unsigned int posY, unsigned int planeNo, unsigned int& data, unsigned int bitCount) const
 {
 	ReadPixelDataInternal(posX, posY, planeNo, data, bitCount);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Image::WritePixelData(unsigned int posX, unsigned int posY, unsigned int planeNo, float data)
 {
 	WritePixelDataInternal(posX, posY, planeNo, data);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Image::WritePixelData(unsigned int posX, unsigned int posY, unsigned int planeNo, unsigned char data)
 {
 	WritePixelDataInternal(posX, posY, planeNo, data);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Image::WritePixelData(unsigned int posX, unsigned int posY, unsigned int planeNo, unsigned int data, unsigned int bitCount)
 {
 	WritePixelDataInternal(posX, posY, planeNo, data, bitCount);
 }
 
-//----------------------------------------------------------------------------------------
-//Generic load functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Generic load functions
+//----------------------------------------------------------------------------------------------------------------------
 bool Image::LoadImageFile(Stream::IStream& stream)
 {
-	//Save the current read position from the stream so that we can restore it when we're
-	//done
+	// Save the current read position from the stream so that we can restore it when we're
+	// done
 	Stream::IStream::SizeType initialReadPosition = stream.GetStreamPos();
 
-	//Read a few bytes from the stream, so we can try and detect the image format from
-	//the header data.
+	// Read a few bytes from the stream, so we can try and detect the image format from
+	// the header data.
 	std::vector<unsigned char> header;
 	if (!stream.ReadData(header, 10))
 	{
 		return false;
 	}
 
-	//Restore the initial stream read position
+	// Restore the initial stream read position
 	stream.SetStreamPos(initialReadPosition);
 
-	//Try and detect the file format
+	// Try and detect the file format
 	if ((header[0] == 'B') && (header[1] == 'M'))
 	{
-		//The stream contains a bitmap file marker. Decode the data as a bitmap image.
+		// The stream contains a bitmap file marker. Decode the data as a bitmap image.
 		return LoadBMPImage(stream);
 	}
 	if ((header[0] == 0x89) && (header[1] == 'P') && (header[2] == 'N') && (header[3] == 'G')
 	&& (header[4]== 0x0D) && (header[5]== 0x0A) && (header[6]== 0x1A) && (header[7]== 0x0A))
 	{
-		//The stream contains a PNG file marker. Decode the data as a PNG image.
+		// The stream contains a PNG file marker. Decode the data as a PNG image.
 		return LoadPNGImage(stream);
 	}
 	if ((header[0] == 'G') && (header[1] == 'I') && (header[2] == 'F'))
 	{
-		//The GIF file format is not currently supported. Abort further processing.
+		// The GIF file format is not currently supported. Abort further processing.
 		return false;
 	}
 	//##TODO## Find a reliable way to detect jpeg data
 	if ((header[6] == 'J') && (header[7] == 'F') && (header[8] == 'I') && (header[9] == 'F'))
 	{
-		//The file appears to be a JPEG file. Decode the data as a JPEG image.
+		// The file appears to be a JPEG file. Decode the data as a JPEG image.
 		return LoadJPGImage(stream);
 	}
 	if (((header[0] == 'I') && (header[1] == 'I') && (header[2] == 42) && (header[3] == 0))
 		|| ((header[0] == 'M') && (header[1] == 'M') && (header[2] == 0) && (header[3] == 42)))
 	{
-		//The header matches the TIFF file format. Decode the data as a TIFF file.
+		// The header matches the TIFF file format. Decode the data as a TIFF file.
 		return LoadTIFFImage(stream);
 	}
 	if ((header[0] == 10) && (header[1] <= 5))
 	{
-		//The header appears to match the PCX file format. Decode the data as a PCX file.
+		// The header appears to match the PCX file format. Decode the data as a PCX file.
 		return LoadPCXImage(stream);
 	}
 	if (((header[1] == 0) || (header[1] == 1))
 	|| ((header[2] >= 1) && (header[2] <= 3))
 	|| ((header[2] >= 9) && (header[2] <= 11)))
 	{
-		//The file header appears to match the TGA header structure. Decode the data as a
-		//TGA image.
+		// The file header appears to match the TGA header structure. Decode the data as a
+		// TGA image.
 		return LoadTGAImage(stream);
 	}
 
-	//We've failed to match the data to a known image file format
+	// We've failed to match the data to a known image file format
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
-//PCX functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// PCX functions
+//----------------------------------------------------------------------------------------------------------------------
 bool Image::LoadPCXImage(Stream::IStream& stream)
 {
-	//Load the PCX file header
+	// Load the PCX file header
 	PCXFileHeader header;
-	stream.ReadData(header.manufacturer); //Done
+	stream.ReadData(header.manufacturer); // Done
 	stream.ReadData(header.version);
-	stream.ReadData(header.encoding); //Done
-	stream.ReadData(header.bitsPerPixel); //Done
-	stream.ReadData(header.xmin); //Done
-	stream.ReadData(header.ymin); //Done
-	stream.ReadData(header.xmax); //Done
-	stream.ReadData(header.ymax); //Done
-	stream.ReadData(header.hdpi); //Ignore
-	stream.ReadData(header.vdpi); //Ignore
+	stream.ReadData(header.encoding); // Done
+	stream.ReadData(header.bitsPerPixel); // Done
+	stream.ReadData(header.xmin); // Done
+	stream.ReadData(header.ymin); // Done
+	stream.ReadData(header.xmax); // Done
+	stream.ReadData(header.ymax); // Done
+	stream.ReadData(header.hdpi); // Ignore
+	stream.ReadData(header.vdpi); // Ignore
 	for (unsigned int i = 0; i < (sizeof(header.colorMap) / sizeof(header.colorMap[0])); ++i)
 	{
 		stream.ReadData(header.colorMap[i]);
 	}
-	stream.ReadData(header.reserved1); //Done
-	stream.ReadData(header.numPlanes); //Done
-	stream.ReadData(header.bytesPerLine); //Done
-	stream.ReadData(header.paletteInfo); //Ignore
-	stream.ReadData(header.hscreenSize); //Ignore
-	stream.ReadData(header.vscreenSize); //Ignore
+	stream.ReadData(header.reserved1); // Done
+	stream.ReadData(header.numPlanes); // Done
+	stream.ReadData(header.bytesPerLine); // Done
+	stream.ReadData(header.paletteInfo); // Ignore
+	stream.ReadData(header.hscreenSize); // Ignore
+	stream.ReadData(header.vscreenSize); // Ignore
 	for (unsigned int i = 0; i < (sizeof(header.reserved2) / sizeof(header.reserved2[0])); ++i)
 	{
-		stream.ReadData(header.reserved2[i]); //Done
+		stream.ReadData(header.reserved2[i]); // Done
 	}
 
-	//Validate the header data
+	// Validate the header data
 	if (header.manufacturer != 10)
 	{
-		//If the header doesn't contain a valid PCX file marker, abort any further
-		//processing.
+		// If the header doesn't contain a valid PCX file marker, abort any further
+		// processing.
 		return false;
 	}
 	if (header.encoding != 1)
 	{
-		//An encoding value of 1, indicating run-length encoding, is the only defined
-		//value. If the encoding doesn't match this, abort any further processing.
+		// An encoding value of 1, indicating run-length encoding, is the only defined
+		// value. If the encoding doesn't match this, abort any further processing.
 		return false;
 	}
 
 	//##FIX## Just how are we supposed to interpret this data? It seems pretty ambiguous.
-	//How do we know when there's a palette? When a palette is present, there should be
-	//only a single plane, but it seems that's not the case. "Magic" combinations of
-	//plane and and bit counts are being used to encode the concept of image format,
-	//as well as flag whether a palette is present, which muddles things. One possible
-	//way to go is to assume there's a palette if the number of total bits across all
-	//planes is less than or equal to 8, and collapse all planes down to a single index
-	//value in this case. In other words, if((numPlanes * bitsPerPixel) > 8), we have a
-	//true colour image, otherwise the plane count doesn't really represent planes, and
-	//can be used to do our image format detection. This seems to be the best way to go.
-	//This opens us up to supporting formats like 8-bit RGBA, 4-bit RGB/RGBA, 8-bit mono,
-	//etc, without ambiguity.
+	// How do we know when there's a palette? When a palette is present, there should be
+	// only a single plane, but it seems that's not the case. "Magic" combinations of
+	// plane and and bit counts are being used to encode the concept of image format,
+	// as well as flag whether a palette is present, which muddles things. One possible
+	// way to go is to assume there's a palette if the number of total bits across all
+	// planes is less than or equal to 8, and collapse all planes down to a single index
+	// value in this case. In other words, if((numPlanes * bitsPerPixel) > 8), we have a
+	// true colour image, otherwise the plane count doesn't really represent planes, and
+	// can be used to do our image format detection. This seems to be the best way to go.
+	// This opens us up to supporting formats like 8-bit RGBA, 4-bit RGB/RGBA, 8-bit mono,
+	// etc, without ambiguity.
 
-	//Determine the format of the pixel data stored in the file
+	// Determine the format of the pixel data stored in the file
 	PixelFormat newPixelFormat;
 	PCXImageFormat imageFormat;
 	unsigned int bitsPerLine = (unsigned int)header.bitsPerPixel * (unsigned int)header.numPlanes;
@@ -277,98 +277,98 @@ bool Image::LoadPCXImage(Stream::IStream& stream)
 	}
 	else
 	{
-		//The image data uses an unsupported image format. Abort any further processing.
+		// The image data uses an unsupported image format. Abort any further processing.
 		return false;
 	}
 
 	////Determine the video mode used to store this image
-	//PixelFormat newPixelFormat;
-	//PCXImageFormat imageFormat;
-	//if((header.numPlanes == 1) && (header.bitsPerPixel == 1))
+	// PixelFormat newPixelFormat;
+	// PCXImageFormat imageFormat;
+	// if((header.numPlanes == 1) && (header.bitsPerPixel == 1))
 	//{
-	//	//Monochrome
+	//	// Monochrome
 	//	imageFormat = PCXImageFormat::Mono;
 	//	newPixelFormat = PIXELFORMAT_M;
 	//}
-	//else if((header.numPlanes == 1) && (header.bitsPerPixel == 2))
+	// else if((header.numPlanes == 1) && (header.bitsPerPixel == 2))
 	//{
-	//	//CGA - We should have a 4-entry palette in the header. There is 1 colour plane
-	//	//with 2-bit entries.
+	//	// CGA - We should have a 4-entry palette in the header. There is 1 colour plane
+	//	// with 2-bit entries.
 	//	imageFormat = PCXImageFormat::CGA;
 	//	newPixelFormat = PIXELFORMAT_RGB;
 	//}
-	//else if((header.numPlanes == 3) && (header.bitsPerPixel == 1))
+	// else if((header.numPlanes == 3) && (header.bitsPerPixel == 1))
 	//{
-	//	//EGA - We should have an 8-entry palette in the header. There are 3 colour
-	//	//planes, with 1-bit per plane. The values from each plane are combined to make
-	//	//a single 3-bit palette index.
+	//	// EGA - We should have an 8-entry palette in the header. There are 3 colour
+	//	// planes, with 1-bit per plane. The values from each plane are combined to make
+	//	// a single 3-bit palette index.
 	//	imageFormat = PCXImageFormat::EGA;
 	//	newPixelFormat = PIXELFORMAT_RGB;
 	//}
-	//else if((header.numPlanes == 4) && (header.bitsPerPixel == 1))
+	// else if((header.numPlanes == 4) && (header.bitsPerPixel == 1))
 	//{
-	//	//EGA and VGA - We should have a 16-entry palette in the header. There are 4
-	//	//colour planes, with 1-bit per plane. The values from each plane are combined
-	//	//to make a single 4-bit palette index.
+	//	// EGA and VGA - We should have a 16-entry palette in the header. There are 4
+	//	// colour planes, with 1-bit per plane. The values from each plane are combined
+	//	// to make a single 4-bit palette index.
 	//	imageFormat = PCXImageFormat::EGAAndVGA;
 	//	newPixelFormat = PIXELFORMAT_RGB;
 	//}
-	//else if((header.numPlanes == 1) && (header.bitsPerPixel == 8))
+	// else if((header.numPlanes == 1) && (header.bitsPerPixel == 8))
 	//{
-	//	//Extended VGA - We should have a 256-entry palette appended to the end of the
-	//	//file. There is 1 colour plane with 8-bit entries, giving a single index into
-	//	//the palette.
+	//	// Extended VGA - We should have a 256-entry palette appended to the end of the
+	//	// file. There is 1 colour plane with 8-bit entries, giving a single index into
+	//	// the palette.
 	//	imageFormat = PCXImageFormat::ExtendedVGA;
 	//	newPixelFormat = PIXELFORMAT_RGB;
 	//}
-	//else if((header.numPlanes == 3) && (header.bitsPerPixel == 8))
+	// else if((header.numPlanes == 3) && (header.bitsPerPixel == 8))
 	//{
-	//	//Extended VGA and XGA
+	//	// Extended VGA and XGA
 	//	imageFormat = PCXImageFormat::VGAAndXGA;
 	//	newPixelFormat = PIXELFORMAT_RGB;
 	//}
-	//else
+	// else
 	//{
-	//	//Unknown image format. Abort any further processing.
+	//	// Unknown image format. Abort any further processing.
 	//	return false;
 	//}
 
-	//Calculate the image dimensions
+	// Calculate the image dimensions
 	//##TODO## Consider whether we should mirror the image in the case where min is less
-	//than max. Irfanview doesn't mirror, but it does use the absolute value to always
-	//obtain a positive value, IE, max can be 0, and min contain the size.
+	// than max. Irfanview doesn't mirror, but it does use the absolute value to always
+	// obtain a positive value, IE, max can be 0, and min contain the size.
 	if ((header.xmin > header.xmax) || (header.ymin > header.ymax))
 	{
-		//We have a minimum image dimension which is less than a maximum image dimension.
-		//Abort any further processing.
+		// We have a minimum image dimension which is less than a maximum image dimension.
+		// Abort any further processing.
 		return false;
 	}
 	unsigned int newImageWidth = (header.xmax - header.xmin) + 1;
 	unsigned int newImageHeight = (header.ymax - header.ymin) + 1;
 
-	//Calculate and validate the size of the raw pixel data
+	// Calculate and validate the size of the raw pixel data
 	unsigned int totalPlaneByteCount = header.bytesPerLine;
 	unsigned int totalLineByteCount = totalPlaneByteCount * header.numPlanes;
 	unsigned int usedPlaneByteCount = ((newImageWidth * header.bitsPerPixel) + 7) / 8;
 	unsigned int usedLineByteCount = ((newImageWidth * header.numPlanes * header.bitsPerPixel) + 7) / 8;
 	if (usedLineByteCount > totalLineByteCount)
 	{
-		//The calculated number of bytes in a line is greater than the recorded number of
-		//bytes in a line. Abort any further processing.
+		// The calculated number of bytes in a line is greater than the recorded number of
+		// bytes in a line. Abort any further processing.
 		return false;
 	}
 
-	//Read the raw pixel data. Note that we need to read all the pixel data in before we
-	//can properly decode it, since we need to check for a VGA palette at the end of the
-	//file, and if we try and guess whether the palette exists without correctly decoding
-	//the pixel data which comes before it, we may get it wrong sometimes, since the true
-	//length of the pixel data is unknown until we decode it, due to compression.
+	// Read the raw pixel data. Note that we need to read all the pixel data in before we
+	// can properly decode it, since we need to check for a VGA palette at the end of the
+	// file, and if we try and guess whether the palette exists without correctly decoding
+	// the pixel data which comes before it, we may get it wrong sometimes, since the true
+	// length of the pixel data is unknown until we decode it, due to compression.
 	unsigned int bufferSize = totalLineByteCount * newImageHeight;
 	Stream::Buffer buffer(bufferSize);
 	unsigned int readImageByteCount = 0;
 	while (readImageByteCount < bufferSize)
 	{
-		//Decode the RLE data
+		// Decode the RLE data
 		unsigned int bytesToWrite = 1;
 		unsigned char data;
 		stream.ReadData(data);
@@ -378,7 +378,7 @@ bool Image::LoadPCXImage(Stream::IStream& stream)
 			stream.ReadData(data);
 		}
 
-		//Write this data block to the pixel buffer
+		// Write this data block to the pixel buffer
 		while ((bytesToWrite > 0) && (readImageByteCount < bufferSize))
 		{
 			buffer[readImageByteCount++] = data;
@@ -386,13 +386,13 @@ bool Image::LoadPCXImage(Stream::IStream& stream)
 		}
 		if (bytesToWrite > 0)
 		{
-			//We've hit a compressed pair which tried to overflow the pixel buffer. Abort
-			//any further processing.
+			// We've hit a compressed pair which tried to overflow the pixel buffer. Abort
+			// any further processing.
 			return false;
 		}
 	}
 
-	//Create and initialize the palette for the image
+	// Create and initialize the palette for the image
 	const unsigned int paletteEntries = 256;
 	const unsigned int paletteChannels = 3;
 	unsigned char palette[paletteEntries][paletteChannels];
@@ -407,7 +407,7 @@ bool Image::LoadPCXImage(Stream::IStream& stream)
 		}
 	}
 
-	//Check if a palette is appended to the end of the file
+	// Check if a palette is appended to the end of the file
 	bool appendedPalette = false;
 	if (paletteUsed && !stream.IsAtEnd())
 	{
@@ -416,11 +416,11 @@ bool Image::LoadPCXImage(Stream::IStream& stream)
 		appendedPalette = (temp == 0x0C);
 	}
 
-	//Load the palette for the image
+	// Load the palette for the image
 	if (appendedPalette)
 	{
-		//If a palette appears to be appended at the end of the file, read the appended
-		//palette into memory.
+		// If a palette appears to be appended at the end of the file, read the appended
+		// palette into memory.
 		for (unsigned int entryNo = 0; entryNo < paletteEntries; ++entryNo)
 		{
 			for (unsigned int channelNo = 0; channelNo < paletteChannels; ++channelNo)
@@ -433,13 +433,13 @@ bool Image::LoadPCXImage(Stream::IStream& stream)
 	}
 	else if (paletteUsed)
 	{
-		//Parse the palette info in the file header
+		// Parse the palette info in the file header
 		//##FIX## This is totally wrong, and will result in an out of bounds memory read
-		//of the palette array in the header. We need better information on how this
-		//palette information is encoded. The following link has some information:
-		//https://www.daubnet.com/en/file-format-pcx
-		//It seems that the palette could be monochrome, CGA, or EGA.
-		//for(unsigned int entryNo = 0; entryNo < paletteEntries; ++entryNo)
+		// of the palette array in the header. We need better information on how this
+		// palette information is encoded. The following link has some information:
+		// https://www.daubnet.com/en/file-format-pcx
+		// It seems that the palette could be monochrome, CGA, or EGA.
+		// for(unsigned int entryNo = 0; entryNo < paletteEntries; ++entryNo)
 		//{
 		//	for (unsigned int channelNo = 0; channelNo < paletteChannels; ++channelNo)
 		//	{
@@ -449,40 +449,40 @@ bool Image::LoadPCXImage(Stream::IStream& stream)
 		//}
 	}
 
-	//Set the image format
+	// Set the image format
 	SetImageFormat(newImageWidth, newImageHeight, newPixelFormat, DATAFORMAT_8BIT);
 
-	//Decode the pixel data
+	// Decode the pixel data
 	unsigned char currentPixelBuffer = 0;
 	unsigned int remainingBitsInPixelBuffer = 0;
 	for (unsigned int ypos = 0; ypos < _imageHeight; ++ypos)
 	{
 		if (imageFormat == PCXImageFormat::Palette)
 		{
-			//Initialize the index buffer. Sample images have shown that when a
-			//palletized image contains multiple planes, the palette index for a pixel is
-			//striped across all the planes, with the first plane containing the lowest
-			//bits. Eg, theoretically if there was a 16-bit palette index of 0x1234, and
-			//it was stored across two planes with 8-bits per plane, the first plane
-			//would contain 0x34, while the second plane would contain 0x12. We create a
-			//buffer here to store the decoded palette index values across all the data
-			//planes.
+			// Initialize the index buffer. Sample images have shown that when a
+			// palletized image contains multiple planes, the palette index for a pixel is
+			// striped across all the planes, with the first plane containing the lowest
+			// bits. Eg, theoretically if there was a 16-bit palette index of 0x1234, and
+			// it was stored across two planes with 8-bits per plane, the first plane
+			// would contain 0x34, while the second plane would contain 0x12. We create a
+			// buffer here to store the decoded palette index values across all the data
+			// planes.
 			std::vector<unsigned int> paletteEntries(_imageWidth);
 			for (unsigned int xpos = 0; xpos < _imageWidth; ++xpos)
 			{
 				paletteEntries[xpos] = 0;
 			}
 
-			//Combine the index data from across all the stored data planes
+			// Combine the index data from across all the stored data planes
 			for (unsigned int planeNo = 0; planeNo < header.numPlanes; ++planeNo)
 			{
-				//Read the index data for this plane, this line
+				// Read the index data for this plane, this line
 				for (unsigned int xpos = 0; xpos < _imageWidth; ++xpos)
 				{
 					unsigned int data = ReadBitfieldData(buffer, currentPixelBuffer, remainingBitsInPixelBuffer, header.bitsPerPixel);
 					paletteEntries[xpos] |= (data << (planeNo * header.bitsPerPixel));
 				}
-				//Strip any padding from the end of the line
+				// Strip any padding from the end of the line
 				remainingBitsInPixelBuffer = 0;
 				for (unsigned int byteNo = usedPlaneByteCount; byteNo < totalPlaneByteCount; ++byteNo)
 				{
@@ -490,7 +490,7 @@ bool Image::LoadPCXImage(Stream::IStream& stream)
 				}
 			}
 
-			//Read the combined index data, and write the decoded line
+			// Read the combined index data, and write the decoded line
 			for (unsigned int xpos = 0; xpos < _imageWidth; ++xpos)
 			{
 				unsigned int paletteIndex = paletteEntries[xpos];
@@ -506,13 +506,13 @@ bool Image::LoadPCXImage(Stream::IStream& stream)
 		{
 			for (unsigned int planeNo = 0; planeNo < header.numPlanes; ++planeNo)
 			{
-				//Read the pixel data for this plane, this line
+				// Read the pixel data for this plane, this line
 				for (unsigned int xpos = 0; xpos < _imageWidth; ++xpos)
 				{
 					unsigned int data = ReadBitfieldData(buffer, currentPixelBuffer, remainingBitsInPixelBuffer, header.bitsPerPixel);
 					WritePixelDataInternal(xpos, ypos, planeNo, data, header.bitsPerPixel);
 				}
-				//Strip any padding from the end of the line
+				// Strip any padding from the end of the line
 				remainingBitsInPixelBuffer = 0;
 				for (unsigned int byteNo = usedPlaneByteCount; byteNo < totalPlaneByteCount; ++byteNo)
 				{
@@ -525,16 +525,16 @@ bool Image::LoadPCXImage(Stream::IStream& stream)
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool Image::SavePCXImage(Stream::IStream& stream)
 {
-	//Ensure the current image is valid before proceeding
+	// Ensure the current image is valid before proceeding
 	if (!ImageValid())
 	{
 		return false;
 	}
 
-	//Build the PCX file header
+	// Build the PCX file header
 	PCXFileHeader header;
 	header.manufacturer = 10;
 	header.version = 5;
@@ -567,7 +567,7 @@ bool Image::SavePCXImage(Stream::IStream& stream)
 		header.reserved2[i] = 0;
 	}
 
-	//Write the PCX file header
+	// Write the PCX file header
 	stream.WriteData(header.manufacturer);
 	stream.WriteData(header.version);
 	stream.WriteData(header.encoding);
@@ -593,7 +593,7 @@ bool Image::SavePCXImage(Stream::IStream& stream)
 		stream.WriteData(header.reserved2[i]);
 	}
 
-	//Write the pixel data
+	// Write the pixel data
 	for (unsigned int ypos = 0; ypos < _imageHeight; ++ypos)
 	{
 		bool compressionRunActive = false;
@@ -609,10 +609,10 @@ bool Image::SavePCXImage(Stream::IStream& stream)
 
 				if (compressionRunActive)
 				{
-					//Update the active compression run
+					// Update the active compression run
 					if ((data != lastByte) || (runCount >= maxRunLength))
 					{
-						//Save the compression pair to the stream
+						// Save the compression pair to the stream
 						if ((runCount > 1) || ((lastByte & 0xC0) != 0))
 						{
 							unsigned char compressionByte = (unsigned char)runCount | 0xC0;
@@ -623,32 +623,32 @@ bool Image::SavePCXImage(Stream::IStream& stream)
 					}
 					else
 					{
-						//If we're in the middle of an RLE compression run, and the next byte
-						//matches the compressed value, add it to the run count.
+						// If we're in the middle of an RLE compression run, and the next byte
+						// matches the compressed value, add it to the run count.
 						++runCount;
 					}
 				}
 
 				if (!compressionRunActive)
 				{
-					//Start a new compression run
+					// Start a new compression run
 					compressionRunActive = true;
 					lastByte = data;
 					runCount = 1;
 				}
 			}
 
-			//Pad the plane data to a word boundary
+			// Pad the plane data to a word boundary
 			if (addPaddingByteToPlane)
 			{
 				++runCount;
 			}
 		}
 
-		//Flush any remaining compressed data to the stream
+		// Flush any remaining compressed data to the stream
 		if (compressionRunActive)
 		{
-			//Save the compression pair to the stream
+			// Save the compression pair to the stream
 			if ((runCount > 1) || ((lastByte & 0xC0) != 0))
 			{
 				unsigned char compressionByte = (unsigned char)runCount | 0xC0;
@@ -662,9 +662,9 @@ bool Image::SavePCXImage(Stream::IStream& stream)
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
-//TIFF functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// TIFF functions
+//----------------------------------------------------------------------------------------------------------------------
 bool Image::LoadTIFFImage(Stream::IStream& stream)
 {
 	bool result = false;
@@ -681,10 +681,10 @@ bool Image::LoadTIFFImage(Stream::IStream& stream)
 		uint32* rawPixelData = new uint32[pixelCount];
 		if (TIFFReadRGBAImage(tif, newImageWidth, newImageHeight, rawPixelData, 0) != 0)
 		{
-			//Apply the new image format
+			// Apply the new image format
 			SetImageFormat(newImageWidth, newImageHeight, PIXELFORMAT_RGBA, DATAFORMAT_8BIT);
 
-			//Decode the image data
+			// Decode the image data
 			for (unsigned int ypos = 0; ypos < _imageHeight; ++ypos)
 			{
 				unsigned int writeYPos = ((_imageHeight - 1) - ypos);
@@ -710,10 +710,10 @@ bool Image::LoadTIFFImage(Stream::IStream& stream)
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool Image::SaveTIFFImage(Stream::IStream& stream)
 {
-	//Ensure the current image is valid before proceeding
+	// Ensure the current image is valid before proceeding
 	if (!ImageValid())
 	{
 		return false;
@@ -725,62 +725,62 @@ bool Image::SaveTIFFImage(Stream::IStream& stream)
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
-//JPG functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// JPG functions
+//----------------------------------------------------------------------------------------------------------------------
 bool Image::LoadJPGImage(Stream::IStream& stream)
 {
-	//1. Allocate and initialize a JPEG decompression object.
+	// 1. Allocate and initialize a JPEG decompression object.
 	jpeg_decompress_struct cinfo;
 	jpeg_error_mgr jerr;
 	cinfo.err = jpeg_std_error(&jerr);
 	jpeg_create_decompress(&cinfo);
 
-	//2. Specify the source of the compressed data (eg, a file).
+	// 2. Specify the source of the compressed data (eg, a file).
 	JPGStreamSourceManager sourceManager(&cinfo, stream, 1024);
 
-	//3. Call jpeg_read_header() to obtain image info.
+	// 3. Call jpeg_read_header() to obtain image info.
 	jpeg_read_header(&cinfo, TRUE);
 
-	//4. Set parameters for decompression.
-	//Nothing to do. jpeg_read_header loaded defaults, which is what we want.
+	// 4. Set parameters for decompression.
+	// Nothing to do. jpeg_read_header loaded defaults, which is what we want.
 	//##TODO## Don't use the libjpeg colour space conversion. Write our own routines to
-	//convert colour spaces.
+	// convert colour spaces.
 	cinfo.out_color_space = JCS_RGB;
 
-	//5. jpeg_start_decompress(...);
+	// 5. jpeg_start_decompress(...);
 	jpeg_start_decompress(&cinfo);
 
-	//Change our image format to match the decoded data
+	// Change our image format to match the decoded data
 	unsigned int newImageWidth = (unsigned int)cinfo.output_width;
 	unsigned int newImageHeight = (unsigned int)cinfo.output_height;
 	DataFormat newDataFormat = DATAFORMAT_8BIT;
 	PixelFormat newPixelFormat = PIXELFORMAT_RGB;
 	//##FIX##
-	//switch(cinfo.jpeg_color_space)
+	// switch(cinfo.jpeg_color_space)
 	//{
-	//case JCS_UNKNOWN:
-	//default:
-	//	//Unknown jpeg colour space. Abort any further procesing.
+	// case JCS_UNKNOWN:
+	// default:
+	//	// Unknown jpeg colour space. Abort any further procesing.
 	//	return false;
-	//case JCS_YCbCr:
-	//case JCS_CMYK:
-	//case JCS_YCCK:
-	//	//The image uses an unsupported colour space. Abort any further processing.
+	// case JCS_YCbCr:
+	// case JCS_CMYK:
+	// case JCS_YCCK:
+	//	// The image uses an unsupported colour space. Abort any further processing.
 	//	return false;
-	//case JCS_GRAYSCALE:
-	//	//We're decoding a monochrome image
+	// case JCS_GRAYSCALE:
+	//	// We're decoding a monochrome image
 	//	newPixelFormat = PIXELFORMAT_M;
 	//	break;
-	//case JCS_RGB:
-	//	//We're decoding an RGB image
+	// case JCS_RGB:
+	//	// We're decoding an RGB image
 	//	newPixelFormat = PIXELFORMAT_RGB;
 	//	break;
 	//}
 	SetImageFormat(newImageWidth, newImageHeight, newPixelFormat, newDataFormat);
 
-	//6. while (scan lines remain to be read)
-	//jpeg_read_scanlines(...);
+	// 6. while (scan lines remain to be read)
+	// jpeg_read_scanlines(...);
 	int rowStride = cinfo.output_width * cinfo.output_components;
 	JSAMPROW buffer = new JSAMPLE[rowStride];
 	for (unsigned int ypos = 0; ypos < _imageHeight; ++ypos)
@@ -807,34 +807,34 @@ bool Image::LoadJPGImage(Stream::IStream& stream)
 	}
 	delete[] buffer;
 
-	//7. jpeg_finish_decompress(...);
+	// 7. jpeg_finish_decompress(...);
 	jpeg_finish_decompress(&cinfo);
 
-	//8. Release the JPEG decompression object.
+	// 8. Release the JPEG decompression object.
 	jpeg_destroy_decompress(&cinfo);
 
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool Image::SaveJPGImage(Stream::IStream& stream)
 {
-	//Ensure the current image is valid before proceeding
+	// Ensure the current image is valid before proceeding
 	if (!ImageValid())
 	{
 		return false;
 	}
 
-	//1. Allocate and initialize a JPEG compression object.
+	// 1. Allocate and initialize a JPEG compression object.
 	struct jpeg_compress_struct cinfo;
 	struct jpeg_error_mgr jerr;
 	cinfo.err = jpeg_std_error(&jerr);
 	jpeg_create_compress(&cinfo);
 
-	//2. Specify the destination for the compressed data (eg, a file).
+	// 2. Specify the destination for the compressed data (eg, a file).
 	JPGStreamDestinationManager destinationManager(&cinfo, stream, 1024);
 
-	//3. Set parameters for compression, including image size & colorspace.
+	// 3. Set parameters for compression, including image size & colorspace.
 	cinfo.image_width = _imageWidth;
 	cinfo.image_height = _imageHeight;
 	if ((_pixelFormat == PIXELFORMAT_M) || (_pixelFormat == PIXELFORMAT_MA))
@@ -849,16 +849,16 @@ bool Image::SaveJPGImage(Stream::IStream& stream)
 	}
 	else
 	{
-		//Unknown pixelformat. Abort any further processing.
+		// Unknown pixelformat. Abort any further processing.
 		return false;
 	}
 	jpeg_set_defaults(&cinfo);
 
-	//4. jpeg_start_compress(...);
+	// 4. jpeg_start_compress(...);
 	jpeg_start_compress(&cinfo, TRUE);
 
-	//5. while (scan lines remain to be written)
-	//jpeg_write_scanlines(...);
+	// 5. while (scan lines remain to be written)
+	// jpeg_write_scanlines(...);
 	int rowStride = cinfo.image_width * cinfo.input_components;
 	JSAMPROW buffer = new JSAMPLE[rowStride];
 	for (unsigned int ypos = 0; ypos < _imageHeight; ++ypos)
@@ -889,21 +889,21 @@ bool Image::SaveJPGImage(Stream::IStream& stream)
 	}
 	delete[] buffer;
 
-	//6. jpeg_finish_compress(...);
+	// 6. jpeg_finish_compress(...);
 	jpeg_finish_compress(&cinfo);
 
-	//7. Release the JPEG compression object.
+	// 7. Release the JPEG compression object.
 	jpeg_destroy_compress(&cinfo);
 
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
-//TGA functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// TGA functions
+//----------------------------------------------------------------------------------------------------------------------
 bool Image::LoadTGAImage(Stream::IStream& stream)
 {
-	//Load the tga file header
+	// Load the tga file header
 	TGAFileHeader fileHeader;
 	stream.ReadData(fileHeader.idLength);
 	stream.ReadData(fileHeader.colorMapType);
@@ -918,12 +918,12 @@ bool Image::LoadTGAImage(Stream::IStream& stream)
 	stream.ReadData(fileHeader.bitsPerPixel);
 	stream.ReadData(fileHeader.imageDescriptor);
 
-	//Decode the color map info
+	// Decode the color map info
 	if (fileHeader.colorMapType > 1)
 	{
-		//The colorMapType field is only allowed to contain either a 0, indicating no
-		//color map is present, or 1, indicating a color map is present. Any other values
-		//are not recognized.
+		// The colorMapType field is only allowed to contain either a 0, indicating no
+		// color map is present, or 1, indicating a color map is present. Any other values
+		// are not recognized.
 		return false;
 	}
 	bool colorMapPresent = (fileHeader.colorMapType > 0);
@@ -931,19 +931,19 @@ bool Image::LoadTGAImage(Stream::IStream& stream)
 	unsigned int colorMapLength = fileHeader.colorMapLength;
 	unsigned int colorMapBitsPerEntry = fileHeader.colorMapBitsPerEntry;
 
-	//We limit the maximum size of the alpha channel in the colour map to 32 bits. If the
-	//alpha channel is larger than 32 bits, we abort any further processing.
+	// We limit the maximum size of the alpha channel in the colour map to 32 bits. If the
+	// alpha channel is larger than 32 bits, we abort any further processing.
 	unsigned int maxColorMapBitsPerEntry = (8 * 4) + (8 * 3);
 	if (colorMapBitsPerEntry > maxColorMapBitsPerEntry)
 	{
 		return false;
 	}
 
-	//Calculate the number of bits per channel in the colour map. According to the TGA
-	//file format specification, the colour map stores RGBA values, with the R, G, and B
-	//channels being the same length, with a maximum of 8 bits. The alpha channel is made
-	//up of whatever bits remain in the color map after dividing the bitcount of a single
-	//entry amoung the RGB channels.
+	// Calculate the number of bits per channel in the colour map. According to the TGA
+	// file format specification, the colour map stores RGBA values, with the R, G, and B
+	// channels being the same length, with a maximum of 8 bits. The alpha channel is made
+	// up of whatever bits remain in the color map after dividing the bitcount of a single
+	// entry amoung the RGB channels.
 	unsigned int colorMapBitsRGB = colorMapBitsPerEntry / 3;
 	if (colorMapBitsRGB > 8)
 	{
@@ -952,7 +952,7 @@ bool Image::LoadTGAImage(Stream::IStream& stream)
 	unsigned int colorMapBitsAlpha = colorMapBitsPerEntry - (colorMapBitsRGB * 8);
 	unsigned int colorMapByteSize = ((colorMapBitsPerEntry * colorMapLength) + 7) / 8;
 
-	//Decode the image type
+	// Decode the image type
 	unsigned int colorChannelCount = 0;
 	TGAImageType imageType;
 	bool rleCompressionUsed = false;
@@ -977,42 +977,42 @@ bool Image::LoadTGAImage(Stream::IStream& stream)
 		colorChannelCount = 1;
 		break;
 	case TGAImageType::None:
-		//The file contains no image data. Abort any further processing.
+		// The file contains no image data. Abort any further processing.
 		return false;
 	default:
-		//An unknown image type has been specified. Abort any further processing.
+		// An unknown image type has been specified. Abort any further processing.
 		return false;
 	}
 
-	//Decode the image format
+	// Decode the image format
 	unsigned int newImageWidth = fileHeader.imageWidth;
 	unsigned int newImageHeight = fileHeader.imageHeight;
 	unsigned int bitsPerPixel = fileHeader.bitsPerPixel;
 	unsigned int alphaChannelBits = fileHeader.imageDescriptor & 0x0F;
 
-	//If more bits have been allocated to the alpha channel than are actually present in
-	//the image, abort any further processing.
+	// If more bits have been allocated to the alpha channel than are actually present in
+	// the image, abort any further processing.
 	if (alphaChannelBits > bitsPerPixel)
 	{
 		return false;
 	}
 
-	//Calculate the number of bits per channel
+	// Calculate the number of bits per channel
 	//##TODO## There's some ambiguity as to how we should calculate the number of bits
-	//per channel for RGB images. Obviously we have to extract the number of bits
-	//allocated to the alpha channel. If we divide the number of remaining bits evenly
-	//between the three colour channels, what do we do with any bits that are left over?
-	//I would say these bits simply get discarded, but we need to verify this behaviour.
+	// per channel for RGB images. Obviously we have to extract the number of bits
+	// allocated to the alpha channel. If we divide the number of remaining bits evenly
+	// between the three colour channels, what do we do with any bits that are left over?
+	// I would say these bits simply get discarded, but we need to verify this behaviour.
 	unsigned int bitsPerChannel = (bitsPerPixel - alphaChannelBits) / colorChannelCount;
 	unsigned int discardedBitsPerPixel = bitsPerPixel - (alphaChannelBits + (bitsPerChannel * colorChannelCount));
 
-	//Check if we need to mirror the image data either horizontally or vertically. Note
-	//that if the vertical mirroring bit is unset, the image is written bottom up. Since
-	//we decode top-down by default, we reverse the result of this bit.
+	// Check if we need to mirror the image data either horizontally or vertically. Note
+	// that if the vertical mirroring bit is unset, the image is written bottom up. Since
+	// we decode top-down by default, we reverse the result of this bit.
 	bool mirrorX = (fileHeader.imageDescriptor & 0x10) != 0;
 	bool mirrorY = (fileHeader.imageDescriptor & 0x20) == 0;
 
-	//Determine the new image format
+	// Determine the new image format
 	unsigned int mBitCount = 0;
 	unsigned int rBitCount = 0;
 	unsigned int gBitCount = 0;
@@ -1065,30 +1065,30 @@ bool Image::LoadTGAImage(Stream::IStream& stream)
 	}
 	else
 	{
-		//We should never end up here. If we do, it's because we messed up when decoding
-		//the image type above.
+		// We should never end up here. If we do, it's because we messed up when decoding
+		// the image type above.
 		return false;
 	}
 
-	//If an image ID field is included, we skip over this data.
+	// If an image ID field is included, we skip over this data.
 	for (unsigned int i = 0; i < fileHeader.idLength; ++i)
 	{
 		unsigned char temp;
 		stream.ReadData(temp);
 	}
 
-	//Check if we need to extract a colour map for this image
+	// Check if we need to extract a colour map for this image
 	std::vector<TGAColorMapEntry> colorMap(colorMapLength);
 	if (imageType == TGAImageType::Palette)
 	{
-		//If the image is set to use the colour map, but no colour map is present, abort
-		//any further processing.
+		// If the image is set to use the colour map, but no colour map is present, abort
+		// any further processing.
 		if (!colorMapPresent)
 		{
 			return false;
 		}
 
-		//If a colour map is present, we read in the colour map data here.
+		// If a colour map is present, we read in the colour map data here.
 		unsigned char currentBuffer = 0;
 		unsigned int remainingBits = 0;
 		for (unsigned int i = 0; i < colorMapLength; ++i)
@@ -1102,11 +1102,11 @@ bool Image::LoadTGAImage(Stream::IStream& stream)
 	}
 	else if (colorMapPresent)
 	{
-		//If a colour map is present, but this isn't a colour mapped image, we skip over
-		//the colour map data. Note that we don't throw an error here, since some
-		//programs may use the colour map area on non-colour mapped images to store
-		//custom information. Skipping the colour map when it is not required is
-		//recommended by the official TGA file format specification.
+		// If a colour map is present, but this isn't a colour mapped image, we skip over
+		// the colour map data. Note that we don't throw an error here, since some
+		// programs may use the colour map area on non-colour mapped images to store
+		// custom information. Skipping the colour map when it is not required is
+		// recommended by the official TGA file format specification.
 		for (unsigned int i = 0; i < fileHeader.idLength; ++i)
 		{
 			unsigned char temp;
@@ -1114,10 +1114,10 @@ bool Image::LoadTGAImage(Stream::IStream& stream)
 		}
 	}
 
-	//Apply the new image properties
+	// Apply the new image properties
 	SetImageFormat(newImageWidth, newImageHeight, newPixelFormat, newDataFormat);
 
-	//Decode the pixel data
+	// Decode the pixel data
 	unsigned char currentBuffer = 0;
 	unsigned int remainingBits = 0;
 	unsigned int m, r, g, b, a;
@@ -1130,26 +1130,26 @@ bool Image::LoadTGAImage(Stream::IStream& stream)
 		{
 			unsigned int writeXPos = mirrorX? ((_imageWidth - 1) - xpos): xpos;
 
-			//If rle compression is enabled for this image, check if we need to read a
-			//new packet from the compressed data stream.
+			// If rle compression is enabled for this image, check if we need to read a
+			// new packet from the compressed data stream.
 			bool readNewRepetitionData = false;
 			if (rleCompressionUsed)
 			{
 				--repetitionCount;
 				if (repetitionCount < 0)
 				{
-					//If we've finished processing the last packet, read another packet
-					//header from the stream. Packet headers are 8-bit fields with the
-					//following format:
-					//-----------------------------------
-					//| 7  | 6 | 5 | 4 | 3 | 2 | 1 | 0  |
-					//|---------------------------------|
-					//|Type|    Repetition Count        |
-					//-----------------------------------
-					//Type:	The packet type
+					// If we've finished processing the last packet, read another packet
+					// header from the stream. Packet headers are 8-bit fields with the
+					// following format:
+					// -----------------------------------
+					// | 7  | 6 | 5 | 4 | 3 | 2 | 1 | 0  |
+					// |---------------------------------|
+					// |Type|    Repetition Count        |
+					// -----------------------------------
+					// Type:	The packet type
 					//      0 = raw (uncompressed) packet
 					//      1 = run length (compressed) packet
-					//Repetition Count:	Repetition counter - 1
+					// Repetition Count:	Repetition counter - 1
 					//      For an uncompressed packet, this indicates the number of
 					//      literal pixel values which follow. For a compressed packet,
 					//      this indicates the number of times to repeat the following
@@ -1167,8 +1167,8 @@ bool Image::LoadTGAImage(Stream::IStream& stream)
 				{
 					unsigned int colorMapIndex = ReadBitfieldData(stream, currentBuffer, remainingBits, bitsPerPixel);
 
-					//Verify that the colour map index for this pixel falls within a valid
-					//entry in the colour map. If it does not, abort any further processing.
+					// Verify that the colour map index for this pixel falls within a valid
+					// entry in the colour map. If it does not, abort any further processing.
 					if ((colorMapFirstEntry > colorMapIndex) || ((colorMapIndex - colorMapFirstEntry) >= colorMapLength))
 					{
 						return false;
@@ -1183,7 +1183,7 @@ bool Image::LoadTGAImage(Stream::IStream& stream)
 				}
 				else if (imageType == TGAImageType::RGB)
 				{
-					//Note that the field order is BGRA in the file
+					// Note that the field order is BGRA in the file
 					b = ReadBitfieldData(stream, currentBuffer, remainingBits, bBitCount);
 					g = ReadBitfieldData(stream, currentBuffer, remainingBits, gBitCount);
 					r = ReadBitfieldData(stream, currentBuffer, remainingBits, rBitCount);
@@ -1195,11 +1195,11 @@ bool Image::LoadTGAImage(Stream::IStream& stream)
 					a = ReadBitfieldData(stream, currentBuffer, remainingBits, aBitCount);
 				}
 
-				//Extract the discarded bits per pixel
+				// Extract the discarded bits per pixel
 				ReadBitfieldData(stream, currentBuffer, remainingBits, discardedBitsPerPixel);
 			}
 
-			//Write the extracted pixel data to the image
+			// Write the extracted pixel data to the image
 			unsigned int alphaPlaneNo = 0;
 			if (mBitCount > 0)
 			{
@@ -1223,16 +1223,16 @@ bool Image::LoadTGAImage(Stream::IStream& stream)
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool Image::SaveTGAImage(Stream::IStream& stream)
 {
-	//Ensure the current image is valid before proceeding
+	// Ensure the current image is valid before proceeding
 	if (!ImageValid())
 	{
 		return false;
 	}
 
-	//Determine the TGA file format settings
+	// Determine the TGA file format settings
 	bool flipVertically = true;
 	bool flipHorizontally = false;
 	unsigned int colorChannelCount = 0;
@@ -1270,7 +1270,7 @@ bool Image::SaveTGAImage(Stream::IStream& stream)
 	imageDescriptor |= flipVertically? 0x20: 0;
 	imageDescriptor |= flipHorizontally? 0x10: 0;
 
-	//Build the TGA file header
+	// Build the TGA file header
 	TGAFileHeader fileHeader;
 	fileHeader.idLength = 0;
 	fileHeader.colorMapType = 0;
@@ -1285,7 +1285,7 @@ bool Image::SaveTGAImage(Stream::IStream& stream)
 	fileHeader.bitsPerPixel = (unsigned char)bitsPerPixel;
 	fileHeader.imageDescriptor = (unsigned char)imageDescriptor;
 
-	//Write the header to the file
+	// Write the header to the file
 	stream.WriteData(fileHeader.idLength);
 	stream.WriteData(fileHeader.colorMapType);
 	stream.WriteData(fileHeader.imageType);
@@ -1299,14 +1299,14 @@ bool Image::SaveTGAImage(Stream::IStream& stream)
 	stream.WriteData(fileHeader.bitsPerPixel);
 	stream.WriteData(fileHeader.imageDescriptor);
 
-	//Write the pixel data to the file
+	// Write the pixel data to the file
 	unsigned char currentBuffer = 0;
 	unsigned int remainingBits = 8;
 	for (unsigned int ypos = 0; ypos < _imageHeight; ++ypos)
 	{
 		for (unsigned int xpos = 0; xpos < _imageWidth; ++xpos)
 		{
-			//Note that the field order is BGRA in the file
+			// Note that the field order is BGRA in the file
 			if (mBitCount > 0)
 			{
 				unsigned int m;
@@ -1338,72 +1338,72 @@ bool Image::SaveTGAImage(Stream::IStream& stream)
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
-//Bitfield functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Bitfield functions
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int Image::ReadBitfieldData(Stream::IStream& stream, unsigned char& currentBuffer, unsigned int& remainingBitsInBuffer, unsigned int dataBitCount) const
 {
 	unsigned int data = 0;
 	unsigned int processedBits = 0;
 	while (processedBits < dataBitCount)
 	{
-		//If the buffer is empty, load more data from the stream.
+		// If the buffer is empty, load more data from the stream.
 		if (remainingBitsInBuffer == 0)
 		{
 			stream.ReadData(currentBuffer);
 			remainingBitsInBuffer = 8;
 		}
 
-		//Calculate the number of bits belonging to this data block which are currently
-		//in the buffer.
+		// Calculate the number of bits belonging to this data block which are currently
+		// in the buffer.
 		unsigned int remainingBitsInBitfield = dataBitCount - processedBits;
 		unsigned int bitsToProcess = (remainingBitsInBitfield < remainingBitsInBuffer)? remainingBitsInBitfield: remainingBitsInBuffer;
 
-		//Extract all the bits for this data block which are in the buffer, and combine
-		//them with any bits we've already extracted.
+		// Extract all the bits for this data block which are in the buffer, and combine
+		// them with any bits we've already extracted.
 		data <<= bitsToProcess;
 		data |= ((unsigned int)currentBuffer >> (remainingBitsInBuffer - bitsToProcess)) & ((1 << bitsToProcess) - 1);
 
-		//Now that we've extracted all the bits from the current buffer that we need,
-		//update the total number of bits we've read for this data block, and update the
-		//count of bits remaining in the buffer.
+		// Now that we've extracted all the bits from the current buffer that we need,
+		// update the total number of bits we've read for this data block, and update the
+		// count of bits remaining in the buffer.
 		processedBits += bitsToProcess;
 		remainingBitsInBuffer -= bitsToProcess;
 	}
 	return data;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Image::WriteBitfieldData(Stream::IStream& stream, unsigned char& currentBuffer, unsigned int& remainingBitsInBuffer, unsigned int data, unsigned int dataBitCount) const
 {
 	unsigned int processedBits = 0;
 	while (processedBits < dataBitCount)
 	{
-		//If the buffer is empty, load more data from the stream.
+		// If the buffer is empty, load more data from the stream.
 		if (remainingBitsInBuffer == 0)
 		{
 			stream.WriteData(currentBuffer);
 			remainingBitsInBuffer = 8;
 		}
 
-		//Calculate the number of bits belonging to this bitfield in the buffer
+		// Calculate the number of bits belonging to this bitfield in the buffer
 		unsigned int remainingBitsInData = dataBitCount - processedBits;
 		unsigned int bitsToProcess = (remainingBitsInData < remainingBitsInBuffer)? remainingBitsInData: remainingBitsInBuffer;
 
-		//Extract the bits for this channel from the buffer, and combine them with any
-		//bits we've already extracted.
+		// Extract the bits for this channel from the buffer, and combine them with any
+		// bits we've already extracted.
 		currentBuffer <<= bitsToProcess;
 		currentBuffer |= (unsigned char)((data >> ((dataBitCount - processedBits) - bitsToProcess)) & ((1 << bitsToProcess) - 1));
 
-		//Now that we've extracted the number of bits from the current buffer that we
-		//need, update the count of the number of bits we've extracted from this channel,
-		//and update the count of bits remaining in the buffer.
+		// Now that we've extracted the number of bits from the current buffer that we
+		// need, update the count of the number of bits we've extracted from this channel,
+		// and update the count of bits remaining in the buffer.
 		processedBits += bitsToProcess;
 		remainingBitsInBuffer -= bitsToProcess;
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Image::FlushBitfieldData(Stream::IStream& stream, unsigned char& currentBuffer, unsigned int& remainingBitsInBuffer) const
 {
 	if (remainingBitsInBuffer < 8)
@@ -1414,12 +1414,12 @@ void Image::FlushBitfieldData(Stream::IStream& stream, unsigned char& currentBuf
 	}
 }
 
-//----------------------------------------------------------------------------------------
-//PNG functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// PNG functions
+//----------------------------------------------------------------------------------------------------------------------
 bool Image::LoadPNGImage(Stream::IStream& stream)
 {
-	//Verify the file has a valid PNG file marker
+	// Verify the file has a valid PNG file marker
 	std::vector<unsigned char> header;
 	stream.ReadData(header, 8);
 	stream.SetStreamPos(0);
@@ -1428,14 +1428,14 @@ bool Image::LoadPNGImage(Stream::IStream& stream)
 		return false;
 	}
 
-	//Allocate png_struct
+	// Allocate png_struct
 	png_structp pngStruct = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 	if (pngStruct == NULL)
 	{
 		return false;
 	}
 
-	//Allocate png_info
+	// Allocate png_info
 	png_infop pngInfo = png_create_info_struct(pngStruct);
 	if (pngInfo == NULL)
 	{
@@ -1443,18 +1443,18 @@ bool Image::LoadPNGImage(Stream::IStream& stream)
 		return false;
 	}
 
-	//Link our custom I/O functions for libpng
+	// Link our custom I/O functions for libpng
 	png_set_read_fn(pngStruct, (void*)&stream, PNGReadData);
 
-	//Parse the PNG file
+	// Parse the PNG file
 	int pngTransforms = PNG_TRANSFORM_STRIP_16 | PNG_TRANSFORM_EXPAND;
 	png_read_png(pngStruct, pngInfo, pngTransforms, NULL);
 
-	//Extract the decoded PNG pixel data
+	// Extract the decoded PNG pixel data
 	png_bytepp pngPixelData = png_get_rows(pngStruct, pngInfo);
 	unsigned int pngPixelSize = png_get_bit_depth(pngStruct, pngInfo) * png_get_channels(pngStruct, pngInfo) / 8;
 
-	//Change our image format to match the decoded data
+	// Change our image format to match the decoded data
 	unsigned int newImageWidth = png_get_image_width(pngStruct, pngInfo);
 	unsigned int newImageHeight = png_get_image_height(pngStruct, pngInfo);
 	DataFormat newDataFormat = DATAFORMAT_8BIT;
@@ -1478,7 +1478,7 @@ bool Image::LoadPNGImage(Stream::IStream& stream)
 	}
 	SetImageFormat(newImageWidth, newImageHeight, newPixelFormat, newDataFormat);
 
-	//Build our image data from the decoded PNG pixel data
+	// Build our image data from the decoded PNG pixel data
 	for (unsigned int ypos = 0; ypos < _imageHeight; ++ypos)
 	{
 		for (unsigned int xpos = 0; xpos < _imageWidth; ++xpos)
@@ -1500,29 +1500,29 @@ bool Image::LoadPNGImage(Stream::IStream& stream)
 		}
 	}
 
-	//Free any allocated resources
+	// Free any allocated resources
 	png_destroy_read_struct(&pngStruct, &pngInfo, NULL);
 
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool Image::SavePNGImage(Stream::IStream& stream)
 {
-	//Ensure the current image is valid before proceeding
+	// Ensure the current image is valid before proceeding
 	if (!ImageValid())
 	{
 		return false;
 	}
 
-	//Allocate png_struct
+	// Allocate png_struct
 	png_structp pngStruct = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 	if (pngStruct == NULL)
 	{
 		return false;
 	}
 
-	//Allocate png_info
+	// Allocate png_info
 	png_infop pngInfo = png_create_info_struct(pngStruct);
 	if (pngInfo == NULL)
 	{
@@ -1530,10 +1530,10 @@ bool Image::SavePNGImage(Stream::IStream& stream)
 		return false;
 	}
 
-	//Link our custom I/O functions for libpng
+	// Link our custom I/O functions for libpng
 	png_set_write_fn(pngStruct, (void*)&stream, PNGWriteData, PNGFlushData);
 
-	//Populate the PNG header information
+	// Populate the PNG header information
 	int pngColorType = 0;
 	unsigned int bytesPerPixel;
 	switch (_pixelFormat)
@@ -1558,10 +1558,10 @@ bool Image::SavePNGImage(Stream::IStream& stream)
 	int pngBitDepth = 8;
 	png_set_IHDR(pngStruct, pngInfo, _imageWidth, _imageHeight, pngBitDepth, pngColorType, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
 
-	//Write the PNG header
+	// Write the PNG header
 	png_write_info(pngStruct, pngInfo);
 
-	//Write the image data to the file one scanline at a time
+	// Write the image data to the file one scanline at a time
 	png_bytep rowData = new png_byte[_imageWidth * bytesPerPixel];
 	for (unsigned int ypos = 0; ypos < _imageHeight; ++ypos)
 	{
@@ -1579,16 +1579,16 @@ bool Image::SavePNGImage(Stream::IStream& stream)
 	}
 	delete[] rowData;
 
-	//Write the last data to the PNG file
+	// Write the last data to the PNG file
 	png_write_end(pngStruct, pngInfo);
 
-	//Free any allocated resources
+	// Free any allocated resources
 	png_destroy_write_struct(&pngStruct, &pngInfo);
 
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Image::PNGReadData(png_structp pngStruct, png_bytep data, png_size_t length)
 {
 	Stream::IStream& pngFile = *((Stream::IStream*)png_get_io_ptr(pngStruct));
@@ -1600,7 +1600,7 @@ void Image::PNGReadData(png_structp pngStruct, png_bytep data, png_size_t length
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Image::PNGWriteData(png_structp pngStruct, png_bytep data, png_size_t length)
 {
 	Stream::IStream& pngFile = *((Stream::IStream*)png_get_io_ptr(pngStruct));
@@ -1611,21 +1611,21 @@ void Image::PNGWriteData(png_structp pngStruct, png_bytep data, png_size_t lengt
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Image::PNGFlushData(png_structp pngStruct)
 {}
 
-//----------------------------------------------------------------------------------------
-//BMP functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// BMP functions
+//----------------------------------------------------------------------------------------------------------------------
 bool Image::LoadBMPImage(Stream::IStream& stream)
 {
-	//Read and validate the "BM" file type marker from the file header. If this marker is
-	//not present, abort any further processing. Note that the Windows 1.X bitmap format,
-	//documented by WIN1XHEADER, has a value of '0' for the type field, and encodes the
-	//bitmap size and image format directly, and is followed directly by the raw bitmap
-	//data. We don't support this format currently. As of Windows 2.X onwards, the file
-	//header is the BITMAPFILEHEADER structure, with the same file type marker.
+	// Read and validate the "BM" file type marker from the file header. If this marker is
+	// not present, abort any further processing. Note that the Windows 1.X bitmap format,
+	// documented by WIN1XHEADER, has a value of '0' for the type field, and encodes the
+	// bitmap size and image format directly, and is followed directly by the raw bitmap
+	// data. We don't support this format currently. As of Windows 2.X onwards, the file
+	// header is the BITMAPFILEHEADER structure, with the same file type marker.
 	BITMAPFILEHEADER fileHeader;
 	WORD fileHeader_bfType;
 	stream.ReadData(fileHeader_bfType);
@@ -1637,7 +1637,7 @@ bool Image::LoadBMPImage(Stream::IStream& stream)
 		return false;
 	}
 
-	//Load the bitmap file header
+	// Load the bitmap file header
 	unsigned int bitmapFileOffset = 0;
 	DWORD fileHeader_bfSize;
 	WORD fileHeader_bfReserved1;
@@ -1653,76 +1653,76 @@ bool Image::LoadBMPImage(Stream::IStream& stream)
 	fileHeader.bfOffBits = fileHeader_bfOffBits;
 	bitmapFileOffset += sizeof(fileHeader);
 
-	//Load the bitmap info header. Note that the BITMAPCOREHEADER structure is the same as
-	//WIN2XBITMAPHEADER, which is used for the Windows 2.X bitmap format.
+	// Load the bitmap info header. Note that the BITMAPCOREHEADER structure is the same as
+	// WIN2XBITMAPHEADER, which is used for the Windows 2.X bitmap format.
 	bool rgbTripleColorTable = false;
 	BITMAPINFOHEADER infoHeader;
 	stream.ReadData(infoHeader.biSize);
 	if (infoHeader.biSize < sizeof(BITMAPCOREHEADER))
 	{
-		//The BITMAPCOREHEADER structure is a common base structure for all bitmap header
-		//formats for Windows 2.X onwards. If the recorded size of the info header is less
-		//than the size of this structure, this is an unknown and unsupported header
-		//format, so we abort any further processing.
+		// The BITMAPCOREHEADER structure is a common base structure for all bitmap header
+		// formats for Windows 2.X onwards. If the recorded size of the info header is less
+		// than the size of this structure, this is an unknown and unsupported header
+		// format, so we abort any further processing.
 		return false;
 	}
 	else if (infoHeader.biSize == sizeof(BITMAPCOREHEADER))
 	{
-		//Load the Windows 2.X bitmap info header
+		// Load the Windows 2.X bitmap info header
 		BITMAPCOREHEADER v2XInfoHeader;
 		stream.ReadData(v2XInfoHeader.bcWidth);
 		stream.ReadData(v2XInfoHeader.bcHeight);
 		stream.ReadData(v2XInfoHeader.bcPlanes);
 		stream.ReadData(v2XInfoHeader.bcBitCount);
 
-		//Note that in a 2.X header, the width and height are unsigned. You can't specify
-		//a top-down bitmap by giving a negative height value. Images are always stored
-		//bottom-up.
+		// Note that in a 2.X header, the width and height are unsigned. You can't specify
+		// a top-down bitmap by giving a negative height value. Images are always stored
+		// bottom-up.
 		//##NOTE## New detailed documentation directly contradicts this claim, so we've
-		//changed our loading code to treat the width and height as signed in this case.
+		// changed our loading code to treat the width and height as signed in this case.
 		infoHeader.biWidth = v2XInfoHeader.bcWidth;//(unsigned)v2XInfoHeader.bcWidth;
 		infoHeader.biHeight = v2XInfoHeader.bcHeight;//(unsigned)v2XInfoHeader.bcHeight;
 		infoHeader.biPlanes = v2XInfoHeader.bcPlanes;
 		infoHeader.biBitCount = v2XInfoHeader.bcBitCount;
 
-		//Validate the number of bits per pixel
+		// Validate the number of bits per pixel
 		switch (infoHeader.biBitCount)
 		{
 		default:
-			//The Windows 2.X API considered 1, 4, 8, and 24 to be the only legal values
-			//for this value. If another value has been specified, abort any further
-			//processing.
+			// The Windows 2.X API considered 1, 4, 8, and 24 to be the only legal values
+			// for this value. If another value has been specified, abort any further
+			// processing.
 			return false;
 		case 1:
 		case 4:
 		case 8:
 		case 24:
-			//The number of bits per pixel in this bitmap is a supported number. Proceed
-			//with image decoding.
+			// The number of bits per pixel in this bitmap is a supported number. Proceed
+			// with image decoding.
 			break;
 		}
 
-		//Fill out the rest of the V3 info header with corresponding information
+		// Fill out the rest of the V3 info header with corresponding information
 		infoHeader.biCompression = BI_RGB;
-		//We can safely set this to 0, since we never actually use it in our load
-		//routines. The BITMAPINFOHEADER spec also allows this member to be set to 0 for
-		//BI_RGB images.
+		// We can safely set this to 0, since we never actually use it in our load
+		// routines. The BITMAPINFOHEADER spec also allows this member to be set to 0 for
+		// BI_RGB images.
 		infoHeader.biSizeImage = 0;
 		infoHeader.biXPelsPerMeter = 0;
 		infoHeader.biYPelsPerMeter = 0;
 		infoHeader.biClrUsed = 0;
 		infoHeader.biClrImportant = 0;
 
-		//Since this is a 2.X header, the colour table is stored using RGBTRIPLE objects
-		//rather than RGBQUAD objects. This is also documented as the WIN2XPALETTEELEMENT
-		//structure. We set a flag here so we know how to decode the colour table later
-		//on.
+		// Since this is a 2.X header, the colour table is stored using RGBTRIPLE objects
+		// rather than RGBQUAD objects. This is also documented as the WIN2XPALETTEELEMENT
+		// structure. We set a flag here so we know how to decode the colour table later
+		// on.
 		rgbTripleColorTable = true;
 	}
 	else
 	{
-		//If the header size is greater than or equal to the Windows 3.X bitmap info
-		//header, process it as a 3.X bitmap info header.
+		// If the header size is greater than or equal to the Windows 3.X bitmap info
+		// header, process it as a 3.X bitmap info header.
 		stream.ReadData(infoHeader.biWidth);
 		stream.ReadData(infoHeader.biHeight);
 		stream.ReadData(infoHeader.biPlanes);
@@ -1736,32 +1736,32 @@ bool Image::LoadBMPImage(Stream::IStream& stream)
 	}
 	bitmapFileOffset += infoHeader.biSize;
 
-	//If the info header contains additional data, this is a newer header format, with
-	//additional information provided. We attempt to decode this image using the V3
-	//header info only. Extract the additional data and move past the info header.
+	// If the info header contains additional data, this is a newer header format, with
+	// additional information provided. We attempt to decode this image using the V3
+	// header info only. Extract the additional data and move past the info header.
 	for (unsigned int i = sizeof(infoHeader); i < infoHeader.biSize; ++i)
 	{
-		//Note that we don't adjust bitmapFileOffset here, since we've already added the
-		//total size of the header above.
+		// Note that we don't adjust bitmapFileOffset here, since we've already added the
+		// total size of the header above.
 		unsigned char temp;
 		stream.ReadData(temp);
 	}
 	infoHeader.biSize = sizeof(infoHeader);
 
-	//Sanity check to protect against bad data
+	// Sanity check to protect against bad data
 	if (fileHeader.bfOffBits < bitmapFileOffset)
 	{
 		return false;
 	}
 
-	//Build the BITMAPINFO structure
+	// Build the BITMAPINFO structure
 	unsigned int sourceColorTableSize = fileHeader.bfOffBits - bitmapFileOffset;
 	unsigned int newColorTableSize = (rgbTripleColorTable)? (sourceColorTableSize + (sourceColorTableSize / 3)): sourceColorTableSize;
-	//Note that we allocate a bit more memory than we actually need here. By doing things
-	//this way, we're not assuming anything about memory alignment, since we allow the
-	//structure of the BITMAPINFO structure to determine where the colour table begins.
-	//The few extra bytes of memory allocation for the bmiColors member in the BITMAPINFO
-	//structure doesn't matter.
+	// Note that we allocate a bit more memory than we actually need here. By doing things
+	// this way, we're not assuming anything about memory alignment, since we allow the
+	// structure of the BITMAPINFO structure to determine where the colour table begins.
+	// The few extra bytes of memory allocation for the bmiColors member in the BITMAPINFO
+	// structure doesn't matter.
 	unsigned int bitmapInfoSize = sizeof(BITMAPINFO) + newColorTableSize;
 	BITMAPINFO* bitmapInfo = (BITMAPINFO*)new unsigned char[bitmapInfoSize];
 	bitmapInfo->bmiHeader.biSize = sizeof(bitmapInfo->bmiHeader);
@@ -1776,7 +1776,7 @@ bool Image::LoadBMPImage(Stream::IStream& stream)
 	bitmapInfo->bmiHeader.biClrUsed = infoHeader.biClrUsed;
 	bitmapInfo->bmiHeader.biClrImportant = infoHeader.biClrImportant;
 
-	//Copy the colour table into the BITMAPINFO structure
+	// Copy the colour table into the BITMAPINFO structure
 	unsigned char* colorTable = (unsigned char*)bitmapInfo->bmiColors;
 	unsigned int sourceColorTableValuesRead = 0;
 	unsigned int newColorTableValuesWritten = 0;
@@ -1787,35 +1787,35 @@ bool Image::LoadBMPImage(Stream::IStream& stream)
 		++sourceColorTableValuesRead;
 		++bitmapFileOffset;
 		*(colorTable + newColorTableValuesWritten++) = temp;
-		//If the colour table is encoded using RGBTRIPLE objects, and we've just
-		//processed the last entry in that structure, we need to write out the extra
-		//rgbReserved byte to the new colour table to convert them to RGBQUAD objects.
+		// If the colour table is encoded using RGBTRIPLE objects, and we've just
+		// processed the last entry in that structure, we need to write out the extra
+		// rgbReserved byte to the new colour table to convert them to RGBQUAD objects.
 		if (rgbTripleColorTable && ((sourceColorTableValuesRead % sizeof(RGBTRIPLE)) == 0))
 		{
 			*(colorTable + newColorTableValuesWritten++) = 0;
 		}
 	}
 
-	//Pass the decoded BMP data onto the LoadDIBImage function
+	// Pass the decoded BMP data onto the LoadDIBImage function
 	bool result = LoadDIBImage(stream, (BITMAPINFOHEADER*)bitmapInfo);
 
-	//Delete the memory allocated to the BITMAPINFO structure
+	// Delete the memory allocated to the BITMAPINFO structure
 	delete[] (unsigned char*)bitmapInfo;
 
-	//Return the result
+	// Return the result
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool Image::SaveBMPImage(Stream::IStream& stream)
 {
-	//Ensure the current image is valid before proceeding
+	// Ensure the current image is valid before proceeding
 	if (!ImageValid())
 	{
 		return false;
 	}
 
-	//Estimate the required buffer size
+	// Estimate the required buffer size
 	unsigned int bitsPerPixel = 24;
 	unsigned int bytesPerPixel = ((bitsPerPixel + 7) / 8);
 	unsigned int lineByteCount = _imageWidth * bytesPerPixel;
@@ -1826,7 +1826,7 @@ bool Image::SaveBMPImage(Stream::IStream& stream)
 	}
 	unsigned int dataBufferSize = _imageWidth * _imageHeight * (lineByteCount + linePaddingByteCount);
 
-	//Save the DIB data to a pixel buffer, and obtain the bitmap info header.
+	// Save the DIB data to a pixel buffer, and obtain the bitmap info header.
 	bool hasAlphaChannel = (_pixelFormat == PIXELFORMAT_MA) || (_pixelFormat == PIXELFORMAT_RGBA);
 	Stream::Buffer dataBuffer(dataBufferSize);
 	Stream::IStream::SizeType startPos = dataBuffer.GetStreamPos();
@@ -1839,12 +1839,12 @@ bool Image::SaveBMPImage(Stream::IStream& stream)
 	}
 	Stream::IStream::SizeType endPos = dataBuffer.GetStreamPos();
 
-	//Calculate the totals and offsets we need to write to the file
+	// Calculate the totals and offsets we need to write to the file
 	unsigned int pixelDataOffset = sizeof(BITMAPFILEHEADER) + bitmapHeader.biSize;
 	unsigned int pixelDataSize = (unsigned int)(endPos - startPos);
 	unsigned int fileSize = pixelDataOffset + pixelDataSize;
 
-	//Write the bitmap file header to the file
+	// Write the bitmap file header to the file
 	BITMAPFILEHEADER fileHeader;
 	char typeByte1 = 'B';
 	char typeByte2 = 'M';
@@ -1859,7 +1859,7 @@ bool Image::SaveBMPImage(Stream::IStream& stream)
 	stream.WriteData(fileHeader.bfReserved2);
 	stream.WriteData(fileHeader.bfOffBits);
 
-	//Write the bitmap info header to the file
+	// Write the bitmap info header to the file
 	stream.WriteData(bitmapHeader.biSize);
 	stream.WriteData(bitmapHeader.biWidth);
 	stream.WriteData(bitmapHeader.biHeight);
@@ -1879,7 +1879,7 @@ bool Image::SaveBMPImage(Stream::IStream& stream)
 		stream.WriteData(bitmapHeader.biAlphaMask);
 	}
 
-	//Write the pixel data to the file
+	// Write the pixel data to the file
 	for (unsigned int i = 0; i < pixelDataSize; ++i)
 	{
 		unsigned char temp;
@@ -1890,13 +1890,13 @@ bool Image::SaveBMPImage(Stream::IStream& stream)
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
-//Win32 DIB functions (Device-Independent Bitmap)
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Win32 DIB functions (Device-Independent Bitmap)
+//----------------------------------------------------------------------------------------------------------------------
 bool Image::LoadDIBImage(Stream::IStream& stream, const BITMAPINFOHEADER* bitmapHeader)
 {
-	//Read the image dimensions. Also check if the image is stored as a bottom-up image
-	//or a top-down image. A top-down image is indicated by a negative value for height.
+	// Read the image dimensions. Also check if the image is stored as a bottom-up image
+	// or a top-down image. A top-down image is indicated by a negative value for height.
 	bool imageBottomUp = true;
 	unsigned int newImageWidth = (unsigned int)bitmapHeader->biWidth;
 	unsigned int newImageHeight = (unsigned int)bitmapHeader->biHeight;
@@ -1906,15 +1906,15 @@ bool Image::LoadDIBImage(Stream::IStream& stream, const BITMAPINFOHEADER* bitmap
 		newImageHeight = (unsigned int)(-bitmapHeader->biHeight);
 	}
 
-	//Verify the number of planes in the bitmap
+	// Verify the number of planes in the bitmap
 	if (bitmapHeader->biPlanes != 1)
 	{
-		//If the header specifies more than 1 plane, we don't know how to decode the
-		//image. Abort any further processing.
+		// If the header specifies more than 1 plane, we don't know how to decode the
+		// image. Abort any further processing.
 		return false;
 	}
 
-	//Determine the pixel data format, and work out how to decode the pixel data.
+	// Determine the pixel data format, and work out how to decode the pixel data.
 	PixelFormat newPixelFormat;
 	bool useBitmasks = false;
 	bool containsAlphaChannel = false;
@@ -1934,30 +1934,30 @@ bool Image::LoadDIBImage(Stream::IStream& stream, const BITMAPINFOHEADER* bitmap
 	switch (bitmapHeader->biCompression)
 	{
 	case BI_RGB:
-		//The image uses literal RGB values, with an optional alpha channel.
+		// The image uses literal RGB values, with an optional alpha channel.
 		newPixelFormat = (containsAlphaChannel)? PIXELFORMAT_RGBA: PIXELFORMAT_RGB;
 		break;
 	case BI_RLE8:
-		//The image uses RLE8 compression
+		// The image uses RLE8 compression
 		rle8Used = true;
 		break;
 	case BI_RLE4:
-		//The image uses RLE4 compression
+		// The image uses RLE4 compression
 		rle4Used = true;
 		break;
 	case BI_BITFIELDS:
-		//The image uses packed literal RGB values
+		// The image uses packed literal RGB values
 		newPixelFormat = PIXELFORMAT_RGB;
 		useBitmasks = true;
 		break;
-	//Note that Windows CE defined BI_ALPHABITFIELDS using the same value as BI_JPEG
+	// Note that Windows CE defined BI_ALPHABITFIELDS using the same value as BI_JPEG
 	case BI_JPEG:
 	case BI_PNG:
-		//JPEG and PNG compression are not currently supported in a DIB structure. Abort
-		//any further processing.
+		// JPEG and PNG compression are not currently supported in a DIB structure. Abort
+		// any further processing.
 		return false;
 	default:
-		//We've encountered an unknown compression value. Abort any further processing.
+		// We've encountered an unknown compression value. Abort any further processing.
 		return false;
 	}
 
@@ -1966,29 +1966,29 @@ bool Image::LoadDIBImage(Stream::IStream& stream, const BITMAPINFOHEADER* bitmap
 	switch (bitsPerPixel)
 	{
 	default:
-		//This image contains an unsupported number of bits per pixel. Abort any further
-		//processing.
+		// This image contains an unsupported number of bits per pixel. Abort any further
+		// processing.
 		return false;
-	case 1:  //Windows 2.X onwards
-	case 4:  //Windows 2.X onwards
-	case 8:  //Windows 2.X onwards
-	case 16: //Windows 95 (4.X) onwards
-	case 24: //Windows 2.X onwards
-	case 32: //Windows 95 (4.X) onwards
-		//The number of bits per pixel in this bitmap is a supported number. Proceed with
-		//image decoding.
+	case 1:  // Windows 2.X onwards
+	case 4:  // Windows 2.X onwards
+	case 8:  // Windows 2.X onwards
+	case 16: // Windows 95 (4.X) onwards
+	case 24: // Windows 2.X onwards
+	case 32: // Windows 95 (4.X) onwards
+		// The number of bits per pixel in this bitmap is a supported number. Proceed with
+		// image decoding.
 		break;
 	}
-	//We decode all bitmap data into an 8-bit format
+	// We decode all bitmap data into an 8-bit format
 	newDataFormat = DATAFORMAT_8BIT;
 
-	//Apply the new image properties
+	// Apply the new image properties
 	SetImageFormat(newImageWidth, newImageHeight, newPixelFormat, newDataFormat);
 
-	//Decode the pixel data
+	// Decode the pixel data
 	if ((rle4Used && (bitsPerPixel == 4)) || (rle8Used && (bitsPerPixel == 8)))
 	{
-		//This is a compressed bitmap. Proceed with image decoding.
+		// This is a compressed bitmap. Proceed with image decoding.
 		RGBQUAD* colorTable = (RGBQUAD*)((unsigned char*)&bitmapHeader + bitmapHeader->biSize);
 		unsigned int xpos = 0;
 		unsigned int ypos = 0;
@@ -2001,44 +2001,44 @@ bool Image::LoadDIBImage(Stream::IStream& stream, const BITMAPINFOHEADER* bitmap
 			stream.ReadData(repeatCount);
 			if (repeatCount != 0)
 			{
-				//Encoded mode:
-				//CCCCCCCC IIIIIIII
-				//Where C > 0 and the specified colour index value is used the specified
-				//number of times
+				// Encoded mode:
+				// CCCCCCCC IIIIIIII
+				// Where C > 0 and the specified colour index value is used the specified
+				// number of times
 				unsigned char colorIndex;
 				stream.ReadData(colorIndex);
 				while (repeatCount > 0)
 				{
-					//Extract the individual index entries from the index block, and
-					//decode the pixel data using the palette.
+					// Extract the individual index entries from the index block, and
+					// decode the pixel data using the palette.
 					unsigned int indexBlockBitCount = 8;
 					unsigned int indexValuesPerBlock = indexBlockBitCount / bitsPerPixel;
 					unsigned int indexValueMask = (1 << bitsPerPixel) - 1;
 					for (unsigned int i = 0; (i < indexValuesPerBlock) && (repeatCount > 0); ++i)
 					{
-						//Extract the palette index for the next literal
+						// Extract the palette index for the next literal
 						unsigned int indexValue = (colorIndex >> (indexBlockBitCount - ((i + 1) * bitsPerPixel))) & indexValueMask;
 
-						//Read the RGB values from the palette based on the palette
-						//index
+						// Read the RGB values from the palette based on the palette
+						// index
 						unsigned int r = (unsigned int)colorTable[indexValue].rgbRed;
 						unsigned int g = (unsigned int)colorTable[indexValue].rgbGreen;
 						unsigned int b = (unsigned int)colorTable[indexValue].rgbBlue;
 
-						//Validate the write location. If the compressed image data
-						//doesn't conform to the specified width and height of the
-						//image, abort further processing.
+						// Validate the write location. If the compressed image data
+						// doesn't conform to the specified width and height of the
+						// image, abort further processing.
 						if ((xpos > (_imageWidth - 1)) || (ypos > (_imageHeight - 1)))
 						{
 							return false;
 						}
 
-						//Write the decoded pixel data to the image
+						// Write the decoded pixel data to the image
 						WritePixelDataInternal(xpos, writeYPos, 0, r, 8);
 						WritePixelDataInternal(xpos, writeYPos, 1, g, 8);
 						WritePixelDataInternal(xpos, writeYPos, 2, b, 8);
 
-						//Advance to the next literal
+						// Advance to the next literal
 						++xpos;
 						--repeatCount;
 					}
@@ -2050,23 +2050,23 @@ bool Image::LoadDIBImage(Stream::IStream& stream, const BITMAPINFOHEADER* bitmap
 				stream.ReadData(literalCount);
 				if (literalCount == 0)
 				{
-					//End of line flag:
-					//00000000 00000001
+					// End of line flag:
+					// 00000000 00000001
 					++ypos;
 					writeYPos = imageBottomUp? ((_imageHeight - 1) - ypos): ypos;
 				}
 				else if (literalCount == 1)
 				{
-					//End of bitmap flag:
-					//00000000 00000001
+					// End of bitmap flag:
+					// 00000000 00000001
 					done = true;
 				}
 				else if (literalCount == 2)
 				{
-					//Delta flag:
-					//00000000 00000010 XXXXXXXX YYYYYYYY
-					//Where X is the unsigned horizontal delta, and Y is the unsigned
-					//vertical delta.
+					// Delta flag:
+					// 00000000 00000010 XXXXXXXX YYYYYYYY
+					// Where X is the unsigned horizontal delta, and Y is the unsigned
+					// vertical delta.
 					unsigned char deltaX;
 					unsigned char deltaY;
 					stream.ReadData(deltaX);
@@ -2077,51 +2077,51 @@ bool Image::LoadDIBImage(Stream::IStream& stream, const BITMAPINFOHEADER* bitmap
 				}
 				else
 				{
-					//Absolute mode:
-					//00000000 CCCCCCCC IIIIIIII IIIIIIII
-					//Where C > 2, and the specified number of colour index values
-					//follow, padded to a WORD boundary.
+					// Absolute mode:
+					// 00000000 CCCCCCCC IIIIIIII IIIIIIII
+					// Where C > 2, and the specified number of colour index values
+					// follow, padded to a WORD boundary.
 					unsigned char dataBuffer;
 					unsigned int indexBlock = 0;
 
 					while (literalCount > 0)
 					{
-						//Read the next 2-byte index block from the stream
+						// Read the next 2-byte index block from the stream
 						stream.ReadData(dataBuffer);
 						indexBlock = (unsigned int)dataBuffer << 8;
 						stream.ReadData(dataBuffer);
 						indexBlock |= dataBuffer;
 
-						//Extract the individual index entries from the index block, and
-						//decode the pixel data using the palette.
+						// Extract the individual index entries from the index block, and
+						// decode the pixel data using the palette.
 						unsigned int indexBlockBitCount = 16;
 						unsigned int indexValuesPerBlock = indexBlockBitCount / bitsPerPixel;
 						unsigned int indexValueMask = (1 << bitsPerPixel) - 1;
 						for (unsigned int i = 0; (i < indexValuesPerBlock) && (literalCount > 0); ++i)
 						{
-							//Extract the palette index for the next literal
+							// Extract the palette index for the next literal
 							unsigned int indexValue = (indexBlock >> (indexBlockBitCount - ((i + 1) * bitsPerPixel))) & indexValueMask;
 
-							//Read the RGB values from the palette based on the palette
-							//index
+							// Read the RGB values from the palette based on the palette
+							// index
 							unsigned int r = (unsigned int)colorTable[indexValue].rgbRed;
 							unsigned int g = (unsigned int)colorTable[indexValue].rgbGreen;
 							unsigned int b = (unsigned int)colorTable[indexValue].rgbBlue;
 
-							//Validate the write location. If the compressed image data
-							//doesn't conform to the specified width and height of the
-							//image, abort further processing.
+							// Validate the write location. If the compressed image data
+							// doesn't conform to the specified width and height of the
+							// image, abort further processing.
 							if ((xpos > (_imageWidth - 1)) || (ypos > (_imageHeight - 1)))
 							{
 								return false;
 							}
 
-							//Write the decoded pixel data to the image
+							// Write the decoded pixel data to the image
 							WritePixelDataInternal(xpos, writeYPos, 0, r, 8);
 							WritePixelDataInternal(xpos, writeYPos, 1, g, 8);
 							WritePixelDataInternal(xpos, writeYPos, 2, b, 8);
 
-							//Advance to the next literal
+							// Advance to the next literal
 							++xpos;
 							--literalCount;
 						}
@@ -2132,10 +2132,10 @@ bool Image::LoadDIBImage(Stream::IStream& stream, const BITMAPINFOHEADER* bitmap
 	}
 	else
 	{
-		//This is an uncompressed bitmap. Proceed with image decoding.
+		// This is an uncompressed bitmap. Proceed with image decoding.
 
-		//Calculate the amount of padding on each line. Lines are padded out to DWORD
-		//boundaries.
+		// Calculate the amount of padding on each line. Lines are padded out to DWORD
+		// boundaries.
 		unsigned int bytesPerPixel = ((bitsPerPixel + 7) / 8);
 		unsigned int lineByteCount = _imageWidth * bytesPerPixel;
 		unsigned int linePaddingByteCount = 0;
@@ -2144,11 +2144,11 @@ bool Image::LoadDIBImage(Stream::IStream& stream, const BITMAPINFOHEADER* bitmap
 			linePaddingByteCount = sizeof(DWORD) - (lineByteCount % sizeof(DWORD));
 		}
 
-		//Decode the pixel data
+		// Decode the pixel data
 		for (unsigned int ypos = 0; ypos < _imageHeight; ++ypos)
 		{
-			//Calculate the current ypos to write this row to. If the image is stored
-			//bottom up in the stream, we need to read it bottom up as well.
+			// Calculate the current ypos to write this row to. If the image is stored
+			// bottom up in the stream, we need to read it bottom up as well.
 			unsigned int writeYPos = imageBottomUp? ((_imageHeight - 1) - ypos): ypos;
 
 			unsigned char dataBuffer;
@@ -2165,13 +2165,13 @@ bool Image::LoadDIBImage(Stream::IStream& stream, const BITMAPINFOHEADER* bitmap
 
 				if ((bitsPerPixel == 1) || (bitsPerPixel == 4) || (bitsPerPixel == 8))
 				{
-					//This is a palletized image. Decode the colour values using the
-					//colour table.
+					// This is a palletized image. Decode the colour values using the
+					// colour table.
 					rBitCount = 8;
 					gBitCount = 8;
 					bBitCount = 8;
 
-					//Extract the palette index for this pixel
+					// Extract the palette index for this pixel
 					RGBQUAD* colorTable = (RGBQUAD*)((unsigned char*)&bitmapHeader + bitmapHeader->biSize);
 					unsigned int dataBufferBitCount = 8;
 					unsigned int entryBitCount = bitsPerPixel;
@@ -2180,21 +2180,21 @@ bool Image::LoadDIBImage(Stream::IStream& stream, const BITMAPINFOHEADER* bitmap
 					unsigned int currentEntryInDataBuffer = xpos % entriesInDataBuffer;
 					if (currentEntryInDataBuffer == 0)
 					{
-						//If we're decoding the first entry in a new buffer, we need to
-						//read a new data block from the stream.
+						// If we're decoding the first entry in a new buffer, we need to
+						// read a new data block from the stream.
 						stream.ReadData(dataBuffer);
 					}
 					unsigned int dataEntry = (dataBuffer >> (dataBufferBitCount - ((currentEntryInDataBuffer + 1) * entryBitCount))) & entryBitMask;
 
-					//Read the RGB values from the palette based on the palette index
+					// Read the RGB values from the palette based on the palette index
 					r = (unsigned int)colorTable[dataEntry].rgbRed;
 					g = (unsigned int)colorTable[dataEntry].rgbGreen;
 					b = (unsigned int)colorTable[dataEntry].rgbBlue;
 				}
 				else
 				{
-					//The image data contains literal RGB values. Default bit masks are
-					//given below to decode the pixel data.
+					// The image data contains literal RGB values. Default bit masks are
+					// given below to decode the pixel data.
 					unsigned int rMask;
 					unsigned int gMask;
 					unsigned int bMask;
@@ -2222,8 +2222,8 @@ bool Image::LoadDIBImage(Stream::IStream& stream, const BITMAPINFOHEADER* bitmap
 					}
 					if (useBitmasks)
 					{
-						//If custom bitmasks have been provided to define how to decode
-						//the data, read the bitmasks in.
+						// If custom bitmasks have been provided to define how to decode
+						// the data, read the bitmasks in.
 						DWORD* maskTable = (DWORD*)((unsigned char*)&bitmapHeader + sizeof(BITMAPINFOHEADER));
 						rMask = (unsigned int)maskTable[0];
 						gMask = (unsigned int)maskTable[1];
@@ -2234,8 +2234,8 @@ bool Image::LoadDIBImage(Stream::IStream& stream, const BITMAPINFOHEADER* bitmap
 						}
 					}
 
-					//Based on the bitmasks, calculate the actual number of bits per
-					//colour channel.
+					// Based on the bitmasks, calculate the actual number of bits per
+					// colour channel.
 					rBitCount = GetSetBitCount(rMask);
 					gBitCount = GetSetBitCount(gMask);
 					bBitCount = GetSetBitCount(bMask);
@@ -2244,8 +2244,8 @@ bool Image::LoadDIBImage(Stream::IStream& stream, const BITMAPINFOHEADER* bitmap
 						aBitCount = GetSetBitCount(aMask);
 					}
 
-					//Read a data entry in, and extract the individual RGB values based on
-					//the bitmasks.
+					// Read a data entry in, and extract the individual RGB values based on
+					// the bitmasks.
 					unsigned int rawData = 0;
 					if (bitsPerPixel == 16)
 					{
@@ -2255,8 +2255,8 @@ bool Image::LoadDIBImage(Stream::IStream& stream, const BITMAPINFOHEADER* bitmap
 					}
 					else if (bitsPerPixel == 24)
 					{
-						//Note that the data is actually stored in the order BGR in the
-						//stream.
+						// Note that the data is actually stored in the order BGR in the
+						// stream.
 						unsigned char rData;
 						unsigned char gData;
 						unsigned char bData;
@@ -2280,7 +2280,7 @@ bool Image::LoadDIBImage(Stream::IStream& stream, const BITMAPINFOHEADER* bitmap
 					}
 				}
 
-				//Write the extracted pixel data to the image
+				// Write the extracted pixel data to the image
 				WritePixelDataInternal(xpos, writeYPos, 0, r, rBitCount);
 				WritePixelDataInternal(xpos, writeYPos, 1, g, gBitCount);
 				WritePixelDataInternal(xpos, writeYPos, 2, b, bBitCount);
@@ -2290,8 +2290,8 @@ bool Image::LoadDIBImage(Stream::IStream& stream, const BITMAPINFOHEADER* bitmap
 				}
 			}
 
-			//The data is padded out to DWORD boundaries. We extract the padding here and
-			//move on to the next line.
+			// The data is padded out to DWORD boundaries. We extract the padding here and
+			// move on to the next line.
 			for (unsigned int i = 0; i < linePaddingByteCount; ++i)
 			{
 				unsigned char temp;
@@ -2303,31 +2303,31 @@ bool Image::LoadDIBImage(Stream::IStream& stream, const BITMAPINFOHEADER* bitmap
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool Image::SaveDIBImage(Stream::IStream& stream, BITMAPINFOHEADER* bitmapHeader)
 {
-	//Ensure the current image is valid before proceeding
+	// Ensure the current image is valid before proceeding
 	if (!ImageValid())
 	{
 		return false;
 	}
 
-	//Calculate the data format for the DIB image
+	// Calculate the data format for the DIB image
 	bool hasAlphaChannel = (_pixelFormat == PIXELFORMAT_MA) || (_pixelFormat == PIXELFORMAT_RGBA);
 	unsigned int bitsPerPixel = (hasAlphaChannel)? 32: 24;
 	unsigned int bytesPerPixel = ((bitsPerPixel + 7) / 8);
 	unsigned int lineByteCount = _imageWidth * bytesPerPixel;
 	bool imageBottomUp = true;
 
-	//Calculate the amount of padding on each line. Lines are padded out to DWORD
-	//boundaries.
+	// Calculate the amount of padding on each line. Lines are padded out to DWORD
+	// boundaries.
 	unsigned int linePaddingByteCount = 0;
 	if ((lineByteCount % sizeof(DWORD)) != 0)
 	{
 		linePaddingByteCount = sizeof(DWORD) - (lineByteCount % sizeof(DWORD));
 	}
 
-	//Populate the header information for the DIB image
+	// Populate the header information for the DIB image
 	DWORD bitmapHeaderSize = bitmapHeader->biSize;
 	ZeroMemory(bitmapHeader, bitmapHeaderSize);
 	bitmapHeader->biSize = bitmapHeaderSize;
@@ -2354,18 +2354,18 @@ bool Image::SaveDIBImage(Stream::IStream& stream, BITMAPINFOHEADER* bitmapHeader
 		bitmapHeaderV3->biAlphaMask = (hasAlphaChannel)? 0xFF000000u: 0x000000u;
 	}
 
-	//Build a DIB bitmap using RGB encoding from the current image data
+	// Build a DIB bitmap using RGB encoding from the current image data
 	for (unsigned int ypos = 0; ypos < _imageHeight; ++ypos)
 	{
 		unsigned int readYPos = imageBottomUp? ((_imageHeight - 1) - ypos): ypos;
 		for (unsigned int xpos = 0; xpos < _imageWidth; ++xpos)
 		{
-			//Save the pixel data. Note that alpha values are discarded.
+			// Save the pixel data. Note that alpha values are discarded.
 			if ((_pixelFormat == PIXELFORMAT_M) || (_pixelFormat == PIXELFORMAT_MA))
 			{
 				unsigned char m;
 				ReadPixelDataInternal(xpos, readYPos, 0, m);
-				//We convert the monochrome image to an RGB image here
+				// We convert the monochrome image to an RGB image here
 				stream.WriteData(m);
 				stream.WriteData(m);
 				stream.WriteData(m);
@@ -2384,8 +2384,8 @@ bool Image::SaveDIBImage(Stream::IStream& stream, BITMAPINFOHEADER* bitmapHeader
 				ReadPixelDataInternal(xpos, readYPos, 0, r);
 				ReadPixelDataInternal(xpos, readYPos, 1, g);
 				ReadPixelDataInternal(xpos, readYPos, 2, b);
-				//Note that the byte order is BGR in memory. This follows the format of
-				//the RGBTRIPLE structure.
+				// Note that the byte order is BGR in memory. This follows the format of
+				// the RGBTRIPLE structure.
 				stream.WriteData(b);
 				stream.WriteData(g);
 				stream.WriteData(r);
@@ -2398,7 +2398,7 @@ bool Image::SaveDIBImage(Stream::IStream& stream, BITMAPINFOHEADER* bitmapHeader
 			}
 		}
 
-		//Write the line padding to the end of the line
+		// Write the line padding to the end of the line
 		for (unsigned int i = 0; i < linePaddingByteCount; ++i)
 		{
 			stream.WriteData(unsigned char(0));
@@ -2408,7 +2408,7 @@ bool Image::SaveDIBImage(Stream::IStream& stream, BITMAPINFOHEADER* bitmapHeader
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int Image::GetSetBitCount(unsigned int data) const
 {
 	unsigned int setBitCount = 0;
@@ -2423,7 +2423,7 @@ unsigned int Image::GetSetBitCount(unsigned int data) const
 	return setBitCount;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int Image::MaskData(unsigned int data, unsigned int bitMask) const
 {
 	unsigned int maskedData = 0;
@@ -2441,12 +2441,12 @@ unsigned int Image::MaskData(unsigned int data, unsigned int bitMask) const
 	return maskedData;
 }
 
-//----------------------------------------------------------------------------------------
-//Image verification methods
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Image verification methods
+//----------------------------------------------------------------------------------------------------------------------
 bool Image::ImageValid() const
 {
-	//Validate the current image width and height
+	// Validate the current image width and height
 	if ((_imageWidth <= 0) || (_imageHeight <= 0))
 	{
 		return false;
@@ -2455,23 +2455,23 @@ bool Image::ImageValid() const
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
-//Resampling functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Resampling functions
+//----------------------------------------------------------------------------------------------------------------------
 void Image::ResampleNearest(unsigned int newWidth, unsigned int newHeight)
 {
 	Image oldImage(*this);
 	ResampleNearest(oldImage, newWidth, newHeight);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Image::ResampleNearest(const IImage& oldImage, unsigned int newWidth, unsigned int newHeight)
 {
-	//Apply new new specified image format
+	// Apply new new specified image format
 	SetImageFormat(newWidth, newHeight, oldImage.GetPixelFormat(), oldImage.GetDataFormat());
 
-	//Ensure that the old image and this image have valid image dimensions specified
-	//before attempting the resampling algorithm.
+	// Ensure that the old image and this image have valid image dimensions specified
+	// before attempting the resampling algorithm.
 	if ((oldImage.GetImageWidth() <= 0) || (oldImage.GetImageHeight() <= 0) || (_imageWidth <= 0) || (_imageHeight <= 0))
 	{
 		return;
@@ -2499,31 +2499,31 @@ void Image::ResampleNearest(const IImage& oldImage, unsigned int newWidth, unsig
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Image::ResampleBilinear(unsigned int newWidth, unsigned int newHeight)
 {
 	Image oldImage(*this);
 	ResampleBilinear(oldImage, newWidth, newHeight);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Image::ResampleBilinear(const IImage& oldImage, unsigned int newWidth, unsigned int newHeight)
 {
-	//Apply new new specified image format
+	// Apply new new specified image format
 	SetImageFormat(newWidth, newHeight, oldImage.GetPixelFormat(), oldImage.GetDataFormat());
 
-	//Ensure that the old image and this image have valid image dimensions specified
-	//before attempting the resampling algorithm.
+	// Ensure that the old image and this image have valid image dimensions specified
+	// before attempting the resampling algorithm.
 	if ((oldImage.GetImageWidth() <= 0) || (oldImage.GetImageHeight() <= 0) || (_imageWidth <= 0) || (_imageHeight <= 0))
 	{
 		return;
 	}
 
-	//This is a basic bilinear resampling algorithm. It will not cope well when reducing
-	//a dimension of the source image by a factor of more than 1.5x.
-	//float imageWidthConversionRatio = (float)oldImage.GetImageWidth() / (float)imageWidth;
-	//float imageHeightConversionRatio = (float)oldImage.GetImageHeight() / (float)imageHeight;
-	//for(unsigned int ypos = 0; ypos < imageHeight; ++ypos)
+	// This is a basic bilinear resampling algorithm. It will not cope well when reducing
+	// a dimension of the source image by a factor of more than 1.5x.
+	// float imageWidthConversionRatio = (float)oldImage.GetImageWidth() / (float)imageWidth;
+	// float imageHeightConversionRatio = (float)oldImage.GetImageHeight() / (float)imageHeight;
+	// for(unsigned int ypos = 0; ypos < imageHeight; ++ypos)
 	//{
 	//	float yposNormalized = (float)ypos * imageHeightConversionRatio;
 	//	unsigned int yposOld0 = (unsigned int)(yposNormalized - 0.5);
@@ -2554,60 +2554,60 @@ void Image::ResampleBilinear(const IImage& oldImage, unsigned int newWidth, unsi
 	//	}
 	//}
 
-	//This method is much more sophisticated than the one above, and will give the best
-	//result possible from linear resampling when either upsampling or downsampling,
-	//regardless of the respective dimensions of the source and target images.
+	// This method is much more sophisticated than the one above, and will give the best
+	// result possible from linear resampling when either upsampling or downsampling,
+	// regardless of the respective dimensions of the source and target images.
 	float imageWidthConversionRatio = (float)oldImage.GetImageWidth() / (float)_imageWidth;
 	float imageHeightConversionRatio = (float)oldImage.GetImageHeight() / (float)_imageHeight;
 	for (unsigned int ypos = 0; ypos < _imageHeight; ++ypos)
 	{
-		//Calculate the beginning and end of the sample region on the Y axis in the
-		//source image, which is being mapped onto this pixel in the target image. Note
-		//that because we're adding 1 to the current pixel location, the second sample
-		//point may be past the end of the image, but this is ok, because this sample
-		//point is really a limit. We protect against reading past the boundaries of the
-		//image further below, and if this is attempted, this dud sample will be assigned
-		//a weight of zero.
+		// Calculate the beginning and end of the sample region on the Y axis in the
+		// source image, which is being mapped onto this pixel in the target image. Note
+		// that because we're adding 1 to the current pixel location, the second sample
+		// point may be past the end of the image, but this is ok, because this sample
+		// point is really a limit. We protect against reading past the boundaries of the
+		// image further below, and if this is attempted, this dud sample will be assigned
+		// a weight of zero.
 		float firstSamplePointY = (float)ypos * imageHeightConversionRatio;
 		float lastSamplePointY = (float)(ypos + 1) * imageHeightConversionRatio;
 
-		//Calculate the total domain, or length, of this sample region on the Y axis.
+		// Calculate the total domain, or length, of this sample region on the Y axis.
 		float totalDomainY = lastSamplePointY - firstSamplePointY;
 
-		//Calculate the first and last pixels of interest from the source region.
+		// Calculate the first and last pixels of interest from the source region.
 		unsigned int firstSamplePosY = (unsigned int)firstSamplePointY;
 		unsigned int lastSamplePosY = (unsigned int)lastSamplePointY;
 
-		//Generate each pixel in this line
+		// Generate each pixel in this line
 		for (unsigned int xpos = 0; xpos < _imageWidth; ++xpos)
 		{
-			//Calculate the beginning and end of the sample region on the X axis in the
-			//source image, which is being mapped onto this pixel in the target image.
-			//Note that because we're adding 1 to the current pixel location, the second
-			//sample point may be past the end of the image, but this is ok, because this
-			//sample point is really a limit. We protect against reading past the
-			//boundaries of the image further below, and if this is attempted, this dud
-			//sample will be assigned a weight of zero.
+			// Calculate the beginning and end of the sample region on the X axis in the
+			// source image, which is being mapped onto this pixel in the target image.
+			// Note that because we're adding 1 to the current pixel location, the second
+			// sample point may be past the end of the image, but this is ok, because this
+			// sample point is really a limit. We protect against reading past the
+			// boundaries of the image further below, and if this is attempted, this dud
+			// sample will be assigned a weight of zero.
 			float firstSamplePointX = (float)xpos * imageWidthConversionRatio;
 			float lastSamplePointX = (float)(xpos + 1) * imageWidthConversionRatio;
 
-			//Calculate the total domain, or length, of this sample region on the X axis.
+			// Calculate the total domain, or length, of this sample region on the X axis.
 			float totalDomainX = lastSamplePointX - firstSamplePointX;
 
-			//Calculate the first and last pixels of interest from the source region
+			// Calculate the first and last pixels of interest from the source region
 			unsigned int firstSamplePosX = (unsigned int)firstSamplePointX;
 			unsigned int lastSamplePosX = (unsigned int)lastSamplePointX;
 
-			//Calculate the total domain, or area, of the sample region in the source
-			//image. We use this to normalize the sampled data back to an area of one
-			//pixel at the end.
+			// Calculate the total domain, or area, of the sample region in the source
+			// image. We use this to normalize the sampled data back to an area of one
+			// pixel at the end.
 			float totalDomain = totalDomainX * totalDomainY;
 
-			//Calculate the sample value in each plane
+			// Calculate the sample value in each plane
 			for (unsigned int plane = 0; plane < _dataPlaneCount; ++plane)
 			{
-				//Combine sample values from the source image, on both the X and Y axis,
-				//with their respective weightings.
+				// Combine sample values from the source image, on both the X and Y axis,
+				// with their respective weightings.
 				float finalSample = 0.0f;
 				for (unsigned int currentSampleY = firstSamplePosY; currentSampleY <= lastSamplePosY; ++currentSampleY)
 				{
@@ -2643,11 +2643,11 @@ void Image::ResampleBilinear(const IImage& oldImage, unsigned int newWidth, unsi
 					}
 				}
 
-				//Normalize the sample value back to a single pixel value, by dividing it
-				//by the total area of the sample region in the source image.
+				// Normalize the sample value back to a single pixel value, by dividing it
+				// by the total area of the sample region in the source image.
 				finalSample /= totalDomain;
 
-				//Write the generated pixel to the image
+				// Write the generated pixel to the image
 				WritePixelDataInternal(xpos, ypos, plane, finalSample);
 			}
 		}

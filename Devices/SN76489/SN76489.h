@@ -55,24 +55,24 @@ References:
 class SN76489 :public Device, public GenericAccessBase<ISN76489>
 {
 public:
-	//Constructors
+	// Constructors
 	SN76489(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 
-	//Interface version functions
+	// Interface version functions
 	virtual unsigned int GetISN76489Version() const;
 
-	//Initialization functions
+	// Initialization functions
 	virtual bool BuildDevice();
 	virtual bool ValidateDevice();
 	virtual void Initialize();
 
-	//Clock source functions
+	// Clock source functions
 	virtual unsigned int GetClockSourceID(const Marshal::In<std::wstring>& clockSourceName) const;
 	virtual Marshal::Ret<std::wstring> GetClockSourceName(unsigned int clockSourceID) const;
 	virtual void SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	virtual void TransparentSetClockSourceRate(unsigned int clockInput, double clockRate);
 
-	//Execute functions
+	// Execute functions
 	virtual void BeginExecution();
 	virtual void SuspendExecution();
 	virtual bool SendNotifyUpcomingTimeslice() const;
@@ -82,28 +82,28 @@ public:
 	virtual void ExecuteRollback();
 	virtual void ExecuteCommit();
 
-	//Memory interface functions
+	// Memory interface functions
 	virtual IBusInterface::AccessResult WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 
-	//Savestate functions
+	// Savestate functions
 	virtual void LoadState(IHierarchicalStorageNode& node);
 	virtual void SaveState(IHierarchicalStorageNode& node) const;
 	virtual void LoadDebuggerState(IHierarchicalStorageNode& node);
 	virtual void SaveDebuggerState(IHierarchicalStorageNode& node) const;
 
-	//Data read/write functions
+	// Data read/write functions
 	virtual bool ReadGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue) const;
 	virtual bool WriteGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue);
 
-	//Data locking functions
+	// Data locking functions
 	virtual bool GetGenericDataLocked(unsigned int dataID, const DataContext* dataContext) const;
 	virtual bool SetGenericDataLocked(unsigned int dataID, const DataContext* dataContext, bool state);
 
 private:
-	//Enumerations
+	// Enumerations
 	enum class ClockID;
 
-	//Structures
+	// Structures
 	struct ChannelRenderData
 	{
 		unsigned int initialToneCycles;
@@ -111,29 +111,29 @@ private:
 		bool polarityNegative;
 	};
 
-	//Typedefs
+	// Typedefs
 	typedef RandomTimeAccessBuffer<Data, double>::AccessTarget AccessTarget;
 
-	//Constants
+	// Constants
 	static const unsigned int maxPendingRenderOperationCount = 4;
 
 private:
-	//Render functions
+	// Render functions
 	void RenderThread();
 	void UpdateChannel(unsigned int channelNo, unsigned int outputSampleCount, std::vector<float>& outputBuffer);
 
-	//Raw register functions
+	// Raw register functions
 	inline Data GetVolumeRegister(unsigned int channelNo, const AccessTarget& accessTarget) const;
 	inline void SetVolumeRegister(unsigned int channelNo, const Data& adata, const AccessTarget& accessTarget);
 	inline Data GetToneRegister(unsigned int channelNo, const AccessTarget& accessTarget) const;
 	inline void SetToneRegister(unsigned int channelNo, const Data& adata, const AccessTarget& accessTarget);
 
-	//Audio logging functions
+	// Audio logging functions
 	void SetAudioLoggingEnabled(bool state);
 	void SetChannelAudioLoggingEnabled(unsigned int channelNo, bool state);
 
 private:
-	//Registers
+	// Registers
 	mutable std::mutex _accessMutex;
 	double _lastAccessTime;
 	RandomTimeAccessBuffer<Data, double> _reg;
@@ -142,7 +142,7 @@ private:
 	bool _latchedVolume;
 	bool _blatchedVolume;
 
-	//Render thread properties
+	// Render thread properties
 	mutable std::mutex _renderThreadMutex;
 	mutable std::mutex _timesliceMutex;
 	std::condition_variable _renderThreadUpdate;
@@ -158,12 +158,12 @@ private:
 	AudioStream _outputStream;
 	std::vector<short> _outputBuffer;
 
-	//Render data
+	// Render data
 	ChannelRenderData _channelRenderData[ChannelCount];
 	unsigned int _noiseShiftRegister;
 	bool _noiseOutputMasked;
 
-	//Device Properties
+	// Device Properties
 	double _externalClockRate;
 	double _externalClockDivider;
 	unsigned int _shiftRegisterBitCount;
@@ -172,13 +172,13 @@ private:
 	unsigned int _noisePeriodicTappedBitMask;
 	std::list<GenericAccessDataInfo*> _genericDataToUpdateOnShiftRegisterBitCountChange;
 
-	//Register locking
+	// Register locking
 	bool _channelVolumeRegisterLocked[ChannelCount];
 	bool _channelDataRegisterLocked[ChannelCount];
 	bool _noiseChannelTypeLocked;
 	bool _noiseChannelPeriodLocked;
 
-	//Wave logging
+	// Wave logging
 	mutable std::mutex _waveLoggingMutex;
 	bool _wavLoggingEnabled;
 	bool _wavLoggingChannelEnabled[ChannelCount];

@@ -6,33 +6,33 @@
 class WC_DockPanel
 {
 public:
-	//Enumerations
+	// Enumerations
 	enum class WindowMessages :unsigned int;
 	enum class DockLocation;
 
-	//Structures
+	// Structures
 	struct CalculateNewDockedWindowRectParams;
 
-	//Constants
+	// Constants
 	static const wchar_t* WindowClassName;
 
 public:
-	//Constructors
+	// Constructors
 	WC_DockPanel(HINSTANCE moduleHandle, HWND hwnd);
 
-	//Class registration
+	// Class registration
 	static bool RegisterWindowClass(HINSTANCE moduleHandle);
 	static bool UnregisterWindowClass(HINSTANCE moduleHandle);
 
-	//Message handlers
+	// Message handlers
 	static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 private:
-	//Structures
+	// Structures
 	struct DockedWindowEntry;
 
 private:
-	//Message handlers
+	// Message handlers
 	LRESULT WndProcPrivate(UINT message, WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_CREATE(WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_SIZE(WPARAM wParam, LPARAM lParam);
@@ -53,7 +53,7 @@ private:
 	LRESULT msgDOCK_GETCONTENTRECT(WPARAM wParam, LPARAM lParam);
 	LRESULT msgDOCK_CALCULATENEWDOCKEDWINDOWRECT(WPARAM wParam, LPARAM lParam);
 
-	//Docked window methods
+	// Docked window methods
 	void AddDockedWindow(HWND dockedWindow, DockLocation dockLocation, bool pushToFront);
 	void RemoveDockedWindow(HWND dockedWindow);
 	int GetDockedWindowDesiredWidth(HWND dockedWindow);
@@ -61,11 +61,11 @@ private:
 	int GetDockedWindowDesiredHeight(HWND dockedWindow);
 	void SetDockedWindowDesiredHeight(HWND dockedWindow, int desiredHeight);
 
-	//Hosted content methods
+	// Hosted content methods
 	void AddHostedContent(HWND hostedContent);
 	void RemoveHostedContent(HWND hostedContent);
 
-	//Sizing methods
+	// Sizing methods
 	void HandleSizeChanged(int newWidth, int newHeight);
 	void UpdateChildWindowSizes();
 	void CalculateNewDockedWindowPositionAndSize(DockLocation dockLocation, bool addToFront, int preferredWidth, int preferredHeight, int& windowPosX, int& windowPosY, int& windowWidth, int& windowHeight);

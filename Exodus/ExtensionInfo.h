@@ -6,13 +6,13 @@
 class ExtensionInfo :public IExtensionInfo
 {
 public:
-	//Constructors
+	// Constructors
 	ExtensionInfo();
 
-	//Interface version functions
+	// Interface version functions
 	virtual unsigned int GetIExtensionInfoVersion() const;
 
-	//Getters
+	// Getters
 	virtual AllocatorPointer GetAllocator() const;
 	virtual DestructorPointer GetDestructor() const;
 	virtual Marshal::Ret<std::wstring> GetExtensionClassName() const;
@@ -22,7 +22,7 @@ public:
 	virtual Marshal::Ret<std::wstring> GetExtensionComments() const;
 	virtual bool GetIsPersistentGlobalExtension() const;
 
-	//Setters
+	// Setters
 	virtual void SetExtensionSettings(AllocatorPointer allocator, DestructorPointer destructor, const Marshal::In<std::wstring>& extensionClassName, const Marshal::In<std::wstring>& extensionImplementationName, unsigned int extensionVersionNo, const Marshal::In<std::wstring>& extensionCopyright, const Marshal::In<std::wstring>& extensionComments, bool persistentGlobalExtension = false);
 	virtual void SetExtensionAllocators(AllocatorPointer allocator, DestructorPointer destructor);
 	virtual void SetExtensionClassName(const Marshal::In<std::wstring>& extensionClassName);

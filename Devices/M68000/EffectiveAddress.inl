@@ -1,39 +1,39 @@
 #include "Debug/Debug.pkg"
 namespace M68000 {
 
-//----------------------------------------------------------------------------------------
-//Enumerations
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Enumerations
+//----------------------------------------------------------------------------------------------------------------------
 enum class EffectiveAddress::Mode
 {
-	DataRegDirect = 0,       //ext 0
-	AddRegDirect,            //ext 0
+	DataRegDirect = 0,       // ext 0
+	AddRegDirect,            // ext 0
 
-	AddRegIndirect,          //ext 0
-	AddRegIndirectPostInc,   //ext 0
-	AddRegIndirectPreDec,    //ext 0
-	AddRegIndirectDisplace,  //ext 1
-	AddRegIndirectIndex8Bit, //ext 1
+	AddRegIndirect,          // ext 0
+	AddRegIndirectPostInc,   // ext 0
+	AddRegIndirectPreDec,    // ext 0
+	AddRegIndirectDisplace,  // ext 1
+	AddRegIndirectIndex8Bit, // ext 1
 
-	PCIndirectDisplace,      //ext 1
-	PCIndirectIndex8Bit,     //ext 1
+	PCIndirectDisplace,      // ext 1
+	PCIndirectIndex8Bit,     // ext 1
 
-	ABSWord,                 //ext 1
-	ABSLong,                 //ext 2
+	ABSWord,                 // ext 1
+	ABSLong,                 // ext 2
 
-	Immediate,               //ext 1-2
+	Immediate,               // ext 1-2
 };
 
-//----------------------------------------------------------------------------------------
-//Constructors
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Constructors
+//----------------------------------------------------------------------------------------------------------------------
 EffectiveAddress::EffectiveAddress()
 :_data(BITCOUNT_BYTE), _displacement(BITCOUNT_BYTE), _dataSignExtended(false)
 {}
 
-//----------------------------------------------------------------------------------------
-//Decode functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Decode functions
+//----------------------------------------------------------------------------------------------------------------------
 void EffectiveAddress::BuildDataDirect(Bitcount size, const M68000Long& location, unsigned int reg)
 {
 	_size = size;
@@ -42,7 +42,7 @@ void EffectiveAddress::BuildDataDirect(Bitcount size, const M68000Long& location
 	_reg = reg;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void EffectiveAddress::BuildAddressDirect(Bitcount size, const M68000Long& location, unsigned int reg)
 {
 	_size = size;
@@ -51,7 +51,7 @@ void EffectiveAddress::BuildAddressDirect(Bitcount size, const M68000Long& locat
 	_reg = reg;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void EffectiveAddress::BuildAddressIndirect(Bitcount size, const M68000Long& location, unsigned int reg)
 {
 	_size = size;
@@ -60,7 +60,7 @@ void EffectiveAddress::BuildAddressIndirect(Bitcount size, const M68000Long& loc
 	_reg = reg;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void EffectiveAddress::BuildAddressPostinc(Bitcount size, const M68000Long& location, unsigned int reg)
 {
 	_size = size;
@@ -69,7 +69,7 @@ void EffectiveAddress::BuildAddressPostinc(Bitcount size, const M68000Long& loca
 	_reg = reg;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void EffectiveAddress::BuildAddressPredec(Bitcount size, const M68000Long& location, unsigned int reg)
 {
 	_size = size;
@@ -78,7 +78,7 @@ void EffectiveAddress::BuildAddressPredec(Bitcount size, const M68000Long& locat
 	_reg = reg;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void EffectiveAddress::BuildAddressIndirectDisplace(Bitcount size, const M68000Long& location, unsigned int reg, const M68000* cpu, bool transparent, const M68000Word& instructionRegister)
 {
 	_size = size;
@@ -90,7 +90,7 @@ void EffectiveAddress::BuildAddressIndirectDisplace(Bitcount size, const M68000L
 	cpu->ReadMemory(location, _displacement, cpu->GetFunctionCode(true), transparent, location, false, instructionRegister, false, false);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void EffectiveAddress::BuildAddressIndirectIndex(Bitcount size, const M68000Long& location, unsigned int reg, const M68000* cpu, bool transparent, const M68000Word& instructionRegister)
 {
 	_size = size;
@@ -120,7 +120,7 @@ void EffectiveAddress::BuildAddressIndirectIndex(Bitcount size, const M68000Long
 	temp.GetLowerBits(_displacement);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void EffectiveAddress::BuildAbsoluteAddressWord(Bitcount size, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister)
 {
 	_size = size;
@@ -131,7 +131,7 @@ void EffectiveAddress::BuildAbsoluteAddressWord(Bitcount size, const M68000Long&
 	cpu->ReadMemory(location, _address, cpu->GetFunctionCode(true), transparent, location, false, instructionRegister, false, false);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void EffectiveAddress::BuildAbsoluteAddressLong(Bitcount size, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister)
 {
 	_size = size;
@@ -142,36 +142,36 @@ void EffectiveAddress::BuildAbsoluteAddressLong(Bitcount size, const M68000Long&
 	cpu->ReadMemory(location, _address, cpu->GetFunctionCode(true), transparent, location, false, instructionRegister, false, false);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void EffectiveAddress::BuildPCIndirectDisplace(Bitcount size, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister)
 {
 	_size = size;
 	_mode = Mode::PCIndirectDisplace;
 
-	//Note that all PC-relative address calculations work by taking the address of the
-	//extension word which defines the effective address as the current value of the PC.
-	//This is defined in the M68000 Programmers Manual, in the description of each of the
-	//PC-relative addressing modes. From the manual: "The value of the PC is the address
-	//of the extension word". We store the correct PC here at the time of decoding, so
-	//that we can correctly decode PC-relative addresses during execution.
+	// Note that all PC-relative address calculations work by taking the address of the
+	// extension word which defines the effective address as the current value of the PC.
+	// This is defined in the M68000 Programmers Manual, in the description of each of the
+	// PC-relative addressing modes. From the manual: "The value of the PC is the address
+	// of the extension word". We store the correct PC here at the time of decoding, so
+	// that we can correctly decode PC-relative addresses during execution.
 	_savedPC = location;
 
 	_displacement.Resize(BITCOUNT_WORD);
 	cpu->ReadMemory(location, _displacement, cpu->GetFunctionCode(true), transparent, location, false, instructionRegister, false, false);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void EffectiveAddress::BuildPCIndirectIndex(Bitcount size, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister)
 {
 	_size = size;
 	_mode = Mode::PCIndirectIndex8Bit;
 
-	//Note that all PC-relative address calculations work by taking the address of the
-	//extension word which defines the effective address as the current value of the PC.
-	//This is defined in the M68000 Programmers Manual, in the description of each of the
-	//PC-relative addressing modes. From the manual: "The value of the PC is the address
-	//of the extension word". We store the correct PC here at the time of decoding, so
-	//that we can correctly decode PC-relative addresses during execution.
+	// Note that all PC-relative address calculations work by taking the address of the
+	// extension word which defines the effective address as the current value of the PC.
+	// This is defined in the M68000 Programmers Manual, in the description of each of the
+	// PC-relative addressing modes. From the manual: "The value of the PC is the address
+	// of the extension word". We store the correct PC here at the time of decoding, so
+	// that we can correctly decode PC-relative addresses during execution.
 	_savedPC = location;
 
 	M68000Word temp;
@@ -196,7 +196,7 @@ void EffectiveAddress::BuildPCIndirectIndex(Bitcount size, const M68000Long& loc
 	temp.GetLowerBits(_displacement);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void EffectiveAddress::BuildImmediateData(Bitcount size, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister)
 {
 	_size = size;
@@ -212,7 +212,7 @@ void EffectiveAddress::BuildImmediateData(Bitcount size, const M68000Long& locat
 	cpu->ReadMemory(tempLocation, _data, cpu->GetFunctionCode(true), transparent, location, false, instructionRegister, false, false);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void EffectiveAddress::BuildImmediateData(const M68000Long& location, const Data& data, bool signExtended)
 {
 	_size = (Bitcount)_data.GetBitCount();
@@ -223,7 +223,7 @@ void EffectiveAddress::BuildImmediateData(const M68000Long& location, const Data
 	_dataSignExtended = signExtended;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void EffectiveAddress::BuildQuickData(const M68000Long& location, unsigned int data)
 {
 	_size = BITCOUNT_BYTE;
@@ -237,9 +237,9 @@ void EffectiveAddress::BuildQuickData(const M68000Long& location, unsigned int d
 	_data = data;
 }
 
-//----------------------------------------------------------------------------------------
-//Address functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Address functions
+//----------------------------------------------------------------------------------------------------------------------
 M68000Long EffectiveAddress::ExtractProcessedImmediateData() const
 {
 	M68000Long processedImmediateData;
@@ -247,22 +247,22 @@ M68000Long EffectiveAddress::ExtractProcessedImmediateData() const
 	return processedImmediateData;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 M68000Long EffectiveAddress::GetSavedPC() const
 {
 	return _savedPC;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool EffectiveAddress::IncrementAddress(Bitcount size)
 {
 	_address += Data(size).GetByteSize();
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
-//Extension word info
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Extension word info
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int EffectiveAddress::ExtensionSize()
 {
 	unsigned int addressSize = 0;
@@ -281,7 +281,7 @@ unsigned int EffectiveAddress::ExtensionSize()
 	return addressSize;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 ExecuteTime EffectiveAddress::DecodeTime()
 {
 	ExecuteTime executeTime;
@@ -300,10 +300,10 @@ ExecuteTime EffectiveAddress::DecodeTime()
 	return executeTime;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 EffectiveAddress::Mode EffectiveAddress::GetAddressMode() const
 {
 	return _mode;
 }
 
-} //Close namespace M68000
+} // Close namespace M68000

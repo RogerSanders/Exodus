@@ -8,11 +8,11 @@ class SettingsMenuHandler;
 class S315_5313Menus :public Extension
 {
 public:
-	//Constructors
+	// Constructors
 	S315_5313Menus(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 	~S315_5313Menus();
 
-	//Window functions
+	// Window functions
 	virtual bool RegisterDeviceMenuHandler(IDevice* targetDevice);
 	virtual void UnregisterDeviceMenuHandler(IDevice* targetDevice);
 	virtual void AddDeviceMenuItems(DeviceMenu deviceMenu, IMenuSegment& menuSegment, IDevice* targetDevice);

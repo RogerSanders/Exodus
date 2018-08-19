@@ -38,14 +38,14 @@ public:
 	{
 		ExecuteTime exceptionTime;
 
-		//Perform the operation
+		// Perform the operation
 		if (!cpu->ExceptionDisabled(M68000::Exceptions::IllegalInstruction))
 		{
 			cpu->PushStackFrame(cpu->GetPC(), cpu->GetSR());
 			exceptionTime = cpu->ProcessException(M68000::Exceptions::IllegalInstruction);
 		}
 
-		//Return the execution time
+		// Return the execution time
 		return GetExecuteCycleCount() + exceptionTime;
 	}
 
@@ -53,5 +53,5 @@ public:
 	{ }
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #endif

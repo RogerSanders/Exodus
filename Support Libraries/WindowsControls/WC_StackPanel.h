@@ -7,37 +7,37 @@
 class WC_StackPanel
 {
 public:
-	//Enumerations
+	// Enumerations
 	enum class WindowMessages :unsigned int;
 	enum class StackDirection;
 	enum class VerticalAlignment;
 	enum class HorizontalAlignment;
 	enum class SizeMode;
 
-	//Structures
+	// Structures
 	struct SetAlignmentParams;
 
-	//Constants
+	// Constants
 	static const wchar_t* WindowClassName;
 
 public:
-	//Constructors
+	// Constructors
 	WC_StackPanel(HINSTANCE moduleHandle, HWND hwnd);
 
-	//Class registration
+	// Class registration
 	static bool RegisterWindowClass(HINSTANCE moduleHandle);
 	static bool UnregisterWindowClass(HINSTANCE moduleHandle);
 
-	//Message handlers
+	// Message handlers
 	static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 private:
-	//Structures
+	// Structures
 	struct HostedWindowInfo;
 	struct RowInfo;
 
 private:
-	//Message handlers
+	// Message handlers
 	LRESULT WndProcPrivate(UINT message, WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_CREATE(WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_SIZE(WPARAM wParam, LPARAM lParam);
@@ -56,11 +56,11 @@ private:
 	LRESULT msgSTACK_SETVERTICALPADDING(WPARAM wParam, LPARAM lParam);
 	LRESULT msgSTACK_SETHORIZONTALPADDING(WPARAM wParam, LPARAM lParam);
 
-	//Hosted window methods
+	// Hosted window methods
 	bool InsertWindow(const HostedWindowInfo& windowInfo, unsigned int insertPos);
 	void RemoveWindow(HWND windowHandle);
 
-	//Sizing methods
+	// Sizing methods
 	void HandleSizeChanged(int newWidth, int newHeight);
 	void UpdateChildWindowPositions();
 

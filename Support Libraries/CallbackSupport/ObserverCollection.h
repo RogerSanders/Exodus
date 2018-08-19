@@ -8,21 +8,21 @@
 class ObserverCollection :public IObserverCollection
 {
 public:
-	//Constructors
+	// Constructors
 	inline ObserverCollection();
 	inline virtual ~ObserverCollection();
 
-	//Observer management functions
+	// Observer management functions
 	inline virtual void AddObserver(IObserverSubscription& observer);
 	inline virtual void RemoveObserver(IObserverSubscription& observer);
 	inline virtual void RemoveAllObservers();
 
-	//Notification functions
+	// Notification functions
 	inline virtual void NotifyObservers() const;
 
 private:
-	//Ensure this class is non-copyable, since our subscribed observers will keep a
-	//reference to it.
+	// Ensure this class is non-copyable, since our subscribed observers will keep a
+	// reference to it.
 	inline ObserverCollection(const ObserverCollection&)
 	{}
 	inline ObserverCollection& operator=(const ObserverCollection&)

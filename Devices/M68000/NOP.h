@@ -37,7 +37,7 @@ public:
 
 	virtual ExecuteTime M68000Execute(M68000* cpu, const M68000Long& location) const
 	{
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount();
 	}
@@ -46,5 +46,5 @@ public:
 	{ }
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #endif

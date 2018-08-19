@@ -34,7 +34,7 @@ public:
 //	----------------------------------------=========================
 //	                                        |----------<ea>---------|
 
-		//MULS.W	<ea>,Dn		16*16->32
+		// MULS.W	<ea>,Dn		16*16->32
 		_size = BITCOUNT_WORD;
 		_target.BuildDataDirect(_size, location + GetInstructionSize(), data.GetDataSegment(9, 3));
 		_source.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), BITCOUNT_WORD, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
@@ -53,7 +53,7 @@ public:
 		M68000Long op2;
 		M68000Long result;
 
-		//Perform the operation
+		// Perform the operation
 		additionalTime += _source.Read(cpu, temp1, GetInstructionRegister());
 		additionalTime += _target.ReadWithoutAdjustingAddress(cpu, temp2, GetInstructionRegister());
 		op1 = M68000Long(temp1.SignExtend(BITCOUNT_LONG));
@@ -61,24 +61,24 @@ public:
 		result = op1 * op2;
 		additionalTime += _target.Write(cpu, result, GetInstructionRegister());
 
-		//Set the flag results
+		// Set the flag results
 		cpu->SetN(result.Negative());
 		cpu->SetZ(result.Zero());
 		cpu->SetV(false);
 		cpu->SetC(false);
 
-		//Calculate the additional execution time. According to the M68000 Users Manual,
-		//section 8.3:
-		//MULS, MULU — The multiply algorithm requires 38+2n clocks where n is defined as
+		// Calculate the additional execution time. According to the M68000 Users Manual,
+		// section 8.3:
+		// MULS, MULU — The multiply algorithm requires 38+2n clocks where n is defined as
 		//	MULU: n = the number of ones in the <ea>
 		//	MULS: n=concatenate the <ea> with a zero as the LSB; n is the resultant
 		//	number of 10 or 01 patterns in the 17-bit _source; i.e., worst case happens
 		//	when the _source is $5555.
-		//To put it in simpler terms, for MULS, n can be considered to be the count of
-		//the changes in the _source value from one bit to the next, assuming a starting
-		//bit value of 0. When reading the _source value one bit at a time from the LSB
-		//to the MSB, every time the current bit has a different value to the previous
-		//bit, a 2 cycle penalty is incurred.
+		// To put it in simpler terms, for MULS, n can be considered to be the count of
+		// the changes in the _source value from one bit to the next, assuming a starting
+		// bit value of 0. When reading the _source value one bit at a time from the LSB
+		// to the MSB, every time the current bit has a different value to the previous
+		// bit, a 2 cycle penalty is incurred.
 		ExecuteTime additionalCycles;
 		unsigned int bitChanges = 0;
 		bool lastBit = false;
@@ -92,7 +92,7 @@ public:
 		}
 		additionalCycles.cycles = 2 * bitChanges;
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime) + additionalCycles;
 	}
@@ -109,5 +109,5 @@ private:
 	EffectiveAddress _target;
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #endif

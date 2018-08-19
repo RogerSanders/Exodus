@@ -3,102 +3,102 @@
 #include "Debug/Debug.pkg"
 #include <thread>
 
-//----------------------------------------------------------------------------------------
-//Interface version functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Interface version functions
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int DeviceContext::GetIDeviceContextVersion() const
 {
 	return ThisIDeviceContextVersion();
 }
 
-//----------------------------------------------------------------------------------------
-//Timing functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Timing functions
+//----------------------------------------------------------------------------------------------------------------------
 double DeviceContext::GetCurrentTimesliceProgress() const
 {
 	return _currentTimesliceProgress;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void DeviceContext::SetCurrentTimesliceProgress(double executionProgress)
 {
 	_currentTimesliceProgress = executionProgress;
 	_remainingTime = _currentTimesliceProgress - _timeslice;
 }
 
-//----------------------------------------------------------------------------------------
-//Control functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Control functions
+//----------------------------------------------------------------------------------------------------------------------
 bool DeviceContext::DeviceEnabled() const
 {
 	return _deviceEnabled;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void DeviceContext::SetDeviceEnabled(bool state)
 {
 	_deviceEnabled = state;
 }
 
-//----------------------------------------------------------------------------------------
-//Device interface
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Device interface
+//----------------------------------------------------------------------------------------------------------------------
 IDevice& DeviceContext::GetTargetDevice() const
 {
 	return _device;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int DeviceContext::GetDeviceIndexNo() const
 {
 	return _deviceIndexNo;
 }
 
-//----------------------------------------------------------------------------------------
-//System message functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// System message functions
+//----------------------------------------------------------------------------------------------------------------------
 void DeviceContext::WriteLogEvent(const ILogEntry& entry)
 {
-	//Ensure that the source of the event is correctly set for the calling device
+	// Ensure that the source of the event is correctly set for the calling device
 	std::wstring eventLogSource = GetTargetDevice().GetDeviceInstanceName() + L" [" + GetTargetDevice().GetModuleDisplayName() + L"]";
 	entry.OverrideSourceText(eventLogSource);
 
-	//Pass the event log message on to the system
+	// Pass the event log message on to the system
 	_systemObject.WriteLogEvent(entry);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void DeviceContext::FlagStopSystem()
 {
 	_systemObject.FlagStopSystem();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void DeviceContext::StopSystem()
 {
 	_systemObject.StopSystem();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void DeviceContext::RunSystem()
 {
 	_systemObject.RunSystem();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void DeviceContext::ExecuteDeviceStep()
 {
 	_systemObject.ExecuteDeviceStep(&_device);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> DeviceContext::GetFullyQualifiedDeviceInstanceName() const
 {
 	std::wstring fullyQualifiedDeviceInstanceName = GetModuleInstanceName() + L"." + _device.GetDeviceInstanceName();
 	return fullyQualifiedDeviceInstanceName;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> DeviceContext::GetModuleDisplayName() const
 {
 	std::wstring moduleDisplayName;
@@ -106,7 +106,7 @@ Marshal::Ret<std::wstring> DeviceContext::GetModuleDisplayName() const
 	return moduleDisplayName;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> DeviceContext::GetModuleInstanceName() const
 {
 	std::wstring moduleInstanceName;
@@ -114,33 +114,33 @@ Marshal::Ret<std::wstring> DeviceContext::GetModuleInstanceName() const
 	return moduleInstanceName;
 }
 
-//----------------------------------------------------------------------------------------
-//Suspend functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Suspend functions
+//----------------------------------------------------------------------------------------------------------------------
 bool DeviceContext::UsesExecuteSuspend() const
 {
 	return _device.UsesExecuteSuspend();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool DeviceContext::UsesTransientExecution() const
 {
 	return _device.UsesTransientExecution();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool DeviceContext::TimesliceExecutionSuspended() const
 {
 	return _timesliceSuspended;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void DeviceContext::SuspendTimesliceExecution()
 {
 	std::unique_lock<std::mutex> executeLock(_executeThreadMutex);
 
-	//Ensure that the device calling the suspend function has indicated that it uses the
-	//suspend feature. Failure to do this may cause deadlocks.
+	// Ensure that the device calling the suspend function has indicated that it uses the
+	// suspend feature. Failure to do this may cause deadlocks.
 	DebugAssert(_device.UsesExecuteSuspend());
 
 	if (!_timesliceSuspended && !_timesliceSuspensionDisable)
@@ -155,8 +155,8 @@ void DeviceContext::SuspendTimesliceExecution()
 			{
 				_timesliceSuspended = true;
 
-				//Since this execution thread is currently suspended, increment the
-				//suspended thread count.
+				// Since this execution thread is currently suspended, increment the
+				// suspended thread count.
 				ReferenceCounterIncrement(*_suspendedThreadCountPointer);
 
 				_executeCompletionStateChanged.notify_all();
@@ -170,20 +170,20 @@ void DeviceContext::SuspendTimesliceExecution()
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void DeviceContext::WaitForTimesliceExecutionResume() const
 {
 	std::unique_lock<std::mutex> lock(_executeThreadMutex);
 
-	//Wait for the timeslice to resume execution, or for timeslice suspension to be
-	//disabled.
+	// Wait for the timeslice to resume execution, or for timeslice suspension to be
+	// disabled.
 	while (_timesliceSuspended && !_timesliceSuspensionDisable)
 	{
 		_executeCompletionStateChanged.wait(lock);
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void DeviceContext::ResumeTimesliceExecution()
 {
 	std::unique_lock<std::mutex> executeLock(_executeThreadMutex);
@@ -199,8 +199,8 @@ void DeviceContext::ResumeTimesliceExecution()
 			{
 				_timesliceSuspended = false;
 
-				//Since this execution thread has left the suspended state, decrement the
-				//suspended thread count.
+				// Since this execution thread has left the suspended state, decrement the
+				// suspended thread count.
 				ReferenceCounterDecrement(*_suspendedThreadCountPointer);
 
 				_executeCompletionStateChanged.notify_all();
@@ -214,90 +214,90 @@ void DeviceContext::ResumeTimesliceExecution()
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool DeviceContext::TimesliceSuspensionDisabled() const
 {
 	return _timesliceSuspensionDisable;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool DeviceContext::TransientExecutionActive() const
 {
 	return _transientExecutionActive;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void DeviceContext::SetTransientExecutionActive(bool state)
 {
 	_transientExecutionActive = state;
 
-	//If a transient execution device has just stopped executing, evaluate whether all
-	//remaining devices in the system are suspended or blocked, and unblock them in this
-	//case.
+	// If a transient execution device has just stopped executing, evaluate whether all
+	// remaining devices in the system are suspended or blocked, and unblock them in this
+	// case.
 	if (!state && (_commandMutexPointer != 0))
 	{
-		//Obtain a lock on the shared command mutex. We need to do this so that we can
-		//safely work with the result of the suspendedThreadCount variable.
+		// Obtain a lock on the shared command mutex. We need to do this so that we can
+		// safely work with the result of the suspendedThreadCount variable.
 		std::unique_lock<std::mutex> commandLock(*_commandMutexPointer);
 
-		//Only perform any checks if we're currently executing a wait for completion
-		//command. If we're not executing this command, the remaining thread count value
-		//is invalid, and we also don't even need this check here, because when the
-		//command is issued later, it will be detected at that time if all devices are
-		//suspended or blocked.
+		// Only perform any checks if we're currently executing a wait for completion
+		// command. If we're not executing this command, the remaining thread count value
+		// is invalid, and we also don't even need this check here, because when the
+		// command is issued later, it will be detected at that time if all devices are
+		// suspended or blocked.
 		if (_executingWaitForCompletionCommand)
 		{
-			//Evaluate whether all remaining threads are suspended. If they are, release
-			//all suspended threads. If not, wait for the completion state of this execute
-			//thread to change.
+			// Evaluate whether all remaining threads are suspended. If they are, release
+			// all suspended threads. If not, wait for the completion state of this execute
+			// thread to change.
 			if (_suspendManager->AllDevicesSuspended(*_suspendedThreadCountPointer, *_remainingThreadCountPointer))
 			{
-				//Note that we need to not hold a lock on executeThreadMutex here, since
-				//the suspend manager will call back into this DeviceContext object and
-				//call the DisableTimesliceExecutionSuspend() function in response to the
-				//function call below.
+				// Note that we need to not hold a lock on executeThreadMutex here, since
+				// the suspend manager will call back into this DeviceContext object and
+				// call the DisableTimesliceExecutionSuspend() function in response to the
+				// function call below.
 				_suspendManager->DisableTimesliceExecutionSuspend();
 			}
 		}
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool DeviceContext::TimesliceExecutionCompleted() const
 {
 	return _timesliceCompleted && !_transientExecutionActive;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void DeviceContext::DisableTimesliceExecutionSuspend()
 {
 	//##FIX## We took out the locks here and in EnableTimesliceExecutionSuspend on the
-	//executeThreadMutex, to avoid a deadlock that was occurring due to this worker thread
-	//holding onto the mutex, but being unable to obtain the command mutex, while another
-	//thread called back into this thread and attempted to disable execution suspend. I
-	//think we need the lock though, as we need to ensure that the internal state for the
-	//condition variable is not corrupted due to concurrent access. We need a lock here to
-	//ensure any other threads which wait on this condition are not actively working with
-	//it at the time we try and trigger it.
+	// executeThreadMutex, to avoid a deadlock that was occurring due to this worker thread
+	// holding onto the mutex, but being unable to obtain the command mutex, while another
+	// thread called back into this thread and attempted to disable execution suspend. I
+	// think we need the lock though, as we need to ensure that the internal state for the
+	// condition variable is not corrupted due to concurrent access. We need a lock here to
+	// ensure any other threads which wait on this condition are not actively working with
+	// it at the time we try and trigger it.
 	//##TODO## Looking at the internal implementation of the std::condition_variable class, it
-	//appears that the class has its own internal locks, and based on the design, it
-	//appears that we should be able to safely execute this code without a lock, and
-	//without causing any internal inconsistencies in the condition variable. This means
-	//the only concurrency issues we have to worry about are in our own code. That said,
-	//looking at our code, we still need the lock, otherwise a deadlock could occur. Our
-	//code tests timesliceSuspensionDisable, then enters a wait state if it is not set. If
-	//another thread yields after testing timesliceSuspensionDisable, but before the wait
-	//on executeCompletionStateChanged, then this thread runs through and sets the
-	//condition, the other thread could then resume, and miss the condition, and enter the
-	//wait state indefinitely when timesliceSuspensionDisable is set. This means we
-	//absolutely need a lock here.
+	// appears that the class has its own internal locks, and based on the design, it
+	// appears that we should be able to safely execute this code without a lock, and
+	// without causing any internal inconsistencies in the condition variable. This means
+	// the only concurrency issues we have to worry about are in our own code. That said,
+	// looking at our code, we still need the lock, otherwise a deadlock could occur. Our
+	// code tests timesliceSuspensionDisable, then enters a wait state if it is not set. If
+	// another thread yields after testing timesliceSuspensionDisable, but before the wait
+	// on executeCompletionStateChanged, then this thread runs through and sets the
+	// condition, the other thread could then resume, and miss the condition, and enter the
+	// wait state indefinitely when timesliceSuspensionDisable is set. This means we
+	// absolutely need a lock here.
 
 	std::unique_lock<std::mutex> lock(_executeThreadMutex);
 	_timesliceSuspensionDisable = true;
 	_executeCompletionStateChanged.notify_all();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void DeviceContext::EnableTimesliceExecutionSuspend()
 {
 	//##FIX## We've disabled this temporarily to try and debug a mysterious deadlock
@@ -306,13 +306,13 @@ void DeviceContext::EnableTimesliceExecutionSuspend()
 	_executeCompletionStateChanged.notify_all();
 }
 
-//----------------------------------------------------------------------------------------
-//Dependent device functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Dependent device functions
+//----------------------------------------------------------------------------------------------------------------------
 void DeviceContext::SetDeviceDependencyEnable(IDeviceContext* targetDevice, bool state)
 {
-	//Attempt to find a dependency on the specified target device, and update its
-	//dependency enable state to the state specified.
+	// Attempt to find a dependency on the specified target device, and update its
+	// dependency enable state to the state specified.
 	bool foundDeviceDependency = false;
 	bool previousDependencyState;
 	unsigned int dependentTargetCount = (unsigned int)_deviceDependencies.size();
@@ -328,24 +328,24 @@ void DeviceContext::SetDeviceDependencyEnable(IDeviceContext* targetDevice, bool
 		++i;
 	}
 
-	//If this device is sharing an execution thread with the target device, we now need to
-	//either split or combine the execution threads, now that the device dependency enable
-	//state has changed.
+	// If this device is sharing an execution thread with the target device, we now need to
+	// either split or combine the execution threads, now that the device dependency enable
+	// state has changed.
 	if (_sharingExecuteThread && foundDeviceDependency && (targetDevice == _otherSharedExecuteThreadDevice) && (previousDependencyState != state))
 	{
 		DeviceContext* primaryDevice = (_primarySharedExecuteThreadDevice)? this: _otherSharedExecuteThreadDevice;
 		if (state)
 		{
-			//If the device dependency has been enabled, request the spinoff execution
-			//thread for the combined execution thread to rejoin. Note that we do not wait
-			//for this process to be completed here, for performance reasons. We want to
-			//allow the spinoff thread and main execution thread to continue in parallel
-			//for as long as possible. Since we've just re-enabled the device dependency,
-			//the main execution thread will now not allow the owning device to be
-			//advanced beyond the device executing in the spinoff thread, and the spinoff
-			//thread will halt after the end of the next device step, so we can safely
-			//continue execution here without waiting for the rejoin request to be
-			//processed.
+			// If the device dependency has been enabled, request the spinoff execution
+			// thread for the combined execution thread to rejoin. Note that we do not wait
+			// for this process to be completed here, for performance reasons. We want to
+			// allow the spinoff thread and main execution thread to continue in parallel
+			// for as long as possible. Since we've just re-enabled the device dependency,
+			// the main execution thread will now not allow the owning device to be
+			// advanced beyond the device executing in the spinoff thread, and the spinoff
+			// thread will halt after the end of the next device step, so we can safely
+			// continue execution here without waiting for the rejoin request to be
+			// processed.
 			std::unique_lock<std::mutex> lock(primaryDevice->_executeThreadMutex);
 			if (primaryDevice->_sharedExecuteThreadSpinoffActive)
 			{
@@ -355,20 +355,20 @@ void DeviceContext::SetDeviceDependencyEnable(IDeviceContext* targetDevice, bool
 		}
 		else
 		{
-			//If the device dependency has been disabled, wait for the spinoff thread to
-			//terminate if it is currently active, as it's possible we have previously
-			//requested the spinoff thread to rejoin, but the device dependency state was
-			//changed again before the spinoff thread processed the request. This is the
-			//only case that could have arisen if the spinoff thread is still active here.
+			// If the device dependency has been disabled, wait for the spinoff thread to
+			// terminate if it is currently active, as it's possible we have previously
+			// requested the spinoff thread to rejoin, but the device dependency state was
+			// changed again before the spinoff thread processed the request. This is the
+			// only case that could have arisen if the spinoff thread is still active here.
 			std::unique_lock<std::mutex> lock(primaryDevice->_executeThreadMutex);
 			while (primaryDevice->_sharedExecuteThreadSpinoffActive)
 			{
 				primaryDevice->_sharedExecuteThreadSpinoffStoppedOrPaused.wait(lock);
 			}
 
-			//Request the spinoff thread for the combined execution thread to begin
-			//advancing the device that doesn't currently own the main execution thread in
-			//parallel.
+			// Request the spinoff thread for the combined execution thread to begin
+			// advancing the device that doesn't currently own the main execution thread in
+			// parallel.
 			primaryDevice->_sharedExecuteThreadSpinoffActive = true;
 			primaryDevice->_sharedExecuteThreadSpinoffTimesliceAvailable = true;
 			primaryDevice->_sharedExecuteThreadSpinoffStateChangeRequested.notify_all();
@@ -376,9 +376,9 @@ void DeviceContext::SetDeviceDependencyEnable(IDeviceContext* targetDevice, bool
 	}
 }
 
-//----------------------------------------------------------------------------------------
-//Command worker thread control
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Command worker thread control
+//----------------------------------------------------------------------------------------------------------------------
 void DeviceContext::StartCommandWorkerThread(size_t deviceIndex, volatile ReferenceCounterType& remainingThreadCount, volatile ReferenceCounterType& suspendedThreadCount, std::mutex& commandMutex, std::condition_variable& commandSent, std::condition_variable& commandProcessed, IExecutionSuspendManager* suspendManager, const DeviceContextCommand& command)
 {
 	std::unique_lock<std::mutex> lock(commandMutex);
@@ -391,94 +391,94 @@ void DeviceContext::StartCommandWorkerThread(size_t deviceIndex, volatile Refere
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void DeviceContext::StopCommandWorkerThread()
 {
 	_commandWorkerThreadActive = false;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void DeviceContext::CommandWorkerThread(size_t deviceIndex, volatile ReferenceCounterType& remainingThreadCount, volatile ReferenceCounterType& suspendedThreadCount, std::mutex& commandMutex, std::condition_variable& commandSent, std::condition_variable& commandProcessed, IExecutionSuspendManager* suspendManager, const DeviceContextCommand& command)
 {
-	//Set the name of this thread for the debugger
+	// Set the name of this thread for the debugger
 	std::wstring debuggerThreadName = L"DCCommand - " + _device.GetDeviceInstanceName();
 	SetCallingThreadName(debuggerThreadName);
 
-	//Flag that we need to notify the calling thread when this thread is ready, since this
-	//worker thread has just been started.
+	// Flag that we need to notify the calling thread when this thread is ready, since this
+	// worker thread has just been started.
 	bool notifyThreadReady = true;
 
-	//Record if we just processed a wait for completion command. We need this to support
-	//resuming suspended execute threads.
+	// Record if we just processed a wait for completion command. We need this to support
+	// resuming suspended execute threads.
 	_executingWaitForCompletionCommand = false;
 
-	//Store pointers to the command mutex and suspended thread count, so that we can
-	//access them from our execution thread when required.
+	// Store pointers to the command mutex and suspended thread count, so that we can
+	// access them from our execution thread when required.
 	_commandMutexPointer = &commandMutex;
 	_suspendedThreadCountPointer = &suspendedThreadCount;
 	_remainingThreadCountPointer = &remainingThreadCount;
 	_suspendManager = suspendManager;
 
-	//Process each command from the execution manager until we receive a command to stop
+	// Process each command from the execution manager until we receive a command to stop
 	while (_commandWorkerThreadActive)
 	{
-		//Wait for a new command to be received
+		// Wait for a new command to be received
 		{
-			//Obtain a lock on the shared command mutex
+			// Obtain a lock on the shared command mutex
 			std::unique_lock<std::mutex> lock(commandMutex);
 
-			//Notify the execution manager when all worker threads have processed the
-			//message. Note that to achieve thread safety, we have to perform this
-			//operation within the same lock where we wait on the commandSent mutex, so
-			//that the execution manager will not resume execution until all command
-			//threads are ready and waiting to receive a new command.
+			// Notify the execution manager when all worker threads have processed the
+			// message. Note that to achieve thread safety, we have to perform this
+			// operation within the same lock where we wait on the commandSent mutex, so
+			// that the execution manager will not resume execution until all command
+			// threads are ready and waiting to receive a new command.
 			if (ReferenceCounterDecrement(remainingThreadCount) == 0)
 			{
 				commandProcessed.notify_all();
 			}
 			else if (_executingWaitForCompletionCommand)
 			{
-				//We need a special catch here for suspended threads. If this device just
-				//finished executing a WaitForCompletion command, and at this point, all
-				//remaining threads are suspended, we need to disable thread suspension at
-				//this point so that the suspended threads can be resumed.
+				// We need a special catch here for suspended threads. If this device just
+				// finished executing a WaitForCompletion command, and at this point, all
+				// remaining threads are suspended, we need to disable thread suspension at
+				// this point so that the suspended threads can be resumed.
 				if (suspendManager->AllDevicesSuspended(suspendedThreadCount, remainingThreadCount))
 				{
 					suspendManager->DisableTimesliceExecutionSuspend();
 				}
 			}
 
-			//If this worker thread has just been started, notify the calling thread that
-			//the worker thread is now ready to receive commands. The calling thread is
-			//locked on the commandMutex too, so this is thread safe. The calling thread
-			//will only be unblocked when we release the mutex in order to wait for a new
-			//command.
+			// If this worker thread has just been started, notify the calling thread that
+			// the worker thread is now ready to receive commands. The calling thread is
+			// locked on the commandMutex too, so this is thread safe. The calling thread
+			// will only be unblocked when we release the mutex in order to wait for a new
+			// command.
 			if (notifyThreadReady)
 			{
 				notifyThreadReady = false;
 				_commandThreadReady.notify_all();
 			}
 
-			//Wait for a new command to be received
+			// Wait for a new command to be received
 			commandSent.wait(lock);
 		}
 
-		//Flag if we just received a wait for execute complete command
+		// Flag if we just received a wait for execute complete command
 		_executingWaitForCompletionCommand = (command.type == DeviceContextCommand::TYPE_WAITFOREXECUTECOMPLETE);
 
-		//Process the command
+		// Process the command
 		ProcessCommand(deviceIndex, command, remainingThreadCount);
 	}
 
-	//If we've received a command to terminate the worker thread, notify the execution
-	//manager when all worker threads have terminated. We need this block of code here,
-	//since a command to terminate the worker thread will cause us to leave the main
-	//command loop immediately.
+	// If we've received a command to terminate the worker thread, notify the execution
+	// manager when all worker threads have terminated. We need this block of code here,
+	// since a command to terminate the worker thread will cause us to leave the main
+	// command loop immediately.
 	{
 		std::unique_lock<std::mutex> lock(commandMutex);
 
-		//Notify the execution manager that all worker threads have started and are ready
-		//to accept commands
+		// Notify the execution manager that all worker threads have started and are ready
+		// to accept commands
 		if (ReferenceCounterDecrement(remainingThreadCount) == 0)
 		{
 			commandProcessed.notify_all();
@@ -486,7 +486,7 @@ void DeviceContext::CommandWorkerThread(size_t deviceIndex, volatile ReferenceCo
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void DeviceContext::ProcessCommand(size_t deviceIndex, const DeviceContextCommand& command, volatile ReferenceCounterType& remainingThreadCount)
 {
 	switch (command.type)
@@ -529,50 +529,50 @@ void DeviceContext::ProcessCommand(size_t deviceIndex, const DeviceContextComman
 	}
 }
 
-//----------------------------------------------------------------------------------------
-//Worker thread control
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Worker thread control
+//----------------------------------------------------------------------------------------------------------------------
 void DeviceContext::BeginExecution(size_t deviceIndex, volatile ReferenceCounterType& remainingThreadCount, volatile ReferenceCounterType& suspendedThreadCount, std::mutex& commandMutex, std::condition_variable& commandSent, std::condition_variable& commandProcessed, IExecutionSuspendManager* suspendManager, const DeviceContextCommand& command)
 {
-	//Start the command worker thread
+	// Start the command worker thread
 	StartCommandWorkerThread(deviceIndex, remainingThreadCount, suspendedThreadCount, commandMutex, commandSent, commandProcessed, suspendManager, command);
 
-	//Start the execute worker thread
+	// Start the execute worker thread
 	StartExecuteWorkerThread();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void DeviceContext::SuspendExecution()
 {
-	//Terminate the execute worker thread
+	// Terminate the execute worker thread
 	StopExecuteWorkerThread();
 
-	//Instruct the command worker thread to terminate. Note that this just sets a flag at
-	//this point. Since we receive the suspend command through the command worker thread,
-	//we're currently within that thread when this function is called. Once this message
-	//has been fully processed, this worker thread will now terminate.
+	// Instruct the command worker thread to terminate. Note that this just sets a flag at
+	// this point. Since we receive the suspend command through the command worker thread,
+	// we're currently within that thread when this function is called. Once this message
+	// has been fully processed, this worker thread will now terminate.
 	StopCommandWorkerThread();
 }
 
-//----------------------------------------------------------------------------------------
-//Execute worker thread control
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Execute worker thread control
+//----------------------------------------------------------------------------------------------------------------------
 void DeviceContext::StartExecuteWorkerThread()
 {
 	std::unique_lock<std::mutex> lock(_executeThreadMutex);
 	if (!_executeWorkerThreadActive && ActiveDevice())
 	{
-		//Notify the device that execution is about to begin
+		// Notify the device that execution is about to begin
 		_device.BeginExecution();
 
-		//Scan our list of device dependencies. If we have a two-way dependency with
-		//another device, and both our device and their device use step execution, we fold
-		//the two devices into a single execution thread for efficiency. In this model,
-		//one of the devices is considered the primary owner of the execute thread, and
-		//the other device is considered the secondary owner. To select this we, make the
-		//primary owner the device that has the lowest device index number. We only
-		//actually spawn an execute thread here if the target device is the primary owner
-		//of this combined execution thread.
+		// Scan our list of device dependencies. If we have a two-way dependency with
+		// another device, and both our device and their device use step execution, we fold
+		// the two devices into a single execution thread for efficiency. In this model,
+		// one of the devices is considered the primary owner of the execute thread, and
+		// the other device is considered the secondary owner. To select this we, make the
+		// primary owner the device that has the lowest device index number. We only
+		// actually spawn an execute thread here if the target device is the primary owner
+		// of this combined execution thread.
 		bool foundInterlockedDevice = false;
 		bool ourDeviceIsPrimaryInterlockedDevice = false;
 		bool interlockedDeviceDependenciesCurrentlyDisabled = false;
@@ -598,13 +598,13 @@ void DeviceContext::StartExecuteWorkerThread()
 			}
 		}
 
-		//If this device is going to share an execution thread with another device, record
-		//information about the shared execution thread.
+		// If this device is going to share an execution thread with another device, record
+		// information about the shared execution thread.
 		_sharingExecuteThread = foundInterlockedDevice;
 		_primarySharedExecuteThreadDevice = ourDeviceIsPrimaryInterlockedDevice;
 		_otherSharedExecuteThreadDevice = interlockedDevice;
 
-		//Start the execution thread for this device
+		// Start the execution thread for this device
 		_executeWorkerThreadActive = true;
 		if (!foundInterlockedDevice)
 		{
@@ -613,18 +613,18 @@ void DeviceContext::StartExecuteWorkerThread()
 		}
 		else if (ourDeviceIsPrimaryInterlockedDevice)
 		{
-			//If the interlocked dependencies are present but currently disabled, flag the
-			//execute spinoff thread as active, so that it will be restored when we start
-			//the execute thread below.
+			// If the interlocked dependencies are present but currently disabled, flag the
+			// execute spinoff thread as active, so that it will be restored when we start
+			// the execute thread below.
 			_sharedExecuteThreadSpinoffActive = interlockedDeviceDependenciesCurrentlyDisabled;
 
-			//Start the primary execute thread
+			// Start the primary execute thread
 			std::thread workerThread(std::bind(&DeviceContext::ExecuteWorkerThreadStepMultipleDeviceSharedDependencies, this, interlockedDevice));
 			workerThread.detach();
 		}
 
-		//Wait for confirmation that the execute worker thread is ready to receive
-		//commands
+		// Wait for confirmation that the execute worker thread is ready to receive
+		// commands
 		while (!_executeThreadRunningState)
 		{
 			_executeThreadReady.wait(lock);
@@ -632,14 +632,14 @@ void DeviceContext::StartExecuteWorkerThread()
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void DeviceContext::StopExecuteWorkerThread()
 {
 	std::unique_lock<std::mutex> lock(_executeThreadMutex);
 	if (_executeWorkerThreadActive)
 	{
-		//Instruct the execution thread to terminate, and wait for confirmation that it
-		//has stopped.
+		// Instruct the execution thread to terminate, and wait for confirmation that it
+		// has stopped.
 		_executeWorkerThreadActive = false;
 		while (_executeThreadRunningState)
 		{
@@ -647,15 +647,15 @@ void DeviceContext::StopExecuteWorkerThread()
 			_executeThreadStopped.wait(lock);
 		}
 
-		//Notify the device that execution is being suspended
+		// Notify the device that execution is being suspended
 		_device.SuspendExecution();
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void DeviceContext::ExecuteWorkerThread()
 {
-	//Set the name of this thread for the debugger
+	// Set the name of this thread for the debugger
 	std::wstring debuggerThreadName = L"DCExecute - " + _device.GetDeviceInstanceName();
 	SetCallingThreadName(debuggerThreadName);
 
@@ -683,7 +683,7 @@ void DeviceContext::ExecuteWorkerThread()
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void DeviceContext::ExecuteWorkerThreadStep()
 {
 	std::unique_lock<std::mutex> lock(_executeThreadMutex);
@@ -717,7 +717,7 @@ void DeviceContext::ExecuteWorkerThreadStep()
 	_executeThreadStopped.notify_all();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void DeviceContext::ExecuteWorkerThreadStepWithDependencies()
 {
 	std::unique_lock<std::mutex> lock(_executeThreadMutex);
@@ -732,11 +732,11 @@ void DeviceContext::ExecuteWorkerThreadStepWithDependencies()
 		{
 			for (unsigned int i = 0; i < dependentTargetCount; ++i)
 			{
-				//SafeMemoryBarrierRead();
+				// SafeMemoryBarrierRead();
 				while ((_currentTimesliceProgress > _deviceDependencies[i].device->_currentTimesliceProgress) && _deviceDependencies[i].dependencyEnabled)
 				{
 					Sleep(0);
-					//SafeMemoryBarrierRead();
+					// SafeMemoryBarrierRead();
 				}
 			}
 			_currentTimesliceProgress += _device.ExecuteStep();
@@ -747,7 +747,7 @@ void DeviceContext::ExecuteWorkerThreadStepWithDependencies()
 					_currentTimesliceProgress = _timeslice;
 				}
 			}
-			//SafeMemoryBarrierWrite();
+			// SafeMemoryBarrierWrite();
 		}
 		_remainingTime = _currentTimesliceProgress - _timeslice;
 		_device.NotifyAfterExecuteStepFinishedTimeslice();
@@ -762,18 +762,18 @@ void DeviceContext::ExecuteWorkerThreadStepWithDependencies()
 	_executeThreadStopped.notify_all();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void DeviceContext::ExecuteWorkerThreadStepMultipleDeviceSharedDependencies(DeviceContext* device1, DeviceContext* device2)
 {
-	//Set the name of this thread for the benefit of an attached debugger
+	// Set the name of this thread for the benefit of an attached debugger
 	std::wstring debuggerThreadName = L"DCExePri - \"" + device1->_device.GetDeviceInstanceName() + L"\" and \"" + device2->_device.GetDeviceInstanceName() + L"\"";
 	SetCallingThreadName(debuggerThreadName);
 
-	//Notify the command threads for both devices in this shared execution thread that the
-	//execution thread for the target devices is up and running. Note that we have a lock
-	//here on executeThreadMutex here, so the command threads will not actually be
-	//unblocked until we wait on a message from the command thread again and release the
-	//lock.
+	// Notify the command threads for both devices in this shared execution thread that the
+	// execution thread for the target devices is up and running. Note that we have a lock
+	// here on executeThreadMutex here, so the command threads will not actually be
+	// unblocked until we wait on a message from the command thread again and release the
+	// lock.
 	std::unique_lock<std::mutex> lock1(device1->_executeThreadMutex);
 	std::unique_lock<std::mutex> lock2(device2->_executeThreadMutex);
 	device1->_executeThreadRunningState = true;
@@ -781,12 +781,12 @@ void DeviceContext::ExecuteWorkerThreadStepMultipleDeviceSharedDependencies(Devi
 	device1->_executeThreadReady.notify_all();
 	device2->_executeThreadReady.notify_all();
 
-	//Start our parallel execution thread for these locked devices, so that if the device
-	//dependency is enabled, the second device can be spun off into this parallel
-	//execution thread. We always create this thread here, and leave it in a wait state,
-	//because creating and destroying a thread is a relatively expensive operation, and we
-	//want there to be minimal overhead spinning off execution to this parallel thread, as
-	//this could potentially happen many times during a single timeslice.
+	// Start our parallel execution thread for these locked devices, so that if the device
+	// dependency is enabled, the second device can be spun off into this parallel
+	// execution thread. We always create this thread here, and leave it in a wait state,
+	// because creating and destroying a thread is a relatively expensive operation, and we
+	// want there to be minimal overhead spinning off execution to this parallel thread, as
+	// this could potentially happen many times during a single timeslice.
 	device1->_currentSharedExecuteThreadOwner = device1;
 	device1->_sharedExecuteThreadSpinoffRunning = true;
 	device1->_sharedExecuteThreadSpinoffStopRequested = false;
@@ -795,8 +795,8 @@ void DeviceContext::ExecuteWorkerThreadStepMultipleDeviceSharedDependencies(Devi
 	std::thread workerThread(std::bind(std::mem_fn(&DeviceContext::ExecuteWorkerThreadStepSharedExecutionThreadSpinoff), device1));
 	workerThread.detach();
 
-	//Wait for a new execute task to be sent from the command thread to both our target
-	//devices
+	// Wait for a new execute task to be sent from the command thread to both our target
+	// devices
 	lock2.unlock();
 	device1->_executeTaskSent.wait(lock1);
 	lock1.unlock();
@@ -807,16 +807,16 @@ void DeviceContext::ExecuteWorkerThreadStepMultipleDeviceSharedDependencies(Devi
 	}
 	lock1.lock();
 
-	//Process execute commands until a command is sent requesting the execute threads for
-	//our target devices to shutdown
+	// Process execute commands until a command is sent requesting the execute threads for
+	// our target devices to shutdown
 	while (device1->_executeWorkerThreadActive && device2->_executeWorkerThreadActive)
 	{
 		lock1.unlock();
 		lock2.unlock();
 
-		//If our spinoff thread is currently active and waiting to advance a device, send
-		//a notification to the spinoff thread about the new timeslice that has been
-		//received, and wait for it to acknowledge that it has received the notification.
+		// If our spinoff thread is currently active and waiting to advance a device, send
+		// a notification to the spinoff thread about the new timeslice that has been
+		// received, and wait for it to acknowledge that it has received the notification.
 		if (device1->_sharedExecuteThreadSpinoffActive)
 		{
 			lock1.lock();
@@ -826,15 +826,15 @@ void DeviceContext::ExecuteWorkerThreadStepMultipleDeviceSharedDependencies(Devi
 			lock1.unlock();
 		}
 
-		//Advance all devices which are executing within this combined execution thread to
-		//the end of the current timeslice
+		// Advance all devices which are executing within this combined execution thread to
+		// the end of the current timeslice
 		unsigned int device1DependentTargetCount = (unsigned int)device1->_deviceDependencies.size();
 		unsigned int device2DependentTargetCount = (unsigned int)device2->_deviceDependencies.size();
 		while ((!device1->_sharedExecuteThreadSpinoffActive && ((device1->_currentTimesliceProgress < device1->_timeslice) || (device2->_currentTimesliceProgress < device2->_timeslice)))
 		  || (device1->_sharedExecuteThreadSpinoffActive && (device1->_currentSharedExecuteThreadOwner->_currentTimesliceProgress < device1->_currentSharedExecuteThreadOwner->_timeslice)))
 		{
-			//Advance the first device in this execution thread a single step, if it is
-			//not currently executing in a spinoff thread.
+			// Advance the first device in this execution thread a single step, if it is
+			// not currently executing in a spinoff thread.
 			if (!device1->_sharedExecuteThreadSpinoffActive || (device1->_currentSharedExecuteThreadOwner == device1))
 			{
 				device1->_currentSharedExecuteThreadOwner = device1;
@@ -858,8 +858,8 @@ void DeviceContext::ExecuteWorkerThreadStepMultipleDeviceSharedDependencies(Devi
 				}
 			}
 
-			//Advance the second device in this execution thread a single step, if it is
-			//not currently executing in a spinoff thread.
+			// Advance the second device in this execution thread a single step, if it is
+			// not currently executing in a spinoff thread.
 			if (!device1->_sharedExecuteThreadSpinoffActive || (device1->_currentSharedExecuteThreadOwner == device2))
 			{
 				device1->_currentSharedExecuteThreadOwner = device2;
@@ -884,8 +884,8 @@ void DeviceContext::ExecuteWorkerThreadStepMultipleDeviceSharedDependencies(Devi
 			}
 		}
 
-		//Ensure the second device in this execution thread is fully advanced to the end
-		//of its timeslice, even if it is currently running in a spinoff execution thread.
+		// Ensure the second device in this execution thread is fully advanced to the end
+		// of its timeslice, even if it is currently running in a spinoff execution thread.
 		if (device1->_sharedExecuteThreadSpinoffActive)
 		{
 			lock1.lock();
@@ -896,8 +896,8 @@ void DeviceContext::ExecuteWorkerThreadStepMultipleDeviceSharedDependencies(Devi
 			lock1.unlock();
 		}
 
-		//Set the remainingTime variable and call NotifyAfterExecuteStepFinishedTimeslice
-		//for all devices which are currently executing in this combined execution thread
+		// Set the remainingTime variable and call NotifyAfterExecuteStepFinishedTimeslice
+		// for all devices which are currently executing in this combined execution thread
 		if (!device1->_sharedExecuteThreadSpinoffActive || (device1->_currentSharedExecuteThreadOwner == device1))
 		{
 			device1->_remainingTime = device1->_currentTimesliceProgress - device1->_timeslice;
@@ -909,8 +909,8 @@ void DeviceContext::ExecuteWorkerThreadStepMultipleDeviceSharedDependencies(Devi
 			device2->_device.NotifyAfterExecuteStepFinishedTimeslice();
 		}
 
-		//Notify the command thread that this execute command has been completed for all
-		//devices which are currently executing in this combined execution thread
+		// Notify the command thread that this execute command has been completed for all
+		// devices which are currently executing in this combined execution thread
 		lock1.lock();
 		if (!device1->_sharedExecuteThreadSpinoffActive || (device1->_currentSharedExecuteThreadOwner == device1))
 		{
@@ -927,8 +927,8 @@ void DeviceContext::ExecuteWorkerThreadStepMultipleDeviceSharedDependencies(Devi
 			lock2.unlock();
 		}
 
-		//Wait for a new execute task to be sent from the command thread to both our
-		//target devices
+		// Wait for a new execute task to be sent from the command thread to both our
+		// target devices
 		device1->_executeTaskSent.wait(lock1);
 		lock1.unlock();
 		lock2.lock();
@@ -939,8 +939,8 @@ void DeviceContext::ExecuteWorkerThreadStepMultipleDeviceSharedDependencies(Devi
 		lock1.lock();
 	}
 
-	//Instruct the spinoff execution thread to shutdown, and wait for it to signal that it
-	//is stopped.
+	// Instruct the spinoff execution thread to shutdown, and wait for it to signal that it
+	// is stopped.
 	while (device1->_sharedExecuteThreadSpinoffRunning)
 	{
 		device1->_sharedExecuteThreadSpinoffStopRequested = true;
@@ -948,69 +948,69 @@ void DeviceContext::ExecuteWorkerThreadStepMultipleDeviceSharedDependencies(Devi
 		device1->_sharedExecuteThreadSpinoffStoppedOrPaused.wait(lock1);
 	}
 
-	//Signal that the execution thread has terminated for all devices running within this
-	//shared execution thread
+	// Signal that the execution thread has terminated for all devices running within this
+	// shared execution thread
 	device1->_executeThreadRunningState = false;
 	device2->_executeThreadRunningState = false;
 	device1->_executeThreadStopped.notify_all();
 	device2->_executeThreadStopped.notify_all();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void DeviceContext::ExecuteWorkerThreadStepSharedExecutionThreadSpinoff()
 {
-	//Determine which device is the primary device which has ownership over the main
-	//execution thread, and which device is the secondary device. Note that either device
-	//may have its execution spun off onto this thread, but we need to know which device
-	//is the primary device so that we can coordinate with the main execution thread.
+	// Determine which device is the primary device which has ownership over the main
+	// execution thread, and which device is the secondary device. Note that either device
+	// may have its execution spun off onto this thread, but we need to know which device
+	// is the primary device so that we can coordinate with the main execution thread.
 	DeviceContext* primaryDevice = (_primarySharedExecuteThreadDevice)? this: _otherSharedExecuteThreadDevice;
 	DeviceContext* secondaryDevice = (!_primarySharedExecuteThreadDevice)? this: _otherSharedExecuteThreadDevice;
 
-	//Set the name of this thread for the benefit of an attached debugger
+	// Set the name of this thread for the benefit of an attached debugger
 	std::wstring debuggerThreadName = L"DCExeSec - \"" + primaryDevice->_device.GetDeviceInstanceName() + L"\" and \"" + secondaryDevice->_device.GetDeviceInstanceName() + L"\"";
 	SetCallingThreadName(debuggerThreadName);
 
-	//Process execute requests from the primary execution thread until this thread is
-	//requested to terminate
+	// Process execute requests from the primary execution thread until this thread is
+	// requested to terminate
 	while (!primaryDevice->_sharedExecuteThreadSpinoffStopRequested)
 	{
-		//Wait for a new command to be received from the primary execution thread
+		// Wait for a new command to be received from the primary execution thread
 		std::unique_lock<std::mutex> primaryDeviceLock(primaryDevice->_executeThreadMutex);
 		while (!primaryDevice->_sharedExecuteThreadSpinoffStopRequested && (!primaryDevice->_sharedExecuteThreadSpinoffActive || (primaryDevice->_sharedExecuteThreadSpinoffActive && (!primaryDevice->_sharedExecuteThreadSpinoffTimesliceAvailable || primaryDevice->_sharedExecuteThreadSpinoffRejoinRequested))))
 		{
-			//If our spinoff thread has been requested to rejoin the main execution
-			//thread, flag that this spinoff thread is no longer active.
+			// If our spinoff thread has been requested to rejoin the main execution
+			// thread, flag that this spinoff thread is no longer active.
 			if (primaryDevice->_sharedExecuteThreadSpinoffRejoinRequested)
 			{
 				primaryDevice->_sharedExecuteThreadSpinoffRejoinRequested = false;
 				primaryDevice->_sharedExecuteThreadSpinoffActive = false;
 			}
 
-			//Flag that the spinoff thread is currently paused, and Wait for a new command
-			//to be received from the main execution thread.
+			// Flag that the spinoff thread is currently paused, and Wait for a new command
+			// to be received from the main execution thread.
 			primaryDevice->_sharedExecuteThreadSpinoffPaused = true;
 			primaryDevice->_sharedExecuteThreadSpinoffStoppedOrPaused.notify_all();
 			primaryDevice->_sharedExecuteThreadSpinoffStateChangeRequested.wait(primaryDeviceLock);
 		}
 
-		//If this spinoff execution thread has been requested to terminate, restart the
-		//loop to process the request.
+		// If this spinoff execution thread has been requested to terminate, restart the
+		// loop to process the request.
 		if (primaryDevice->_sharedExecuteThreadSpinoffStopRequested)
 		{
 			continue;
 		}
 
-		//Since we've received a new timeslice notification from the main execution
-		//thread, flag that this spinoff execution thread is not paused, and notify the
-		//main execution thread we have begun processing this timeslice.
+		// Since we've received a new timeslice notification from the main execution
+		// thread, flag that this spinoff execution thread is not paused, and notify the
+		// main execution thread we have begun processing this timeslice.
 		primaryDevice->_sharedExecuteThreadSpinoffPaused = false;
 		primaryDevice->_sharedExecuteThreadSpinoffTimesliceAvailable = false;
 		primaryDevice->_sharedExecuteThreadSpinoffTimesliceProcessingBegun.notify_all();
 		primaryDeviceLock.unlock();
 
-		//Advance the device state for the device currently assigned to execute within
-		//this spinoff thread, until the end of the current timeslice is reached, our our
-		//spinoff thread is requested to rejoin the main execution thread.
+		// Advance the device state for the device currently assigned to execute within
+		// this spinoff thread, until the end of the current timeslice is reached, our our
+		// spinoff thread is requested to rejoin the main execution thread.
 		DeviceContext* spinoffThreadTargetDevice = (primaryDevice->_currentSharedExecuteThreadOwner == this)? _otherSharedExecuteThreadDevice: this;
 		unsigned int dependentTargetCount = (unsigned int)spinoffThreadTargetDevice->_deviceDependencies.size();
 		while (!primaryDevice->_sharedExecuteThreadSpinoffRejoinRequested && (spinoffThreadTargetDevice->_currentTimesliceProgress < spinoffThreadTargetDevice->_timeslice))
@@ -1032,34 +1032,34 @@ void DeviceContext::ExecuteWorkerThreadStepSharedExecutionThreadSpinoff()
 			}
 		}
 
-		//If our spinoff thread has been requested to rejoin the main execution thread,
-		//restart the loop in order to process the request.
+		// If our spinoff thread has been requested to rejoin the main execution thread,
+		// restart the loop in order to process the request.
 		if (primaryDevice->_sharedExecuteThreadSpinoffRejoinRequested)
 		{
 			continue;
 		}
 
-		//Since we've reached the end of the current timeslice for the device assigned to
-		//this thread, set the remainingTime variable, and call
-		//NotifyAfterExecuteStepFinishedTimeslice for the assigned device.
+		// Since we've reached the end of the current timeslice for the device assigned to
+		// this thread, set the remainingTime variable, and call
+		// NotifyAfterExecuteStepFinishedTimeslice for the assigned device.
 		spinoffThreadTargetDevice->_remainingTime = spinoffThreadTargetDevice->_currentTimesliceProgress - spinoffThreadTargetDevice->_timeslice;
 		spinoffThreadTargetDevice->_device.NotifyAfterExecuteStepFinishedTimeslice();
 
-		//Notify the command thread that this execute command has been completed for the
-		//device currently executing in this spinoff thread
+		// Notify the command thread that this execute command has been completed for the
+		// device currently executing in this spinoff thread
 		primaryDeviceLock.lock();
 		spinoffThreadTargetDevice->_timesliceSuspended = false;
 		spinoffThreadTargetDevice->_timesliceCompleted = true;
 		spinoffThreadTargetDevice->_executeCompletionStateChanged.notify_all();
 	}
 
-	//Notify the main thread that this spinoff execution thread has terminated
+	// Notify the main thread that this spinoff execution thread has terminated
 	std::unique_lock<std::mutex> primaryDeviceLock(primaryDevice->_executeThreadMutex);
 	primaryDevice->_sharedExecuteThreadSpinoffRunning = false;
 	primaryDevice->_sharedExecuteThreadSpinoffStoppedOrPaused.notify_all();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void DeviceContext::ExecuteWorkerThreadTimeslice()
 {
 	std::unique_lock<std::mutex> lock(_executeThreadMutex);
@@ -1084,7 +1084,7 @@ void DeviceContext::ExecuteWorkerThreadTimeslice()
 	_executeThreadStopped.notify_all();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void DeviceContext::ExecuteWorkerThreadTimesliceWithDependencies()
 {
 	std::unique_lock<std::mutex> lock(_executeThreadMutex);

@@ -7,13 +7,13 @@
 template<class T> class OpcodeTable
 {
 public:
-	//Constructors
+	// Constructors
 	OpcodeTable(unsigned int opcodeDecodeBits);
 
-	//Initialization functions
+	// Initialization functions
 	void InitializeOpcodeTable();
 
-	//Instruction functions
+	// Instruction functions
 	bool AllocateRegionToOpcode(const T* opcode, const std::wstring& definition, const std::wstring& substitutions);
 	inline const T* GetInstruction(unsigned int opcode) const;
 

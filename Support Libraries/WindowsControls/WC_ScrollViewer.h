@@ -6,29 +6,29 @@
 class WC_ScrollViewer
 {
 public:
-	//Enumerations
+	// Enumerations
 	enum class WindowMessages :unsigned int;
 
-	//Constants
+	// Constants
 	static const wchar_t* WindowClassName;
 
 public:
-	//Constructors
+	// Constructors
 	WC_ScrollViewer(HINSTANCE moduleHandle, HWND hwnd);
 
-	//Class registration
+	// Class registration
 	static bool RegisterWindowClass(HINSTANCE moduleHandle);
 	static bool UnregisterWindowClass(HINSTANCE moduleHandle);
 
-	//Message handlers
+	// Message handlers
 	static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 private:
-	//Structures
+	// Structures
 	struct HostedWindowInfo;
 
 private:
-	//Message handlers
+	// Message handlers
 	LRESULT WndProcPrivate(UINT message, WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_CREATE(WPARAM wParam, LPARAM lParam);
 	LRESULT msgWM_SIZE(WPARAM wParam, LPARAM lParam);
@@ -42,11 +42,11 @@ private:
 	LRESULT msgSCROLL_ADDWINDOW(WPARAM wParam, LPARAM lParam);
 	LRESULT msgSCROLL_REMOVEWINDOW(WPARAM wParam, LPARAM lParam);
 
-	//Hosted window methods
+	// Hosted window methods
 	void AddWindow(HWND windowHandle);
 	void RemoveWindow(HWND windowHandle);
 
-	//Sizing methods
+	// Sizing methods
 	void UpdateScrollbarState(int newControlWidth, int newControlHeight);
 	void UpdateHorizontalScrollPos(int newScrollPos);
 	void UpdateVerticalScrollPos(int newScrollPos);

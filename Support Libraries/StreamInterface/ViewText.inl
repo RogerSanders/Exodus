@@ -1,58 +1,58 @@
 #include <iomanip>
 namespace Stream {
 
-//----------------------------------------------------------------------------------------
-//Constructors
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Constructors
+//----------------------------------------------------------------------------------------------------------------------
 ViewText::ViewText(IStream& stream)
 :_stream(stream), _byteOrder(IStream::ByteOrder::Platform), _noErrorState(true)
 {}
 
-//----------------------------------------------------------------------------------------
-//State functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// State functions
+//----------------------------------------------------------------------------------------------------------------------
 bool ViewText::NoErrorsOccurred() const
 {
 	return _noErrorState;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void ViewText::ClearErrorState()
 {
 	_noErrorState = true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool ViewText::IsAtEnd() const
 {
 	return _stream.IsAtEnd();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 IStream::ByteOrder ViewText::GetViewByteOrder() const
 {
 	return _byteOrder;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void ViewText::SetViewByteOrder(IStream::ByteOrder byteOrder)
 {
 	_byteOrder = byteOrder;
 }
 
-//----------------------------------------------------------------------------------------
-//Text-based access functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Text-based access functions
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> bool ViewText::Read(T& data)
 {
-	//Initialize the formatted stream
+	// Initialize the formatted stream
 	_wcharStream.str(L"");
 
-	//Record the initial stream position
+	// Record the initial stream position
 	IStream::SizeType startStreamPos = _stream.GetStreamPos();
 
-	//Buffer text from the stream until we hit the end of the stream, or we reach a
-	//newline or null terminator.
+	// Buffer text from the stream until we hit the end of the stream, or we reach a
+	// newline or null terminator.
 	bool done = false;
 	while (!done && !_stream.IsAtEnd())
 	{
@@ -75,14 +75,14 @@ template<class T> bool ViewText::Read(T& data)
 		}
 	}
 
-	//Perform a formatted read of the buffered data, using the specified type.
+	// Perform a formatted read of the buffered data, using the specified type.
 	_wcharStream >> data;
 
-	//Restore the stream position back to the initial state. We do this because some of
-	//the data we read might not have actually been used.
+	// Restore the stream position back to the initial state. We do this because some of
+	// the data we read might not have actually been used.
 	_stream.SetStreamPos(startStreamPos);
 
-	//Advance the stream forward by the actual number of characters that were used
+	// Advance the stream forward by the actual number of characters that were used
 	IStream::SizeType charsInData = (IStream::SizeType)_wcharStream.tellg();
 	for (IStream::SizeType i = 0; i < charsInData; ++i)
 	{
@@ -97,7 +97,7 @@ template<class T> bool ViewText::Read(T& data)
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<> bool ViewText::Read(bool& data)
 {
 	const wchar_t* trueString = L"true";
@@ -110,22 +110,22 @@ template<> bool ViewText::Read(bool& data)
 	bool completedRead = false;
 	while (!completedRead)
 	{
-		//Attempt to read the next character from the stream
+		// Attempt to read the next character from the stream
 		IStream::UnicodeCodePoint codePoint;
 		if (!_stream.ReadChar(_byteOrder, codePoint))
 		{
 			completedRead = true;
 		}
 
-		//If this character defined a surrogate pair, it definitely isn't one we support.
-		//Return false in this case.
+		// If this character defined a surrogate pair, it definitely isn't one we support.
+		// Return false in this case.
 		if (codePoint.surrogatePair)
 		{
 			completedRead = true;
 		}
 
-		//If this is the first character we've tried to read, and it defines either a 0 or
-		//a 1, convert the numeric value into a boolean value.
+		// If this is the first character we've tried to read, and it defines either a 0 or
+		// a 1, convert the numeric value into a boolean value.
 		if ((stringCharIndex == 0) && ((codePoint.codeUnit1 == L'0') || (codePoint.codeUnit1 == L'1')))
 		{
 			data = (codePoint.codeUnit1 == L'1');
@@ -133,9 +133,9 @@ template<> bool ViewText::Read(bool& data)
 			completedRead = true;
 		}
 
-		//If this character appears to be part of a string representation of a boolean,
-		//read and validate the next character from the string. If we reach the end of the
-		//string, set the data value to the appropriate value, and return true.
+		// If this character appears to be part of a string representation of a boolean,
+		// read and validate the next character from the string. If we reach the end of the
+		// string, set the data value to the appropriate value, and return true.
 		if ((!readingFalseString || (stringCharIndex == 0)) && (trueString[stringCharIndex] == (wchar_t)tolower((int)codePoint.codeUnit1)))
 		{
 			readingFalseString = false;
@@ -161,8 +161,8 @@ template<> bool ViewText::Read(bool& data)
 			continue;
 		}
 
-		//If we get to this point, an invalid character was encountered, so we return
-		//false.
+		// If we get to this point, an invalid character was encountered, so we return
+		// false.
 		completedRead = true;
 	}
 	if (!result)
@@ -172,7 +172,7 @@ template<> bool ViewText::Read(bool& data)
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<> bool ViewText::Read(std::string& data)
 {
 	bool result = ReadTextString(data, true);
@@ -180,7 +180,7 @@ template<> bool ViewText::Read(std::string& data)
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<> bool ViewText::Read(std::wstring& data)
 {
 	bool result = ReadTextString(data, true);
@@ -188,7 +188,7 @@ template<> bool ViewText::Read(std::wstring& data)
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<> bool ViewText::Read(char& data)
 {
 	IStream::UnicodeCodePoint codePoint;
@@ -202,7 +202,7 @@ template<> bool ViewText::Read(char& data)
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<> bool ViewText::Read(wchar_t& data)
 {
 	IStream::UnicodeCodePoint codePoint;
@@ -221,7 +221,7 @@ template<> bool ViewText::Read(wchar_t& data)
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<> bool ViewText::Read(signed char& data)
 {
 	int temp;
@@ -231,7 +231,7 @@ template<> bool ViewText::Read(signed char& data)
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<> bool ViewText::Read(unsigned char& data)
 {
 	unsigned int temp;
@@ -241,7 +241,7 @@ template<> bool ViewText::Read(unsigned char& data)
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> bool ViewText::Write(const T& data)
 {
 	_wcharStream.str(L"");
@@ -251,7 +251,7 @@ template<class T> bool ViewText::Write(const T& data)
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<> bool ViewText::Write(const bool& data)
 {
 	wchar_t* boolAsString = data? L"1": L"0";
@@ -260,7 +260,7 @@ template<> bool ViewText::Write(const bool& data)
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<> bool ViewText::Write(const float& data)
 {
 	_wcharStream.str(L"");
@@ -270,7 +270,7 @@ template<> bool ViewText::Write(const float& data)
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<> bool ViewText::Write(const double& data)
 {
 	_wcharStream.str(L"");
@@ -280,7 +280,7 @@ template<> bool ViewText::Write(const double& data)
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<> bool ViewText::Write(const long double& data)
 {
 	_wcharStream.str(L"");
@@ -290,7 +290,7 @@ template<> bool ViewText::Write(const long double& data)
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<> bool ViewText::Write(const std::string& data)
 {
 	bool result = _stream.WriteText(_byteOrder, data);
@@ -298,7 +298,7 @@ template<> bool ViewText::Write(const std::string& data)
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<> bool ViewText::Write(const std::wstring& data)
 {
 	bool result = _stream.WriteText(_byteOrder, data);
@@ -306,7 +306,7 @@ template<> bool ViewText::Write(const std::wstring& data)
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 //##FIX## These functions are unsafe
 template<> bool ViewText::Write(char* const& data)
 {
@@ -315,7 +315,7 @@ template<> bool ViewText::Write(char* const& data)
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<> bool ViewText::Write(wchar_t* const& data)
 {
 	bool result = _stream.WriteText(_byteOrder, data, GetStringLength(data));
@@ -323,7 +323,7 @@ template<> bool ViewText::Write(wchar_t* const& data)
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<> bool ViewText::Write(const char* const& data)
 {
 	bool result = _stream.WriteText(_byteOrder, data, GetStringLength(data));
@@ -331,7 +331,7 @@ template<> bool ViewText::Write(const char* const& data)
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<> bool ViewText::Write(const wchar_t* const& data)
 {
 	bool result = _stream.WriteText(_byteOrder, data, GetStringLength(data));
@@ -339,7 +339,7 @@ template<> bool ViewText::Write(const wchar_t* const& data)
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<size_t S> bool ViewText::Write(const char(&data)[S])
 {
 	IStream::SizeType stringLength = GetStringLength(data, S);
@@ -352,7 +352,7 @@ template<size_t S> bool ViewText::Write(const char(&data)[S])
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<size_t S> bool ViewText::Write(const wchar_t(&data)[S])
 {
 	IStream::SizeType stringLength = GetStringLength(data, S);
@@ -365,7 +365,7 @@ template<size_t S> bool ViewText::Write(const wchar_t(&data)[S])
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<> bool ViewText::Write(const char& data)
 {
 	std::string temp;
@@ -375,7 +375,7 @@ template<> bool ViewText::Write(const char& data)
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<> bool ViewText::Write(const wchar_t& data)
 {
 	std::wstring temp;
@@ -385,7 +385,7 @@ template<> bool ViewText::Write(const wchar_t& data)
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<> bool ViewText::Write(const signed char& data)
 {
 	int temp = data;
@@ -394,7 +394,7 @@ template<> bool ViewText::Write(const signed char& data)
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<> bool ViewText::Write(const unsigned char& data)
 {
 	unsigned int temp = data;
@@ -403,13 +403,13 @@ template<> bool ViewText::Write(const unsigned char& data)
 	return result;
 }
 
-//----------------------------------------------------------------------------------------
-//Text string read functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Text string read functions
+//----------------------------------------------------------------------------------------------------------------------
 bool ViewText::ReadTextString(std::string& data, bool stopAtNewline)
 {
-	//Read text from the stream until we hit the end of the stream, or we reach a newline
-	//or null terminator.
+	// Read text from the stream until we hit the end of the stream, or we reach a newline
+	// or null terminator.
 	data.clear();
 	bool done = false;
 	while (!done && !_stream.IsAtEnd())
@@ -431,11 +431,11 @@ bool ViewText::ReadTextString(std::string& data, bool stopAtNewline)
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool ViewText::ReadTextString(std::wstring& data, bool stopAtNewline)
 {
-	//Read text from the stream until we hit the end of the stream, or we reach a newline
-	//or null terminator.
+	// Read text from the stream until we hit the end of the stream, or we reach a newline
+	// or null terminator.
 	data.clear();
 	bool done = false;
 	while (!done && !_stream.IsAtEnd())
@@ -461,25 +461,25 @@ bool ViewText::ReadTextString(std::wstring& data, bool stopAtNewline)
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
-//Text stream functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Text stream functions
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> ViewText& ViewText::operator>>(T& data)
 {
 	Read(data);
 	return *this;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class T> ViewText& ViewText::operator<<(const T& data)
 {
 	Write(data);
 	return *this;
 }
 
-//----------------------------------------------------------------------------------------
-//String length functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// String length functions
+//----------------------------------------------------------------------------------------------------------------------
 IStream::SizeType ViewText::GetStringLength(const char* data)
 {
 	IStream::SizeType size = 0;
@@ -490,7 +490,7 @@ IStream::SizeType ViewText::GetStringLength(const char* data)
 	return size;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 IStream::SizeType ViewText::GetStringLength(const wchar_t* data)
 {
 	IStream::SizeType size = 0;
@@ -501,7 +501,7 @@ IStream::SizeType ViewText::GetStringLength(const wchar_t* data)
 	return size;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 IStream::SizeType ViewText::GetStringLength(const char* data, size_t bufferSize)
 {
 	IStream::SizeType size = 0;
@@ -512,7 +512,7 @@ IStream::SizeType ViewText::GetStringLength(const char* data, size_t bufferSize)
 	return size;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 IStream::SizeType ViewText::GetStringLength(const wchar_t* data, size_t bufferSize)
 {
 	IStream::SizeType size = 0;
@@ -523,4 +523,4 @@ IStream::SizeType ViewText::GetStringLength(const wchar_t* data, size_t bufferSi
 	return size;
 }
 
-} //Close namespace Stream
+} // Close namespace Stream

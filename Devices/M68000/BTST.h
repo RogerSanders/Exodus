@@ -84,15 +84,15 @@ public:
 		M68000Byte op1;
 		Data op2(_size);
 
-		//Perform the operation
+		// Perform the operation
 		additionalTime += _source.Read(cpu, op1, GetInstructionRegister());
 		additionalTime += _target.Read(cpu, op2, GetInstructionRegister());
 		unsigned int _targetBit = (op1.GetData() % op2.GetBitCount());
 
-		//Set the flag results
+		// Set the flag results
 		cpu->SetZ(!op2.GetBit(_targetBit));
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -109,5 +109,5 @@ private:
 	EffectiveAddress _target;
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #endif

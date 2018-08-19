@@ -22,24 +22,24 @@ namespace MarshalSupport {
 
 #ifdef _MSC_VER
 #pragma warning(push)
-//Disable warning about using "this" pointer in initializer list. Our usage here is safe, and guaranteed by the
-//standard. See section 12.6.2 [class.base.init] paragraph 7 of the standard for clarification.
+// Disable warning about using "this" pointer in initializer list. Our usage here is safe, and guaranteed by the
+// standard. See section 12.6.2 [class.base.init] paragraph 7 of the standard for clarification.
 #pragma warning(disable:4355)
-//Disable warning about our use of type traits causing conditional expressions to be constant. The code behaves as
-//intended, and the compiler is free to optimize away the dead branch.
+// Disable warning about our use of type traits causing conditional expressions to be constant. The code behaves as
+// intended, and the compiler is free to optimize away the dead branch.
 #pragma warning(disable:4127)
-//Disable warning about classes with virtual functions without a virtual destructor. We use protected inlined
-//destructors where appropriate to prevent destruction through base class pointers.
+// Disable warning about classes with virtual functions without a virtual destructor. We use protected inlined
+// destructors where appropriate to prevent destruction through base class pointers.
 #pragma warning(disable:4265)
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 namespace Internal {
 template<class ContainerType, bool IsThisOrNextElementLastElement = Internal::is_this_or_nested_element_last_nested_container_element<ContainerType>::value, bool IsOnlyMovable = Internal::is_only_movable<typename Internal::get_last_nested_container_element_type<ContainerType>::type>::value>
 class MarshalTargetInternal :public IMarshalTarget<ContainerType, false, IsThisOrNextElementLastElement, IsOnlyMovable>
 {
 public:
-	//Constructors
+	// Constructors
 	MarshalTargetInternal(ContainerType& targetObject)
 	:_targetObject(&targetObject)
 	{ }
@@ -47,28 +47,28 @@ public:
 	{ }
 
 protected:
-	//Marshalling methods
+	// Marshalling methods
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION MarshalFromFlatArrays(size_t elementByteSize, void* itemArray, const size_t* elementSizeArray, Internal::INestedMarshallerBase* const* nestedMarshallerArray) const
 	{
-		//Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
-		//supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
-		//the object size is different, it's definitely being used incorrectly.
+		// Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
+		// supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
+		// the object size is different, it's definitely being used incorrectly.
 		assert(Internal::IsSTLContainerNestedElementMarshallableOrSameSize(elementByteSize, (ContainerType*)0));
 
-		//Ensure our key marshallers agree on the marshalled object size
+		// Ensure our key marshallers agree on the marshalled object size
 		Internal::EnsureSTLContainerKeySizesMatch(nestedMarshallerArray, 0, (ContainerType*)0);
 
-		//Ensure the target container is cleared of any current data
+		// Ensure the target container is cleared of any current data
 		Internal::ClearSTLContainer(*_targetObject);
 
-		//Recompose our flat arrays into the target container
+		// Recompose our flat arrays into the target container
 		size_t elementArrayIndex = 0;
 		size_t elementSizeArrayIndex = 0;
 		Internal::RecomposeSTLContainer(elementByteSize, itemArray, elementSizeArray, nestedMarshallerArray, elementArrayIndex, elementSizeArrayIndex, 0, *_targetObject);
 	}
 
 private:
-	//Disable copying and moving
+	// Disable copying and moving
 	MarshalTargetInternal(const MarshalTargetInternal& source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalTargetInternal& operator=(const MarshalTargetInternal& source) MARSHALSUPPORT_DELETEMETHOD;
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
@@ -79,19 +79,19 @@ private:
 private:
 	ContainerType* _targetObject;
 };
-} //Close namespace Internal
+} // Close namespace Internal
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ContainerType, bool IsLastElement = Internal::is_last_nested_container_element<ContainerType>::value, bool IsThisOrNextElementLastElement = Internal::is_this_or_nested_element_last_nested_container_element<ContainerType>::value, bool IsOnlyMovable = Internal::is_only_movable<typename Internal::get_last_nested_container_element_type<ContainerType>::type>::value>
 class MarshalTarget
 { };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ContainerType, bool IsThisOrNextElementLastElement, bool IsOnlyMovable>
 class MarshalTarget<ContainerType, false, IsThisOrNextElementLastElement, IsOnlyMovable> :public Internal::MarshalTargetInternal<ContainerType, IsThisOrNextElementLastElement, IsOnlyMovable>
 {
 public:
-	//Constructors
+	// Constructors
 	MarshalTarget(ContainerType& targetObject)
 	:Internal::MarshalTargetInternal<ContainerType, IsThisOrNextElementLastElement>(targetObject)
 	{ }
@@ -100,7 +100,7 @@ public:
 	{ }
 
 private:
-	//Disable copying and moving
+	// Disable copying and moving
 	MarshalTarget(const MarshalTarget& source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalTarget& operator=(const MarshalTarget& source) MARSHALSUPPORT_DELETEMETHOD;
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
@@ -109,12 +109,12 @@ private:
 #endif
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ContainerType>
 class MarshalTarget<ContainerType, true, true, false> :public IMarshalTarget<ContainerType, true, true, false>
 {
 public:
-	//Constructors
+	// Constructors
 	MarshalTarget(ContainerType& targetObject)
 	:_targetObject(&targetObject)
 	{ }
@@ -122,30 +122,30 @@ public:
 	{ }
 
 protected:
-	//Marshalling methods
+	// Marshalling methods
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION MarshalDirectFromSource(size_t elementByteSize, const ContainerType& sourceObject) const
 	{
-		//Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
-		//supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
-		//the object size is different, it's definitely being used incorrectly.
+		// Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
+		// supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
+		// the object size is different, it's definitely being used incorrectly.
 		assert(Internal::IsSTLContainerNestedElementMarshallableOrSameSize(elementByteSize, (ContainerType*)0));
 
-		//Marshal the object, performing a copy, or invoking a marshal constructor as required.
+		// Marshal the object, performing a copy, or invoking a marshal constructor as required.
 		Internal::MarshalObjectHelper<ContainerType>::MarshalObjectToExistingObject(sourceObject, *_targetObject);
 	}
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION MarshalDirectFromSource(size_t elementByteSize, ContainerType& sourceObject) const
 	{
-		//Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
-		//supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
-		//the object size is different, it's definitely being used incorrectly.
+		// Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
+		// supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
+		// the object size is different, it's definitely being used incorrectly.
 		assert(Internal::IsSTLContainerNestedElementMarshallableOrSameSize(elementByteSize, (ContainerType*)0));
 
-		//Marshal the object, performing a move, or invoking a marshal constructor as required.
+		// Marshal the object, performing a move, or invoking a marshal constructor as required.
 		Internal::MarshalObjectHelper<ContainerType>::MarshalObjectToExistingObject(MARSHALSUPPORT_MOVE(sourceObject), *_targetObject);
 	}
 
 private:
-	//Disable copying and moving
+	// Disable copying and moving
 	MarshalTarget(const MarshalTarget& source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalTarget& operator=(const MarshalTarget& source) MARSHALSUPPORT_DELETEMETHOD;
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
@@ -158,12 +158,12 @@ private:
 };
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ContainerType>
 class MarshalTarget<ContainerType, true, true, true> :public IMarshalTarget<ContainerType, true, true, true>
 {
 public:
-	//Constructors
+	// Constructors
 	MarshalTarget(ContainerType& targetObject)
 	:_targetObject(&targetObject)
 	{ }
@@ -173,17 +173,17 @@ public:
 protected:
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION MarshalDirectFromSource(size_t elementByteSize, ContainerType&& sourceObject) const
 	{
-		//Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
-		//supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
-		//the object size is different, it's definitely being used incorrectly.
+		// Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
+		// supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
+		// the object size is different, it's definitely being used incorrectly.
 		assert(Internal::IsSTLContainerNestedElementMarshallableOrSameSize(elementByteSize, (ContainerType*)0));
 
-		//Marshal the object, performing a move, or invoking a marshal constructor as required.
+		// Marshal the object, performing a move, or invoking a marshal constructor as required.
 		Internal::MarshalObjectHelper<ContainerType>::MarshalObjectToExistingObject(std::move(sourceObject), *_targetObject);
 	}
 
 private:
-	//Disable copying and moving
+	// Disable copying and moving
 	MarshalTarget(const MarshalTarget& source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalTarget& operator=(const MarshalTarget& source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalTarget(MarshalTarget&& source) MARSHALSUPPORT_DELETEMETHOD;
@@ -194,12 +194,12 @@ private:
 };
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Alloc>
 class MarshalTarget<std::vector<ElementType, Alloc>, false, true, false> :public IMarshalTarget<std::vector<ElementType, Alloc>, false, true, false>
 {
 public:
-	//Constructors
+	// Constructors
 	MarshalTarget(std::vector<ElementType, Alloc>& targetObject)
 	:_targetObject(&targetObject)
 	{ }
@@ -207,28 +207,28 @@ public:
 	{ }
 
 protected:
-	//Marshalling methods
+	// Marshalling methods
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION MarshalFrom(size_t elementByteSize, const ElementType* sourceData, size_t sourceDataLength) const
 	{
-		//Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
-		//supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
-		//the object size is different, it's definitely being used incorrectly.
+		// Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
+		// supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
+		// the object size is different, it's definitely being used incorrectly.
 		assert(Internal::IsSTLContainerNestedElementMarshallableOrSameSize(elementByteSize, (std::vector<ElementType, Alloc>*)0));
 
-		//Either marshal or copy the elements to the target array depending on whether a custom marshaller is
-		//implemented for the target elements.
+		// Either marshal or copy the elements to the target array depending on whether a custom marshaller is
+		// implemented for the target elements.
 		if (Internal::has_marshal_constructor<ElementType>::value)
 		{
-			//Ensure the target vector is empty, with enough space reserved for the number of elements we're about to
-			//insert in it.
+			// Ensure the target vector is empty, with enough space reserved for the number of elements we're about to
+			// insert in it.
 			_targetObject->clear();
 			_targetObject->reserve(sourceDataLength);
 
-			//Marshal each element of the supplied array to the target vector. Note that since the object has a custom
-			//marshal constructor, it's possible the size and layout of the object differs on each side of the boundary.
-			//We've received a pointer to an array of source objects to marshal, but we can't index that array using our
-			//size of the object here, since it may differ from that of the sender. To account for this, we calculate
-			//the address of each object in the array using the object byte size specified by the sender.
+			// Marshal each element of the supplied array to the target vector. Note that since the object has a custom
+			// marshal constructor, it's possible the size and layout of the object differs on each side of the boundary.
+			// We've received a pointer to an array of source objects to marshal, but we can't index that array using our
+			// size of the object here, since it may differ from that of the sender. To account for this, we calculate
+			// the address of each object in the array using the object byte size specified by the sender.
 			const ElementType* nextSourceObject = sourceData;
 			for (size_t i = 0; i < sourceDataLength; ++i)
 			{
@@ -238,31 +238,31 @@ protected:
 		}
 		else
 		{
-			//Directly initialize the target vector with the supplied array of data
+			// Directly initialize the target vector with the supplied array of data
 			_targetObject->assign(sourceData, sourceData + sourceDataLength);
 		}
 	}
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION MarshalFrom(size_t elementByteSize, ElementType* sourceData, size_t sourceDataLength) const
 	{
-		//Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
-		//supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
-		//the object size is different, it's definitely being used incorrectly.
+		// Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
+		// supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
+		// the object size is different, it's definitely being used incorrectly.
 		assert(Internal::IsSTLContainerNestedElementMarshallableOrSameSize(elementByteSize, (std::vector<ElementType, Alloc>*)0));
 
-		//Either marshal or copy the elements to the target array depending on whether a custom marshaller is
-		//implemented for the target elements.
+		// Either marshal or copy the elements to the target array depending on whether a custom marshaller is
+		// implemented for the target elements.
 		if (Internal::has_marshal_constructor<ElementType>::value)
 		{
-			//Ensure the target vector is empty, with enough space reserved for the number of elements we're about to
-			//insert in it.
+			// Ensure the target vector is empty, with enough space reserved for the number of elements we're about to
+			// insert in it.
 			_targetObject->clear();
 			_targetObject->reserve(sourceDataLength);
 
-			//Marshal each element of the supplied array to the target vector. Note that since the object has a custom
-			//marshal constructor, it's possible the size and layout of the object differs on each side of the boundary.
-			//We've received a pointer to an array of source objects to marshal, but we can't index that array using our
-			//size of the object here, since it may differ from that of the sender. To account for this, we calculate
-			//the address of each object in the array using the object byte size specified by the sender.
+			// Marshal each element of the supplied array to the target vector. Note that since the object has a custom
+			// marshal constructor, it's possible the size and layout of the object differs on each side of the boundary.
+			// We've received a pointer to an array of source objects to marshal, but we can't index that array using our
+			// size of the object here, since it may differ from that of the sender. To account for this, we calculate
+			// the address of each object in the array using the object byte size specified by the sender.
 			ElementType* nextSourceObject = sourceData;
 			for (size_t i = 0; i < sourceDataLength; ++i)
 			{
@@ -272,12 +272,12 @@ protected:
 		}
 		else
 		{
-			//Directly initialize the target vector with the supplied array of data. Note that we only perform the
-			//assignment using move iterators where the target elements use a non-trivial type. This is done as an
-			//optimization. Although the assign method in theory has all the necessary information to optimize copying
-			//an array of standard layout types in one process using memcpy, in VS2013 it was observed that the move
-			//iterator wrappers prevent this optimization occurring. We avoid using move iterators in this case to
-			//achieve maximum efficiency.
+			// Directly initialize the target vector with the supplied array of data. Note that we only perform the
+			// assignment using move iterators where the target elements use a non-trivial type. This is done as an
+			// optimization. Although the assign method in theory has all the necessary information to optimize copying
+			// an array of standard layout types in one process using memcpy, in VS2013 it was observed that the move
+			// iterator wrappers prevent this optimization occurring. We avoid using move iterators in this case to
+			// achieve maximum efficiency.
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
 			if (!std::is_trivial<ElementType>::value)
 			{
@@ -292,9 +292,9 @@ protected:
 	}
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION MarshalSetElement(size_t elementByteSize, size_t elementIndex, const ElementType* sourceData) const
 	{
-		//Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
-		//supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
-		//the object size is different, it's definitely being used incorrectly.
+		// Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
+		// supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
+		// the object size is different, it's definitely being used incorrectly.
 		assert(Internal::IsSTLContainerNestedElementMarshallableOrSameSize(elementByteSize, (std::vector<ElementType, Alloc>*)0));
 
 		// Marshal the object
@@ -302,9 +302,9 @@ protected:
 	}
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION MarshalSetElement(size_t elementByteSize, size_t elementIndex, ElementType* sourceData) const
 	{
-		//Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
-		//supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
-		//the object size is different, it's definitely being used incorrectly.
+		// Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
+		// supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
+		// the object size is different, it's definitely being used incorrectly.
 		assert(Internal::IsSTLContainerNestedElementMarshallableOrSameSize(elementByteSize, (std::vector<ElementType, Alloc>*)0));
 
 		// Marshal the object
@@ -314,9 +314,9 @@ protected:
 	}
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION MarshalPushBack(size_t elementByteSize, const ElementType* sourceData) const
 	{
-		//Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
-		//supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
-		//the object size is different, it's definitely being used incorrectly.
+		// Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
+		// supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
+		// the object size is different, it's definitely being used incorrectly.
 		assert(Internal::IsSTLContainerNestedElementMarshallableOrSameSize(elementByteSize, (std::vector<ElementType, Alloc>*)0));
 
 		// Marshal the object
@@ -324,9 +324,9 @@ protected:
 	}
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION MarshalPushBack(size_t elementByteSize, ElementType* sourceData) const
 	{
-		//Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
-		//supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
-		//the object size is different, it's definitely being used incorrectly.
+		// Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
+		// supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
+		// the object size is different, it's definitely being used incorrectly.
 		assert(Internal::IsSTLContainerNestedElementMarshallableOrSameSize(elementByteSize, (std::vector<ElementType, Alloc>*)0));
 
 		// Marshal the object
@@ -336,20 +336,20 @@ protected:
 	}
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION MarshalRange(size_t elementByteSize, size_t elementIndex, const ElementType* sourceData, size_t sourceDataLength) const
 	{
-		//Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
-		//supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
-		//the object size is different, it's definitely being used incorrectly.
+		// Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
+		// supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
+		// the object size is different, it's definitely being used incorrectly.
 		assert(Internal::IsSTLContainerNestedElementMarshallableOrSameSize(elementByteSize, (std::vector<ElementType, Alloc>*)0));
 
-		//Either marshal or copy the elements to the target array depending on whether a custom marshaller is
-		//implemented for the target elements.
+		// Either marshal or copy the elements to the target array depending on whether a custom marshaller is
+		// implemented for the target elements.
 		if (Internal::has_marshal_constructor<ElementType>::value)
 		{
-			//Marshal each element of the supplied array to the target vector. Note that since the object has a custom
-			//marshal constructor, it's possible the size and layout of the object differs on each side of the boundary.
-			//We've received a pointer to an array of source objects to marshal, but we can't index that array using our
-			//size of the object here, since it may differ from that of the sender. To account for this, we calculate
-			//the address of each object in the array using the object byte size specified by the sender.
+			// Marshal each element of the supplied array to the target vector. Note that since the object has a custom
+			// marshal constructor, it's possible the size and layout of the object differs on each side of the boundary.
+			// We've received a pointer to an array of source objects to marshal, but we can't index that array using our
+			// size of the object here, since it may differ from that of the sender. To account for this, we calculate
+			// the address of each object in the array using the object byte size specified by the sender.
 			const ElementType* nextSourceObject = sourceData;
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
 			ElementType* nextTargetObject = _targetObject->data() + elementIndex;
@@ -382,21 +382,21 @@ protected:
 	}
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION MarshalRange(size_t elementByteSize, size_t elementIndex, ElementType* sourceData, size_t sourceDataLength) const
 	{
-		//Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
-		//supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
-		//the object size is different, it's definitely being used incorrectly.
+		// Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
+		// supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
+		// the object size is different, it's definitely being used incorrectly.
 		assert(Internal::IsSTLContainerNestedElementMarshallableOrSameSize(elementByteSize, (std::vector<ElementType, Alloc>*)0));
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-		//Either marshal or copy the elements to the target array depending on whether a custom marshaller is
-		//implemented for the target elements.
+		// Either marshal or copy the elements to the target array depending on whether a custom marshaller is
+		// implemented for the target elements.
 		if (Internal::has_marshal_constructor<ElementType>::value)
 		{
-			//Marshal each element of the supplied array to the target vector. Note that since the object has a custom
-			//marshal constructor, it's possible the size and layout of the object differs on each side of the boundary.
-			//We've received a pointer to an array of source objects to marshal, but we can't index that array using our
-			//size of the object here, since it may differ from that of the sender. To account for this, we calculate
-			//the address of each object in the array using the object byte size specified by the sender.
+			// Marshal each element of the supplied array to the target vector. Note that since the object has a custom
+			// marshal constructor, it's possible the size and layout of the object differs on each side of the boundary.
+			// We've received a pointer to an array of source objects to marshal, but we can't index that array using our
+			// size of the object here, since it may differ from that of the sender. To account for this, we calculate
+			// the address of each object in the array using the object byte size specified by the sender.
 			ElementType* nextSourceObject = sourceData;
 			ElementType* nextTargetObject = _targetObject->data() + elementIndex;
 			for (size_t i = 0; i < sourceDataLength; ++i)
@@ -419,7 +419,7 @@ protected:
 #endif
 	}
 
-	//Size methods
+	// Size methods
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION Clear() const
 	{
 		_targetObject->clear();
@@ -446,7 +446,7 @@ protected:
 	}
 
 private:
-	//Disable copying and moving
+	// Disable copying and moving
 	MarshalTarget(const MarshalTarget& source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalTarget& operator=(const MarshalTarget& source) MARSHALSUPPORT_DELETEMETHOD;
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
@@ -459,12 +459,12 @@ private:
 };
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class Alloc>
 class MarshalTarget<std::vector<ElementType, Alloc>, false, true, true> :public IMarshalTarget<std::vector<ElementType, Alloc>, false, true, true>
 {
 public:
-	//Constructors
+	// Constructors
 	MarshalTarget(std::vector<ElementType, Alloc>& targetObject)
 	:_targetObject(&targetObject)
 	{ }
@@ -472,28 +472,28 @@ public:
 	{ }
 
 protected:
-	//Marshalling methods
+	// Marshalling methods
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION MarshalFrom(size_t elementByteSize, ElementType* sourceData, size_t sourceDataLength) const
 	{
-		//Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
-		//supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
-		//the object size is different, it's definitely being used incorrectly.
+		// Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
+		// supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
+		// the object size is different, it's definitely being used incorrectly.
 		assert(Internal::IsSTLContainerNestedElementMarshallableOrSameSize(elementByteSize, (std::vector<ElementType, Alloc>*)0));
 
-		//Either marshal or copy the elements to the target array depending on whether a custom marshaller is
-		//implemented for the target elements.
+		// Either marshal or copy the elements to the target array depending on whether a custom marshaller is
+		// implemented for the target elements.
 		if (Internal::has_marshal_constructor<ElementType>::value)
 		{
-			//Ensure the target vector is empty, with enough space reserved for the number of elements we're about to
-			//insert in it.
+			// Ensure the target vector is empty, with enough space reserved for the number of elements we're about to
+			// insert in it.
 			_targetObject->clear();
 			_targetObject->reserve(sourceDataLength);
 
-			//Marshal each element of the supplied array to the target vector. Note that since the object has a custom
-			//marshal constructor, it's possible the size and layout of the object differs on each side of the boundary.
-			//We've received a pointer to an array of source objects to marshal, but we can't index that array using our
-			//size of the object here, since it may differ from that of the sender. To account for this, we calculate
-			//the address of each object in the array using the object byte size specified by the sender.
+			// Marshal each element of the supplied array to the target vector. Note that since the object has a custom
+			// marshal constructor, it's possible the size and layout of the object differs on each side of the boundary.
+			// We've received a pointer to an array of source objects to marshal, but we can't index that array using our
+			// size of the object here, since it may differ from that of the sender. To account for this, we calculate
+			// the address of each object in the array using the object byte size specified by the sender.
 			ElementType* nextSourceObject = sourceData;
 			for (size_t i = 0; i < sourceDataLength; ++i)
 			{
@@ -503,15 +503,15 @@ protected:
 		}
 		else
 		{
-			//Directly initialize the target vector with the supplied array of data
+			// Directly initialize the target vector with the supplied array of data
 			_targetObject->assign(std::make_move_iterator(sourceData), std::make_move_iterator(sourceData + sourceDataLength));
 		}
 	}
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION MarshalSetElement(size_t elementByteSize, size_t elementIndex, ElementType* sourceData) const
 	{
-		//Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
-		//supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
-		//the object size is different, it's definitely being used incorrectly.
+		// Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
+		// supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
+		// the object size is different, it's definitely being used incorrectly.
 		assert(Internal::IsSTLContainerNestedElementMarshallableOrSameSize(elementByteSize, (std::vector<ElementType, Alloc>*)0));
 
 		// Marshal the object
@@ -519,9 +519,9 @@ protected:
 	}
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION MarshalPushBack(size_t elementByteSize, ElementType* sourceData) const
 	{
-		//Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
-		//supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
-		//the object size is different, it's definitely being used incorrectly.
+		// Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
+		// supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
+		// the object size is different, it's definitely being used incorrectly.
 		assert(Internal::IsSTLContainerNestedElementMarshallableOrSameSize(elementByteSize, (std::vector<ElementType, Alloc>*)0));
 
 		// Marshal the object
@@ -529,20 +529,20 @@ protected:
 	}
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION MarshalRange(size_t elementByteSize, size_t elementIndex, ElementType* sourceData, size_t sourceDataLength) const
 	{
-		//Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
-		//supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
-		//the object size is different, it's definitely being used incorrectly.
+		// Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
+		// supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
+		// the object size is different, it's definitely being used incorrectly.
 		assert(Internal::IsSTLContainerNestedElementMarshallableOrSameSize(elementByteSize, (std::vector<ElementType, Alloc>*)0));
 
-		//Either marshal or copy the elements to the target array depending on whether a custom marshaller is
-		//implemented for the target elements.
+		// Either marshal or copy the elements to the target array depending on whether a custom marshaller is
+		// implemented for the target elements.
 		if (Internal::has_marshal_constructor<ElementType>::value)
 		{
-			//Marshal each element of the supplied array to the target vector. Note that since the object has a custom
-			//marshal constructor, it's possible the size and layout of the object differs on each side of the boundary.
-			//We've received a pointer to an array of source objects to marshal, but we can't index that array using our
-			//size of the object here, since it may differ from that of the sender. To account for this, we calculate
-			//the address of each object in the array using the object byte size specified by the sender.
+			// Marshal each element of the supplied array to the target vector. Note that since the object has a custom
+			// marshal constructor, it's possible the size and layout of the object differs on each side of the boundary.
+			// We've received a pointer to an array of source objects to marshal, but we can't index that array using our
+			// size of the object here, since it may differ from that of the sender. To account for this, we calculate
+			// the address of each object in the array using the object byte size specified by the sender.
 			ElementType* nextSourceObject = sourceData;
 			ElementType* nextTargetObject = _targetObject->data() + elementIndex;
 			for (size_t i = 0; i < sourceDataLength; ++i)
@@ -564,7 +564,7 @@ protected:
 		}
 	}
 
-	//Size methods
+	// Size methods
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION Clear() const
 	{
 		_targetObject->clear();
@@ -587,7 +587,7 @@ protected:
 	}
 
 private:
-	//Disable copying and moving
+	// Disable copying and moving
 	MarshalTarget(const MarshalTarget& source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalTarget& operator=(const MarshalTarget& source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalTarget(MarshalTarget&& source) MARSHALSUPPORT_DELETEMETHOD;
@@ -598,12 +598,12 @@ private:
 };
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class Alloc>
 class MarshalTarget<std::vector<bool, Alloc>, false, true, false> :public IMarshalTarget<std::vector<bool, Alloc>, false, true, false>
 {
 public:
-	//Constructors
+	// Constructors
 	MarshalTarget(std::vector<bool, Alloc>& targetObject)
 	:_targetObject(&targetObject)
 	{ }
@@ -611,14 +611,14 @@ public:
 	{ }
 
 protected:
-	//Marshalling methods
+	// Marshalling methods
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION MarshalFrom(const bool* sourceData, size_t sourceDataLength) const
 	{
 		_targetObject->assign(sourceData, sourceData + sourceDataLength);
 	}
 
 private:
-	//Disable copying and moving
+	// Disable copying and moving
 	MarshalTarget(const MarshalTarget& source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalTarget& operator=(const MarshalTarget& source) MARSHALSUPPORT_DELETEMETHOD;
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
@@ -631,12 +631,12 @@ private:
 };
 
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, size_t ArraySize>
 class MarshalTarget<std::array<ElementType, ArraySize>, false, true, false> :public IMarshalTarget<std::array<ElementType, ArraySize>, false, true, false>
 {
 public:
-	//Constructors
+	// Constructors
 	MarshalTarget(std::array<ElementType, ArraySize>& targetObject)
 	:_targetObject(&targetObject)
 	{ }
@@ -644,26 +644,26 @@ public:
 	{ }
 
 protected:
-	//Marshalling methods
+	// Marshalling methods
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION MarshalRange(size_t elementByteSize, size_t elementIndex, const ElementType* sourceData, size_t sourceDataLength) const
 	{
-		//Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
-		//supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
-		//the object size is different, it's definitely being used incorrectly.
+		// Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
+		// supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
+		// the object size is different, it's definitely being used incorrectly.
 		assert(Internal::IsSTLContainerNestedElementMarshallableOrSameSize(elementByteSize, (std::array<ElementType, ArraySize>*)0));
 
-		//Ensure supplied element index and array size fit within the size of the container
+		// Ensure supplied element index and array size fit within the size of the container
 		assert((elementIndex >= 0) && ((elementIndex + sourceDataLength) <= ArraySize));
 
-		//Either marshal or copy the elements to the target array depending on whether a custom marshaller is
-		//implemented for the target elements.
+		// Either marshal or copy the elements to the target array depending on whether a custom marshaller is
+		// implemented for the target elements.
 		if (Internal::has_marshal_constructor<ElementType>::value)
 		{
-			//Marshal each element of the supplied array to the target array. Note that since the object has a custom
-			//marshal constructor, it's possible the size and layout of the object differs on each side of the boundary.
-			//We've received a pointer to an array of source objects to marshal, but we can't index that array using our
-			//size of the object here, since it may differ from that of the sender. To account for this, we calculate
-			//the address of each object in the array using the object byte size specified by the sender.
+			// Marshal each element of the supplied array to the target array. Note that since the object has a custom
+			// marshal constructor, it's possible the size and layout of the object differs on each side of the boundary.
+			// We've received a pointer to an array of source objects to marshal, but we can't index that array using our
+			// size of the object here, since it may differ from that of the sender. To account for this, we calculate
+			// the address of each object in the array using the object byte size specified by the sender.
 			size_t elementIndexEnd = std::min(elementIndex + sourceDataLength, ArraySize);
 			const ElementType* nextSourceObject = sourceData;
 			for (size_t i = elementIndex; i < elementIndexEnd; ++i)
@@ -686,23 +686,23 @@ protected:
 	}
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION MarshalRange(size_t elementByteSize, size_t elementIndex, ElementType* sourceData, size_t sourceDataLength) const
 	{
-		//Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
-		//supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
-		//the object size is different, it's definitely being used incorrectly.
+		// Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
+		// supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
+		// the object size is different, it's definitely being used incorrectly.
 		assert(Internal::IsSTLContainerNestedElementMarshallableOrSameSize(elementByteSize, (std::array<ElementType, ArraySize>*)0));
 
-		//Ensure supplied element index and array size fit within the size of the container
+		// Ensure supplied element index and array size fit within the size of the container
 		assert((elementIndex >= 0) && ((elementIndex + sourceDataLength) <= ArraySize));
 
-		//Either marshal or move the elements to the target array depending on whether a custom marshaller is
-		//implemented for the target elements.
+		// Either marshal or move the elements to the target array depending on whether a custom marshaller is
+		// implemented for the target elements.
 		if (Internal::has_marshal_constructor<ElementType>::value)
 		{
-			//Marshal each element of the supplied array to the target array. Note that since the object has a custom
-			//marshal constructor, it's possible the size and layout of the object differs on each side of the boundary.
-			//We've received a pointer to an array of source objects to marshal, but we can't index that array using our
-			//size of the object here, since it may differ from that of the sender. To account for this, we calculate
-			//the address of each object in the array using the object byte size specified by the sender.
+			// Marshal each element of the supplied array to the target array. Note that since the object has a custom
+			// marshal constructor, it's possible the size and layout of the object differs on each side of the boundary.
+			// We've received a pointer to an array of source objects to marshal, but we can't index that array using our
+			// size of the object here, since it may differ from that of the sender. To account for this, we calculate
+			// the address of each object in the array using the object byte size specified by the sender.
 			size_t elementIndexEnd = std::min(elementIndex + sourceDataLength, ArraySize);
 			ElementType* nextSourceObject = sourceData;
 			for (size_t i = elementIndex; i < elementIndexEnd; ++i)
@@ -725,9 +725,9 @@ protected:
 	}
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION MarshalSetElement(size_t elementByteSize, size_t elementIndex, const ElementType* sourceData) const
 	{
-		//Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
-		//supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
-		//the object size is different, it's definitely being used incorrectly.
+		// Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
+		// supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
+		// the object size is different, it's definitely being used incorrectly.
 		assert(Internal::IsSTLContainerNestedElementMarshallableOrSameSize(elementByteSize, (std::array<ElementType, ArraySize>*)0));
 
 		// Marshal the object
@@ -735,9 +735,9 @@ protected:
 	}
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION MarshalSetElement(size_t elementByteSize, size_t elementIndex, ElementType* sourceData) const
 	{
-		//Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
-		//supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
-		//the object size is different, it's definitely being used incorrectly.
+		// Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
+		// supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
+		// the object size is different, it's definitely being used incorrectly.
 		assert(Internal::IsSTLContainerNestedElementMarshallableOrSameSize(elementByteSize, (std::array<ElementType, ArraySize>*)0));
 
 		// Marshal the object
@@ -745,7 +745,7 @@ protected:
 	}
 
 private:
-	//Disable copying and moving
+	// Disable copying and moving
 	MarshalTarget(const MarshalTarget& source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalTarget& operator=(const MarshalTarget& source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalTarget(MarshalTarget&& source) MARSHALSUPPORT_DELETEMETHOD;
@@ -755,12 +755,12 @@ private:
 	std::array<ElementType, ArraySize>* _targetObject;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, size_t ArraySize>
 class MarshalTarget<std::array<ElementType, ArraySize>, false, true, true> :public IMarshalTarget<std::array<ElementType, ArraySize>, false, true, true>
 {
 public:
-	//Constructors
+	// Constructors
 	MarshalTarget(std::array<ElementType, ArraySize>& targetObject)
 	:_targetObject(&targetObject)
 	{ }
@@ -768,26 +768,26 @@ public:
 	{ }
 
 protected:
-	//Marshalling methods
+	// Marshalling methods
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION MarshalRange(size_t elementByteSize, size_t elementIndex, ElementType* sourceData, size_t sourceDataLength) const
 	{
-		//Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
-		//supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
-		//the object size is different, it's definitely being used incorrectly.
+		// Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
+		// supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
+		// the object size is different, it's definitely being used incorrectly.
 		assert(Internal::IsSTLContainerNestedElementMarshallableOrSameSize(elementByteSize, (std::array<ElementType, ArraySize>*)0));
 
-		//Ensure supplied element index and array size fit within the size of the container
+		// Ensure supplied element index and array size fit within the size of the container
 		assert((elementIndex >= 0) && ((elementIndex + sourceDataLength) <= ArraySize));
 
-		//Either marshal or move the elements to the target array depending on whether a custom marshaller is
-		//implemented for the target elements.
+		// Either marshal or move the elements to the target array depending on whether a custom marshaller is
+		// implemented for the target elements.
 		if (Internal::has_marshal_constructor<ElementType>::value)
 		{
-			//Marshal each element of the supplied array to the target array. Note that since the object has a custom
-			//marshal constructor, it's possible the size and layout of the object differs on each side of the boundary.
-			//We've received a pointer to an array of source objects to marshal, but we can't index that array using our
-			//size of the object here, since it may differ from that of the sender. To account for this, we calculate
-			//the address of each object in the array using the object byte size specified by the sender.
+			// Marshal each element of the supplied array to the target array. Note that since the object has a custom
+			// marshal constructor, it's possible the size and layout of the object differs on each side of the boundary.
+			// We've received a pointer to an array of source objects to marshal, but we can't index that array using our
+			// size of the object here, since it may differ from that of the sender. To account for this, we calculate
+			// the address of each object in the array using the object byte size specified by the sender.
 			size_t elementIndexEnd = std::min(elementIndex + sourceDataLength, ArraySize);
 			ElementType* nextSourceObject = sourceData;
 			for (size_t i = elementIndex; i < elementIndexEnd; ++i)
@@ -806,9 +806,9 @@ protected:
 	}
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION MarshalSetElement(size_t elementByteSize, size_t elementIndex, ElementType* sourceData) const
 	{
-		//Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
-		//supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
-		//the object size is different, it's definitely being used incorrectly.
+		// Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
+		// supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
+		// the object size is different, it's definitely being used incorrectly.
 		assert(Internal::IsSTLContainerNestedElementMarshallableOrSameSize(elementByteSize, (std::array<ElementType, ArraySize>*)0));
 
 		// Marshal the object
@@ -816,7 +816,7 @@ protected:
 	}
 
 private:
-	//Disable copying and moving
+	// Disable copying and moving
 	MarshalTarget(const MarshalTarget& source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalTarget& operator=(const MarshalTarget& source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalTarget(MarshalTarget&& source) MARSHALSUPPORT_DELETEMETHOD;
@@ -827,12 +827,12 @@ private:
 };
 #endif
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 template<class ElementType, class traits, class Alloc>
 class MarshalTarget<std::basic_string<ElementType, traits, Alloc>, false, true, false> :public IMarshalTarget<std::basic_string<ElementType, traits, Alloc>, false, true, false>
 {
 public:
-	//Constructors
+	// Constructors
 	MarshalTarget(std::basic_string<ElementType, traits, Alloc>& targetObject)
 	:_targetObject(&targetObject)
 	{ }
@@ -840,28 +840,28 @@ public:
 	{ }
 
 protected:
-	//Marshalling methods
+	// Marshalling methods
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION MarshalFrom(size_t elementByteSize, const ElementType* sourceData, size_t sourceDataLength) const
 	{
-		//Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
-		//supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
-		//the object size is different, it's definitely being used incorrectly.
+		// Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
+		// supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
+		// the object size is different, it's definitely being used incorrectly.
 		assert(Internal::IsSTLContainerNestedElementMarshallableOrSameSize(elementByteSize, (std::basic_string<ElementType, traits, Alloc>*)0));
 
-		//Either marshal or copy the elements to the target array depending on whether a custom marshaller is
-		//implemented for the target elements.
+		// Either marshal or copy the elements to the target array depending on whether a custom marshaller is
+		// implemented for the target elements.
 		if (Internal::has_marshal_constructor<ElementType>::value)
 		{
-			//Ensure the target vector is empty, with enough space reserved for the number of elements we're about to
-			//insert in it.
+			// Ensure the target vector is empty, with enough space reserved for the number of elements we're about to
+			// insert in it.
 			_targetObject->clear();
 			_targetObject->reserve(sourceDataLength);
 
-			//Marshal each element of the supplied array to the target vector. Note that since the object has a custom
-			//marshal constructor, it's possible the size and layout of the object differs on each side of the boundary.
-			//We've received a pointer to an array of source objects to marshal, but we can't index that array using our
-			//size of the object here, since it may differ from that of the sender. To account for this, we calculate
-			//the address of each object in the array using the object byte size specified by the sender.
+			// Marshal each element of the supplied array to the target vector. Note that since the object has a custom
+			// marshal constructor, it's possible the size and layout of the object differs on each side of the boundary.
+			// We've received a pointer to an array of source objects to marshal, but we can't index that array using our
+			// size of the object here, since it may differ from that of the sender. To account for this, we calculate
+			// the address of each object in the array using the object byte size specified by the sender.
 			const ElementType* nextSourceObject = sourceData;
 			for (size_t i = 0; i < sourceDataLength; ++i)
 			{
@@ -871,31 +871,31 @@ protected:
 		}
 		else
 		{
-			//Directly initialize the target vector with the supplied array of data
+			// Directly initialize the target vector with the supplied array of data
 			_targetObject->assign(sourceData, sourceData + sourceDataLength);
 		}
 	}
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION MarshalFrom(size_t elementByteSize, ElementType* sourceData, size_t sourceDataLength) const
 	{
-		//Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
-		//supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
-		//the object size is different, it's definitely being used incorrectly.
+		// Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
+		// supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
+		// the object size is different, it's definitely being used incorrectly.
 		assert(Internal::IsSTLContainerNestedElementMarshallableOrSameSize(elementByteSize, (std::basic_string<ElementType, traits, Alloc>*)0));
 
-		//Either marshal or move the elements to the target array depending on whether a custom marshaller is
-		//implemented for the target elements.
+		// Either marshal or move the elements to the target array depending on whether a custom marshaller is
+		// implemented for the target elements.
 		if (Internal::has_marshal_constructor<ElementType>::value)
 		{
-			//Ensure the target vector is empty, with enough space reserved for the number of elements we're about to
-			//insert in it.
+			// Ensure the target vector is empty, with enough space reserved for the number of elements we're about to
+			// insert in it.
 			_targetObject->clear();
 			_targetObject->reserve(sourceDataLength);
 
-			//Marshal each element of the supplied array to the target vector. Note that since the object has a custom
-			//marshal constructor, it's possible the size and layout of the object differs on each side of the boundary.
-			//We've received a pointer to an array of source objects to marshal, but we can't index that array using our
-			//size of the object here, since it may differ from that of the sender. To account for this, we calculate
-			//the address of each object in the array using the object byte size specified by the sender.
+			// Marshal each element of the supplied array to the target vector. Note that since the object has a custom
+			// marshal constructor, it's possible the size and layout of the object differs on each side of the boundary.
+			// We've received a pointer to an array of source objects to marshal, but we can't index that array using our
+			// size of the object here, since it may differ from that of the sender. To account for this, we calculate
+			// the address of each object in the array using the object byte size specified by the sender.
 			ElementType* nextSourceObject = sourceData;
 			for (size_t i = 0; i < sourceDataLength; ++i)
 			{
@@ -905,12 +905,12 @@ protected:
 		}
 		else
 		{
-			//Directly initialize the target vector with the supplied array of data. Note that we only perform the
-			//assignment using move iterators where the target elements use a non-trivial type. This is done as an
-			//optimization. Although the assign method in theory has all the necessary information to optimize copying
-			//an array of standard layout types in one process using memcpy, in VS2013 it was observed that the move
-			//iterator wrappers prevent this optimization occurring. We avoid using move iterators in this case to
-			//achieve maximum efficiency.
+			// Directly initialize the target vector with the supplied array of data. Note that we only perform the
+			// assignment using move iterators where the target elements use a non-trivial type. This is done as an
+			// optimization. Although the assign method in theory has all the necessary information to optimize copying
+			// an array of standard layout types in one process using memcpy, in VS2013 it was observed that the move
+			// iterator wrappers prevent this optimization occurring. We avoid using move iterators in this case to
+			// achieve maximum efficiency.
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
 			if (!std::is_trivial<ElementType>::value)
 			{
@@ -925,7 +925,7 @@ protected:
 	}
 
 private:
-	//Disable copying and moving
+	// Disable copying and moving
 	MarshalTarget(const MarshalTarget& source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalTarget& operator=(const MarshalTarget& source) MARSHALSUPPORT_DELETEMETHOD;
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
@@ -937,13 +937,13 @@ private:
 	std::basic_string<ElementType, traits, Alloc>* _targetObject;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 #ifdef MARSHALSUPPORT_CPP11SUPPORTED
 template<class T, class Deleter>
 class MarshalTarget<std::unique_ptr<T, Deleter>, false, true, false> :public IMarshalTarget<std::unique_ptr<T, Deleter>, false, true, false>
 {
 public:
-	//Constructors
+	// Constructors
 	MarshalTarget(std::unique_ptr<T, Deleter>& targetObject)
 	:_targetObject(&targetObject)
 	{ }
@@ -951,7 +951,7 @@ public:
 	{ }
 
 protected:
-	//Marshalling methods
+	// Marshalling methods
 	virtual void MARSHALSUPPORT_CALLINGCONVENTION MarshalFrom(T* data, const Deleter& deleter) const
 	{
 		std::unique_ptr<T, Deleter> temp(data, deleter);
@@ -959,7 +959,7 @@ protected:
 	}
 
 private:
-	//Disable copying and moving
+	// Disable copying and moving
 	MarshalTarget(const MarshalTarget& source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalTarget& operator=(const MarshalTarget& source) MARSHALSUPPORT_DELETEMETHOD;
 	MarshalTarget(MarshalTarget&& source) MARSHALSUPPORT_DELETEMETHOD;
@@ -970,10 +970,10 @@ private:
 };
 #endif
 
-//Restore the disabled warnings
+// Restore the disabled warnings
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
 
-} //Close namespace MarshalSupport
+} // Close namespace MarshalSupport
 #endif

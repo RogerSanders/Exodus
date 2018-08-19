@@ -8,14 +8,14 @@ class ViewBinary;
 struct ByteOrder
 {
 public:
-	//Constructors
+	// Constructors
 	inline ByteOrder(IStream::ByteOrder byteOrder = IStream::ByteOrder::Platform);
 
-	//Byte order functions
+	// Byte order functions
 	inline IStream::ByteOrder GetByteOrder() const;
 	inline void SetByteOrder(IStream::ByteOrder byteOrder);
 
-	//Stream operators
+	// Stream operators
 	friend inline ViewBinary& operator>>(ViewBinary& stream, const ByteOrder& object);
 	friend inline ViewBinary& operator<<(ViewBinary& stream, const ByteOrder& object);
 	friend inline ViewText& operator>>(ViewText& stream, const ByteOrder& object);
@@ -25,6 +25,6 @@ private:
 	IStream::ByteOrder _byteOrder;
 };
 
-} //Close namespace Stream
+} // Close namespace Stream
 #include "ViewManipulatorByteOrder.inl"
 #endif

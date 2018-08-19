@@ -1,9 +1,9 @@
 #include "DeviceControlView.h"
 #include "resource.h"
 
-//----------------------------------------------------------------------------------------
-//Constructors
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Constructors
+//----------------------------------------------------------------------------------------------------------------------
 DeviceControlView::DeviceControlView(IUIManager& uiManager, DeviceControlViewPresenter& presenter, ISystemGUIInterface& model)
 :ViewBase(uiManager, presenter), _presenter(presenter), _model(model), _initializedDialog(false), _currentControlFocus(0)
 {
@@ -13,9 +13,9 @@ DeviceControlView::DeviceControlView(IUIManager& uiManager, DeviceControlViewPre
 	SetDialogTemplateSettings(presenter.GetUnqualifiedViewTitle(), GetAssemblyHandle(), MAKEINTRESOURCE(IDD_DEVICECONTROL));
 }
 
-//----------------------------------------------------------------------------------------
-//Member window procedure
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Member window procedure
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR DeviceControlView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	WndProcDialogImplementSaveFieldWhenLostFocus(hwnd, msg, wparam, lparam);
@@ -31,9 +31,9 @@ INT_PTR DeviceControlView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPA
 	return FALSE;
 }
 
-//----------------------------------------------------------------------------------------
-//Event handlers
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Event handlers
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR DeviceControlView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	SetTimer(hwnd, 1, 200, NULL);
@@ -41,16 +41,16 @@ INT_PTR DeviceControlView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lpa
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR DeviceControlView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	_initializedDialog = true;
 
-	//Update the textboxes
+	// Update the textboxes
 	if (_currentControlFocus != IDC_DEVICECONTROL_SYSTEM_EXECUTEAMOUNT)  UpdateDlgItemBin(hwnd, IDC_DEVICECONTROL_SYSTEM_EXECUTEAMOUNT, _systemStep);
 	if (_currentControlFocus != IDC_DEVICECONTROL_DEVICE_STEPAMOUNT)     UpdateDlgItemBin(hwnd, IDC_DEVICECONTROL_DEVICE_STEPAMOUNT, _deviceStep);
 
-	//Check if we need to refresh the device list
+	// Check if we need to refresh the device list
 	std::list<IDevice*> newDeviceList = _model.GetLoadedDevices();
 	bool refreshDeviceList = (newDeviceList.size() != _deviceList.size());
 	if (!refreshDeviceList)
@@ -65,14 +65,14 @@ INT_PTR DeviceControlView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		}
 	}
 
-	//If we need to refresh the device list, copy the current list of devices into our
-	//local copy.
+	// If we need to refresh the device list, copy the current list of devices into our
+	// local copy.
 	if (refreshDeviceList)
 	{
 		_deviceList = newDeviceList;
 	}
 
-	//Refresh the device list if required
+	// Refresh the device list if required
 	if (refreshDeviceList)
 	{
 		SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), WM_SETREDRAW, FALSE, 0);
@@ -97,7 +97,7 @@ INT_PTR DeviceControlView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		_deviceListIndex = -1;
 	}
 
-	//Update the checkboxes
+	// Update the checkboxes
 	int selectedDeviceIndex = (int)SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_GETCURSEL, 0, NULL);
 	LRESULT getItemDataResult = SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_GETITEMDATA, selectedDeviceIndex, NULL);
 	if (getItemDataResult != LB_ERR)
@@ -112,7 +112,7 @@ INT_PTR DeviceControlView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	return TRUE;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 INT_PTR DeviceControlView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	if (HIWORD(wparam) == BN_CLICKED)
@@ -142,7 +142,7 @@ INT_PTR DeviceControlView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam
 			if (device != 0)
 			{
 				//##TODO## Show a dialog box indicating the current step progress, and
-				//giving the user an option to cancel.
+				// giving the user an option to cancel.
 				for (unsigned int i = 0; i < _deviceStep; ++i)
 				{
 					_model.ExecuteDeviceStep(device);

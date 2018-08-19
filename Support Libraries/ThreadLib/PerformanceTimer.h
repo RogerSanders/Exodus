@@ -5,10 +5,10 @@
 class PerformanceTimer
 {
 public:
-	//Constructors
+	// Constructors
 	inline PerformanceTimer();
 
-	//Synchronization functions
+	// Synchronization functions
 	inline void Reset();
 	inline void Sync(double targetExecutionTime, bool enableSync = true, bool outputTimerDebug = false, double executeAheadTolerance = 0.001);
 

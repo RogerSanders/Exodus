@@ -4,13 +4,13 @@
 template<class T> struct ThinList
 {
 public:
-	//Constructors
+	// Constructors
 	ThinList();
 	ThinList(const T& aobject, ThinList<T>* anext = 0);
 	ThinList(const ThinList<T>& source);
 	~ThinList();
 
-	//Insert functions
+	// Insert functions
 	void PushToBack(const T& entry);
 	void InsertAfter(const T& entry);
 

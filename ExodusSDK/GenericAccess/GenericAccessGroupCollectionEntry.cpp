@@ -1,56 +1,56 @@
 #include "GenericAccessGroupCollectionEntry.h"
 
-//----------------------------------------------------------------------------------------
-//Interface version functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Interface version functions
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int GenericAccessGroupCollectionEntry::GetIGenericAccessGroupEntryVersion() const
 {
 	return ThisIGenericAccessGroupEntryVersion();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int GenericAccessGroupCollectionEntry::GetIGenericAccessGroupVersion() const
 {
 	return ThisIGenericAccessGroupVersion();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int GenericAccessGroupCollectionEntry::GetIGenericAccessGroupCollectionEntryVersion() const
 {
 	return ThisIGenericAccessGroupCollectionEntryVersion();
 }
 
-//----------------------------------------------------------------------------------------
-//Type functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Type functions
+//----------------------------------------------------------------------------------------------------------------------
 GenericAccessGroupCollectionEntry::GroupEntryType GenericAccessGroupCollectionEntry::GetGroupEntryType() const
 {
 	return GroupEntryType::Collection;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool GenericAccessGroupCollectionEntry::IsGroup() const
 {
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
-//Parent functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Parent functions
+//----------------------------------------------------------------------------------------------------------------------
 IGenericAccessGroup* GenericAccessGroupCollectionEntry::GetParent() const
 {
 	return _parent;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void GenericAccessGroupCollectionEntry::SetParent(IGenericAccessGroup* parent)
 {
 	_parent = parent;
 }
 
-//----------------------------------------------------------------------------------------
-//Data context functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Data context functions
+//----------------------------------------------------------------------------------------------------------------------
 const IGenericAccess::DataContext* GenericAccessGroupCollectionEntry::GetDataContext() const
 {
 	if (_dataContext != 0)
@@ -64,29 +64,29 @@ const IGenericAccess::DataContext* GenericAccessGroupCollectionEntry::GetDataCon
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
-//Group info functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Group info functions
+//----------------------------------------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> GenericAccessGroupCollectionEntry::GetName() const
 {
 	return _name;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool GenericAccessGroupCollectionEntry::GetOpenByDefault() const
 {
 	return _openByDefault;
 }
 
-//----------------------------------------------------------------------------------------
-//Collection entry functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Collection entry functions
+//----------------------------------------------------------------------------------------------------------------------
 IGenericAccessDataValue::DataType GenericAccessGroupCollectionEntry::GetKeyDataType() const
 {
 	return _keyDataType;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int GenericAccessGroupCollectionEntry::GetEntryCount() const
 {
 	ObtainReadLock();
@@ -95,7 +95,7 @@ unsigned int GenericAccessGroupCollectionEntry::GetEntryCount() const
 	return entryCount;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Marshal::Ret<std::list<IGenericAccessGroupEntry*>> GenericAccessGroupCollectionEntry::GetEntries() const
 {
 	std::list<IGenericAccessGroupEntry*> entryList;
@@ -106,13 +106,13 @@ Marshal::Ret<std::list<IGenericAccessGroupEntry*>> GenericAccessGroupCollectionE
 	return entryList;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Marshal::Ret<std::list<GenericAccessGroupCollectionEntry::CollectionEntry>> GenericAccessGroupCollectionEntry::GetCollectionEntries() const
 {
 	return _entries;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 IGenericAccessGroupEntry* GenericAccessGroupCollectionEntry::GetCollectionEntry(const Marshal::In<std::wstring>& key) const
 {
 	//##TODO## Consider using a key map to make these lookups more efficient
@@ -127,39 +127,39 @@ IGenericAccessGroupEntry* GenericAccessGroupCollectionEntry::GetCollectionEntry(
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 IGenericAccessGroupEntry* GenericAccessGroupCollectionEntry::GetCollectionEntry(const IGenericAccessDataValue& key) const
 {
 	return GetCollectionEntry(key.GetValueString());
 }
 
-//----------------------------------------------------------------------------------------
-//Modification functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Modification functions
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int GenericAccessGroupCollectionEntry::GetLastModifiedToken() const
 {
 	return _lastModifiedToken;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void GenericAccessGroupCollectionEntry::ObtainReadLock() const
 {
 	_readWriteLock.ObtainReadLock();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void GenericAccessGroupCollectionEntry::ReleaseReadLock() const
 {
 	_readWriteLock.ReleaseReadLock();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void GenericAccessGroupCollectionEntry::ObtainWriteLock() const
 {
 	_readWriteLock.ObtainWriteLock();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void GenericAccessGroupCollectionEntry::ReleaseWriteLock() const
 {
 	_readWriteLock.ReleaseWriteLock();

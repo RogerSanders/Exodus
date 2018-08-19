@@ -1,14 +1,14 @@
 #include "WC_DockPanel.h"
 #include <set>
 
-//----------------------------------------------------------------------------------------
-//Constants
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Constants
+//----------------------------------------------------------------------------------------------------------------------
 const wchar_t* WC_DockPanel::WindowClassName = L"EX_DockPanel";
 
-//----------------------------------------------------------------------------------------
-//Constructors
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Constructors
+//----------------------------------------------------------------------------------------------------------------------
 WC_DockPanel::WC_DockPanel(HINSTANCE moduleHandle, HWND hwnd)
 :_moduleHandle(moduleHandle), _hwnd(hwnd)
 {
@@ -20,13 +20,13 @@ WC_DockPanel::WC_DockPanel(HINSTANCE moduleHandle, HWND hwnd)
 	_hostedContentWindowHeight = -1;
 }
 
-//----------------------------------------------------------------------------------------
-//Class registration
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Class registration
+//----------------------------------------------------------------------------------------------------------------------
 bool WC_DockPanel::RegisterWindowClass(HINSTANCE moduleHandle)
 {
-	//Attempt to register the window class for this control, and return the result to the
-	//caller.
+	// Attempt to register the window class for this control, and return the result to the
+	// caller.
 	WNDCLASSEX wc;
 	wc.cbSize        = sizeof(WNDCLASSEX);
 	wc.style         = 0;
@@ -44,18 +44,18 @@ bool WC_DockPanel::RegisterWindowClass(HINSTANCE moduleHandle)
 	return (registerClassExReturn != 0);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool WC_DockPanel::UnregisterWindowClass(HINSTANCE moduleHandle)
 {
-	//Attempt to unregister the window class for this control, and return the result to
-	//the caller.
+	// Attempt to unregister the window class for this control, and return the result to
+	// the caller.
 	BOOL unregisterClassReturn = UnregisterClass(WindowClassName, moduleHandle);
 	return (unregisterClassReturn != 0);
 }
 
-//----------------------------------------------------------------------------------------
-//Message handlers
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Message handlers
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT CALLBACK WC_DockPanel::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
@@ -87,7 +87,7 @@ LRESULT CALLBACK WC_DockPanel::WndProc(HWND hwnd, UINT message, WPARAM wParam, L
 	return DefWindowProc(hwnd, message, wParam, lParam);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DockPanel::WndProcPrivate(UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
@@ -133,30 +133,30 @@ LRESULT WC_DockPanel::WndProcPrivate(UINT message, WPARAM wParam, LPARAM lParam)
 	return DefWindowProc(_hwnd, message, wParam, lParam);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DockPanel::msgWM_CREATE(WPARAM wParam, LPARAM lParam)
 {
-	//Calculate the dimensions of the client region of this control
+	// Calculate the dimensions of the client region of this control
 	RECT rect;
 	GetClientRect(_hwnd, &rect);
 	int newClientWidth = rect.right;
 	int newClientHeight = rect.bottom;
 
-	//Process the initial size of the window
+	// Process the initial size of the window
 	HandleSizeChanged(newClientWidth, newClientHeight);
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DockPanel::msgWM_SIZE(WPARAM wParam, LPARAM lParam)
 {
-	//Calculate the dimensions of the client region of this control
+	// Calculate the dimensions of the client region of this control
 	RECT rect;
 	GetClientRect(_hwnd, &rect);
 	int newClientWidth = rect.right;
 	int newClientHeight = rect.bottom;
 
-	//Handle this size changed event
+	// Handle this size changed event
 	if ((_currentControlWidth != newClientWidth) || (_currentControlHeight != newClientHeight))
 	{
 		HandleSizeChanged(newClientWidth, newClientHeight);
@@ -164,15 +164,15 @@ LRESULT WC_DockPanel::msgWM_SIZE(WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DockPanel::msgWM_ERASEBKGND(WPARAM wParam, LPARAM lParam)
 {
-	//If the WS_EX_TRANSPARENT window style has been applied to our control, since we want
-	//this control to essentially have a transparent background, we don't perform any
-	//operation when a background erase is requested. Note that this requires the
-	//containing window to use the WS_EX_COMPOSITED style in order to achieve the desired
-	//effect. If the WS_EX_TRANSPARENT style has not been specified, we pass this message
-	//on to DefWindowProc.
+	// If the WS_EX_TRANSPARENT window style has been applied to our control, since we want
+	// this control to essentially have a transparent background, we don't perform any
+	// operation when a background erase is requested. Note that this requires the
+	// containing window to use the WS_EX_COMPOSITED style in order to achieve the desired
+	// effect. If the WS_EX_TRANSPARENT style has not been specified, we pass this message
+	// on to DefWindowProc.
 	if (((unsigned int)GetWindowLongPtr(_hwnd, GWL_EXSTYLE) & WS_EX_TRANSPARENT) != 0)
 	{
 		return TRUE;
@@ -180,36 +180,36 @@ LRESULT WC_DockPanel::msgWM_ERASEBKGND(WPARAM wParam, LPARAM lParam)
 	return DefWindowProc(_hwnd, WM_ERASEBKGND, wParam, lParam);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DockPanel::msgWM_NCHITTEST(WPARAM wParam, LPARAM lParam)
 {
-	//Make this control transparent in the client area for hit testing
+	// Make this control transparent in the client area for hit testing
 	LRESULT result = DefWindowProc(_hwnd, WM_NCHITTEST, wParam, lParam);
 	return (result == HTCLIENT)? HTTRANSPARENT: result;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DockPanel::msgWM_COMMAND(WPARAM wParam, LPARAM lParam)
 {
-	//Forward this message directly to the parent window
+	// Forward this message directly to the parent window
 	return SendMessage(GetAncestor(_hwnd, GA_PARENT), WM_COMMAND, wParam, lParam);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DockPanel::msgWM_NOTIFY(WPARAM wParam, LPARAM lParam)
 {
-	//Forward this message directly to the parent window
+	// Forward this message directly to the parent window
 	return SendMessage(GetAncestor(_hwnd, GA_PARENT), WM_NOTIFY, wParam, lParam);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DockPanel::msgWM_BOUNCE(WPARAM wParam, LPARAM lParam)
 {
-	//Forward this message directly to the parent window
+	// Forward this message directly to the parent window
 	return SendMessage(GetAncestor(_hwnd, GA_PARENT), WM_BOUNCE, wParam, lParam);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DockPanel::msgDOCK_ADDCONTENTWINDOW(WPARAM wParam, LPARAM lParam)
 {
 	HWND targetHostedContent = (HWND)lParam;
@@ -217,7 +217,7 @@ LRESULT WC_DockPanel::msgDOCK_ADDCONTENTWINDOW(WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DockPanel::msgDOCK_REMOVECONTENTWINDOW(WPARAM wParam, LPARAM lParam)
 {
 	HWND targetHostedContent = (HWND)lParam;
@@ -225,7 +225,7 @@ LRESULT WC_DockPanel::msgDOCK_REMOVECONTENTWINDOW(WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DockPanel::msgDOCK_ADDDOCKEDWINDOW(WPARAM wParam, LPARAM lParam)
 {
 	HWND newDockedWindow = (HWND)lParam;
@@ -234,7 +234,7 @@ LRESULT WC_DockPanel::msgDOCK_ADDDOCKEDWINDOW(WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DockPanel::msgDOCK_ADDDOCKEDWINDOWTOFRONT(WPARAM wParam, LPARAM lParam)
 {
 	HWND newDockedWindow = (HWND)lParam;
@@ -243,7 +243,7 @@ LRESULT WC_DockPanel::msgDOCK_ADDDOCKEDWINDOWTOFRONT(WPARAM wParam, LPARAM lPara
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DockPanel::msgDOCK_REMOVEDOCKEDWINDOW(WPARAM wParam, LPARAM lParam)
 {
 	HWND dockedWindow = (HWND)lParam;
@@ -251,7 +251,7 @@ LRESULT WC_DockPanel::msgDOCK_REMOVEDOCKEDWINDOW(WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DockPanel::msgDOCK_GETDOCKEDWINDOWDESIREDWIDTH(WPARAM wParam, LPARAM lParam)
 {
 	HWND dockedWindow = (HWND)lParam;
@@ -259,7 +259,7 @@ LRESULT WC_DockPanel::msgDOCK_GETDOCKEDWINDOWDESIREDWIDTH(WPARAM wParam, LPARAM 
 	return (LRESULT)desiredWidth;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DockPanel::msgDOCK_SETDOCKEDWINDOWDESIREDWIDTH(WPARAM wParam, LPARAM lParam)
 {
 	HWND dockedWindow = (HWND)lParam;
@@ -268,7 +268,7 @@ LRESULT WC_DockPanel::msgDOCK_SETDOCKEDWINDOWDESIREDWIDTH(WPARAM wParam, LPARAM 
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DockPanel::msgDOCK_GETDOCKEDWINDOWDESIREDHEIGHT(WPARAM wParam, LPARAM lParam)
 {
 	HWND dockedWindow = (HWND)lParam;
@@ -276,7 +276,7 @@ LRESULT WC_DockPanel::msgDOCK_GETDOCKEDWINDOWDESIREDHEIGHT(WPARAM wParam, LPARAM
 	return (LRESULT)desiredHeight;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DockPanel::msgDOCK_SETDOCKEDWINDOWDESIREDHEIGHT(WPARAM wParam, LPARAM lParam)
 {
 	HWND dockedWindow = (HWND)lParam;
@@ -285,7 +285,7 @@ LRESULT WC_DockPanel::msgDOCK_SETDOCKEDWINDOWDESIREDHEIGHT(WPARAM wParam, LPARAM
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DockPanel::msgDOCK_GETCONTENTRECT(WPARAM wParam, LPARAM lParam)
 {
 	RECT& rect = *((RECT*)lParam);
@@ -296,7 +296,7 @@ LRESULT WC_DockPanel::msgDOCK_GETCONTENTRECT(WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 LRESULT WC_DockPanel::msgDOCK_CALCULATENEWDOCKEDWINDOWRECT(WPARAM wParam, LPARAM lParam)
 {
 	CalculateNewDockedWindowRectParams& params = *((CalculateNewDockedWindowRectParams*)lParam);
@@ -312,21 +312,21 @@ LRESULT WC_DockPanel::msgDOCK_CALCULATENEWDOCKEDWINDOWRECT(WPARAM wParam, LPARAM
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
-//Docked window methods
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Docked window methods
+//----------------------------------------------------------------------------------------------------------------------
 void WC_DockPanel::AddDockedWindow(HWND dockedWindow, DockLocation dockLocation, bool pushToFront)
 {
-	//Set this new docked window as a child window of our control
+	// Set this new docked window as a child window of our control
 	SetWindowParent(dockedWindow, _hwnd);
 
-	//Calculate the current width and height of the new docked window
+	// Calculate the current width and height of the new docked window
 	RECT dockedWindowRect;
 	GetWindowRect(dockedWindow, &dockedWindowRect);
 	int dockedWindowWidth = dockedWindowRect.right - dockedWindowRect.left;
 	int dockedWindowHeight = dockedWindowRect.bottom - dockedWindowRect.top;
 
-	//Build a DockedWindowEntry object for this docked window
+	// Build a DockedWindowEntry object for this docked window
 	DockedWindowEntry entry;
 	entry.dockedWindow = dockedWindow;
 	entry.dockLocation = dockLocation;
@@ -337,7 +337,7 @@ void WC_DockPanel::AddDockedWindow(HWND dockedWindow, DockLocation dockLocation,
 	entry.windowWidth = -1;
 	entry.windowHeight = -1;
 
-	//Add this docked window to the list of docked windows
+	// Add this docked window to the list of docked windows
 	if (pushToFront)
 	{
 		_dockedWindows.push_front(entry);
@@ -347,14 +347,14 @@ void WC_DockPanel::AddDockedWindow(HWND dockedWindow, DockLocation dockLocation,
 		_dockedWindows.push_back(entry);
 	}
 
-	//Update all child window sizes now that the layout has been altered
+	// Update all child window sizes now that the layout has been altered
 	UpdateChildWindowSizes();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void WC_DockPanel::RemoveDockedWindow(HWND dockedWindow)
 {
-	//Attempt to locate the target docked window in our list of docked windows
+	// Attempt to locate the target docked window in our list of docked windows
 	bool foundTargetWindow = false;
 	std::list<DockedWindowEntry>::iterator dockedWindowsIterator = _dockedWindows.begin();
 	while (!foundTargetWindow && (dockedWindowsIterator != _dockedWindows.end()))
@@ -371,47 +371,47 @@ void WC_DockPanel::RemoveDockedWindow(HWND dockedWindow)
 		return;
 	}
 
-	//Check if this docked window is currently visible
+	// Check if this docked window is currently visible
 	bool dockedWindowVisible = (IsWindowVisible(dockedWindow) != 0);
 
-	//If the docked window is currently visible, hide it to avoid seeing it "jump" on the
-	//screen between when we remove its parent and position it.
+	// If the docked window is currently visible, hide it to avoid seeing it "jump" on the
+	// screen between when we remove its parent and position it.
 	if (dockedWindowVisible)
 	{
 		ShowWindow(dockedWindow, SW_HIDE);
 	}
 
-	//Obtain the current position of the window in screen coordinates
+	// Obtain the current position of the window in screen coordinates
 	RECT rect;
 	GetWindowRect(dockedWindow, &rect);
 	int currentDockedWindowPosX = rect.left;
 	int currentDockedWindowPosY = rect.top;
 
-	//Remove this docked window as a child window of our control
+	// Remove this docked window as a child window of our control
 	SetWindowParent(dockedWindow, NULL);
 
-	//Resize the docked window to its specified desired width and height, and position it
-	//at its current position in screen coordinates
+	// Resize the docked window to its specified desired width and height, and position it
+	// at its current position in screen coordinates
 	unsigned int setWindowPosFlags = SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE;
 	SetWindowPos(dockedWindow, NULL, currentDockedWindowPosX, currentDockedWindowPosY, dockedWindowsIterator->desiredWindowWidth, dockedWindowsIterator->desiredWindowHeight, setWindowPosFlags);
 
-	//Show the window again if it was originally visible
+	// Show the window again if it was originally visible
 	if (dockedWindowVisible)
 	{
 		ShowWindow(dockedWindow, SWP_SHOWWINDOW);
 	}
 
-	//Remove the target item
+	// Remove the target item
 	_dockedWindows.erase(dockedWindowsIterator);
 
-	//Update all child window sizes now that the layout has been altered
+	// Update all child window sizes now that the layout has been altered
 	UpdateChildWindowSizes();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 int WC_DockPanel::GetDockedWindowDesiredWidth(HWND dockedWindow)
 {
-	//Attempt to locate the target docked window in our list of docked windows
+	// Attempt to locate the target docked window in our list of docked windows
 	bool foundTargetWindow = false;
 	std::list<DockedWindowEntry>::iterator dockedWindowsIterator = _dockedWindows.begin();
 	while (!foundTargetWindow && (dockedWindowsIterator != _dockedWindows.end()))
@@ -428,14 +428,14 @@ int WC_DockPanel::GetDockedWindowDesiredWidth(HWND dockedWindow)
 		return 0;
 	}
 
-	//Return the desired width of the target window to the caller
+	// Return the desired width of the target window to the caller
 	return dockedWindowsIterator->desiredWindowWidth;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void WC_DockPanel::SetDockedWindowDesiredWidth(HWND dockedWindow, int desiredWidth)
 {
-	//Attempt to locate the target docked window in our list of docked windows
+	// Attempt to locate the target docked window in our list of docked windows
 	bool foundTargetWindow = false;
 	std::list<DockedWindowEntry>::iterator dockedWindowsIterator = _dockedWindows.begin();
 	while (!foundTargetWindow && (dockedWindowsIterator != _dockedWindows.end()))
@@ -452,17 +452,17 @@ void WC_DockPanel::SetDockedWindowDesiredWidth(HWND dockedWindow, int desiredWid
 		return;
 	}
 
-	//Update the desired width of the target window
+	// Update the desired width of the target window
 	dockedWindowsIterator->desiredWindowWidth = desiredWidth;
 
-	//Update all child window sizes now that the layout has been altered
+	// Update all child window sizes now that the layout has been altered
 	UpdateChildWindowSizes();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 int WC_DockPanel::GetDockedWindowDesiredHeight(HWND dockedWindow)
 {
-	//Attempt to locate the target docked window in our list of docked windows
+	// Attempt to locate the target docked window in our list of docked windows
 	bool foundTargetWindow = false;
 	std::list<DockedWindowEntry>::iterator dockedWindowsIterator = _dockedWindows.begin();
 	while (!foundTargetWindow && (dockedWindowsIterator != _dockedWindows.end()))
@@ -479,14 +479,14 @@ int WC_DockPanel::GetDockedWindowDesiredHeight(HWND dockedWindow)
 		return 0;
 	}
 
-	//Return the desired height of the target window to the caller
+	// Return the desired height of the target window to the caller
 	return dockedWindowsIterator->desiredWindowHeight;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void WC_DockPanel::SetDockedWindowDesiredHeight(HWND dockedWindow, int desiredHeight)
 {
-	//Attempt to locate the target docked window in our list of docked windows
+	// Attempt to locate the target docked window in our list of docked windows
 	bool foundTargetWindow = false;
 	std::list<DockedWindowEntry>::iterator dockedWindowsIterator = _dockedWindows.begin();
 	while (!foundTargetWindow && (dockedWindowsIterator != _dockedWindows.end()))
@@ -503,33 +503,33 @@ void WC_DockPanel::SetDockedWindowDesiredHeight(HWND dockedWindow, int desiredHe
 		return;
 	}
 
-	//Update the desired height of the target window
+	// Update the desired height of the target window
 	dockedWindowsIterator->desiredWindowHeight = desiredHeight;
 
-	//Update all child window sizes now that the layout has been altered
+	// Update all child window sizes now that the layout has been altered
 	UpdateChildWindowSizes();
 }
 
-//----------------------------------------------------------------------------------------
-//Hosted content methods
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Hosted content methods
+//----------------------------------------------------------------------------------------------------------------------
 void WC_DockPanel::AddHostedContent(HWND hostedContent)
 {
-	//Add the specified window to the list of currently hosted content
+	// Add the specified window to the list of currently hosted content
 	_hostedContent.push_back(hostedContent);
 
-	//Set the new content window as a child window of this control
+	// Set the new content window as a child window of this control
 	SetWindowParent(hostedContent, _hwnd);
 
-	//Set the position and size of the new content window to the content region position
-	//and size
+	// Set the position and size of the new content window to the content region position
+	// and size
 	SetWindowPos(hostedContent, NULL, _hostedContentWindowPosX, _hostedContentWindowPosY, _hostedContentWindowWidth, _hostedContentWindowHeight, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void WC_DockPanel::RemoveHostedContent(HWND hostedContent)
 {
-	//Attempt to locate the target hosted content window
+	// Attempt to locate the target hosted content window
 	std::list<HWND>::iterator hostedContentIterator = _hostedContent.begin();
 	bool foundTargetContent = false;
 	while (!foundTargetContent && (hostedContentIterator != _hostedContent.end()))
@@ -546,91 +546,91 @@ void WC_DockPanel::RemoveHostedContent(HWND hostedContent)
 		return;
 	}
 
-	//Remove the content window as a child window of our control
+	// Remove the content window as a child window of our control
 	SetWindowParent(hostedContent, NULL);
 
-	//Remove the content window from the list of hosted content windows
+	// Remove the content window from the list of hosted content windows
 	_hostedContent.erase(hostedContentIterator);
 }
 
-//----------------------------------------------------------------------------------------
-//Sizing methods
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Sizing methods
+//----------------------------------------------------------------------------------------------------------------------
 void WC_DockPanel::HandleSizeChanged(int newWidth, int newHeight)
 {
-	//Save the new client window dimensions
+	// Save the new client window dimensions
 	_currentControlWidth = newWidth;
 	_currentControlHeight = newHeight;
 
-	//Update all child window sizes now that the layout has been altered
+	// Update all child window sizes now that the layout has been altered
 	UpdateChildWindowSizes();
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void WC_DockPanel::UpdateChildWindowSizes()
 {
-	//Begin a session for processing this batch of window size changes. Processing all the
-	//window size and position changes in a single operation in this manner gives the best
-	//performance and appearance.
+	// Begin a session for processing this batch of window size changes. Processing all the
+	// window size and position changes in a single operation in this manner gives the best
+	// performance and appearance.
 	HDWP deferWindowPosSession = BeginDeferWindowPos((int)_dockedWindows.size() + 1);
 
-	//Update the position and size of each docked window
+	// Update the position and size of each docked window
 	int currentClientPosX = 0;
 	int currentClientPosY = 0;
 	int remainingClientWidth = _currentControlWidth;
 	int remainingClientHeight = _currentControlHeight;
 	for (std::list<DockedWindowEntry>::iterator i = _dockedWindows.begin(); i != _dockedWindows.end(); ++i)
 	{
-		//Update the position and size of this docked window, and adjust the current
-		//client position and remaining client size to take into account the position and
-		//size of the window.
+		// Update the position and size of this docked window, and adjust the current
+		// client position and remaining client size to take into account the position and
+		// size of the window.
 		DockedWindowEntry& entry = *i;
 		bool updatedWindowSize = false;
 		bool updatedWindowPosition = false;
 		UpdateDockedWindowPositionAndSize(entry, updatedWindowSize, updatedWindowPosition, currentClientPosX, currentClientPosY, remainingClientWidth, remainingClientHeight);
 
-		//If the size or position of this docked window has changed, add it to the update
-		//session.
+		// If the size or position of this docked window has changed, add it to the update
+		// session.
 		if (updatedWindowPosition || updatedWindowSize)
 		{
 			DeferWindowPos(deferWindowPosSession, entry.dockedWindow, NULL, entry.windowPosX, entry.windowPosY, entry.windowWidth, entry.windowHeight, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
 		}
 	}
 
-	//If the position and size of the hosted content window region has changed, add each
-	//hosted content window to the update session.
+	// If the position and size of the hosted content window region has changed, add each
+	// hosted content window to the update session.
 	if ((_hostedContentWindowPosX != currentClientPosX) || (_hostedContentWindowPosY != currentClientPosY) || (_hostedContentWindowWidth != remainingClientWidth) || (_hostedContentWindowHeight != remainingClientHeight))
 	{
-		//Latch the new position and size of the content region
+		// Latch the new position and size of the content region
 		_hostedContentWindowPosX = currentClientPosX;
 		_hostedContentWindowPosY = currentClientPosY;
 		_hostedContentWindowWidth = remainingClientWidth;
 		_hostedContentWindowHeight = remainingClientHeight;
 
-		//Add each content window to the update session
+		// Add each content window to the update session
 		for (std::list<HWND>::const_iterator i = _hostedContent.begin(); i != _hostedContent.end(); ++i)
 		{
 			DeferWindowPos(deferWindowPosSession, *i, NULL, _hostedContentWindowPosX, _hostedContentWindowPosY, _hostedContentWindowWidth, _hostedContentWindowHeight, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
 		}
 	}
 
-	//Process all the window size and position changes involved in this update
+	// Process all the window size and position changes involved in this update
 	EndDeferWindowPos(deferWindowPosSession);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void WC_DockPanel::CalculateNewDockedWindowPositionAndSize(DockLocation dockLocation, bool addToFront, int preferredWidth, int preferredHeight, int& windowPosX, int& windowPosY, int& windowWidth, int& windowHeight)
 {
-	//Calculate the position and size of the available client region. If the docked window
-	//is being pushed to the front of the window list, the entire region is available,
-	//otherwise we use the current content position and size as the available region.
+	// Calculate the position and size of the available client region. If the docked window
+	// is being pushed to the front of the window list, the entire region is available,
+	// otherwise we use the current content position and size as the available region.
 	int currentClientPosX = (addToFront)? 0: _hostedContentWindowPosX;
 	int currentClientPosY = (addToFront)? 0: _hostedContentWindowPosY;
 	int remainingClientWidth = (addToFront)? _currentControlWidth: _hostedContentWindowWidth;
 	int remainingClientHeight = (addToFront)? _currentControlHeight: _hostedContentWindowHeight;
 
-	//Build a DockedWindowEntry object for the new docked window we're calculating the
-	//position and size for
+	// Build a DockedWindowEntry object for the new docked window we're calculating the
+	// position and size for
 	DockedWindowEntry newDockedWindowEntry;
 	newDockedWindowEntry.dockedWindow = NULL;
 	newDockedWindowEntry.dockLocation = dockLocation;
@@ -641,22 +641,22 @@ void WC_DockPanel::CalculateNewDockedWindowPositionAndSize(DockLocation dockLoca
 	newDockedWindowEntry.windowWidth = -1;
 	newDockedWindowEntry.windowHeight = -1;
 
-	//Calculate the position and size of the new docked window
+	// Calculate the position and size of the new docked window
 	bool updatedWindowSize = false;
 	bool updatedWindowPosition = false;
 	UpdateDockedWindowPositionAndSize(newDockedWindowEntry, updatedWindowSize, updatedWindowPosition, currentClientPosX, currentClientPosY, remainingClientWidth, remainingClientHeight);
 
-	//Return the calculated new window position and size to the caller
+	// Return the calculated new window position and size to the caller
 	windowPosX = newDockedWindowEntry.windowPosX;
 	windowPosY = newDockedWindowEntry.windowPosY;
 	windowWidth = newDockedWindowEntry.windowWidth;
 	windowHeight = newDockedWindowEntry.windowHeight;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void WC_DockPanel::UpdateDockedWindowPositionAndSize(DockedWindowEntry& entry, bool& updatedWindowSize, bool& updatedWindowPosition, int& currentClientPosX, int& currentClientPosY, int& remainingClientWidth, int& remainingClientHeight)
 {
-	//Calculate the new size of this docked window
+	// Calculate the new size of this docked window
 	updatedWindowSize = false;
 	if ((entry.dockLocation == DockLocation::Left) || (entry.dockLocation == DockLocation::Right))
 	{
@@ -677,7 +677,7 @@ void WC_DockPanel::UpdateDockedWindowPositionAndSize(DockedWindowEntry& entry, b
 		}
 	}
 
-	//Calculate the new position of this docked window
+	// Calculate the new position of this docked window
 	updatedWindowPosition = false;
 	if ((entry.dockLocation == DockLocation::Left) || (entry.dockLocation == DockLocation::Top) || (entry.dockLocation == DockLocation::Bottom))
 	{
@@ -712,7 +712,7 @@ void WC_DockPanel::UpdateDockedWindowPositionAndSize(DockedWindowEntry& entry, b
 		}
 	}
 
-	//Update the current client position and remaining space within our control
+	// Update the current client position and remaining space within our control
 	switch (entry.dockLocation)
 	{
 	case DockLocation::Left:

@@ -40,7 +40,7 @@ public:
 //	|                     16 BITS IMMEDIATE DATA                    |
 //	-----------------------------------------------------------------
 
-		//ORI	#<data>,SR
+		// ORI	#<data>,SR
 		_source.BuildImmediateData(BITCOUNT_WORD, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
 		AddInstructionSize(_source.ExtensionSize());
 		AddExecuteCycleCount(ExecuteTime(20, 3, 0));
@@ -53,13 +53,13 @@ public:
 		M68000Word op2;
 		M68000Word result;
 
-		//Perform the operation
+		// Perform the operation
 		additionalTime += _source.Read(cpu, op1, GetInstructionRegister());
 		op2 = cpu->GetSR();
 		result = op1 | op2;
 		cpu->SetSR(result);
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -73,5 +73,5 @@ private:
 	EffectiveAddress _source;
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #endif

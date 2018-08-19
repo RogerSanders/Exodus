@@ -65,16 +65,16 @@ References:
 class S315_5313 :public Device, public GenericAccessBase<IS315_5313>
 {
 public:
-	//Constructors
+	// Constructors
 	S315_5313(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 
-	//Interface version functions
+	// Interface version functions
 	virtual unsigned int GetIS315_5313Version() const;
 
-	//Device access functions
+	// Device access functions
 	virtual IDevice* GetDevice();
 
-	//Line functions
+	// Line functions
 	virtual unsigned int GetLineID(const Marshal::In<std::wstring>& lineName) const;
 	virtual Marshal::Ret<std::wstring> GetLineName(unsigned int lineID) const;
 	virtual unsigned int GetLineWidth(unsigned int lineID) const;
@@ -84,13 +84,13 @@ public:
 	virtual void AssertCurrentOutputLineState() const;
 	virtual void NegateCurrentOutputLineState() const;
 
-	//Clock source functions
+	// Clock source functions
 	virtual unsigned int GetClockSourceID(const Marshal::In<std::wstring>& clockSourceName) const;
 	virtual Marshal::Ret<std::wstring> GetClockSourceName(unsigned int clockSourceID) const;
 	virtual void SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	virtual void TransparentSetClockSourceRate(unsigned int clockInput, double clockRate);
 
-	//Initialization functions
+	// Initialization functions
 	virtual bool BuildDevice();
 	virtual bool ValidateDevice();
 	virtual void Initialize();
@@ -98,7 +98,7 @@ public:
 	virtual void BeginExecution();
 	virtual void SuspendExecution();
 
-	//Reference functions
+	// Reference functions
 	virtual bool AddReference(const Marshal::In<std::wstring>& referenceName, IDevice* target);
 	virtual bool AddReference(const Marshal::In<std::wstring>& referenceName, IBusInterface* target);
 	virtual bool AddReference(const Marshal::In<std::wstring>& referenceName, IClockSource* target);
@@ -106,10 +106,10 @@ public:
 	virtual void RemoveReference(IBusInterface* target);
 	virtual void RemoveReference(IClockSource* target);
 
-	//Suspend functions
+	// Suspend functions
 	virtual bool UsesTransientExecution() const;
 
-	//Execute functions
+	// Execute functions
 	virtual UpdateMethod GetUpdateMethod() const;
 	virtual bool SendNotifyUpcomingTimeslice() const;
 	virtual void NotifyUpcomingTimeslice(double nanoseconds);
@@ -123,7 +123,7 @@ public:
 	virtual void ExecuteRollback();
 	virtual void ExecuteCommit();
 
-	//CE line state functions
+	// CE line state functions
 	virtual unsigned int GetCELineID(const Marshal::In<std::wstring>& lineName, bool inputLine) const;
 	virtual void SetCELineInput(unsigned int lineID, bool lineMapped, unsigned int lineStartBitNumber);
 	virtual void SetCELineOutput(unsigned int lineID, bool lineMapped, unsigned int lineStartBitNumber);
@@ -131,11 +131,11 @@ public:
 	virtual unsigned int CalculateCELineStateMemoryTransparent(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext) const;
 	unsigned int BuildCELine(unsigned int targetAddress, bool vdpIsSource, bool transparentAccess, bool currentLowerDataStrobe, bool currentUpperDataStrobe, bool operationIsWrite, bool rmwCycleInProgress, bool rmwCycleFirstOperation) const;
 
-	//Memory interface functions
+	// Memory interface functions
 	virtual IBusInterface::AccessResult ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	virtual IBusInterface::AccessResult WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 
-	//Savestate functions
+	// Savestate functions
 	virtual bool GetScreenshot(IImage& targetImage) const;
 	virtual void LoadState(IHierarchicalStorageNode& node);
 	virtual void SaveState(IHierarchicalStorageNode& node) const;
@@ -144,25 +144,25 @@ public:
 	virtual void LoadDebuggerState(IHierarchicalStorageNode& node);
 	virtual void SaveDebuggerState(IHierarchicalStorageNode& node) const;
 
-	//Data read/write functions
+	// Data read/write functions
 	using IGenericAccess::ReadGenericData;
 	using IGenericAccess::WriteGenericData;
 	virtual bool ReadGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue) const;
 	virtual bool WriteGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue);
 
-	//Data locking functions
+	// Data locking functions
 	virtual bool GetGenericDataLocked(unsigned int dataID, const DataContext* dataContext) const;
 	virtual bool SetGenericDataLocked(unsigned int dataID, const DataContext* dataContext, bool state);
 
 private:
-	//Enumerations
+	// Enumerations
 	enum class CELineID;
 	enum class LineID;
 	enum class ClockID;
 	enum LayerIndex :unsigned int;
 	enum class AccessContext;
 
-	//Structures
+	// Structures
 	struct HScanSettings;
 	struct VScanSettings;
 	struct TimesliceRenderInfo;
@@ -175,12 +175,12 @@ private:
 	struct HVCounterAdvanceSession;
 	struct ImageBufferColorEntry;
 
-	//Typedefs
+	// Typedefs
 	typedef RandomTimeAccessBuffer<Data, unsigned int> RegBuffer;
 	typedef RegBuffer::AccessTarget AccessTarget;
 	typedef ITimedBufferInt::AccessTarget RAMAccessTarget;
 
-	//Render constants
+	// Render constants
 	static const unsigned int RenderDigitalBlockPixelSizeY = 8;
 	static const unsigned char PaletteEntryTo8Bit[8];
 	static const unsigned char PaletteEntryTo8BitShadow[8];
@@ -192,16 +192,16 @@ private:
 	static const InternalRenderOp InternalOperationsH32[342];
 	static const InternalRenderOp InternalOperationsH40[420];
 
-	//Interrupt settings
+	// Interrupt settings
 	static const unsigned int ExintIPLLineState = 2;
 	static const unsigned int HintIPLLineState = 4;
 	static const unsigned int VintIPLLineState = 6;
 
-	//Horizontal scan timing settings
+	// Horizontal scan timing settings
 	static const HScanSettings H32ScanSettingsStatic;
 	static const HScanSettings H40ScanSettingsStatic;
 
-	//Vertical scan timing settings
+	// Vertical scan timing settings
 	static const VScanSettings V28PalNoIntScanSettingsStatic;
 	static const VScanSettings V28PalIntEnScanSettingsStatic;
 	static const VScanSettings V30PalNoIntScanSettingsStatic;
@@ -212,12 +212,12 @@ private:
 	static const VScanSettings V30NtscIntEnScanSettingsStatic;
 
 private:
-	//Line functions
+	// Line functions
 	unsigned int GetNewIPLLineState();
 	void UpdatePredictedLineStateChanges(IDeviceContext* callingDevice, double accessTime, unsigned int accessContext);
 	void UpdateLineStateChangePrediction(unsigned int lineNo, unsigned int lineStateChangeData, bool& lineStateChangePending, unsigned int& lineStateChangeMCLKCountdown, double& lineStateChangeTime, bool lineStateChangePendingNew, unsigned int lineStateChangeMCLKCountdownNew, IDeviceContext* callingDevice, double accessTime, unsigned int accessContext);
 
-	//External buffer functions
+	// External buffer functions
 	virtual void LockExternalBuffers();
 	virtual void UnlockExternalBuffers();
 	virtual ITimedBufferInt* GetVRAMBuffer() const;
@@ -225,7 +225,7 @@ private:
 	virtual ITimedBufferInt* GetVSRAMBuffer() const;
 	virtual ITimedBufferInt* GetSpriteCacheBuffer() const;
 
-	//Image buffer functions
+	// Image buffer functions
 	virtual unsigned int GetImageLastRenderedFrameToken() const;
 	virtual unsigned int GetImageCompletedBufferPlaneNo() const;
 	virtual unsigned int GetImageDrawingBufferPlaneNo() const;
@@ -240,10 +240,10 @@ private:
 	virtual void GetImageBufferActiveScanPosX(unsigned int planeNo, unsigned int lineNo, unsigned int& startPosX, unsigned int& endPosX) const;
 	virtual void GetImageBufferActiveScanPosY(unsigned int planeNo, unsigned int& startPosY, unsigned int& endPosY) const;
 
-	//DMA functions
+	// DMA functions
 	void DMAWorkerThread();
 
-	//Rendering functions
+	// Rendering functions
 	void RenderThread();
 	void AdvanceRenderProcess(unsigned int mclkCyclesToAdvance);
 	void UpdateDigitalRenderProcess(const AccessTarget& accessTarget, const HScanSettings& hscanSettings, const VScanSettings& vscanSettings);
@@ -264,18 +264,18 @@ private:
 	virtual unsigned char ColorValueTo8BitValue(unsigned int colorValue, bool shadow, bool highlight) const;
 	virtual Marshal::Ret<std::list<SpriteBoundaryLineEntry>> GetSpriteBoundaryLines(unsigned int planeNo) const;
 
-	//Sprite list debugging functions
+	// Sprite list debugging functions
 	virtual SpriteMappingTableEntry GetSpriteMappingTableEntry(unsigned int spriteTableBaseAddress, unsigned int entryNo) const;
 	virtual void SetSpriteMappingTableEntry(unsigned int spriteTableBaseAddress, unsigned int entryNo, const SpriteMappingTableEntry& entry, bool useSeparatedData);
 
-	//Memory interface functions
+	// Memory interface functions
 	Data GetHVCounter() const;
 	void ProcessCommandDataWriteFirstHalf(const Data& data);
 	void ProcessCommandDataWriteSecondHalf(const Data& data);
 	void TransparentRegisterSpecialUpdateFunction(unsigned int registerNo, const Data& data);
 	void RegisterSpecialUpdateFunction(unsigned int mclkCycle, double accessTime, double accessDelay, IDeviceContext* caller, unsigned int accessContext, unsigned int registerNo, const Data& data);
 
-	//Port monitor functions
+	// Port monitor functions
 	virtual bool GetPortMonitorStatusReadEnabled() const;
 	virtual void SetPortMonitorStatusReadEnabled(bool state);
 	virtual bool GetPortMonitorDataReadEnabled() const;
@@ -293,24 +293,24 @@ private:
 	virtual void ClearPortMonitorLog();
 	void RecordPortMonitorEntry(const PortMonitorEntry& entry);
 
-	//HV counter internal/linear conversion
+	// HV counter internal/linear conversion
 	static unsigned int HCounterValueFromVDPInternalToLinear(const HScanSettings& hscanSettings, unsigned int hcounterCurrent);
 	static unsigned int VCounterValueFromVDPInternalToLinear(const VScanSettings& vscanSettings, unsigned int vcounterCurrent, bool oddFlagSet);
 	static unsigned int HCounterValueFromLinearToVDPInternal(const HScanSettings& hscanSettings, unsigned int hcounterCurrent);
 	static unsigned int VCounterValueFromLinearToVDPInternal(const VScanSettings& vscanSettings, unsigned int vcounterCurrent, bool oddFlagSet);
 
-	//Video scan settings functions
+	// Video scan settings functions
 	//##TODO## Consider removing the RS0 parameter here. We only need the RS1 bit.
 	static const HScanSettings& GetHScanSettings(bool screenModeRS0Active, bool screenModeRS1Active);
 	static const VScanSettings& GetVScanSettings(bool screenModeV30Active, bool palModeActive, bool interlaceActive);
 
-	//HV counter comparison functions
+	// HV counter comparison functions
 	static bool EventOccursWithinCounterRange(const HScanSettings& hscanSettings, unsigned int hcounterStart, unsigned int vcounterStart, unsigned int hcounterEnd, unsigned int vcounterEnd, unsigned int hcounterEventPos, unsigned int vcounterEventPos);
 	static unsigned int GetPixelClockStepsBetweenHVCounterValues(bool advanceIfValuesMatch, const HScanSettings& hscanSettings, unsigned int hcounterCurrent, unsigned int hcounterTarget, const VScanSettings& vscanSettings, bool interlaceIsEnabled, bool oddFlagSet, unsigned int vcounterCurrent, unsigned int vcounterTarget);
 	static unsigned int GetPixelClockStepsBetweenHCounterValues(const HScanSettings& hscanSettings, unsigned int hcounterCurrent, unsigned int hcounterTarget);
 	static unsigned int GetPixelClockStepsBetweenVCounterValues(const HScanSettings& hscanSettings, unsigned int hcounterCurrent, const VScanSettings& vscanSettings, bool interlaceIsEnabled, bool oddFlagSet, unsigned int vcounterCurrent, unsigned int vcounterTarget);
 
-	//HV counter advancement functions
+	// HV counter advancement functions
 	void BeginHVCounterAdvanceSessionFromCurrentState(HVCounterAdvanceSession& advanceSession);
 	static bool AdvanceHVCounterSession(HVCounterAdvanceSession& advanceSession, unsigned int hcounterTarget, unsigned int vcounterTarget, bool advanceIfValuesMatch);
 	static unsigned int AddStepsToHCounter(const HScanSettings& hscanSettings, unsigned int hcounterCurrent, unsigned int hcounterStepsToAdd);
@@ -318,19 +318,19 @@ private:
 	static void AdvanceHVCounters(const HScanSettings& hscanSettings, unsigned int& hcounterCurrent, const VScanSettings& vscanSettings, bool interlaceIsEnabled, bool& oddFlagSet, unsigned int& vcounterCurrent, unsigned int pixelClockSteps);
 	static void AdvanceHVCountersOneStep(const HScanSettings& hscanSettings, unsigned int& hcounterCurrent, const VScanSettings& vscanSettings, bool interlaceIsEnabled, bool& oddFlagSet, unsigned int& vcounterCurrent);
 
-	//Pixel clock functions
+	// Pixel clock functions
 	//##TODO## Move these functions somewhere more appropriate
-	//static unsigned int GetUpdatedVSRAMReadCacheIndex(const HScanSettings& hscanSettings, const VScanSettings& vscanSettings, unsigned int vsramReadCacheIndexCurrent, unsigned int hcounterInitial, unsigned int vcounterInitial, unsigned int hcounterFinal, unsigned int vcounterFinal, bool screenModeRS0Current, bool screenModeRS1Current, unsigned int vscrollMode);
+	// static unsigned int GetUpdatedVSRAMReadCacheIndex(const HScanSettings& hscanSettings, const VScanSettings& vscanSettings, unsigned int vsramReadCacheIndexCurrent, unsigned int hcounterInitial, unsigned int vcounterInitial, unsigned int hcounterFinal, unsigned int vcounterFinal, bool screenModeRS0Current, bool screenModeRS1Current, unsigned int vscrollMode);
 	static unsigned int GetPixelClockTicksUntilNextAccessSlot(const HScanSettings& hscanSettings, const VScanSettings& vscanSettings, unsigned int hcounterCurrent, bool screenModeRS0Current, bool screenModeRS1Current, bool displayEnabled, unsigned int vcounterCurrent);
 	static unsigned int GetPixelClockTicksForMclkTicks(const HScanSettings& hscanSettings, unsigned int mclkTicks, unsigned int hcounterCurrent, bool screenModeRS0Active, bool screenModeRS1Active, unsigned int& mclkTicksUnused);
 	static unsigned int GetMclkTicksForPixelClockTicks(const HScanSettings& hscanSettings, unsigned int pixelClockTicks, unsigned int hcounterCurrent, bool screenModeRS0Active, bool screenModeRS1Active);
 	static unsigned int GetMclkTicksForOnePixelClockTick(const HScanSettings& hscanSettings, unsigned int hcounterCurrent, bool screenModeRS0Active, bool screenModeRS1Active);
 
-	//Access time functions
+	// Access time functions
 	unsigned int ConvertAccessTimeToMclkCount(double accessTime) const;
 	double ConvertMclkCountToAccessTime(unsigned int mclkCount) const;
 
-	//Processor state advancement functions
+	// Processor state advancement functions
 	void UpdateInternalState(unsigned int mclkCyclesTarget, bool checkFifoStateBeforeUpdate, bool stopWhenFifoEmpty, bool stopWhenFifoFull, bool stopWhenFifoNotFull, bool stopWhenReadDataAvailable, bool stopWhenNoDMAOperationInProgress, bool allowAdvancePastCycleTarget);
 	bool AdvanceProcessorState(unsigned int mclkCyclesTarget, bool stopAtNextAccessSlot, bool allowAdvancePastTargetForAccessSlot);
 	void PerformReadCacheOperation();
@@ -344,13 +344,13 @@ private:
 	double GetProcessorStateTime() const;
 	unsigned int GetProcessorStateMclkCurrent() const;
 
-	//FIFO functions
+	// FIFO functions
 	bool IsWriteFIFOEmpty() const;
 	bool IsWriteFIFOFull() const;
 
 	//##TODO## Mode 4 control functions
 
-	//Mode 5 control functions
+	// Mode 5 control functions
 	bool ValidReadTargetInCommandCode() const;
 	void M5ReadVRAM8Bit(const Data& address, Data& data, const RAMAccessTarget& accessTarget);
 	void M5ReadCRAM(const Data& address, Data& data, const RAMAccessTarget& accessTarget);
@@ -359,7 +359,7 @@ private:
 	void M5WriteCRAM(const Data& address, const Data& data, const RAMAccessTarget& accessTarget);
 	void M5WriteVSRAM(const Data& address, const Data& data, const RAMAccessTarget& accessTarget);
 
-	//Status register functions
+	// Status register functions
 	inline bool GetStatusFlagFIFOEmpty() const;
 	inline void SetStatusFlagFIFOEmpty(bool state);
 	inline bool GetStatusFlagFIFOFull() const;
@@ -381,12 +381,12 @@ private:
 	inline bool GetStatusFlagPAL() const;
 	inline void SetStatusFlagPAL(bool state);
 
-	//Raw register functions
+	// Raw register functions
 	inline Data GetRegisterData(unsigned int location, const AccessTarget& accessTarget) const;
 	inline void SetRegisterData(unsigned int location, const AccessTarget& accessTarget, const Data& data);
 
-	//Interpreted register functions
-	inline bool RegGetVSI(const AccessTarget& accessTarget) const;	//0x00(0)
+	// Interpreted register functions
+	inline bool RegGetVSI(const AccessTarget& accessTarget) const;	// 0x00(0)
 	inline void RegSetVSI(const AccessTarget& accessTarget, bool data);
 	inline bool RegGetHSI(const AccessTarget& accessTarget) const;
 	inline void RegSetHSI(const AccessTarget& accessTarget, bool data);
@@ -403,7 +403,7 @@ private:
 	inline bool RegGetES(const AccessTarget& accessTarget) const;
 	inline void RegSetES(const AccessTarget& accessTarget, bool data);
 
-	inline bool RegGetEVRAM(const AccessTarget& accessTarget) const;	//0x01(1)
+	inline bool RegGetEVRAM(const AccessTarget& accessTarget) const;	// 0x01(1)
 	inline void RegSetEVRAM(const AccessTarget& accessTarget, bool data);
 	inline bool RegGetDisplayEnabled(const AccessTarget& accessTarget) const;
 	inline void RegSetDisplayEnabled(const AccessTarget& accessTarget, bool data);
@@ -420,18 +420,18 @@ private:
 	inline bool RegGetMAG(const AccessTarget& accessTarget) const;
 	inline void RegSetMAG(const AccessTarget& accessTarget, bool data);
 
-	inline unsigned int RegGetNameTableBaseScrollA(const AccessTarget& accessTarget, bool mode4Enabled, bool extendedVRAMModeEnabled) const;	//0x02(2)
+	inline unsigned int RegGetNameTableBaseScrollA(const AccessTarget& accessTarget, bool mode4Enabled, bool extendedVRAMModeEnabled) const;	// 0x02(2)
 	inline void RegSetNameTableBaseScrollA(const AccessTarget& accessTarget, unsigned int data);
-	inline unsigned int RegGetNameTableBaseWindow(const AccessTarget& accessTarget, bool h40ModeActive, bool extendedVRAMModeEnabled) const;	//0x03(3)
+	inline unsigned int RegGetNameTableBaseWindow(const AccessTarget& accessTarget, bool h40ModeActive, bool extendedVRAMModeEnabled) const;	// 0x03(3)
 	inline void RegSetNameTableBaseWindow(const AccessTarget& accessTarget, unsigned int data);
-	inline unsigned int RegGetNameTableBaseScrollB(const AccessTarget& accessTarget, bool extendedVRAMModeEnabled) const;	//0x04(4)
+	inline unsigned int RegGetNameTableBaseScrollB(const AccessTarget& accessTarget, bool extendedVRAMModeEnabled) const;	// 0x04(4)
 	inline void RegSetNameTableBaseScrollB(const AccessTarget& accessTarget, unsigned int data);
-	inline unsigned int RegGetNameTableBaseSprite(const AccessTarget& accessTarget, bool mode4Enabled, bool h40ModeActive, bool extendedVRAMModeEnabled) const;	//0x05(5)
+	inline unsigned int RegGetNameTableBaseSprite(const AccessTarget& accessTarget, bool mode4Enabled, bool h40ModeActive, bool extendedVRAMModeEnabled) const;	// 0x05(5)
 	inline void RegSetNameTableBaseSprite(const AccessTarget& accessTarget, unsigned int data, bool mode4Enabled);
-	inline unsigned int RegGetPatternBaseSprite(const AccessTarget& accessTarget, bool mode4Enabled, bool extendedVRAMModeEnabled) const;	//0x06(6)
+	inline unsigned int RegGetPatternBaseSprite(const AccessTarget& accessTarget, bool mode4Enabled, bool extendedVRAMModeEnabled) const;	// 0x06(6)
 	inline void RegSetPatternBaseSprite(const AccessTarget& accessTarget, unsigned int data, bool mode4Enabled);
 
-	inline bool RegGet077(const AccessTarget& accessTarget) const;	//0x07(7)
+	inline bool RegGet077(const AccessTarget& accessTarget) const;	// 0x07(7)
 	inline void RegSet077(const AccessTarget& accessTarget, bool data);
 	inline bool RegGet076(const AccessTarget& accessTarget) const;
 	inline void RegSet076(const AccessTarget& accessTarget, bool data);
@@ -440,14 +440,14 @@ private:
 	inline unsigned int RegGetBackgroundPaletteColumn(const AccessTarget& accessTarget) const;
 	inline void RegSetBackgroundPaletteColumn(const AccessTarget& accessTarget, unsigned int data);
 
-	inline unsigned int RegGetBackgroundScrollX(const AccessTarget& accessTarget) const;	//0x08(8)
+	inline unsigned int RegGetBackgroundScrollX(const AccessTarget& accessTarget) const;	// 0x08(8)
 	inline void RegSetBackgroundScrollX(const AccessTarget& accessTarget, unsigned int data);
-	inline unsigned int RegGetBackgroundScrollY(const AccessTarget& accessTarget) const;	//0x09(9)
+	inline unsigned int RegGetBackgroundScrollY(const AccessTarget& accessTarget) const;	// 0x09(9)
 	inline void RegSetBackgroundScrollY(const AccessTarget& accessTarget, unsigned int data);
 
-	inline unsigned int RegGetHInterruptData(const AccessTarget& accessTarget) const;	//0x0A(10)
+	inline unsigned int RegGetHInterruptData(const AccessTarget& accessTarget) const;	// 0x0A(10)
 	inline void RegSetHInterruptData(const AccessTarget& accessTarget, unsigned int data);
-	inline bool RegGet0B7(const AccessTarget& accessTarget) const;	//0x0B(11)
+	inline bool RegGet0B7(const AccessTarget& accessTarget) const;	// 0x0B(11)
 	inline void RegSet0B7(const AccessTarget& accessTarget, bool data);
 	inline bool RegGet0B6(const AccessTarget& accessTarget) const;
 	inline void RegSet0B6(const AccessTarget& accessTarget, bool data);
@@ -464,7 +464,7 @@ private:
 	inline bool RegGetLSCR(const AccessTarget& accessTarget) const;
 	inline void RegSetLSCR(const AccessTarget& accessTarget, bool data);
 
-	inline bool RegGetRS0(const AccessTarget& accessTarget) const;	//0x0C(12)
+	inline bool RegGetRS0(const AccessTarget& accessTarget) const;	// 0x0C(12)
 	inline void RegSetRS0(const AccessTarget& accessTarget, bool data);
 	inline bool RegGetU1(const AccessTarget& accessTarget) const;
 	inline void RegSetU1(const AccessTarget& accessTarget, bool data);
@@ -481,10 +481,10 @@ private:
 	inline bool RegGetRS1(const AccessTarget& accessTarget) const;
 	inline void RegSetRS1(const AccessTarget& accessTarget, bool data);
 
-	inline unsigned int RegGetHScrollDataBase(const AccessTarget& accessTarget, bool extendedVRAMModeEnabled) const;	//0x0D(13)
+	inline unsigned int RegGetHScrollDataBase(const AccessTarget& accessTarget, bool extendedVRAMModeEnabled) const;	// 0x0D(13)
 	inline void RegSetHScrollDataBase(const AccessTarget& accessTarget, unsigned int data);
 
-	inline unsigned int RegGet0E57(const AccessTarget& accessTarget) const;	//0x0E(14)
+	inline unsigned int RegGet0E57(const AccessTarget& accessTarget) const;	// 0x0E(14)
 	inline void RegSet0E57(const AccessTarget& accessTarget, unsigned int data);
 	inline unsigned int RegGetPatternBaseScrollA(const AccessTarget& accessTarget, bool extendedVRAMModeEnabled) const;
 	inline void RegSetPatternBaseScrollA(const AccessTarget& accessTarget, unsigned int data);
@@ -493,10 +493,10 @@ private:
 	inline unsigned int RegGetPatternBaseScrollB(const AccessTarget& accessTarget, bool extendedVRAMModeEnabled) const;
 	inline void RegSetPatternBaseScrollB(const AccessTarget& accessTarget, unsigned int data);
 
-	inline unsigned int RegGetAutoIncrementData(const AccessTarget& accessTarget) const;	//0x0F(15)
+	inline unsigned int RegGetAutoIncrementData(const AccessTarget& accessTarget) const;	// 0x0F(15)
 	inline void RegSetAutoIncrementData(const AccessTarget& accessTarget, unsigned int data);
 
-	inline unsigned int RegGet1067(const AccessTarget& accessTarget) const;	//0x10(16)
+	inline unsigned int RegGet1067(const AccessTarget& accessTarget) const;	// 0x10(16)
 	inline void RegSet1067(const AccessTarget& accessTarget, unsigned int data);
 	inline unsigned int RegGetVSZ(const AccessTarget& accessTarget) const;
 	inline void RegSetVSZ(const AccessTarget& accessTarget, unsigned int data);
@@ -513,28 +513,28 @@ private:
 	inline bool RegGetHSZ0(const AccessTarget& accessTarget) const;
 	inline void RegSetHSZ0(const AccessTarget& accessTarget, bool data);
 
-	inline unsigned int RegGet1156(const AccessTarget& accessTarget) const;	//0x11(17)
+	inline unsigned int RegGet1156(const AccessTarget& accessTarget) const;	// 0x11(17)
 	inline void RegSet1156(const AccessTarget& accessTarget, unsigned int data);
 	inline bool RegGetWindowRightAligned(const AccessTarget& accessTarget) const;
 	inline void RegSetWindowRightAligned(const AccessTarget& accessTarget, bool data);
 	inline unsigned int RegGetWindowBasePointX(const AccessTarget& accessTarget) const;
 	inline void RegSetWindowBasePointX(const AccessTarget& accessTarget, unsigned int data);
-	inline unsigned int RegGet1256(const AccessTarget& accessTarget) const;	//0x12(18)
+	inline unsigned int RegGet1256(const AccessTarget& accessTarget) const;	// 0x12(18)
 	inline void RegSet1256(const AccessTarget& accessTarget, unsigned int data);
 	inline bool RegGetWindowBottomAligned(const AccessTarget& accessTarget) const;
 	inline void RegSetWindowBottomAligned(const AccessTarget& accessTarget, bool data);
 	inline unsigned int RegGetWindowBasePointY(const AccessTarget& accessTarget) const;
 	inline void RegSetWindowBasePointY(const AccessTarget& accessTarget, unsigned int data);
 
-	inline unsigned int RegGetDMALengthCounter(const AccessTarget& accessTarget) const;	//0x13-0x14(19-20)
+	inline unsigned int RegGetDMALengthCounter(const AccessTarget& accessTarget) const;	// 0x13-0x14(19-20)
 	inline void RegSetDMALengthCounter(const AccessTarget& accessTarget, unsigned int data);
-	inline unsigned int RegGetDMASourceAddress(const AccessTarget& accessTarget) const;	//0x15-0x17(21-23)
+	inline unsigned int RegGetDMASourceAddress(const AccessTarget& accessTarget) const;	// 0x15-0x17(21-23)
 	inline void RegSetDMASourceAddress(const AccessTarget& accessTarget, unsigned int data);
-	inline unsigned int RegGetDMASourceAddressByte1(const AccessTarget& accessTarget) const;	//0x15(21)
+	inline unsigned int RegGetDMASourceAddressByte1(const AccessTarget& accessTarget) const;	// 0x15(21)
 	inline void RegSetDMASourceAddressByte1(const AccessTarget& accessTarget, unsigned int data);
-	inline unsigned int RegGetDMASourceAddressByte2(const AccessTarget& accessTarget) const;	//0x16(22)
+	inline unsigned int RegGetDMASourceAddressByte2(const AccessTarget& accessTarget) const;	// 0x16(22)
 	inline void RegSetDMASourceAddressByte2(const AccessTarget& accessTarget, unsigned int data);
-	inline unsigned int RegGetDMASourceAddressByte3(const AccessTarget& accessTarget) const;	//0x17(23)
+	inline unsigned int RegGetDMASourceAddressByte3(const AccessTarget& accessTarget) const;	// 0x17(23)
 	inline void RegSetDMASourceAddressByte3(const AccessTarget& accessTarget, unsigned int data);
 	inline bool RegGetDMD1(const AccessTarget& accessTarget) const;
 	inline void RegSetDMD1(const AccessTarget& accessTarget, bool data);
@@ -542,7 +542,7 @@ private:
 	inline void RegSetDMD0(const AccessTarget& accessTarget, bool data);
 
 private:
-	//Debug output
+	// Debug output
 	bool _outputPortAccessDebugMessages;
 	bool _outputTimingDebugMessages;
 	bool _outputRenderSyncMessages;
@@ -562,7 +562,7 @@ private:
 	bool _videoShowBoundaryTitleSafe;
 	bool _videoEnableFullImageBufferInfo;
 
-	//Bus interface
+	// Bus interface
 	IBusInterface* _memoryBus;
 	volatile bool _busGranted;
 	bool _bbusGranted;
@@ -575,16 +575,16 @@ private:
 	bool _busRequestLineState;
 	bool _bbusRequestLineState;
 
-	//Embedded PSG device
+	// Embedded PSG device
 	IDevice* _psg;
 
-	//Clock sources
+	// Clock sources
 	IClockSource* _clockSourceCLK0;
 	IClockSource* _clockSourceCLK1;
 	double _clockMclkCurrent;
 	double _bclockMclkCurrent;
 
-	//Layer removal settings
+	// Layer removal settings
 	bool _enableLayerAHigh;
 	bool _enableLayerALow;
 	bool _enableLayerBHigh;
@@ -594,7 +594,7 @@ private:
 	bool _enableSpriteHigh;
 	bool _enableSpriteLow;
 
-	//Port monitor settings
+	// Port monitor settings
 	mutable std::mutex _portMonitorMutex;
 	bool _logStatusRegisterRead;
 	bool _logDataPortRead;
@@ -606,9 +606,9 @@ private:
 	std::list<PortMonitorEntry> _portMonitorList;
 	std::list<PortMonitorEntry> _bportMonitorList;
 
-	//Physical registers and memory buffers
-	mutable std::mutex _accessMutex; //Top-level, protects against concurrent interface access.
-	mutable std::mutex _lineMutex; //Top level, must never be held during a blocking operation
+	// Physical registers and memory buffers
+	mutable std::mutex _accessMutex; // Top-level, protects against concurrent interface access.
+	mutable std::mutex _lineMutex; // Top level, must never be held during a blocking operation
 	double _lastAccessTime;
 	RegBuffer _reg;
 	ITimedBufferInt* _vram;
@@ -635,12 +635,12 @@ private:
 	bool _exintPending;
 	bool _bexintPending;
 
-	//Register locking
+	// Register locking
 	mutable std::mutex _registerLockMutex;
 	bool _rawRegisterLocking[RegisterCount];
 	std::map<unsigned int, std::wstring> _lockedRegisterState;
 
-	//Active register settings
+	// Active register settings
 	bool _interlaceEnabled;
 	bool _binterlaceEnabled;
 	bool _interlaceDouble;
@@ -654,7 +654,7 @@ private:
 	bool _palMode;
 	bool _bpalMode;
 
-	//Cached register settings
+	// Cached register settings
 	bool _hvCounterLatchEnabled;
 	bool _bhvCounterLatchEnabled;
 	bool _vintEnabled;
@@ -701,7 +701,7 @@ private:
 	bool _bverticalScrollModeCached;
 	bool _cachedDMASettingsChanged;
 
-	//FIFO buffer registers
+	// FIFO buffer registers
 	unsigned int _fifoNextReadEntry;
 	unsigned int _bfifoNextReadEntry;
 	unsigned int _fifoNextWriteEntry;
@@ -719,15 +719,15 @@ private:
 	Data _vsramLastRenderReadCache;
 	Data _bvsramLastRenderReadCache;
 
-	//Update state
-	double _currentTimesliceLength; //The length of the current timeslice, as passed to NotifyUpcomingTimeslice().
+	// Update state
+	double _currentTimesliceLength; // The length of the current timeslice, as passed to NotifyUpcomingTimeslice().
 	double _bcurrentTimesliceLength;
-	double _lastTimesliceMclkCyclesRemainingTime; //The unused portion of the last timeslice which wasn't be consumed by an mclk cycle. Note that this does NOT factor in time we ran over the last timeslice, as specified in lastTimesliceMclkCyclesOverrun.
+	double _lastTimesliceMclkCyclesRemainingTime; // The unused portion of the last timeslice which wasn't be consumed by an mclk cycle. Note that this does NOT factor in time we ran over the last timeslice, as specified in lastTimesliceMclkCyclesOverrun.
 	double _blastTimesliceMclkCyclesRemainingTime;
-	double _currentTimesliceMclkCyclesRemainingTime; //Rolling value, the unused portion of the current timeslice which can't be consumed by an mclk cycle, as predicted during NotifyUpcomingTimeslice().
+	double _currentTimesliceMclkCyclesRemainingTime; // Rolling value, the unused portion of the current timeslice which can't be consumed by an mclk cycle, as predicted during NotifyUpcomingTimeslice().
 	double _bcurrentTimesliceMclkCyclesRemainingTime;
-	unsigned int _currentTimesliceTotalMclkCycles; //The total number of mclk cycles added by the current timeslice, taking into account free from the last timeslice as included in the currentTimesliceMclkCyclesRemainingTime value. Note that this does NOT factor in time we ran over the last timeslice, as specified in lastTimesliceMclkCyclesOverrun.
-	unsigned int _lastTimesliceMclkCyclesOverrun; //The total number of mclk cycles we advanced past the end of the last timeslice
+	unsigned int _currentTimesliceTotalMclkCycles; // The total number of mclk cycles added by the current timeslice, taking into account free from the last timeslice as included in the currentTimesliceMclkCyclesRemainingTime value. Note that this does NOT factor in time we ran over the last timeslice, as specified in lastTimesliceMclkCyclesOverrun.
+	unsigned int _lastTimesliceMclkCyclesOverrun; // The total number of mclk cycles we advanced past the end of the last timeslice
 	unsigned int _blastTimesliceMclkCyclesOverrun;
 	double _stateLastUpdateTime;
 	double _bstateLastUpdateTime;
@@ -738,7 +738,7 @@ private:
 	unsigned int _stateLastUpdateMclkUnusedFromLastTimeslice;
 	unsigned int _bstateLastUpdateMclkUnusedFromLastTimeslice;
 
-	//Interrupt line rollback data
+	// Interrupt line rollback data
 	bool _lineStateChangePendingVINT;
 	bool _blineStateChangePendingVINT;
 	unsigned int _lineStateChangeVINTMClkCountFromCurrent;
@@ -770,7 +770,7 @@ private:
 	double _lineStateChangeINTNegatedTime;
 	double _blineStateChangeINTNegatedTime;
 
-	//Control port registers
+	// Control port registers
 	bool _codeAndAddressRegistersModifiedSinceLastWrite;
 	bool _bcodeAndAddressRegistersModifiedSinceLastWrite;
 	bool _commandWritePending;
@@ -782,9 +782,9 @@ private:
 	Data _commandCode;
 	Data _bcommandCode;
 
-	//Render thread properties
-	mutable std::mutex _renderThreadMutex; //Top level, timesliceMutex child
-	mutable std::mutex _timesliceMutex; //Child of renderThreadMutex
+	// Render thread properties
+	mutable std::mutex _renderThreadMutex; // Top level, timesliceMutex child
+	mutable std::mutex _timesliceMutex; // Child of renderThreadMutex
 	std::condition_variable _renderThreadUpdate;
 	std::condition_variable _renderThreadStopped;
 	bool _renderThreadActive;
@@ -818,9 +818,9 @@ private:
 	std::list<ITimedBufferInt::Timeslice*> _vsramTimesliceListUncommitted;
 	std::list<ITimedBufferInt::Timeslice*> _spriteCacheTimesliceListUncommitted;
 
-	//Digital render data buffers
+	// Digital render data buffers
 	//##TODO## Separate the analog and digital renderers into their own classes. Our
-	//single VDP superclass is getting too large to be manageable.
+	// single VDP superclass is getting too large to be manageable.
 	static const unsigned int cellBlockSizeH = 8;
 	static const unsigned int maxCellsPerRow = 42;
 	static const unsigned int maxSpriteDisplayCacheSize = 20;
@@ -838,7 +838,7 @@ private:
 	bool _renderDigitalInterlaceDoubleActive;
 	bool _renderDigitalPalModeActive;
 	bool _renderDigitalOddFlagSet;
-	unsigned int _renderDigitalMclkCycleProgress; //No backup needed
+	unsigned int _renderDigitalMclkCycleProgress; // No backup needed
 	unsigned int _renderLayerAHscrollPatternDisplacement;
 	unsigned int _renderLayerBHscrollPatternDisplacement;
 	unsigned int _renderLayerAHscrollMappingDisplacement;
@@ -875,7 +875,7 @@ private:
 	bool _renderSpriteCollision;
 	Data _renderVSRAMCachedRead;
 
-	//Analog render data buffers
+	// Analog render data buffers
 	unsigned int _drawingImageBufferPlane;
 	volatile unsigned int _lastRenderedFrameToken;
 	mutable ReadWriteLock _imageBufferLock[ImageBufferPlanes];
@@ -891,8 +891,8 @@ private:
 	mutable std::mutex _spriteBoundaryMutex[ImageBufferPlanes];
 	mutable std::list<SpriteBoundaryLineEntry> _imageBufferSpriteBoundaryLines[ImageBufferPlanes];
 
-	//DMA worker thread properties
-	mutable std::mutex _workerThreadMutex; //Top-level, required in order to interact with state affecting DMA worker thread.
+	// DMA worker thread properties
+	mutable std::mutex _workerThreadMutex; // Top-level, required in order to interact with state affecting DMA worker thread.
 	std::condition_variable _workerThreadUpdate;
 	std::condition_variable _workerThreadStopped;
 	std::condition_variable _workerThreadIdle;
@@ -900,10 +900,10 @@ private:
 	bool _workerThreadPaused;
 	bool _bworkerThreadPaused;
 
-	//DMA transfer registers
+	// DMA transfer registers
 	//##FIX## Everything related to DMA transfers should be done in SC cycles, not MCLK
-	//cycles.
-	static const unsigned int dmaTransferReadTimeInMclkCycles = 16; //The number of mclk cycles required for a DMA operation to read a byte from the external bus
+	// cycles.
+	static const unsigned int dmaTransferReadTimeInMclkCycles = 16; // The number of mclk cycles required for a DMA operation to read a byte from the external bus
 	bool _dmaTransferActive;
 	bool _bdmaTransferActive;
 	bool _dmaTransferReadDataCached;
@@ -922,7 +922,7 @@ private:
 	Data _bdmaTransferInvalidPortWriteDataCache;
 	volatile bool _dmaAdvanceUntilDMAComplete;
 
-	//External interrupt settings
+	// External interrupt settings
 	bool _externalInterruptVideoTriggerPointPending;
 	bool _bexternalInterruptVideoTriggerPointPending;
 	unsigned int _externalInterruptVideoTriggerPointHCounter;
@@ -930,7 +930,7 @@ private:
 	unsigned int _externalInterruptVideoTriggerPointVCounter;
 	unsigned int _bexternalInterruptVideoTriggerPointVCounter;
 
-	//CE line masks
+	// CE line masks
 	unsigned int _ceLineMaskLowerDataStrobeInput;
 	unsigned int _ceLineMaskUpperDataStrobeInput;
 	unsigned int _ceLineMaskReadHighWriteLowInput;
@@ -947,7 +947,7 @@ private:
 	unsigned int _ceLineMaskRAS0;
 	unsigned int _ceLineMaskOE0;
 
-	//Saved CE line state for Read-Modify-Write cycles
+	// Saved CE line state for Read-Modify-Write cycles
 	mutable bool _lineLWRSavedStateRMW;
 	mutable bool _lineUWRSavedStateRMW;
 	mutable bool _lineCAS0SavedStateRMW;

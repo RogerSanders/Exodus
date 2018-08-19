@@ -49,13 +49,13 @@ public:
 		{
 			switch (data.GetDataSegment(6, 2))
 			{
-			case 0:	//00
+			case 0:	// 00
 				_size = BITCOUNT_BYTE;
 				break;
-			case 1:	//01
+			case 1:	// 01
 				_size = BITCOUNT_WORD;
 				break;
-			case 2:	//10
+			case 2:	// 10
 				_size = BITCOUNT_LONG;
 				break;
 			}
@@ -106,7 +106,7 @@ public:
 		Data op2(_size);
 		Data result(_size);
 
-		//Perform the operation
+		// Perform the operation
 		additionalTime += _source.Read(cpu, op1, GetInstructionRegister());
 		additionalTime += _target.ReadWithoutAdjustingAddress(cpu, op2, GetInstructionRegister());
 		op1 %= 64;
@@ -114,7 +114,7 @@ public:
 		result |= op2 << (Data(_size, op1.GetBitCount()) - (op1 % op1.GetBitCount()));
 		additionalTime += _target.Write(cpu, result, GetInstructionRegister());
 
-		//Set the flag results
+		// Set the flag results
 		cpu->SetN(result.Negative());
 		cpu->SetZ(result.Zero());
 		cpu->SetV(false);
@@ -127,14 +127,14 @@ public:
 			cpu->SetC(false);
 		}
 
-		//Calculate the additional execution time
+		// Calculate the additional execution time
 		ExecuteTime additionalCycles;
 		if (_target.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect)
 		{
 			additionalCycles.Set(2 * op1.GetData(), 0, 0);
 		}
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime) + additionalCycles;
 	}
@@ -151,5 +151,5 @@ private:
 	Bitcount _size;
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #endif

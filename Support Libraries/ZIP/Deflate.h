@@ -6,5 +6,5 @@ namespace Deflate {
 bool DeflateCompress(Stream::IStream& source, Stream::IStream& target, unsigned int& calculatedCRC, unsigned int inputCacheSize = 0, unsigned int outputCacheSize = 0);
 bool DeflateDecompress(Stream::IStream& source, Stream::IStream& target, unsigned int& calculatedCRC, unsigned int inputCacheSize = 0, unsigned int outputCacheSize = 0);
 
-} //Close namespace Deflate
+} // Close namespace Deflate
 #endif

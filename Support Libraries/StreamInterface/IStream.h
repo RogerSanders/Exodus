@@ -6,11 +6,11 @@ namespace Stream {
 class IStream :public IStreamNonSeekable
 {
 public:
-	//Stream position
+	// Stream position
 	virtual SizeType Size() const = 0;
 	virtual SizeType GetStreamPos() const = 0;
 	virtual void SetStreamPos(SizeType position) = 0;
 };
 
-} //Close namespace Stream
+} // Close namespace Stream
 #endif

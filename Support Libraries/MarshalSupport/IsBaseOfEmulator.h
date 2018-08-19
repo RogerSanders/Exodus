@@ -7,11 +7,11 @@ template<class B, class D>
 struct is_base_of_emulator
 {
 private:
-	//Typedefs
+	// Typedefs
 	typedef char(&yes)[1];
 	typedef char(&no)[2];
 
-	//Nested Types
+	// Nested Types
 	template<class B, class D>
 	struct Host
 	{
@@ -20,16 +20,16 @@ private:
 	};
 
 private:
-	//Check function
+	// Check function
 	static no check(B*, int);
 	template<class T>
 	static yes check(D*, T);
 
 public:
-	//Result
+	// Result
 	static const bool value = (sizeof(check(Host<B, D>(), int())) == sizeof(yes));
 };
 
-} //Close namespace Internal
-} //Close namespace MarshalSupport
+} // Close namespace Internal
+} // Close namespace MarshalSupport
 #endif

@@ -35,17 +35,17 @@ public:
 //	                            |--<opmode>-|
 		switch (data.GetDataSegment(6, 1))
 		{
-		case 0: //0
+		case 0: // 0
 			_size = BITCOUNT_BYTE;
 			_targetSize = BITCOUNT_WORD;
 			break;
-		case 1:	//1
+		case 1:	// 1
 			_size = BITCOUNT_WORD;
 			_targetSize = BITCOUNT_LONG;
 			break;
 		}
 
-		//EXT	Dn
+		// EXT	Dn
 		_target.BuildDataDirect(_size, location + GetInstructionSize(), data.GetDataSegment(0, 3));
 		AddExecuteCycleCount(ExecuteTime(4, 1, 0));
 	}
@@ -56,18 +56,18 @@ public:
 		Data op1(_size);
 		Data result(_targetSize);
 
-		//Perform the operation
+		// Perform the operation
 		additionalTime += _target.ReadWithoutAdjustingAddress(cpu, op1, GetInstructionRegister());
 		result = op1.SignExtend(_targetSize);
 		additionalTime += _target.Write(cpu, result, GetInstructionRegister());
 
-		//Set the flag results
+		// Set the flag results
 		cpu->SetN(result.Negative());
 		cpu->SetZ(result.Zero());
 		cpu->SetV(false);
 		cpu->SetC(false);
 
-		//Adjust the PC and return the execution time
+		// Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
 		return GetExecuteCycleCount(additionalTime);
 	}
@@ -83,5 +83,5 @@ private:
 	Bitcount _targetSize;
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #endif

@@ -6,10 +6,10 @@
 class DeviceInfo :public IDeviceInfo
 {
 public:
-	//Interface version functions
+	// Interface version functions
 	virtual unsigned int GetIDeviceInfoVersion() const;
 
-	//Getters
+	// Getters
 	virtual AllocatorPointer GetAllocator() const;
 	virtual DestructorPointer GetDestructor() const;
 	virtual Marshal::Ret<std::wstring> GetDeviceClassName() const;
@@ -18,7 +18,7 @@ public:
 	virtual Marshal::Ret<std::wstring> GetDeviceCopyright() const;
 	virtual Marshal::Ret<std::wstring> GetDeviceComments() const;
 
-	//Setters
+	// Setters
 	virtual void SetDeviceSettings(AllocatorPointer allocator, DestructorPointer destructor, const Marshal::In<std::wstring>& deviceClassName, const Marshal::In<std::wstring>& deviceImplementationName, unsigned int deviceVersionNo, const Marshal::In<std::wstring>& deviceCopyright, const Marshal::In<std::wstring>& deviceComments);
 	virtual void SetDeviceAllocators(AllocatorPointer allocator, DestructorPointer destructor);
 	virtual void SetDeviceClassName(const Marshal::In<std::wstring>& deviceClassName);

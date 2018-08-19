@@ -7,7 +7,7 @@ namespace Internal {
 template<class ElementType>
 inline void DeleteSTLContainerItemArray(void* itemArray, const ElementType* elementPointer);
 
-} //Close namespace Internal
-} //Close namespace MarshalSupport
+} // Close namespace Internal
+} // Close namespace MarshalSupport
 #include "DeleteSTLContainerItemArray.inl"
 #endif

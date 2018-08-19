@@ -11,7 +11,7 @@ enum Bitcount
 class Z80Byte :public Data
 {
 public:
-	//Constructors
+	// Constructors
 	inline Z80Byte()
 	:Data(BITCOUNT_BYTE)
 	{}
@@ -22,7 +22,7 @@ public:
 	:Data(BITCOUNT_BYTE, data.GetData())
 	{}
 
-	//Integer operators
+	// Integer operators
 	Z80Byte operator+(unsigned int target) const
 	{
 		Z80Byte temp(*this);
@@ -174,7 +174,7 @@ public:
 		return _data <= target;
 	}
 
-	//Z80Byte operators
+	// Z80Byte operators
 	Z80Byte operator+(const Z80Byte& target) const
 	{
 		Z80Byte temp(*this);
@@ -326,7 +326,7 @@ public:
 		return _data <= target._data;
 	}
 
-	//Unary operators
+	// Unary operators
 	Z80Byte operator~() const
 	{
 		Z80Byte temp(*this);
@@ -365,7 +365,7 @@ public:
 class Z80Word :public Data
 {
 public:
-	//Constructors
+	// Constructors
 	inline Z80Word()
 	:Data(BITCOUNT_WORD)
 	{}
@@ -376,7 +376,7 @@ public:
 	:Data(BITCOUNT_WORD, data.GetData())
 	{}
 
-	//Integer operators
+	// Integer operators
 	Z80Word operator+(unsigned int target) const
 	{
 		Z80Word temp(*this);
@@ -528,7 +528,7 @@ public:
 		return _data <= target;
 	}
 
-	//Z80Word operators
+	// Z80Word operators
 	Z80Word operator+(const Z80Word& target) const
 	{
 		Z80Word temp(*this);
@@ -680,7 +680,7 @@ public:
 		return _data <= target._data;
 	}
 
-	//Unary operators
+	// Unary operators
 	Z80Word operator~() const
 	{
 		Z80Word temp(*this);
@@ -716,5 +716,5 @@ public:
 	}
 };
 
-} //Close namespace Z80
+} // Close namespace Z80
 #endif

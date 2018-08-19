@@ -1,6 +1,6 @@
-//----------------------------------------------------------------------------------------
-//Structures
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Structures
+//----------------------------------------------------------------------------------------------------------------------
 struct ExodusInterface::NewMenuItem
 {
 	NewMenuItem(HMENU aparentMenu, unsigned int amenuID, IMenuSelectableOption& amenuItem)
@@ -12,7 +12,7 @@ struct ExodusInterface::NewMenuItem
 	IMenuSelectableOption& menuItem;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct ExodusInterface::SavestateCellWindowState
 {
 	SavestateCellWindowState()
@@ -41,7 +41,7 @@ struct ExodusInterface::SavestateCellWindowState
 	unsigned int infoRectangleHeight;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct ExodusInterface::MapConnectorDialogParams
 {
 	MapConnectorDialogParams()
@@ -54,7 +54,7 @@ struct ExodusInterface::MapConnectorDialogParams
 	ISystemGUIInterface* system;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct ExodusInterface::SelectCompressedFileDialogParams
 {
 	SelectCompressedFileDialogParams()
@@ -66,28 +66,28 @@ struct ExodusInterface::SelectCompressedFileDialogParams
 	std::list<SelectCompressedFileDialogParamsFileEntry> fileList;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct ExodusInterface::SelectCompressedFileDialogParamsFileEntry
 {
 	std::wstring fileName;
 	unsigned int entryID;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct ExodusInterface::RegisteredDeviceInfo
 {
 	std::wstring assemblyPath;
 	DeviceInfo info;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct ExodusInterface::RegisteredExtensionInfo
 {
 	std::wstring assemblyPath;
 	ExtensionInfo info;
 };
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct ExodusInterface::PluginInfo
 {
 	AssemblyHandle assemblyHandle;

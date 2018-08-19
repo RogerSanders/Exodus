@@ -7,14 +7,14 @@ using namespace MarshalSupport::Operators;
 class IOpcodeInfo
 {
 public:
-	//Constructors
+	// Constructors
 	virtual ~IOpcodeInfo() = 0 {}
 
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisIOpcodeInfoVersion() { return 1; }
 	virtual unsigned int GetIOpcodeInfoVersion() const = 0;
 
-	//Opcode info functions
+	// Opcode info functions
 	virtual bool GetIsValidOpcode() const = 0;
 	virtual void SetIsValidOpcode(bool state) = 0;
 	virtual unsigned int GetOpcodeSize() const = 0;

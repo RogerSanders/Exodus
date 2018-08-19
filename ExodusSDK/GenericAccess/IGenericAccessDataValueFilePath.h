@@ -8,14 +8,14 @@ using namespace MarshalSupport::Operators;
 class IGenericAccessDataValueFilePath :public IGenericAccessDataValue
 {
 public:
-	//Interface version functions
+	// Interface version functions
 	static inline unsigned int ThisIGenericAccessDataValueFilePathVersion() { return 1; }
 	virtual unsigned int GetIGenericAccessDataValueFilePathVersion() const = 0;
 
-	//Value read functions
+	// Value read functions
 	virtual Marshal::Ret<std::wstring> GetValue() const = 0;
 
-	//Value limit functions
+	// Value limit functions
 	virtual unsigned int GetMaxLength() const = 0;
 	virtual void SetMaxLength(unsigned int state) = 0;
 };

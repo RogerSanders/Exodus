@@ -1,8 +1,8 @@
 #include "MDControl3.h"
 
-//----------------------------------------------------------------------------------------
-//Constructors
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Constructors
+//----------------------------------------------------------------------------------------------------------------------
 MDControl3::MDControl3(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
 :Device(implementationName, instanceName, moduleID)
 {
@@ -11,9 +11,9 @@ MDControl3::MDControl3(const std::wstring& implementationName, const std::wstrin
 	_bbuttonPressed.resize(buttonCount);
 }
 
-//----------------------------------------------------------------------------------------
-//Initialization functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Initialization functions
+//----------------------------------------------------------------------------------------------------------------------
 void MDControl3::Initialize()
 {
 	for (unsigned int i = 0; i < buttonCount; ++i)
@@ -32,15 +32,15 @@ void MDControl3::Initialize()
 	_currentTimesliceLength = 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool MDControl3::ValidateDevice()
 {
 	return (_memoryBus != 0);
 }
 
-//----------------------------------------------------------------------------------------
-//Reference functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Reference functions
+//----------------------------------------------------------------------------------------------------------------------
 bool MDControl3::AddReference(const Marshal::In<std::wstring>& referenceName, IBusInterface* target)
 {
 	if (referenceName == L"BusInterface")
@@ -54,7 +54,7 @@ bool MDControl3::AddReference(const Marshal::In<std::wstring>& referenceName, IB
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void MDControl3::RemoveReference(IBusInterface* target)
 {
 	if (_memoryBus == target)
@@ -63,22 +63,22 @@ void MDControl3::RemoveReference(IBusInterface* target)
 	}
 }
 
-//----------------------------------------------------------------------------------------
-//Execute functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Execute functions
+//----------------------------------------------------------------------------------------------------------------------
 bool MDControl3::SendNotifyUpcomingTimeslice() const
 {
 	return true;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void MDControl3::NotifyUpcomingTimeslice(double nanoseconds)
 {
 	_currentTimesliceLength = nanoseconds;
 	_lastLineAccessTime = 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void MDControl3::ExecuteRollback()
 {
 	for (unsigned int i = 0; i < buttonCount; ++i)
@@ -96,7 +96,7 @@ void MDControl3::ExecuteRollback()
 	_currentTimesliceLength = _bcurrentTimesliceLength;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void MDControl3::ExecuteCommit()
 {
 	for (unsigned int i = 0; i < buttonCount; ++i)
@@ -114,9 +114,9 @@ void MDControl3::ExecuteCommit()
 	_bcurrentTimesliceLength = _currentTimesliceLength;
 }
 
-//----------------------------------------------------------------------------------------
-//Line functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Line functions
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int MDControl3::GetLineID(const Marshal::In<std::wstring>& lineName) const
 {
 	if (lineName == L"D0")
@@ -150,7 +150,7 @@ unsigned int MDControl3::GetLineID(const Marshal::In<std::wstring>& lineName) co
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> MDControl3::GetLineName(unsigned int lineID) const
 {
 	switch ((LineID)lineID)
@@ -173,7 +173,7 @@ Marshal::Ret<std::wstring> MDControl3::GetLineName(unsigned int lineID) const
 	return L"";
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int MDControl3::GetLineWidth(unsigned int lineID) const
 {
 	switch ((LineID)lineID)
@@ -190,42 +190,42 @@ unsigned int MDControl3::GetLineWidth(unsigned int lineID) const
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void MDControl3::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	std::unique_lock<std::mutex> lock(_lineMutex);
 
-	//Read the time at which this access is being made, and trigger a rollback if the
-	//device has been accessed out of order.
+	// Read the time at which this access is being made, and trigger a rollback if the
+	// device has been accessed out of order.
 	if (_lastLineAccessTime > accessTime)
 	{
 		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 	}
 	_lastLineAccessTime = accessTime;
 
-	//If the TH line has been toggled, select the currently enabled bank.
+	// If the TH line has been toggled, select the currently enabled bank.
 	if (targetLine == LineID::TH)
 	{
 		_lineInputStateTH = lineData.GetBit(0);
 	}
 
-	//We explicitly release our lock on lineMutex here so that we're not blocking access
-	//to SetLineState() on this class before we modify the line state for other devices in
-	//the code that follows. Adhering to this pattern helps to avoid deadlock cases that
-	//could otherwise arise from valid line mappings.
+	// We explicitly release our lock on lineMutex here so that we're not blocking access
+	// to SetLineState() on this class before we modify the line state for other devices in
+	// the code that follows. Adhering to this pattern helps to avoid deadlock cases that
+	// could otherwise arise from valid line mappings.
 	lock.unlock();
 
-	//If an input line state has changed, re-evaluate the state of the output lines.
+	// If an input line state has changed, re-evaluate the state of the output lines.
 	UpdateLineState(caller, accessTime, accessContext);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void MDControl3::TransparentSetLineState(unsigned int targetLine, const Data& lineData)
 {
 	SetLineState(targetLine, lineData, 0, _currentTimesliceLength, 0);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void MDControl3::AssertCurrentOutputLineState() const
 {
 	if (_memoryBus != 0)
@@ -240,7 +240,7 @@ void MDControl3::AssertCurrentOutputLineState() const
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void MDControl3::NegateCurrentOutputLineState() const
 {
 	if (_memoryBus != 0)
@@ -255,7 +255,7 @@ void MDControl3::NegateCurrentOutputLineState() const
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void MDControl3::UpdateLineState(IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	bool newLineStateD0 = GetDesiredLineState(_lineInputStateTH, _buttonPressed, LineID::D0);
@@ -302,19 +302,19 @@ void MDControl3::UpdateLineState(IDeviceContext* caller, double accessTime, unsi
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 bool MDControl3::GetDesiredLineState(unsigned int currentLineInputStateTH, const std::vector<bool>& currentButtonPressedState, LineID lineID)
 {
 	if (currentLineInputStateTH)
 	{
-		//This state is selected when TH is configured as an input and set to 1
-		//D0 = Up
-		//D1 = Down
-		//D2 = Left
-		//D3 = Right
-		//TL = B
-		//TR = C
-		//TH = Null (+5v)
+		// This state is selected when TH is configured as an input and set to 1
+		// D0 = Up
+		// D1 = Down
+		// D2 = Left
+		// D3 = Right
+		// TL = B
+		// TR = C
+		// TH = Null (+5v)
 		switch (lineID)
 		{
 		case LineID::D0:
@@ -335,14 +335,14 @@ bool MDControl3::GetDesiredLineState(unsigned int currentLineInputStateTH, const
 	}
 	else
 	{
-		//This state is selected when TH is configured as an input and set to 0
-		//D0 = Up
-		//D1 = Down
-		//D2 = Null (grounded)
-		//D3 = Null (grounded)
-		//TL = A
-		//TR = Start
-		//TH = Null (+5v)
+		// This state is selected when TH is configured as an input and set to 0
+		// D0 = Up
+		// D1 = Down
+		// D2 = Null (grounded)
+		// D3 = Null (grounded)
+		// TL = A
+		// TR = Start
+		// TH = Null (+5v)
 		switch (lineID)
 		{
 		case LineID::D0:
@@ -363,13 +363,13 @@ bool MDControl3::GetDesiredLineState(unsigned int currentLineInputStateTH, const
 	}
 
 	//##TODO## Raise an assert if we end up here with an invalid setting for the target
-	//line.
+	// line.
 	return false;
 }
 
-//----------------------------------------------------------------------------------------
-//Input functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Input functions
+//----------------------------------------------------------------------------------------------------------------------
 unsigned int MDControl3::GetKeyCodeID(const Marshal::In<std::wstring>& keyCodeName) const
 {
 	if (keyCodeName == L"Up")
@@ -407,7 +407,7 @@ unsigned int MDControl3::GetKeyCodeID(const Marshal::In<std::wstring>& keyCodeNa
 	return 0;
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> MDControl3::GetKeyCodeName(unsigned int keyCodeID) const
 {
 	switch (keyCodeID)
@@ -432,7 +432,7 @@ Marshal::Ret<std::wstring> MDControl3::GetKeyCodeName(unsigned int keyCodeID) co
 	return L"";
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void MDControl3::HandleInputKeyDown(unsigned int keyCodeID)
 {
 	ButtonIndex keyCode = (ButtonIndex)(keyCodeID-1);
@@ -440,7 +440,7 @@ void MDControl3::HandleInputKeyDown(unsigned int keyCodeID)
 	UpdateLineState(GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void MDControl3::HandleInputKeyUp(unsigned int keyCodeID)
 {
 	ButtonIndex keyCode = (ButtonIndex)(keyCodeID-1);
@@ -448,9 +448,9 @@ void MDControl3::HandleInputKeyUp(unsigned int keyCodeID)
 	UpdateLineState(GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 }
 
-//----------------------------------------------------------------------------------------
-//Savestate functions
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Savestate functions
+//----------------------------------------------------------------------------------------------------------------------
 void MDControl3::LoadState(IHierarchicalStorageNode& node)
 {
 	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
@@ -511,7 +511,7 @@ void MDControl3::LoadState(IHierarchicalStorageNode& node)
 	}
 }
 
-//----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void MDControl3::SaveState(IHierarchicalStorageNode& node) const
 {
 	node.CreateChild(L"LineInputStateTH", _lineInputStateTH);

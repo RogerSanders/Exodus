@@ -6,14 +6,14 @@ namespace Z80 {
 class EffectiveAddress
 {
 public:
-	//Enumerations
+	// Enumerations
 	enum class IndexState;
 	enum class Mode;
 
-	//Constructors
+	// Constructors
 	inline EffectiveAddress();
 
-	//Decode functions
+	// Decode functions
 	inline void SetMode(Mode mode);
 	inline bool Decode8BitRegister(unsigned int data);
 	inline bool Decode16BitRegister(unsigned int data);
@@ -23,24 +23,24 @@ public:
 	inline void BuildAbsoluteAddress(const Z80Word& address);
 	inline void BuildAbsoluteAddress(const Z80Word& location, const Z80* cpu, bool transparent);
 
-	//Effective address info
+	// Effective address info
 	inline Mode GetMode() const;
 	inline unsigned int ExtensionSize();
 
-	//Index state functions
+	// Index state functions
 	inline void SetIndexState(IndexState indexState, const Z80Byte& indexOffset);
 	inline bool UsesIndexOffset() const;
 
-	//Data transfer
+	// Data transfer
 	double Read(Z80* cpu, const Z80Word& pc, Data& target) const;
 	double Write(Z80* cpu, const Z80Word& pc, const Data& target) const;
 
-	//Disassembly functions
+	// Disassembly functions
 	std::wstring Disassemble() const;
 	std::wstring DisassembleImmediateAsPCDisplacement(const Z80Word& location) const;
 
 private:
-	//Index state functions
+	// Index state functions
 	inline Z80Byte GetIndexOffset() const;
 
 private:
@@ -51,6 +51,6 @@ private:
 	Z80Byte _indexOffset;
 };
 
-} //Close namespace Z80
+} // Close namespace Z80
 #include "EffectiveAddress.inl"
 #endif

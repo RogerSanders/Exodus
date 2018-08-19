@@ -16,7 +16,7 @@ public:
 	}
 
 private:
-	//Don't allow the lock to be copied
+	// Don't allow the lock to be copied
 	PerformanceLockReentrant(const PerformanceLockReentrant& object)
 	:_mutex(object._mutex)
 	{}

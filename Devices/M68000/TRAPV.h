@@ -39,7 +39,7 @@ public:
 	{
 		ExecuteTime additionalCycles;
 
-		//Perform the operation
+		// Perform the operation
 		cpu->SetPC(location + GetInstructionSize());
 		if (cpu->GetV())
 		{
@@ -50,7 +50,7 @@ public:
 			}
 		}
 
-		//Return the execution time
+		// Return the execution time
 		return GetExecuteCycleCount() + additionalCycles;
 	}
 
@@ -58,5 +58,5 @@ public:
 	{ }
 };
 
-} //Close namespace M68000
+} // Close namespace M68000
 #endif

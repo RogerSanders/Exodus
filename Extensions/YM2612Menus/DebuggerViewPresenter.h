@@ -7,17 +7,17 @@
 class DebuggerViewPresenter :public ViewPresenterBase
 {
 public:
-	//Constructors
+	// Constructors
 	DebuggerViewPresenter(const std::wstring& viewGroupName, const std::wstring& viewName, int viewID, YM2612Menus& owner, const IDevice& modelInstanceKey, IYM2612& model);
 
-	//View title functions
+	// View title functions
 	static std::wstring GetUnqualifiedViewTitle();
 
-	//View creation and deletion
+	// View creation and deletion
 	virtual IView* CreateView(IUIManager& uiManager);
 	virtual void DeleteView(IView* view);
 
-	//Window functions
+	// Window functions
 	void OpenOperatorView(unsigned int channelNo, unsigned int operatorNo);
 
 private:
