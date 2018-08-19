@@ -4,8 +4,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-GenericDataViewPresenter::GenericDataViewPresenter(const std::wstring& aviewGroupName, const std::wstring& aviewName, int aviewID, GenericAccessMenus& aowner, const IDevice& amodelInstanceKey, IGenericAccess& amodel, const IGenericAccessPage* apage)
-:ViewPresenterBase(aowner.GetAssemblyHandle(), aviewGroupName, aviewName, aviewID, amodelInstanceKey.GetDeviceInstanceName(), amodelInstanceKey.GetDeviceModuleID(), amodelInstanceKey.GetModuleDisplayName()), owner(aowner), modelInstanceKey(amodelInstanceKey), model(amodel), page(apage)
+GenericDataViewPresenter::GenericDataViewPresenter(const std::wstring& viewGroupName, const std::wstring& viewName, int viewID, GenericAccessMenus& owner, const IDevice& modelInstanceKey, IGenericAccess& model, const IGenericAccessPage* page)
+:ViewPresenterBase(owner.GetAssemblyHandle(), viewGroupName, viewName, viewID, modelInstanceKey.GetDeviceInstanceName(), modelInstanceKey.GetDeviceModuleID(), modelInstanceKey.GetModuleDisplayName()), _owner(owner), _modelInstanceKey(modelInstanceKey), _model(model), _page(page)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -13,13 +13,13 @@ GenericDataViewPresenter::GenericDataViewPresenter(const std::wstring& aviewGrou
 //----------------------------------------------------------------------------------------
 IView* GenericDataViewPresenter::CreateView(IUIManager& uiManager)
 {
-	return new GenericDataView(uiManager, *this, model, page);
+	return new GenericDataView(uiManager, *this, _model, _page);
 }
 
 //----------------------------------------------------------------------------------------
-void GenericDataViewPresenter::DeleteView(IView* aview)
+void GenericDataViewPresenter::DeleteView(IView* view)
 {
-	delete aview;
+	delete view;
 }
 
 //----------------------------------------------------------------------------------------
@@ -29,11 +29,11 @@ bool GenericDataViewPresenter::SelectFile(std::wstring& filePath, bool existingF
 {
 	if(existingFile)
 	{
-		return owner.GetGUIInterface().SelectExistingFile(typeSelectionString, defaultExtension, filePath, L"", allowScanningIntoArchives, filePath);
+		return _owner.GetGUIInterface().SelectExistingFile(typeSelectionString, defaultExtension, filePath, L"", allowScanningIntoArchives, filePath);
 	}
 	else
 	{
-		return owner.GetGUIInterface().SelectNewFile(typeSelectionString, defaultExtension, filePath, L"", filePath);
+		return _owner.GetGUIInterface().SelectNewFile(typeSelectionString, defaultExtension, filePath, L"", filePath);
 	}
 }
 

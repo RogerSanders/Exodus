@@ -9,7 +9,7 @@ class RegistersView :public ViewBase
 {
 public:
 	//Constructors
-	RegistersView(IUIManager& auiManager, RegistersViewPresenter& apresenter, IS315_5313& amodel);
+	RegistersView(IUIManager& uiManager, RegistersViewPresenter& presenter, IS315_5313& model);
 	~RegistersView();
 
 protected:
@@ -77,15 +77,15 @@ private:
 	};
 
 private:
-	RegistersViewPresenter& presenter;
-	IS315_5313& model;
-	bool initializedDialog;
-	std::wstring previousText;
-	unsigned int currentControlFocus;
-	COLORREF lockedColor;
-	HBRUSH lockedBrush;
-	HWND activeTabWindow;
-	std::vector<TabInfo> tabItems;
+	RegistersViewPresenter& _presenter;
+	IS315_5313& _model;
+	bool _initializedDialog;
+	std::wstring _previousText;
+	unsigned int _currentControlFocus;
+	COLORREF _lockedColor;
+	HBRUSH _lockedBrush;
+	HWND _activeTabWindow;
+	std::vector<TabInfo> _tabItems;
 };
 
 #endif

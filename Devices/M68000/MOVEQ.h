@@ -22,7 +22,7 @@ public:
 
 	virtual Disassembly M68000Disassemble(const M68000::LabelSubstitutionSettings& labelSettings) const
 	{
-		return Disassembly(GetOpcodeName(), source.Disassemble(labelSettings) + L", " + target.Disassemble(labelSettings));
+		return Disassembly(GetOpcodeName(), _source.Disassemble(labelSettings) + L", " + _target.Disassemble(labelSettings));
 	}
 
 	virtual void M68000Decode(const M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)
@@ -33,8 +33,8 @@ public:
 //	| 0 | 1 | 1 | 1 | REGISTER  | 0 |        IMMEDIATE DATA         |
 //	-----------------------------------------------------------------
 
-		source.BuildImmediateData(location + GetInstructionSize(), M68000Byte(data.GetDataSegment(0, 8)), true);
-		target.BuildDataDirect(BITCOUNT_BYTE, location + GetInstructionSize(), data.GetDataSegment(9, 3));
+		_source.BuildImmediateData(location + GetInstructionSize(), M68000Byte(data.GetDataSegment(0, 8)), true);
+		_target.BuildDataDirect(BITCOUNT_BYTE, location + GetInstructionSize(), data.GetDataSegment(9, 3));
 		AddExecuteCycleCount(ExecuteTime(4, 1, 0));
 	}
 
@@ -44,8 +44,8 @@ public:
 		M68000Byte result;
 
 		//Perform the operation
-		additionalTime += source.Read(cpu, result, GetInstructionRegister());
-		additionalTime += target.Write(cpu, result.SignExtend(BITCOUNT_LONG), GetInstructionRegister());
+		additionalTime += _source.Read(cpu, result, GetInstructionRegister());
+		additionalTime += _target.Write(cpu, result.SignExtend(BITCOUNT_LONG), GetInstructionRegister());
 
 		//Set the flag results
 		cpu->SetN(result.Negative());
@@ -60,13 +60,13 @@ public:
 
 	virtual void GetLabelTargetLocations(std::set<unsigned int>& labelTargetLocations) const
 	{
-		source.AddLabelTargetsToSet(labelTargetLocations);
-		target.AddLabelTargetsToSet(labelTargetLocations);
+		_source.AddLabelTargetsToSet(labelTargetLocations);
+		_target.AddLabelTargetsToSet(labelTargetLocations);
 	}
 
 private:
-	EffectiveAddress source;
-	EffectiveAddress target;
+	EffectiveAddress _source;
+	EffectiveAddress _target;
 };
 
 } //Close namespace M68000

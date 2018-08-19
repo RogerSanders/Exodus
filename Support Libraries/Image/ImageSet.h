@@ -28,7 +28,7 @@ public:
 	virtual bool SaveCURImageSet(Stream::IStream& stream);
 
 private:
-	std::vector<IImage*> images;
+	std::vector<IImage*> _images;
 };
 
 #endif

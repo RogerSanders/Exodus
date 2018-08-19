@@ -22,13 +22,13 @@ public:
 
 	virtual Disassembly Z80Disassemble(const Z80::LabelSubstitutionSettings& labelSettings) const
 	{
-		return Disassembly(GetOpcodeName(), source.Disassemble());
+		return Disassembly(GetOpcodeName(), _source.Disassemble());
 	}
 
 	virtual void Z80Decode(const Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)
 	{
-		source.SetIndexState(GetIndexState(), GetIndexOffset());
-		target.SetIndexState(GetIndexState(), GetIndexOffset());
+		_source.SetIndexState(GetIndexState(), GetIndexOffset());
+		_target.SetIndexState(GetIndexState(), GetIndexOffset());
 
 		//PUSH qq		11qq0101
 		//PUSH IX		11011101 11100101
@@ -36,23 +36,23 @@ public:
 		switch(data.GetDataSegment(4, 2))
 		{
 		case 0:
-			source.SetMode(EffectiveAddress::Mode::BC);
+			_source.SetMode(EffectiveAddress::Mode::BC);
 			break;
 		case 1:
-			source.SetMode(EffectiveAddress::Mode::DE);
+			_source.SetMode(EffectiveAddress::Mode::DE);
 			break;
 		case 2:
-			source.SetMode(EffectiveAddress::Mode::HL);
+			_source.SetMode(EffectiveAddress::Mode::HL);
 			break;
 		case 3:
-			source.SetMode(EffectiveAddress::Mode::AF);
+			_source.SetMode(EffectiveAddress::Mode::AF);
 			break;
 		}
-		target.SetMode(EffectiveAddress::Mode::SPPreDec);
+		_target.SetMode(EffectiveAddress::Mode::SPPreDec);
 
-		AddInstructionSize(GetIndexOffsetSize(source.UsesIndexOffset() || target.UsesIndexOffset()));
-		AddInstructionSize(source.ExtensionSize());
-		AddInstructionSize(target.ExtensionSize());
+		AddInstructionSize(GetIndexOffsetSize(_source.UsesIndexOffset() || _target.UsesIndexOffset()));
+		AddInstructionSize(_source.ExtensionSize());
+		AddInstructionSize(_target.ExtensionSize());
 		AddExecuteCycleCount(11);
 	}
 
@@ -62,8 +62,8 @@ public:
 		Z80Word result;
 
 		//Perform the operation
-		additionalTime += source.Read(cpu, location, result);
-		additionalTime += target.Write(cpu, location, result);
+		additionalTime += _source.Read(cpu, location, result);
+		additionalTime += _target.Write(cpu, location, result);
 
 		//Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
@@ -71,8 +71,8 @@ public:
 	}
 
 private:
-	EffectiveAddress source;
-	EffectiveAddress target;
+	EffectiveAddress _source;
+	EffectiveAddress _target;
 };
 
 } //Close namespace Z80

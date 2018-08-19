@@ -8,19 +8,19 @@ class MemoryEditorViewPresenter :public ViewPresenterBase
 {
 public:
 	//Constructors
-	MemoryEditorViewPresenter(const std::wstring& aviewGroupName, const std::wstring& aviewName, int aviewID, MemoryMenus& aowner, const IDevice& amodelInstanceKey, IMemory& amodel);
+	MemoryEditorViewPresenter(const std::wstring& viewGroupName, const std::wstring& viewName, int viewID, MemoryMenus& owner, const IDevice& modelInstanceKey, IMemory& model);
 
 	//View title functions
 	static std::wstring GetUnqualifiedViewTitle();
 
 	//View creation and deletion
 	virtual IView* CreateView(IUIManager& uiManager);
-	virtual void DeleteView(IView* aview);
+	virtual void DeleteView(IView* view);
 
 private:
-	MemoryMenus& owner;
-	const IDevice& modelInstanceKey;
-	IMemory& model;
+	MemoryMenus& _owner;
+	const IDevice& _modelInstanceKey;
+	IMemory& _model;
 };
 
 #endif

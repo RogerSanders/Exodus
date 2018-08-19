@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-Device::Device(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
-:implementationName(aimplementationName), instanceName(ainstanceName), moduleID(amoduleID)
+Device::Device(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
+:_implementationName(implementationName), _instanceName(instanceName), _moduleID(moduleID)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -10,7 +10,7 @@ Device::Device(const std::wstring& aimplementationName, const std::wstring& ains
 //----------------------------------------------------------------------------------------
 ISystemDeviceInterface& Device::GetSystemInterface() const
 {
-	return *systemInterface;
+	return *_systemInterface;
 }
 
 //----------------------------------------------------------------------------------------
@@ -18,17 +18,17 @@ ISystemDeviceInterface& Device::GetSystemInterface() const
 //----------------------------------------------------------------------------------------
 IDeviceContext* Device::GetDeviceContext() const
 {
-	return deviceContext;
+	return _deviceContext;
 }
 
 //----------------------------------------------------------------------------------------
 double Device::GetCurrentTimesliceProgress() const
 {
-	return deviceContext->GetCurrentTimesliceProgress();
+	return _deviceContext->GetCurrentTimesliceProgress();
 }
 
 //----------------------------------------------------------------------------------------
 void Device::SetCurrentTimesliceProgress(double executionProgress)
 {
-	deviceContext->SetCurrentTimesliceProgress(executionProgress);
+	_deviceContext->SetCurrentTimesliceProgress(executionProgress);
 }

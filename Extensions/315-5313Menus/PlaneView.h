@@ -9,7 +9,7 @@ class PlaneView :public ViewBase
 {
 public:
 	//Constructors
-	PlaneView(IUIManager& auiManager, PlaneViewPresenter& apresenter, IS315_5313& amodel);
+	PlaneView(IUIManager& uiManager, PlaneViewPresenter& presenter, IS315_5313& model);
 
 protected:
 	//Member window procedure
@@ -70,54 +70,54 @@ private:
 	};
 
 private:
-	PlaneViewPresenter& presenter;
-	IS315_5313& model;
-	HGLRC glrc;
-	HWND hwndRender;
-	unsigned char* buffer;
-	bool initializedDialog;
-	std::wstring previousText;
-	unsigned int currentControlFocus;
-	int currentRenderWindowWidth;
-	int currentRenderWindowHeight;
-	float imageZoomFactor;
-	unsigned int bufferWidth;
-	unsigned int bufferHeight;
-	std::vector<float> zoomSettings;
+	PlaneViewPresenter& _presenter;
+	IS315_5313& _model;
+	HGLRC _glrc;
+	HWND _hwndRender;
+	unsigned char* _buffer;
+	bool _initializedDialog;
+	std::wstring _previousText;
+	unsigned int _currentControlFocus;
+	int _currentRenderWindowWidth;
+	int _currentRenderWindowHeight;
+	float _imageZoomFactor;
+	unsigned int _bufferWidth;
+	unsigned int _bufferHeight;
+	std::vector<float> _zoomSettings;
 
-	SelectedLayer selectedLayer;
-	bool displayScreen;
-	bool spriteBoundaries;
+	SelectedLayer _selectedLayer;
+	bool _displayScreen;
+	bool _spriteBoundaries;
 
-	bool layerAScrollPlaneManual;
-	unsigned int layerAScrollPlaneWidth;
-	unsigned int layerAScrollPlaneHeight;
-	bool layerBScrollPlaneManual;
-	unsigned int layerBScrollPlaneWidth;
-	unsigned int layerBScrollPlaneHeight;
-	bool windowScrollPlaneManual;
-	unsigned int windowScrollPlaneWidth;
-	unsigned int windowScrollPlaneHeight;
-	bool spriteScrollPlaneManual;
-	unsigned int spriteScrollPlaneWidth;
-	unsigned int spriteScrollPlaneHeight;
+	bool _layerAScrollPlaneManual;
+	unsigned int _layerAScrollPlaneWidth;
+	unsigned int _layerAScrollPlaneHeight;
+	bool _layerBScrollPlaneManual;
+	unsigned int _layerBScrollPlaneWidth;
+	unsigned int _layerBScrollPlaneHeight;
+	bool _windowScrollPlaneManual;
+	unsigned int _windowScrollPlaneWidth;
+	unsigned int _windowScrollPlaneHeight;
+	bool _spriteScrollPlaneManual;
+	unsigned int _spriteScrollPlaneWidth;
+	unsigned int _spriteScrollPlaneHeight;
 
-	bool layerAMappingBaseManual;
-	bool layerBMappingBaseManual;
-	bool windowMappingBaseManual;
-	bool spriteMappingBaseManual;
-	unsigned int layerAMappingBase;
-	unsigned int layerBMappingBase;
-	unsigned int windowMappingBase;
-	unsigned int spriteMappingBase;
-	bool layerAPatternBaseManual;
-	bool layerBPatternBaseManual;
-	bool windowPatternBaseManual;
-	bool spritePatternBaseManual;
-	unsigned int layerAPatternBase;
-	unsigned int layerBPatternBase;
-	unsigned int windowPatternBase;
-	unsigned int spritePatternBase;
+	bool _layerAMappingBaseManual;
+	bool _layerBMappingBaseManual;
+	bool _windowMappingBaseManual;
+	bool _spriteMappingBaseManual;
+	unsigned int _layerAMappingBase;
+	unsigned int _layerBMappingBase;
+	unsigned int _windowMappingBase;
+	unsigned int _spriteMappingBase;
+	bool _layerAPatternBaseManual;
+	bool _layerBPatternBaseManual;
+	bool _windowPatternBaseManual;
+	bool _spritePatternBaseManual;
+	unsigned int _layerAPatternBase;
+	unsigned int _layerBPatternBase;
+	unsigned int _windowPatternBase;
+	unsigned int _spritePatternBase;
 };
 
 #endif

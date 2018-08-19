@@ -61,13 +61,13 @@ public:
 
 	//Constructors
 	inline RandomTimeAccessBuffer();
-	inline RandomTimeAccessBuffer(const DataType& adefaultValue);
-	inline RandomTimeAccessBuffer(unsigned int size, bool akeepLatestCopy);
-	inline RandomTimeAccessBuffer(unsigned int size, bool akeepLatestCopy, const DataType& adefaultValue);
+	inline RandomTimeAccessBuffer(const DataType& defaultValue);
+	inline RandomTimeAccessBuffer(unsigned int size, bool keepLatestCopy);
+	inline RandomTimeAccessBuffer(unsigned int size, bool keepLatestCopy, const DataType& defaultValue);
 
 	//Size functions
 	inline unsigned int Size() const;
-	void Resize(unsigned int size, bool akeepLatestCopy = false);
+	void Resize(unsigned int size, bool keepLatestCopy = false);
 
 	//Access functions
 	inline DataType Read(unsigned int address, const AccessTarget& accessTarget) const;
@@ -129,15 +129,15 @@ private:
 	bool LoadWriteEntries(IHierarchicalStorageNode& node, std::list<WriteSaveEntry>& writeSaveList);
 
 private:
-	mutable std::mutex accessLock;
-	std::list<TimesliceEntry> timesliceList;
-	Timeslice latestTimeslice;
-	std::list<WriteEntry> writeList;
-	std::vector<DataType> memory;
-	bool latestMemoryBufferExists;
-	std::vector<DataType> latestMemory;
-	DataType defaultValue;
-	TimesliceType currentTimeOffset;
+	mutable std::mutex _accessLock;
+	std::list<TimesliceEntry> _timesliceList;
+	Timeslice _latestTimeslice;
+	std::list<WriteEntry> _writeList;
+	std::vector<DataType> _memory;
+	bool _latestMemoryBufferExists;
+	std::vector<DataType> _latestMemory;
+	DataType _defaultValue;
+	TimesliceType _currentTimeOffset;
 };
 
 #include "RandomTimeAccessBuffer.inl"

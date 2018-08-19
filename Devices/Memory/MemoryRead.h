@@ -16,7 +16,7 @@ class MemoryRead :public Device, public IMemory
 {
 public:
 	//Constructors
-	MemoryRead(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
+	MemoryRead(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 
 	//Interface version functions
 	virtual unsigned int GetIMemoryVersion() const;
@@ -26,7 +26,7 @@ public:
 
 	//Memory size functions
 	virtual unsigned int GetMemoryEntryCount() const;
-	void SetMemoryEntryCount(unsigned int amemoryEntryCount);
+	void SetMemoryEntryCount(unsigned int memoryEntryCount);
 
 protected:
 	//Memory locking functions
@@ -36,7 +36,7 @@ protected:
 
 private:
 	//Memory size
-	unsigned int memoryEntryCount;
+	unsigned int _memoryEntryCount;
 };
 
 #endif

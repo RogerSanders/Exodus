@@ -9,7 +9,7 @@ class WatchpointView :public ViewBase
 {
 public:
 	//Constructors
-	WatchpointView(IUIManager& auiManager, WatchpointViewPresenter& apresenter, IProcessor& amodel);
+	WatchpointView(IUIManager& uiManager, WatchpointViewPresenter& presenter, IProcessor& model);
 
 protected:
 	//Member window procedure
@@ -29,39 +29,39 @@ private:
 	void UpdateWatchpointFields(HWND hwnd);
 
 private:
-	WatchpointViewPresenter& presenter;
-	IProcessor& model;
-	bool initializedDialog;
-	std::wstring previousText;
-	unsigned int currentControlFocus;
-	int selectedWatchpointListIndex;
-	IWatchpoint* selectedWatchpoint;
-	std::list<IWatchpoint*> cachedWatchpointList;
+	WatchpointViewPresenter& _presenter;
+	IProcessor& _model;
+	bool _initializedDialog;
+	std::wstring _previousText;
+	unsigned int _currentControlFocus;
+	int _selectedWatchpointListIndex;
+	IWatchpoint* _selectedWatchpoint;
+	std::list<IWatchpoint*> _cachedWatchpointList;
 
-	std::wstring watchpointName;
-	bool watchpointEnable;
-	bool watchpointLog;
-	bool watchpointBreak;
-	bool watchpointConditionNot;
-	bool watchpointOnRead;
-	bool watchpointOnWrite;
-	bool watchpointReadConditionEnabled;
-	bool watchpointReadConditionNot;
-	bool watchpointWriteConditionEnabled;
-	bool watchpointWriteConditionNot;
-	IWatchpoint::Condition watchpointCondition;
-	IWatchpoint::Condition watchpointReadCondition;
-	IWatchpoint::Condition watchpointWriteCondition;
-	unsigned int watchpointLocation1;
-	unsigned int watchpointLocation2;
-	unsigned int watchpointLocationMask;
-	unsigned int watchpointReadConditionData1;
-	unsigned int watchpointReadConditionData2;
-	unsigned int watchpointWriteConditionData1;
-	unsigned int watchpointWriteConditionData2;
-	bool watchpointCounterEnable;
-	unsigned int watchpointCounter;
-	unsigned int watchpointCounterInterval;
+	std::wstring _watchpointName;
+	bool _watchpointEnable;
+	bool _watchpointLog;
+	bool _watchpointBreak;
+	bool _watchpointConditionNot;
+	bool _watchpointOnRead;
+	bool _watchpointOnWrite;
+	bool _watchpointReadConditionEnabled;
+	bool _watchpointReadConditionNot;
+	bool _watchpointWriteConditionEnabled;
+	bool _watchpointWriteConditionNot;
+	IWatchpoint::Condition _watchpointCondition;
+	IWatchpoint::Condition _watchpointReadCondition;
+	IWatchpoint::Condition _watchpointWriteCondition;
+	unsigned int _watchpointLocation1;
+	unsigned int _watchpointLocation2;
+	unsigned int _watchpointLocationMask;
+	unsigned int _watchpointReadConditionData1;
+	unsigned int _watchpointReadConditionData2;
+	unsigned int _watchpointWriteConditionData1;
+	unsigned int _watchpointWriteConditionData2;
+	bool _watchpointCounterEnable;
+	unsigned int _watchpointCounter;
+	unsigned int _watchpointCounterInterval;
 };
 
 #endif

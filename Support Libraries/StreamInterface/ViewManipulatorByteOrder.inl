@@ -3,8 +3,8 @@ namespace Stream {
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-ByteOrder::ByteOrder(IStream::ByteOrder abyteOrder)
-:byteOrder(abyteOrder)
+ByteOrder::ByteOrder(IStream::ByteOrder byteOrder)
+:_byteOrder(byteOrder)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -12,13 +12,13 @@ ByteOrder::ByteOrder(IStream::ByteOrder abyteOrder)
 //----------------------------------------------------------------------------------------
 IStream::ByteOrder ByteOrder::GetByteOrder() const
 {
-	return byteOrder;
+	return _byteOrder;
 }
 
 //----------------------------------------------------------------------------------------
 void ByteOrder::SetByteOrder(IStream::ByteOrder abyteOrder)
 {
-	byteOrder = abyteOrder;
+	_byteOrder = abyteOrder;
 }
 
 //----------------------------------------------------------------------------------------
@@ -26,13 +26,13 @@ void ByteOrder::SetByteOrder(IStream::ByteOrder abyteOrder)
 //----------------------------------------------------------------------------------------
 ViewText& operator>>(ViewText& stream, const ByteOrder& object)
 {
-	stream.SetViewByteOrder(object.byteOrder);
+	stream.SetViewByteOrder(object._byteOrder);
 }
 
 //----------------------------------------------------------------------------------------
 ViewText& operator<<(ViewText& stream, const ByteOrder& object)
 {
-	stream.SetViewByteOrder(object.byteOrder);
+	stream.SetViewByteOrder(object._byteOrder);
 }
 
 } //Close namespace Stream

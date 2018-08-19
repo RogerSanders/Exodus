@@ -4,7 +4,7 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 ExtensionInfo::ExtensionInfo()
-:persistentGlobalExtension(false)
+:_persistentGlobalExtension(false)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -20,104 +20,104 @@ unsigned int ExtensionInfo::GetIExtensionInfoVersion() const
 //----------------------------------------------------------------------------------------
 ExtensionInfo::AllocatorPointer ExtensionInfo::GetAllocator() const
 {
-	return Allocator;
+	return _allocator;
 }
 
 //----------------------------------------------------------------------------------------
 ExtensionInfo::DestructorPointer ExtensionInfo::GetDestructor() const
 {
-	return Destructor;
+	return _destructor;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> ExtensionInfo::GetExtensionClassName() const
 {
-	return className;
+	return _className;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> ExtensionInfo::GetExtensionImplementationName() const
 {
-	return implementationName;
+	return _implementationName;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int ExtensionInfo::GetExtensionVersionNo() const
 {
-	return versionNo;
+	return _versionNo;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> ExtensionInfo::GetExtensionCopyright() const
 {
-	return copyright;
+	return _copyright;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> ExtensionInfo::GetExtensionComments() const
 {
-	return comments;
+	return _comments;
 }
 
 //----------------------------------------------------------------------------------------
 bool ExtensionInfo::GetIsPersistentGlobalExtension() const
 {
-	return persistentGlobalExtension;
+	return _persistentGlobalExtension;
 }
 
 //----------------------------------------------------------------------------------------
 //Setters
 //----------------------------------------------------------------------------------------
-void ExtensionInfo::SetExtensionSettings(AllocatorPointer aAllocator, DestructorPointer aDestructor, const Marshal::In<std::wstring>& aextensionClassName, const Marshal::In<std::wstring>& aextensionImplementationName, unsigned int aextensionVersionNo, const Marshal::In<std::wstring>& aextensionCopyright, const Marshal::In<std::wstring>& aextensionComments, bool apersistentGlobalExtension)
+void ExtensionInfo::SetExtensionSettings(AllocatorPointer allocator, DestructorPointer destructor, const Marshal::In<std::wstring>& extensionClassName, const Marshal::In<std::wstring>& extensionImplementationName, unsigned int extensionVersionNo, const Marshal::In<std::wstring>& extensionCopyright, const Marshal::In<std::wstring>& extensionComments, bool persistentGlobalExtension)
 {
-	SetExtensionAllocators(aAllocator, aDestructor);
-	SetExtensionClassName(aextensionClassName);
-	SetExtensionImplementationName(aextensionImplementationName);
-	SetExtensionVersionNo(aextensionVersionNo);
-	SetExtensionCopyright(aextensionCopyright);
-	SetExtensionComments(aextensionComments);
-	SetIsPersistentGlobalExtension(apersistentGlobalExtension);
+	SetExtensionAllocators(allocator, destructor);
+	SetExtensionClassName(extensionClassName);
+	SetExtensionImplementationName(extensionImplementationName);
+	SetExtensionVersionNo(extensionVersionNo);
+	SetExtensionCopyright(extensionCopyright);
+	SetExtensionComments(extensionComments);
+	SetIsPersistentGlobalExtension(persistentGlobalExtension);
 }
 
 //----------------------------------------------------------------------------------------
-void ExtensionInfo::SetExtensionAllocators(AllocatorPointer aAllocator, DestructorPointer aDestructor)
+void ExtensionInfo::SetExtensionAllocators(AllocatorPointer allocator, DestructorPointer destructor)
 {
-	Allocator = aAllocator;
-	Destructor = aDestructor;
+	_allocator = allocator;
+	_destructor = destructor;
 }
 
 //----------------------------------------------------------------------------------------
-void ExtensionInfo::SetExtensionClassName(const Marshal::In<std::wstring>& aextensionClassName)
+void ExtensionInfo::SetExtensionClassName(const Marshal::In<std::wstring>& extensionClassName)
 {
-	className = aextensionClassName;
+	_className = extensionClassName;
 }
 
 //----------------------------------------------------------------------------------------
-void ExtensionInfo::SetExtensionImplementationName(const Marshal::In<std::wstring>& aextensionImplementationName)
+void ExtensionInfo::SetExtensionImplementationName(const Marshal::In<std::wstring>& extensionImplementationName)
 {
-	implementationName = aextensionImplementationName;
+	_implementationName = extensionImplementationName;
 }
 
 //----------------------------------------------------------------------------------------
-void ExtensionInfo::SetExtensionVersionNo(unsigned int aextensionVersionNo)
+void ExtensionInfo::SetExtensionVersionNo(unsigned int extensionVersionNo)
 {
-	versionNo = aextensionVersionNo;
+	_versionNo = extensionVersionNo;
 }
 
 //----------------------------------------------------------------------------------------
-void ExtensionInfo::SetExtensionCopyright(const Marshal::In<std::wstring>& aextensionCopyright)
+void ExtensionInfo::SetExtensionCopyright(const Marshal::In<std::wstring>& extensionCopyright)
 {
-	copyright = aextensionCopyright;
+	_copyright = extensionCopyright;
 }
 
 //----------------------------------------------------------------------------------------
-void ExtensionInfo::SetExtensionComments(const Marshal::In<std::wstring>& aextensionComments)
+void ExtensionInfo::SetExtensionComments(const Marshal::In<std::wstring>& extensionComments)
 {
-	comments = aextensionComments;
+	_comments = extensionComments;
 }
 
 //----------------------------------------------------------------------------------------
 void ExtensionInfo::SetIsPersistentGlobalExtension(bool state)
 {
-	persistentGlobalExtension = state;
+	_persistentGlobalExtension = state;
 }

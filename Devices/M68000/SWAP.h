@@ -22,7 +22,7 @@ public:
 
 	virtual Disassembly M68000Disassemble(const M68000::LabelSubstitutionSettings& labelSettings) const
 	{
-		return Disassembly(GetOpcodeName(), target.Disassemble(labelSettings));
+		return Disassembly(GetOpcodeName(), _target.Disassemble(labelSettings));
 	}
 
 	virtual void M68000Decode(const M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)
@@ -32,7 +32,7 @@ public:
 //	|---|---|---|---|---|---|---|---|---|---|---|---|---|-----------|
 //	| 0 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | REGISTER  |
 //	-----------------------------------------------------------------
-		target.BuildDataDirect(BITCOUNT_WORD, location + GetInstructionSize(), data.GetDataSegment(0, 3));
+		_target.BuildDataDirect(BITCOUNT_WORD, location + GetInstructionSize(), data.GetDataSegment(0, 3));
 		AddExecuteCycleCount(ExecuteTime(4, 1, 0));
 	}
 
@@ -43,10 +43,10 @@ public:
 		M68000Long result;
 
 		//Perform the operation
-		additionalTime += target.Read(cpu, op1, GetInstructionRegister());
+		additionalTime += _target.Read(cpu, op1, GetInstructionRegister());
 		result.SetLowerBits(BITCOUNT_WORD, op1.GetUpperBits(BITCOUNT_WORD));
 		result.SetUpperBits(BITCOUNT_WORD, op1.GetLowerBits(BITCOUNT_WORD));
-		additionalTime += target.Write(cpu, result, GetInstructionRegister());
+		additionalTime += _target.Write(cpu, result, GetInstructionRegister());
 
 		//Set the flag results
 		cpu->SetN(result.Negative());
@@ -61,11 +61,11 @@ public:
 
 	virtual void GetLabelTargetLocations(std::set<unsigned int>& labelTargetLocations) const
 	{
-		target.AddLabelTargetsToSet(labelTargetLocations);
+		_target.AddLabelTargetsToSet(labelTargetLocations);
 	}
 
 private:
-	EffectiveAddress target;
+	EffectiveAddress _target;
 };
 
 } //Close namespace M68000

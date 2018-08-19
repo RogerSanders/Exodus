@@ -6,7 +6,7 @@ class ROM8 :public ROMBase<unsigned char>
 {
 public:
 	//Constructors
-	ROM8(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
+	ROM8(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 
 	//Memory interface functions
 	virtual IBusInterface::AccessResult ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);

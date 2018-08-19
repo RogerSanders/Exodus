@@ -22,15 +22,15 @@ public:
 
 	virtual Disassembly Z80Disassemble(const Z80::LabelSubstitutionSettings& labelSettings) const
 	{
-		return Disassembly(GetOpcodeName(), target.Disassemble() + L", " + source.Disassemble());
+		return Disassembly(GetOpcodeName(), _target.Disassemble() + L", " + _source.Disassemble());
 	}
 
 	virtual void Z80Decode(const Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)
 	{
-		target.SetIndexState(GetIndexState(), GetIndexOffset());
-		doubleOutput = false;
+		_target.SetIndexState(GetIndexState(), GetIndexOffset());
+		_doubleOutput = false;
 
-		if(target.Decode8BitRegister(data.GetDataSegment(0, 3)))
+		if(_target.Decode8BitRegister(data.GetDataSegment(0, 3)))
 		{
 			//RES b,r		11001011 10bbbrrr
 			AddExecuteCycleCount(4);
@@ -40,21 +40,21 @@ public:
 			//RES b,(HL)		11001011 10bbb110
 			//RES b,(IX+d)		11011101 11001011 dddddddd 10bbb110
 			//RES b,(IY+d)		11111101 11001011 dddddddd 10bbb110
-			target.SetMode(EffectiveAddress::Mode::HLIndirect);
+			_target.SetMode(EffectiveAddress::Mode::HLIndirect);
 			AddExecuteCycleCount(7);
 
 			if(GetIndexState() != EffectiveAddress::IndexState::None)
 			{
-				doubleOutput = true;
-				targetHL.SetIndexState(GetIndexState(), GetIndexOffset());
-				targetHL.SetMode(EffectiveAddress::Mode::HLIndirect);
+				_doubleOutput = true;
+				_targetHL.SetIndexState(GetIndexState(), GetIndexOffset());
+				_targetHL.SetMode(EffectiveAddress::Mode::HLIndirect);
 				AddExecuteCycleCount(8);
 			}
 		}
-		source.BuildQuickData(data.GetDataSegment(3, 3));
+		_source.BuildQuickData(data.GetDataSegment(3, 3));
 
-		AddInstructionSize(GetIndexOffsetSize(target.UsesIndexOffset()));
-		AddInstructionSize(target.ExtensionSize());
+		AddInstructionSize(GetIndexOffsetSize(_target.UsesIndexOffset()));
+		AddInstructionSize(_target.ExtensionSize());
 	}
 
 	virtual ExecuteTime Z80Execute(Z80* cpu, const Z80Word& location) const
@@ -63,22 +63,22 @@ public:
 		Z80Byte op1;
 
 		//Perform the operation
-		if(doubleOutput)
+		if(_doubleOutput)
 		{
-			additionalTime += targetHL.Read(cpu, location, op1);
+			additionalTime += _targetHL.Read(cpu, location, op1);
 		}
 		else
 		{
-			additionalTime += target.Read(cpu, location, op1);
+			additionalTime += _target.Read(cpu, location, op1);
 		}
 		Z80Byte bitNumber;
-		additionalTime += source.Read(cpu, location, bitNumber);
+		additionalTime += _source.Read(cpu, location, bitNumber);
 		op1.SetBit(bitNumber.GetData(), false);
-		if(doubleOutput)
+		if(_doubleOutput)
 		{
-			additionalTime += targetHL.Write(cpu, location, op1);
+			additionalTime += _targetHL.Write(cpu, location, op1);
 		}
-		additionalTime += target.Write(cpu, location, op1);
+		additionalTime += _target.Write(cpu, location, op1);
 
 		//Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
@@ -86,10 +86,10 @@ public:
 	}
 
 private:
-	EffectiveAddress source;
-	EffectiveAddress target;
-	EffectiveAddress targetHL;
-	bool doubleOutput;
+	EffectiveAddress _source;
+	EffectiveAddress _target;
+	EffectiveAddress _targetHL;
+	bool _doubleOutput;
 };
 
 } //Close namespace Z80

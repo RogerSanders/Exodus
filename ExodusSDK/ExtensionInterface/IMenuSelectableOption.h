@@ -22,7 +22,7 @@ public:
 
 	//Checked state functions
 	virtual bool GetCheckedState() const = 0;
-	virtual void SetCheckedState(bool acheckedState) = 0;
+	virtual void SetCheckedState(bool checkedState) = 0;
 
 	//##TODO## Add support for icons
 };

@@ -1,42 +1,42 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-Watchpoint::Watchpoint(unsigned int aaddressBusWidth, unsigned int adataBusWidth, unsigned int aaddressBusCharWidth)
+Watchpoint::Watchpoint(unsigned int addressBusWidth, unsigned int dataBusWidth, unsigned int addressBusCharWidth)
 {
-	addressBusWidth = aaddressBusWidth;
-	dataBusWidth = adataBusWidth;
-	addressBusCharWidth = aaddressBusCharWidth;
+	_addressBusWidth = addressBusWidth;
+	_dataBusWidth = dataBusWidth;
+	_addressBusCharWidth = addressBusCharWidth;
 
-	name.clear();
-	enabled = true;
-	logEvent = true;
-	breakEvent = true;
+	_name.clear();
+	_enabled = true;
+	_logEvent = true;
+	_breakEvent = true;
 
-	locationConditionNot = false;
-	locationCondition = Condition::Equal;
-	locationConditionData1 = 0;
-	locationConditionData2 = 0;
-	locationMask = ((1 << addressBusWidth) - 1);
+	_locationConditionNot = false;
+	_locationCondition = Condition::Equal;
+	_locationConditionData1 = 0;
+	_locationConditionData2 = 0;
+	_locationMask = ((1 << _addressBusWidth) - 1);
 
-	hitCounter = 0;
-	hitCounterIncrement = 0;
-	breakOnCounter = false;
-	breakCounter = 0;
+	_hitCounter = 0;
+	_hitCounterIncrement = 0;
+	_breakOnCounter = false;
+	_breakCounter = 0;
 
-	read = true;
-	write = true;
+	_read = true;
+	_write = true;
 
-	readConditionEnabled = false;
-	readConditionNot = false;
-	readCondition = Condition::Equal;
-	readConditionData1 = 0;
-	readConditionData2 = 0;
+	_readConditionEnabled = false;
+	_readConditionNot = false;
+	_readCondition = Condition::Equal;
+	_readConditionData1 = 0;
+	_readConditionData2 = 0;
 
-	writeConditionEnabled = false;
-	writeConditionNot = false;
-	writeCondition = Condition::Equal;
-	writeConditionData1 = 0;
-	writeConditionData2 = 0;
+	_writeConditionEnabled = false;
+	_writeConditionNot = false;
+	_writeCondition = Condition::Equal;
+	_writeConditionData1 = 0;
+	_writeConditionData2 = 0;
 }
 
 //----------------------------------------------------------------------------------------
@@ -44,14 +44,14 @@ Watchpoint::Watchpoint(unsigned int aaddressBusWidth, unsigned int adataBusWidth
 //----------------------------------------------------------------------------------------
 void Watchpoint::Commit()
 {
-	hitCounter += hitCounterIncrement;
-	hitCounterIncrement = 0;
+	_hitCounter += _hitCounterIncrement;
+	_hitCounterIncrement = 0;
 }
 
 //----------------------------------------------------------------------------------------
 void Watchpoint::Rollback()
 {
-	hitCounterIncrement = 0;
+	_hitCounterIncrement = 0;
 }
 
 //----------------------------------------------------------------------------------------
@@ -59,22 +59,22 @@ void Watchpoint::Rollback()
 //----------------------------------------------------------------------------------------
 unsigned int Watchpoint::GetLiveHitCounter() const
 {
-	return hitCounter + hitCounterIncrement;
+	return _hitCounter + _hitCounterIncrement;
 }
 
 //----------------------------------------------------------------------------------------
 void Watchpoint::IncrementHitCounter()
 {
-	if(!preIncrementCounter)
+	if(!_preIncrementCounter)
 	{
-		++hitCounterIncrement;
+		++_hitCounterIncrement;
 	}
-	preIncrementCounter = false;
+	_preIncrementCounter = false;
 }
 
 //----------------------------------------------------------------------------------------
 void Watchpoint::PreIncrementHitCounter()
 {
-	preIncrementCounter = true;
-	++hitCounterIncrement;
+	_preIncrementCounter = true;
+	++_hitCounterIncrement;
 }

@@ -17,16 +17,16 @@ unsigned int Extension::GetIExtensionVersion() const
 //----------------------------------------------------------------------------------------
 //Initialization functions
 //----------------------------------------------------------------------------------------
-bool Extension::BindToSystemInterface(ISystemExtensionInterface* asystemInterface)
+bool Extension::BindToSystemInterface(ISystemExtensionInterface* systemInterface)
 {
-	systemInterface = asystemInterface;
+	_systemInterface = systemInterface;
 	return true;
 }
 
 //----------------------------------------------------------------------------------------
-bool Extension::BindToGUIInterface(IGUIExtensionInterface* aguiInterface)
+bool Extension::BindToGUIInterface(IGUIExtensionInterface* guiInterface)
 {
-	guiInterface = aguiInterface;
+	_guiInterface = guiInterface;
 	return true;
 }
 
@@ -103,19 +103,19 @@ bool Extension::RemoveReference(IClockSource* target)
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> Extension::GetExtensionClassName() const
 {
-	return className;
+	return _className;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> Extension::GetExtensionInstanceName() const
 {
-	return instanceName;
+	return _instanceName;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int Extension::GetExtensionModuleID() const
 {
-	return moduleID;
+	return _moduleID;
 }
 
 //----------------------------------------------------------------------------------------
@@ -141,13 +141,13 @@ void Extension::SaveDebuggerState(IHierarchicalStorageNode& node) const
 //----------------------------------------------------------------------------------------
 AssemblyHandle Extension::GetAssemblyHandle() const
 {
-	return assemblyHandle;
+	return _assemblyHandle;
 }
 
 //----------------------------------------------------------------------------------------
-void Extension::SetAssemblyHandle(AssemblyHandle aassemblyHandle)
+void Extension::SetAssemblyHandle(AssemblyHandle assemblyHandle)
 {
-	assemblyHandle = aassemblyHandle;
+	_assemblyHandle = assemblyHandle;
 }
 
 //----------------------------------------------------------------------------------------

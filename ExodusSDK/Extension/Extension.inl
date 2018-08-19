@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-Extension::Extension(const std::wstring& aclassName, const std::wstring& ainstanceName, unsigned int amoduleID)
-:className(aclassName), instanceName(ainstanceName), moduleID(amoduleID), assemblyHandle(0), systemInterface(0), guiInterface(0), viewManager(0)
+Extension::Extension(const std::wstring& className, const std::wstring& instanceName, unsigned int moduleID)
+:_className(className), _instanceName(instanceName), _moduleID(moduleID), _assemblyHandle(0), _systemInterface(0), _guiInterface(0), _viewManager(0)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -10,17 +10,17 @@ Extension::Extension(const std::wstring& aclassName, const std::wstring& ainstan
 //----------------------------------------------------------------------------------------
 ISystemExtensionInterface& Extension::GetSystemInterface() const
 {
-	return *systemInterface;
+	return *_systemInterface;
 }
 
 //----------------------------------------------------------------------------------------
 IGUIExtensionInterface& Extension::GetGUIInterface() const
 {
-	return *guiInterface;
+	return *_guiInterface;
 }
 
 //----------------------------------------------------------------------------------------
 IViewManager& Extension::GetViewManager() const
 {
-	return guiInterface->GetViewManager();
+	return _guiInterface->GetViewManager();
 }

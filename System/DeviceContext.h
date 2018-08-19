@@ -44,7 +44,7 @@ public:
 
 public:
 	//Constructors
-	inline DeviceContext(IDevice& adevice, ISystemGUIInterface& asystemObject);
+	inline DeviceContext(IDevice& device, ISystemGUIInterface& systemObject);
 
 	//Interface version functions
 	virtual unsigned int GetIDeviceContextVersion() const;
@@ -57,7 +57,7 @@ public:
 	inline double ExecuteStep();
 	inline double ExecuteStep(unsigned int accessContext);
 	inline void WaitForCompletion();
-	inline void WaitForCompletionAndDetectSuspendLock(volatile ReferenceCounterType& suspendedThreadCount, volatile ReferenceCounterType& remainingThreadCount, std::mutex& commandMutex, IExecutionSuspendManager* asuspendManager);
+	inline void WaitForCompletionAndDetectSuspendLock(volatile ReferenceCounterType& suspendedThreadCount, volatile ReferenceCounterType& remainingThreadCount, std::mutex& commandMutex, IExecutionSuspendManager* suspendManager);
 	inline void Commit();
 	inline void Rollback();
 	inline void Initialize();
@@ -75,12 +75,12 @@ public:
 	virtual void SetDeviceEnabled(bool state);
 
 	//Worker thread control
-	void BeginExecution(size_t deviceIndex, volatile ReferenceCounterType& remainingThreadCount, volatile ReferenceCounterType& suspendedThreadCount, std::mutex& commandMutex, std::condition_variable& commandSent, std::condition_variable& commandProcessed, IExecutionSuspendManager* asuspendManager, const DeviceContextCommand& command);
+	void BeginExecution(size_t deviceIndex, volatile ReferenceCounterType& remainingThreadCount, volatile ReferenceCounterType& suspendedThreadCount, std::mutex& commandMutex, std::condition_variable& commandSent, std::condition_variable& commandProcessed, IExecutionSuspendManager* suspendManager, const DeviceContextCommand& command);
 
 	//Device interface
 	virtual IDevice& GetTargetDevice() const;
 	virtual unsigned int GetDeviceIndexNo() const;
-	inline void SetDeviceIndexNo(unsigned int adeviceIndexNo);
+	inline void SetDeviceIndexNo(unsigned int deviceIndexNo);
 	inline bool ActiveDevice() const;
 
 	//System message functions
@@ -119,9 +119,9 @@ private:
 	void SuspendExecution();
 
 	//Command worker thread control
-	void StartCommandWorkerThread(size_t deviceIndex, volatile ReferenceCounterType& remainingThreadCount, volatile ReferenceCounterType& suspendedThreadCount, std::mutex& commandMutex, std::condition_variable& commandSent, std::condition_variable& commandProcessed, IExecutionSuspendManager* asuspendManager, const DeviceContextCommand& command);
+	void StartCommandWorkerThread(size_t deviceIndex, volatile ReferenceCounterType& remainingThreadCount, volatile ReferenceCounterType& suspendedThreadCount, std::mutex& commandMutex, std::condition_variable& commandSent, std::condition_variable& commandProcessed, IExecutionSuspendManager* suspendManager, const DeviceContextCommand& command);
 	void StopCommandWorkerThread();
-	void CommandWorkerThread(size_t deviceIndex, volatile ReferenceCounterType& remainingThreadCount, volatile ReferenceCounterType& suspendedThreadCount, std::mutex& commandMutex, std::condition_variable& commandSent, std::condition_variable& commandProcessed, IExecutionSuspendManager* asuspendManager, const DeviceContextCommand& command);
+	void CommandWorkerThread(size_t deviceIndex, volatile ReferenceCounterType& remainingThreadCount, volatile ReferenceCounterType& suspendedThreadCount, std::mutex& commandMutex, std::condition_variable& commandSent, std::condition_variable& commandProcessed, IExecutionSuspendManager* suspendManager, const DeviceContextCommand& command);
 	void ProcessCommand(size_t deviceIndex, const DeviceContextCommand& command, volatile ReferenceCounterType& remainingThreadCount);
 
 	//Execute worker thread control
@@ -141,55 +141,55 @@ private:
 
 private:
 	//Device properties
-	IDevice& device;
-	unsigned int deviceIndexNo;
-	bool deviceEnabled;
-	std::vector<DeviceDependency> deviceDependencies;
-	std::vector<DeviceContext*> dependentDevices;
+	IDevice& _device;
+	unsigned int _deviceIndexNo;
+	bool _deviceEnabled;
+	std::vector<DeviceDependency> _deviceDependencies;
+	std::vector<DeviceContext*> _dependentDevices;
 
 	//Command worker thread data
-	bool commandWorkerThreadActive;
-	std::condition_variable commandThreadReady;
+	bool _commandWorkerThreadActive;
+	std::condition_variable _commandThreadReady;
 
 	//Execute worker thread data
-	bool executeWorkerThreadActive;
-	mutable std::mutex executeThreadMutex;
-	std::condition_variable executeTaskSent;
-	mutable std::condition_variable executeCompletionStateChanged;
-	bool executeThreadRunningState;
-	std::condition_variable executeThreadReady;
-	std::condition_variable executeThreadStopped;
-	std::mutex* commandMutexPointer;
-	volatile ReferenceCounterType* suspendedThreadCountPointer;
-	volatile ReferenceCounterType* remainingThreadCountPointer;
-	volatile bool executingWaitForCompletionCommand;
-	IExecutionSuspendManager* suspendManager;
-	volatile bool timesliceCompleted;
-	volatile bool timesliceSuspended;
-	volatile bool timesliceSuspensionDisable;
-	volatile bool transientExecutionActive;
-	double timeslice;
-	double remainingTime;
-	double remainingTimeBackup;
-	volatile double currentTimesliceProgress;
+	bool _executeWorkerThreadActive;
+	mutable std::mutex _executeThreadMutex;
+	std::condition_variable _executeTaskSent;
+	mutable std::condition_variable _executeCompletionStateChanged;
+	bool _executeThreadRunningState;
+	std::condition_variable _executeThreadReady;
+	std::condition_variable _executeThreadStopped;
+	std::mutex* _commandMutexPointer;
+	volatile ReferenceCounterType* _suspendedThreadCountPointer;
+	volatile ReferenceCounterType* _remainingThreadCountPointer;
+	volatile bool _executingWaitForCompletionCommand;
+	IExecutionSuspendManager* _suspendManager;
+	volatile bool _timesliceCompleted;
+	volatile bool _timesliceSuspended;
+	volatile bool _timesliceSuspensionDisable;
+	volatile bool _transientExecutionActive;
+	double _timeslice;
+	double _remainingTime;
+	double _remainingTimeBackup;
+	volatile double _currentTimesliceProgress;
 
 	//Combined worker thread data
-	bool sharingExecuteThread;
-	bool primarySharedExecuteThreadDevice;
-	DeviceContext* otherSharedExecuteThreadDevice;
-	DeviceContext* currentSharedExecuteThreadOwner;
-	volatile bool sharedExecuteThreadSpinoffActive;
-	volatile bool sharedExecuteThreadSpinoffRejoinRequested;
-	bool sharedExecuteThreadSpinoffPaused;
-	bool sharedExecuteThreadSpinoffStopRequested;
-	bool sharedExecuteThreadSpinoffRunning;
-	bool sharedExecuteThreadSpinoffTimesliceAvailable;
-	std::condition_variable sharedExecuteThreadSpinoffStateChangeRequested;
-	std::condition_variable sharedExecuteThreadSpinoffStoppedOrPaused;
-	std::condition_variable sharedExecuteThreadSpinoffTimesliceProcessingBegun;
+	bool _sharingExecuteThread;
+	bool _primarySharedExecuteThreadDevice;
+	DeviceContext* _otherSharedExecuteThreadDevice;
+	DeviceContext* _currentSharedExecuteThreadOwner;
+	volatile bool _sharedExecuteThreadSpinoffActive;
+	volatile bool _sharedExecuteThreadSpinoffRejoinRequested;
+	bool _sharedExecuteThreadSpinoffPaused;
+	bool _sharedExecuteThreadSpinoffStopRequested;
+	bool _sharedExecuteThreadSpinoffRunning;
+	bool _sharedExecuteThreadSpinoffTimesliceAvailable;
+	std::condition_variable _sharedExecuteThreadSpinoffStateChangeRequested;
+	std::condition_variable _sharedExecuteThreadSpinoffStoppedOrPaused;
+	std::condition_variable _sharedExecuteThreadSpinoffTimesliceProcessingBegun;
 
 	//Callback parameters
-	ISystemGUIInterface& systemObject;
+	ISystemGUIInterface& _systemObject;
 };
 
 #include "DeviceContext.inl"

@@ -22,7 +22,7 @@ public:
 
 	virtual Disassembly M68000Disassemble(const M68000::LabelSubstitutionSettings& labelSettings) const
 	{
-		return Disassembly(GetOpcodeName() + L"." + DisassembleSize(BITCOUNT_WORD), source.Disassemble(labelSettings) + L", " + target.Disassemble(labelSettings));
+		return Disassembly(GetOpcodeName() + L"." + DisassembleSize(BITCOUNT_WORD), _source.Disassemble(labelSettings) + L", " + _target.Disassemble(labelSettings));
 	}
 
 	virtual void M68000Decode(const M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)
@@ -35,15 +35,15 @@ public:
 //	                                        |----------<ea>---------|
 
 		//DIVS.W	<ea>,Dn     32/16 -> 16r:16q
-		target.BuildDataDirect(BITCOUNT_WORD, location + GetInstructionSize(), data.GetDataSegment(9, 3));
-		source.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), BITCOUNT_WORD, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
-		AddInstructionSize(source.ExtensionSize());
+		_target.BuildDataDirect(BITCOUNT_WORD, location + GetInstructionSize(), data.GetDataSegment(9, 3));
+		_source.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), BITCOUNT_WORD, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
+		AddInstructionSize(_source.ExtensionSize());
 
 		//##NOTE## This is apparently a worst case execution time. According to the
 		//M68000 Users Manual, this can vary by a little under 10% in a best case
 		//scenario, but I haven't found any reference on how to calculate the timing.
 		AddExecuteCycleCount(ExecuteTime(168, 1, 0));
-		AddExecuteCycleCount(source.DecodeTime());
+		AddExecuteCycleCount(_source.DecodeTime());
 	}
 
 	virtual ExecuteTime M68000Execute(M68000* cpu, const M68000Long& location) const
@@ -56,10 +56,10 @@ public:
 		M68000Word remainder;
 		M68000Long result;
 
-		//Read the source data
-		additionalTime += source.Read(cpu, temp1, GetInstructionRegister());
+		//Read the _source data
+		additionalTime += _source.Read(cpu, temp1, GetInstructionRegister());
 		op1 = M68000Long(temp1.SignExtend(BITCOUNT_LONG));
-		additionalTime += target.ReadWithoutAdjustingAddress(cpu, op2, GetInstructionRegister());
+		additionalTime += _target.ReadWithoutAdjustingAddress(cpu, op2, GetInstructionRegister());
 
 		//Check for divide by zero
 		if(op1 == 0)
@@ -91,9 +91,9 @@ public:
 			op2 = (M68000Long(0) - op2);
 		}
 
-		//Perform a test run of the operation to check for an overflow. Our source data
+		//Perform a test run of the operation to check for an overflow. Our _source data
 		//is 32-bit, and the final quotient is only 16-bit, so an overflow can occur if
-		//the quotient after division is still larger than can fit into a 16-bit target.
+		//the quotient after division is still larger than can fit into a 16-bit _target.
 		//To test for this, we perform the division and test if the result is larger than
 		//the maximum number which can be stored in the result. Note that in the case of
 		//the signed divide used in this opcode, the maximum size of the final quotient
@@ -117,7 +117,7 @@ public:
 			//Build the final result and write it back
 			result.SetUpperBits(remainder);
 			result.SetLowerBits(quotient);
-			additionalTime += target.Write(cpu, result, GetInstructionRegister());
+			additionalTime += _target.Write(cpu, result, GetInstructionRegister());
 
 			//Set the flag results
 			cpu->SetN(quotient.Negative());
@@ -144,13 +144,13 @@ public:
 
 	virtual void GetLabelTargetLocations(std::set<unsigned int>& labelTargetLocations) const
 	{
-		source.AddLabelTargetsToSet(labelTargetLocations);
-		target.AddLabelTargetsToSet(labelTargetLocations);
+		_source.AddLabelTargetsToSet(labelTargetLocations);
+		_target.AddLabelTargetsToSet(labelTargetLocations);
 	}
 
 private:
-	EffectiveAddress source;
-	EffectiveAddress target;
+	EffectiveAddress _source;
+	EffectiveAddress _target;
 };
 
 } //Close namespace M68000

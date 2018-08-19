@@ -21,22 +21,22 @@ public:
 	virtual bool IsToggleSetting() const;
 
 	//Setters
-	virtual void SetName(const Marshal::In<std::wstring>& aname);
-	virtual void SetDisplayName(const Marshal::In<std::wstring>& adisplayName);
-	virtual void SetOptionCount(unsigned int aoptionCount);
-	virtual void SetDefaultOptionIndex(unsigned int adefaultOptionIndex);
-	virtual void SetToggleSettingOnOptionIndex(unsigned int aonOptionIndex);
-	virtual void SetToggleSettingOffOptionIndex(unsigned int aoffOptionIndex);
-	virtual void SetIsToggleSetting(bool atoggleSetting);
+	virtual void SetName(const Marshal::In<std::wstring>& name);
+	virtual void SetDisplayName(const Marshal::In<std::wstring>& displayName);
+	virtual void SetOptionCount(unsigned int optionCount);
+	virtual void SetDefaultOptionIndex(unsigned int defaultOptionIndex);
+	virtual void SetToggleSettingOnOptionIndex(unsigned int onOptionIndex);
+	virtual void SetToggleSettingOffOptionIndex(unsigned int offOptionIndex);
+	virtual void SetIsToggleSetting(bool toggleSetting);
 
 private:
-	std::wstring name;
-	std::wstring displayName;
-	unsigned int optionCount;
-	unsigned int defaultOptionIndex;
-	unsigned int onOptionIndex;
-	unsigned int offOptionIndex;
-	bool toggleSetting;
+	std::wstring _name;
+	std::wstring _displayName;
+	unsigned int _optionCount;
+	unsigned int _defaultOptionIndex;
+	unsigned int _onOptionIndex;
+	unsigned int _offOptionIndex;
+	bool _toggleSetting;
 };
 
 #endif

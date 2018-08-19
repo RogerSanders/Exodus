@@ -9,11 +9,15 @@ class MemoryEditorView :public ViewBase
 {
 public:
 	//Constructors
-	MemoryEditorView(IUIManager& auiManager, MemoryEditorViewPresenter& apresenter, IMemory& amodel);
+	MemoryEditorView(IUIManager& uiManager, MemoryEditorViewPresenter& presenter, IMemory& model);
 
 protected:
 	//Member window procedure
 	virtual LRESULT WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
+
+private:
+	//Constants
+	static const long long HexEditControlID = 100;
 
 private:
 	//Event handlers
@@ -27,13 +31,9 @@ private:
 	LRESULT msgWM_KILLFOCUS(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
 private:
-	//Constants
-	static const long long HEXEDITCONTROL = 100;
-
-private:
-	MemoryEditorViewPresenter& presenter;
-	IMemory& model;
-	HWND hwndMem;
+	MemoryEditorViewPresenter& _presenter;
+	IMemory& _model;
+	HWND _hwndMem;
 };
 
 #endif

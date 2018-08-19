@@ -6,7 +6,7 @@ class MemoryWrite :public MemoryRead
 {
 public:
 	//Constructors
-	MemoryWrite(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
+	MemoryWrite(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 };
 
 #endif

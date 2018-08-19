@@ -3,8 +3,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-ROM32Variable::ROM32Variable(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
-:ROMBase(aimplementationName, ainstanceName, amoduleID)
+ROM32Variable::ROM32Variable(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
+:ROMBase(implementationName, instanceName, moduleID)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -26,19 +26,19 @@ IBusInterface::AccessResult ROM32Variable::ReadInterface(unsigned int interfaceN
 			unsigned int lastByteOffsetToExtractFromEntry = ((arrayEntryByteSize - firstByteOffsetToExtractFromEntry) <= (dataByteSize - currentDataByte))? (arrayEntryByteSize - 1): firstByteOffsetToExtractFromEntry + ((dataByteSize - 1) - currentDataByte);
 			for(unsigned int i = firstByteOffsetToExtractFromEntry; i <= lastByteOffsetToExtractFromEntry; ++i)
 			{
-				data.SetByteFromTopDown(currentDataByte++, (unsigned char)(memoryArray[baseLocation % memoryArraySize] >> (((arrayEntryByteSize - 1) - i) * Data::bitsPerByte)));
+				data.SetByteFromTopDown(currentDataByte++, (unsigned char)(_memoryArray[baseLocation % _memoryArraySize] >> (((arrayEntryByteSize - 1) - i) * Data::BitsPerByte)));
 			}
 		}
 		break;}
 	case 1:
 	case 2:{
 		unsigned int baseLocation = location / (interfaceNumber * arrayEntryByteSize);
-		unsigned int dataShiftCount = (((arrayEntryByteSize / interfaceNumber) - 1) - (location % (arrayEntryByteSize / interfaceNumber))) * (Data::bitsPerByte * interfaceNumber);
-		unsigned int dataBitMask = (1 << (Data::bitsPerByte * interfaceNumber)) - 1;
-		data = ((unsigned int)memoryArray[baseLocation % memoryArraySize] >> dataShiftCount) & dataBitMask;
+		unsigned int dataShiftCount = (((arrayEntryByteSize / interfaceNumber) - 1) - (location % (arrayEntryByteSize / interfaceNumber))) * (Data::BitsPerByte * interfaceNumber);
+		unsigned int dataBitMask = (1 << (Data::BitsPerByte * interfaceNumber)) - 1;
+		data = ((unsigned int)_memoryArray[baseLocation % _memoryArraySize] >> dataShiftCount) & dataBitMask;
 		break;}
 	case 4:
-		data = memoryArray[location % memoryArraySize];
+		data = _memoryArray[location % _memoryArraySize];
 		break;
 	}
 	return true;
@@ -71,23 +71,23 @@ void ROM32Variable::TransparentWriteInterface(unsigned int interfaceNumber, unsi
 			unsigned int baseLocation = (location + currentDataByte) / arrayEntryByteSize;
 			unsigned int firstByteOffsetToWriteToEntry = (location + currentDataByte) % arrayEntryByteSize;
 			unsigned int lastByteOffsetToWriteToEntry = ((arrayEntryByteSize - firstByteOffsetToWriteToEntry) <= (dataByteSize - currentDataByte))? (arrayEntryByteSize - 1): firstByteOffsetToWriteToEntry + ((dataByteSize - 1) - currentDataByte);
-			Data memoryEntry(arrayEntryByteSize * Data::bitsPerByte, memoryArray[baseLocation % memoryArraySize]);
+			Data memoryEntry(arrayEntryByteSize * Data::BitsPerByte, _memoryArray[baseLocation % _memoryArraySize]);
 			for(unsigned int i = firstByteOffsetToWriteToEntry; i <= lastByteOffsetToWriteToEntry; ++i)
 			{
 				memoryEntry.SetByteFromTopDown(i, data.GetByteFromTopDown(currentDataByte++));
 			}
-			memoryArray[baseLocation % memoryArraySize] = (unsigned int)memoryEntry.GetData();
+			_memoryArray[baseLocation % _memoryArraySize] = (unsigned int)memoryEntry.GetData();
 		}
 		break;}
 	case 1:
 	case 2:{
 		unsigned int baseLocation = location / (interfaceNumber * arrayEntryByteSize);
-		unsigned int dataShiftCount = (((arrayEntryByteSize / interfaceNumber) - 1) - (location % (arrayEntryByteSize / interfaceNumber))) * (Data::bitsPerByte * interfaceNumber);
-		unsigned int dataBitMask = (1 << (Data::bitsPerByte * interfaceNumber)) - 1;
-		memoryArray[baseLocation % memoryArraySize] = (memoryArray[baseLocation % memoryArraySize] & ~(dataBitMask << dataShiftCount)) | (data.GetData() << dataShiftCount);
+		unsigned int dataShiftCount = (((arrayEntryByteSize / interfaceNumber) - 1) - (location % (arrayEntryByteSize / interfaceNumber))) * (Data::BitsPerByte * interfaceNumber);
+		unsigned int dataBitMask = (1 << (Data::BitsPerByte * interfaceNumber)) - 1;
+		_memoryArray[baseLocation % _memoryArraySize] = (_memoryArray[baseLocation % _memoryArraySize] & ~(dataBitMask << dataShiftCount)) | (data.GetData() << dataShiftCount);
 		break;}
 	case 4:
-		memoryArray[location % memoryArraySize] = (unsigned int)data.GetData();
+		_memoryArray[location % _memoryArraySize] = (unsigned int)data.GetData();
 		break;
 	}
 }
@@ -97,11 +97,11 @@ void ROM32Variable::TransparentWriteInterface(unsigned int interfaceNumber, unsi
 //----------------------------------------------------------------------------------------
 unsigned int ROM32Variable::ReadMemoryEntry(unsigned int location) const
 {
-	return memoryArray[location % memoryArraySize];
+	return _memoryArray[location % _memoryArraySize];
 }
 
 //----------------------------------------------------------------------------------------
 void ROM32Variable::WriteMemoryEntry(unsigned int location, unsigned int data)
 {
-	memoryArray[location % memoryArraySize] = data;
+	_memoryArray[location % _memoryArraySize] = data;
 }

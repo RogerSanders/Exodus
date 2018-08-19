@@ -16,7 +16,7 @@ public:
 
 	//Name functions
 	virtual Marshal::Ret<std::wstring> GetName() const = 0;
-	virtual void SetName(const Marshal::In<std::wstring>& aname) = 0;
+	virtual void SetName(const Marshal::In<std::wstring>& name) = 0;
 
 	//Parent functions
 	virtual IHierarchicalStorageNode& GetParent() const = 0;
@@ -26,11 +26,11 @@ public:
 
 	//Child functions
 	virtual IHierarchicalStorageNode& CreateChild() = 0;
-	virtual IHierarchicalStorageNode& CreateChild(const Marshal::In<std::wstring>& aname) = 0;
-	template<class T> IHierarchicalStorageNode& CreateChild(const std::wstring& aname, const T& adata);
-	template<class T> IHierarchicalStorageNode& CreateChildHex(const std::wstring& aname, const T& adata, unsigned int length);
-	template<class T> IHierarchicalStorageNode& CreateChildBinary(const std::wstring& aname, const T& adata, const std::wstring& bufferName, bool ainlineBinaryData = true);
-	template<class T> IHierarchicalStorageNode& CreateChildBinary(const std::wstring& aname, const T* buffer, unsigned int entries, const std::wstring& bufferName, bool ainlineBinaryData = true);
+	virtual IHierarchicalStorageNode& CreateChild(const Marshal::In<std::wstring>& name) = 0;
+	template<class T> IHierarchicalStorageNode& CreateChild(const std::wstring& name, const T& data);
+	template<class T> IHierarchicalStorageNode& CreateChildHex(const std::wstring& name, const T& data, unsigned int length);
+	template<class T> IHierarchicalStorageNode& CreateChildBinary(const std::wstring& name, const T& data, const std::wstring& bufferName, bool inlineBinaryData = true);
+	template<class T> IHierarchicalStorageNode& CreateChildBinary(const std::wstring& name, const T* buffer, unsigned int entries, const std::wstring& bufferName, bool inlineBinaryData = true);
 	virtual void DeleteChild(IHierarchicalStorageNode& node) = 0;
 	virtual Marshal::Ret<std::list<IHierarchicalStorageNode*>> GetChildList() const = 0;
 	virtual bool IsChildPresent(const Marshal::In<std::wstring>& name) const = 0;
@@ -58,15 +58,15 @@ public:
 	template<class T> IHierarchicalStorageNode& ExtractHexData(T& target);
 
 	//Data write functions
-	template<class T> IHierarchicalStorageNode& SetData(const T& adata);
-	template<class T> IHierarchicalStorageNode& InsertData(const T& adata);
-	template<class T> IHierarchicalStorageNode& InsertHexData(const T& adata, unsigned int length);
+	template<class T> IHierarchicalStorageNode& SetData(const T& data);
+	template<class T> IHierarchicalStorageNode& InsertData(const T& data);
+	template<class T> IHierarchicalStorageNode& InsertHexData(const T& data, unsigned int length);
 
 	//Binary data functions
 	virtual bool GetBinaryDataPresent() const = 0;
 	virtual void SetBinaryDataPresent(bool state) = 0;
 	virtual Marshal::Ret<std::wstring> GetBinaryDataBufferName() const = 0;
-	virtual void SetBinaryDataBufferName(const Marshal::In<std::wstring>& aname) = 0;
+	virtual void SetBinaryDataBufferName(const Marshal::In<std::wstring>& name) = 0;
 	virtual Stream::IStream& GetBinaryDataBufferStream() = 0;
 	virtual bool GetInlineBinaryDataEnabled() const = 0;
 	virtual void SetInlineBinaryDataEnabled(bool state) = 0;
@@ -76,8 +76,8 @@ public:
 	template<class T> IHierarchicalStorageNode& ExtractBinaryData(T& target);
 
 	//Binary data write functions
-	template<class T> IHierarchicalStorageNode& InsertBinaryData(const T& adata, const std::wstring& bufferName, bool ainlineBinaryData = true);
-	template<class T> IHierarchicalStorageNode& InsertBinaryData(const T* buffer, size_t entries, const std::wstring& bufferName, bool ainlineBinaryData = true);
+	template<class T> IHierarchicalStorageNode& InsertBinaryData(const T& data, const std::wstring& bufferName, bool inlineBinaryData = true);
+	template<class T> IHierarchicalStorageNode& InsertBinaryData(const T* buffer, size_t entries, const std::wstring& bufferName, bool inlineBinaryData = true);
 
 protected:
 	//Stream functions

@@ -4,8 +4,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-DebugMenuHandler::DebugMenuHandler(M68000Menus& aowner, const IDevice& amodelInstanceKey, IM68000& amodel)
-:MenuHandlerBase(L"M68000DebugMenu", aowner.GetViewManager()), owner(aowner), modelInstanceKey(amodelInstanceKey), model(amodel)
+DebugMenuHandler::DebugMenuHandler(M68000Menus& owner, const IDevice& modelInstanceKey, IM68000& model)
+:MenuHandlerBase(L"M68000DebugMenu", owner.GetViewManager()), _owner(owner), _modelInstanceKey(modelInstanceKey), _model(model)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -22,7 +22,7 @@ IViewPresenter* DebugMenuHandler::CreateViewForItem(int menuItemID, const std::w
 	switch(menuItemID)
 	{
 	case MENUITEM_EXCEPTIONS:
-		return new ExceptionsViewPresenter(GetMenuHandlerName(), viewName, menuItemID, owner, modelInstanceKey, model);
+		return new ExceptionsViewPresenter(GetMenuHandlerName(), viewName, menuItemID, _owner, _modelInstanceKey, _model);
 	}
 	return 0;
 }

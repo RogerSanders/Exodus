@@ -15,11 +15,11 @@ public:
 	inline Z80Byte()
 	:Data(BITCOUNT_BYTE)
 	{}
-	inline Z80Byte(unsigned int adata)
-	:Data(BITCOUNT_BYTE, adata)
+	inline Z80Byte(unsigned int data)
+	:Data(BITCOUNT_BYTE, data)
 	{}
-	explicit inline Z80Byte(const Data& adata)
-	:Data(BITCOUNT_BYTE, adata.GetData())
+	explicit inline Z80Byte(const Data& data)
+	:Data(BITCOUNT_BYTE, data.GetData())
 	{}
 
 	//Integer operators
@@ -85,93 +85,93 @@ public:
 	}
 	Z80Byte& operator=(unsigned int target)
 	{
-		data = target;
+		_data = target;
 		MaskData();
 		return *this;
 	}
 	Z80Byte& operator+=(unsigned int target)
 	{
-		data += target;
+		_data += target;
 		MaskData();
 		return *this;
 	}
 	Z80Byte& operator-=(unsigned int target)
 	{
-		data -= target;
+		_data -= target;
 		MaskData();
 		return *this;
 	}
 	Z80Byte& operator*=(unsigned int target)
 	{
-		data *= target;
+		_data *= target;
 		MaskData();
 		return *this;
 	}
 	Z80Byte& operator/=(unsigned int target)
 	{
-		data /= target;
+		_data /= target;
 		MaskData();
 		return *this;
 	}
 	Z80Byte& operator&=(unsigned int target)
 	{
-		data &= target;
+		_data &= target;
 		MaskData();
 		return *this;
 	}
 	Z80Byte& operator|=(unsigned int target)
 	{
-		data |= target;
+		_data |= target;
 		MaskData();
 		return *this;
 	}
 	Z80Byte& operator^=(unsigned int target)
 	{
-		data ^= target;
+		_data ^= target;
 		MaskData();
 		return *this;
 	}
 	Z80Byte& operator%=(unsigned int target)
 	{
-		data %= target;
+		_data %= target;
 		MaskData();
 		return *this;
 	}
 	Z80Byte& operator<<=(unsigned int target)
 	{
-		data <<= target;
+		_data <<= target;
 		MaskData();
 		return *this;
 	}
 	Z80Byte& operator>>=(unsigned int target)
 	{
-		data >>= target;
+		_data >>= target;
 		MaskData();
 		return *this;
 	}
 	bool operator==(unsigned int target) const
 	{
-		return data == target;
+		return _data == target;
 	}
 	bool operator!=(unsigned int target) const
 	{
-		return data != target;
+		return _data != target;
 	}
 	bool operator>(unsigned int target) const
 	{
-		return data > target;
+		return _data > target;
 	}
 	bool operator<(unsigned int target) const
 	{
-		return data < target;
+		return _data < target;
 	}
 	bool operator>=(unsigned int target) const
 	{
-		return data >= target;
+		return _data >= target;
 	}
 	bool operator<=(unsigned int target) const
 	{
-		return data <= target;
+		return _data <= target;
 	}
 
 	//Z80Byte operators
@@ -237,126 +237,126 @@ public:
 	}
 	Z80Byte& operator=(const Z80Byte& target)
 	{
-		data = target.data;
+		_data = target._data;
 		MaskData();
 		return *this;
 	}
 	Z80Byte& operator+=(const Z80Byte& target)
 	{
-		data += target.data;
+		_data += target._data;
 		MaskData();
 		return *this;
 	}
 	Z80Byte& operator-=(const Z80Byte& target)
 	{
-		data -= target.data;
+		_data -= target._data;
 		MaskData();
 		return *this;
 	}
 	Z80Byte& operator*=(const Z80Byte& target)
 	{
-		data *= target.data;
+		_data *= target._data;
 		MaskData();
 		return *this;
 	}
 	Z80Byte& operator/=(const Z80Byte& target)
 	{
-		data /= target.data;
+		_data /= target._data;
 		MaskData();
 		return *this;
 	}
 	Z80Byte& operator&=(const Z80Byte& target)
 	{
-		data &= target.data;
+		_data &= target._data;
 		MaskData();
 		return *this;
 	}
 	Z80Byte& operator|=(const Z80Byte& target)
 	{
-		data |= target.data;
+		_data |= target._data;
 		MaskData();
 		return *this;
 	}
 	Z80Byte& operator^=(const Z80Byte& target)
 	{
-		data ^= target.data;
+		_data ^= target._data;
 		MaskData();
 		return *this;
 	}
 	Z80Byte& operator%=(const Z80Byte& target)
 	{
-		data %= target.data;
+		_data %= target._data;
 		MaskData();
 		return *this;
 	}
 	Z80Byte& operator<<=(const Z80Byte& target)
 	{
-		data <<= target.data;
+		_data <<= target._data;
 		MaskData();
 		return *this;
 	}
 	Z80Byte& operator>>=(const Z80Byte& target)
 	{
-		data >>= target.data;
+		_data >>= target._data;
 		MaskData();
 		return *this;
 	}
 	bool operator==(const Z80Byte& target) const
 	{
-		return data == target.data;
+		return _data == target._data;
 	}
 	bool operator!=(const Z80Byte& target) const
 	{
-		return data != target.data;
+		return _data != target._data;
 	}
 	bool operator>(const Z80Byte& target) const
 	{
-		return data > target.data;
+		return _data > target._data;
 	}
 	bool operator<(const Z80Byte& target) const
 	{
-		return data < target.data;
+		return _data < target._data;
 	}
 	bool operator>=(const Z80Byte& target) const
 	{
-		return data >= target.data;
+		return _data >= target._data;
 	}
 	bool operator<=(const Z80Byte& target) const
 	{
-		return data <= target.data;
+		return _data <= target._data;
 	}
 
 	//Unary operators
 	Z80Byte operator~() const
 	{
 		Z80Byte temp(*this);
-		temp.data = ~temp.data;
+		temp._data = ~temp._data;
 		temp.MaskData();
 		return temp;
 	}
 	Z80Byte& operator++()
 	{
-		++data;
+		++_data;
 		MaskData();
 		return *this;
 	}
 	Z80Byte& operator--()
 	{
-		--data;
+		--_data;
 		MaskData();
 		return *this;
 	}
 	Z80Byte operator++(int)
 	{
 		Z80Byte temp(*this);
-		++data;
+		++_data;
 		MaskData();
 		return temp;
 	}
 	Z80Byte operator--(int)
 	{
 		Z80Byte temp(*this);
-		--data;
+		--_data;
 		MaskData();
 		return temp;
 	}
@@ -369,11 +369,11 @@ public:
 	inline Z80Word()
 	:Data(BITCOUNT_WORD)
 	{}
-	inline Z80Word(unsigned int adata)
-	:Data(BITCOUNT_WORD, adata)
+	inline Z80Word(unsigned int data)
+	:Data(BITCOUNT_WORD, data)
 	{}
-	explicit inline Z80Word(const Data& adata)
-	:Data(BITCOUNT_WORD, adata.GetData())
+	explicit inline Z80Word(const Data& data)
+	:Data(BITCOUNT_WORD, data.GetData())
 	{}
 
 	//Integer operators
@@ -439,93 +439,93 @@ public:
 	}
 	Z80Word& operator=(unsigned int target)
 	{
-		data = target;
+		_data = target;
 		MaskData();
 		return *this;
 	}
 	Z80Word& operator+=(unsigned int target)
 	{
-		data += target;
+		_data += target;
 		MaskData();
 		return *this;
 	}
 	Z80Word& operator-=(unsigned int target)
 	{
-		data -= target;
+		_data -= target;
 		MaskData();
 		return *this;
 	}
 	Z80Word& operator*=(unsigned int target)
 	{
-		data *= target;
+		_data *= target;
 		MaskData();
 		return *this;
 	}
 	Z80Word& operator/=(unsigned int target)
 	{
-		data /= target;
+		_data /= target;
 		MaskData();
 		return *this;
 	}
 	Z80Word& operator&=(unsigned int target)
 	{
-		data &= target;
+		_data &= target;
 		MaskData();
 		return *this;
 	}
 	Z80Word& operator|=(unsigned int target)
 	{
-		data |= target;
+		_data |= target;
 		MaskData();
 		return *this;
 	}
 	Z80Word& operator^=(unsigned int target)
 	{
-		data ^= target;
+		_data ^= target;
 		MaskData();
 		return *this;
 	}
 	Z80Word& operator%=(unsigned int target)
 	{
-		data %= target;
+		_data %= target;
 		MaskData();
 		return *this;
 	}
 	Z80Word& operator<<=(unsigned int target)
 	{
-		data <<= target;
+		_data <<= target;
 		MaskData();
 		return *this;
 	}
 	Z80Word& operator>>=(unsigned int target)
 	{
-		data >>= target;
+		_data >>= target;
 		MaskData();
 		return *this;
 	}
 	bool operator==(unsigned int target) const
 	{
-		return data == target;
+		return _data == target;
 	}
 	bool operator!=(unsigned int target) const
 	{
-		return data != target;
+		return _data != target;
 	}
 	bool operator>(unsigned int target) const
 	{
-		return data > target;
+		return _data > target;
 	}
 	bool operator<(unsigned int target) const
 	{
-		return data < target;
+		return _data < target;
 	}
 	bool operator>=(unsigned int target) const
 	{
-		return data >= target;
+		return _data >= target;
 	}
 	bool operator<=(unsigned int target) const
 	{
-		return data <= target;
+		return _data <= target;
 	}
 
 	//Z80Word operators
@@ -591,126 +591,126 @@ public:
 	}
 	Z80Word& operator=(const Z80Word& target)
 	{
-		data = target.data;
+		_data = target._data;
 		MaskData();
 		return *this;
 	}
 	Z80Word& operator+=(const Z80Word& target)
 	{
-		data += target.data;
+		_data += target._data;
 		MaskData();
 		return *this;
 	}
 	Z80Word& operator-=(const Z80Word& target)
 	{
-		data -= target.data;
+		_data -= target._data;
 		MaskData();
 		return *this;
 	}
 	Z80Word& operator*=(const Z80Word& target)
 	{
-		data *= target.data;
+		_data *= target._data;
 		MaskData();
 		return *this;
 	}
 	Z80Word& operator/=(const Z80Word& target)
 	{
-		data /= target.data;
+		_data /= target._data;
 		MaskData();
 		return *this;
 	}
 	Z80Word& operator&=(const Z80Word& target)
 	{
-		data &= target.data;
+		_data &= target._data;
 		MaskData();
 		return *this;
 	}
 	Z80Word& operator|=(const Z80Word& target)
 	{
-		data |= target.data;
+		_data |= target._data;
 		MaskData();
 		return *this;
 	}
 	Z80Word& operator^=(const Z80Word& target)
 	{
-		data ^= target.data;
+		_data ^= target._data;
 		MaskData();
 		return *this;
 	}
 	Z80Word& operator%=(const Z80Word& target)
 	{
-		data %= target.data;
+		_data %= target._data;
 		MaskData();
 		return *this;
 	}
 	Z80Word& operator<<=(const Z80Word& target)
 	{
-		data <<= target.data;
+		_data <<= target._data;
 		MaskData();
 		return *this;
 	}
 	Z80Word& operator>>=(const Z80Word& target)
 	{
-		data >>= target.data;
+		_data >>= target._data;
 		MaskData();
 		return *this;
 	}
 	bool operator==(const Z80Word& target) const
 	{
-		return data == target.data;
+		return _data == target._data;
 	}
 	bool operator!=(const Z80Word& target) const
 	{
-		return data != target.data;
+		return _data != target._data;
 	}
 	bool operator>(const Z80Word& target) const
 	{
-		return data > target.data;
+		return _data > target._data;
 	}
 	bool operator<(const Z80Word& target) const
 	{
-		return data < target.data;
+		return _data < target._data;
 	}
 	bool operator>=(const Z80Word& target) const
 	{
-		return data >= target.data;
+		return _data >= target._data;
 	}
 	bool operator<=(const Z80Word& target) const
 	{
-		return data <= target.data;
+		return _data <= target._data;
 	}
 
 	//Unary operators
 	Z80Word operator~() const
 	{
 		Z80Word temp(*this);
-		temp.data = ~temp.data;
+		temp._data = ~temp._data;
 		temp.MaskData();
 		return temp;
 	}
 	Z80Word& operator++()
 	{
-		++data;
+		++_data;
 		MaskData();
 		return *this;
 	}
 	Z80Word& operator--()
 	{
-		--data;
+		--_data;
 		MaskData();
 		return *this;
 	}
 	Z80Word operator++(int)
 	{
 		Z80Word temp(*this);
-		++data;
+		++_data;
 		MaskData();
 		return temp;
 	}
 	Z80Word operator--(int)
 	{
 		Z80Word temp(*this);
-		--data;
+		--_data;
 		MaskData();
 		return temp;
 	}

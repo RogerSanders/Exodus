@@ -7,30 +7,30 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-ExodusSystemMenus::ExodusSystemMenus(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
-:Extension(aimplementationName, ainstanceName, amoduleID), model(0), debugMenuHandler(0), settingsMenuHandler(0), systemMenuHandler(0)
+ExodusSystemMenus::ExodusSystemMenus(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
+:Extension(implementationName, instanceName, moduleID), _model(0), _debugMenuHandler(0), _settingsMenuHandler(0), _systemMenuHandler(0)
 {}
 
 //----------------------------------------------------------------------------------------
 ExodusSystemMenus::~ExodusSystemMenus()
 {
 	//Delete all menu handlers
-	if(debugMenuHandler != 0)
+	if(_debugMenuHandler != 0)
 	{
-		debugMenuHandler->ClearMenuItems();
-		delete debugMenuHandler;
+		_debugMenuHandler->ClearMenuItems();
+		delete _debugMenuHandler;
 	}
-	if(settingsMenuHandler != 0)
+	if(_settingsMenuHandler != 0)
 	{
-		settingsMenuHandler->ClearMenuItems();
-		delete settingsMenuHandler;
+		_settingsMenuHandler->ClearMenuItems();
+		delete _settingsMenuHandler;
 	}
-	if(systemMenuHandler != 0)
+	if(_systemMenuHandler != 0)
 	{
-		systemMenuHandler->ClearMenuItems();
-		delete systemMenuHandler;
+		_systemMenuHandler->ClearMenuItems();
+		delete _systemMenuHandler;
 	}
-	for(std::map<unsigned int, ModuleOptionMenuHandler*>::const_iterator i = moduleOptionMenuHandlers.begin(); i != moduleOptionMenuHandlers.end(); ++i)
+	for(std::map<unsigned int, ModuleOptionMenuHandler*>::const_iterator i = _moduleOptionMenuHandlers.begin(); i != _moduleOptionMenuHandlers.end(); ++i)
 	{
 		ModuleOptionMenuHandler* entry = i->second;
 		delete entry;
@@ -43,15 +43,15 @@ ExodusSystemMenus::~ExodusSystemMenus()
 bool ExodusSystemMenus::RegisterSystemMenuHandler()
 {
 	//Retrieve the system GUI interface
-	model = &((ISystemGUIInterface&)GetSystemInterface());
+	_model = &((ISystemGUIInterface&)GetSystemInterface());
 
 	//Create all menu handlers
-	debugMenuHandler = new DebugMenuHandler(*this, *model);
-	debugMenuHandler->LoadMenuItems();
-	settingsMenuHandler = new SettingsMenuHandler(*this, *model);
-	settingsMenuHandler->LoadMenuItems();
-	systemMenuHandler = new SystemMenuHandler(*this, *model);
-	systemMenuHandler->LoadMenuItems();
+	_debugMenuHandler = new DebugMenuHandler(*this, *_model);
+	_debugMenuHandler->LoadMenuItems();
+	_settingsMenuHandler = new SettingsMenuHandler(*this, *_model);
+	_settingsMenuHandler->LoadMenuItems();
+	_systemMenuHandler = new SystemMenuHandler(*this, *_model);
+	_systemMenuHandler->LoadMenuItems();
 
 	return true;
 }
@@ -59,20 +59,20 @@ bool ExodusSystemMenus::RegisterSystemMenuHandler()
 //----------------------------------------------------------------------------------------
 bool ExodusSystemMenus::RegisterModuleMenuHandler(unsigned int moduleID)
 {
-	ModuleOptionMenuHandler* menuHandler = new ModuleOptionMenuHandler(*this, *model, moduleID);
-	moduleOptionMenuHandlers.insert(std::pair<unsigned int, ModuleOptionMenuHandler*>(moduleID, menuHandler));
+	ModuleOptionMenuHandler* menuHandler = new ModuleOptionMenuHandler(*this, *_model, moduleID);
+	_moduleOptionMenuHandlers.insert(std::pair<unsigned int, ModuleOptionMenuHandler*>(moduleID, menuHandler));
 	return true;
 }
 
 //----------------------------------------------------------------------------------------
 void ExodusSystemMenus::UnregisterModuleMenuHandler(unsigned int moduleID)
 {
-	std::map<unsigned int, ModuleOptionMenuHandler*>::iterator moduleOptionMenuHandlerIterator = moduleOptionMenuHandlers.find(moduleID);
-	if(moduleOptionMenuHandlerIterator != moduleOptionMenuHandlers.end())
+	std::map<unsigned int, ModuleOptionMenuHandler*>::iterator moduleOptionMenuHandlerIterator = _moduleOptionMenuHandlers.find(moduleID);
+	if(moduleOptionMenuHandlerIterator != _moduleOptionMenuHandlers.end())
 	{
 		ModuleOptionMenuHandler* entry = moduleOptionMenuHandlerIterator->second;
 		delete entry;
-		moduleOptionMenuHandlers.erase(moduleOptionMenuHandlerIterator);
+		_moduleOptionMenuHandlers.erase(moduleOptionMenuHandlerIterator);
 	}
 }
 
@@ -82,13 +82,13 @@ void ExodusSystemMenus::AddSystemMenuItems(SystemMenu systemMenu, IMenuSegment& 
 	switch(systemMenu)
 	{
 	case IExtension::SystemMenu::Debug:
-		debugMenuHandler->AddMenuItems(menuSegment);
+		_debugMenuHandler->AddMenuItems(menuSegment);
 		break;
 	case IExtension::SystemMenu::Settings:
-		settingsMenuHandler->AddMenuItems(menuSegment);
+		_settingsMenuHandler->AddMenuItems(menuSegment);
 		break;
 	case IExtension::SystemMenu::System:
-		systemMenuHandler->AddMenuItems(menuSegment);
+		_systemMenuHandler->AddMenuItems(menuSegment);
 		break;
 	}
 }
@@ -98,7 +98,7 @@ void ExodusSystemMenus::AddModuleMenuItems(ModuleMenu moduleMenu, IMenuSegment& 
 {
 	if(moduleMenu == IExtension::ModuleMenu::Settings)
 	{
-		ModuleOptionMenuHandler& menuHandler = *moduleOptionMenuHandlers[moduleID];
+		ModuleOptionMenuHandler& menuHandler = *_moduleOptionMenuHandlers[moduleID];
 		menuHandler.AddMenuItems(menuSegment);
 	}
 }
@@ -107,9 +107,9 @@ void ExodusSystemMenus::AddModuleMenuItems(ModuleMenu moduleMenu, IMenuSegment& 
 bool ExodusSystemMenus::RestoreSystemViewState(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter)
 {
 	bool result = false;
-	result |= debugMenuHandler->RestoreMenuViewOpen(viewGroupName, viewName, viewState, restoredViewPresenter);
-	result |= settingsMenuHandler->RestoreMenuViewOpen(viewGroupName, viewName, viewState, restoredViewPresenter);
-	result |= systemMenuHandler->RestoreMenuViewOpen(viewGroupName, viewName, viewState, restoredViewPresenter);
+	result |= _debugMenuHandler->RestoreMenuViewOpen(viewGroupName, viewName, viewState, restoredViewPresenter);
+	result |= _settingsMenuHandler->RestoreMenuViewOpen(viewGroupName, viewName, viewState, restoredViewPresenter);
+	result |= _systemMenuHandler->RestoreMenuViewOpen(viewGroupName, viewName, viewState, restoredViewPresenter);
 	return result;
 }
 
@@ -124,9 +124,9 @@ bool ExodusSystemMenus::RestoreModuleViewState(const Marshal::In<std::wstring>& 
 bool ExodusSystemMenus::OpenSystemView(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName)
 {
 	bool result = false;
-	result |= debugMenuHandler->OpenView(viewGroupName, viewName);
-	result |= settingsMenuHandler->OpenView(viewGroupName, viewName);
-	result |= systemMenuHandler->OpenView(viewGroupName, viewName);
+	result |= _debugMenuHandler->OpenView(viewGroupName, viewName);
+	result |= _settingsMenuHandler->OpenView(viewGroupName, viewName);
+	result |= _systemMenuHandler->OpenView(viewGroupName, viewName);
 	return result;
 }
 
@@ -140,11 +140,11 @@ bool ExodusSystemMenus::OpenModuleView(const Marshal::In<std::wstring>& viewGrou
 //----------------------------------------------------------------------------------------
 void ExodusSystemMenus::OpenInputMappingDetailsView(IDevice* targetDevice)
 {
-	settingsMenuHandler->OpenInputMappingDetailsView(targetDevice);
+	_settingsMenuHandler->OpenInputMappingDetailsView(targetDevice);
 }
 
 //----------------------------------------------------------------------------------------
 void ExodusSystemMenus::CloseInputMappingDetailsView()
 {
-	settingsMenuHandler->CloseInputMappingDetailsView();
+	_settingsMenuHandler->CloseInputMappingDetailsView();
 }

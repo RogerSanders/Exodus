@@ -1,20 +1,21 @@
 #ifndef __VIEWTEXT_H__
 #define __VIEWTEXT_H__
 #include <sstream>
+#include "IStream.h"
 namespace Stream {
 
 class ViewText
 {
 public:
 	//Constructors
-	inline ViewText(IStream& astream);
+	inline ViewText(IStream& stream);
 
 	//State functions
 	inline bool NoErrorsOccurred() const;
 	inline void ClearErrorState();
 	inline bool IsAtEnd() const;
 	inline IStream::ByteOrder GetViewByteOrder() const;
-	inline void SetViewByteOrder(IStream::ByteOrder abyteOrder);
+	inline void SetViewByteOrder(IStream::ByteOrder byteOrder);
 
 	//Text-based access functions
 	template<class T> bool Read(T& data);
@@ -59,10 +60,10 @@ private:
 	inline static IStream::SizeType GetStringLength(const wchar_t* data, size_t bufferSize);
 
 private:
-	IStream& stream;
-	std::wstringstream wcharStream;
-	IStream::ByteOrder byteOrder;
-	bool noErrorState;
+	IStream& _stream;
+	std::wstringstream _wcharStream;
+	IStream::ByteOrder _byteOrder;
+	bool _noErrorState;
 };
 
 } //Close namespace Stream

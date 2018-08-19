@@ -3,8 +3,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-ZIPArchive::ZIPArchive(CompressionMethod acompressionmMethod)
-:compressionMethod(acompressionmMethod)
+ZIPArchive::ZIPArchive(CompressionMethod compressionMethod)
+:_compressionMethod(compressionMethod)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -29,26 +29,26 @@ bool ZIPArchive::LoadFromStream(Stream::IStream& source)
 		switch(chunkID)
 		{
 		//Try and load a local file header chunk
-		case ZIPChunk_LocalFileHeader::validSignature:{
+		case ZIPChunkLocalFileHeader::ValidSignature:{
 			ZIPFileEntry fileEntry;
 			if(!fileEntry.LoadFromStream(source))
 			{
 				return false;
 			}
-			fileList.push_back(fileEntry);
+			_fileList.push_back(fileEntry);
 			break;}
 		//Try and load a central file header chunk
-		case ZIPChunk_CentralFileHeader::validSignature:{
-			ZIPChunk_CentralFileHeader header;
+		case ZIPChunkCentralFileHeader::ValidSignature:{
+			ZIPChunkCentralFileHeader header;
 			if(!header.LoadFromStream(source))
 			{
 				return false;
 			}
-			centralDirectory.push_back(header);
+			_centralDirectory.push_back(header);
 			break;}
 		//Try and load an end of central directory chunk
-		case ZIPChunk_EndOfCentralDirectory::validSignature:{
-			if(!endOfCentralDirectoryHeader.LoadFromStream(source))
+		case ZIPChunkEndOfCentralDirectory::ValidSignature:{
+			if(!_endOfCentralDirectoryHeader.LoadFromStream(source))
 			{
 				return false;
 			}
@@ -70,11 +70,11 @@ bool ZIPArchive::SaveToStream(Stream::IStream& target)
 	//##TODO## Implement the compressionMethod flag
 
 	//Save individual file records
-	for(std::list<ZIPFileEntry>::iterator i = fileList.begin(); i != fileList.end(); ++i)
+	for(std::list<ZIPFileEntry>::iterator i = _fileList.begin(); i != _fileList.end(); ++i)
 	{
-		ZIPChunk_CentralFileHeader centralDirectoryHeader = i->GetCentralDirectoryFileHeader();
+		ZIPChunkCentralFileHeader centralDirectoryHeader = i->GetCentralDirectoryFileHeader();
 		centralDirectoryHeader.relativeOffsetOfLocalHeader = (unsigned int)target.GetStreamPos();
-		centralDirectory.push_back(centralDirectoryHeader);
+		_centralDirectory.push_back(centralDirectoryHeader);
 		if(!i->SaveToStream(target))
 		{
 			return false;
@@ -82,20 +82,20 @@ bool ZIPArchive::SaveToStream(Stream::IStream& target)
 	}
 
 	//Fill out the end of central directory header
-	endOfCentralDirectoryHeader.centralDirectoryEntriesOnDisk = (unsigned short)fileList.size();
-	endOfCentralDirectoryHeader.centralDirectoryEntries = (unsigned short)fileList.size();
-	endOfCentralDirectoryHeader.centralDirectoryOffset = (unsigned int)target.GetStreamPos();
+	_endOfCentralDirectoryHeader.centralDirectoryEntriesOnDisk = (unsigned short)_fileList.size();
+	_endOfCentralDirectoryHeader.centralDirectoryEntries = (unsigned short)_fileList.size();
+	_endOfCentralDirectoryHeader.centralDirectoryOffset = (unsigned int)target.GetStreamPos();
 
 	//Save the central directory to the stream
-	for(std::list<ZIPChunk_CentralFileHeader>::iterator i = centralDirectory.begin(); i != centralDirectory.end(); ++i)
+	for(std::list<ZIPChunkCentralFileHeader>::iterator i = _centralDirectory.begin(); i != _centralDirectory.end(); ++i)
 	{
 		if(!i->SaveToStream(target))
 		{
 			return false;
 		}
-		endOfCentralDirectoryHeader.centralDirectorySize += i->GetSize();
+		_endOfCentralDirectoryHeader.centralDirectorySize += i->GetSize();
 	}
-	if(!endOfCentralDirectoryHeader.SaveToStream(target))
+	if(!_endOfCentralDirectoryHeader.SaveToStream(target))
 	{
 		return false;
 	}
@@ -108,13 +108,13 @@ bool ZIPArchive::SaveToStream(Stream::IStream& target)
 //----------------------------------------------------------------------------------------
 unsigned int ZIPArchive::GetFileEntryCount() const
 {
-	return (unsigned int)fileList.size();
+	return (unsigned int)_fileList.size();
 }
 
 //----------------------------------------------------------------------------------------
 void ZIPArchive::AddFileEntry(const ZIPFileEntry& fileEntry)
 {
-	fileList.push_back(fileEntry);
+	_fileList.push_back(fileEntry);
 }
 
 //----------------------------------------------------------------------------------------
@@ -125,7 +125,7 @@ ZIPFileEntry* ZIPArchive::GetFileEntry(unsigned int fileNumber)
 		return 0;
 	}
 
-	std::list<ZIPFileEntry>::iterator fileEntry = fileList.begin();
+	std::list<ZIPFileEntry>::iterator fileEntry = _fileList.begin();
 	for(unsigned int i = 0; i < fileNumber; ++i)
 	{
 		++fileEntry;
@@ -137,7 +137,7 @@ ZIPFileEntry* ZIPArchive::GetFileEntry(unsigned int fileNumber)
 //----------------------------------------------------------------------------------------
 ZIPFileEntry* ZIPArchive::GetFileEntry(const std::wstring& fileName)
 {
-	for(std::list<ZIPFileEntry>::iterator i = fileList.begin(); i != fileList.end(); ++i)
+	for(std::list<ZIPFileEntry>::iterator i = _fileList.begin(); i != _fileList.end(); ++i)
 	{
 		if(i->GetFileName() == fileName)
 		{

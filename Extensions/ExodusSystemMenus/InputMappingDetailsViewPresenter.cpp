@@ -4,8 +4,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-InputMappingDetailsViewPresenter::InputMappingDetailsViewPresenter(const std::wstring& aviewGroupName, const std::wstring& aviewName, int aviewID, ExodusSystemMenus& aowner, ISystemGUIInterface& amodel, IDevice* atargetDevice)
-:ViewPresenterBase(aowner.GetAssemblyHandle(), aviewGroupName, aviewName, aviewID), owner(aowner), model(amodel), targetDevice(atargetDevice)
+InputMappingDetailsViewPresenter::InputMappingDetailsViewPresenter(const std::wstring& viewGroupName, const std::wstring& viewName, int viewID, ExodusSystemMenus& owner, ISystemGUIInterface& model, IDevice* targetDevice)
+:ViewPresenterBase(owner.GetAssemblyHandle(), viewGroupName, viewName, viewID), _owner(owner), _model(model), _targetDevice(targetDevice)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -21,28 +21,28 @@ std::wstring InputMappingDetailsViewPresenter::GetUnqualifiedViewTitle()
 //----------------------------------------------------------------------------------------
 IView* InputMappingDetailsViewPresenter::CreateView(IUIManager& uiManager)
 {
-	return new InputMappingDetailsView(uiManager, *this, model, targetDevice);
+	return new InputMappingDetailsView(uiManager, *this, _model, _targetDevice);
 }
 
 //----------------------------------------------------------------------------------------
-void InputMappingDetailsViewPresenter::DeleteView(IView* aview)
+void InputMappingDetailsViewPresenter::DeleteView(IView* view)
 {
-	delete aview;
+	delete view;
 }
 
 //----------------------------------------------------------------------------------------
 //Target device functions
 //----------------------------------------------------------------------------------------
-void InputMappingDetailsViewPresenter::SetTargetDevice(IDevice* atargetDevice)
+void InputMappingDetailsViewPresenter::SetTargetDevice(IDevice* targetDevice)
 {
-	targetDevice = atargetDevice;
+	_targetDevice = targetDevice;
 	IView* viewBase = GetOpenView();
 	if(viewBase != 0)
 	{
 		InputMappingDetailsView* view = dynamic_cast<InputMappingDetailsView*>(viewBase);
 		if(view != 0)
 		{
-			view->SetTargetDevice(targetDevice);
+			view->SetTargetDevice(_targetDevice);
 		}
 	}
 }

@@ -13,7 +13,7 @@ public:
 
 	//Name functions
 	virtual Marshal::Ret<std::wstring> GetName() const = 0;
-	virtual void SetName(const Marshal::In<std::wstring>& aname) = 0;
+	virtual void SetName(const Marshal::In<std::wstring>& name) = 0;
 
 	//Value read functions
 	//##FIX## Why do we reset the stream position when extracting data, but not when
@@ -25,9 +25,9 @@ public:
 	template<class T> void ExtractHexValue(T& target);
 
 	//Value write functions
-	template<class T> void SetValue(const T& adata);
-	template<class T> void InsertValue(const T& adata);
-	template<class T> void InsertHexValue(const T& adata, unsigned int length);
+	template<class T> void SetValue(const T& data);
+	template<class T> void InsertValue(const T& data);
+	template<class T> void InsertHexValue(const T& data, unsigned int length);
 
 protected:
 	//Stream functions

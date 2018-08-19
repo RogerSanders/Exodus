@@ -10,7 +10,7 @@ class VRAMView :public ViewBase
 {
 public:
 	//Constructors
-	VRAMView(IUIManager& auiManager, VRAMViewPresenter& apresenter, IS315_5313& amodel);
+	VRAMView(IUIManager& uiManager, VRAMViewPresenter& presenter, IS315_5313& model);
 
 protected:
 	//Member window procedure
@@ -86,36 +86,36 @@ private:
 	};
 
 private:
-	VRAMViewPresenter& presenter;
-	IS315_5313& model;
-	bool shadow;
-	bool highlight;
-	bool initializedDialog;
-	std::wstring previousText;
-	unsigned int currentControlFocus;
-	Image vramImage;
+	VRAMViewPresenter& _presenter;
+	IS315_5313& _model;
+	bool _shadow;
+	bool _highlight;
+	bool _initializedDialog;
+	std::wstring _previousText;
+	unsigned int _currentControlFocus;
+	Image _vramImage;
 
-	HWND hwndLayoutGrid;
-	HWND hwndScrollViewer;
-	HWND hwndControlDialog1;
-	HWND hwndControlDialog2;
-	HWND hwndRender;
-	HWND hwndDetails;
-	HWND hwndDetails16;
-	bool detailsBlock16;
-	bool detailsVisible;
-	unsigned int blocksPerRenderRowSetting;
-	unsigned int blocksPerRenderRow;
-	unsigned int blockMagnificationFactorSetting;
-	unsigned int blockMagnificationFactor;
-	int renderWindowAvailableWidth;
-	int renderWindowAvailableHeight;
+	HWND _hwndLayoutGrid;
+	HWND _hwndScrollViewer;
+	HWND _hwndControlDialog1;
+	HWND _hwndControlDialog2;
+	HWND _hwndRender;
+	HWND _hwndDetails;
+	HWND _hwndDetails16;
+	bool _detailsBlock16;
+	bool _detailsVisible;
+	unsigned int _blocksPerRenderRowSetting;
+	unsigned int _blocksPerRenderRow;
+	unsigned int _blockMagnificationFactorSetting;
+	unsigned int _blockMagnificationFactor;
+	int _renderWindowAvailableWidth;
+	int _renderWindowAvailableHeight;
 
-	BlockSize blockSize;
-	SelectedPalette selectedPalette;
-	TileEntry tileDetails[16][8];
-	unsigned int tileAddress;
-	unsigned int tileNumber;
+	BlockSize _blockSize;
+	SelectedPalette _selectedPalette;
+	TileEntry _tileDetails[16][8];
+	unsigned int _tileAddress;
+	unsigned int _tileNumber;
 };
 
 #endif

@@ -27,40 +27,40 @@ public:
 
 	virtual void Z80Decode(const Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)
 	{
-		//##NOTE## This opcode is not affected by index prefixes. HL is always the target.
+		//##NOTE## This opcode is not affected by index prefixes. HL is always the _target.
 		//EXX		11011001
-		sourceBC.SetMode(EffectiveAddress::Mode::BC);
-		sourceDE.SetMode(EffectiveAddress::Mode::DE);
-		sourceHL.SetMode(EffectiveAddress::Mode::HL);
-		targetBC.SetMode(EffectiveAddress::Mode::BC2);
-		targetDE.SetMode(EffectiveAddress::Mode::DE2);
-		targetHL.SetMode(EffectiveAddress::Mode::HL2);
+		_sourceBC.SetMode(EffectiveAddress::Mode::BC);
+		_sourceDE.SetMode(EffectiveAddress::Mode::DE);
+		_sourceHL.SetMode(EffectiveAddress::Mode::HL);
+		_targetBC.SetMode(EffectiveAddress::Mode::BC2);
+		_targetDE.SetMode(EffectiveAddress::Mode::DE2);
+		_targetHL.SetMode(EffectiveAddress::Mode::HL2);
 		AddExecuteCycleCount(4);
 	}
 
 	virtual ExecuteTime Z80Execute(Z80* cpu, const Z80Word& location) const
 	{
 		double additionalTime = 0;
-		Z80Word sourceBCTemp;
-		Z80Word sourceDETemp;
-		Z80Word sourceHLTemp;
-		Z80Word targetBCTemp;
-		Z80Word targetDETemp;
-		Z80Word targetHLTemp;
+		Z80Word _sourceBCTemp;
+		Z80Word _sourceDETemp;
+		Z80Word _sourceHLTemp;
+		Z80Word _targetBCTemp;
+		Z80Word _targetDETemp;
+		Z80Word _targetHLTemp;
 
 		//Perform the operation
-		additionalTime += sourceBC.Read(cpu, location + GetInstructionSize(), sourceBCTemp);
-		additionalTime += sourceDE.Read(cpu, location + GetInstructionSize(), sourceDETemp);
-		additionalTime += sourceHL.Read(cpu, location + GetInstructionSize(), sourceHLTemp);
-		additionalTime += targetBC.Read(cpu, location + GetInstructionSize(), targetBCTemp);
-		additionalTime += targetDE.Read(cpu, location + GetInstructionSize(), targetDETemp);
-		additionalTime += targetHL.Read(cpu, location + GetInstructionSize(), targetHLTemp);
-		additionalTime += sourceBC.Write(cpu, location + GetInstructionSize(), targetBCTemp);
-		additionalTime += sourceDE.Write(cpu, location + GetInstructionSize(), targetDETemp);
-		additionalTime += sourceHL.Write(cpu, location + GetInstructionSize(), targetHLTemp);
-		additionalTime += targetBC.Write(cpu, location + GetInstructionSize(), sourceBCTemp);
-		additionalTime += targetDE.Write(cpu, location + GetInstructionSize(), sourceDETemp);
-		additionalTime += targetHL.Write(cpu, location + GetInstructionSize(), sourceHLTemp);
+		additionalTime += _sourceBC.Read(cpu, location + GetInstructionSize(), _sourceBCTemp);
+		additionalTime += _sourceDE.Read(cpu, location + GetInstructionSize(), _sourceDETemp);
+		additionalTime += _sourceHL.Read(cpu, location + GetInstructionSize(), _sourceHLTemp);
+		additionalTime += _targetBC.Read(cpu, location + GetInstructionSize(), _targetBCTemp);
+		additionalTime += _targetDE.Read(cpu, location + GetInstructionSize(), _targetDETemp);
+		additionalTime += _targetHL.Read(cpu, location + GetInstructionSize(), _targetHLTemp);
+		additionalTime += _sourceBC.Write(cpu, location + GetInstructionSize(), _targetBCTemp);
+		additionalTime += _sourceDE.Write(cpu, location + GetInstructionSize(), _targetDETemp);
+		additionalTime += _sourceHL.Write(cpu, location + GetInstructionSize(), _targetHLTemp);
+		additionalTime += _targetBC.Write(cpu, location + GetInstructionSize(), _sourceBCTemp);
+		additionalTime += _targetDE.Write(cpu, location + GetInstructionSize(), _sourceDETemp);
+		additionalTime += _targetHL.Write(cpu, location + GetInstructionSize(), _sourceHLTemp);
 
 		//Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
@@ -68,12 +68,12 @@ public:
 	}
 
 private:
-	EffectiveAddress sourceBC;
-	EffectiveAddress sourceDE;
-	EffectiveAddress sourceHL;
-	EffectiveAddress targetBC;
-	EffectiveAddress targetDE;
-	EffectiveAddress targetHL;
+	EffectiveAddress _sourceBC;
+	EffectiveAddress _sourceDE;
+	EffectiveAddress _sourceHL;
+	EffectiveAddress _targetBC;
+	EffectiveAddress _targetDE;
+	EffectiveAddress _targetHL;
 };
 
 } //Close namespace Z80

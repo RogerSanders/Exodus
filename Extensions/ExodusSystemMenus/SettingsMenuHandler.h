@@ -15,7 +15,7 @@ public:
 	};
 
 	//Constructors
-	SettingsMenuHandler(ExodusSystemMenus& aowner, ISystemGUIInterface& amodel);
+	SettingsMenuHandler(ExodusSystemMenus& owner, ISystemGUIInterface& model);
 
 	//Window functions
 	void OpenInputMappingDetailsView(IDevice* targetDevice);
@@ -28,8 +28,8 @@ protected:
 	virtual void DeleteViewForItem(int menuItemID, IViewPresenter* viewPresenter);
 
 private:
-	ExodusSystemMenus& owner;
-	ISystemGUIInterface& model;
+	ExodusSystemMenus& _owner;
+	ISystemGUIInterface& _model;
 };
 
 #endif

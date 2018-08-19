@@ -5,14 +5,14 @@
 //----------------------------------------------------------------------------------------
 ClockSource::ClockSource()
 {
-	inputClockSource = 0;
+	_inputClockSource = 0;
 
 	//Initialize the default clock settings
-	clockType = ClockType::Direct;
-	clockFrequency = 0.0;
-	clockDivider = 0.0;
-	clockMultiplier = 0.0;
-	inputClockRate = 0.0;
+	_clockType = ClockType::Direct;
+	_clockFrequency = 0.0;
+	_clockDivider = 0.0;
+	_clockMultiplier = 0.0;
+	_inputClockRate = 0.0;
 }
 
 //----------------------------------------------------------------------------------------
@@ -25,25 +25,25 @@ bool ClockSource::Construct(const ClockSourceParams& params)
 	}
 
 	//Set the properties for this clock source
-	clockType = params.clockType;
-	switch(clockType)
+	_clockType = params.clockType;
+	switch(_clockType)
 	{
 	case ClockType::Direct:
 		if(params.initialValueDefined)
 		{
-			clockFrequency = params.initialValue;
+			_clockFrequency = params.initialValue;
 		}
 		break;
 	case ClockType::Divider:
 		if(params.initialValueDefined)
 		{
-			clockDivider = params.initialValue;
+			_clockDivider = params.initialValue;
 		}
 		break;
 	case ClockType::Multiplier:
 		if(params.initialValueDefined)
 		{
-			clockMultiplier = params.initialValue;
+			_clockMultiplier = params.initialValue;
 		}
 		break;
 	}
@@ -83,19 +83,19 @@ bool ClockSource::Construct(IHierarchicalStorageNode& node)
 }
 
 //----------------------------------------------------------------------------------------
-bool ClockSource::DecodeClockTypeString(const std::wstring& clockTypeString, ClockType& aclockType)
+bool ClockSource::DecodeClockTypeString(const std::wstring& clockTypeString, ClockType& clockType)
 {
 	if(clockTypeString == L"Direct")
 	{
-		aclockType = ClockType::Direct;
+		clockType = ClockType::Direct;
 	}
 	else if(clockTypeString == L"Multiplier")
 	{
-		aclockType = ClockType::Multiplier;
+		clockType = ClockType::Multiplier;
 	}
 	else if(clockTypeString == L"Divider")
 	{
-		aclockType = ClockType::Divider;
+		clockType = ClockType::Divider;
 	}
 	else
 	{
@@ -117,17 +117,17 @@ unsigned int ClockSource::GetIClockSourceVersion() const
 //----------------------------------------------------------------------------------------
 bool ClockSource::AddReference(IBusInterface* target)
 {
-	busInterfaces.insert(target);
+	_busInterfaces.insert(target);
 	return true;
 }
 
 //----------------------------------------------------------------------------------------
 void ClockSource::RemoveReference(IBusInterface* target)
 {
-	std::set<IBusInterface*>::iterator i = busInterfaces.find(target);
-	if(i != busInterfaces.end())
+	std::set<IBusInterface*>::iterator i = _busInterfaces.find(target);
+	if(i != _busInterfaces.end())
 	{
-		busInterfaces.erase(i);
+		_busInterfaces.erase(i);
 	}
 }
 
@@ -136,7 +136,7 @@ void ClockSource::RemoveReference(IBusInterface* target)
 //----------------------------------------------------------------------------------------
 ClockSource::ClockType ClockSource::GetClockType() const
 {
-	return clockType;
+	return _clockType;
 }
 
 //----------------------------------------------------------------------------------------
@@ -144,38 +144,38 @@ ClockSource::ClockType ClockSource::GetClockType() const
 //----------------------------------------------------------------------------------------
 double ClockSource::GetClockFrequency() const
 {
-	return clockFrequency;
+	return _clockFrequency;
 }
 
 //----------------------------------------------------------------------------------------
 double ClockSource::GetClockDivider() const
 {
-	return clockDivider;
+	return _clockDivider;
 }
 
 //----------------------------------------------------------------------------------------
 double ClockSource::GetClockMultiplier() const
 {
-	return clockMultiplier;
+	return _clockMultiplier;
 }
 
 //----------------------------------------------------------------------------------------
 double ClockSource::GetEffectiveClockFrequency() const
 {
 	double effectiveClockFrequency = 0.0;
-	switch(clockType)
+	switch(_clockType)
 	{
 	case ClockType::Direct:
-		effectiveClockFrequency = clockFrequency;
+		effectiveClockFrequency = _clockFrequency;
 		break;
 	case ClockType::Divider:
-		if(clockDivider != 0.0)
+		if(_clockDivider != 0.0)
 		{
-			effectiveClockFrequency = inputClockRate / clockDivider;
+			effectiveClockFrequency = _inputClockRate / _clockDivider;
 		}
 		break;
 	case ClockType::Multiplier:
-		effectiveClockFrequency = inputClockRate * clockMultiplier;
+		effectiveClockFrequency = _inputClockRate * _clockMultiplier;
 		break;
 	}
 	return effectiveClockFrequency;
@@ -185,13 +185,13 @@ double ClockSource::GetEffectiveClockFrequency() const
 bool ClockSource::SetClockFrequency(double clockRate, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	//Verify that the clock rate of this clock source is able to be set in this manner
-	if(clockType != ClockType::Direct)
+	if(_clockType != ClockType::Direct)
 	{
 		return false;
 	}
 
 	//Set the new clock rate
-	clockFrequency = clockRate;
+	_clockFrequency = clockRate;
 
 	//Notify any dependent clock sources or devices of the change in clock frequency
 	NotifyOutputClockRateChange(GetEffectiveClockFrequency(), caller, accessTime, accessContext);
@@ -203,13 +203,13 @@ bool ClockSource::SetClockFrequency(double clockRate, IDeviceContext* caller, do
 bool ClockSource::SetClockDivider(double divider, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	//Verify that the clock rate of this clock source is able to be set in this manner
-	if(clockType != ClockType::Divider)
+	if(_clockType != ClockType::Divider)
 	{
 		return false;
 	}
 
 	//Set the new clock rate
-	clockDivider = divider;
+	_clockDivider = divider;
 
 	//Notify any dependent clock sources or devices of the change in clock frequency
 	NotifyOutputClockRateChange(GetEffectiveClockFrequency(), caller, accessTime, accessContext);
@@ -221,13 +221,13 @@ bool ClockSource::SetClockDivider(double divider, IDeviceContext* caller, double
 bool ClockSource::SetClockMultiplier(double multiplier, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	//Verify that the clock rate of this clock source is able to be set in this manner
-	if(clockType != ClockType::Multiplier)
+	if(_clockType != ClockType::Multiplier)
 	{
 		return false;
 	}
 
 	//Set the new clock rate
-	clockMultiplier = multiplier;
+	_clockMultiplier = multiplier;
 
 	//Notify any dependent clock sources or devices of the change in clock frequency
 	NotifyOutputClockRateChange(GetEffectiveClockFrequency(), caller, accessTime, accessContext);
@@ -239,13 +239,13 @@ bool ClockSource::SetClockMultiplier(double multiplier, IDeviceContext* caller, 
 bool ClockSource::TransparentSetClockFrequency(double clockRate)
 {
 	//Verify that the clock rate of this clock source is able to be set in this manner
-	if(clockType != ClockType::Direct)
+	if(_clockType != ClockType::Direct)
 	{
 		return false;
 	}
 
 	//Set the new clock rate
-	clockFrequency = clockRate;
+	_clockFrequency = clockRate;
 
 	//Notify any dependent clock sources or devices of the change in clock frequency
 	TransparentNotifyOutputClockRateChange(GetEffectiveClockFrequency());
@@ -257,13 +257,13 @@ bool ClockSource::TransparentSetClockFrequency(double clockRate)
 bool ClockSource::TransparentSetClockDivider(double divider)
 {
 	//Verify that the clock rate of this clock source is able to be set in this manner
-	if(clockType != ClockType::Divider)
+	if(_clockType != ClockType::Divider)
 	{
 		return false;
 	}
 
 	//Set the new clock rate
-	clockDivider = divider;
+	_clockDivider = divider;
 
 	//Notify any dependent clock sources or devices of the change in clock frequency
 	TransparentNotifyOutputClockRateChange(GetEffectiveClockFrequency());
@@ -275,13 +275,13 @@ bool ClockSource::TransparentSetClockDivider(double divider)
 bool ClockSource::TransparentSetClockMultiplier(double multiplier)
 {
 	//Verify that the clock rate of this clock source is able to be set in this manner
-	if(clockType != ClockType::Multiplier)
+	if(_clockType != ClockType::Multiplier)
 	{
 		return false;
 	}
 
 	//Set the new clock rate
-	clockMultiplier = multiplier;
+	_clockMultiplier = multiplier;
 
 	//Notify any dependent clock sources or devices of the change in clock frequency
 	TransparentNotifyOutputClockRateChange(GetEffectiveClockFrequency());
@@ -298,7 +298,7 @@ bool ClockSource::AddDependentClockSource(ClockSource* clockSource)
 	clockSource->SetInputClockSource(this);
 
 	//Add this clock source to the list of dependent clock sources
-	dependentClockSources.insert(clockSource);
+	_dependentClockSources.insert(clockSource);
 
 	return true;
 }
@@ -306,34 +306,34 @@ bool ClockSource::AddDependentClockSource(ClockSource* clockSource)
 //----------------------------------------------------------------------------------------
 void ClockSource::RemoveDependentClockSource(ClockSource* clockSource)
 {
-	std::set<ClockSource*>::iterator i = dependentClockSources.find(clockSource);
-	if(i != dependentClockSources.end())
+	std::set<ClockSource*>::iterator i = _dependentClockSources.find(clockSource);
+	if(i != _dependentClockSources.end())
 	{
 		(*i)->SetInputClockSource(0);
-		dependentClockSources.erase(i);
+		_dependentClockSources.erase(i);
 	}
 }
 
 //----------------------------------------------------------------------------------------
 void ClockSource::RemoveAllDependentClockSources()
 {
-	for(std::set<ClockSource*>::const_iterator i = dependentClockSources.begin(); i != dependentClockSources.end(); ++i)
+	for(std::set<ClockSource*>::const_iterator i = _dependentClockSources.begin(); i != _dependentClockSources.end(); ++i)
 	{
 		(*i)->SetInputClockSource(0);
 	}
-	dependentClockSources.clear();
+	_dependentClockSources.clear();
 }
 
 //----------------------------------------------------------------------------------------
 void ClockSource::SetInputClockSource(ClockSource* clockSource)
 {
-	inputClockSource = clockSource;
+	_inputClockSource = clockSource;
 }
 
 //----------------------------------------------------------------------------------------
 ClockSource* ClockSource::GetInputClockSource()
 {
-	return inputClockSource;
+	return _inputClockSource;
 }
 
 //----------------------------------------------------------------------------------------
@@ -348,7 +348,7 @@ void ClockSource::PublishEffectiveClockFrequency() const
 void ClockSource::NotifyInputClockRateChange(double newClockRate, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	//Set the new input clock rate
-	inputClockRate = newClockRate;
+	_inputClockRate = newClockRate;
 
 	//Notify any dependent clock sources or devices of the change in clock frequency
 	NotifyOutputClockRateChange(GetEffectiveClockFrequency(), caller, accessTime, accessContext);
@@ -358,7 +358,7 @@ void ClockSource::NotifyInputClockRateChange(double newClockRate, IDeviceContext
 void ClockSource::TransparentNotifyInputClockRateChange(double newClockRate)
 {
 	//Set the new input clock rate
-	inputClockRate = newClockRate;
+	_inputClockRate = newClockRate;
 
 	//Notify any dependent clock sources or devices of the change in clock frequency
 	TransparentNotifyOutputClockRateChange(GetEffectiveClockFrequency());
@@ -369,14 +369,14 @@ void ClockSource::NotifyOutputClockRateChange(double newClockRate, IDeviceContex
 {
 	//Notify any clock sources which depend on the output from this clock source of the
 	//change in clock rate.
-	for(std::set<ClockSource*>::const_iterator i = dependentClockSources.begin(); i != dependentClockSources.end(); ++i)
+	for(std::set<ClockSource*>::const_iterator i = _dependentClockSources.begin(); i != _dependentClockSources.end(); ++i)
 	{
 		(*i)->NotifyInputClockRateChange(newClockRate, caller, accessTime, accessContext);
 	}
 
 	//Notify any devices which are linked with this clock source of the change in clock
 	//rate.
-	for(std::set<IBusInterface*>::const_iterator i = busInterfaces.begin(); i != busInterfaces.end(); ++i)
+	for(std::set<IBusInterface*>::const_iterator i = _busInterfaces.begin(); i != _busInterfaces.end(); ++i)
 	{
 		(*i)->SetClockRate(newClockRate, this, caller, accessTime, accessContext);
 	}
@@ -387,14 +387,14 @@ void ClockSource::TransparentNotifyOutputClockRateChange(double newClockRate) co
 {
 	//Notify any clock sources which depend on the output from this clock source of the
 	//change in clock rate.
-	for(std::set<ClockSource*>::const_iterator i = dependentClockSources.begin(); i != dependentClockSources.end(); ++i)
+	for(std::set<ClockSource*>::const_iterator i = _dependentClockSources.begin(); i != _dependentClockSources.end(); ++i)
 	{
 		(*i)->TransparentNotifyInputClockRateChange(newClockRate);
 	}
 
 	//Notify any devices which are linked with this clock source of the change in clock
 	//rate.
-	for(std::set<IBusInterface*>::const_iterator i = busInterfaces.begin(); i != busInterfaces.end(); ++i)
+	for(std::set<IBusInterface*>::const_iterator i = _busInterfaces.begin(); i != _busInterfaces.end(); ++i)
 	{
 		(*i)->TransparentSetClockRate(newClockRate, this);
 	}

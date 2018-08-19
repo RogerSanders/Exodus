@@ -7,16 +7,16 @@
 //----------------------------------------------------------------------------------------
 //Initialization functions
 //----------------------------------------------------------------------------------------
-bool Device::BindToSystemInterface(ISystemDeviceInterface* asystemInterface)
+bool Device::BindToSystemInterface(ISystemDeviceInterface* systemInterface)
 {
-	systemInterface = asystemInterface;
+	_systemInterface = systemInterface;
 	return true;
 }
 
 //----------------------------------------------------------------------------------------
-bool Device::BindToDeviceContext(IDeviceContext* adeviceContext)
+bool Device::BindToDeviceContext(IDeviceContext* deviceContext)
 {
-	deviceContext = adeviceContext;
+	_deviceContext = deviceContext;
 	return true;
 }
 
@@ -221,37 +221,37 @@ void Device::NotifyAfterExecuteStepFinishedTimeslice()
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> Device::GetDeviceClassName() const
 {
-	return implementationName;
+	return _implementationName;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> Device::GetDeviceInstanceName() const
 {
-	return instanceName;
+	return _instanceName;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> Device::GetFullyQualifiedDeviceInstanceName() const
 {
-	return deviceContext->GetFullyQualifiedDeviceInstanceName();
+	return _deviceContext->GetFullyQualifiedDeviceInstanceName();
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> Device::GetModuleDisplayName() const
 {
-	return deviceContext->GetModuleDisplayName();
+	return _deviceContext->GetModuleDisplayName();
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> Device::GetModuleInstanceName() const
 {
-	return deviceContext->GetModuleInstanceName();
+	return _deviceContext->GetModuleInstanceName();
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int Device::GetDeviceModuleID() const
 {
-	return moduleID;
+	return _moduleID;
 }
 
 //----------------------------------------------------------------------------------------

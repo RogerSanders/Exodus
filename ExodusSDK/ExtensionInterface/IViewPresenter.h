@@ -27,12 +27,12 @@ public:
 	virtual AssemblyHandle GetAssemblyHandle() const = 0;
 
 	//View management functions
-	virtual bool OpenView(IUIManager& uiManager, IViewStateChangeNotifier* anotifier, IHierarchicalStorageNode* viewState) = 0;
+	virtual bool OpenView(IUIManager& uiManager, IViewStateChangeNotifier* notifier, IHierarchicalStorageNode* viewState) = 0;
 	virtual void CloseView() = 0;
 	virtual void ShowView() = 0;
 	virtual void HideView() = 0;
 	virtual void ActivateView() = 0;
-	virtual void NotifyViewClosed(IView* aview) = 0;
+	virtual void NotifyViewClosed(IView* view) = 0;
 
 	//View target functions
 	virtual ViewTarget GetViewTarget() const = 0;

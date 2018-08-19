@@ -23,7 +23,7 @@ public:
 
 protected:
 	//Parent functions
-	inline void SetParentForTargetEntry(IGenericAccessGroupEntry* entry, IGenericAccessGroup* aparent) const;
+	inline void SetParentForTargetEntry(IGenericAccessGroupEntry* entry, IGenericAccessGroup* parent) const;
 };
 
 #include "IGenericAccessGroup.inl"

@@ -9,17 +9,17 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 AudioStream::AudioStream()
-:workerThreadRunning(false), completedBufferSlots(0)
+:_workerThreadRunning(false), _completedBufferSlots(0)
 {
 	//Create our critical section object
-	InitializeCriticalSection(&waveMutex);
+	InitializeCriticalSection(&_waveMutex);
 
 	//Create our event handles
-	eventHandles[0] = CreateEvent(NULL, TRUE, FALSE, NULL);
-	eventHandles[1] = CreateEvent(NULL, TRUE, FALSE, NULL);
-	eventHandles[2] = CreateEvent(NULL, TRUE, FALSE, NULL);
-	startupCompleteEventHandle = CreateEvent(NULL, TRUE, FALSE, NULL);
-	shutdownCompleteEventHandle = CreateEvent(NULL, TRUE, FALSE, NULL);
+	_eventHandles[0] = CreateEvent(NULL, TRUE, FALSE, NULL);
+	_eventHandles[1] = CreateEvent(NULL, TRUE, FALSE, NULL);
+	_eventHandles[2] = CreateEvent(NULL, TRUE, FALSE, NULL);
+	_startupCompleteEventHandle = CreateEvent(NULL, TRUE, FALSE, NULL);
+	_shutdownCompleteEventHandle = CreateEvent(NULL, TRUE, FALSE, NULL);
 }
 
 //----------------------------------------------------------------------------------------
@@ -29,42 +29,42 @@ AudioStream::~AudioStream()
 	Close();
 	
 	//Delete our event handles
-	CloseHandle(eventHandles[0]);
-	CloseHandle(eventHandles[1]);
-	CloseHandle(eventHandles[2]);
-	CloseHandle(startupCompleteEventHandle);
-	CloseHandle(shutdownCompleteEventHandle);
+	CloseHandle(_eventHandles[0]);
+	CloseHandle(_eventHandles[1]);
+	CloseHandle(_eventHandles[2]);
+	CloseHandle(_startupCompleteEventHandle);
+	CloseHandle(_shutdownCompleteEventHandle);
 
 	//Release our critical section object
-	DeleteCriticalSection(&waveMutex);
+	DeleteCriticalSection(&_waveMutex);
 }
 
 //----------------------------------------------------------------------------------------
 //Audio stream binding
 //----------------------------------------------------------------------------------------
-bool AudioStream::Open(unsigned int achannelCount, unsigned int abitsPerSample, unsigned int asamplesPerSec, unsigned int amaxPendingSamples, unsigned int aminPlayingSamples)
+bool AudioStream::Open(unsigned int channelCount, unsigned int bitsPerSample, unsigned int samplesPerSec, unsigned int maxPendingSamples, unsigned int minPlayingSamples)
 {
 	//If the stream already has an open handle to an audio device, close it.
 	Close();
 
 	//Set the properties of the audio output stream
-	channelCount = achannelCount;
-	bitsPerSample = abitsPerSample;
-	samplesPerSec = asamplesPerSec;
-	maxPendingSamples = amaxPendingSamples;
-	if(maxPendingSamples == 0)
+	_channelCount = channelCount;
+	_bitsPerSample = bitsPerSample;
+	_samplesPerSec = samplesPerSec;
+	_maxPendingSamples = maxPendingSamples;
+	if(_maxPendingSamples == 0)
 	{
-		maxPendingSamples = samplesPerSec / 4;
+		_maxPendingSamples = _samplesPerSec / 4;
 	}
-	minPlayingSamples = aminPlayingSamples;
-	if(minPlayingSamples == 0)
+	_minPlayingSamples = minPlayingSamples;
+	if(_minPlayingSamples == 0)
 	{
-		minPlayingSamples = minPlayingSamples / 20;
+		_minPlayingSamples = _minPlayingSamples / 20;
 	}
-	currentPlayingSamples = 0;
+	_currentPlayingSamples = 0;
 
 	//Create the worker thread, and boost priority.
-	ResetEvent(startupCompleteEventHandle);
+	ResetEvent(_startupCompleteEventHandle);
 	DWORD threadID;
 	HANDLE renderThreadHandle = CreateThread(NULL, 0, WorkerThread, this, CREATE_SUSPENDED, &threadID);
 	if(renderThreadHandle == NULL)
@@ -83,8 +83,8 @@ bool AudioStream::Open(unsigned int achannelCount, unsigned int abitsPerSample, 
 	}
 
 	//Verify the worker thread has started correctly, and is ready to process audio data.
-	WaitForSingleObject(startupCompleteEventHandle, INFINITE);
-	if(!workerThreadRunning)
+	WaitForSingleObject(_startupCompleteEventHandle, INFINITE);
+	if(!_workerThreadRunning)
 	{
 		//##DEBUG##
 		std::wcout << "AudioStream Error!:\tWorker thread initialization failed!" << '\n';
@@ -99,54 +99,54 @@ void AudioStream::Close()
 {
 	//If the worker thread is currently marked as running, send a shutdown event
 	//notification, and wait for the worker thread to terminate.
-	if(workerThreadRunning)
+	if(_workerThreadRunning)
 	{
-		SetEvent(eventHandles[EVENT_SHUTDOWN]);
-		WaitForSingleObject(shutdownCompleteEventHandle, INFINITE);
-		ResetEvent(shutdownCompleteEventHandle);
+		SetEvent(_eventHandles[EventIndexShutdown]);
+		WaitForSingleObject(_shutdownCompleteEventHandle, INFINITE);
+		ResetEvent(_shutdownCompleteEventHandle);
 	}
 
 	//Verify that all playing buffer objects have been deleted. This should always be the
 	//case by this point anyway.
-	if(playingBuffers.size() > 0)
+	if(_playingBuffers.size() > 0)
 	{
 		//##DEBUG##
-		std::wcout << "AudioStream Error!:\tEntries remain in playingBuffers on Close\t" << playingBuffers.size() << '\n';
+		std::wcout << "AudioStream Error!:\tEntries remain in playingBuffers on Close\t" << _playingBuffers.size() << '\n';
 	}
-	for(std::list<AudioBuffer*>::iterator i = playingBuffers.begin(); i != playingBuffers.end(); ++i)
+	for(std::list<AudioBuffer*>::iterator i = _playingBuffers.begin(); i != _playingBuffers.end(); ++i)
 	{
 		delete *i;
 	}
-	playingBuffers.clear();
+	_playingBuffers.clear();
 
 	//Remove any remaining pending buffer objects
-	for(std::list<AudioBuffer*>::iterator i = pendingBuffers.begin(); i != pendingBuffers.end(); ++i)
+	for(std::list<AudioBuffer*>::iterator i = _pendingBuffers.begin(); i != _pendingBuffers.end(); ++i)
 	{
 		delete *i;
 	}
-	pendingBuffers.clear();
+	_pendingBuffers.clear();
 }
 
 //----------------------------------------------------------------------------------------
 //Buffer management functions
 //----------------------------------------------------------------------------------------
-AudioStream::AudioBuffer* AudioStream::CreateAudioBuffer(unsigned int sampleCount, unsigned int achannelCount)
+AudioStream::AudioBuffer* AudioStream::CreateAudioBuffer(unsigned int sampleCount, unsigned int channelCount)
 {
 	//Ensure that the audio output stream has been opened, and that valid number of
 	//samples and channels have been specified for this buffer.
-	if(!workerThreadRunning || (sampleCount <= 0) || (achannelCount <= 0))
+	if(!_workerThreadRunning || (sampleCount <= 0) || (channelCount <= 0))
 	{
 		return 0;
 	}
 
 	//Create a new AudioBuffer object
-	AudioBuffer* entry = new AudioBuffer(sampleCount * achannelCount);
+	AudioBuffer* entry = new AudioBuffer(sampleCount * channelCount);
 
 	//Take a lock on waveMutex before we alter any internal structures
-	EnterCriticalSection(&waveMutex);
+	EnterCriticalSection(&_waveMutex);
 
 	//Add the new buffer object to the pending buffer queue
-	pendingBuffers.push_back(entry);
+	_pendingBuffers.push_back(entry);
 
 	//Calculate the new total number of samples pending, and if we've exceeded our maximum
 	//pending sample count, drop pending buffers until we're back under the limit. Note
@@ -155,13 +155,13 @@ AudioStream::AudioBuffer* AudioStream::CreateAudioBuffer(unsigned int sampleCoun
 	//but before they are sent to the audio hardware. We drop buffers so that the audio
 	//output stream isn't left with an ever-increasing backlog of audio data in the case
 	//that the system is running too fast.
-	unsigned int pendingSampleCount = currentPlayingSamples;
-	for(std::list<AudioBuffer*>::iterator i = pendingBuffers.begin(); i != pendingBuffers.end(); ++i)
+	unsigned int pendingSampleCount = _currentPlayingSamples;
+	for(std::list<AudioBuffer*>::iterator i = _pendingBuffers.begin(); i != _pendingBuffers.end(); ++i)
 	{
-		pendingSampleCount += (unsigned int)((*i)->buffer.size() / channelCount);
+		pendingSampleCount += (unsigned int)((*i)->buffer.size() / _channelCount);
 	}
-	std::list<AudioBuffer*>::iterator pendingBufferIterator = pendingBuffers.begin();
-	while((pendingSampleCount > maxPendingSamples) && (pendingBufferIterator != pendingBuffers.end()) && (*pendingBufferIterator)->playBuffer)
+	std::list<AudioBuffer*>::iterator pendingBufferIterator = _pendingBuffers.begin();
+	while((pendingSampleCount > _maxPendingSamples) && (pendingBufferIterator != _pendingBuffers.end()) && (*pendingBufferIterator)->playBuffer)
 	{
 		//If this buffer entry has already been sent to the audio hardware, skip it.
 		AudioBuffer* entryToRemove = *pendingBufferIterator;
@@ -172,14 +172,14 @@ AudioStream::AudioBuffer* AudioStream::CreateAudioBuffer(unsigned int sampleCoun
 		}
 
 		//Remove this buffer entry
-		pendingSampleCount -= ((unsigned int)entryToRemove->buffer.size() / channelCount);
+		pendingSampleCount -= ((unsigned int)entryToRemove->buffer.size() / _channelCount);
 		delete entryToRemove;
-		pendingBuffers.erase(pendingBufferIterator);
-		pendingBufferIterator = pendingBuffers.begin();
+		_pendingBuffers.erase(pendingBufferIterator);
+		pendingBufferIterator = _pendingBuffers.begin();
 	}
 
 	//Release the lock on waveMutex
-	LeaveCriticalSection(&waveMutex);
+	LeaveCriticalSection(&_waveMutex);
 
 	//Return the new buffer object to the caller
 	return entry;
@@ -189,40 +189,40 @@ AudioStream::AudioBuffer* AudioStream::CreateAudioBuffer(unsigned int sampleCoun
 void AudioStream::DeleteAudioBuffer(AudioBuffer* buffer)
 {
 	//Find and delete this buffer from the list of pending buffers
-	EnterCriticalSection(&waveMutex);
-	std::list<AudioBuffer*>::iterator pendingBufferIterator = pendingBuffers.begin();
+	EnterCriticalSection(&_waveMutex);
+	std::list<AudioBuffer*>::iterator pendingBufferIterator = _pendingBuffers.begin();
 	bool done = false;
-	while(!done && (pendingBufferIterator != pendingBuffers.end()))
+	while(!done && (pendingBufferIterator != _pendingBuffers.end()))
 	{
 		if(*pendingBufferIterator == buffer)
 		{
-			pendingBuffers.erase(pendingBufferIterator);
+			_pendingBuffers.erase(pendingBufferIterator);
 			delete buffer;
 			done = true;
 		}
 	}
-	LeaveCriticalSection(&waveMutex);
+	LeaveCriticalSection(&_waveMutex);
 }
 
 //----------------------------------------------------------------------------------------
 void AudioStream::PlayBuffer(AudioBuffer* buffer)
 {
-	EnterCriticalSection(&waveMutex);
+	EnterCriticalSection(&_waveMutex);
 	buffer->playBuffer = true;
-	LeaveCriticalSection(&waveMutex);
-	SetEvent(eventHandles[EVENT_PLAYBUFFER]);
+	LeaveCriticalSection(&_waveMutex);
+	SetEvent(_eventHandles[EventIndexPlayBuffer]);
 }
 
 //----------------------------------------------------------------------------------------
 void AudioStream::AddPendingBuffers(HWAVEOUT deviceHandle)
 {
-	EnterCriticalSection(&waveMutex);
+	EnterCriticalSection(&_waveMutex);
 
 	//Send all pending buffers which have been flagged for playback to the audio output
 	//stream, until we run out of buffers, or we reach the maximum number of samples which
 	//are allowed to be held pending.
-	std::list<AudioBuffer*>::iterator pendingBufferIterator = pendingBuffers.begin();
-	while((pendingBufferIterator != pendingBuffers.end()) && (*pendingBufferIterator)->playBuffer && (currentPlayingSamples < maxPendingSamples))
+	std::list<AudioBuffer*>::iterator pendingBufferIterator = _pendingBuffers.begin();
+	while((pendingBufferIterator != _pendingBuffers.end()) && (*pendingBufferIterator)->playBuffer && (_currentPlayingSamples < _maxPendingSamples))
 	{
 		AudioBuffer* entry = *pendingBufferIterator;
 
@@ -231,16 +231,16 @@ void AudioStream::AddPendingBuffers(HWAVEOUT deviceHandle)
 
 		//Add the count of samples in this buffer to the total count of currently playing
 		//samples
-		unsigned int samplesInBufferEntry = ((unsigned int)entry->buffer.size() / channelCount);
-		currentPlayingSamples += samplesInBufferEntry;
+		unsigned int samplesInBufferEntry = ((unsigned int)entry->buffer.size() / _channelCount);
+		_currentPlayingSamples += samplesInBufferEntry;
 
 		//Add this buffer to the list of playing buffers
-		playingBuffers.push_back(entry);
+		_playingBuffers.push_back(entry);
 
 		//Send this buffer to the audio output device
-		LeaveCriticalSection(&waveMutex);
+		LeaveCriticalSection(&_waveMutex);
 		bool addPendingBufferReturn = AddPendingBuffer(deviceHandle, entry);
-		EnterCriticalSection(&waveMutex);
+		EnterCriticalSection(&_waveMutex);
 
 		//If we failed to send this buffer to the audio output device, remove it from the
 		//list of playing buffers, and delete the buffer data. Note that we do things this
@@ -255,8 +255,8 @@ void AudioStream::AddPendingBuffers(HWAVEOUT deviceHandle)
 		//case of a failure.
 		if(!addPendingBufferReturn)
 		{
-			currentPlayingSamples -= samplesInBufferEntry;
-			playingBuffers.pop_back();
+			_currentPlayingSamples -= samplesInBufferEntry;
+			_playingBuffers.pop_back();
 			delete entry;
 		}
 
@@ -264,45 +264,45 @@ void AudioStream::AddPendingBuffers(HWAVEOUT deviceHandle)
 		//another pending buffer exists. Note that at this point, a new entry could have
 		//been added to the back of the pendingBuffers queue while we were outside the
 		//critical section.
-		pendingBuffers.erase(pendingBuffers.begin());
-		pendingBufferIterator = pendingBuffers.begin();
+		_pendingBuffers.erase(_pendingBuffers.begin());
+		pendingBufferIterator = _pendingBuffers.begin();
 	}
 
 	//If we have less than the maximum number of playing samples waiting in the playback
 	//buffer, and at least one buffer is currently being played, add a filler buffer to
 	//the queue using the last sample of the last playing buffer.
-	if(!playingBuffers.empty() && (currentPlayingSamples < minPlayingSamples))
+	if(!_playingBuffers.empty() && (_currentPlayingSamples < _minPlayingSamples))
 	{
 		//Extract the last sample values from the last buffer in the playback queue
-		AudioBuffer* lastPlayingBuffer = *playingBuffers.rbegin();
-		std::vector<short> sampleBuffer(channelCount);
-		for(unsigned int i = 0; i < channelCount; ++i)
+		AudioBuffer* lastPlayingBuffer = *_playingBuffers.rbegin();
+		std::vector<short> sampleBuffer(_channelCount);
+		for(unsigned int i = 0; i < _channelCount; ++i)
 		{
 			unsigned int lastPlayingBufferSize = (unsigned int)lastPlayingBuffer->buffer.size();
-			unsigned int lastPlayingBufferSampleIndex = ((lastPlayingBufferSize - 1) - ((channelCount - 1) - i));
+			unsigned int lastPlayingBufferSampleIndex = ((lastPlayingBufferSize - 1) - ((_channelCount - 1) - i));
 			sampleBuffer[i] = lastPlayingBuffer->buffer[lastPlayingBufferSampleIndex];
 		}
 
 		//While there's still empty space in the playback buffer, insert filler buffers
 		//into the playback queue.
-		while(currentPlayingSamples < minPlayingSamples)
+		while(_currentPlayingSamples < _minPlayingSamples)
 		{
-			unsigned int maxSamplesPerFillerBuffer = minPlayingSamples / 2;
-			unsigned int sampleCountToAdd = ((minPlayingSamples - currentPlayingSamples) <= maxSamplesPerFillerBuffer)? (minPlayingSamples - currentPlayingSamples): maxSamplesPerFillerBuffer;
+			unsigned int maxSamplesPerFillerBuffer = _minPlayingSamples / 2;
+			unsigned int sampleCountToAdd = ((_minPlayingSamples - _currentPlayingSamples) <= maxSamplesPerFillerBuffer)? (_minPlayingSamples - _currentPlayingSamples): maxSamplesPerFillerBuffer;
 
 			//##DEBUG##
 			//std::wcout << "Adding filler sample buffer with " << sampleCountToAdd << " samples.\n";
 
 			//Create a new audio buffer for this filler block
-			AudioBuffer* fillerBuffer = new AudioBuffer(sampleCountToAdd * channelCount);
+			AudioBuffer* fillerBuffer = new AudioBuffer(sampleCountToAdd * _channelCount);
 
 			//Fill this audio buffer with the captured sample data from the last playing
 			//audio buffer
 			for(unsigned int sampleNo = 0; sampleNo < sampleCountToAdd; ++sampleNo)
 			{
-				for(unsigned int channelNo = 0; channelNo < channelCount; ++channelNo)
+				for(unsigned int channelNo = 0; channelNo < _channelCount; ++channelNo)
 				{
-					fillerBuffer->buffer[(sampleNo * channelCount) + channelNo] = sampleBuffer[channelNo];
+					fillerBuffer->buffer[(sampleNo * _channelCount) + channelNo] = sampleBuffer[channelNo];
 				}
 			}
 
@@ -314,15 +314,15 @@ void AudioStream::AddPendingBuffers(HWAVEOUT deviceHandle)
 
 			//Add the number of inserted samples in the filler buffer to the total count
 			//of playing samples
-			currentPlayingSamples += sampleCountToAdd;
+			_currentPlayingSamples += sampleCountToAdd;
 
 			//Add this buffer to the list of playing buffers
-			playingBuffers.push_back(fillerBuffer);
+			_playingBuffers.push_back(fillerBuffer);
 
 			//Send this buffer to the audio output device
-			LeaveCriticalSection(&waveMutex);
+			LeaveCriticalSection(&_waveMutex);
 			bool addPendingBufferReturn = AddPendingBuffer(deviceHandle, fillerBuffer);
-			EnterCriticalSection(&waveMutex);
+			EnterCriticalSection(&_waveMutex);
 
 			//If we failed to send this buffer to the audio output device, remove it from
 			//the list of playing buffers, and delete the buffer data. Note that we do
@@ -337,14 +337,14 @@ void AudioStream::AddPendingBuffers(HWAVEOUT deviceHandle)
 			//the buffer starts playing, and remove it in the case of a failure.
 			if(!addPendingBufferReturn)
 			{
-				currentPlayingSamples -= sampleCountToAdd;
-				playingBuffers.pop_back();
+				_currentPlayingSamples -= sampleCountToAdd;
+				_playingBuffers.pop_back();
 				delete fillerBuffer;
 			}
 		}
 	}
 
-	LeaveCriticalSection(&waveMutex);
+	LeaveCriticalSection(&_waveMutex);
 }
 
 //----------------------------------------------------------------------------------------
@@ -386,9 +386,9 @@ void AudioStream::ClearCompletedBuffers(HWAVEOUT deviceHandle)
 {
 	//While there are completed buffers waiting for deletion, clean up the next completed
 	//buffer in the queue.
-	EnterCriticalSection(&waveMutex);
-	std::list<AudioBuffer*>::iterator playingBufferIterator = playingBuffers.begin();
-	while((completedBufferSlots > 0) && (playingBufferIterator != playingBuffers.end()))
+	EnterCriticalSection(&_waveMutex);
+	std::list<AudioBuffer*>::iterator playingBufferIterator = _playingBuffers.begin();
+	while((_completedBufferSlots > 0) && (playingBufferIterator != _playingBuffers.end()))
 	{
 		AudioBuffer* entry = *playingBufferIterator;
 
@@ -396,7 +396,7 @@ void AudioStream::ClearCompletedBuffers(HWAVEOUT deviceHandle)
 		//std::wcout << L"ClearBuffer\t" << completedBufferSlots << '\n';
 
 		//Clean up all data associated with this buffer
-		LeaveCriticalSection(&waveMutex);
+		LeaveCriticalSection(&_waveMutex);
 		MMRESULT waveOutUnprepareHeaderReturn;
 		waveOutUnprepareHeaderReturn = waveOutUnprepareHeader(deviceHandle, &entry->header, sizeof(entry->header));
 		if(waveOutUnprepareHeaderReturn != MMSYSERR_NOERROR)
@@ -405,21 +405,21 @@ void AudioStream::ClearCompletedBuffers(HWAVEOUT deviceHandle)
 			std::wcout << "AudioStream Error!:\twaveOutUnprepareHeader failed!\t" << waveOutUnprepareHeaderReturn << '\n';
 			std::wcout << entry->buffer.size() << '\t' << entry->header.dwFlags << '\n';
 		}
-		EnterCriticalSection(&waveMutex);
+		EnterCriticalSection(&_waveMutex);
 
 		//Subtract one from the number of completed buffers, and adjust the count of the
 		//currently playing samples. Note that the number of completed buffers in
 		//particular could have increased while we were outside our lock.
-		--completedBufferSlots;
-		currentPlayingSamples -= ((unsigned int)entry->buffer.size() / channelCount);
+		--_completedBufferSlots;
+		_currentPlayingSamples -= ((unsigned int)entry->buffer.size() / _channelCount);
 
 		//Delete the completed buffer, and advance to the new oldest entry in the list of
 		//playing buffers.
 		delete entry;
-		playingBuffers.erase(playingBuffers.begin());
-		playingBufferIterator = playingBuffers.begin();
+		_playingBuffers.erase(_playingBuffers.begin());
+		playingBufferIterator = _playingBuffers.begin();
 	}
-	LeaveCriticalSection(&waveMutex);
+	LeaveCriticalSection(&_waveMutex);
 }
 
 //----------------------------------------------------------------------------------------
@@ -430,12 +430,12 @@ DWORD WINAPI AudioStream::WorkerThread(LPVOID lpParameter)
 	AudioStream* stream = (AudioStream*)lpParameter;
 
 	//Reset the count of completed buffers awaiting deletion
-	stream->completedBufferSlots = 0;
+	stream->_completedBufferSlots = 0;
 
 	//Reset all event handles
-	ResetEvent(stream->eventHandles[EVENT_SHUTDOWN]);
-	ResetEvent(stream->eventHandles[EVENT_PLAYBUFFER]);
-	ResetEvent(stream->eventHandles[EVENT_BUFFERDONE]);
+	ResetEvent(stream->_eventHandles[EventIndexShutdown]);
+	ResetEvent(stream->_eventHandles[EventIndexPlayBuffer]);
+	ResetEvent(stream->_eventHandles[EventIndexBufferDone]);
 
 	//##DEBUG## Report on the available audio output devices
 	unsigned int deviceCount = waveOutGetNumDevs();
@@ -456,14 +456,14 @@ DWORD WINAPI AudioStream::WorkerThread(LPVOID lpParameter)
 	}
 
 	//Calculate the number of bytes per sample, rounded up.
-	unsigned int bytesPerSample = (stream->bitsPerSample + 7) / 8;
+	unsigned int bytesPerSample = (stream->_bitsPerSample + 7) / 8;
 
 	//Describe the required format of the audio output stream
 	WAVEFORMATEX format;
 	format.wFormatTag = WAVE_FORMAT_PCM;
-	format.nChannels = (WORD)stream->channelCount;
-	format.nSamplesPerSec = (DWORD)stream->samplesPerSec;
-	format.wBitsPerSample = (WORD)stream->bitsPerSample;
+	format.nChannels = (WORD)stream->_channelCount;
+	format.nSamplesPerSec = (DWORD)stream->_samplesPerSec;
+	format.wBitsPerSample = (WORD)stream->_bitsPerSample;
 	format.nBlockAlign = format.nChannels * (WORD)bytesPerSample;
 	format.nAvgBytesPerSec = format.nSamplesPerSec * (DWORD)format.nBlockAlign;
 	format.cbSize = 0;
@@ -494,36 +494,36 @@ DWORD WINAPI AudioStream::WorkerThread(LPVOID lpParameter)
 		//The worker thread initialization has failed. Signal that the worker thread has
 		//processed the startup request, but has not successfully entered the running
 		//state, and terminate the worker thread.
-		stream->workerThreadRunning = false;
-		SetEvent(stream->startupCompleteEventHandle);
+		stream->_workerThreadRunning = false;
+		SetEvent(stream->_startupCompleteEventHandle);
 		return 0;
 	}
 
 	//Signal that the worker thread has entered the running state
-	stream->workerThreadRunning = true;
-	SetEvent(stream->startupCompleteEventHandle);
+	stream->_workerThreadRunning = true;
+	SetEvent(stream->_startupCompleteEventHandle);
 
 	//Begin the message loop
 	bool done = false;
 	while(!done)
 	{
 		DWORD waitForMultipleObjectsReturn;
-		waitForMultipleObjectsReturn = WaitForMultipleObjects(3, &stream->eventHandles[0], FALSE, INFINITE);
+		waitForMultipleObjectsReturn = WaitForMultipleObjects(3, &stream->_eventHandles[0], FALSE, INFINITE);
 		unsigned int eventID = waitForMultipleObjectsReturn - WAIT_OBJECT_0;
-		ResetEvent(stream->eventHandles[eventID]);
+		ResetEvent(stream->_eventHandles[eventID]);
 		switch(eventID)
 		{
-		case EVENT_SHUTDOWN:
+		case EventIndexShutdown:
 			done = true;
 		break;
-		case EVENT_BUFFERDONE:
+		case EventIndexBufferDone:
 			//##DEBUG##
 			//std::wcout << L"BufferDone:\t" << stream->pendingBuffers.size() << '\t' << stream->playingBuffers.size() << '\t' << stream->completedBufferSlots << '\n';
 
 			stream->ClearCompletedBuffers(deviceHandle);
 			stream->AddPendingBuffers(deviceHandle);
 		break;
-		case EVENT_PLAYBUFFER:
+		case EventIndexPlayBuffer:
 			//##DEBUG##
 			//std::wcout << L"PlayBuffer:\t" << stream->pendingBuffers.size() << '\t' << stream->playingBuffers.size() << '\t' << stream->completedBufferSlots << '\n';
 
@@ -539,8 +539,8 @@ DWORD WINAPI AudioStream::WorkerThread(LPVOID lpParameter)
 	waveOutClose(deviceHandle);
 
 	//Signal that the worker thread has terminated
-	stream->workerThreadRunning = false;
-	SetEvent(stream->shutdownCompleteEventHandle);
+	stream->_workerThreadRunning = false;
+	SetEvent(stream->_shutdownCompleteEventHandle);
 	return 0;
 }
 
@@ -550,28 +550,28 @@ void CALLBACK AudioStream::WaveOutCallback(HWAVEOUT hwo, UINT uMsg, DWORD_PTR dw
 	AudioStream* stream = (AudioStream*)dwInstance;
 	if(uMsg == WOM_DONE)
 	{
-		EnterCriticalSection(&stream->waveMutex);
+		EnterCriticalSection(&stream->_waveMutex);
 
 		//Increment the count of completed audio buffers awaiting deletion
-		++stream->completedBufferSlots;
+		++stream->_completedBufferSlots;
 
 		//Raise an event to indicate that there's at least one completed buffer awaiting
 		//deletion. Note that we do this inside the lock here so that the worker thread
 		//receives the event as soon as possible.
-		SetEvent(stream->eventHandles[EVENT_BUFFERDONE]);
+		SetEvent(stream->_eventHandles[EventIndexBufferDone]);
 
-		LeaveCriticalSection(&stream->waveMutex);
+		LeaveCriticalSection(&stream->_waveMutex);
 	}
 }
 
 //----------------------------------------------------------------------------------------
 //Sample rate conversion
 //----------------------------------------------------------------------------------------
-void AudioStream::ConvertSampleRate(const std::vector<short>& sourceData, unsigned int sourceSampleCount, unsigned int achannelCount, std::vector<short>& targetData, unsigned int targetSampleCount)
+void AudioStream::ConvertSampleRate(const std::vector<short>& sourceData, unsigned int sourceSampleCount, unsigned int channelCount, std::vector<short>& targetData, unsigned int targetSampleCount)
 {
 	//Perform a linear resampling of the source sample data to the requested sample rate
-	targetData.resize(targetSampleCount * achannelCount);
-	for(unsigned int channelNo = 0; channelNo < achannelCount; ++channelNo)
+	targetData.resize(targetSampleCount * channelCount);
+	for(unsigned int channelNo = 0; channelNo < channelCount; ++channelNo)
 	{
 		float sampleConversionRatio = (float)sourceSampleCount / (float)targetSampleCount;
 		for(unsigned int targetSampleNo = 0; targetSampleNo < targetSampleCount; ++targetSampleNo)
@@ -610,7 +610,7 @@ void AudioStream::ConvertSampleRate(const std::vector<short>& sourceData, unsign
 				}
 				float sampleWeight = sampleEndPoint - sampleStartPoint;
 
-				float sample = (float)sourceData[channelNo + ((sourceSampleNo % sourceSampleCount) * achannelCount)];
+				float sample = (float)sourceData[channelNo + ((sourceSampleNo % sourceSampleCount) * channelCount)];
 				finalSample += sample * sampleWeight;
 			}
 
@@ -620,7 +620,7 @@ void AudioStream::ConvertSampleRate(const std::vector<short>& sourceData, unsign
 
 			//Write the interpolated value to the output buffer
 			short interpolatedSample = (short)finalSample;
-			targetData[channelNo + (targetSampleNo * achannelCount)] = interpolatedSample;
+			targetData[channelNo + (targetSampleNo * channelCount)] = interpolatedSample;
 		}
 	}
 }

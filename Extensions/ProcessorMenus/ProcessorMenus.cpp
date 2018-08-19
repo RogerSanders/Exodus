@@ -4,15 +4,15 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-ProcessorMenus::ProcessorMenus(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
-:Extension(aimplementationName, ainstanceName, amoduleID)
+ProcessorMenus::ProcessorMenus(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
+:Extension(implementationName, instanceName, moduleID)
 {}
 
 //----------------------------------------------------------------------------------------
 ProcessorMenus::~ProcessorMenus()
 {
 	//Delete all menu handlers
-	for(std::map<IDevice*, DebugMenuHandler*>::const_iterator i = debugMenuHandlers.begin(); i != debugMenuHandlers.end(); ++i)
+	for(std::map<IDevice*, DebugMenuHandler*>::const_iterator i = _debugMenuHandlers.begin(); i != _debugMenuHandlers.end(); ++i)
 	{
 		i->second->ClearMenuItems();
 		delete i->second;
@@ -34,17 +34,17 @@ bool ProcessorMenus::RegisterDeviceMenuHandler(IDevice* targetDevice)
 	//Create a new menu handler for the target device
 	DebugMenuHandler* menuHandler = new DebugMenuHandler(*this, *targetDevice, *targetDeviceAsIProcessor);
 	menuHandler->LoadMenuItems();
-	debugMenuHandlers[targetDevice] = menuHandler;
+	_debugMenuHandlers[targetDevice] = menuHandler;
 	return true;
 }
 
 //----------------------------------------------------------------------------------------
 void ProcessorMenus::UnregisterDeviceMenuHandler(IDevice* targetDevice)
 {
-	DebugMenuHandler* menuHandler = debugMenuHandlers[targetDevice];
+	DebugMenuHandler* menuHandler = _debugMenuHandlers[targetDevice];
 	menuHandler->ClearMenuItems();
 	delete menuHandler;
-	debugMenuHandlers.erase(targetDevice);
+	_debugMenuHandlers.erase(targetDevice);
 }
 
 //----------------------------------------------------------------------------------------
@@ -52,18 +52,18 @@ void ProcessorMenus::AddDeviceMenuItems(DeviceMenu deviceMenu, IMenuSegment& men
 {
 	if(deviceMenu == IExtension::DeviceMenu::Debug)
 	{
-		debugMenuHandlers[targetDevice]->AddMenuItems(menuSegment);
+		_debugMenuHandlers[targetDevice]->AddMenuItems(menuSegment);
 	}
 }
 
 //----------------------------------------------------------------------------------------
 bool ProcessorMenus::RestoreDeviceViewState(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter, IDevice* targetDevice)
 {
-	return debugMenuHandlers[targetDevice]->RestoreMenuViewOpen(viewGroupName, viewName, viewState, restoredViewPresenter);
+	return _debugMenuHandlers[targetDevice]->RestoreMenuViewOpen(viewGroupName, viewName, viewState, restoredViewPresenter);
 }
 
 //----------------------------------------------------------------------------------------
 bool ProcessorMenus::OpenDeviceView(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IDevice* targetDevice)
 {
-	return debugMenuHandlers[targetDevice]->OpenView(viewGroupName, viewName);
+	return _debugMenuHandlers[targetDevice]->OpenView(viewGroupName, viewName);
 }

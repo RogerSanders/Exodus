@@ -14,7 +14,7 @@ public:
 		MODE_FIXED
 	};
 
-	ExecuteTime GetExecuteTime(EffectiveAddress::Mode targetMode, bool memoryToRegisters, Bitcount size, unsigned int n)
+	ExecuteTime GetExecuteTime(EffectiveAddress::Mode _targetMode, bool operationMemoryToRegisters, Bitcount operationSize, unsigned int n)
 	{
 		static const ExecuteTime executeTimeMemoryToRegisters16[9] = {
 			ExecuteTime(12+(4*n), (3+n), 0),       //(An)
@@ -57,58 +57,58 @@ public:
 			ExecuteTime(0, 0, 0),                  //d(PC)
 			ExecuteTime(0, 0, 0)};                 //d(PC,ix)
 
-		unsigned int targetIndex = 0;
-		switch(targetMode)
+		unsigned int _targetIndex = 0;
+		switch(_targetMode)
 		{
 		case EffectiveAddress::Mode::AddRegIndirect:
-			targetIndex = 0;
+			_targetIndex = 0;
 			break;
 		case EffectiveAddress::Mode::AddRegIndirectPostInc:
-			targetIndex = 1;
+			_targetIndex = 1;
 			break;
 		case EffectiveAddress::Mode::AddRegIndirectPreDec:
-			targetIndex = 2;
+			_targetIndex = 2;
 			break;
 		case EffectiveAddress::Mode::AddRegIndirectDisplace:
-			targetIndex = 3;
+			_targetIndex = 3;
 			break;
 		case EffectiveAddress::Mode::AddRegIndirectIndex8Bit:
-			targetIndex = 4;
+			_targetIndex = 4;
 			break;
 		case EffectiveAddress::Mode::ABSWord:
-			targetIndex = 5;
+			_targetIndex = 5;
 			break;
 		case EffectiveAddress::Mode::ABSLong:
-			targetIndex = 6;
+			_targetIndex = 6;
 			break;
 		case EffectiveAddress::Mode::PCIndirectDisplace:
-			targetIndex = 7;
+			_targetIndex = 7;
 			break;
 		case EffectiveAddress::Mode::PCIndirectIndex8Bit:
-			targetIndex = 8;
+			_targetIndex = 8;
 			break;
 		}
 
-		if(memoryToRegisters)
+		if(operationMemoryToRegisters)
 		{
-			if(size == BITCOUNT_LONG)
+			if(operationSize == BITCOUNT_LONG)
 			{
-				return executeTimeMemoryToRegisters32[targetIndex];
+				return executeTimeMemoryToRegisters32[_targetIndex];
 			}
 			else
 			{
-				return executeTimeMemoryToRegisters16[targetIndex];
+				return executeTimeMemoryToRegisters16[_targetIndex];
 			}
 		}
 		else
 		{
-			if(size == BITCOUNT_LONG)
+			if(operationSize == BITCOUNT_LONG)
 			{
-				return executeTimeRegistersToMemory32[targetIndex];
+				return executeTimeRegistersToMemory32[_targetIndex];
 			}
 			else
 			{
-				return executeTimeRegistersToMemory16[targetIndex];
+				return executeTimeRegistersToMemory16[_targetIndex];
 			}
 		}
 	}
@@ -133,12 +133,12 @@ public:
 	virtual Disassembly M68000Disassemble(const M68000::LabelSubstitutionSettings& labelSettings) const
 	{
 		std::wstringstream maskDisassembly;
-		for(unsigned int i = 0; i < mask.GetBitCount(); ++i)
+		for(unsigned int i = 0; i < _mask.GetBitCount(); ++i)
 		{
-			bool selected = mask.GetBit(i);
+			bool selected = _mask.GetBit(i);
 			bool addressRegister = (i >= 8);
 			unsigned int reg = (i % 8);
-			if(addressMode == MODE_PREDECREMENT)
+			if(_addressMode == MODE_PREDECREMENT)
 			{
 				//If we're using the predec addressing mode, reverse the mask.
 				addressRegister = !addressRegister;
@@ -163,26 +163,26 @@ public:
 			}
 		}
 
-		std::wstring targetDisassembly = target.Disassemble(labelSettings);
-		if(addressMode == MODE_PREDECREMENT)
+		std::wstring _targetDisassembly = _target.Disassemble(labelSettings);
+		if(_addressMode == MODE_PREDECREMENT)
 		{
-			targetDisassembly = L"-(" + target.Disassemble(labelSettings) + L")";
+			_targetDisassembly = L"-(" + _target.Disassemble(labelSettings) + L")";
 		}
-		else if(addressMode == MODE_POSTINCREMENT)
+		else if(_addressMode == MODE_POSTINCREMENT)
 		{
-			targetDisassembly = L"(" + target.Disassemble(labelSettings) + L")+";
+			_targetDisassembly = L"(" + _target.Disassemble(labelSettings) + L")+";
 		}
 
 		std::wstring argumentDisassembly;
-		if(memoryToRegisters)
+		if(_memoryToRegisters)
 		{
-			argumentDisassembly = targetDisassembly + L", " + maskDisassembly.str();
+			argumentDisassembly = _targetDisassembly + L", " + maskDisassembly.str();
 		}
 		else
 		{
-			argumentDisassembly = maskDisassembly.str() + L", " + targetDisassembly;
+			argumentDisassembly = maskDisassembly.str() + L", " + _targetDisassembly;
 		}
-		return Disassembly(GetOpcodeName() + L"." + DisassembleSize(size), argumentDisassembly);
+		return Disassembly(GetOpcodeName() + L"." + DisassembleSize(_size), argumentDisassembly);
 	}
 
 	virtual void M68000Decode(const M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)
@@ -197,44 +197,44 @@ public:
 //	------------------------------------------------------------------
 		if(!data.GetBit(6))
 		{
-			size = BITCOUNT_WORD;
+			_size = BITCOUNT_WORD;
 		}
 		else
 		{
-			size = BITCOUNT_LONG;
+			_size = BITCOUNT_LONG;
 		}
-		cpu->ReadMemory(location + GetInstructionSize(), mask, cpu->GetFunctionCode(true), transparent, location + GetInstructionSize(), true, GetInstructionRegister(), false, false);
-		AddInstructionSize(mask.GetByteSize());
+		cpu->ReadMemory(location + GetInstructionSize(), _mask, cpu->GetFunctionCode(true), transparent, location + GetInstructionSize(), true, GetInstructionRegister(), false, false);
+		AddInstructionSize(_mask.GetByteSize());
 
-		memoryToRegisters = (data.GetBit(10));
+		_memoryToRegisters = (data.GetBit(10));
 
 		//Override postinc and predec address modes. We do some trickery under these
 		//address modes to deal with cases where the address register involved is also
 		//saved or loaded as part of the move.
-		target.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), size, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
-		switch(target.GetAddressMode())
+		_target.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), _size, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
+		switch(_target.GetAddressMode())
 		{
 		case EffectiveAddress::Mode::AddRegIndirectPreDec:
-			addressMode = MODE_PREDECREMENT;
-			target.BuildAddressDirect(size, location + GetInstructionSize(), data.GetDataSegment(0, 3));
+			_addressMode = MODE_PREDECREMENT;
+			_target.BuildAddressDirect(_size, location + GetInstructionSize(), data.GetDataSegment(0, 3));
 			break;
 		case EffectiveAddress::Mode::AddRegIndirectPostInc:
-			addressMode = MODE_POSTINCREMENT;
-			target.BuildAddressDirect(size, location + GetInstructionSize(), data.GetDataSegment(0, 3));
+			_addressMode = MODE_POSTINCREMENT;
+			_target.BuildAddressDirect(_size, location + GetInstructionSize(), data.GetDataSegment(0, 3));
 			break;
 		default:
-			addressMode = MODE_FIXED;
+			_addressMode = MODE_FIXED;
 			break;
 		}
-		AddInstructionSize(target.ExtensionSize());
+		AddInstructionSize(_target.ExtensionSize());
 
 		//Resolve the register mask
-		for(unsigned int i = 0; i < mask.GetBitCount(); ++i)
+		for(unsigned int i = 0; i < _mask.GetBitCount(); ++i)
 		{
-			bool selected = mask.GetBit(i);
+			bool selected = _mask.GetBit(i);
 			bool addressRegister = (i >= 8);
 			unsigned int reg = (i % 8);
-			if(addressMode == MODE_PREDECREMENT)
+			if(_addressMode == MODE_PREDECREMENT)
 			{
 				//If we're using the predec addressing mode, reverse the mask.
 				addressRegister = !addressRegister;
@@ -243,32 +243,32 @@ public:
 
 			if(selected)
 			{
-				//Add the register to our list of target registers
-				EffectiveAddress targetRegister;
+				//Add the register to our list of _target registers
+				EffectiveAddress _targetRegister;
 				if(addressRegister)
 				{
-					targetRegister.BuildAddressDirect(size, location + GetInstructionSize(), reg);
+					_targetRegister.BuildAddressDirect(_size, location + GetInstructionSize(), reg);
 				}
 				else
 				{
-					targetRegister.BuildDataDirect(size, location + GetInstructionSize(), reg);
+					_targetRegister.BuildDataDirect(_size, location + GetInstructionSize(), reg);
 				}
-				registers.push_back(targetRegister);
+				_registers.push_back(_targetRegister);
 			}
 		}
 
 		//Calculate the execution time
-		if(addressMode == MODE_PREDECREMENT)
+		if(_addressMode == MODE_PREDECREMENT)
 		{
-			AddExecuteCycleCount(GetExecuteTime(EffectiveAddress::Mode::AddRegIndirectPreDec, memoryToRegisters, size, (unsigned int)registers.size()));
+			AddExecuteCycleCount(GetExecuteTime(EffectiveAddress::Mode::AddRegIndirectPreDec, _memoryToRegisters, _size, (unsigned int)_registers.size()));
 		}
-		else if(addressMode == MODE_POSTINCREMENT)
+		else if(_addressMode == MODE_POSTINCREMENT)
 		{
-			AddExecuteCycleCount(GetExecuteTime(EffectiveAddress::Mode::AddRegIndirectPostInc, memoryToRegisters, size, (unsigned int)registers.size()));
+			AddExecuteCycleCount(GetExecuteTime(EffectiveAddress::Mode::AddRegIndirectPostInc, _memoryToRegisters, _size, (unsigned int)_registers.size()));
 		}
 		else
 		{
-			AddExecuteCycleCount(GetExecuteTime(target.GetAddressMode(), memoryToRegisters, size, (unsigned int)registers.size()));
+			AddExecuteCycleCount(GetExecuteTime(_target.GetAddressMode(), _memoryToRegisters, _size, (unsigned int)_registers.size()));
 		}
 	}
 
@@ -282,21 +282,21 @@ public:
 		//section 4, page 128, paragraph 4, for more info.
 		EffectiveAddress memory;
 		M68000Long address;
-		if(target.GetAddressMode() == EffectiveAddress::Mode::AddRegDirect)
+		if(_target.GetAddressMode() == EffectiveAddress::Mode::AddRegDirect)
 		{
-			additionalTime += target.Read(cpu, address, GetInstructionRegister());
+			additionalTime += _target.Read(cpu, address, GetInstructionRegister());
 		}
 		else
 		{
-			target.GetAddress(cpu, address);
+			_target.GetAddress(cpu, address);
 		}
 
 		//Loop through the list of registers and perform the operation on each entry
-		for(std::list<EffectiveAddress>::const_iterator i = registers.begin(); i != registers.end(); ++i)
+		for(std::list<EffectiveAddress>::const_iterator i = _registers.begin(); i != _registers.end(); ++i)
 		{
-			if(memoryToRegisters)
+			if(_memoryToRegisters)
 			{
-				Data temp(size);
+				Data temp(_size);
 
 				//Record active disassembly info for this register move
 				if(cpu->ActiveDisassemblyEnabled())
@@ -314,19 +314,19 @@ public:
 			else
 			{
 				//Write the register data into memory
-				Data temp(size);
+				Data temp(_size);
 				additionalTime += i->Read(cpu, temp, GetInstructionRegister());
-				if(addressMode == MODE_PREDECREMENT)	address -= temp.GetByteSize();
+				if(_addressMode == MODE_PREDECREMENT)	address -= temp.GetByteSize();
 				additionalTime += cpu->WriteMemory(address, temp, cpu->GetFunctionCode(false), location + 2, true, GetInstructionRegister(), false, false);
-				if(addressMode != MODE_PREDECREMENT)	address += temp.GetByteSize();
+				if(_addressMode != MODE_PREDECREMENT)	address += temp.GetByteSize();
 			}
 		}
 
 		//If the address mode was predec or postinc, write the updated address to the
 		//register.
-		if(target.GetAddressMode() == EffectiveAddress::Mode::AddRegDirect)
+		if(_target.GetAddressMode() == EffectiveAddress::Mode::AddRegDirect)
 		{
-			target.Write(cpu, address, GetInstructionRegister());
+			_target.Write(cpu, address, GetInstructionRegister());
 		}
 
 		//Adjust the PC and return the execution time
@@ -336,16 +336,16 @@ public:
 
 	virtual void GetLabelTargetLocations(std::set<unsigned int>& labelTargetLocations) const
 	{
-		target.AddLabelTargetsToSet(labelTargetLocations);
+		_target.AddLabelTargetsToSet(labelTargetLocations);
 	}
 
 private:
-	std::list<EffectiveAddress> registers;
-	EffectiveAddress target;
-	Bitcount size;
-	M68000Word mask;
-	bool memoryToRegisters;
-	AddressMode addressMode;
+	std::list<EffectiveAddress> _registers;
+	EffectiveAddress _target;
+	Bitcount _size;
+	M68000Word _mask;
+	bool _memoryToRegisters;
+	AddressMode _addressMode;
 };
 
 } //Close namespace M68000

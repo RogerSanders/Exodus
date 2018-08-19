@@ -6,14 +6,14 @@
 //----------------------------------------------------------------------------------------
 unsigned int TimedBufferInt::Size() const
 {
-	return memory.Size();
+	return _memory.Size();
 }
 
 //----------------------------------------------------------------------------------------
 void TimedBufferInt::Resize(unsigned int bufferSize, bool keepLatestBufferCopy)
 {
-	memory.Resize(bufferSize, keepLatestBufferCopy);
-	memoryLocked.resize(bufferSize);
+	_memory.Resize(bufferSize, keepLatestBufferCopy);
+	_memoryLocked.resize(bufferSize);
 }
 
 //----------------------------------------------------------------------------------------
@@ -21,7 +21,7 @@ void TimedBufferInt::Resize(unsigned int bufferSize, bool keepLatestBufferCopy)
 //----------------------------------------------------------------------------------------
 TimedBufferInt::DataType TimedBufferInt::Read(unsigned int address, const AccessTarget& accessTarget) const
 {
-	return memory.Read(address, accessTarget);
+	return _memory.Read(address, accessTarget);
 }
 
 //----------------------------------------------------------------------------------------
@@ -29,14 +29,14 @@ void TimedBufferInt::Write(unsigned int address, const DataType& data, const Acc
 {
 	if(!IsByteLocked(address) || (accessTarget.target == AccessTarget::TARGET_LATEST))
 	{
-		memory.Write(address, data, accessTarget);
+		_memory.Write(address, data, accessTarget);
 	}
 }
 
 //----------------------------------------------------------------------------------------
 TimedBufferInt::DataType TimedBufferInt::Read(unsigned int address, TimesliceType readTime) const
 {
-	return memory.Read(address, readTime);
+	return _memory.Read(address, readTime);
 }
 
 //----------------------------------------------------------------------------------------
@@ -44,44 +44,44 @@ void TimedBufferInt::Write(unsigned int address, TimesliceType writeTime, const 
 {
 	if(!IsByteLocked(address))
 	{
-		memory.Write(address, writeTime, data);
+		_memory.Write(address, writeTime, data);
 	}
 }
 
 //----------------------------------------------------------------------------------------
 TimedBufferInt::DataType& TimedBufferInt::ReferenceCommitted(unsigned int address)
 {
-	return memory.ReferenceCommitted(address);
+	return _memory.ReferenceCommitted(address);
 }
 
 //----------------------------------------------------------------------------------------
 TimedBufferInt::DataType TimedBufferInt::ReadCommitted(unsigned int address) const
 {
-	return memory.ReadCommitted(address);
+	return _memory.ReadCommitted(address);
 }
 
 //----------------------------------------------------------------------------------------
 TimedBufferInt::DataType TimedBufferInt::ReadCommitted(unsigned int address, TimesliceType readTime) const
 {
-	return memory.ReadCommitted(address, readTime);
+	return _memory.ReadCommitted(address, readTime);
 }
 
 //----------------------------------------------------------------------------------------
 TimedBufferInt::DataType TimedBufferInt::ReadLatest(unsigned int address) const
 {
-	return memory.ReadLatest(address);
+	return _memory.ReadLatest(address);
 }
 
 //----------------------------------------------------------------------------------------
 void TimedBufferInt::WriteLatest(unsigned int address, const DataType& data)
 {
-	memory.WriteLatest(address, data);
+	_memory.WriteLatest(address, data);
 }
 
 //----------------------------------------------------------------------------------------
 void TimedBufferInt::GetLatestBufferCopy(DataType* buffer, unsigned int bufferSize) const
 {
-	memory.GetLatestBufferCopy(buffer, bufferSize);
+	_memory.GetLatestBufferCopy(buffer, bufferSize);
 }
 
 //----------------------------------------------------------------------------------------
@@ -89,19 +89,19 @@ void TimedBufferInt::GetLatestBufferCopy(DataType* buffer, unsigned int bufferSi
 //----------------------------------------------------------------------------------------
 void TimedBufferInt::Initialize()
 {
-	memory.Initialize();
+	_memory.Initialize();
 }
 
 //----------------------------------------------------------------------------------------
 bool TimedBufferInt::DoesLatestTimesliceExist() const
 {
-	return memory.DoesLatestTimesliceExist();
+	return _memory.DoesLatestTimesliceExist();
 }
 
 //----------------------------------------------------------------------------------------
 TimedBufferInt::Timeslice* TimedBufferInt::GetLatestTimesliceReference()
 {
-	return new TimedBufferTimeslice<DataType, TimesliceType>(memory.GetLatestTimeslice());
+	return new TimedBufferTimeslice<DataType, TimesliceType>(_memory.GetLatestTimeslice());
 }
 
 //----------------------------------------------------------------------------------------
@@ -113,61 +113,61 @@ void TimedBufferInt::FreeTimesliceReference(Timeslice* targetTimeslice)
 //----------------------------------------------------------------------------------------
 void TimedBufferInt::AdvancePastTimeslice(const Timeslice* targetTimeslice)
 {
-	memory.AdvancePastTimeslice(((TimedBufferTimeslice<DataType, TimesliceType>*)targetTimeslice)->timeslice);
+	_memory.AdvancePastTimeslice(((TimedBufferTimeslice<DataType, TimesliceType>*)targetTimeslice)->timeslice);
 }
 
 //----------------------------------------------------------------------------------------
 void TimedBufferInt::AdvanceToTimeslice(const Timeslice* targetTimeslice)
 {
-	memory.AdvanceToTimeslice(((TimedBufferTimeslice<DataType, TimesliceType>*)targetTimeslice)->timeslice);
+	_memory.AdvanceToTimeslice(((TimedBufferTimeslice<DataType, TimesliceType>*)targetTimeslice)->timeslice);
 }
 
 //----------------------------------------------------------------------------------------
 void TimedBufferInt::AdvanceByTime(TimesliceType step, const Timeslice* targetTimeslice)
 {
-	memory.AdvanceByTime(step, ((TimedBufferTimeslice<DataType, TimesliceType>*)targetTimeslice)->timeslice);
+	_memory.AdvanceByTime(step, ((TimedBufferTimeslice<DataType, TimesliceType>*)targetTimeslice)->timeslice);
 }
 
 //----------------------------------------------------------------------------------------
 bool TimedBufferInt::AdvanceByStep(const Timeslice* targetTimeslice)
 {
-	return memory.AdvanceByStep(((TimedBufferTimeslice<DataType, TimesliceType>*)targetTimeslice)->timeslice);
+	return _memory.AdvanceByStep(((TimedBufferTimeslice<DataType, TimesliceType>*)targetTimeslice)->timeslice);
 }
 
 //----------------------------------------------------------------------------------------
 void TimedBufferInt::AdvanceBySession(TimesliceType currentProgress, AdvanceSession& advanceSession, const Timeslice* targetTimeslice)
 {
-	memory.AdvanceBySession(currentProgress, advanceSession, ((TimedBufferTimeslice<DataType, TimesliceType>*)targetTimeslice)->timeslice);
+	_memory.AdvanceBySession(currentProgress, advanceSession, ((TimedBufferTimeslice<DataType, TimesliceType>*)targetTimeslice)->timeslice);
 }
 
 //----------------------------------------------------------------------------------------
 TimedBufferInt::TimesliceType TimedBufferInt::GetNextWriteTime(const Timeslice* targetTimeslice) const
 {
-	return memory.GetNextWriteTime(((TimedBufferTimeslice<DataType, TimesliceType>*)targetTimeslice)->timeslice);
+	return _memory.GetNextWriteTime(((TimedBufferTimeslice<DataType, TimesliceType>*)targetTimeslice)->timeslice);
 }
 
 //----------------------------------------------------------------------------------------
 TimedBufferInt::WriteInfo TimedBufferInt::GetWriteInfo(unsigned int index, const Timeslice* targetTimeslice)
 {
-	return memory.GetWriteInfo(index, ((TimedBufferTimeslice<DataType, TimesliceType>*)targetTimeslice)->timeslice);
+	return _memory.GetWriteInfo(index, ((TimedBufferTimeslice<DataType, TimesliceType>*)targetTimeslice)->timeslice);
 }
 
 //----------------------------------------------------------------------------------------
 void TimedBufferInt::Commit()
 {
-	memory.Commit();
+	_memory.Commit();
 }
 
 //----------------------------------------------------------------------------------------
 void TimedBufferInt::Rollback()
 {
-	memory.Rollback();
+	_memory.Rollback();
 }
 
 //----------------------------------------------------------------------------------------
 void TimedBufferInt::AddTimeslice(TimesliceType timeslice)
 {
-	memory.AddTimeslice(timeslice);
+	_memory.AddTimeslice(timeslice);
 }
 
 //----------------------------------------------------------------------------------------
@@ -175,7 +175,7 @@ void TimedBufferInt::AddTimeslice(TimesliceType timeslice)
 //----------------------------------------------------------------------------------------
 void TimedBufferInt::BeginAdvanceSession(AdvanceSession& advanceSession, const Timeslice* targetTimeslice, bool retrieveWriteInfo) const
 {
-	memory.BeginAdvanceSession(advanceSession, ((TimedBufferTimeslice<DataType, TimesliceType>*)targetTimeslice)->timeslice, retrieveWriteInfo);
+	_memory.BeginAdvanceSession(advanceSession, ((TimedBufferTimeslice<DataType, TimesliceType>*)targetTimeslice)->timeslice, retrieveWriteInfo);
 }
 
 //----------------------------------------------------------------------------------------
@@ -185,14 +185,14 @@ void TimedBufferInt::LockMemoryBlock(unsigned int location, unsigned int size, b
 {
 	for(unsigned int i = 0; i < size; ++i)
 	{
-		memoryLocked[location + i] = state;
+		_memoryLocked[location + i] = state;
 	}
 }
 
 //----------------------------------------------------------------------------------------
 bool TimedBufferInt::IsByteLocked(unsigned int location) const
 {
-	return memoryLocked[location];
+	return _memoryLocked[location];
 }
 
 //----------------------------------------------------------------------------------------
@@ -200,29 +200,29 @@ bool TimedBufferInt::IsByteLocked(unsigned int location) const
 //----------------------------------------------------------------------------------------
 void TimedBufferInt::LoadState(IHierarchicalStorageNode& node)
 {
-	memory.LoadState(node);
+	_memory.LoadState(node);
 }
 
 //----------------------------------------------------------------------------------------
 void TimedBufferInt::SaveState(IHierarchicalStorageNode& node, const std::wstring& bufferName) const
 {
-	memory.SaveState(node, bufferName);
+	_memory.SaveState(node, bufferName);
 }
 
 //----------------------------------------------------------------------------------------
 void TimedBufferInt::LoadDebuggerState(IHierarchicalStorageNode& node)
 {
-	size_t memorySize = memoryLocked.size();
+	size_t memorySize = _memoryLocked.size();
 	Stream::IStream::SizeType readCount = (node.GetBinaryDataBufferStream().Size() / (Stream::IStream::SizeType)sizeof(unsigned char));
-	node.ExtractBinaryData(memoryLocked);
+	node.ExtractBinaryData(_memoryLocked);
 	for(size_t i = readCount; i < memorySize; ++i)
 	{
-		memoryLocked[i] = 0;
+		_memoryLocked[i] = 0;
 	}
 }
 
 //----------------------------------------------------------------------------------------
 void TimedBufferInt::SaveDebuggerState(IHierarchicalStorageNode& node, const std::wstring& bufferName) const
 {
-	node.InsertBinaryData(memoryLocked, bufferName + L".MemoryLockedState", false);
+	node.InsertBinaryData(_memoryLocked, bufferName + L".MemoryLockedState", false);
 }

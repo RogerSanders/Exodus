@@ -10,18 +10,13 @@ class GenericDataView :public ViewBase
 {
 public:
 	//Constructors
-	GenericDataView(IUIManager& auiManager, GenericDataViewPresenter& apresenter, IGenericAccess& amodel, const IGenericAccessPage* apage);
+	GenericDataView(IUIManager& uiManager, GenericDataViewPresenter& presenter, IGenericAccess& model, const IGenericAccessPage* page);
 
 protected:
 	//Member window procedure
 	virtual LRESULT WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
 private:
-	//Constants
-	static const long long DATALISTCONTROL = 100;
-	static const unsigned int NAMECOLUMNID = 1;
-	static const unsigned int VALUECOLUMNID = 2;
-
 	//Structures
 	struct ExpandStateInfo
 	{
@@ -59,6 +54,11 @@ private:
 		bool highlightState;
 	};
 
+	//Constants
+	static const long long DataListControlID = 100;
+	static const unsigned int NameColumnID = 1;
+	static const unsigned int ValueColumnID = 2;
+
 private:
 	//Event handlers
 	LRESULT msgWM_CREATE(HWND hwnd, WPARAM wParam, LPARAM lParam);
@@ -82,14 +82,13 @@ private:
 	void UnlockTargetRowEntry(unsigned int rowNo);
 
 private:
-	const IGenericAccessPage* page;
-	GenericDataViewPresenter& presenter;
-	IGenericAccess& model;
-	std::map<unsigned int, std::map<const IGenericAccess::DataContext*, CachedState>> cachedStateMap;
-	std::vector<GridRowInfo> rowInfo;
-	HWND hwndDataList;
-	HFONT valueFont;
-	HINSTANCE assemblyHandle;
+	const IGenericAccessPage* _page;
+	GenericDataViewPresenter& _presenter;
+	IGenericAccess& _model;
+	std::map<unsigned int, std::map<const IGenericAccess::DataContext*, CachedState>> _cachedStateMap;
+	std::vector<GridRowInfo> _rowInfo;
+	HWND _hwndDataList;
+	HFONT _valueFont;
 };
 
 #endif

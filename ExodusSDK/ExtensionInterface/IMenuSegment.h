@@ -42,7 +42,7 @@ public:
 	virtual Marshal::Ret<std::list<IMenuItem*>> GetSortedMenuItems() const = 0;
 
 	//Menu item creation and deletion
-	virtual IMenuSegment& AddMenuItemSegment(bool asurroundWithSeparators = true, IMenuSegment::SortMode sortMode = IMenuSegment::SORTMODE_ADDITIONORDER) = 0;
+	virtual IMenuSegment& AddMenuItemSegment(bool surroundWithSeparators = true, IMenuSegment::SortMode sortMode = IMenuSegment::SORTMODE_ADDITIONORDER) = 0;
 	virtual IMenuSubmenu& AddMenuItemSubmenu(const Marshal::In<std::wstring>& title) = 0;
 	virtual IMenuSelectableOption& AddMenuItemSelectableOption(IMenuHandler& menuHandler, int menuItemID, const Marshal::In<std::wstring>& title) = 0;
 	virtual void DeleteMenuItem(IMenuItem& menuItem) = 0;

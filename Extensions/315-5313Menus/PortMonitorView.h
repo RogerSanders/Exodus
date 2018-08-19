@@ -9,7 +9,7 @@ class PortMonitorView :public ViewBase
 {
 public:
 	//Constructors
-	PortMonitorView(IUIManager& auiManager, PortMonitorViewPresenter& apresenter, IS315_5313& amodel);
+	PortMonitorView(IUIManager& uiManager, PortMonitorViewPresenter& presenter, IS315_5313& model);
 
 protected:
 	//Member window procedure
@@ -48,16 +48,16 @@ private:
 	INT_PTR msgPanelWM_COMMAND(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
 private:
-	PortMonitorViewPresenter& presenter;
-	IS315_5313& model;
-	bool initializedDialog;
-	std::wstring previousText;
-	unsigned int currentControlFocus;
-	HWND hwndDataGrid;
-	HWND hwndControlPanel;
-	HFONT hfontHeader;
-	HFONT hfontData;
-	unsigned int logLastModifiedToken;
+	PortMonitorViewPresenter& _presenter;
+	IS315_5313& _model;
+	bool _initializedDialog;
+	std::wstring _previousText;
+	unsigned int _currentControlFocus;
+	HWND _hwndDataGrid;
+	HWND _hwndControlPanel;
+	HFONT _hfontHeader;
+	HFONT _hfontData;
+	unsigned int _logLastModifiedToken;
 };
 
 #endif

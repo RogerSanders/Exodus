@@ -8,21 +8,21 @@ class EmbeddedROMViewPresenter :public ViewPresenterBase
 {
 public:
 	//Constructors
-	EmbeddedROMViewPresenter(const std::wstring& aviewGroupName, const std::wstring& aviewName, int aviewID, ExodusSystemMenus& aowner, ISystemGUIInterface& amodel);
+	EmbeddedROMViewPresenter(const std::wstring& viewGroupName, const std::wstring& viewName, int viewID, ExodusSystemMenus& owner, ISystemGUIInterface& model);
 
 	//View title functions
 	static std::wstring GetUnqualifiedViewTitle();
 
 	//View creation and deletion
 	virtual IView* CreateView(IUIManager& uiManager);
-	virtual void DeleteView(IView* aview);
+	virtual void DeleteView(IView* view);
 
 	//Interface functions
 	IGUIExtensionInterface& GetGUIInterface() const;
 
 private:
-	ExodusSystemMenus& owner;
-	ISystemGUIInterface& model;
+	ExodusSystemMenus& _owner;
+	ISystemGUIInterface& _model;
 };
 
 #endif

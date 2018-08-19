@@ -28,75 +28,75 @@ enum class EffectiveAddress::Mode
 //Constructors
 //----------------------------------------------------------------------------------------
 EffectiveAddress::EffectiveAddress()
-:data(BITCOUNT_BYTE), displacement(BITCOUNT_BYTE), dataSignExtended(false)
+:_data(BITCOUNT_BYTE), _displacement(BITCOUNT_BYTE), _dataSignExtended(false)
 {}
 
 //----------------------------------------------------------------------------------------
 //Decode functions
 //----------------------------------------------------------------------------------------
-void EffectiveAddress::BuildDataDirect(Bitcount asize, const M68000Long& location, unsigned int areg)
+void EffectiveAddress::BuildDataDirect(Bitcount size, const M68000Long& location, unsigned int reg)
 {
-	size = asize;
-	savedPC = location;
-	mode = Mode::DataRegDirect;
-	reg = areg;
+	_size = size;
+	_savedPC = location;
+	_mode = Mode::DataRegDirect;
+	_reg = reg;
 }
 
 //----------------------------------------------------------------------------------------
-void EffectiveAddress::BuildAddressDirect(Bitcount asize, const M68000Long& location, unsigned int areg)
+void EffectiveAddress::BuildAddressDirect(Bitcount size, const M68000Long& location, unsigned int reg)
 {
-	size = asize;
-	savedPC = location;
-	mode = Mode::AddRegDirect;
-	reg = areg;
+	_size = size;
+	_savedPC = location;
+	_mode = Mode::AddRegDirect;
+	_reg = reg;
 }
 
 //----------------------------------------------------------------------------------------
-void EffectiveAddress::BuildAddressIndirect(Bitcount asize, const M68000Long& location, unsigned int areg)
+void EffectiveAddress::BuildAddressIndirect(Bitcount size, const M68000Long& location, unsigned int reg)
 {
-	size = asize;
-	savedPC = location;
-	mode = Mode::AddRegIndirect;
-	reg = areg;
+	_size = size;
+	_savedPC = location;
+	_mode = Mode::AddRegIndirect;
+	_reg = reg;
 }
 
 //----------------------------------------------------------------------------------------
-void EffectiveAddress::BuildAddressPostinc(Bitcount asize, const M68000Long& location, unsigned int areg)
+void EffectiveAddress::BuildAddressPostinc(Bitcount size, const M68000Long& location, unsigned int reg)
 {
-	size = asize;
-	savedPC = location;
-	mode = Mode::AddRegIndirectPostInc;
-	reg = areg;
+	_size = size;
+	_savedPC = location;
+	_mode = Mode::AddRegIndirectPostInc;
+	_reg = reg;
 }
 
 //----------------------------------------------------------------------------------------
-void EffectiveAddress::BuildAddressPredec(Bitcount asize, const M68000Long& location, unsigned int areg)
+void EffectiveAddress::BuildAddressPredec(Bitcount size, const M68000Long& location, unsigned int reg)
 {
-	size = asize;
-	savedPC = location;
-	mode = Mode::AddRegIndirectPreDec;
-	reg = areg;
+	_size = size;
+	_savedPC = location;
+	_mode = Mode::AddRegIndirectPreDec;
+	_reg = reg;
 }
 
 //----------------------------------------------------------------------------------------
-void EffectiveAddress::BuildAddressIndirectDisplace(Bitcount asize, const M68000Long& location, unsigned int areg, const M68000* cpu, bool transparent, const M68000Word& instructionRegister)
+void EffectiveAddress::BuildAddressIndirectDisplace(Bitcount size, const M68000Long& location, unsigned int reg, const M68000* cpu, bool transparent, const M68000Word& instructionRegister)
 {
-	size = asize;
-	savedPC = location;
-	mode = Mode::AddRegIndirectDisplace;
-	reg = areg;
+	_size = size;
+	_savedPC = location;
+	_mode = Mode::AddRegIndirectDisplace;
+	_reg = reg;
 
-	displacement.Resize(BITCOUNT_WORD);
-	cpu->ReadMemory(location, displacement, cpu->GetFunctionCode(true), transparent, location, false, instructionRegister, false, false);
+	_displacement.Resize(BITCOUNT_WORD);
+	cpu->ReadMemory(location, _displacement, cpu->GetFunctionCode(true), transparent, location, false, instructionRegister, false, false);
 }
 
 //----------------------------------------------------------------------------------------
-void EffectiveAddress::BuildAddressIndirectIndex(Bitcount asize, const M68000Long& location, unsigned int areg, const M68000* cpu, bool transparent, const M68000Word& instructionRegister)
+void EffectiveAddress::BuildAddressIndirectIndex(Bitcount size, const M68000Long& location, unsigned int reg, const M68000* cpu, bool transparent, const M68000Word& instructionRegister)
 {
-	size = asize;
-	savedPC = location;
-	mode = Mode::AddRegIndirectIndex8Bit;
-	reg = areg;
+	_size = size;
+	_savedPC = location;
+	_mode = Mode::AddRegIndirectIndex8Bit;
+	_reg = reg;
 
 	M68000Word temp;
 	cpu->ReadMemory(location, temp, cpu->GetFunctionCode(true), transparent, location, false, instructionRegister, false, false);
@@ -106,47 +106,47 @@ void EffectiveAddress::BuildAddressIndirectIndex(Bitcount asize, const M68000Lon
 	//	|---|-----------|---|---|---|---|-------------------------------|
 	//	|D/A|  Register |W/L| 0 | 0 | 0 |          Displacement         |
 	//	-----------------------------------------------------------------
-	useAddressRegister = temp.GetBit(15);
+	_useAddressRegister = temp.GetBit(15);
 	if(!temp.GetBit(11))
 	{
-		indexSize = BITCOUNT_WORD;
+		_indexSize = BITCOUNT_WORD;
 	}
 	else
 	{
-		indexSize = BITCOUNT_LONG;
+		_indexSize = BITCOUNT_LONG;
 	}
-	indexReg = temp.GetDataSegment(12, 3);
-	displacement.Resize(BITCOUNT_BYTE);
-	temp.GetLowerBits(displacement);
+	_indexReg = temp.GetDataSegment(12, 3);
+	_displacement.Resize(BITCOUNT_BYTE);
+	temp.GetLowerBits(_displacement);
 }
 
 //----------------------------------------------------------------------------------------
-void EffectiveAddress::BuildAbsoluteAddressWord(Bitcount asize, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister)
+void EffectiveAddress::BuildAbsoluteAddressWord(Bitcount size, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister)
 {
-	size = asize;
-	savedPC = location;
-	mode = Mode::ABSWord;
+	_size = size;
+	_savedPC = location;
+	_mode = Mode::ABSWord;
 
-	address.Resize(BITCOUNT_WORD);
-	cpu->ReadMemory(location, address, cpu->GetFunctionCode(true), transparent, location, false, instructionRegister, false, false);
+	_address.Resize(BITCOUNT_WORD);
+	cpu->ReadMemory(location, _address, cpu->GetFunctionCode(true), transparent, location, false, instructionRegister, false, false);
 }
 
 //----------------------------------------------------------------------------------------
-void EffectiveAddress::BuildAbsoluteAddressLong(Bitcount asize, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister)
+void EffectiveAddress::BuildAbsoluteAddressLong(Bitcount size, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister)
 {
-	size = asize;
-	savedPC = location;
-	mode = Mode::ABSLong;
+	_size = size;
+	_savedPC = location;
+	_mode = Mode::ABSLong;
 
-	address.Resize(BITCOUNT_LONG);
-	cpu->ReadMemory(location, address, cpu->GetFunctionCode(true), transparent, location, false, instructionRegister, false, false);
+	_address.Resize(BITCOUNT_LONG);
+	cpu->ReadMemory(location, _address, cpu->GetFunctionCode(true), transparent, location, false, instructionRegister, false, false);
 }
 
 //----------------------------------------------------------------------------------------
-void EffectiveAddress::BuildPCIndirectDisplace(Bitcount asize, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister)
+void EffectiveAddress::BuildPCIndirectDisplace(Bitcount size, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister)
 {
-	size = asize;
-	mode = Mode::PCIndirectDisplace;
+	_size = size;
+	_mode = Mode::PCIndirectDisplace;
 
 	//Note that all PC-relative address calculations work by taking the address of the
 	//extension word which defines the effective address as the current value of the PC.
@@ -154,17 +154,17 @@ void EffectiveAddress::BuildPCIndirectDisplace(Bitcount asize, const M68000Long&
 	//PC-relative addressing modes. From the manual: "The value of the PC is the address
 	//of the extension word". We store the correct PC here at the time of decoding, so
 	//that we can correctly decode PC-relative addresses during execution.
-	savedPC = location;
+	_savedPC = location;
 
-	displacement.Resize(BITCOUNT_WORD);
-	cpu->ReadMemory(location, displacement, cpu->GetFunctionCode(true), transparent, location, false, instructionRegister, false, false);
+	_displacement.Resize(BITCOUNT_WORD);
+	cpu->ReadMemory(location, _displacement, cpu->GetFunctionCode(true), transparent, location, false, instructionRegister, false, false);
 }
 
 //----------------------------------------------------------------------------------------
-void EffectiveAddress::BuildPCIndirectIndex(Bitcount asize, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister)
+void EffectiveAddress::BuildPCIndirectIndex(Bitcount size, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister)
 {
-	size = asize;
-	mode = Mode::PCIndirectIndex8Bit;
+	_size = size;
+	_mode = Mode::PCIndirectIndex8Bit;
 
 	//Note that all PC-relative address calculations work by taking the address of the
 	//extension word which defines the effective address as the current value of the PC.
@@ -172,7 +172,7 @@ void EffectiveAddress::BuildPCIndirectIndex(Bitcount asize, const M68000Long& lo
 	//PC-relative addressing modes. From the manual: "The value of the PC is the address
 	//of the extension word". We store the correct PC here at the time of decoding, so
 	//that we can correctly decode PC-relative addresses during execution.
-	savedPC = location;
+	_savedPC = location;
 
 	M68000Word temp;
 	cpu->ReadMemory(location, temp, cpu->GetFunctionCode(true), transparent, location, false, instructionRegister, false, false);
@@ -182,59 +182,59 @@ void EffectiveAddress::BuildPCIndirectIndex(Bitcount asize, const M68000Long& lo
 	//	|---|-----------|---|---|---|---|-------------------------------|
 	//	|D/A|  Register |W/L| 0 | 0 | 0 |          Displacement         |
 	//	-----------------------------------------------------------------
-	useAddressRegister = temp.GetBit(15);
+	_useAddressRegister = temp.GetBit(15);
 	if(!temp.GetBit(11))
 	{
-		indexSize = BITCOUNT_WORD;
+		_indexSize = BITCOUNT_WORD;
 	}
 	else
 	{
-		indexSize = BITCOUNT_LONG;
+		_indexSize = BITCOUNT_LONG;
 	}
-	indexReg = temp.GetDataSegment(12, 3);
-	displacement.Resize(BITCOUNT_BYTE);
-	temp.GetLowerBits(displacement);
+	_indexReg = temp.GetDataSegment(12, 3);
+	_displacement.Resize(BITCOUNT_BYTE);
+	temp.GetLowerBits(_displacement);
 }
 
 //----------------------------------------------------------------------------------------
-void EffectiveAddress::BuildImmediateData(Bitcount asize, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister)
+void EffectiveAddress::BuildImmediateData(Bitcount size, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister)
 {
-	size = asize;
-	savedPC = location;
-	mode = Mode::Immediate;
+	_size = size;
+	_savedPC = location;
+	_mode = Mode::Immediate;
 
-	data.Resize(size);
+	_data.Resize(_size);
 	M68000Long tempLocation = location;
-	if(size == BITCOUNT_BYTE)
+	if(_size == BITCOUNT_BYTE)
 	{
 		tempLocation += 1;
 	}
-	cpu->ReadMemory(tempLocation, data, cpu->GetFunctionCode(true), transparent, location, false, instructionRegister, false, false);
+	cpu->ReadMemory(tempLocation, _data, cpu->GetFunctionCode(true), transparent, location, false, instructionRegister, false, false);
 }
 
 //----------------------------------------------------------------------------------------
-void EffectiveAddress::BuildImmediateData(const M68000Long& location, const Data& adata, bool signExtended)
+void EffectiveAddress::BuildImmediateData(const M68000Long& location, const Data& data, bool signExtended)
 {
-	size = (Bitcount)data.GetBitCount();
-	savedPC = location;
-	mode = Mode::Immediate;
-	data.Resize(size);
-	data = adata;
-	dataSignExtended = signExtended;
+	_size = (Bitcount)_data.GetBitCount();
+	_savedPC = location;
+	_mode = Mode::Immediate;
+	_data.Resize(_size);
+	_data = data;
+	_dataSignExtended = signExtended;
 }
 
 //----------------------------------------------------------------------------------------
-void EffectiveAddress::BuildQuickData(const M68000Long& location, unsigned int adata)
+void EffectiveAddress::BuildQuickData(const M68000Long& location, unsigned int data)
 {
-	size = BITCOUNT_BYTE;
-	savedPC = location;
-	mode = Mode::Immediate;
-	data.Resize(size);
-	if(adata == 0)
+	_size = BITCOUNT_BYTE;
+	_savedPC = location;
+	_mode = Mode::Immediate;
+	_data.Resize(_size);
+	if(data == 0)
 	{
-		adata = 8;
+		data = 8;
 	}
-	data = adata;
+	_data = data;
 }
 
 //----------------------------------------------------------------------------------------
@@ -243,20 +243,20 @@ void EffectiveAddress::BuildQuickData(const M68000Long& location, unsigned int a
 M68000Long EffectiveAddress::ExtractProcessedImmediateData() const
 {
 	M68000Long processedImmediateData;
-	processedImmediateData = data.SignExtend(processedImmediateData.GetBitCount()).GetData();
+	processedImmediateData = _data.SignExtend(processedImmediateData.GetBitCount()).GetData();
 	return processedImmediateData;
 }
 
 //----------------------------------------------------------------------------------------
 M68000Long EffectiveAddress::GetSavedPC() const
 {
-	return savedPC;
+	return _savedPC;
 }
 
 //----------------------------------------------------------------------------------------
-bool EffectiveAddress::IncrementAddress(Bitcount asize)
+bool EffectiveAddress::IncrementAddress(Bitcount size)
 {
-	address += Data(asize).GetByteSize();
+	_address += Data(size).GetByteSize();
 	return true;
 }
 
@@ -266,17 +266,17 @@ bool EffectiveAddress::IncrementAddress(Bitcount asize)
 unsigned int EffectiveAddress::ExtensionSize()
 {
 	unsigned int addressSize = 0;
-	switch(size)
+	switch(_size)
 	{
 	default:
 		DebugAssert(false);
 		break;
 	case BITCOUNT_BYTE:
 	case BITCOUNT_WORD:
-		addressSize = extensionSize8[(unsigned int)mode];
+		addressSize = ExtensionSize8[(unsigned int)_mode];
 		break;
 	case BITCOUNT_LONG:
-		addressSize = extensionSize32[(unsigned int)mode];
+		addressSize = ExtensionSize32[(unsigned int)_mode];
 	}
 	return addressSize;
 }
@@ -285,17 +285,17 @@ unsigned int EffectiveAddress::ExtensionSize()
 ExecuteTime EffectiveAddress::DecodeTime()
 {
 	ExecuteTime executeTime;
-	switch(size)
+	switch(_size)
 	{
 	default:
 		DebugAssert(false);
 		break;
 	case BITCOUNT_BYTE:
 	case BITCOUNT_WORD:
-		executeTime = executeTime8[(unsigned int)mode];
+		executeTime = ExecuteTime8[(unsigned int)_mode];
 		break;
 	case BITCOUNT_LONG:
-		executeTime = executeTime32[(unsigned int)mode];
+		executeTime = ExecuteTime32[(unsigned int)_mode];
 	}
 	return executeTime;
 }
@@ -303,7 +303,7 @@ ExecuteTime EffectiveAddress::DecodeTime()
 //----------------------------------------------------------------------------------------
 EffectiveAddress::Mode EffectiveAddress::GetAddressMode() const
 {
-	return mode;
+	return _mode;
 }
 
 } //Close namespace M68000

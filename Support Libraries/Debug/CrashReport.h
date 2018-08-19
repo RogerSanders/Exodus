@@ -3,6 +3,6 @@
 #include <string>
 
 //Minidump functions
-bool RegisterMinidumpExceptionHandler(const std::wstring& aminidumpName, const std::wstring& aminidumpPath, bool alargeMinidump);
+bool RegisterMinidumpExceptionHandler(const std::wstring& minidumpName, const std::wstring& minidumpPath, bool largeMinidump);
 
 #endif

@@ -6,12 +6,12 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 GenericAccessDataValueUInt::GenericAccessDataValueUInt(unsigned int value)
-:dataValue(value)
+:_dataValue(value)
 {
-	displayMode = IntDisplayMode::Decimal;
-	minChars = 0;
-	minValue = std::numeric_limits<unsigned int>::min();
-	maxValue = std::numeric_limits<unsigned int>::max();
+	_displayMode = IntDisplayMode::Decimal;
+	_minChars = 0;
+	_minValue = std::numeric_limits<unsigned int>::min();
+	_maxValue = std::numeric_limits<unsigned int>::max();
 }
 
 //----------------------------------------------------------------------------------------
@@ -35,26 +35,26 @@ GenericAccessDataValueUInt::DataType GenericAccessDataValueUInt::GetType() const
 //----------------------------------------------------------------------------------------
 unsigned int GenericAccessDataValueUInt::GetValue() const
 {
-	return dataValue;
+	return _dataValue;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> GenericAccessDataValueUInt::GetValueString() const
 {
 	std::wstring result;
-	switch(displayMode)
+	switch(_displayMode)
 	{
 	case IntDisplayMode::Binary:
-		IntToStringBase2(dataValue, result, minChars);
+		IntToStringBase2(_dataValue, result, _minChars);
 		break;
 	case IntDisplayMode::Octal:
-		IntToStringBase8(dataValue, result, minChars);
+		IntToStringBase8(_dataValue, result, _minChars);
 		break;
 	case IntDisplayMode::Decimal:
-		IntToStringBase10(dataValue, result, minChars);
+		IntToStringBase10(_dataValue, result, _minChars);
 		break;
 	case IntDisplayMode::Hexadecimal:
-		IntToStringBase16(dataValue, result, minChars);
+		IntToStringBase16(_dataValue, result, _minChars);
 		break;
 	}
 	return result;
@@ -71,7 +71,7 @@ bool GenericAccessDataValueUInt::SetValueInt(int value)
 //----------------------------------------------------------------------------------------
 bool GenericAccessDataValueUInt::SetValueUInt(unsigned int value)
 {
-	dataValue = value;
+	_dataValue = value;
 	ApplyLimitSettingsToCurrentValue();
 	return true;
 }
@@ -82,7 +82,7 @@ bool GenericAccessDataValueUInt::SetValueString(const Marshal::In<std::wstring>&
 	//Calculate the default base to use for the specified number based on the specified
 	//display mode
 	unsigned int defaultBase = 10;
-	switch(displayMode)
+	switch(_displayMode)
 	{
 	case IntDisplayMode::Binary:
 		defaultBase = 2;
@@ -114,34 +114,34 @@ bool GenericAccessDataValueUInt::SetValueString(const Marshal::In<std::wstring>&
 //----------------------------------------------------------------------------------------
 GenericAccessDataValueUInt::IntDisplayMode GenericAccessDataValueUInt::GetDisplayMode() const
 {
-	return displayMode;
+	return _displayMode;
 }
 
 //----------------------------------------------------------------------------------------
 void GenericAccessDataValueUInt::SetDisplayMode(IntDisplayMode state)
 {
-	displayMode = state;
+	_displayMode = state;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int GenericAccessDataValueUInt::GetMinChars() const
 {
-	return minChars;
+	return _minChars;
 }
 
 //----------------------------------------------------------------------------------------
 void GenericAccessDataValueUInt::SetMinChars(unsigned int state)
 {
-	minChars = state;
+	_minChars = state;
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int GenericAccessDataValueUInt::CalculateDisplayChars(IntDisplayMode adisplayMode, unsigned int aminValue, unsigned int amaxValue) const
+unsigned int GenericAccessDataValueUInt::CalculateDisplayChars(IntDisplayMode displayMode, unsigned int minValue, unsigned int maxValue) const
 {
 	//If the display mode for this integer is set to decimal, shortcut any further
 	//evaluation and return 1, since we default to using the minimum number of display
 	//characters for decimal numbers.
-	if(adisplayMode == IntDisplayMode::Decimal)
+	if(displayMode == IntDisplayMode::Decimal)
 	{
 		return 1;
 	}
@@ -149,19 +149,19 @@ unsigned int GenericAccessDataValueUInt::CalculateDisplayChars(IntDisplayMode ad
 	//Build strings for the max and min values
 	std::wstring minValueString;
 	std::wstring maxValueString;
-	switch(adisplayMode)
+	switch(displayMode)
 	{
 	case IntDisplayMode::Binary:
-		IntToStringBase2(aminValue, minValueString, 0, false);
-		IntToStringBase2(amaxValue, maxValueString, 0, false);
+		IntToStringBase2(minValue, minValueString, 0, false);
+		IntToStringBase2(maxValue, maxValueString, 0, false);
 		break;
 	case IntDisplayMode::Octal:
-		IntToStringBase8(aminValue, minValueString, 0, false);
-		IntToStringBase8(amaxValue, maxValueString, 0, false);
+		IntToStringBase8(minValue, minValueString, 0, false);
+		IntToStringBase8(maxValue, maxValueString, 0, false);
 		break;
 	case IntDisplayMode::Hexadecimal:
-		IntToStringBase16(aminValue, minValueString, 0, false);
-		IntToStringBase16(amaxValue, maxValueString, 0, false);
+		IntToStringBase16(minValue, minValueString, 0, false);
+		IntToStringBase16(maxValue, maxValueString, 0, false);
 		break;
 	}
 
@@ -176,25 +176,25 @@ unsigned int GenericAccessDataValueUInt::CalculateDisplayChars(IntDisplayMode ad
 //----------------------------------------------------------------------------------------
 unsigned int GenericAccessDataValueUInt::GetMinValue() const
 {
-	return minValue;
+	return _minValue;
 }
 
 //----------------------------------------------------------------------------------------
 void GenericAccessDataValueUInt::SetMinValue(unsigned int state)
 {
-	minValue = state;
+	_minValue = state;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int GenericAccessDataValueUInt::GetMaxValue() const
 {
-	return maxValue;
+	return _maxValue;
 }
 
 //----------------------------------------------------------------------------------------
 void GenericAccessDataValueUInt::SetMaxValue(unsigned int state)
 {
-	maxValue = state;
+	_maxValue = state;
 }
 
 //----------------------------------------------------------------------------------------
@@ -202,6 +202,6 @@ void GenericAccessDataValueUInt::SetMaxValue(unsigned int state)
 //----------------------------------------------------------------------------------------
 void GenericAccessDataValueUInt::ApplyLimitSettingsToCurrentValue()
 {
-	dataValue = (dataValue < minValue)? minValue: dataValue;
-	dataValue = (dataValue > maxValue)? maxValue: dataValue;
+	_dataValue = (_dataValue < _minValue)? _minValue: _dataValue;
+	_dataValue = (_dataValue > _maxValue)? _maxValue: _dataValue;
 }

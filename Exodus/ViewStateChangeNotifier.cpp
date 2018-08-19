@@ -3,8 +3,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-ViewStateChangeNotifier::ViewStateChangeNotifier(IViewManagerNotifierInterface& aviewManager, IViewPresenter& aviewPresenter)
-:viewManager(aviewManager), viewPresenter(aviewPresenter)
+ViewStateChangeNotifier::ViewStateChangeNotifier(IViewManagerNotifierInterface& viewManager, IViewPresenter& viewPresenter)
+:_viewManager(viewManager), _viewPresenter(viewPresenter)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -20,5 +20,5 @@ unsigned int ViewStateChangeNotifier::GetIViewStateChangeNotifierVersion() const
 //----------------------------------------------------------------------------------------
 void ViewStateChangeNotifier::NotifyViewClosed()
 {
-	viewManager.NotifyViewClosed(viewPresenter);
+	_viewManager.NotifyViewClosed(_viewPresenter);
 }

@@ -53,7 +53,7 @@ class A10000 :public Device
 {
 public:
 	//Constructors
-	A10000(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
+	A10000(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 
 	//Initialization functions
 	virtual bool ValidateDevice();
@@ -98,6 +98,9 @@ private:
 	//Structures
 	struct InputLineState;
 	struct LineAccess;
+
+	//Constants
+	static const unsigned int ControlPortCount = 3;
 
 private:
 	//Line functions
@@ -208,46 +211,43 @@ private:
 	void UpdateHLInterruptState(IDeviceContext* caller, double accessTime, unsigned int accessContext);
 
 private:
-	//Constants
-	static const unsigned int controlPortCount = 3;
-
 	//Bus interface
-	IBusInterface* memoryBus;
-	IBusInterface* controlPortBus;
+	IBusInterface* _memoryBus;
+	IBusInterface* _controlPortBus;
 
 	//Version register settings
-	Data versionRegister;
-	Data bversionRegister;
-	unsigned int inputHardwareVersion;
-	unsigned int binputHardwareVersion;
+	Data _versionRegister;
+	Data _bversionRegister;
+	unsigned int _inputHardwareVersion;
+	unsigned int _binputHardwareVersion;
 
 	//Control port registers
-	mutable std::mutex accessMutex;
-	std::vector<Data> dataRegisters;
-	std::vector<Data> bdataRegisters;
-	std::vector<Data> controlRegisters;
-	std::vector<Data> bcontrolRegisters;
-	std::vector<Data> serialControlRegisters;
-	std::vector<Data> bserialControlRegisters;
-	std::vector<Data> txDataRegisters;
-	std::vector<Data> btxDataRegisters;
-	std::vector<Data> rxDataRegisters;
-	std::vector<Data> brxDataRegisters;
-	bool currentHLLineState;
-	bool bcurrentHLLineState;
+	mutable std::mutex _accessMutex;
+	std::vector<Data> _dataRegisters;
+	std::vector<Data> _bdataRegisters;
+	std::vector<Data> _controlRegisters;
+	std::vector<Data> _bcontrolRegisters;
+	std::vector<Data> _serialControlRegisters;
+	std::vector<Data> _bserialControlRegisters;
+	std::vector<Data> _txDataRegisters;
+	std::vector<Data> _btxDataRegisters;
+	std::vector<Data> _rxDataRegisters;
+	std::vector<Data> _brxDataRegisters;
+	bool _currentHLLineState;
+	bool _bcurrentHLLineState;
 
 	//Input line state
-	std::vector<InputLineState> inputLineState;
-	std::vector<InputLineState> binputLineState;
+	std::vector<InputLineState> _inputLineState;
+	std::vector<InputLineState> _binputLineState;
 
 	//Line access
-	std::mutex lineMutex;
-	double lastLineCheckTime;
-	volatile bool lineAccessPending;
-	double lastTimesliceLength;
-	double blastTimesliceLength;
-	std::list<LineAccess> lineAccessBuffer;
-	std::list<LineAccess> blineAccessBuffer;
+	std::mutex _lineMutex;
+	double _lastLineCheckTime;
+	volatile bool _lineAccessPending;
+	double _lastTimesliceLength;
+	double _blastTimesliceLength;
+	std::list<LineAccess> _lineAccessBuffer;
+	std::list<LineAccess> _blineAccessBuffer;
 };
 
 #include "A10000.inl"

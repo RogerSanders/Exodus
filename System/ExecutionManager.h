@@ -49,20 +49,20 @@ public:
 	inline void SuspendExecution();
 
 private:
-	mutable std::mutex commandMutex;
-	std::condition_variable commandSent;
-	std::condition_variable commandProcessed;
-	DeviceContext::DeviceContextCommand command;
-	ReferenceCounterType totalDeviceCount;
-	volatile ReferenceCounterType pendingDeviceCount;
-	volatile ReferenceCounterType suspendedThreadCount;
+	mutable std::mutex _commandMutex;
+	std::condition_variable _commandSent;
+	std::condition_variable _commandProcessed;
+	DeviceContext::DeviceContextCommand _command;
+	ReferenceCounterType _totalDeviceCount;
+	volatile ReferenceCounterType _pendingDeviceCount;
+	volatile ReferenceCounterType _suspendedThreadCount;
 
-	size_t deviceCount;
-	size_t suspendDeviceCount;
-	size_t transientDeviceCount;
-	std::vector<DeviceContext*> deviceArray;
-	std::vector<DeviceContext*> suspendDeviceArray;
-	std::vector<DeviceContext*> transientDeviceArray;
+	size_t _deviceCount;
+	size_t _suspendDeviceCount;
+	size_t _transientDeviceCount;
+	std::vector<DeviceContext*> _deviceArray;
+	std::vector<DeviceContext*> _suspendDeviceArray;
+	std::vector<DeviceContext*> _transientDeviceArray;
 };
 
 #include "ExecutionManager.inl"

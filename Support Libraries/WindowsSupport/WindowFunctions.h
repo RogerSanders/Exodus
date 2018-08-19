@@ -86,7 +86,7 @@ struct CreateWindowThreadParams
 };
 CreateWindowThreadParams* AllocCreateWindowThreadParams();
 void ReleaseCreateWindowThreadParams(CreateWindowThreadParams* object);
-DWORD WINAPI CreateWindowThreadFunction(LPVOID aparams);
+DWORD WINAPI CreateWindowThreadFunction(LPVOID params);
 void WindowsMessageLoop(HWND hwnd);
 
 //Parent and owner window functions

@@ -40,12 +40,12 @@ struct Z80Instruction::Disassembly
 //Constructors
 //----------------------------------------------------------------------------------------
 Z80Instruction::Z80Instruction()
-:instructionSize(0), mandatoryIndexOffset(false), transparentOpcode(false), indexState(EffectiveAddress::IndexState::None), executeCycleCount(0)
+:_instructionSize(0), _mandatoryIndexOffset(false), _transparentOpcode(false), _indexState(EffectiveAddress::IndexState::None), _executeCycleCount(0)
 {}
 
 //----------------------------------------------------------------------------------------
 Z80Instruction::Z80Instruction(const Z80Instruction& object)
-:instructionSize(object.instructionSize), indexState(object.indexState), instructionLocation(object.instructionLocation), instructionRegister(object.instructionRegister), indexOffset(object.indexOffset), transparentOpcode(object.transparentOpcode), mandatoryIndexOffset(object.mandatoryIndexOffset), executeCycleCount(0)
+:_instructionSize(object._instructionSize), _indexState(object._indexState), _instructionLocation(object._instructionLocation), _instructionRegister(object._instructionRegister), _indexOffset(object._indexOffset), _transparentOpcode(object._transparentOpcode), _mandatoryIndexOffset(object._mandatoryIndexOffset), _executeCycleCount(0)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -53,19 +53,19 @@ Z80Instruction::Z80Instruction(const Z80Instruction& object)
 //----------------------------------------------------------------------------------------
 unsigned int Z80Instruction::GetInstructionSize() const
 {
-	return instructionSize;
+	return _instructionSize;
 }
 
 //----------------------------------------------------------------------------------------
-void Z80Instruction::SetInstructionSize(unsigned int ainstructionSize)
+void Z80Instruction::SetInstructionSize(unsigned int instructionSize)
 {
-	instructionSize = ainstructionSize;
+	_instructionSize = instructionSize;
 }
 
 //----------------------------------------------------------------------------------------
-void Z80Instruction::AddInstructionSize(unsigned int ainstructionSize)
+void Z80Instruction::AddInstructionSize(unsigned int instructionSize)
 {
-	instructionSize += ainstructionSize;
+	_instructionSize += instructionSize;
 }
 
 //----------------------------------------------------------------------------------------
@@ -73,32 +73,32 @@ void Z80Instruction::AddInstructionSize(unsigned int ainstructionSize)
 //----------------------------------------------------------------------------------------
 EffectiveAddress::IndexState Z80Instruction::GetIndexState() const
 {
-	return indexState;
+	return _indexState;
 }
 
 //----------------------------------------------------------------------------------------
-void Z80Instruction::SetIndexState(EffectiveAddress::IndexState aindexState)
+void Z80Instruction::SetIndexState(EffectiveAddress::IndexState indexState)
 {
-	indexState = aindexState;
+	_indexState = indexState;
 }
 
 //----------------------------------------------------------------------------------------
 Z80Byte Z80Instruction::GetIndexOffset() const
 {
-	return indexOffset;
+	return _indexOffset;
 }
 
 //----------------------------------------------------------------------------------------
-void Z80Instruction::SetIndexOffset(const Z80Byte& aindexOffset, bool amandatoryIndexOffset)
+void Z80Instruction::SetIndexOffset(const Z80Byte& indexOffset, bool mandatoryIndexOffset)
 {
-	indexOffset = aindexOffset;
-	mandatoryIndexOffset = amandatoryIndexOffset;
+	_indexOffset = indexOffset;
+	_mandatoryIndexOffset = mandatoryIndexOffset;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int Z80Instruction::GetIndexOffsetSize(bool add) const
 {
-	if(add && !mandatoryIndexOffset)
+	if(add && !_mandatoryIndexOffset)
 	{
 		return 1;
 	}
@@ -110,21 +110,21 @@ unsigned int Z80Instruction::GetIndexOffsetSize(bool add) const
 //----------------------------------------------------------------------------------------
 ExecuteTime Z80Instruction::GetExecuteCycleCount() const
 {
-	return executeCycleCount;
+	return _executeCycleCount;
 }
 
 //----------------------------------------------------------------------------------------
 ExecuteTime Z80Instruction::GetExecuteCycleCount(double additionalTime) const
 {
-	ExecuteTime executeTime = executeCycleCount;
+	ExecuteTime executeTime = _executeCycleCount;
 	executeTime.additionalTime += additionalTime;
 	return executeTime;
 }
 
 //----------------------------------------------------------------------------------------
-void Z80Instruction::AddExecuteCycleCount(const ExecuteTime& aexecuteCycleCount)
+void Z80Instruction::AddExecuteCycleCount(const ExecuteTime& executeCycleCount)
 {
-	executeCycleCount += aexecuteCycleCount;
+	_executeCycleCount += executeCycleCount;
 }
 
 //----------------------------------------------------------------------------------------
@@ -132,25 +132,25 @@ void Z80Instruction::AddExecuteCycleCount(const ExecuteTime& aexecuteCycleCount)
 //----------------------------------------------------------------------------------------
 const Z80Byte& Z80Instruction::GetInstructionRegister() const
 {
-	return instructionRegister;
+	return _instructionRegister;
 }
 
 //----------------------------------------------------------------------------------------
-void Z80Instruction::SetInstructionRegister(const Z80Byte& ainstructionData)
+void Z80Instruction::SetInstructionRegister(const Z80Byte& instructionData)
 {
-	instructionRegister = ainstructionData;
+	_instructionRegister = instructionData;
 }
 
 //----------------------------------------------------------------------------------------
 const Z80Word& Z80Instruction::GetInstructionLocation() const
 {
-	return instructionLocation;
+	return _instructionLocation;
 }
 
 //----------------------------------------------------------------------------------------
-void Z80Instruction::SetInstructionLocation(const Z80Word& ainstructionLocation)
+void Z80Instruction::SetInstructionLocation(const Z80Word& instructionLocation)
 {
-	instructionLocation = ainstructionLocation;
+	_instructionLocation = instructionLocation;
 }
 
 //----------------------------------------------------------------------------------------
@@ -158,13 +158,13 @@ void Z80Instruction::SetInstructionLocation(const Z80Word& ainstructionLocation)
 //----------------------------------------------------------------------------------------
 bool Z80Instruction::GetTransparentFlag() const
 {
-	return transparentOpcode;
+	return _transparentOpcode;
 }
 
 //----------------------------------------------------------------------------------------
-void Z80Instruction::SetTransparentFlag(bool astate)
+void Z80Instruction::SetTransparentFlag(bool state)
 {
-	transparentOpcode = astate;
+	_transparentOpcode = state;
 }
 
 } //Close namespace Z80

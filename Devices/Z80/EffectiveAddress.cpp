@@ -10,7 +10,7 @@ double EffectiveAddress::Read(Z80* cpu, const Z80Word& pc, Data& target) const
 {
 	double additionalTime = 0;
 
-	switch(mode)
+	switch(_mode)
 	{
 	default:
 		DebugAssert(false);
@@ -89,14 +89,14 @@ double EffectiveAddress::Read(Z80* cpu, const Z80Word& pc, Data& target) const
 		cpu->SetDE(cpu->GetDE() - target.GetByteSize());
 		break;
 	case Mode::AddressIndirect:
-		additionalTime = cpu->ReadMemory(address, target, false);
+		additionalTime = cpu->ReadMemory(_address, target, false);
 		break;
 	case Mode::Immediate:
-		target = data;
+		target = _data;
 		break;
 
 	case Mode::H:
-		switch(indexState)
+		switch(_indexState)
 		{
 		default:
 			DebugAssert(false);
@@ -113,7 +113,7 @@ double EffectiveAddress::Read(Z80* cpu, const Z80Word& pc, Data& target) const
 		}
 		break;
 	case Mode::L:
-		switch(indexState)
+		switch(_indexState)
 		{
 		default:
 			DebugAssert(false);
@@ -130,7 +130,7 @@ double EffectiveAddress::Read(Z80* cpu, const Z80Word& pc, Data& target) const
 		}
 		break;
 	case Mode::HL:
-		switch(indexState)
+		switch(_indexState)
 		{
 		default:
 			DebugAssert(false);
@@ -147,7 +147,7 @@ double EffectiveAddress::Read(Z80* cpu, const Z80Word& pc, Data& target) const
 		}
 		break;
 	case Mode::HL2:
-		switch(indexState)
+		switch(_indexState)
 		{
 		default:
 			DebugAssert(false);
@@ -158,7 +158,7 @@ double EffectiveAddress::Read(Z80* cpu, const Z80Word& pc, Data& target) const
 		}
 		break;
 	case Mode::HLIndirect:
-		switch(indexState)
+		switch(_indexState)
 		{
 		default:
 			DebugAssert(false);
@@ -179,7 +179,7 @@ double EffectiveAddress::Read(Z80* cpu, const Z80Word& pc, Data& target) const
 		}
 		break;
 	case Mode::HLPostInc:
-		switch(indexState)
+		switch(_indexState)
 		{
 		default:
 			DebugAssert(false);
@@ -199,7 +199,7 @@ double EffectiveAddress::Read(Z80* cpu, const Z80Word& pc, Data& target) const
 		}
 		break;
 	case Mode::HLPostDec:
-		switch(indexState)
+		switch(_indexState)
 		{
 		default:
 			DebugAssert(false);
@@ -228,7 +228,7 @@ double EffectiveAddress::Write(Z80* cpu, const Z80Word& pc, const Data& target) 
 {
 	double additionalTime = 0;
 
-	switch(mode)
+	switch(_mode)
 	{
 	default:
 		DebugAssert(false);
@@ -307,14 +307,14 @@ double EffectiveAddress::Write(Z80* cpu, const Z80Word& pc, const Data& target) 
 		cpu->SetDE(cpu->GetDE() - target.GetByteSize());
 		break;
 	case Mode::AddressIndirect:
-		additionalTime = cpu->WriteMemory(address, target, false);
+		additionalTime = cpu->WriteMemory(_address, target, false);
 		break;
 	case Mode::Immediate:
 		DebugAssert(false);
 		break;
 
 	case Mode::H:
-		switch(indexState)
+		switch(_indexState)
 		{
 		default:
 			DebugAssert(false);
@@ -331,7 +331,7 @@ double EffectiveAddress::Write(Z80* cpu, const Z80Word& pc, const Data& target) 
 		}
 		break;
 	case Mode::L:
-		switch(indexState)
+		switch(_indexState)
 		{
 		default:
 			DebugAssert(false);
@@ -348,7 +348,7 @@ double EffectiveAddress::Write(Z80* cpu, const Z80Word& pc, const Data& target) 
 		}
 		break;
 	case Mode::HL:
-		switch(indexState)
+		switch(_indexState)
 		{
 		default:
 			DebugAssert(false);
@@ -365,7 +365,7 @@ double EffectiveAddress::Write(Z80* cpu, const Z80Word& pc, const Data& target) 
 		}
 		break;
 	case Mode::HL2:
-		switch(indexState)
+		switch(_indexState)
 		{
 		default:
 			DebugAssert(false);
@@ -376,7 +376,7 @@ double EffectiveAddress::Write(Z80* cpu, const Z80Word& pc, const Data& target) 
 		}
 		break;
 	case Mode::HLIndirect:
-		switch(indexState)
+		switch(_indexState)
 		{
 		default:
 			DebugAssert(false);
@@ -397,7 +397,7 @@ double EffectiveAddress::Write(Z80* cpu, const Z80Word& pc, const Data& target) 
 		}
 		break;
 	case Mode::HLPostInc:
-		switch(indexState)
+		switch(_indexState)
 		{
 		default:
 			DebugAssert(false);
@@ -421,7 +421,7 @@ double EffectiveAddress::Write(Z80* cpu, const Z80Word& pc, const Data& target) 
 		}
 		break;
 	case Mode::HLPostDec:
-		switch(indexState)
+		switch(_indexState)
 		{
 		default:
 			DebugAssert(false);
@@ -454,7 +454,7 @@ double EffectiveAddress::Write(Z80* cpu, const Z80Word& pc, const Data& target) 
 //----------------------------------------------------------------------------------------
 std::wstring EffectiveAddress::Disassemble() const
 {
-	switch(mode)
+	switch(_mode)
 	{
 	case Mode::A:	return L"A";
 	case Mode::B:	return L"B";
@@ -480,24 +480,24 @@ std::wstring EffectiveAddress::Disassemble() const
 	case Mode::SPIndirect:	return L"(SP)";
 	case Mode::AddressIndirect:{
 		std::wstringstream stream;
-		stream << L'(' << std::setw(address.GetByteSize() * 2) << std::setfill(L'0') << std::hex << std::uppercase << address.GetData() << L"h)";
+		stream << L'(' << std::setw(_address.GetByteSize() * 2) << std::setfill(L'0') << std::hex << std::uppercase << _address.GetData() << L"h)";
 		return stream.str();}
 	case Mode::Immediate:{
 		std::wstringstream stream;
-		if(data.GetData() > 9)
+		if(_data.GetData() > 9)
 		{
-			stream << std::setw(data.GetByteSize() * 2) << std::setfill(L'0') << std::hex << std::uppercase << data.GetData() << L'h';
+			stream << std::setw(_data.GetByteSize() * 2) << std::setfill(L'0') << std::hex << std::uppercase << _data.GetData() << L'h';
 		}
 		else
 		{
-			stream << data.GetData();
+			stream << _data.GetData();
 		}
 		return stream.str();}
 	}
 
-	if(indexState == IndexState::None)
+	if(_indexState == IndexState::None)
 	{
-		switch(mode)
+		switch(_mode)
 		{
 		case Mode::H:	return L"H";
 		case Mode::L:	return L"L";
@@ -505,9 +505,9 @@ std::wstring EffectiveAddress::Disassemble() const
 		case Mode::HLIndirect:	return L"(HL)";
 		}
 	}
-	else if(indexState == IndexState::IX)
+	else if(_indexState == IndexState::IX)
 	{
-		switch(mode)
+		switch(_mode)
 		{
 		case Mode::H:	return L"IXH";
 		case Mode::L:	return L"IXL";
@@ -518,9 +518,9 @@ std::wstring EffectiveAddress::Disassemble() const
 			return stream.str();}
 		}
 	}
-	else if(indexState == IndexState::IY)
+	else if(_indexState == IndexState::IY)
 	{
-		switch(mode)
+		switch(_mode)
 		{
 		case Mode::H:	return L"IYH";
 		case Mode::L:	return L"IYL";
@@ -538,7 +538,7 @@ std::wstring EffectiveAddress::Disassemble() const
 //----------------------------------------------------------------------------------------
 std::wstring EffectiveAddress::DisassembleImmediateAsPCDisplacement(const Z80Word& location) const
 {
-	Z80Word newPC = location + Z80Word(data.SignExtend(BITCOUNT_WORD));
+	Z80Word newPC = location + Z80Word(_data.SignExtend(BITCOUNT_WORD));
 	std::wstringstream stream;
 	stream << std::setw(newPC.GetByteSize() * 2) << std::setfill(L'0') << std::hex << std::uppercase << newPC.GetData();
 	return stream.str();

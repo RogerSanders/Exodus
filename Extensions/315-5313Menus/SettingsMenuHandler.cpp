@@ -3,8 +3,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-SettingsMenuHandler::SettingsMenuHandler(S315_5313Menus& aowner, const IDevice& amodelInstanceKey, IS315_5313& amodel)
-:MenuHandlerBase(L"VDPSettingsMenu", aowner.GetViewManager()), owner(aowner), modelInstanceKey(amodelInstanceKey), model(amodel)
+SettingsMenuHandler::SettingsMenuHandler(S315_5313Menus& owner, const IDevice& modelInstanceKey, IS315_5313& model)
+:MenuHandlerBase(L"VDPSettingsMenu", owner.GetViewManager()), _owner(owner), _modelInstanceKey(modelInstanceKey), _model(model)
 {}
 
 //----------------------------------------------------------------------------------------

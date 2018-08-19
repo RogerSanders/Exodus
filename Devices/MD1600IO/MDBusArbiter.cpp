@@ -5,34 +5,34 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-MDBusArbiter::MDBusArbiter(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
-:Device(aimplementationName, ainstanceName, amoduleID),
-z80BankswitchDataCurrent(9),
-bz80BankswitchDataCurrent(9),
-z80BankswitchDataNew(9),
-bz80BankswitchDataNew(9)
+MDBusArbiter::MDBusArbiter(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
+:Device(implementationName, instanceName, moduleID),
+_z80BankswitchDataCurrent(9),
+_bz80BankswitchDataCurrent(9),
+_z80BankswitchDataNew(9),
+_bz80BankswitchDataNew(9)
 {
-	bootROM = 0;
-	m68kMemoryBus = 0;
-	z80MemoryBus = 0;
+	_bootROM = 0;
+	_m68kMemoryBus = 0;
+	_z80MemoryBus = 0;
 
 	//Initialize our CE line state
-	ceLineMaskReadHighWriteLow = 0;
-	ceLineMaskUDS = 0;
-	ceLineMaskLDS = 0;
-	ceLineMaskOE0 = 0;
-	ceLineMaskCE0 = 0;
-	ceLineMaskBootROM = 0;
-	ceLineMaskROM = 0;
-	ceLineMaskASEL = 0;
-	ceLineMaskFDC = 0;
-	ceLineMaskFDWR = 0;
-	ceLineMaskTIME = 0;
-	ceLineMaskIO = 0;
-	ceLineMaskEOE = 0;
-	ceLineMaskNOE = 0;
-	ceLineMaskZRAM = 0;
-	ceLineMaskSOUND = 0;
+	_ceLineMaskReadHighWriteLow = 0;
+	_ceLineMaskUDS = 0;
+	_ceLineMaskLDS = 0;
+	_ceLineMaskOE0 = 0;
+	_ceLineMaskCE0 = 0;
+	_ceLineMaskBootROM = 0;
+	_ceLineMaskROM = 0;
+	_ceLineMaskASEL = 0;
+	_ceLineMaskFDC = 0;
+	_ceLineMaskFDWR = 0;
+	_ceLineMaskTIME = 0;
+	_ceLineMaskIO = 0;
+	_ceLineMaskEOE = 0;
+	_ceLineMaskNOE = 0;
+	_ceLineMaskZRAM = 0;
+	_ceLineMaskSOUND = 0;
 }
 
 //----------------------------------------------------------------------------------------
@@ -40,49 +40,49 @@ bz80BankswitchDataNew(9)
 //----------------------------------------------------------------------------------------
 bool MDBusArbiter::ValidateDevice()
 {
-	return (m68kMemoryBus != 0) && (z80MemoryBus != 0) && (ceLineMaskReadHighWriteLow != 0) && (ceLineMaskOE0 != 0) && (ceLineMaskUDS != 0) && (ceLineMaskLDS != 0);
+	return (_m68kMemoryBus != 0) && (_z80MemoryBus != 0) && (_ceLineMaskReadHighWriteLow != 0) && (_ceLineMaskOE0 != 0) && (_ceLineMaskUDS != 0) && (_ceLineMaskLDS != 0);
 }
 
 //----------------------------------------------------------------------------------------
 void MDBusArbiter::Initialize()
 {
-	lastLineCheckTime = 0;
-	lineAccessPending = false;
-	lastTimesliceLength = 0;
-	lineAccessBuffer.clear();
+	_lastLineCheckTime = 0;
+	_lineAccessPending = false;
+	_lastTimesliceLength = 0;
+	_lineAccessBuffer.clear();
 
 	//Initialize the device settings
-	activateTMSS = false;
-	activateBootROM = false;
+	_activateTMSS = false;
+	_activateBootROM = false;
 
 	//Initialize the TMSS Security settings
-	bootROMEnabled = true;
-	vdpLockoutActive = true;
-	vdpLockoutTripped = false;
+	_bootROMEnabled = true;
+	_vdpLockoutActive = true;
+	_vdpLockoutTripped = false;
 
 	//Initialize the Z80 bankswitch register state
-	z80BankswitchBitsWritten = 0;
-	z80BankswitchDataCurrent = 0;
-	z80BankswitchDataNew = 0;
+	_z80BankswitchBitsWritten = 0;
+	_z80BankswitchDataCurrent = 0;
+	_z80BankswitchDataNew = 0;
 
 	//Initialize the external line state
-	cartInLineState = false;
-	z80BusRequestLineState = false;
-	z80BusGrantLineState = false;
+	_cartInLineState = false;
+	_z80BusRequestLineState = false;
+	_z80BusGrantLineState = false;
 	//Note that the Z80 reset line is asserted when this device is initialized
-	z80BusResetLineState = true;
-	m68kBusRequestLineState = false;
-	m68kBusGrantLineState = false;
-	vresLineState = false;
-	haltLineState = false;
-	sresLineState = false;
-	wresLineState = false;
+	_z80BusResetLineState = true;
+	_m68kBusRequestLineState = false;
+	_m68kBusGrantLineState = false;
+	_vresLineState = false;
+	_haltLineState = false;
+	_sresLineState = false;
+	_wresLineState = false;
 
-	z80BusRequestLineStateChangeTimeLatchEnable = false;
-	z80BusGrantLineStateChangeTimeLatchEnable = false;
-	z80BusResetLineStateChangeTimeLatchEnable = false;
-	m68kBusRequestLineStateChangeTimeLatchEnable = false;
-	m68kBusGrantLineStateChangeTimeLatchEnable = false;
+	_z80BusRequestLineStateChangeTimeLatchEnable = false;
+	_z80BusGrantLineStateChangeTimeLatchEnable = false;
+	_z80BusResetLineStateChangeTimeLatchEnable = false;
+	_m68kBusRequestLineStateChangeTimeLatchEnable = false;
+	_m68kBusGrantLineStateChangeTimeLatchEnable = false;
 }
 
 //----------------------------------------------------------------------------------------
@@ -92,7 +92,7 @@ bool MDBusArbiter::AddReference(const Marshal::In<std::wstring>& referenceName, 
 {
 	if(referenceName == L"BootROM")
 	{
-		bootROM = target;
+		_bootROM = target;
 	}
 	else
 	{
@@ -106,11 +106,11 @@ bool MDBusArbiter::AddReference(const Marshal::In<std::wstring>& referenceName, 
 {
 	if(referenceName == L"M68000Bus")
 	{
-		m68kMemoryBus = target;
+		_m68kMemoryBus = target;
 	}
 	else if(referenceName == L"Z80Bus")
 	{
-		z80MemoryBus = target;
+		_z80MemoryBus = target;
 	}
 	else
 	{
@@ -122,22 +122,22 @@ bool MDBusArbiter::AddReference(const Marshal::In<std::wstring>& referenceName, 
 //----------------------------------------------------------------------------------------
 void MDBusArbiter::RemoveReference(IDevice* target)
 {
-	if(bootROM == target)
+	if(_bootROM == target)
 	{
-		bootROM = 0;
+		_bootROM = 0;
 	}
 }
 
 //----------------------------------------------------------------------------------------
 void MDBusArbiter::RemoveReference(IBusInterface* target)
 {
-	if(m68kMemoryBus == target)
+	if(_m68kMemoryBus == target)
 	{
-		m68kMemoryBus = 0;
+		_m68kMemoryBus = 0;
 	}
-	else if(z80MemoryBus == target)
+	else if(_z80MemoryBus == target)
 	{
-		z80MemoryBus = 0;
+		_z80MemoryBus = 0;
 	}
 }
 
@@ -146,67 +146,67 @@ void MDBusArbiter::RemoveReference(IBusInterface* target)
 //----------------------------------------------------------------------------------------
 void MDBusArbiter::ExecuteRollback()
 {
-	lastTimesliceLength = blastTimesliceLength;
-	lineAccessBuffer = blineAccessBuffer;
-	lineAccessPending = !lineAccessBuffer.empty();
+	_lastTimesliceLength = _blastTimesliceLength;
+	_lineAccessBuffer = _blineAccessBuffer;
+	_lineAccessPending = !_lineAccessBuffer.empty();
 
-	activateTMSS = bactivateTMSS;
-	activateBootROM = bactivateBootROM;
+	_activateTMSS = _bactivateTMSS;
+	_activateBootROM = _bactivateBootROM;
 
-	bootROMEnabled = bbootROMEnabled;
-	vdpLockoutActive = bvdpLockoutActive;
-	vdpLockoutTripped = bvdpLockoutTripped;
+	_bootROMEnabled = _bbootROMEnabled;
+	_vdpLockoutActive = _bvdpLockoutActive;
+	_vdpLockoutTripped = _bvdpLockoutTripped;
 
-	z80BankswitchDataCurrent = bz80BankswitchDataCurrent;
-	z80BankswitchDataNew = bz80BankswitchDataNew;
-	z80BankswitchBitsWritten = bz80BankswitchBitsWritten;
+	_z80BankswitchDataCurrent = _bz80BankswitchDataCurrent;
+	_z80BankswitchDataNew = _bz80BankswitchDataNew;
+	_z80BankswitchBitsWritten = _bz80BankswitchBitsWritten;
 
-	cartInLineState = bcartInLineState;
-	z80BusRequestLineState = bz80BusRequestLineState;
-	z80BusGrantLineState = bz80BusGrantLineState;
-	z80BusResetLineState = bz80BusResetLineState;
-	m68kBusRequestLineState = bm68kBusRequestLineState;
-	m68kBusGrantLineState = bm68kBusGrantLineState;
-	vresLineState = bvresLineState;
-	haltLineState = bhaltLineState;
-	sresLineState = bsresLineState;
-	wresLineState = bwresLineState;
+	_cartInLineState = _bcartInLineState;
+	_z80BusRequestLineState = _bz80BusRequestLineState;
+	_z80BusGrantLineState = _bz80BusGrantLineState;
+	_z80BusResetLineState = _bz80BusResetLineState;
+	_m68kBusRequestLineState = _bm68kBusRequestLineState;
+	_m68kBusGrantLineState = _bm68kBusGrantLineState;
+	_vresLineState = _bvresLineState;
+	_haltLineState = _bhaltLineState;
+	_sresLineState = _bsresLineState;
+	_wresLineState = _bwresLineState;
 }
 
 //----------------------------------------------------------------------------------------
 void MDBusArbiter::ExecuteCommit()
 {
-	blastTimesliceLength = lastTimesliceLength;
-	if(lineAccessPending)
+	_blastTimesliceLength = _lastTimesliceLength;
+	if(_lineAccessPending)
 	{
-		blineAccessBuffer = lineAccessBuffer;
+		_blineAccessBuffer = _lineAccessBuffer;
 	}
 	else
 	{
-		blineAccessBuffer.clear();
+		_blineAccessBuffer.clear();
 	}
 
-	bactivateTMSS = activateTMSS;
-	bactivateBootROM = activateBootROM;
+	_bactivateTMSS = _activateTMSS;
+	_bactivateBootROM = _activateBootROM;
 
-	bbootROMEnabled = bootROMEnabled;
-	bvdpLockoutActive = vdpLockoutActive;
-	bvdpLockoutTripped = vdpLockoutTripped;
+	_bbootROMEnabled = _bootROMEnabled;
+	_bvdpLockoutActive = _vdpLockoutActive;
+	_bvdpLockoutTripped = _vdpLockoutTripped;
 
-	bz80BankswitchDataCurrent = z80BankswitchDataCurrent;
-	bz80BankswitchDataNew = z80BankswitchDataNew;
-	bz80BankswitchBitsWritten = z80BankswitchBitsWritten;
+	_bz80BankswitchDataCurrent = _z80BankswitchDataCurrent;
+	_bz80BankswitchDataNew = _z80BankswitchDataNew;
+	_bz80BankswitchBitsWritten = _z80BankswitchBitsWritten;
 
-	bcartInLineState = cartInLineState;
-	bz80BusRequestLineState = z80BusRequestLineState;
-	bz80BusGrantLineState = z80BusGrantLineState;
-	bz80BusResetLineState = z80BusResetLineState;
-	bm68kBusRequestLineState = m68kBusRequestLineState;
-	bm68kBusGrantLineState = m68kBusGrantLineState;
-	bvresLineState = vresLineState;
-	bhaltLineState = haltLineState;
-	bsresLineState = bsresLineState;
-	bwresLineState = wresLineState;
+	_bcartInLineState = _cartInLineState;
+	_bz80BusRequestLineState = _z80BusRequestLineState;
+	_bz80BusGrantLineState = _z80BusGrantLineState;
+	_bz80BusResetLineState = _z80BusResetLineState;
+	_bm68kBusRequestLineState = _m68kBusRequestLineState;
+	_bm68kBusGrantLineState = _m68kBusGrantLineState;
+	_bvresLineState = _vresLineState;
+	_bhaltLineState = _haltLineState;
+	_bsresLineState = _bsresLineState;
+	_bwresLineState = _wresLineState;
 }
 
 //----------------------------------------------------------------------------------------
@@ -220,16 +220,16 @@ void MDBusArbiter::NotifyUpcomingTimeslice(double nanoseconds)
 {
 	//Reset lastLineCheckTime for the beginning of the new timeslice, and force any
 	//remaining line state changes to be evaluated at the start of the new timeslice.
-	lastLineCheckTime = 0;
-	for(std::list<LineAccess>::iterator i = lineAccessBuffer.begin(); i != lineAccessBuffer.end(); ++i)
+	_lastLineCheckTime = 0;
+	for(std::list<LineAccess>::iterator i = _lineAccessBuffer.begin(); i != _lineAccessBuffer.end(); ++i)
 	{
 		//We rebase accessTime here to the start of the new time block, in order to allow
 		//line state changes to be flagged ahead of the time they actually take effect.
 		//This rebasing allows changes flagged ahead of time to safely cross timeslice
 		//boundaries.
-		i->accessTime -= lastTimesliceLength;
+		i->accessTime -= _lastTimesliceLength;
 	}
-	lastTimesliceLength = nanoseconds;
+	_lastTimesliceLength = nanoseconds;
 }
 
 //----------------------------------------------------------------------------------------
@@ -243,7 +243,7 @@ void MDBusArbiter::NotifyAfterExecuteCalled()
 {
 	//Ensure that any pending line state changes which we have passed in this timeslice
 	//are applied
-	ApplyPendingLineStateChanges(lastTimesliceLength);
+	ApplyPendingLineStateChanges(_lastTimesliceLength);
 }
 
 //----------------------------------------------------------------------------------------
@@ -277,12 +277,12 @@ IBusInterface::AccessResult MDBusArbiter::ReadInterface(unsigned int interfaceNu
 		//##DEBUG##
 		//autoVectorDelayTime = 4000.0;
 
-		m68kMemoryBus->SetLineState((unsigned int)LineID::VPA, Data(1, 1), GetDeviceContext(), caller, accessTime + autoVectorDelayTime, accessContext);
-		m68kMemoryBus->SetLineState((unsigned int)LineID::INTAK, Data(1, 1), GetDeviceContext(), caller, accessTime + autoVectorDelayTime, accessContext);
+		_m68kMemoryBus->SetLineState((unsigned int)LineID::VPA, Data(1, 1), GetDeviceContext(), caller, accessTime + autoVectorDelayTime, accessContext);
+		_m68kMemoryBus->SetLineState((unsigned int)LineID::INTAK, Data(1, 1), GetDeviceContext(), caller, accessTime + autoVectorDelayTime, accessContext);
 		accessResult.deviceReplied = false;
 		break;}
 	case MemoryInterface::M68kToZ80MemoryWindow:{
-		if(z80BusResetLineState || !z80BusGrantLineState)
+		if(_z80BusResetLineState || !_z80BusGrantLineState)
 		{
 			//If the M68000 currently doesn't have access to the Z80 bus, either because
 			//the Z80 is currently in the reset state, or the Z80 bus hasn't been granted,
@@ -315,7 +315,7 @@ IBusInterface::AccessResult MDBusArbiter::ReadInterface(unsigned int interfaceNu
 			//demonstrates that the IO ports are actually implemented as an 8-bit device
 			//on the Z80 bus.
 			Data z80BusData(8, 0xFF);
-			IBusInterface::AccessResult remoteAccessResult = z80MemoryBus->ReadMemory(z80MemoryAccessLocation, z80BusData, caller, accessTime, accessContext);
+			IBusInterface::AccessResult remoteAccessResult = _z80MemoryBus->ReadMemory(z80MemoryAccessLocation, z80BusData, caller, accessTime, accessContext);
 
 			//Note that in the case of reads into the Z80 memory space from the M68000,
 			//any data lines which are not driven by a remote device as a result of the
@@ -381,8 +381,8 @@ IBusInterface::AccessResult MDBusArbiter::ReadInterface(unsigned int interfaceNu
 		break;}
 	case MemoryInterface::Z80ToM68kMemoryWindow:{
 		//Calculate the target address in the M68000 memory space
-		std::unique_lock<std::mutex> lock(bankswitchAccessMutex);
-		unsigned int m68kMemoryAccessLocation = (z80BankswitchDataCurrent.GetData() << 15) | (location & 0x7FFF);
+		std::unique_lock<std::mutex> lock(_bankswitchAccessMutex);
+		unsigned int m68kMemoryAccessLocation = (_z80BankswitchDataCurrent.GetData() << 15) | (location & 0x7FFF);
 		lock.unlock();
 		bool accessAtOddAddress = (m68kMemoryAccessLocation & 0x1) != 0;
 		m68kMemoryAccessLocation &= ~0x1;
@@ -438,7 +438,7 @@ IBusInterface::AccessResult MDBusArbiter::ReadInterface(unsigned int interfaceNu
 		break;
 	case MemoryInterface::Z80BusReq:
 		//Return true if the Z80 bus is not accessible by the M68000
-		data.SetBit(0, (z80BusResetLineState || !z80BusRequestLineState || !z80BusGrantLineState));
+		data.SetBit(0, (_z80BusResetLineState || !_z80BusRequestLineState || !_z80BusGrantLineState));
 		accessResult.accessMaskUsed = true;
 		accessResult.accessMask = 0x01;
 		break;
@@ -476,7 +476,7 @@ IBusInterface::AccessResult MDBusArbiter::WriteInterface(unsigned int interfaceN
 		accessResult.deviceReplied = false;
 		break;
 	case MemoryInterface::M68kToZ80MemoryWindow:
-		if(!z80BusResetLineState && z80BusGrantLineState)
+		if(!_z80BusResetLineState && _z80BusGrantLineState)
 		{
 			//Note that hardware tests performed by Charles MacDonald indicate that
 			//Z80 memory access location is masked to a 15-bit result, which is important
@@ -501,7 +501,7 @@ IBusInterface::AccessResult MDBusArbiter::WriteInterface(unsigned int interfaceN
 			z80BusData = (writeToOddAddress)? data.GetLowerHalf(): data.GetUpperHalf();
 
 			//Perform the write operation
-			IBusInterface::AccessResult remoteAccessResult = z80MemoryBus->WriteMemory(z80MemoryAccessLocation, z80BusData, caller, accessTime, accessContext);
+			IBusInterface::AccessResult remoteAccessResult = _z80MemoryBus->WriteMemory(z80MemoryAccessLocation, z80BusData, caller, accessTime, accessContext);
 
 			//Set the execution time of this operation to match the execution time of the
 			//remote bus operation.
@@ -533,8 +533,8 @@ IBusInterface::AccessResult MDBusArbiter::WriteInterface(unsigned int interfaceN
 		break;}
 	case MemoryInterface::Z80ToM68kMemoryWindow:{
 		//Calculate the access location
-		std::unique_lock<std::mutex> lock(bankswitchAccessMutex);
-		unsigned int m68kMemoryAccessLocation = (z80BankswitchDataCurrent.GetData() << 15) | (location & 0x7FFF);
+		std::unique_lock<std::mutex> lock(_bankswitchAccessMutex);
+		unsigned int m68kMemoryAccessLocation = (_z80BankswitchDataCurrent.GetData() << 15) | (location & 0x7FFF);
 		lock.unlock();
 
 		//Writes from the Z80 bus to the M68000 bus duplicate the 8-bit write data in the
@@ -558,17 +558,17 @@ IBusInterface::AccessResult MDBusArbiter::WriteInterface(unsigned int interfaceN
 		break;}
 	case MemoryInterface::Z80WindowBankswitch:{
 		//Handle changes to the Z80 bankswitch register
-		std::unique_lock<std::mutex> lock(bankswitchAccessMutex);
-		z80BankswitchDataNew.SetBit(z80BankswitchBitsWritten, data.NonZero());
-		++z80BankswitchBitsWritten;
-		if(z80BankswitchBitsWritten == 9)
+		std::unique_lock<std::mutex> lock(_bankswitchAccessMutex);
+		_z80BankswitchDataNew.SetBit(_z80BankswitchBitsWritten, data.NonZero());
+		++_z80BankswitchBitsWritten;
+		if(_z80BankswitchBitsWritten == 9)
 		{
 			//##DEBUG##
 			//std::wcout << L"Z80 bankswitch data changed from " << std::hex << std::uppercase << z80BankswitchDataCurrent.GetData() << " to " << z80BankswitchDataNew.GetData() << L" (" << (z80BankswitchDataCurrent.GetData() << 15) << L" to " << (z80BankswitchDataNew.GetData() << 15) << L")\n";
 
-			z80BankswitchDataCurrent = z80BankswitchDataNew;
-			z80BankswitchDataNew = 0;
-			z80BankswitchBitsWritten = 0;
+			_z80BankswitchDataCurrent = _z80BankswitchDataNew;
+			_z80BankswitchDataNew = 0;
+			_z80BankswitchBitsWritten = 0;
 		}
 		break;}
 	case MemoryInterface::MemoryMode:
@@ -577,19 +577,19 @@ IBusInterface::AccessResult MDBusArbiter::WriteInterface(unsigned int interfaceN
 	case MemoryInterface::Z80BusReq:{
 		//Z80 bus request
 		bool newState = data.NonZero();
-		if(z80BusRequestLineState != newState)
+		if(_z80BusRequestLineState != newState)
 		{
-			z80BusRequestLineState = newState;
-			z80MemoryBus->SetLineState((unsigned int)LineID::ZBR, Data(1, (unsigned int)z80BusRequestLineState), GetDeviceContext(), caller, accessTime, accessContext);
+			_z80BusRequestLineState = newState;
+			_z80MemoryBus->SetLineState((unsigned int)LineID::ZBR, Data(1, (unsigned int)_z80BusRequestLineState), GetDeviceContext(), caller, accessTime, accessContext);
 		}
 		break;}
 	case MemoryInterface::Z80Reset:{
 		//Z80 reset
 		bool newState = !data.NonZero();
-		if(z80BusResetLineState != newState)
+		if(_z80BusResetLineState != newState)
 		{
-			z80BusResetLineState = newState;
-			z80MemoryBus->SetLineState((unsigned int)LineID::ZRES, Data(1, (unsigned int)(sresLineState | z80BusResetLineState)), GetDeviceContext(), caller, accessTime, accessContext);
+			_z80BusResetLineState = newState;
+			_z80MemoryBus->SetLineState((unsigned int)LineID::ZRES, Data(1, (unsigned int)(_sresLineState | _z80BusResetLineState)), GetDeviceContext(), caller, accessTime, accessContext);
 		}
 		break;}
 	case MemoryInterface::TMSS:
@@ -601,12 +601,12 @@ IBusInterface::AccessResult MDBusArbiter::WriteInterface(unsigned int interfaceN
 		//therefore, that like the boot ROM switch, the TMSS security register starts off
 		//active, and is cleared when a single mapped data line disables this setting by
 		//writing a value of 1 to it. This needs testing on the hardware.
-		vdpLockoutActive = !data.GetBit(0);
+		_vdpLockoutActive = !data.GetBit(0);
 		break;
 	case MemoryInterface::TMSSBootROMSwitch:
 		//##TODO## Perform hardware tests to determine exactly which addresses this
 		//register is accessible from.
-		bootROMEnabled = !data.GetBit(0);
+		_bootROMEnabled = !data.GetBit(0);
 		break;
 	}
 	return accessResult;
@@ -615,18 +615,18 @@ IBusInterface::AccessResult MDBusArbiter::WriteInterface(unsigned int interfaceN
 //----------------------------------------------------------------------------------------
 bool MDBusArbiter::ReadZ80ToM68000(unsigned int m68kMemoryAccessLocation, Data& m68kBusData, IDeviceContext* caller, double accessTime, unsigned int accessContext, IBusInterface::AccessResult& m68kBusAccessResult, double& executionTime)
 {
-	std::unique_lock<std::mutex> lock(lineMutex);
+	std::unique_lock<std::mutex> lock(_lineMutex);
 
 	//Set the initial access time for this memory operation
 	double accessTimeCurrent = accessTime;
 
 	//1. If the VDP is currently requesting the bus, wait until it is finished, IE, until
 	//   BR is not asserted. (possible infinite delay)
-	if(m68kBusRequestLineState)
+	if(_m68kBusRequestLineState)
 	{
 		lock.unlock();
-		m68kBusRequestLineStateChangeTimeLatchEnable = true;
-		if(!m68kMemoryBus->AdvanceToLineState((unsigned int)LineID::BR, Data(1, 0), GetDeviceContext(), caller, accessTimeCurrent, accessContext))
+		_m68kBusRequestLineStateChangeTimeLatchEnable = true;
+		if(!_m68kMemoryBus->AdvanceToLineState((unsigned int)LineID::BR, Data(1, 0), GetDeviceContext(), caller, accessTimeCurrent, accessContext))
 		{
 			m68kBusAccessResult.unpredictableBusDelay = true;
 			return false;
@@ -638,17 +638,17 @@ bool MDBusArbiter::ReadZ80ToM68000(unsigned int m68kMemoryAccessLocation, Data& 
 			//we need to trigger an assert.
 			return false;
 		}
-		m68kBusRequestLineStateChangeTimeLatchEnable = false;
+		_m68kBusRequestLineStateChangeTimeLatchEnable = false;
 		lock.lock();
 	}
 
 	//2. If the M68K is still in the process of re-acquiring the bus, wait until it is
 	//   complete, IE, until BG is not asserted. (possible infinite delay)
-	if(m68kBusGrantLineState)
+	if(_m68kBusGrantLineState)
 	{
 		lock.unlock();
-		m68kBusGrantLineStateChangeTimeLatchEnable = true;
-		if(!m68kMemoryBus->AdvanceToLineState((unsigned int)LineID::BG, Data(1, 0), GetDeviceContext(), caller, accessTimeCurrent, accessContext))
+		_m68kBusGrantLineStateChangeTimeLatchEnable = true;
+		if(!_m68kMemoryBus->AdvanceToLineState((unsigned int)LineID::BG, Data(1, 0), GetDeviceContext(), caller, accessTimeCurrent, accessContext))
 		{
 			m68kBusAccessResult.unpredictableBusDelay = true;
 			return false;
@@ -660,21 +660,21 @@ bool MDBusArbiter::ReadZ80ToM68000(unsigned int m68kMemoryAccessLocation, Data& 
 			//we need to trigger an assert.
 			return false;
 		}
-		m68kBusGrantLineStateChangeTimeLatchEnable = false;
+		_m68kBusGrantLineStateChangeTimeLatchEnable = false;
 		lock.lock();
 	}
 
 	//3. Assert BR
 	lock.unlock();
-	m68kMemoryBus->SetLineState((unsigned int)LineID::BR, Data(1, 1), GetDeviceContext(), caller, accessTimeCurrent, accessContext);
+	_m68kMemoryBus->SetLineState((unsigned int)LineID::BR, Data(1, 1), GetDeviceContext(), caller, accessTimeCurrent, accessContext);
 	lock.lock();
 
 	//4. Wait for BG to be set (possible infinite delay)
-	if(!m68kBusGrantLineState)
+	if(!_m68kBusGrantLineState)
 	{
 		lock.unlock();
-		m68kBusGrantLineStateChangeTimeLatchEnable = true;
-		if(!m68kMemoryBus->AdvanceToLineState((unsigned int)LineID::BG, Data(1, 1), GetDeviceContext(), caller, accessTimeCurrent, accessContext))
+		_m68kBusGrantLineStateChangeTimeLatchEnable = true;
+		if(!_m68kMemoryBus->AdvanceToLineState((unsigned int)LineID::BG, Data(1, 1), GetDeviceContext(), caller, accessTimeCurrent, accessContext))
 		{
 			m68kBusAccessResult.unpredictableBusDelay = true;
 			return false;
@@ -686,7 +686,7 @@ bool MDBusArbiter::ReadZ80ToM68000(unsigned int m68kMemoryAccessLocation, Data& 
 			//we need to trigger an assert.
 			return false;
 		}
-		m68kBusGrantLineStateChangeTimeLatchEnable = false;
+		_m68kBusGrantLineStateChangeTimeLatchEnable = false;
 		lock.lock();
 	}
 
@@ -694,11 +694,11 @@ bool MDBusArbiter::ReadZ80ToM68000(unsigned int m68kMemoryAccessLocation, Data& 
 	lock.unlock();
 
 	//5. Perform the operation
-	m68kBusAccessResult = m68kMemoryBus->ReadMemory(m68kMemoryAccessLocation, m68kBusData, caller, accessTimeCurrent, accessContext);
+	m68kBusAccessResult = _m68kMemoryBus->ReadMemory(m68kMemoryAccessLocation, m68kBusData, caller, accessTimeCurrent, accessContext);
 	accessTimeCurrent += m68kBusAccessResult.executionTime;
 
 	//6. Negate BR
-	m68kMemoryBus->SetLineState((unsigned int)LineID::BR, Data(1, 0), GetDeviceContext(), caller, accessTimeCurrent, accessContext);
+	_m68kMemoryBus->SetLineState((unsigned int)LineID::BR, Data(1, 0), GetDeviceContext(), caller, accessTimeCurrent, accessContext);
 
 	//Calculate the total execution time for the operation
 	executionTime = accessTimeCurrent - accessTime;
@@ -709,18 +709,18 @@ bool MDBusArbiter::ReadZ80ToM68000(unsigned int m68kMemoryAccessLocation, Data& 
 //----------------------------------------------------------------------------------------
 bool MDBusArbiter::WriteZ80ToM68000(unsigned int m68kMemoryAccessLocation, Data m68kBusData, IDeviceContext* caller, double accessTime, unsigned int accessContext, IBusInterface::AccessResult& m68kBusAccessResult, double& executionTime)
 {
-	std::unique_lock<std::mutex> lock(lineMutex);
+	std::unique_lock<std::mutex> lock(_lineMutex);
 
 	//Set the initial access time for this memory operation
 	double accessTimeCurrent = accessTime;
 
 	//1. If the VDP is currently requesting the bus, wait until it is finished, IE, until
 	//   BR is not asserted. (possible infinite delay)
-	if(m68kBusRequestLineState)
+	if(_m68kBusRequestLineState)
 	{
 		lock.unlock();
-		m68kBusRequestLineStateChangeTimeLatchEnable = true;
-		if(!m68kMemoryBus->AdvanceToLineState((unsigned int)LineID::BR, Data(1, 0), GetDeviceContext(), caller, accessTimeCurrent, accessContext))
+		_m68kBusRequestLineStateChangeTimeLatchEnable = true;
+		if(!_m68kMemoryBus->AdvanceToLineState((unsigned int)LineID::BR, Data(1, 0), GetDeviceContext(), caller, accessTimeCurrent, accessContext))
 		{
 			m68kBusAccessResult.unpredictableBusDelay = true;
 			return false;
@@ -732,17 +732,17 @@ bool MDBusArbiter::WriteZ80ToM68000(unsigned int m68kMemoryAccessLocation, Data 
 			//we need to trigger an assert.
 			return false;
 		}
-		m68kBusRequestLineStateChangeTimeLatchEnable = false;
+		_m68kBusRequestLineStateChangeTimeLatchEnable = false;
 		lock.lock();
 	}
 
 	//2. If the M68K is still in the process of re-acquiring the bus, wait until it is
 	//   complete, IE, until BG is not asserted. (possible infinite delay)
-	if(m68kBusGrantLineState)
+	if(_m68kBusGrantLineState)
 	{
 		lock.unlock();
-		m68kBusGrantLineStateChangeTimeLatchEnable = true;
-		if(!m68kMemoryBus->AdvanceToLineState((unsigned int)LineID::BG, Data(1, 0), GetDeviceContext(), caller, accessTimeCurrent, accessContext))
+		_m68kBusGrantLineStateChangeTimeLatchEnable = true;
+		if(!_m68kMemoryBus->AdvanceToLineState((unsigned int)LineID::BG, Data(1, 0), GetDeviceContext(), caller, accessTimeCurrent, accessContext))
 		{
 			m68kBusAccessResult.unpredictableBusDelay = true;
 			return false;
@@ -754,21 +754,21 @@ bool MDBusArbiter::WriteZ80ToM68000(unsigned int m68kMemoryAccessLocation, Data 
 			//we need to trigger an assert.
 			return false;
 		}
-		m68kBusGrantLineStateChangeTimeLatchEnable = false;
+		_m68kBusGrantLineStateChangeTimeLatchEnable = false;
 		lock.lock();
 	}
 
 	//3. Assert BR
 	lock.unlock();
-	m68kMemoryBus->SetLineState((unsigned int)LineID::BR, Data(1, 1), GetDeviceContext(), caller, accessTimeCurrent, accessContext);
+	_m68kMemoryBus->SetLineState((unsigned int)LineID::BR, Data(1, 1), GetDeviceContext(), caller, accessTimeCurrent, accessContext);
 	lock.lock();
 
 	//4. Wait for BG to be set (possible infinite delay)
-	if(!m68kBusGrantLineState)
+	if(!_m68kBusGrantLineState)
 	{
 		lock.unlock();
-		m68kBusGrantLineStateChangeTimeLatchEnable = true;
-		if(!m68kMemoryBus->AdvanceToLineState((unsigned int)LineID::BG, Data(1, 1), GetDeviceContext(), caller, accessTimeCurrent, accessContext))
+		_m68kBusGrantLineStateChangeTimeLatchEnable = true;
+		if(!_m68kMemoryBus->AdvanceToLineState((unsigned int)LineID::BG, Data(1, 1), GetDeviceContext(), caller, accessTimeCurrent, accessContext))
 		{
 			m68kBusAccessResult.unpredictableBusDelay = true;
 			return false;
@@ -780,7 +780,7 @@ bool MDBusArbiter::WriteZ80ToM68000(unsigned int m68kMemoryAccessLocation, Data 
 			//we need to trigger an assert.
 			return false;
 		}
-		m68kBusGrantLineStateChangeTimeLatchEnable = false;
+		_m68kBusGrantLineStateChangeTimeLatchEnable = false;
 		lock.lock();
 	}
 
@@ -788,11 +788,11 @@ bool MDBusArbiter::WriteZ80ToM68000(unsigned int m68kMemoryAccessLocation, Data 
 	lock.unlock();
 
 	//5. Perform the operation
-	m68kBusAccessResult = m68kMemoryBus->WriteMemory(m68kMemoryAccessLocation, m68kBusData, caller, accessTimeCurrent, accessContext);
+	m68kBusAccessResult = _m68kMemoryBus->WriteMemory(m68kMemoryAccessLocation, m68kBusData, caller, accessTimeCurrent, accessContext);
 	accessTimeCurrent += m68kBusAccessResult.executionTime;
 
 	//6. Negate BR
-	m68kMemoryBus->SetLineState((unsigned int)LineID::BR, Data(1, 0), GetDeviceContext(), caller, accessTimeCurrent, accessContext);
+	_m68kMemoryBus->SetLineState((unsigned int)LineID::BR, Data(1, 0), GetDeviceContext(), caller, accessTimeCurrent, accessContext);
 
 	//Calculate the total execution time for the operation
 	executionTime = accessTimeCurrent - accessTime;
@@ -878,16 +878,16 @@ void MDBusArbiter::SetCELineInput(unsigned int lineID, bool lineMapped, unsigned
 	switch((CELineID)lineID)
 	{
 	case CELineID::RW:
-		ceLineMaskReadHighWriteLow = !lineMapped? 0: 1 << lineStartBitNumber;
+		_ceLineMaskReadHighWriteLow = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
 	case CELineID::OE0:
-		ceLineMaskOE0 = !lineMapped? 0: 1 << lineStartBitNumber;
+		_ceLineMaskOE0 = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
 	case CELineID::UDS:
-		ceLineMaskUDS = !lineMapped? 0: 1 << lineStartBitNumber;
+		_ceLineMaskUDS = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
 	case CELineID::LDS:
-		ceLineMaskLDS = !lineMapped? 0: 1 << lineStartBitNumber;
+		_ceLineMaskLDS = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
 	}
 }
@@ -898,40 +898,40 @@ void MDBusArbiter::SetCELineOutput(unsigned int lineID, bool lineMapped, unsigne
 	switch((CELineID)lineID)
 	{
 	case CELineID::CE0:
-		ceLineMaskCE0 = !lineMapped? 0: 1 << lineStartBitNumber;
+		_ceLineMaskCE0 = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
 	case CELineID::BootROM:
-		ceLineMaskBootROM = !lineMapped? 0: 1 << lineStartBitNumber;
+		_ceLineMaskBootROM = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
 	case CELineID::ROM:
-		ceLineMaskROM = !lineMapped? 0: 1 << lineStartBitNumber;
+		_ceLineMaskROM = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
 	case CELineID::ASEL:
-		ceLineMaskASEL = !lineMapped? 0: 1 << lineStartBitNumber;
+		_ceLineMaskASEL = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
 	case CELineID::FDC:
-		ceLineMaskFDC = !lineMapped? 0: 1 << lineStartBitNumber;
+		_ceLineMaskFDC = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
 	case CELineID::FDWR:
-		ceLineMaskFDWR = !lineMapped? 0: 1 << lineStartBitNumber;
+		_ceLineMaskFDWR = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
 	case CELineID::TIME:
-		ceLineMaskTIME = !lineMapped? 0: 1 << lineStartBitNumber;
+		_ceLineMaskTIME = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
 	case CELineID::IO:
-		ceLineMaskIO = !lineMapped? 0: 1 << lineStartBitNumber;
+		_ceLineMaskIO = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
 	case CELineID::EOE:
-		ceLineMaskEOE = !lineMapped? 0: 1 << lineStartBitNumber;
+		_ceLineMaskEOE = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
 	case CELineID::NOE:
-		ceLineMaskNOE = !lineMapped? 0: 1 << lineStartBitNumber;
+		_ceLineMaskNOE = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
 	case CELineID::ZRAM:
-		ceLineMaskZRAM = !lineMapped? 0: 1 << lineStartBitNumber;
+		_ceLineMaskZRAM = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
 	case CELineID::SOUND:
-		ceLineMaskSOUND = !lineMapped? 0: 1 << lineStartBitNumber;
+		_ceLineMaskSOUND = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
 	}
 }
@@ -940,15 +940,15 @@ void MDBusArbiter::SetCELineOutput(unsigned int lineID, bool lineMapped, unsigne
 unsigned int MDBusArbiter::CalculateCELineStateMemory(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext, double accessTime) const
 {
 	unsigned int result = 0;
-	if(sourceBusInterface == m68kMemoryBus)
+	if(sourceBusInterface == _m68kMemoryBus)
 	{
-		bool operationIsWrite = (currentCELineState & ceLineMaskReadHighWriteLow) == 0;
-		bool ceLineUDS = (currentCELineState & ceLineMaskUDS) != 0;
-		bool ceLineLDS = (currentCELineState & ceLineMaskLDS) != 0;
-		bool ceLineOE0 = (currentCELineState & ceLineMaskOE0) != 0;
-		result = BuildCELineM68K(location, operationIsWrite, ceLineUDS, ceLineLDS, ceLineOE0, cartInLineState, caller, accessTime);
+		bool operationIsWrite = (currentCELineState & _ceLineMaskReadHighWriteLow) == 0;
+		bool ceLineUDS = (currentCELineState & _ceLineMaskUDS) != 0;
+		bool ceLineLDS = (currentCELineState & _ceLineMaskLDS) != 0;
+		bool ceLineOE0 = (currentCELineState & _ceLineMaskOE0) != 0;
+		result = BuildCELineM68K(location, operationIsWrite, ceLineUDS, ceLineLDS, ceLineOE0, _cartInLineState, caller, accessTime);
 	}
-	else if(sourceBusInterface == z80MemoryBus)
+	else if(sourceBusInterface == _z80MemoryBus)
 	{
 		result = BuildCELineZ80(location);
 	}
@@ -974,7 +974,7 @@ unsigned int MDBusArbiter::BuildCELineM68K(unsigned int targetAddress, bool writ
 	//combination.
 
 	//Calculate the state of all the various CE lines
-	bool lineBootROM = cartInLineAsserted && bootROMEnabled && activateBootROM && (targetAddress <= 0x3FFFFF);
+	bool lineBootROM = cartInLineAsserted && _bootROMEnabled && _activateBootROM && (targetAddress <= 0x3FFFFF);
 	bool lineCE0 = cartInLineAsserted? !lineBootROM && (targetAddress <= 0x3FFFFF): (targetAddress >= 0x400000) && (targetAddress <= 0x7FFFFF);
 	bool lineROM = !cartInLineAsserted? (targetAddress <= 0x1FFFFF): (targetAddress >= 0x400000) && (targetAddress <= 0x5FFFFF);
 	bool lineASEL = !lineBootROM && (targetAddress <= 0x7FFFFF);
@@ -991,26 +991,26 @@ unsigned int MDBusArbiter::BuildCELineM68K(unsigned int targetAddress, bool writ
 
 	//Build the actual CE line state based on the asserted CE lines
 	unsigned int ceLineState = 0;
-	ceLineState |= lineCE0? ceLineMaskCE0: 0x0;
-	ceLineState |= lineBootROM? ceLineMaskBootROM: 0x0;
-	ceLineState |= lineROM? ceLineMaskROM: 0x0;
-	ceLineState |= lineASEL? ceLineMaskASEL: 0x0;
-	ceLineState |= lineFDC? ceLineMaskFDC: 0x0;
-	ceLineState |= lineFDWR? ceLineMaskFDWR: 0x0;
-	ceLineState |= lineTIME? ceLineMaskTIME: 0x0;
-	ceLineState |= lineIO? ceLineMaskIO: 0x0;
-	ceLineState |= lineEOE? ceLineMaskEOE: 0x0;
-	ceLineState |= lineNOE? ceLineMaskNOE: 0x0;
+	ceLineState |= lineCE0? _ceLineMaskCE0: 0x0;
+	ceLineState |= lineBootROM? _ceLineMaskBootROM: 0x0;
+	ceLineState |= lineROM? _ceLineMaskROM: 0x0;
+	ceLineState |= lineASEL? _ceLineMaskASEL: 0x0;
+	ceLineState |= lineFDC? _ceLineMaskFDC: 0x0;
+	ceLineState |= lineFDWR? _ceLineMaskFDWR: 0x0;
+	ceLineState |= lineTIME? _ceLineMaskTIME: 0x0;
+	ceLineState |= lineIO? _ceLineMaskIO: 0x0;
+	ceLineState |= lineEOE? _ceLineMaskEOE: 0x0;
+	ceLineState |= lineNOE? _ceLineMaskNOE: 0x0;
 
 	//If TMSS is active, and a device is attempting to access the VDP address range,
 	//assert the VRES and HALT lines. Note that according to tests performed by Charles
 	//MacDonald, this state is not cleared on a soft reset. A full power cycle is required
 	//in order to restore normal operation.
-	if(vdpLockoutActive && activateTMSS && (!activateBootROM || !bootROMEnabled) && (targetAddress >= 0xC00000) && (targetAddress <= 0xDFFFFF))
+	if(_vdpLockoutActive && _activateTMSS && (!_activateBootROM || !_bootROMEnabled) && (targetAddress >= 0xC00000) && (targetAddress <= 0xDFFFFF))
 	{
-		vdpLockoutTripped = true;
-		m68kMemoryBus->SetLineState((unsigned int)LineID::HALT, Data(1, (unsigned int)vdpLockoutTripped), GetDeviceContext(), caller, accessTime, 0);
-		m68kMemoryBus->SetLineState((unsigned int)LineID::VRES, Data(1, (unsigned int)vdpLockoutTripped), GetDeviceContext(), caller, accessTime, 0);
+		_vdpLockoutTripped = true;
+		_m68kMemoryBus->SetLineState((unsigned int)LineID::HALT, Data(1, (unsigned int)_vdpLockoutTripped), GetDeviceContext(), caller, accessTime, 0);
+		_m68kMemoryBus->SetLineState((unsigned int)LineID::VRES, Data(1, (unsigned int)_vdpLockoutTripped), GetDeviceContext(), caller, accessTime, 0);
 	}
 
 	//Return the generated CE line state
@@ -1026,8 +1026,8 @@ unsigned int MDBusArbiter::BuildCELineZ80(unsigned int targetAddress) const
 
 	//Build the actual CE line state based on the asserted CE lines
 	unsigned int ceLineState = 0;
-	ceLineState |= lineZRAM? ceLineMaskZRAM: 0x0;
-	ceLineState |= lineSOUND? ceLineMaskSOUND: 0x0;
+	ceLineState |= lineZRAM? _ceLineMaskZRAM: 0x0;
+	ceLineState |= lineSOUND? _ceLineMaskSOUND: 0x0;
 
 	//Return the generated CE line state
 	return ceLineState;
@@ -1174,7 +1174,7 @@ unsigned int MDBusArbiter::GetLineWidth(unsigned int lineID) const
 //----------------------------------------------------------------------------------------
 void MDBusArbiter::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
-	std::unique_lock<std::mutex> lock(lineMutex);
+	std::unique_lock<std::mutex> lock(_lineMutex);
 
 	//Flag that an entry exists in the buffer. This flag is used to skip the expensive
 	//locking operation in the active thread for this device when no line changes are
@@ -1182,11 +1182,11 @@ void MDBusArbiter::SetLineState(unsigned int targetLine, const Data& lineData, I
 	//the buffer, as we want to force the active thread to lock on the beginning of the
 	//next cycle while this function is executing, so that the current timeslice progress
 	//of the device doesn't change after we've read it.
-	lineAccessPending = true;
+	_lineAccessPending = true;
 
 	//Read the time at which this access is being made, and trigger a rollback if we've
 	//already passed that time.
-	if(lastLineCheckTime > accessTime)
+	if(_lastLineCheckTime > accessTime)
 	{
 		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 	}
@@ -1196,29 +1196,29 @@ void MDBusArbiter::SetLineState(unsigned int targetLine, const Data& lineData, I
 	switch((LineID)targetLine)
 	{
 	case LineID::CART:
-		cartInLineState = lineData.NonZero();
+		_cartInLineState = lineData.NonZero();
 		return;
 	case LineID::ActivateTMSS:
-		activateTMSS = lineData.NonZero();
+		_activateTMSS = lineData.NonZero();
 		return;
 	case LineID::ActivateBootROM:
-		activateBootROM = lineData.NonZero();
+		_activateBootROM = lineData.NonZero();
 		return;
 	case LineID::WRES:{
 		bool wresLineStateNew = lineData.LSB();
-		if(wresLineStateNew != wresLineState)
+		if(wresLineStateNew != _wresLineState)
 		{
 			//Determine the new line states
-			bool vresLineStateNew = wresLineStateNew | vdpLockoutTripped;
-			bool haltLineStateNew = wresLineStateNew | vdpLockoutTripped;
+			bool vresLineStateNew = wresLineStateNew | _vdpLockoutTripped;
+			bool haltLineStateNew = wresLineStateNew | _vdpLockoutTripped;
 			bool sresLineStateNew = wresLineStateNew;
-			bool z80BusResetLineStateNew = sresLineStateNew | z80BusResetLineState;
+			bool z80BusResetLineStateNew = sresLineStateNew | _z80BusResetLineState;
 
 			//Apply the new line states
-			wresLineState = wresLineStateNew;
-			vresLineState = vresLineStateNew;
-			haltLineState = haltLineStateNew;
-			sresLineState = sresLineStateNew;
+			_wresLineState = wresLineStateNew;
+			_vresLineState = vresLineStateNew;
+			_haltLineState = haltLineStateNew;
+			_sresLineState = sresLineStateNew;
 
 			//##TODO## Determine what other internal state should be cleared here, such as
 			//the Z80/M68K bus request state.
@@ -1227,46 +1227,46 @@ void MDBusArbiter::SetLineState(unsigned int targetLine, const Data& lineData, I
 			lock.unlock();
 
 			//Apply our line state changes
-			m68kMemoryBus->SetLineState((unsigned int)LineID::VRES, Data(1, (unsigned int)vresLineStateNew), GetDeviceContext(), caller, accessTime, accessContext);
-			m68kMemoryBus->SetLineState((unsigned int)LineID::HALT, Data(1, (unsigned int)haltLineStateNew), GetDeviceContext(), caller, accessTime, accessContext);
-			m68kMemoryBus->SetLineState((unsigned int)LineID::SRES, Data(1, (unsigned int)sresLineStateNew), GetDeviceContext(), caller, accessTime, accessContext);
-			z80MemoryBus->SetLineState((unsigned int)LineID::ZRES, Data(1, (unsigned int)z80BusResetLineStateNew), GetDeviceContext(), caller, accessTime, accessContext);
+			_m68kMemoryBus->SetLineState((unsigned int)LineID::VRES, Data(1, (unsigned int)vresLineStateNew), GetDeviceContext(), caller, accessTime, accessContext);
+			_m68kMemoryBus->SetLineState((unsigned int)LineID::HALT, Data(1, (unsigned int)haltLineStateNew), GetDeviceContext(), caller, accessTime, accessContext);
+			_m68kMemoryBus->SetLineState((unsigned int)LineID::SRES, Data(1, (unsigned int)sresLineStateNew), GetDeviceContext(), caller, accessTime, accessContext);
+			_z80MemoryBus->SetLineState((unsigned int)LineID::ZRES, Data(1, (unsigned int)z80BusResetLineStateNew), GetDeviceContext(), caller, accessTime, accessContext);
 		}
 		return;}
 	}
 
 	//Insert the line access into the buffer. Note that entries in the buffer are sorted
 	//by access time from lowest to highest.
-	std::list<LineAccess>::reverse_iterator i = lineAccessBuffer.rbegin();
-	while((i != lineAccessBuffer.rend()) && (i->accessTime > accessTime))
+	std::list<LineAccess>::reverse_iterator i = _lineAccessBuffer.rbegin();
+	while((i != _lineAccessBuffer.rend()) && (i->accessTime > accessTime))
 	{
 		++i;
 	}
-	lineAccessBuffer.insert(i.base(), LineAccess((LineID)targetLine, lineData, accessTime));
+	_lineAccessBuffer.insert(i.base(), LineAccess((LineID)targetLine, lineData, accessTime));
 }
 
 //----------------------------------------------------------------------------------------
 void MDBusArbiter::TransparentSetLineState(unsigned int targetLine, const Data& lineData)
 {
-	SetLineState(targetLine, lineData, 0, lastTimesliceLength, 0);
+	SetLineState(targetLine, lineData, 0, _lastTimesliceLength, 0);
 }
 
 //----------------------------------------------------------------------------------------
 void MDBusArbiter::RevokeSetLineState(unsigned int targetLine, const Data& lineData, double reportedTime, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
-	std::unique_lock<std::mutex> lock(lineMutex);
+	std::unique_lock<std::mutex> lock(_lineMutex);
 
 	//Read the time at which this access is being made, and trigger a rollback if we've
 	//already passed that time.
-	if(lastLineCheckTime > accessTime)
+	if(_lastLineCheckTime > accessTime)
 	{
 		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 	}
 
 	//Find the matching line state change entry in the line access buffer
-	std::list<LineAccess>::reverse_iterator i = lineAccessBuffer.rbegin();
+	std::list<LineAccess>::reverse_iterator i = _lineAccessBuffer.rbegin();
 	bool foundTargetEntry = false;
-	while(!foundTargetEntry && (i != lineAccessBuffer.rend()))
+	while(!foundTargetEntry && (i != _lineAccessBuffer.rend()))
 	{
 		if((i->lineID == (LineID)targetLine) && (i->state == lineData) && (i->accessTime == reportedTime))
 		{
@@ -1279,7 +1279,7 @@ void MDBusArbiter::RevokeSetLineState(unsigned int targetLine, const Data& lineD
 	//Erase the target line state change entry from the line access buffer
 	if(foundTargetEntry)
 	{
-		lineAccessBuffer.erase((++i).base());
+		_lineAccessBuffer.erase((++i).base());
 	}
 	else
 	{
@@ -1288,32 +1288,32 @@ void MDBusArbiter::RevokeSetLineState(unsigned int targetLine, const Data& lineD
 	}
 
 	//Update the lineAccessPending flag
-	lineAccessPending = !lineAccessBuffer.empty();
+	_lineAccessPending = !_lineAccessBuffer.empty();
 }
 
 //----------------------------------------------------------------------------------------
 void MDBusArbiter::AssertCurrentOutputLineState() const
 {
-	if(z80MemoryBus != 0)
+	if(_z80MemoryBus != 0)
 	{
-		if(sresLineState | z80BusResetLineState)   z80MemoryBus->SetLineState((unsigned int)LineID::ZRES, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-		if(z80BusRequestLineState) z80MemoryBus->SetLineState((unsigned int)LineID::ZBR, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-		if(vresLineState)          m68kMemoryBus->SetLineState((unsigned int)LineID::VRES, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-		if(haltLineState)          m68kMemoryBus->SetLineState((unsigned int)LineID::HALT, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-		if(sresLineState)          m68kMemoryBus->SetLineState((unsigned int)LineID::SRES, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(_sresLineState | _z80BusResetLineState)   _z80MemoryBus->SetLineState((unsigned int)LineID::ZRES, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(_z80BusRequestLineState) _z80MemoryBus->SetLineState((unsigned int)LineID::ZBR, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(_vresLineState)          _m68kMemoryBus->SetLineState((unsigned int)LineID::VRES, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(_haltLineState)          _m68kMemoryBus->SetLineState((unsigned int)LineID::HALT, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(_sresLineState)          _m68kMemoryBus->SetLineState((unsigned int)LineID::SRES, Data(1, 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
 }
 
 //----------------------------------------------------------------------------------------
 void MDBusArbiter::NegateCurrentOutputLineState() const
 {
-	if(z80MemoryBus != 0)
+	if(_z80MemoryBus != 0)
 	{
-		if(sresLineState | z80BusResetLineState)   z80MemoryBus->SetLineState((unsigned int)LineID::ZRES, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-		if(z80BusRequestLineState) z80MemoryBus->SetLineState((unsigned int)LineID::ZBR, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-		if(vresLineState)          m68kMemoryBus->SetLineState((unsigned int)LineID::VRES, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-		if(haltLineState)          m68kMemoryBus->SetLineState((unsigned int)LineID::HALT, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
-		if(sresLineState)          m68kMemoryBus->SetLineState((unsigned int)LineID::SRES, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(_sresLineState | _z80BusResetLineState)   _z80MemoryBus->SetLineState((unsigned int)LineID::ZRES, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(_z80BusRequestLineState) _z80MemoryBus->SetLineState((unsigned int)LineID::ZBR, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(_vresLineState)          _m68kMemoryBus->SetLineState((unsigned int)LineID::VRES, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(_haltLineState)          _m68kMemoryBus->SetLineState((unsigned int)LineID::HALT, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(_sresLineState)          _m68kMemoryBus->SetLineState((unsigned int)LineID::SRES, Data(1, 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
 }
 
@@ -1324,44 +1324,44 @@ void MDBusArbiter::ApplyLineStateChange(LineID targetLine, const Data& lineData,
 	switch(targetLine)
 	{
 	case LineID::BR:
-		if(m68kBusRequestLineStateChangeTimeLatchEnable && (m68kBusRequestLineState != newLineState))
+		if(_m68kBusRequestLineStateChangeTimeLatchEnable && (_m68kBusRequestLineState != newLineState))
 		{
-			m68kBusRequestLineStateChangeTimeLatch = accessTime;
-			m68kBusRequestLineStateChangeTimeLatchEnable = false;
+			_m68kBusRequestLineStateChangeTimeLatch = accessTime;
+			_m68kBusRequestLineStateChangeTimeLatchEnable = false;
 		}
-		m68kBusRequestLineState = newLineState;
+		_m68kBusRequestLineState = newLineState;
 		break;
 	case LineID::BG:
-		if(m68kBusGrantLineStateChangeTimeLatchEnable && (m68kBusGrantLineState != newLineState))
+		if(_m68kBusGrantLineStateChangeTimeLatchEnable && (_m68kBusGrantLineState != newLineState))
 		{
-			m68kBusGrantLineStateChangeTimeLatch = accessTime;
-			m68kBusGrantLineStateChangeTimeLatchEnable = false;
+			_m68kBusGrantLineStateChangeTimeLatch = accessTime;
+			_m68kBusGrantLineStateChangeTimeLatchEnable = false;
 		}
-		m68kBusGrantLineState = newLineState;
+		_m68kBusGrantLineState = newLineState;
 		break;
 	case LineID::ZBR:
-		if(z80BusRequestLineStateChangeTimeLatchEnable && (z80BusRequestLineState != newLineState))
+		if(_z80BusRequestLineStateChangeTimeLatchEnable && (_z80BusRequestLineState != newLineState))
 		{
-			z80BusRequestLineStateChangeTimeLatch = accessTime;
-			z80BusRequestLineStateChangeTimeLatchEnable = false;
+			_z80BusRequestLineStateChangeTimeLatch = accessTime;
+			_z80BusRequestLineStateChangeTimeLatchEnable = false;
 		}
-		z80BusRequestLineState = newLineState;
+		_z80BusRequestLineState = newLineState;
 		break;
 	case LineID::ZBAK:
-		if(z80BusGrantLineStateChangeTimeLatchEnable && (z80BusGrantLineState != newLineState))
+		if(_z80BusGrantLineStateChangeTimeLatchEnable && (_z80BusGrantLineState != newLineState))
 		{
-			z80BusGrantLineStateChangeTimeLatch = accessTime;
-			z80BusGrantLineStateChangeTimeLatchEnable = false;
+			_z80BusGrantLineStateChangeTimeLatch = accessTime;
+			_z80BusGrantLineStateChangeTimeLatchEnable = false;
 		}
-		z80BusGrantLineState = newLineState;
+		_z80BusGrantLineState = newLineState;
 		break;
 	case LineID::ZRES:
-		if(z80BusResetLineStateChangeTimeLatchEnable && (z80BusResetLineState != newLineState))
+		if(_z80BusResetLineStateChangeTimeLatchEnable && (_z80BusResetLineState != newLineState))
 		{
-			z80BusResetLineStateChangeTimeLatch = accessTime;
-			z80BusResetLineStateChangeTimeLatchEnable = false;
+			_z80BusResetLineStateChangeTimeLatch = accessTime;
+			_z80BusResetLineStateChangeTimeLatchEnable = false;
 		}
-		z80BusResetLineState = newLineState;
+		_z80BusResetLineState = newLineState;
 		break;
 	}
 }
@@ -1371,13 +1371,13 @@ void MDBusArbiter::ApplyPendingLineStateChanges(double accessTime)
 {
 	//If we have any pending line state changes waiting, apply any which we have now
 	//reached.
-	if(lineAccessPending)
+	if(_lineAccessPending)
 	{
-		std::unique_lock<std::mutex> lock(lineMutex);
+		std::unique_lock<std::mutex> lock(_lineMutex);
 		double currentTimesliceProgress = accessTime;
 		bool done = false;
-		std::list<LineAccess>::iterator i = lineAccessBuffer.begin();
-		while(!done && (i != lineAccessBuffer.end()))
+		std::list<LineAccess>::iterator i = _lineAccessBuffer.begin();
+		while(!done && (i != _lineAccessBuffer.end()))
 		{
 			if(i->accessTime <= currentTimesliceProgress)
 			{
@@ -1391,16 +1391,16 @@ void MDBusArbiter::ApplyPendingLineStateChanges(double accessTime)
 		}
 
 		//Clear any completed entries from the list
-		lineAccessBuffer.erase(lineAccessBuffer.begin(), i);
-		lineAccessPending = !lineAccessBuffer.empty();
+		_lineAccessBuffer.erase(_lineAccessBuffer.begin(), i);
+		_lineAccessPending = !_lineAccessBuffer.empty();
 	}
-	lastLineCheckTime = accessTime;
+	_lastLineCheckTime = accessTime;
 }
 
 //----------------------------------------------------------------------------------------
 bool MDBusArbiter::AdvanceUntilPendingLineStateChangeApplied(IDeviceContext* caller, double accessTime, unsigned int accessContext, LineID targetLine, Data targetLineState, double& lineStateReachedTime)
 {
-	std::unique_lock<std::mutex> lock(lineMutex);
+	std::unique_lock<std::mutex> lock(_lineMutex);
 
 	//If the target line is currently sitting on the requested line state, return true.
 	//##TODO## Update this comment
@@ -1408,24 +1408,24 @@ bool MDBusArbiter::AdvanceUntilPendingLineStateChangeApplied(IDeviceContext* cal
 	switch(targetLine)
 	{
 	case LineID::BR:
-		targetLineCurrentlyMatchesState = (m68kBusRequestLineState == targetLineState.NonZero());
+		targetLineCurrentlyMatchesState = (_m68kBusRequestLineState == targetLineState.NonZero());
 		if(targetLineCurrentlyMatchesState)
 		{
-			lineStateReachedTime = m68kBusRequestLineStateChangeTimeLatch;
+			lineStateReachedTime = _m68kBusRequestLineStateChangeTimeLatch;
 		}
 		break;
 	case LineID::BG:
-		targetLineCurrentlyMatchesState = (m68kBusGrantLineState == targetLineState.NonZero());
+		targetLineCurrentlyMatchesState = (_m68kBusGrantLineState == targetLineState.NonZero());
 		if(targetLineCurrentlyMatchesState)
 		{
-			lineStateReachedTime = m68kBusGrantLineStateChangeTimeLatch;
+			lineStateReachedTime = _m68kBusGrantLineStateChangeTimeLatch;
 		}
 		break;
 	case LineID::ZBAK:
-		targetLineCurrentlyMatchesState = (z80BusGrantLineState == targetLineState.NonZero());
+		targetLineCurrentlyMatchesState = (_z80BusGrantLineState == targetLineState.NonZero());
 		if(targetLineCurrentlyMatchesState)
 		{
-			lineStateReachedTime = z80BusGrantLineStateChangeTimeLatch;
+			lineStateReachedTime = _z80BusGrantLineStateChangeTimeLatch;
 		}
 		break;
 	}
@@ -1437,8 +1437,8 @@ bool MDBusArbiter::AdvanceUntilPendingLineStateChangeApplied(IDeviceContext* cal
 	//If we don't have a pending line state change in the buffer which matches the target
 	//line and state, return false.
 	bool foundTargetStateChange = false;
-	std::list<LineAccess>::iterator i = lineAccessBuffer.begin();
-	while(!foundTargetStateChange && (i != lineAccessBuffer.end()))
+	std::list<LineAccess>::iterator i = _lineAccessBuffer.begin();
+	while(!foundTargetStateChange && (i != _lineAccessBuffer.end()))
 	{
 		foundTargetStateChange = ((i->lineID == targetLine) && (i->state == targetLineState));
 		++i;
@@ -1450,8 +1450,8 @@ bool MDBusArbiter::AdvanceUntilPendingLineStateChangeApplied(IDeviceContext* cal
 
 	//Advance the line state buffer until the target line state change is applied
 	bool targetLineStateReached = false;
-	i = lineAccessBuffer.begin();
-	while(!targetLineStateReached && (i != lineAccessBuffer.end()))
+	i = _lineAccessBuffer.begin();
+	while(!targetLineStateReached && (i != _lineAccessBuffer.end()))
 	{
 		ApplyLineStateChange(i->lineID, i->state, i->accessTime);
 		targetLineStateReached = ((i->lineID == targetLine) && (i->state == targetLineState));
@@ -1460,8 +1460,8 @@ bool MDBusArbiter::AdvanceUntilPendingLineStateChangeApplied(IDeviceContext* cal
 	}
 
 	//Clear any completed entries from the list
-	lineAccessBuffer.erase(lineAccessBuffer.begin(), i);
-	lineAccessPending = !lineAccessBuffer.empty();
+	_lineAccessBuffer.erase(_lineAccessBuffer.begin(), i);
+	_lineAccessPending = !_lineAccessBuffer.empty();
 
 	//Return the result of the advance operation. If the logic of our above implementation
 	//is correct, we should always return true at this point, since failure cases were
@@ -1479,84 +1479,84 @@ void MDBusArbiter::LoadState(IHierarchicalStorageNode& node)
 	{
 		if((*i)->GetName() == L"ActivateTMSS")
 		{
-			activateTMSS = (*i)->ExtractData<bool>();
+			_activateTMSS = (*i)->ExtractData<bool>();
 		}
 		else if((*i)->GetName() == L"ActivateBootROM")
 		{
-			activateBootROM = (*i)->ExtractData<bool>();
+			_activateBootROM = (*i)->ExtractData<bool>();
 		}
 		else if((*i)->GetName() == L"BootROMEnabled")
 		{
-			bootROMEnabled = (*i)->ExtractData<bool>();
+			_bootROMEnabled = (*i)->ExtractData<bool>();
 		}
 		else if((*i)->GetName() == L"VDPLockoutActive")
 		{
-			vdpLockoutActive = (*i)->ExtractData<bool>();
+			_vdpLockoutActive = (*i)->ExtractData<bool>();
 		}
 		else if((*i)->GetName() == L"VDPLockoutTripped")
 		{
-			vdpLockoutTripped = (*i)->ExtractData<bool>();
+			_vdpLockoutTripped = (*i)->ExtractData<bool>();
 		}
 		else if((*i)->GetName() == L"Z80BankswitchDataCurrent")
 		{
-			z80BankswitchDataCurrent = (*i)->ExtractHexData<unsigned int>();
+			_z80BankswitchDataCurrent = (*i)->ExtractHexData<unsigned int>();
 		}
 		else if((*i)->GetName() == L"Z80BankswitchDataNew")
 		{
-			z80BankswitchDataNew = (*i)->ExtractHexData<unsigned int>();
+			_z80BankswitchDataNew = (*i)->ExtractHexData<unsigned int>();
 		}
 		else if((*i)->GetName() == L"Z80BankswitchBitsWritten")
 		{
-			z80BankswitchBitsWritten = (*i)->ExtractData<unsigned int>();
+			_z80BankswitchBitsWritten = (*i)->ExtractData<unsigned int>();
 		}
 		else if((*i)->GetName() == L"CartInLineState")
 		{
-			cartInLineState = (*i)->ExtractData<bool>();
+			_cartInLineState = (*i)->ExtractData<bool>();
 		}
 		else if((*i)->GetName() == L"Z80BusRequestLineState")
 		{
-			z80BusRequestLineState = (*i)->ExtractData<bool>();
+			_z80BusRequestLineState = (*i)->ExtractData<bool>();
 		}
 		else if((*i)->GetName() == L"Z80BusGrantLineState")
 		{
-			z80BusGrantLineState = (*i)->ExtractData<bool>();
+			_z80BusGrantLineState = (*i)->ExtractData<bool>();
 		}
 		else if((*i)->GetName() == L"Z80BusResetLineState")
 		{
-			z80BusResetLineState = (*i)->ExtractData<bool>();
+			_z80BusResetLineState = (*i)->ExtractData<bool>();
 		}
 		else if((*i)->GetName() == L"M68KBusRequestLineState")
 		{
-			m68kBusRequestLineState = (*i)->ExtractData<bool>();
+			_m68kBusRequestLineState = (*i)->ExtractData<bool>();
 		}
 		else if((*i)->GetName() == L"M68KBusGrantLineState")
 		{
-			m68kBusGrantLineState = (*i)->ExtractData<bool>();
+			_m68kBusGrantLineState = (*i)->ExtractData<bool>();
 		}
 		else if((*i)->GetName() == L"VRESLineState")
 		{
-			vresLineState = (*i)->ExtractData<bool>();
+			_vresLineState = (*i)->ExtractData<bool>();
 		}
 		else if((*i)->GetName() == L"HALTLineState")
 		{
-			haltLineState = (*i)->ExtractData<bool>();
+			_haltLineState = (*i)->ExtractData<bool>();
 		}
 		else if((*i)->GetName() == L"SRESLineState")
 		{
-			sresLineState = (*i)->ExtractData<bool>();
+			_sresLineState = (*i)->ExtractData<bool>();
 		}
 		else if((*i)->GetName() == L"WRESLineState")
 		{
-			wresLineState = (*i)->ExtractData<bool>();
+			_wresLineState = (*i)->ExtractData<bool>();
 		}
 		else if((*i)->GetName() == L"LastTimesliceLength")
 		{
-			lastTimesliceLength = (*i)->ExtractData<bool>();
+			_lastTimesliceLength = (*i)->ExtractData<bool>();
 		}
 		//Restore the lineAccessBuffer state
 		else if((*i)->GetName() == L"LineAccessBuffer")
 		{
-			lineAccessBuffer.clear();
+			_lineAccessBuffer.clear();
 			IHierarchicalStorageNode& lineAccessBufferNode = *(*i);
 			std::list<IHierarchicalStorageNode*> lineAccessBufferChildList = lineAccessBufferNode.GetChildList();
 			for(std::list<IHierarchicalStorageNode*>::iterator lineAccessBufferEntry = lineAccessBufferChildList.begin(); lineAccessBufferEntry != lineAccessBufferChildList.end(); ++lineAccessBufferEntry)
@@ -1580,17 +1580,17 @@ void MDBusArbiter::LoadState(IHierarchicalStorageNode& node)
 
 							//Find the correct location in the list to insert the entry. The
 							//list must be sorted from earliest to latest.
-							std::list<LineAccess>::reverse_iterator j = lineAccessBuffer.rbegin();
-							while((j != lineAccessBuffer.rend()) && (j->accessTime > lineAccess.accessTime))
+							std::list<LineAccess>::reverse_iterator j = _lineAccessBuffer.rbegin();
+							while((j != _lineAccessBuffer.rend()) && (j->accessTime > lineAccess.accessTime))
 							{
 								++j;
 							}
-							lineAccessBuffer.insert(j.base(), lineAccess);
+							_lineAccessBuffer.insert(j.base(), lineAccess);
 						}
 					}
 				}
 			}
-			lineAccessPending = !lineAccessBuffer.empty();
+			_lineAccessPending = !_lineAccessBuffer.empty();
 		}
 	}
 }
@@ -1598,31 +1598,31 @@ void MDBusArbiter::LoadState(IHierarchicalStorageNode& node)
 //----------------------------------------------------------------------------------------
 void MDBusArbiter::SaveState(IHierarchicalStorageNode& node) const
 {
-	node.CreateChild(L"ActivateTMSS", activateTMSS);
-	node.CreateChild(L"ActivateBootROM", activateBootROM);
-	node.CreateChild(L"BootROMEnabled", bootROMEnabled);
-	node.CreateChild(L"VDPLockoutActive", vdpLockoutActive);
-	node.CreateChild(L"VDPLockoutTripped", vdpLockoutTripped);
-	node.CreateChildHex(L"Z80BankswitchDataCurrent", z80BankswitchDataCurrent.GetData(), z80BankswitchDataCurrent.GetHexCharCount());
-	node.CreateChildHex(L"Z80BankswitchDataNew", z80BankswitchDataNew.GetData(), z80BankswitchDataNew.GetHexCharCount());
-	node.CreateChild(L"Z80BankswitchBitsWritten", z80BankswitchBitsWritten);
-	node.CreateChild(L"CartInLineState", cartInLineState);
-	node.CreateChild(L"Z80BusRequestLineState", z80BusRequestLineState);
-	node.CreateChild(L"Z80BusGrantLineState", z80BusGrantLineState);
-	node.CreateChild(L"Z80BusResetLineState", z80BusResetLineState);
-	node.CreateChild(L"M68KBusRequestLineState", m68kBusRequestLineState);
-	node.CreateChild(L"M68KBusGrantLineState", m68kBusGrantLineState);
-	node.CreateChild(L"VRESLineState", vresLineState);
-	node.CreateChild(L"HALTLineState", haltLineState);
-	node.CreateChild(L"SRESLineState", sresLineState);
-	node.CreateChild(L"WRESLineState", wresLineState);
-	node.CreateChild(L"LastTimesliceLength", lastTimesliceLength);
+	node.CreateChild(L"ActivateTMSS", _activateTMSS);
+	node.CreateChild(L"ActivateBootROM", _activateBootROM);
+	node.CreateChild(L"BootROMEnabled", _bootROMEnabled);
+	node.CreateChild(L"VDPLockoutActive", _vdpLockoutActive);
+	node.CreateChild(L"VDPLockoutTripped", _vdpLockoutTripped);
+	node.CreateChildHex(L"Z80BankswitchDataCurrent", _z80BankswitchDataCurrent.GetData(), _z80BankswitchDataCurrent.GetHexCharCount());
+	node.CreateChildHex(L"Z80BankswitchDataNew", _z80BankswitchDataNew.GetData(), _z80BankswitchDataNew.GetHexCharCount());
+	node.CreateChild(L"Z80BankswitchBitsWritten", _z80BankswitchBitsWritten);
+	node.CreateChild(L"CartInLineState", _cartInLineState);
+	node.CreateChild(L"Z80BusRequestLineState", _z80BusRequestLineState);
+	node.CreateChild(L"Z80BusGrantLineState", _z80BusGrantLineState);
+	node.CreateChild(L"Z80BusResetLineState", _z80BusResetLineState);
+	node.CreateChild(L"M68KBusRequestLineState", _m68kBusRequestLineState);
+	node.CreateChild(L"M68KBusGrantLineState", _m68kBusGrantLineState);
+	node.CreateChild(L"VRESLineState", _vresLineState);
+	node.CreateChild(L"HALTLineState", _haltLineState);
+	node.CreateChild(L"SRESLineState", _sresLineState);
+	node.CreateChild(L"WRESLineState", _wresLineState);
+	node.CreateChild(L"LastTimesliceLength", _lastTimesliceLength);
 
 	//Save the lineAccessBuffer state
-	if(lineAccessPending)
+	if(_lineAccessPending)
 	{
 		IHierarchicalStorageNode& lineAccessState = node.CreateChild(L"LineAccessBuffer");
-		for(std::list<LineAccess>::const_iterator i = lineAccessBuffer.begin(); i != lineAccessBuffer.end(); ++i)
+		for(std::list<LineAccess>::const_iterator i = _lineAccessBuffer.begin(); i != _lineAccessBuffer.end(); ++i)
 		{
 			IHierarchicalStorageNode& lineAccessEntry = lineAccessState.CreateChild(L"LineAccess");
 			lineAccessEntry.CreateAttribute(L"LineName", GetLineName((unsigned int)i->lineID));

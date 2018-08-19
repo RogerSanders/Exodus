@@ -54,27 +54,27 @@ template<class T> void IHierarchicalStorageAttribute::ExtractHexValue(T& target)
 //----------------------------------------------------------------------------------------
 //Value write functions
 //----------------------------------------------------------------------------------------
-template<class T> void IHierarchicalStorageAttribute::SetValue(const T& adata)
+template<class T> void IHierarchicalStorageAttribute::SetValue(const T& data)
 {
 	ResetInternalStreamPosition();
 	EmptyInternalStream();
 	Stream::IStream& buffer = GetInternalStream();
 	Stream::ViewText bufferView(buffer);
-	bufferView << adata;
+	bufferView << data;
 }
 
 //----------------------------------------------------------------------------------------
-template<class T> void IHierarchicalStorageAttribute::InsertValue(const T& adata)
+template<class T> void IHierarchicalStorageAttribute::InsertValue(const T& data)
 {
 	Stream::IStream& buffer = GetInternalStream();
 	Stream::ViewText bufferView(buffer);
-	bufferView << adata;
+	bufferView << data;
 }
 
 //----------------------------------------------------------------------------------------
-template<class T> void IHierarchicalStorageAttribute::InsertHexValue(const T& adata, unsigned int length)
+template<class T> void IHierarchicalStorageAttribute::InsertHexValue(const T& data, unsigned int length)
 {
 	Stream::IStream& buffer = GetInternalStream();
 	Stream::ViewText bufferView(buffer);
-	bufferView << Stream::Hex(length) << adata;
+	bufferView << Stream::Hex(length) << data;
 }

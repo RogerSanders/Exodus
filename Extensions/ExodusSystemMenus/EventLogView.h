@@ -8,7 +8,7 @@ class EventLogView :public ViewBase
 {
 public:
 	//Constructors
-	EventLogView(IUIManager& auiManager, EventLogViewPresenter& apresenter, ISystemGUIInterface& amodel);
+	EventLogView(IUIManager& uiManager, EventLogViewPresenter& presenter, ISystemGUIInterface& model);
 
 protected:
 	//Member window procedure
@@ -31,19 +31,19 @@ private:
 	INT_PTR msgPanelWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam);
 
 private:
-	EventLogViewPresenter& presenter;
-	ISystemGUIInterface& model;
-	HFONT fontHandle;
-	HWND hwndLayoutGrid;
-	HWND hwndEventLogGrid;
-	HWND hwndNestedDialog;
-	bool loggerLevel1Enabled;
-	bool loggerLevel2Enabled;
-	bool loggerLevel3Enabled;
-	bool loggerLevel4Enabled;
-	bool loggerLevel5Enabled;
-	unsigned int logLastModifiedToken;
-	std::vector<ISystemGUIInterface::SystemLogEntry> eventLog;
+	EventLogViewPresenter& _presenter;
+	ISystemGUIInterface& _model;
+	HFONT _fontHandle;
+	HWND _hwndLayoutGrid;
+	HWND _hwndEventLogGrid;
+	HWND _hwndNestedDialog;
+	bool _loggerLevel1Enabled;
+	bool _loggerLevel2Enabled;
+	bool _loggerLevel3Enabled;
+	bool _loggerLevel4Enabled;
+	bool _loggerLevel5Enabled;
+	unsigned int _logLastModifiedToken;
+	std::vector<ISystemGUIInterface::SystemLogEntry> _eventLog;
 };
 
 #endif

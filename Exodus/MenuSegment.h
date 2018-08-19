@@ -7,7 +7,7 @@ class MenuSegment :public IMenuSegment
 {
 public:
 	//Constructors
-	MenuSegment(bool asurroundWithSeparators, SortMode asortMode);
+	MenuSegment(bool surroundWithSeparators, SortMode sortMode);
 	virtual ~MenuSegment();
 
 	//Interface version functions
@@ -32,16 +32,16 @@ public:
 	virtual Marshal::Ret<std::list<IMenuItem*>> GetSortedMenuItems() const;
 
 	//Menu item creation and deletion
-	virtual IMenuSegment& AddMenuItemSegment(bool asurroundWithSeparators = true, IMenuSegment::SortMode sortMode = IMenuSegment::SORTMODE_ADDITIONORDER);
+	virtual IMenuSegment& AddMenuItemSegment(bool surroundWithSeparators = true, IMenuSegment::SortMode sortMode = IMenuSegment::SORTMODE_ADDITIONORDER);
 	virtual IMenuSubmenu& AddMenuItemSubmenu(const Marshal::In<std::wstring>& title);
 	virtual IMenuSelectableOption& AddMenuItemSelectableOption(IMenuHandler& menuHandler, int menuItemID, const Marshal::In<std::wstring>& title);
 	virtual void DeleteMenuItem(IMenuItem& menuItem);
 	virtual void DeleteAllMenuItems();
 
 private:
-	bool surroundWithSeparators;
-	SortMode sortMode;
-	std::list<IMenuItem*> menuItems;
+	bool _surroundWithSeparators;
+	SortMode _sortMode;
+	std::list<IMenuItem*> _menuItems;
 };
 
 #endif

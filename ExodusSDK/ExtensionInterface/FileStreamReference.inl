@@ -1,8 +1,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-FileStreamReference::FileStreamReference(const IGUIExtensionInterface& aguiExtensionInterface)
-:guiExtensionInterface(aguiExtensionInterface), stream(0)
+FileStreamReference::FileStreamReference(const IGUIExtensionInterface& guiExtensionInterface)
+:_guiExtensionInterface(guiExtensionInterface), _stream(0)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -20,10 +20,10 @@ bool FileStreamReference::OpenExistingFileForRead(const std::wstring& path)
 	CloseFileStream();
 
 	//Open a new file stream to the target file
-	stream = guiExtensionInterface.OpenExistingFileForRead(path);
+	_stream = _guiExtensionInterface.OpenExistingFileForRead(path);
 
 	//Return the result to the caller
-	bool streamOpenedSuccessfully = (stream != 0);
+	bool streamOpenedSuccessfully = (_stream != 0);
 	return streamOpenedSuccessfully;
 }
 
@@ -31,10 +31,10 @@ bool FileStreamReference::OpenExistingFileForRead(const std::wstring& path)
 void FileStreamReference::CloseFileStream()
 {
 	//If a file stream is currently open, close it.
-	if(stream != 0)
+	if(_stream != 0)
 	{
-		guiExtensionInterface.DeleteFileStream(stream);
-		stream = 0;
+		_guiExtensionInterface.DeleteFileStream(_stream);
+		_stream = 0;
 	}
 }
 
@@ -43,23 +43,23 @@ void FileStreamReference::CloseFileStream()
 //----------------------------------------------------------------------------------------
 const Stream::IStream& FileStreamReference::operator*() const
 {
-	return *stream;
+	return *_stream;
 }
 
 //----------------------------------------------------------------------------------------
 Stream::IStream& FileStreamReference::operator*()
 {
-	return *stream;
+	return *_stream;
 }
 
 //----------------------------------------------------------------------------------------
 const Stream::IStream& FileStreamReference::operator->() const
 {
-	return *stream;
+	return *_stream;
 }
 
 //----------------------------------------------------------------------------------------
 Stream::IStream& FileStreamReference::operator->()
 {
-	return *stream;
+	return *_stream;
 }

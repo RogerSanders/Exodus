@@ -63,7 +63,7 @@ public:
 	//98 - PPMd version I, Rev 1
 
 	//Constructors
-	ZIPArchive(CompressionMethod acompressionmMethod = COMPRESSIONMETHOD_DEFLATE);
+	ZIPArchive(CompressionMethod compressionmMethod = COMPRESSIONMETHOD_DEFLATE);
 
 	//Serialization functions
 	bool LoadFromStream(Stream::IStream& source);
@@ -76,10 +76,10 @@ public:
 	ZIPFileEntry* GetFileEntry(const std::wstring& fileName);
 
 private:
-	std::list<ZIPFileEntry> fileList;
-	std::list<ZIPChunk_CentralFileHeader> centralDirectory;
-	ZIPChunk_EndOfCentralDirectory endOfCentralDirectoryHeader;
-	CompressionMethod compressionMethod;
+	std::list<ZIPFileEntry> _fileList;
+	std::list<ZIPChunkCentralFileHeader> _centralDirectory;
+	ZIPChunkEndOfCentralDirectory _endOfCentralDirectoryHeader;
+	CompressionMethod _compressionMethod;
 };
 
 #endif

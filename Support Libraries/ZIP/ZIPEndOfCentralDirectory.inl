@@ -1,15 +1,15 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-ZIPChunk_EndOfCentralDirectory::ZIPChunk_EndOfCentralDirectory()
+ZIPChunkEndOfCentralDirectory::ZIPChunkEndOfCentralDirectory()
 {
 	Initialize();
 }
 
 //----------------------------------------------------------------------------------------
-void ZIPChunk_EndOfCentralDirectory::Initialize()
+void ZIPChunkEndOfCentralDirectory::Initialize()
 {
-	signature = validSignature;
+	signature = ValidSignature;
 	diskNumber = 0;
 	diskNumberCentralDirectory = 0;
 	centralDirectoryEntriesOnDisk = 0;
@@ -22,7 +22,7 @@ void ZIPChunk_EndOfCentralDirectory::Initialize()
 //----------------------------------------------------------------------------------------
 //Serialization functions
 //----------------------------------------------------------------------------------------
-bool ZIPChunk_EndOfCentralDirectory::LoadFromStream(Stream::IStream& stream)
+bool ZIPChunkEndOfCentralDirectory::LoadFromStream(Stream::IStream& stream)
 {
 	bool result = true;
 
@@ -36,11 +36,11 @@ bool ZIPChunk_EndOfCentralDirectory::LoadFromStream(Stream::IStream& stream)
 	result &= stream.ReadData(commentLength);
 	result &= stream.ReadTextFixedLengthBufferAsASCII(commentLength, comment);
 
-	return (result && (signature == validSignature));
+	return (result && (signature == ValidSignature));
 }
 
 //----------------------------------------------------------------------------------------
-bool ZIPChunk_EndOfCentralDirectory::SaveToStream(Stream::IStream& stream) const
+bool ZIPChunkEndOfCentralDirectory::SaveToStream(Stream::IStream& stream) const
 {
 	bool result = true;
 

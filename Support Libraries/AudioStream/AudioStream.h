@@ -15,16 +15,22 @@ public:
 	~AudioStream();
 
 	//Audio stream binding
-	bool Open(unsigned int achannelCount, unsigned int abitsPerSample, unsigned int asamplesPerSec, unsigned int amaxPendingSamples = 0, unsigned int aminPlayingSamples = 0);
+	bool Open(unsigned int channelCount, unsigned int bitsPerSample, unsigned int samplesPerSec, unsigned int maxPendingSamples = 0, unsigned int minPlayingSamples = 0);
 	void Close();
 
 	//Buffer management functions
-	AudioBuffer* CreateAudioBuffer(unsigned int sampleCount, unsigned int achannelCount);
+	AudioBuffer* CreateAudioBuffer(unsigned int sampleCount, unsigned int channelCount);
 	void DeleteAudioBuffer(AudioBuffer* buffer);
 	void PlayBuffer(AudioBuffer* buffer);
 
 	//Sample rate conversion
-	static void ConvertSampleRate(const std::vector<short>& sourceData, unsigned int sourceSampleCount, unsigned int achannelCount, std::vector<short>& targetData, unsigned int targetSampleCount);
+	static void ConvertSampleRate(const std::vector<short>& sourceData, unsigned int sourceSampleCount, unsigned int channelCount, std::vector<short>& targetData, unsigned int targetSampleCount);
+
+private:
+	//Constants
+	static const unsigned int EventIndexShutdown = 0;
+	static const unsigned int EventIndexPlayBuffer = 1;
+	static const unsigned int EventIndexBufferDone = 2;
 
 private:
 	//Worker thread functions
@@ -38,27 +44,24 @@ private:
 
 private:
 	//Audio format settings
-	unsigned int channelCount;
-	unsigned int bitsPerSample;
-	unsigned int samplesPerSec;
-	unsigned int maxPendingSamples;
+	unsigned int _channelCount;
+	unsigned int _bitsPerSample;
+	unsigned int _samplesPerSec;
+	unsigned int _maxPendingSamples;
 
 	//Worker thread event information
-	static const unsigned int EVENT_SHUTDOWN = 0;
-	static const unsigned int EVENT_PLAYBUFFER = 1;
-	static const unsigned int EVENT_BUFFERDONE = 2;
-	HANDLE eventHandles[3];
-	HANDLE startupCompleteEventHandle;
-	HANDLE shutdownCompleteEventHandle;
-	volatile bool workerThreadRunning;
+	HANDLE _eventHandles[3];
+	HANDLE _startupCompleteEventHandle;
+	HANDLE _shutdownCompleteEventHandle;
+	volatile bool _workerThreadRunning;
 
 	//Audio buffer data
-	CRITICAL_SECTION waveMutex;
-	unsigned int minPlayingSamples;
-	volatile unsigned int currentPlayingSamples;
-	std::list<AudioBuffer*> pendingBuffers;
-	std::list<AudioBuffer*> playingBuffers;
-	volatile unsigned int completedBufferSlots;
+	CRITICAL_SECTION _waveMutex;
+	unsigned int _minPlayingSamples;
+	volatile unsigned int _currentPlayingSamples;
+	std::list<AudioBuffer*> _pendingBuffers;
+	std::list<AudioBuffer*> _playingBuffers;
+	volatile unsigned int _completedBufferSlots;
 };
 
 #include "AudioStream.inl"

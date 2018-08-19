@@ -22,7 +22,7 @@ public:
 
 	//Storage mode functions
 	virtual StorageMode GetStorageMode() const = 0;
-	virtual void SetStorageMode(StorageMode astorageMode) = 0;
+	virtual void SetStorageMode(StorageMode storageMode) = 0;
 	virtual bool GetSeparateBinaryDataEnabled() const = 0;
 	virtual void SetSeparateBinaryDataEnabled(bool state) = 0;
 

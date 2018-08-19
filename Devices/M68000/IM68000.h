@@ -8,11 +8,6 @@ using namespace MarshalSupport::Operators;
 class IM68000 :public virtual IGenericAccess
 {
 public:
-	//Constants
-	static const int addressRegCount = 8;
-	static const int dataRegCount = 8;
-	static const unsigned int SP = 7;
-
 	//Enumerations
 	enum class IM68000DataSource;
 	enum class Exceptions;
@@ -21,6 +16,11 @@ public:
 	struct RegisterDataContext;
 	struct ExceptionDebuggingEntry;
 
+	//Constants
+	static const int AddressRegCount = 8;
+	static const int DataRegCount = 8;
+	static const unsigned int SP = 7;
+
 public:
 	//Interface version functions
 	static inline unsigned int ThisIM68000Version() { return 1; }
@@ -28,41 +28,41 @@ public:
 
 	//CCR flags
 	inline bool GetX() const;
-	inline void SetX(bool adata);
+	inline void SetX(bool data);
 	inline bool GetN() const;
-	inline void SetN(bool adata);
+	inline void SetN(bool data);
 	inline bool GetZ() const;
-	inline void SetZ(bool adata);
+	inline void SetZ(bool data);
 	inline bool GetV() const;
-	inline void SetV(bool adata);
+	inline void SetV(bool data);
 	inline bool GetC() const;
-	inline void SetC(bool adata);
+	inline void SetC(bool data);
 
 	//SR flags
 	inline bool GetSR_T() const;
-	inline void SetSR_T(bool adata);
+	inline void SetSR_T(bool data);
 	inline bool GetSR_S() const;
-	inline void SetSR_S(bool adata);
+	inline void SetSR_S(bool data);
 	inline unsigned int GetSR_IPM() const;
-	inline void SetSR_IPM(unsigned int adata);
+	inline void SetSR_IPM(unsigned int data);
 
 	//Register functions
 	inline unsigned int GetPC() const;
-	inline void SetPC(unsigned int adata);
+	inline void SetPC(unsigned int data);
 	inline unsigned int GetSR() const;
-	inline void SetSR(unsigned int adata);
+	inline void SetSR(unsigned int data);
 	inline unsigned int GetCCR() const;
-	inline void SetCCR(unsigned int adata);
+	inline void SetCCR(unsigned int data);
 	inline unsigned int GetSP() const;
-	inline void SetSP(unsigned int adata);
+	inline void SetSP(unsigned int data);
 	inline unsigned int GetSSP() const;
-	inline void SetSSP(unsigned int adata);
+	inline void SetSSP(unsigned int data);
 	inline unsigned int GetUSP() const;
-	inline void SetUSP(unsigned int adata);
+	inline void SetUSP(unsigned int data);
 	inline unsigned int GetA(unsigned int regiserNo) const;
-	inline void SetA(unsigned int regiserNo, unsigned int adata);
+	inline void SetA(unsigned int regiserNo, unsigned int data);
 	inline unsigned int GetD(unsigned int regiserNo) const;
-	inline void SetD(unsigned int regiserNo, unsigned int adata);
+	inline void SetD(unsigned int regiserNo, unsigned int data);
 
 	//Exception debugging functions
 	virtual bool GetLogAllExceptions() const = 0;

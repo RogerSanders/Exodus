@@ -9,7 +9,7 @@ class CreateDashboardView :public ViewBase
 {
 public:
 	//Constructors
-	CreateDashboardView(IUIManager& auiManager, CreateDashboardViewPresenter& apresenter, ExodusInterface& amodel);
+	CreateDashboardView(IUIManager& uiManager, CreateDashboardViewPresenter& presenter, ExodusInterface& model);
 
 protected:
 	//Member window procedure
@@ -21,8 +21,8 @@ private:
 	INT_PTR msgWM_COMMAND(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
 private:
-	CreateDashboardViewPresenter& presenter;
-	ExodusInterface& model;
+	CreateDashboardViewPresenter& _presenter;
+	ExodusInterface& _model;
 };
 
 #endif

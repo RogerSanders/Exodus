@@ -5,56 +5,56 @@ namespace Stream {
 //Constructors
 //----------------------------------------------------------------------------------------
 Buffer::Buffer(SizeType size)
-:streamPos(0), bufferSizeIncrement(1024)
+:_streamPos(0), _bufferSizeIncrement(1024)
 {
 	Resize(size);
 }
 
 //----------------------------------------------------------------------------------------
 Buffer::Buffer(SizeType size, SizeType sizeIncrement)
-:streamPos(0), bufferSizeIncrement(sizeIncrement)
+:_streamPos(0), _bufferSizeIncrement(sizeIncrement)
 {
 	Resize(size);
 }
 
 //----------------------------------------------------------------------------------------
-Buffer::Buffer(TextEncoding atextEncoding, SizeType size)
-:Stream(atextEncoding), streamPos(0), bufferSizeIncrement(1024)
+Buffer::Buffer(TextEncoding textEncoding, SizeType size)
+:Stream(textEncoding), _streamPos(0), _bufferSizeIncrement(1024)
 {
 	Resize(size);
 }
 
 //----------------------------------------------------------------------------------------
-Buffer::Buffer(TextEncoding atextEncoding, SizeType size, SizeType sizeIncrement)
-:Stream(atextEncoding), streamPos(0), bufferSizeIncrement(sizeIncrement)
+Buffer::Buffer(TextEncoding textEncoding, SizeType size, SizeType sizeIncrement)
+:Stream(textEncoding), _streamPos(0), _bufferSizeIncrement(sizeIncrement)
 {
 	Resize(size);
 }
 
 //----------------------------------------------------------------------------------------
-Buffer::Buffer(TextEncoding atextEncoding, NewLineEncoding anewLineEncoding, SizeType size)
-:Stream(atextEncoding, anewLineEncoding), streamPos(0), bufferSizeIncrement(1024)
+Buffer::Buffer(TextEncoding textEncoding, NewLineEncoding newLineEncoding, SizeType size)
+:Stream(textEncoding, newLineEncoding), _streamPos(0), _bufferSizeIncrement(1024)
 {
 	Resize(size);
 }
 
 //----------------------------------------------------------------------------------------
-Buffer::Buffer(TextEncoding atextEncoding, NewLineEncoding anewLineEncoding, SizeType size, SizeType sizeIncrement)
-:Stream(atextEncoding, anewLineEncoding), streamPos(0), bufferSizeIncrement(sizeIncrement)
+Buffer::Buffer(TextEncoding textEncoding, NewLineEncoding newLineEncoding, SizeType size, SizeType sizeIncrement)
+:Stream(textEncoding, newLineEncoding), _streamPos(0), _bufferSizeIncrement(sizeIncrement)
 {
 	Resize(size);
 }
 
 //----------------------------------------------------------------------------------------
-Buffer::Buffer(TextEncoding atextEncoding, NewLineEncoding anewLineEncoding, ByteOrder abyteOrder, SizeType size)
-:Stream(atextEncoding, anewLineEncoding, abyteOrder), streamPos(0), bufferSizeIncrement(1024)
+Buffer::Buffer(TextEncoding textEncoding, NewLineEncoding newLineEncoding, ByteOrder byteOrder, SizeType size)
+:Stream(textEncoding, newLineEncoding, byteOrder), _streamPos(0), _bufferSizeIncrement(1024)
 {
 	Resize(size);
 }
 
 //----------------------------------------------------------------------------------------
-Buffer::Buffer(TextEncoding atextEncoding, NewLineEncoding anewLineEncoding, ByteOrder abyteOrder, SizeType size, SizeType sizeIncrement)
-:Stream(atextEncoding, anewLineEncoding, abyteOrder), streamPos(0), bufferSizeIncrement(sizeIncrement)
+Buffer::Buffer(TextEncoding textEncoding, NewLineEncoding newLineEncoding, ByteOrder byteOrder, SizeType size, SizeType sizeIncrement)
+:Stream(textEncoding, newLineEncoding, byteOrder), _streamPos(0), _bufferSizeIncrement(sizeIncrement)
 {
 	Resize(size);
 }
@@ -64,19 +64,19 @@ Buffer::Buffer(TextEncoding atextEncoding, NewLineEncoding anewLineEncoding, Byt
 //----------------------------------------------------------------------------------------
 void Buffer::Resize(SizeType size)
 {
-	bufferSize = size;
-	if(bufferSize > (SizeType)buffer.size())
+	_bufferSize = size;
+	if(_bufferSize > (SizeType)_buffer.size())
 	{
-		buffer.resize((size_t)((bufferSize - (bufferSize % bufferSizeIncrement)) + bufferSizeIncrement));
+		_buffer.resize((size_t)((_bufferSize - (_bufferSize % _bufferSizeIncrement)) + _bufferSizeIncrement));
 	}
 }
 
 //----------------------------------------------------------------------------------------
 void Buffer::CheckBufferSize(SizeType writeSize)
 {
-	if((streamPos + writeSize) > bufferSize)
+	if((_streamPos + writeSize) > _bufferSize)
 	{
-		Resize(streamPos + writeSize);
+		Resize(_streamPos + writeSize);
 	}
 }
 
@@ -89,13 +89,13 @@ unsigned char* Buffer::GetRawBuffer() const
 	//when iterating through the buffer for elements while not at the end of the buffer.
 	//In these cases the null pointer is never used, but its neater to obtain it before
 	//checking the size of the buffer.
-	if(buffer.empty())
+	if(_buffer.empty())
 	{
 		return (unsigned char*)0;
 	}
 	else
 	{
-		return (unsigned char*)&buffer[0];
+		return (unsigned char*)&_buffer[0];
 	}
 }
 
@@ -104,15 +104,15 @@ unsigned char* Buffer::GetRawBuffer() const
 //----------------------------------------------------------------------------------------
 const unsigned char& Buffer::operator[](SizeType position) const
 {
-	DebugAssert(position < bufferSize);
-	return buffer[(size_t)position];
+	DebugAssert(position < _bufferSize);
+	return _buffer[(size_t)position];
 }
 
 //----------------------------------------------------------------------------------------
 unsigned char& Buffer::operator[](SizeType position)
 {
-	DebugAssert(position < bufferSize);
-	return buffer[(size_t)position];
+	DebugAssert(position < _bufferSize);
+	return _buffer[(size_t)position];
 }
 
 //----------------------------------------------------------------------------------------
@@ -121,7 +121,7 @@ unsigned char& Buffer::operator[](SizeType position)
 bool Buffer::ReadBinary(unsigned char* rawData, SizeType bytesToRead)
 {
 	//Return false if a read tries to pass the end of the buffer
-	if((streamPos + bytesToRead) > bufferSize)
+	if((_streamPos + bytesToRead) > _bufferSize)
 	{
 		return false;
 	}
@@ -129,7 +129,7 @@ bool Buffer::ReadBinary(unsigned char* rawData, SizeType bytesToRead)
 	//Read the data from the buffer
 	for(SizeType i = 0; i < bytesToRead; ++i)
 	{
-		*(rawData + i) = buffer[(size_t)streamPos++];
+		*(rawData + i) = _buffer[(size_t)_streamPos++];
 	}
 	return true;
 }
@@ -138,15 +138,15 @@ bool Buffer::ReadBinary(unsigned char* rawData, SizeType bytesToRead)
 bool Buffer::WriteBinary(const unsigned char* rawData, SizeType bytesToWrite)
 {
 	//Resize the buffer if a write tries to pass the end of the buffer
-	if((streamPos + bytesToWrite) > bufferSize)
+	if((_streamPos + bytesToWrite) > _bufferSize)
 	{
-		Resize(streamPos + bytesToWrite);
+		Resize(_streamPos + bytesToWrite);
 	}
 
 	//Write the data to the buffer
 	for(SizeType i = 0; i < bytesToWrite; ++i)
 	{
-		buffer[(size_t)streamPos++] = *(rawData + i);
+		_buffer[(size_t)_streamPos++] = *(rawData + i);
 	}
 	return true;
 }

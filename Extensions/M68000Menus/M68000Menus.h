@@ -7,7 +7,7 @@ class M68000Menus :public Extension
 {
 public:
 	//Constructors
-	M68000Menus(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
+	M68000Menus(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 	~M68000Menus();
 
 	//Window functions
@@ -18,7 +18,7 @@ public:
 	virtual bool OpenDeviceView(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IDevice* targetDevice);
 
 private:
-	std::map<IDevice*, DebugMenuHandler*> debugMenuHandlers;
+	std::map<IDevice*, DebugMenuHandler*> _debugMenuHandlers;
 };
 
 #endif

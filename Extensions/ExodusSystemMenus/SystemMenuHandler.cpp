@@ -4,8 +4,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-SystemMenuHandler::SystemMenuHandler(ExodusSystemMenus& aowner, ISystemGUIInterface& amodel)
-:MenuHandlerBase(L"SystemMenu", aowner.GetViewManager()), owner(aowner), model(amodel)
+SystemMenuHandler::SystemMenuHandler(ExodusSystemMenus& owner, ISystemGUIInterface& model)
+:MenuHandlerBase(L"SystemMenu", owner.GetViewManager()), _owner(owner), _model(model)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -22,7 +22,7 @@ IViewPresenter* SystemMenuHandler::CreateViewForItem(int menuItemID, const std::
 	switch(menuItemID)
 	{
 	case MENUITEM_EVENTLOG:
-		return new EventLogViewPresenter(GetMenuHandlerName(), viewName, MENUITEM_EVENTLOG, owner, model);
+		return new EventLogViewPresenter(GetMenuHandlerName(), viewName, MENUITEM_EVENTLOG, _owner, _model);
 	}
 	return 0;
 }

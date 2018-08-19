@@ -31,8 +31,8 @@ public:
 	virtual unsigned int GetIExtensionVersion() const = 0;
 
 	//Initialization functions
-	virtual bool BindToSystemInterface(ISystemExtensionInterface* asystemInterface) = 0;
-	virtual bool BindToGUIInterface(IGUIExtensionInterface* aguiInterface) = 0;
+	virtual bool BindToSystemInterface(ISystemExtensionInterface* systemInterface) = 0;
+	virtual bool BindToGUIInterface(IGUIExtensionInterface* guiInterface) = 0;
 	virtual bool Construct(IHierarchicalStorageNode& node) = 0;
 	virtual bool BuildExtension() = 0;
 	virtual bool ValidateExtension() = 0;
@@ -60,7 +60,7 @@ public:
 
 	//Window functions
 	virtual AssemblyHandle GetAssemblyHandle() const = 0;
-	virtual void SetAssemblyHandle(AssemblyHandle aassemblyHandle) = 0;
+	virtual void SetAssemblyHandle(AssemblyHandle assemblyHandle) = 0;
 	virtual bool RegisterSystemMenuHandler() = 0;
 	virtual void UnregisterSystemMenuHandler() = 0;
 	virtual bool RegisterModuleMenuHandler(unsigned int moduleID) = 0;

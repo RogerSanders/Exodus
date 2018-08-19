@@ -6,14 +6,14 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-MenuSegment::MenuSegment(bool asurroundWithSeparators, SortMode asortMode)
-:surroundWithSeparators(asurroundWithSeparators), sortMode(asortMode)
+MenuSegment::MenuSegment(bool surroundWithSeparators, SortMode sortMode)
+:_surroundWithSeparators(surroundWithSeparators), _sortMode(sortMode)
 {}
 
 //----------------------------------------------------------------------------------------
 MenuSegment::~MenuSegment()
 {
-	for(std::list<IMenuItem*>::const_iterator i = menuItems.begin(); i != menuItems.end(); ++i)
+	for(std::list<IMenuItem*>::const_iterator i = _menuItems.begin(); i != _menuItems.end(); ++i)
 	{
 		delete *i;
 	}
@@ -47,13 +47,13 @@ MenuSegment::Type MenuSegment::GetType() const
 Marshal::Ret<std::wstring> MenuSegment::GetMenuSortTitle() const
 {
 	//If we have no child menu items, return an empty string.
-	if(menuItems.empty())
+	if(_menuItems.empty())
 	{
 		return L"";
 	}
 
 	//Return the title of the first child menu item to the caller
-	IMenuItem* firstChildMenuItem = menuItems.front();
+	IMenuItem* firstChildMenuItem = _menuItems.front();
 	std::wstring firstChildMenuItemTitle;
 	switch(firstChildMenuItem->GetType())
 	{
@@ -75,7 +75,7 @@ Marshal::Ret<std::wstring> MenuSegment::GetMenuSortTitle() const
 //----------------------------------------------------------------------------------------
 MenuSegment::SortMode MenuSegment::GetSortMode() const
 {
-	return sortMode;
+	return _sortMode;
 }
 
 //----------------------------------------------------------------------------------------
@@ -83,7 +83,7 @@ MenuSegment::SortMode MenuSegment::GetSortMode() const
 //----------------------------------------------------------------------------------------
 bool MenuSegment::GetSurroundWithSeparators() const
 {
-	return surroundWithSeparators;
+	return _surroundWithSeparators;
 }
 
 //----------------------------------------------------------------------------------------
@@ -91,13 +91,13 @@ bool MenuSegment::GetSurroundWithSeparators() const
 //----------------------------------------------------------------------------------------
 bool MenuSegment::NoMenuItemsExist() const
 {
-	return menuItems.empty();
+	return _menuItems.empty();
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::list<IMenuItem*>> MenuSegment::GetMenuItems() const
 {
-	return menuItems;
+	return _menuItems;
 }
 
 //----------------------------------------------------------------------------------------
@@ -105,15 +105,15 @@ Marshal::Ret<std::list<IMenuItem*>> MenuSegment::GetSortedMenuItems() const
 {
 	//If the menu items in this segment are sorted based on the order items were added,
 	//return the actual menu item list directly here, and abort any further processing.
-	if(sortMode == SORTMODE_ADDITIONORDER)
+	if(_sortMode == SORTMODE_ADDITIONORDER)
 	{
-		return menuItems;
+		return _menuItems;
 	}
 
 	//If the menu items in this segment are sorted based on their title, build a container
 	//to sort each menu item entry based on their titles.
 	std::map<std::wstring, IMenuItem*> menuItemSortContainer;
-	for(std::list<IMenuItem*>::const_iterator i = menuItems.begin(); i != menuItems.end(); ++i)
+	for(std::list<IMenuItem*>::const_iterator i = _menuItems.begin(); i != _menuItems.end(); ++i)
 	{
 		IMenuItem* childMenuItem = *i;
 		std::wstring childMenuItemTitle;
@@ -145,10 +145,10 @@ Marshal::Ret<std::list<IMenuItem*>> MenuSegment::GetSortedMenuItems() const
 //----------------------------------------------------------------------------------------
 //Menu item creation functions
 //----------------------------------------------------------------------------------------
-IMenuSegment& MenuSegment::AddMenuItemSegment(bool asurroundWithSeparators, IMenuSegment::SortMode sortMode)
+IMenuSegment& MenuSegment::AddMenuItemSegment(bool surroundWithSeparators, IMenuSegment::SortMode sortMode)
 {
-	IMenuSegment* newMenuItem = new MenuSegment(asurroundWithSeparators, sortMode);
-	menuItems.push_back(newMenuItem);
+	IMenuSegment* newMenuItem = new MenuSegment(surroundWithSeparators, sortMode);
+	_menuItems.push_back(newMenuItem);
 	return *newMenuItem;
 }
 
@@ -156,7 +156,7 @@ IMenuSegment& MenuSegment::AddMenuItemSegment(bool asurroundWithSeparators, IMen
 IMenuSubmenu& MenuSegment::AddMenuItemSubmenu(const Marshal::In<std::wstring>& title)
 {
 	IMenuSubmenu* newMenuItem = new MenuSubmenu(title);
-	menuItems.push_back(newMenuItem);
+	_menuItems.push_back(newMenuItem);
 	return *newMenuItem;
 }
 
@@ -164,7 +164,7 @@ IMenuSubmenu& MenuSegment::AddMenuItemSubmenu(const Marshal::In<std::wstring>& t
 IMenuSelectableOption& MenuSegment::AddMenuItemSelectableOption(IMenuHandler& menuHandler, int menuItemID, const Marshal::In<std::wstring>& title)
 {
 	IMenuSelectableOption* newMenuItem = new MenuSelectableOption(menuHandler, menuItemID, title);
-	menuItems.push_back(newMenuItem);
+	_menuItems.push_back(newMenuItem);
 	return *newMenuItem;
 }
 
@@ -173,12 +173,12 @@ void MenuSegment::DeleteMenuItem(IMenuItem& menuItem)
 {
 	IMenuItem* menuItemPointer = &menuItem;
 	bool done = false;
-	std::list<IMenuItem*>::iterator i = menuItems.begin();
-	while(!done && (i != menuItems.end()))
+	std::list<IMenuItem*>::iterator i = _menuItems.begin();
+	while(!done && (i != _menuItems.end()))
 	{
 		if(*i == menuItemPointer)
 		{
-			menuItems.erase(i);
+			_menuItems.erase(i);
 			delete menuItemPointer;
 			done = true;
 			continue;
@@ -190,9 +190,9 @@ void MenuSegment::DeleteMenuItem(IMenuItem& menuItem)
 //----------------------------------------------------------------------------------------
 void MenuSegment::DeleteAllMenuItems()
 {
-	for(std::list<IMenuItem*>::iterator i = menuItems.begin(); i != menuItems.end(); ++i)
+	for(std::list<IMenuItem*>::iterator i = _menuItems.begin(); i != _menuItems.end(); ++i)
 	{
 		delete *i;
 	}
-	menuItems.clear();
+	_menuItems.clear();
 }

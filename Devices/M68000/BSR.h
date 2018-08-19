@@ -22,7 +22,7 @@ public:
 
 	virtual Disassembly M68000Disassemble(const M68000::LabelSubstitutionSettings& labelSettings) const
 	{
-		return Disassembly(GetOpcodeName() + L"." + DisassembleSize(size), source.DisassembleImmediateAsPCDisplacement(labelSettings), source.DisassembleImmediateAsPCDisplacementTargetAddressString());
+		return Disassembly(GetOpcodeName() + L"." + DisassembleSize(_size), _source.DisassembleImmediateAsPCDisplacement(labelSettings), _source.DisassembleImmediateAsPCDisplacementTargetAddressString());
 	}
 
 	virtual void M68000Decode(const M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)
@@ -36,18 +36,18 @@ public:
 //	-----------------------------------------------------------------
 
 		//BSR	<label>
-		target.BuildAddressPredec(BITCOUNT_LONG, location + GetInstructionSize(), M68000::SP);
+		_target.BuildAddressPredec(BITCOUNT_LONG, location + GetInstructionSize(), M68000::SP);
 
 		if(data.GetDataSegment(0, 8) != 0)
 		{
-			size = BITCOUNT_BYTE;
-			source.BuildImmediateData(location + GetInstructionSize(), M68000Byte(data.GetDataSegment(0, 8)));
+			_size = BITCOUNT_BYTE;
+			_source.BuildImmediateData(location + GetInstructionSize(), M68000Byte(data.GetDataSegment(0, 8)));
 		}
 		else
 		{
-			size = BITCOUNT_WORD;
-			source.BuildImmediateData(size, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
-			AddInstructionSize(source.ExtensionSize());
+			_size = BITCOUNT_WORD;
+			_source.BuildImmediateData(_size, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
+			AddInstructionSize(_source.ExtensionSize());
 		}
 		AddExecuteCycleCount(ExecuteTime(18, 2, 2));
 	}
@@ -55,15 +55,15 @@ public:
 	virtual ExecuteTime M68000Execute(M68000* cpu, const M68000Long& location) const
 	{
 		double additionalTime = 0;
-		Data offset(size);
+		Data offset(_size);
 		M68000Long newPC;
 		M68000Long returnAddress;
 
 		//Perform the operation
-		additionalTime += source.Read(cpu, offset, GetInstructionRegister());
-		newPC = source.GetSavedPC() + M68000Long(offset.SignExtend(BITCOUNT_LONG));
+		additionalTime += _source.Read(cpu, offset, GetInstructionRegister());
+		newPC = _source.GetSavedPC() + M68000Long(offset.SignExtend(BITCOUNT_LONG));
 		returnAddress = location + GetInstructionSize();
-		target.Write(cpu, returnAddress, GetInstructionRegister());
+		_target.Write(cpu, returnAddress, GetInstructionRegister());
 		cpu->PushCallStack(cpu->GetPC().GetData(), newPC.GetData(), returnAddress.GetData(), L"BSR");
 
 		//Return the execution time
@@ -73,26 +73,26 @@ public:
 
 	virtual void GetResultantPCLocations(std::set<unsigned int>& resultantPCLocations, bool& undeterminedResultantPCLocation) const
 	{
-		//Return the address directly after this opcode, and the target jump location from
+		//Return the address directly after this opcode, and the _target jump location from
 		//executing this opcode, as the possible resultant PC locations from executing
 		//this opcode.
 		undeterminedResultantPCLocation = false;
 		unsigned int nextOpcodeAddress = GetInstructionLocation().GetData() + GetInstructionSize();
-		unsigned int branchOpcodeAddress = (source.GetSavedPC() + source.ExtractProcessedImmediateData()).GetData();
+		unsigned int branchOpcodeAddress = (_source.GetSavedPC() + _source.ExtractProcessedImmediateData()).GetData();
 		resultantPCLocations.insert(nextOpcodeAddress);
 		resultantPCLocations.insert(branchOpcodeAddress);
 	}
 
 	virtual void GetLabelTargetLocations(std::set<unsigned int>& labelTargetLocations) const
 	{
-		unsigned int branchOpcodeAddress = (source.GetSavedPC() + source.ExtractProcessedImmediateData()).GetData();
+		unsigned int branchOpcodeAddress = (_source.GetSavedPC() + _source.ExtractProcessedImmediateData()).GetData();
 		labelTargetLocations.insert(branchOpcodeAddress);
 	}
 
 private:
-	Bitcount size;
-	EffectiveAddress source;
-	EffectiveAddress target;
+	Bitcount _size;
+	EffectiveAddress _source;
+	EffectiveAddress _target;
 };
 
 } //Close namespace M68000

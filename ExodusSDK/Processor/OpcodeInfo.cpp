@@ -4,7 +4,7 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 OpcodeInfo::OpcodeInfo()
-:valid(false), opcodeSize(0)
+:_valid(false), _opcodeSize(0)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -20,95 +20,95 @@ unsigned int OpcodeInfo::GetIOpcodeInfoVersion() const
 //----------------------------------------------------------------------------------------
 bool OpcodeInfo::GetIsValidOpcode() const
 {
-	return valid;
+	return _valid;
 }
 
 //----------------------------------------------------------------------------------------
 void OpcodeInfo::SetIsValidOpcode(bool state)
 {
-	valid = state;
+	_valid = state;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int OpcodeInfo::GetOpcodeSize() const
 {
-	return opcodeSize;
+	return _opcodeSize;
 }
 
 //----------------------------------------------------------------------------------------
 void OpcodeInfo::SetOpcodeSize(unsigned int state)
 {
-	opcodeSize = state;
+	_opcodeSize = state;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> OpcodeInfo::GetOpcodeNameDisassembly() const
 {
-	return disassemblyOpcode;
+	return _disassemblyOpcode;
 }
 
 //----------------------------------------------------------------------------------------
 void OpcodeInfo::SetOpcodeNameDisassembly(const Marshal::In<std::wstring>& state)
 {
-	disassemblyOpcode = state;
+	_disassemblyOpcode = state;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> OpcodeInfo::GetOpcodeArgumentsDisassembly() const
 {
-	return disassemblyArguments;
+	return _disassemblyArguments;
 }
 
 //----------------------------------------------------------------------------------------
 void OpcodeInfo::SetOpcodeArgumentsDisassembly(const Marshal::In<std::wstring>& state)
 {
-	disassemblyArguments = state;
+	_disassemblyArguments = state;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> OpcodeInfo::GetDisassemblyComment() const
 {
-	return disassemblyComment;
+	return _disassemblyComment;
 }
 
 //----------------------------------------------------------------------------------------
 void OpcodeInfo::SetDisassemblyComment(const Marshal::In<std::wstring>& state)
 {
-	disassemblyComment = state;
+	_disassemblyComment = state;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::set<unsigned int>> OpcodeInfo::GetLabelTargetLocations() const
 {
-	return labelTargetLocations;
+	return _labelTargetLocations;
 }
 
 //----------------------------------------------------------------------------------------
 void OpcodeInfo::SetLabelTargetLocations(const Marshal::In<std::set<unsigned int>>& state)
 {
-	labelTargetLocations = state;
+	_labelTargetLocations = state;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::set<unsigned int>> OpcodeInfo::GetResultantPCLocations() const
 {
-	return resultantPCLocations;
+	return _resultantPCLocations;
 }
 
 //----------------------------------------------------------------------------------------
 void OpcodeInfo::SetResultantPCLocations(const Marshal::In<std::set<unsigned int>>& state)
 {
-	resultantPCLocations = state;
+	_resultantPCLocations = state;
 }
 
 //----------------------------------------------------------------------------------------
 bool OpcodeInfo::GetHasUndeterminedResultantPCLocation() const
 {
-	return undeterminedResultantPCLocation;
+	return _undeterminedResultantPCLocation;
 }
 
 //----------------------------------------------------------------------------------------
 void OpcodeInfo::SetHasUndeterminedResultantPCLocation(bool state)
 {
-	undeterminedResultantPCLocation = state;
+	_undeterminedResultantPCLocation = state;
 }

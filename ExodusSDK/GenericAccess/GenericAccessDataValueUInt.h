@@ -29,7 +29,7 @@ public:
 	virtual void SetDisplayMode(IntDisplayMode state);
 	virtual unsigned int GetMinChars() const;
 	virtual void SetMinChars(unsigned int state);
-	virtual unsigned int CalculateDisplayChars(IntDisplayMode adisplayMode, unsigned int aminValue, unsigned int amaxValue) const;
+	virtual unsigned int CalculateDisplayChars(IntDisplayMode displayMode, unsigned int minValue, unsigned int maxValue) const;
 
 	//Value limit functions
 	virtual unsigned int GetMinValue() const;
@@ -41,11 +41,11 @@ public:
 	virtual void ApplyLimitSettingsToCurrentValue();
 
 private:
-	unsigned int dataValue;
-	IntDisplayMode displayMode;
-	unsigned int minChars;
-	unsigned int minValue;
-	unsigned int maxValue;
+	unsigned int _dataValue;
+	IntDisplayMode _displayMode;
+	unsigned int _minChars;
+	unsigned int _minValue;
+	unsigned int _maxValue;
 };
 
 #endif

@@ -1,14 +1,15 @@
 #ifndef __VERSIONNO_H__
 #define __VERSIONNO_H__
+#include <string>
 
 //##TODO## Implement this for use on our plugin interface
 class VersionNo
 {
 public:
 	//Constructors
-	inline VersionNo(unsigned int amajor, unsigned int aminor = 0);
-	inline VersionNo(unsigned int amajor, unsigned int aminor, unsigned int apatch);
-	inline VersionNo(unsigned int amajor, unsigned int aminor, unsigned int apatch, unsigned int abuild);
+	inline VersionNo(unsigned int major, unsigned int minor = 0);
+	inline VersionNo(unsigned int major, unsigned int minor, unsigned int patch);
+	inline VersionNo(unsigned int major, unsigned int minor, unsigned int patch, unsigned int build);
 
 	//Build version functions
 	unsigned int GetMajorVersionNo() const;
@@ -18,12 +19,12 @@ public:
 	std::wstring GetVersionString() const;
 
 private:
-	unsigned int major;
-	unsigned int minor;
-	unsigned int patch;
-	unsigned int build;
-	bool patchDefined;
-	bool buildDefined;
+	unsigned int _major;
+	unsigned int _minor;
+	unsigned int _patch;
+	unsigned int _build;
+	bool _patchDefined;
+	bool _buildDefined;
 };
 
 #endif

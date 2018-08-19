@@ -10,10 +10,10 @@ class InputMappingDetailsView :public ViewBase
 {
 public:
 	//Constructors
-	InputMappingDetailsView(IUIManager& auiManager, InputMappingDetailsViewPresenter& apresenter, ISystemGUIInterface& amodel, IDevice* atargetDevice);
+	InputMappingDetailsView(IUIManager& uiManager, InputMappingDetailsViewPresenter& presenter, ISystemGUIInterface& model, IDevice* targetDevice);
 
 	//Target device functions
-	void SetTargetDevice(IDevice* atargetDevice);
+	void SetTargetDevice(IDevice* targetDevice);
 
 protected:
 	//Member window procedure
@@ -35,18 +35,18 @@ private:
 	void JoystickKeyMappingWorkerThread();
 
 private:
-	InputMappingDetailsViewPresenter& presenter;
-	ISystemGUIInterface& model;
-	bool initializedDialog;
-	bool systemKeyInputFieldInFocus;
-	HWND hwndInternal;
-	IDevice* targetDevice;
-	std::vector<unsigned int> deviceKeyCodeMap;
-	int selectedInputRegistration;
-	volatile bool autoKeyMappingActive;
-	mutable std::mutex joystickWorkerThreadMutex;
-	volatile bool joystickWorkerThreadActive;
-	std::condition_variable joystickWorkerThreadStopped;
+	InputMappingDetailsViewPresenter& _presenter;
+	ISystemGUIInterface& _model;
+	bool _initializedDialog;
+	bool _systemKeyInputFieldInFocus;
+	HWND _hwndInternal;
+	IDevice* _targetDevice;
+	std::vector<unsigned int> _deviceKeyCodeMap;
+	int _selectedInputRegistration;
+	volatile bool _autoKeyMappingActive;
+	mutable std::mutex _joystickWorkerThreadMutex;
+	volatile bool _joystickWorkerThreadActive;
+	std::condition_variable _joystickWorkerThreadStopped;
 };
 
 #endif

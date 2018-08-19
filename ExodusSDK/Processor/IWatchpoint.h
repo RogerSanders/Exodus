@@ -28,7 +28,7 @@ public:
 
 	//Name functions
 	virtual Marshal::Ret<std::wstring> GetName() const = 0;
-	virtual void SetName(const Marshal::In<std::wstring>& aname) = 0;
+	virtual void SetName(const Marshal::In<std::wstring>& name) = 0;
 	virtual Marshal::Ret<std::wstring> GenerateName() const = 0;
 
 	//Location condition functions
@@ -46,11 +46,11 @@ public:
 
 	//Hit counter functions
 	virtual unsigned int GetHitCounter() const = 0;
-	virtual void SetHitCounter(unsigned int ahitCounter) = 0;
+	virtual void SetHitCounter(unsigned int hitCounter) = 0;
 	virtual bool GetBreakOnCounter() const = 0;
 	virtual void SetBreakOnCounter(bool state) = 0;
 	virtual unsigned int GetBreakCounter() const = 0;
-	virtual void SetBreakCounter(unsigned int abreakCounter) = 0;
+	virtual void SetBreakCounter(unsigned int breakCounter) = 0;
 
 	//Read/write condition flag functions
 	virtual bool GetOnRead() const = 0;

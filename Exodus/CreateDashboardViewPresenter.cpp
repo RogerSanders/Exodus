@@ -4,8 +4,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-CreateDashboardViewPresenter::CreateDashboardViewPresenter(const std::wstring& aviewGroupName, const std::wstring& aviewName, int aviewID, ExodusInterface& aowner, ExodusInterface& amodel)
-:ViewPresenterBase(aowner.GetAssemblyHandle(), aviewGroupName, aviewName, aviewID), owner(aowner), model(amodel)
+CreateDashboardViewPresenter::CreateDashboardViewPresenter(const std::wstring& viewGroupName, const std::wstring& viewName, int viewID, ExodusInterface& owner, ExodusInterface& model)
+:ViewPresenterBase(owner.GetAssemblyHandle(), viewGroupName, viewName, viewID), _owner(owner), _model(model)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -21,11 +21,11 @@ std::wstring CreateDashboardViewPresenter::GetUnqualifiedViewTitle()
 //----------------------------------------------------------------------------------------
 IView* CreateDashboardViewPresenter::CreateView(IUIManager& uiManager)
 {
-	return new CreateDashboardView(uiManager, *this, model);
+	return new CreateDashboardView(uiManager, *this, _model);
 }
 
 //----------------------------------------------------------------------------------------
-void CreateDashboardViewPresenter::DeleteView(IView* aview)
+void CreateDashboardViewPresenter::DeleteView(IView* view)
 {
-	delete aview;
+	delete view;
 }

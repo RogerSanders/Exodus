@@ -4,10 +4,10 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-RegistersView::RegistersView(IUIManager& auiManager, RegistersViewPresenter& apresenter, IYM2612& amodel)
-:ViewBase(auiManager, apresenter), presenter(apresenter), model(amodel), initializedDialog(false), currentControlFocus(0)
+RegistersView::RegistersView(IUIManager& uiManager, RegistersViewPresenter& presenter, IYM2612& model)
+:ViewBase(uiManager, presenter), _presenter(presenter), _model(model), _initializedDialog(false), _currentControlFocus(0)
 {
-	SetDialogTemplateSettings(apresenter.GetUnqualifiedViewTitle(), GetAssemblyHandle(), MAKEINTRESOURCE(IDD_YM2612_REGISTERS));
+	SetDialogTemplateSettings(presenter.GetUnqualifiedViewTitle(), GetAssemblyHandle(), MAKEINTRESOURCE(IDD_YM2612_REGISTERS));
 	SetDialogViewType();
 }
 
@@ -52,27 +52,27 @@ INT_PTR RegistersView::msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 //----------------------------------------------------------------------------------------
 INT_PTR RegistersView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	initializedDialog = true;
+	_initializedDialog = true;
 
 	//Update Registers
-	if(currentControlFocus != IDC_YM2612_REGISTERS_STATUS)
+	if(_currentControlFocus != IDC_YM2612_REGISTERS_STATUS)
 	{
-		UpdateDlgItemHex(hwnd, IDC_YM2612_REGISTERS_STATUS, 2, model.GetStatusRegister());
+		UpdateDlgItemHex(hwnd, IDC_YM2612_REGISTERS_STATUS, 2, _model.GetStatusRegister());
 	}
 
 	for(unsigned int i = 0; i <= 0xB7; ++i)
 	{
-		if(currentControlFocus != (IDC_YM2612_REGISTERS_00 + i))
+		if(_currentControlFocus != (IDC_YM2612_REGISTERS_00 + i))
 		{
-			UpdateDlgItemHex(hwnd, IDC_YM2612_REGISTERS_00 + i, 2, model.GetRegisterData(i));
+			UpdateDlgItemHex(hwnd, IDC_YM2612_REGISTERS_00 + i, 2, _model.GetRegisterData(i));
 		}
 	}
 
 	for(unsigned int i = 0; i <= 0xB7; ++i)
 	{
-		if(currentControlFocus != (IDC_YM2612_REGISTERS_P2_00 + i))
+		if(_currentControlFocus != (IDC_YM2612_REGISTERS_P2_00 + i))
 		{
-			UpdateDlgItemHex(hwnd, IDC_YM2612_REGISTERS_P2_00 + i, 2, model.GetRegisterData(IYM2612::registerCountPerPart + i));
+			UpdateDlgItemHex(hwnd, IDC_YM2612_REGISTERS_P2_00 + i, 2, _model.GetRegisterData(IYM2612::RegisterCountPerPart + i));
 		}
 	}
 
@@ -82,29 +82,29 @@ INT_PTR RegistersView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 //----------------------------------------------------------------------------------------
 INT_PTR RegistersView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	if((HIWORD(wparam) == EN_SETFOCUS) && initializedDialog)
+	if((HIWORD(wparam) == EN_SETFOCUS) && _initializedDialog)
 	{
-		previousText = GetDlgItemString(hwnd, LOWORD(wparam));
-		currentControlFocus = LOWORD(wparam);
+		_previousText = GetDlgItemString(hwnd, LOWORD(wparam));
+		_currentControlFocus = LOWORD(wparam);
 	}
-	else if((HIWORD(wparam) == EN_KILLFOCUS) && initializedDialog)
+	else if((HIWORD(wparam) == EN_KILLFOCUS) && _initializedDialog)
 	{
 		std::wstring newText = GetDlgItemString(hwnd, LOWORD(wparam));
-		if(newText != previousText)
+		if(newText != _previousText)
 		{
 			if(LOWORD(wparam) == IDC_YM2612_REGISTERS_STATUS)
 			{
-				model.SetStatusRegister(GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.SetStatusRegister(GetDlgItemHex(hwnd, LOWORD(wparam)));
 			}
 			else if((LOWORD(wparam) >= IDC_YM2612_REGISTERS_00) && (LOWORD(wparam) <= IDC_YM2612_REGISTERS_B7))
 			{
 				unsigned int i = LOWORD(wparam) - IDC_YM2612_REGISTERS_00;
-				model.SetRegisterData(i, GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.SetRegisterData(i, GetDlgItemHex(hwnd, LOWORD(wparam)));
 			}
 			else if((LOWORD(wparam) >= IDC_YM2612_REGISTERS_P2_00) && (LOWORD(wparam) <= IDC_YM2612_REGISTERS_P2_B7))
 			{
 				unsigned int i = LOWORD(wparam) - IDC_YM2612_REGISTERS_P2_00;
-				model.SetRegisterData(IYM2612::registerCountPerPart + i, GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.SetRegisterData(IYM2612::RegisterCountPerPart + i, GetDlgItemHex(hwnd, LOWORD(wparam)));
 			}
 		}
 	}

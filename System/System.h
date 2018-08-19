@@ -62,7 +62,7 @@ class System :public ISystemGUIInterface
 {
 public:
 	//Constructors
-	System(IGUIExtensionInterface& aguiExtensionInterface);
+	System(IGUIExtensionInterface& guiExtensionInterface);
 	virtual ~System();
 
 	//Interface version functions
@@ -83,7 +83,7 @@ public:
 	virtual unsigned int GetEventLogLastModifiedToken() const;
 	virtual void ClearEventLog();
 	virtual unsigned int GetEventLogSize() const;
-	virtual void SetEventLogSize(unsigned int alogSize);
+	virtual void SetEventLogSize(unsigned int logSize);
 
 	//Embedded ROM functions
 	virtual Marshal::Ret<std::list<unsigned int>> GetEmbeddedROMIDs() const;
@@ -103,7 +103,7 @@ public:
 
 	//Path functions
 	virtual Marshal::Ret<std::wstring> GetCapturePath() const;
-	virtual void SetCapturePath(const Marshal::In<std::wstring>& apath);
+	virtual void SetCapturePath(const Marshal::In<std::wstring>& path);
 
 	//System interface functions
 	virtual void FlagInitialize();
@@ -171,7 +171,7 @@ public:
 	virtual void ExecuteSystemStep(double maximumTimeslice);
 	virtual bool IsSystemRollbackFlagged() const;
 	virtual double SystemRollbackTime() const;
-	virtual void SetSystemRollback(IDeviceContext* atriggerDevice, IDeviceContext* arollbackDevice, double timeslice, unsigned int accessContext, void (*callbackFunction)(void*), void* callbackParams);
+	virtual void SetSystemRollback(IDeviceContext* triggerDevice, IDeviceContext* rollbackDevice, double timeslice, unsigned int accessContext, void (*callbackFunction)(void*), void* callbackParams);
 	virtual bool PerformingSingleDeviceStep() const;
 
 	//View functions
@@ -384,15 +384,15 @@ private:
 	bool AddDevice(unsigned int moduleID, IDevice* device, DeviceContext* deviceContext);
 	IDevice* CreateDevice(const std::wstring& deviceName, const std::wstring& instanceName, unsigned int moduleID) const;
 	void DestroyDevice(const std::wstring& deviceName, IDevice* device) const;
-	void UnloadDevice(IDevice* adevice);
-	void RemoveDeviceFromDeviceList(DeviceArray& deviceList, IDevice* adevice) const;
+	void UnloadDevice(IDevice* device);
+	void RemoveDeviceFromDeviceList(DeviceArray& deviceList, IDevice* device) const;
 
 	//Extension creation and deletion
 	IExtension* CreateGlobalExtension(const std::wstring& extensionName) const;
 	IExtension* CreateExtension(const std::wstring& extensionName, const std::wstring& instanceName, unsigned int moduleID) const;
 	bool LoadPersistentGlobalExtension(const std::wstring& extensionName);
 	void DestroyExtension(const std::wstring& extensionName, IExtension* extension) const;
-	void UnloadExtension(IExtension* aextension);
+	void UnloadExtension(IExtension* extension);
 
 	//System interface functions
 	bool ValidateSystem();
@@ -435,7 +435,7 @@ private:
 	//through a frame.
 
 	//Input functions
-	void UnmapAllKeyCodeMappingsForDevice(IDevice* adevice);
+	void UnmapAllKeyCodeMappingsForDevice(IDevice* device);
 	void SendStoredInputEvents();
 	void ClearSentStoredInputEvents();
 
@@ -448,10 +448,10 @@ private:
 
 private:
 	//Extension interfaces
-	IGUIExtensionInterface& guiExtensionInterface;
+	IGUIExtensionInterface& _guiExtensionInterface;
 
 	//Devices
-	DeviceLibraryList deviceLibrary;
+	DeviceLibraryList _deviceLibrary;
 	//##TODO##
 	//Note that as per the decision above to make names local, we also need to consider
 	//that when presenting device names to the user. Debug menu items and window names now
@@ -480,112 +480,112 @@ private:
 	//the one provided by Zero Tolerance. Note however, that a link cable, or addon, might
 	//need to interface between two completely independent and normally unrelated systems,
 	//and the addon needs to only be available if both are loaded.
-	mutable unsigned int nextFreeModuleID;
-	LoadedModuleInfoMap loadedModuleInfoMap;
-	LoadedDeviceInfoList loadedDeviceInfoList;
-	ImportedDeviceInfoList importedDeviceInfoList;
-	ExecutionManager executionManager;
-	DeviceArray devices;
+	mutable unsigned int _nextFreeModuleID;
+	LoadedModuleInfoMap _loadedModuleInfoMap;
+	LoadedDeviceInfoList _loadedDeviceInfoList;
+	ImportedDeviceInfoList _importedDeviceInfoList;
+	ExecutionManager _executionManager;
+	DeviceArray _devices;
 
 	//Extensions
-	ExtensionLibraryList extensionLibrary;
-	LoadedExtensionInfoList loadedExtensionInfoList;
-	ImportedExtensionInfoList importedExtensionInfoList;
-	LoadedGlobalExtensionInfoList globalExtensionInfoList;
+	ExtensionLibraryList _extensionLibrary;
+	LoadedExtensionInfoList _loadedExtensionInfoList;
+	ImportedExtensionInfoList _importedExtensionInfoList;
+	LoadedGlobalExtensionInfoList _globalExtensionInfoList;
 
 	//Bus interfaces
-	BusInterfaceList busInterfaces;
-	ImportedBusInterfaceList importedBusInterfaces;
+	BusInterfaceList _busInterfaces;
+	ImportedBusInterfaceList _importedBusInterfaces;
 
 	//Unmapped line state info
-	UnmappedLineStateList unmappedLineStateList;
+	UnmappedLineStateList _unmappedLineStateList;
 
 	//Clock sources
-	ClockSourceList clockSources;
-	ImportedClockSourceList importedClockSources;
+	ClockSourceList _clockSources;
+	ImportedClockSourceList _importedClockSources;
 
 	//Module settings
-	mutable unsigned int nextFreeSystemSettingID;
-	SystemSettingsMap systemSettings;
-	std::set<SystemSettingInfo*> systemSettingsObjects;
-	ModuleSystemSettingMap moduleSettings;
-	ImportedSystemSettingList importedSystemSettings;
+	mutable unsigned int _nextFreeSystemSettingID;
+	SystemSettingsMap _systemSettings;
+	std::set<SystemSettingInfo*> _systemSettingsObjects;
+	ModuleSystemSettingMap _moduleSettings;
+	ImportedSystemSettingList _importedSystemSettings;
 
 	//System lines
-	mutable unsigned int nextFreeSystemLineID;
-	SystemLineMap systemLines;
-	ImportedSystemLineList importedSystemLines;
-	SystemLineMappingList systemLineMappings;
+	mutable unsigned int _nextFreeSystemLineID;
+	SystemLineMap _systemLines;
+	ImportedSystemLineList _importedSystemLines;
+	SystemLineMappingList _systemLineMappings;
 
 	//Embedded ROM info
-	mutable unsigned int nextFreeEmbeddedROMID;
-	std::map<unsigned int, EmbeddedROMInfoInternal> embeddedROMInfoSet;
-	unsigned int embeddedROMInfoLastModifiedToken;
+	mutable unsigned int _nextFreeEmbeddedROMID;
+	std::map<unsigned int, EmbeddedROMInfoInternal> _embeddedROMInfoSet;
+	unsigned int _embeddedROMInfoLastModifiedToken;
 
 	//System menu handlers
-	std::set<IExtension*> systemMenuHandlers;
+	std::set<IExtension*> _systemMenuHandlers;
 
 	//Input settings
-	mutable std::mutex inputMutex;
-	unsigned int inputDeviceListLastModifiedToken;
-	InputRegistrationList inputRegistrationList;
-	InputKeyMap inputKeyMap;
-	std::list<InputEventEntry> inputEvents;
+	mutable std::mutex _inputMutex;
+	unsigned int _inputDeviceListLastModifiedToken;
+	InputRegistrationList _inputRegistrationList;
+	InputKeyMap _inputKeyMap;
+	std::list<InputEventEntry> _inputEvents;
 
 	//System settings
-	std::wstring capturePath;
-	bool enableThrottling;
-	bool runWhenProgramModuleLoaded;
-	bool enablePersistentState;
+	std::wstring _capturePath;
+	bool _enableThrottling;
+	bool _runWhenProgramModuleLoaded;
+	bool _enablePersistentState;
 
 	//Connector settings
-	mutable unsigned int nextFreeConnectorID;
-	ConnectorDetailsMap connectorDetailsMap;
+	mutable unsigned int _nextFreeConnectorID;
+	ConnectorDetailsMap _connectorDetailsMap;
 
 	//Line group settings
-	mutable unsigned int nextFreeLineGroupID;
-	LineGroupDetailsMap lineGroupDetailsMap;
+	mutable unsigned int _nextFreeLineGroupID;
+	LineGroupDetailsMap _lineGroupDetailsMap;
 
 	//Access mutexes
-	mutable std::mutex systemRollbackMutex;
-	mutable std::mutex systemStateMutex;
-	mutable std::mutex moduleLoadMutex;
-	mutable std::mutex loadedElementMutex;
-	mutable std::mutex eventLogMutex;
-	mutable std::mutex embeddedROMMutex;
-	mutable std::recursive_mutex moduleSettingMutex;
+	mutable std::mutex _systemRollbackMutex;
+	mutable std::mutex _systemStateMutex;
+	mutable std::mutex _moduleLoadMutex;
+	mutable std::mutex _loadedElementMutex;
+	mutable std::mutex _eventLogMutex;
+	mutable std::mutex _embeddedROMMutex;
+	mutable std::recursive_mutex _moduleSettingMutex;
 
 	//Asynchronous notification settings
-	mutable std::mutex moduleNameMutex;
-	std::condition_variable notifySystemStopped;
-	volatile bool stopSystem;
-	volatile bool systemStopped;
-	volatile bool initialize;
-	volatile bool rollback;
-	volatile float loadSystemProgress;
-	volatile bool loadSystemComplete;
-	volatile bool loadSystemResult;
-	volatile bool loadSystemAbort;
-	volatile bool clearSystemComplete;
-	volatile bool performingSingleDeviceStep;
-	std::list<std::wstring> loadSystemCurrentModuleNameStack;
-	std::list<std::wstring> unloadSystemCurrentModuleNameStack;
+	mutable std::mutex _moduleNameMutex;
+	std::condition_variable _notifySystemStopped;
+	volatile bool _stopSystem;
+	volatile bool _systemStopped;
+	volatile bool _initialize;
+	volatile bool _rollback;
+	volatile float _loadSystemProgress;
+	volatile bool _loadSystemComplete;
+	volatile bool _loadSystemResult;
+	volatile bool _loadSystemAbort;
+	volatile bool _clearSystemComplete;
+	volatile bool _performingSingleDeviceStep;
+	std::list<std::wstring> _loadSystemCurrentModuleNameStack;
+	std::list<std::wstring> _unloadSystemCurrentModuleNameStack;
 
 	//Rollback settings
-	volatile double rollbackTimeslice;
-	unsigned int rollbackContext;
-	IDeviceContext* rollbackDevice;
-	bool useRollbackFunction;
-	void (*rollbackFunction)(void*);
-	void* rollbackParams;
+	volatile double _rollbackTimeslice;
+	unsigned int _rollbackContext;
+	IDeviceContext* _rollbackDevice;
+	bool _useRollbackFunction;
+	void (*_rollbackFunction)(void*);
+	void* _rollbackParams;
 
 	//Event log settings
-	unsigned int eventLogSize;
-	mutable unsigned int eventLogLastModifiedToken;
-	mutable std::list<SystemLogEntry> log;
+	unsigned int _eventLogSize;
+	mutable unsigned int _eventLogLastModifiedToken;
+	mutable std::list<SystemLogEntry> _log;
 
 	//Notification settings
-	ObserverCollection loadedModuleChangeObservers;
+	ObserverCollection _loadedModuleChangeObservers;
 };
 
 #include "System.inl"

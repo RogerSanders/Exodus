@@ -4,12 +4,12 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-WatchpointView::WatchpointView(IUIManager& auiManager, WatchpointViewPresenter& apresenter, IProcessor& amodel)
-:ViewBase(auiManager, apresenter), presenter(apresenter), model(amodel), initializedDialog(false), currentControlFocus(0)
+WatchpointView::WatchpointView(IUIManager& uiManager, WatchpointViewPresenter& presenter, IProcessor& model)
+:ViewBase(uiManager, presenter), _presenter(presenter), _model(model), _initializedDialog(false), _currentControlFocus(0)
 {
-	selectedWatchpoint = 0;
-	selectedWatchpointListIndex = -1;
-	SetDialogTemplateSettings(apresenter.GetUnqualifiedViewTitle(), GetAssemblyHandle(), MAKEINTRESOURCE(IDD_PROCESSOR_WATCH));
+	_selectedWatchpoint = 0;
+	_selectedWatchpointListIndex = -1;
+	SetDialogTemplateSettings(presenter.GetUnqualifiedViewTitle(), GetAssemblyHandle(), MAKEINTRESOURCE(IDD_PROCESSOR_WATCH));
 	SetDialogViewType();
 }
 
@@ -54,14 +54,14 @@ INT_PTR WatchpointView::msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 //----------------------------------------------------------------------------------------
 INT_PTR WatchpointView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	initializedDialog = true;
+	_initializedDialog = true;
 
 	//Check if the watchpoint list has changed since it was last checked
-	std::list<IWatchpoint*> currentWatchpointList = model.GetWatchpointList();
+	std::list<IWatchpoint*> currentWatchpointList = _model.GetWatchpointList();
 	std::list<IWatchpoint*>::const_iterator curentWatchpointListIterator = currentWatchpointList.begin();
-	std::list<IWatchpoint*>::const_iterator cachedWatchpointListIterator = cachedWatchpointList.begin();
-	bool watchpointListChanged = currentWatchpointList.size() != cachedWatchpointList.size();
-	while(!watchpointListChanged && (curentWatchpointListIterator != currentWatchpointList.end()) && (cachedWatchpointListIterator != cachedWatchpointList.end()))
+	std::list<IWatchpoint*>::const_iterator cachedWatchpointListIterator = _cachedWatchpointList.begin();
+	bool watchpointListChanged = currentWatchpointList.size() != _cachedWatchpointList.size();
+	while(!watchpointListChanged && (curentWatchpointListIterator != currentWatchpointList.end()) && (cachedWatchpointListIterator != _cachedWatchpointList.end()))
 	{
 		if(*curentWatchpointListIterator != *cachedWatchpointListIterator)
 		{
@@ -76,48 +76,48 @@ INT_PTR WatchpointView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	if(watchpointListChanged)
 	{
 		//Save the new watchpoint list
-		cachedWatchpointList = currentWatchpointList;
+		_cachedWatchpointList = currentWatchpointList;
 
 		//Refresh the list of watchpoints
 		bool foundSelectedWatchpoint = false;
 		SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), WM_SETREDRAW, FALSE, 0);
 		LRESULT top = SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_GETTOPINDEX, 0, 0);
 		SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_RESETCONTENT, 0, NULL);
-		for(std::list<IWatchpoint*>::const_iterator i = cachedWatchpointList.begin(); i != cachedWatchpointList.end(); ++i)
+		for(std::list<IWatchpoint*>::const_iterator i = _cachedWatchpointList.begin(); i != _cachedWatchpointList.end(); ++i)
 		{
 			IWatchpoint* watchpoint = *i;
-			if(model.LockWatchpoint(watchpoint))
+			if(_model.LockWatchpoint(watchpoint))
 			{
 				std::wstring watchpointName = watchpoint->GetName();
 				int listIndex = (int)SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_ADDSTRING, 0, (LPARAM)watchpointName.c_str());
-				if(watchpoint == selectedWatchpoint)
+				if(watchpoint == _selectedWatchpoint)
 				{
 					foundSelectedWatchpoint = true;
-					selectedWatchpointListIndex = listIndex;
+					_selectedWatchpointListIndex = listIndex;
 				}
 				SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_SETITEMDATA, listIndex, (LPARAM)watchpoint);
-				model.UnlockWatchpoint(watchpoint);
+				_model.UnlockWatchpoint(watchpoint);
 			}
 		}
-		if(!foundSelectedWatchpoint && (selectedWatchpointListIndex >= 0))
+		if(!foundSelectedWatchpoint && (_selectedWatchpointListIndex >= 0))
 		{
-			selectedWatchpoint = 0;
-			selectedWatchpointListIndex = -1;
+			_selectedWatchpoint = 0;
+			_selectedWatchpointListIndex = -1;
 		}
-		SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_SETCURSEL, (WPARAM)selectedWatchpointListIndex, 0);
+		SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_SETCURSEL, (WPARAM)_selectedWatchpointListIndex, 0);
 		SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_SETTOPINDEX, top, 0);
 		SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), WM_SETREDRAW, TRUE, 0);
 		InvalidateRect(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), NULL, FALSE);
 	}
 
 	//If we currently have a selected watchpoint from the list, update its hit counter.
-	if(selectedWatchpoint != 0)
+	if(_selectedWatchpoint != 0)
 	{
-		if(model.LockWatchpoint(selectedWatchpoint))
+		if(_model.LockWatchpoint(_selectedWatchpoint))
 		{
-			watchpointCounter = selectedWatchpoint->GetHitCounter();
-			UpdateDlgItemBin(hwnd, IDC_PROCESSOR_WATCH_HITCOUNT, watchpointCounter);
-			model.UnlockWatchpoint(selectedWatchpoint);
+			_watchpointCounter = _selectedWatchpoint->GetHitCounter();
+			UpdateDlgItemBin(hwnd, IDC_PROCESSOR_WATCH_HITCOUNT, _watchpointCounter);
+			_model.UnlockWatchpoint(_selectedWatchpoint);
 		}
 		UpdateWatchpointFields(hwnd);
 	}
@@ -128,44 +128,44 @@ INT_PTR WatchpointView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 //----------------------------------------------------------------------------------------
 INT_PTR WatchpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	if((HIWORD(wparam) == EN_SETFOCUS) && initializedDialog)
+	if((HIWORD(wparam) == EN_SETFOCUS) && _initializedDialog)
 	{
-		previousText = GetDlgItemString(hwnd, LOWORD(wparam));
-		currentControlFocus = LOWORD(wparam);
+		_previousText = GetDlgItemString(hwnd, LOWORD(wparam));
+		_currentControlFocus = LOWORD(wparam);
 	}
-	else if((HIWORD(wparam) == EN_KILLFOCUS) && initializedDialog)
+	else if((HIWORD(wparam) == EN_KILLFOCUS) && _initializedDialog)
 	{
 		std::wstring newText = GetDlgItemString(hwnd, LOWORD(wparam));
-		if(newText != previousText)
+		if(newText != _previousText)
 		{
 			switch(LOWORD(wparam))
 			{
 			case IDC_PROCESSOR_WATCH_NAME:
-				watchpointName = GetDlgItemString(hwnd, LOWORD(wparam));
+				_watchpointName = GetDlgItemString(hwnd, LOWORD(wparam));
 				break;
 			case IDC_PROCESSOR_WATCH_LOCCONDDATA1:
-				watchpointLocation1 = GetDlgItemHex(hwnd, LOWORD(wparam)) & watchpointLocationMask;
+				_watchpointLocation1 = GetDlgItemHex(hwnd, LOWORD(wparam)) & _watchpointLocationMask;
 				break;
 			case IDC_PROCESSOR_WATCH_LOCCONDDATA2:
-				watchpointLocation2 = GetDlgItemHex(hwnd, LOWORD(wparam)) & watchpointLocationMask;
+				_watchpointLocation2 = GetDlgItemHex(hwnd, LOWORD(wparam)) & _watchpointLocationMask;
 				break;
 			case IDC_PROCESSOR_WATCH_LOCMASK:
-				watchpointLocationMask = GetDlgItemHex(hwnd, LOWORD(wparam)) & model.GetAddressBusMask();
+				_watchpointLocationMask = GetDlgItemHex(hwnd, LOWORD(wparam)) & _model.GetAddressBusMask();
 				break;
 			case IDC_PROCESSOR_WATCH_BREAKCOUNTER:
-				watchpointCounterInterval = GetDlgItemBin(hwnd, LOWORD(wparam));
+				_watchpointCounterInterval = GetDlgItemBin(hwnd, LOWORD(wparam));
 				break;
 			case IDC_PROCESSOR_WATCH_READCONDDATA1:
-				watchpointReadConditionData1 = GetDlgItemHex(hwnd, LOWORD(wparam)) & model.GetDataBusCharWidth();
+				_watchpointReadConditionData1 = GetDlgItemHex(hwnd, LOWORD(wparam)) & _model.GetDataBusCharWidth();
 				break;
 			case IDC_PROCESSOR_WATCH_READCONDDATA2:
-				watchpointReadConditionData2 = GetDlgItemHex(hwnd, LOWORD(wparam)) & model.GetDataBusCharWidth();
+				_watchpointReadConditionData2 = GetDlgItemHex(hwnd, LOWORD(wparam)) & _model.GetDataBusCharWidth();
 				break;
 			case IDC_PROCESSOR_WATCH_WRITECONDDATA1:
-				watchpointWriteConditionData1 = GetDlgItemHex(hwnd, LOWORD(wparam)) & model.GetDataBusCharWidth();
+				_watchpointWriteConditionData1 = GetDlgItemHex(hwnd, LOWORD(wparam)) & _model.GetDataBusCharWidth();
 				break;
 			case IDC_PROCESSOR_WATCH_WRITECONDDATA2:
-				watchpointWriteConditionData2 = GetDlgItemHex(hwnd, LOWORD(wparam)) & model.GetDataBusCharWidth();
+				_watchpointWriteConditionData2 = GetDlgItemHex(hwnd, LOWORD(wparam)) & _model.GetDataBusCharWidth();
 				break;
 			}
 		}
@@ -175,146 +175,146 @@ INT_PTR WatchpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		switch(LOWORD(wparam))
 		{
 		case IDC_PROCESSOR_WATCH_ENABLE:
-			watchpointEnable = IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED;
+			_watchpointEnable = IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED;
 			break;
 		case IDC_PROCESSOR_WATCH_LOG:
-			watchpointLog = IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED;
+			_watchpointLog = IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED;
 			break;
 		case IDC_PROCESSOR_WATCH_BREAK:
-			watchpointBreak = IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED;
+			_watchpointBreak = IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED;
 			break;
 		case IDC_PROCESSOR_WATCH_ONREAD:
-			watchpointOnRead = IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED;
+			_watchpointOnRead = IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED;
 			break;
 		case IDC_PROCESSOR_WATCH_ONWRITE:
-			watchpointOnWrite = IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED;
+			_watchpointOnWrite = IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED;
 			break;
 		case IDC_PROCESSOR_WATCH_BREAKONCOUNTER:
-			watchpointCounterEnable = IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED;
+			_watchpointCounterEnable = IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED;
 			break;
 		case IDC_PROCESSOR_WATCH_HITCOUNT_RESET:
-			if((selectedWatchpoint != 0) && model.LockWatchpoint(selectedWatchpoint))
+			if((_selectedWatchpoint != 0) && _model.LockWatchpoint(_selectedWatchpoint))
 			{
-				watchpointCounter = 0;
-				selectedWatchpoint->SetHitCounter(0);
-				model.UnlockWatchpoint(selectedWatchpoint);
+				_watchpointCounter = 0;
+				_selectedWatchpoint->SetHitCounter(0);
+				_model.UnlockWatchpoint(_selectedWatchpoint);
 			}
 			break;
 
 		case IDC_PROCESSOR_WATCH_LOCCONDNOT:
-			watchpointConditionNot = IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED;
+			_watchpointConditionNot = IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED;
 			break;
 		case IDC_PROCESSOR_WATCH_LOCCOND1:
-			watchpointCondition = IWatchpoint::Condition::Equal;
+			_watchpointCondition = IWatchpoint::Condition::Equal;
 			EnableWindow(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LOCCONDDATA2), FALSE);
 			break;
 		case IDC_PROCESSOR_WATCH_LOCCOND2:
-			watchpointCondition = IWatchpoint::Condition::Greater;
+			_watchpointCondition = IWatchpoint::Condition::Greater;
 			EnableWindow(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LOCCONDDATA2), FALSE);
 			break;
 		case IDC_PROCESSOR_WATCH_LOCCOND3:
-			watchpointCondition = IWatchpoint::Condition::Less;
+			_watchpointCondition = IWatchpoint::Condition::Less;
 			EnableWindow(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LOCCONDDATA2), FALSE);
 			break;
 		case IDC_PROCESSOR_WATCH_LOCCOND4:
-			watchpointCondition = IWatchpoint::Condition::GreaterAndLess;
+			_watchpointCondition = IWatchpoint::Condition::GreaterAndLess;
 			EnableWindow(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LOCCONDDATA2), TRUE);
 			break;
 		case IDC_PROCESSOR_WATCH_READCONDENABLED:
-			watchpointReadConditionEnabled = IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED;
+			_watchpointReadConditionEnabled = IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED;
 			break;
 		case IDC_PROCESSOR_WATCH_READCONDNOT:
-			watchpointReadConditionNot = IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED;
+			_watchpointReadConditionNot = IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED;
 			break;
 		case IDC_PROCESSOR_WATCH_WRITECONDENABLED:
-			watchpointWriteConditionEnabled = IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED;
+			_watchpointWriteConditionEnabled = IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED;
 			break;
 		case IDC_PROCESSOR_WATCH_WRITECONDNOT:
-			watchpointWriteConditionNot = IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED;
+			_watchpointWriteConditionNot = IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED;
 			break;
 		case IDC_PROCESSOR_WATCH_READCOND1:
-			watchpointReadCondition = IWatchpoint::Condition::Equal;
+			_watchpointReadCondition = IWatchpoint::Condition::Equal;
 			EnableWindow(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_READCONDDATA2), FALSE);
 			break;
 		case IDC_PROCESSOR_WATCH_READCOND2:
-			watchpointReadCondition = IWatchpoint::Condition::Greater;
+			_watchpointReadCondition = IWatchpoint::Condition::Greater;
 			EnableWindow(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_READCONDDATA2), FALSE);
 			break;
 		case IDC_PROCESSOR_WATCH_READCOND3:
-			watchpointReadCondition = IWatchpoint::Condition::Less;
+			_watchpointReadCondition = IWatchpoint::Condition::Less;
 			EnableWindow(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_READCONDDATA2), FALSE);
 			break;
 		case IDC_PROCESSOR_WATCH_READCOND4:
-			watchpointReadCondition = IWatchpoint::Condition::GreaterAndLess;
+			_watchpointReadCondition = IWatchpoint::Condition::GreaterAndLess;
 			EnableWindow(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_READCONDDATA2), TRUE);
 			break;
 		case IDC_PROCESSOR_WATCH_WRITECOND1:
-			watchpointWriteCondition = IWatchpoint::Condition::Equal;
+			_watchpointWriteCondition = IWatchpoint::Condition::Equal;
 			EnableWindow(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_WRITECONDDATA2), FALSE);
 			break;
 		case IDC_PROCESSOR_WATCH_WRITECOND2:
-			watchpointWriteCondition = IWatchpoint::Condition::Greater;
+			_watchpointWriteCondition = IWatchpoint::Condition::Greater;
 			EnableWindow(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_WRITECONDDATA2), FALSE);
 			break;
 		case IDC_PROCESSOR_WATCH_WRITECOND3:
-			watchpointWriteCondition = IWatchpoint::Condition::Less;
+			_watchpointWriteCondition = IWatchpoint::Condition::Less;
 			EnableWindow(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_WRITECONDDATA2), FALSE);
 			break;
 		case IDC_PROCESSOR_WATCH_WRITECOND4:
-			watchpointWriteCondition = IWatchpoint::Condition::GreaterAndLess;
+			_watchpointWriteCondition = IWatchpoint::Condition::GreaterAndLess;
 			EnableWindow(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_WRITECONDDATA2), TRUE);
 			break;
 
 		case IDC_PROCESSOR_WATCH_NEW:
 			SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_SETCURSEL, (WPARAM)-1, NULL);
-			selectedWatchpointListIndex = -1;
-			selectedWatchpoint = 0;
+			_selectedWatchpointListIndex = -1;
+			_selectedWatchpoint = 0;
 			ClearWatchpointData();
 			UpdateWatchpointFields(hwnd);
 			break;
 		case IDC_PROCESSOR_WATCH_SAVE:
-			if(selectedWatchpoint == 0)
+			if(_selectedWatchpoint == 0)
 			{
-				selectedWatchpoint = model.CreateWatchpoint();
+				_selectedWatchpoint = _model.CreateWatchpoint();
 			}
-			if(model.LockWatchpoint(selectedWatchpoint))
+			if(_model.LockWatchpoint(_selectedWatchpoint))
 			{
-				SaveDataToWatchpoint(selectedWatchpoint);
-				model.UnlockWatchpoint(selectedWatchpoint);
+				SaveDataToWatchpoint(_selectedWatchpoint);
+				_model.UnlockWatchpoint(_selectedWatchpoint);
 			}
-			if(selectedWatchpointListIndex != -1)
+			if(_selectedWatchpointListIndex != -1)
 			{
-				SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_DELETESTRING, selectedWatchpointListIndex, NULL);
-				SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_INSERTSTRING, selectedWatchpointListIndex, (LPARAM)watchpointName.c_str());
+				SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_DELETESTRING, _selectedWatchpointListIndex, NULL);
+				SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_INSERTSTRING, _selectedWatchpointListIndex, (LPARAM)_watchpointName.c_str());
 			}
 			else
 			{
-				selectedWatchpointListIndex = (int)SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_ADDSTRING, 0, (LPARAM)watchpointName.c_str());
+				_selectedWatchpointListIndex = (int)SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_ADDSTRING, 0, (LPARAM)_watchpointName.c_str());
 			}
-			SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_SETITEMDATA, selectedWatchpointListIndex, (LPARAM)selectedWatchpoint);
-			SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_SETCURSEL, selectedWatchpointListIndex, NULL);
+			SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_SETITEMDATA, _selectedWatchpointListIndex, (LPARAM)_selectedWatchpoint);
+			SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_SETCURSEL, _selectedWatchpointListIndex, NULL);
 			break;
 		case IDC_PROCESSOR_WATCH_DELETE:
-			if(selectedWatchpoint != 0)
+			if(_selectedWatchpoint != 0)
 			{
-				model.DeleteWatchpoint(selectedWatchpoint);
-				SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_DELETESTRING, selectedWatchpointListIndex, NULL);
-				LRESULT getItemDataReturn = SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_GETITEMDATA, selectedWatchpointListIndex, 0);
+				_model.DeleteWatchpoint(_selectedWatchpoint);
+				SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_DELETESTRING, _selectedWatchpointListIndex, NULL);
+				LRESULT getItemDataReturn = SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_GETITEMDATA, _selectedWatchpointListIndex, 0);
 				if(getItemDataReturn == LB_ERR)
 				{
-					selectedWatchpoint = 0;
-					selectedWatchpointListIndex = -1;
+					_selectedWatchpoint = 0;
+					_selectedWatchpointListIndex = -1;
 				}
 				else
 				{
-					selectedWatchpoint = (IWatchpoint*)getItemDataReturn;
-					if(model.LockWatchpoint(selectedWatchpoint))
+					_selectedWatchpoint = (IWatchpoint*)getItemDataReturn;
+					if(_model.LockWatchpoint(_selectedWatchpoint))
 					{
-						LoadDataFromWatchpoint(selectedWatchpoint);
-						model.UnlockWatchpoint(selectedWatchpoint);
+						LoadDataFromWatchpoint(_selectedWatchpoint);
+						_model.UnlockWatchpoint(_selectedWatchpoint);
 					}
 				}
-				SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_SETCURSEL, selectedWatchpointListIndex, NULL);
+				SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_SETCURSEL, _selectedWatchpointListIndex, NULL);
 			}
 			else
 			{
@@ -323,39 +323,39 @@ INT_PTR WatchpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			UpdateWatchpointFields(hwnd);
 			break;
 		case IDC_PROCESSOR_WATCH_ENABLEALL:
-			for(std::list<IWatchpoint*>::const_iterator i = cachedWatchpointList.begin(); i != cachedWatchpointList.end(); ++i)
+			for(std::list<IWatchpoint*>::const_iterator i = _cachedWatchpointList.begin(); i != _cachedWatchpointList.end(); ++i)
 			{
 				IWatchpoint* watchpoint = *i;
-				if(model.LockWatchpoint(watchpoint))
+				if(_model.LockWatchpoint(watchpoint))
 				{
 					watchpoint->SetEnabled(true);
-					model.UnlockWatchpoint(watchpoint);
+					_model.UnlockWatchpoint(watchpoint);
 				}
 			}
 			break;
 		case IDC_PROCESSOR_WATCH_DISABLEALL:
-			for(std::list<IWatchpoint*>::const_iterator i = cachedWatchpointList.begin(); i != cachedWatchpointList.end(); ++i)
+			for(std::list<IWatchpoint*>::const_iterator i = _cachedWatchpointList.begin(); i != _cachedWatchpointList.end(); ++i)
 			{
 				IWatchpoint* watchpoint = *i;
-				if(model.LockWatchpoint(watchpoint))
+				if(_model.LockWatchpoint(watchpoint))
 				{
 					watchpoint->SetEnabled(false);
-					model.UnlockWatchpoint(watchpoint);
+					_model.UnlockWatchpoint(watchpoint);
 				}
 			}
 			break;
 		case IDC_PROCESSOR_WATCH_DELETEALL:
 			SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_RESETCONTENT, 0, NULL);
-			for(std::list<IWatchpoint*>::const_iterator i = cachedWatchpointList.begin(); i != cachedWatchpointList.end(); ++i)
+			for(std::list<IWatchpoint*>::const_iterator i = _cachedWatchpointList.begin(); i != _cachedWatchpointList.end(); ++i)
 			{
 				IWatchpoint* watchpoint = *i;
-				model.DeleteWatchpoint(watchpoint);
+				_model.DeleteWatchpoint(watchpoint);
 			}
 
 			//Clear the current watchpoint info
-			cachedWatchpointList.clear();
-			selectedWatchpointListIndex = -1;
-			selectedWatchpoint = 0;
+			_cachedWatchpointList.clear();
+			_selectedWatchpointListIndex = -1;
+			_selectedWatchpoint = 0;
 			ClearWatchpointData();
 			UpdateWatchpointFields(hwnd);
 			break;
@@ -369,12 +369,12 @@ INT_PTR WatchpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			int selectedItem = (int)SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_GETCURSEL, 0, NULL);
 			if(selectedItem != LB_ERR)
 			{
-				selectedWatchpointListIndex = selectedItem;
-				selectedWatchpoint = (IWatchpoint*)SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_GETITEMDATA, selectedWatchpointListIndex, 0);
-				if(model.LockWatchpoint(selectedWatchpoint))
+				_selectedWatchpointListIndex = selectedItem;
+				_selectedWatchpoint = (IWatchpoint*)SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LIST), LB_GETITEMDATA, _selectedWatchpointListIndex, 0);
+				if(_model.LockWatchpoint(_selectedWatchpoint))
 				{
-					LoadDataFromWatchpoint(selectedWatchpoint);
-					model.UnlockWatchpoint(selectedWatchpoint);
+					LoadDataFromWatchpoint(_selectedWatchpoint);
+					_model.UnlockWatchpoint(_selectedWatchpoint);
 				}
 				UpdateWatchpointFields(hwnd);
 			}
@@ -390,119 +390,119 @@ INT_PTR WatchpointView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 //----------------------------------------------------------------------------------------
 void WatchpointView::LoadDataFromWatchpoint(IWatchpoint* watchpoint)
 {
-	watchpointName = watchpoint->GetName();
-	watchpointEnable = watchpoint->GetEnabled();
-	watchpointLog = watchpoint->GetLogEvent();
-	watchpointBreak = watchpoint->GetBreakEvent();
-	watchpointConditionNot = watchpoint->GetLocationConditionNot();
-	watchpointOnRead = watchpoint->GetOnRead();
-	watchpointOnWrite = watchpoint->GetOnWrite();
-	watchpointReadConditionEnabled = watchpoint->GetReadConditionEnabled();
-	watchpointReadConditionNot = watchpoint->GetReadConditionNot();
-	watchpointWriteConditionEnabled = watchpoint->GetWriteConditionEnabled();
-	watchpointWriteConditionNot = watchpoint->GetWriteConditionNot();
-	watchpointCondition = watchpoint->GetLocationCondition();
-	watchpointReadCondition = watchpoint->GetReadCondition();
-	watchpointWriteCondition = watchpoint->GetWriteCondition();
-	watchpointLocation1 = watchpoint->GetLocationConditionData1();
-	watchpointLocation2 = watchpoint->GetLocationConditionData2();
-	watchpointLocationMask = watchpoint->GetLocationMask();
-	watchpointReadConditionData1 = watchpoint->GetReadConditionData1();
-	watchpointReadConditionData2 = watchpoint->GetReadConditionData2();
-	watchpointWriteConditionData1 = watchpoint->GetWriteConditionData1();
-	watchpointWriteConditionData2 = watchpoint->GetWriteConditionData2();
-	watchpointCounterEnable = watchpoint->GetBreakOnCounter();
-	watchpointCounter = watchpoint->GetHitCounter();
-	watchpointCounterInterval = watchpoint->GetBreakCounter();
+	_watchpointName = watchpoint->GetName();
+	_watchpointEnable = watchpoint->GetEnabled();
+	_watchpointLog = watchpoint->GetLogEvent();
+	_watchpointBreak = watchpoint->GetBreakEvent();
+	_watchpointConditionNot = watchpoint->GetLocationConditionNot();
+	_watchpointOnRead = watchpoint->GetOnRead();
+	_watchpointOnWrite = watchpoint->GetOnWrite();
+	_watchpointReadConditionEnabled = watchpoint->GetReadConditionEnabled();
+	_watchpointReadConditionNot = watchpoint->GetReadConditionNot();
+	_watchpointWriteConditionEnabled = watchpoint->GetWriteConditionEnabled();
+	_watchpointWriteConditionNot = watchpoint->GetWriteConditionNot();
+	_watchpointCondition = watchpoint->GetLocationCondition();
+	_watchpointReadCondition = watchpoint->GetReadCondition();
+	_watchpointWriteCondition = watchpoint->GetWriteCondition();
+	_watchpointLocation1 = watchpoint->GetLocationConditionData1();
+	_watchpointLocation2 = watchpoint->GetLocationConditionData2();
+	_watchpointLocationMask = watchpoint->GetLocationMask();
+	_watchpointReadConditionData1 = watchpoint->GetReadConditionData1();
+	_watchpointReadConditionData2 = watchpoint->GetReadConditionData2();
+	_watchpointWriteConditionData1 = watchpoint->GetWriteConditionData1();
+	_watchpointWriteConditionData2 = watchpoint->GetWriteConditionData2();
+	_watchpointCounterEnable = watchpoint->GetBreakOnCounter();
+	_watchpointCounter = watchpoint->GetHitCounter();
+	_watchpointCounterInterval = watchpoint->GetBreakCounter();
 }
 
 //----------------------------------------------------------------------------------------
 void WatchpointView::SaveDataToWatchpoint(IWatchpoint* watchpoint)
 {
 	bool generateName = false;
-	if(watchpointName.empty() || (watchpointName == watchpoint->GenerateName()))
+	if(_watchpointName.empty() || (_watchpointName == watchpoint->GenerateName()))
 	{
 		generateName = true;
 	}
-	watchpoint->SetEnabled(watchpointEnable);
-	watchpoint->SetLogEvent(watchpointLog);
-	watchpoint->SetBreakEvent(watchpointBreak);
-	watchpoint->SetLocationConditionNot(watchpointConditionNot);
-	watchpoint->SetOnRead(watchpointOnRead);
-	watchpoint->SetOnWrite(watchpointOnWrite);
-	watchpoint->SetReadConditionEnabled(watchpointReadConditionEnabled);
-	watchpoint->SetReadConditionNot(watchpointReadConditionNot);
-	watchpoint->SetWriteConditionEnabled(watchpointWriteConditionEnabled);
-	watchpoint->SetWriteConditionNot(watchpointWriteConditionNot);
-	watchpoint->SetLocationCondition(watchpointCondition);
-	watchpoint->SetReadCondition(watchpointReadCondition);
-	watchpoint->SetWriteCondition(watchpointWriteCondition);
-	watchpoint->SetLocationConditionData1(watchpointLocation1);
-	watchpoint->SetLocationConditionData2(watchpointLocation2);
-	watchpoint->SetLocationMask(watchpointLocationMask);
-	watchpoint->SetReadConditionData1(watchpointReadConditionData1);
-	watchpoint->SetReadConditionData2(watchpointReadConditionData2);
-	watchpoint->SetWriteConditionData1(watchpointWriteConditionData1);
-	watchpoint->SetWriteConditionData2(watchpointWriteConditionData2);
-	watchpoint->SetBreakOnCounter(watchpointCounterEnable);
-	watchpoint->SetHitCounter(watchpointCounter);
-	watchpoint->SetBreakCounter(watchpointCounterInterval);
+	watchpoint->SetEnabled(_watchpointEnable);
+	watchpoint->SetLogEvent(_watchpointLog);
+	watchpoint->SetBreakEvent(_watchpointBreak);
+	watchpoint->SetLocationConditionNot(_watchpointConditionNot);
+	watchpoint->SetOnRead(_watchpointOnRead);
+	watchpoint->SetOnWrite(_watchpointOnWrite);
+	watchpoint->SetReadConditionEnabled(_watchpointReadConditionEnabled);
+	watchpoint->SetReadConditionNot(_watchpointReadConditionNot);
+	watchpoint->SetWriteConditionEnabled(_watchpointWriteConditionEnabled);
+	watchpoint->SetWriteConditionNot(_watchpointWriteConditionNot);
+	watchpoint->SetLocationCondition(_watchpointCondition);
+	watchpoint->SetReadCondition(_watchpointReadCondition);
+	watchpoint->SetWriteCondition(_watchpointWriteCondition);
+	watchpoint->SetLocationConditionData1(_watchpointLocation1);
+	watchpoint->SetLocationConditionData2(_watchpointLocation2);
+	watchpoint->SetLocationMask(_watchpointLocationMask);
+	watchpoint->SetReadConditionData1(_watchpointReadConditionData1);
+	watchpoint->SetReadConditionData2(_watchpointReadConditionData2);
+	watchpoint->SetWriteConditionData1(_watchpointWriteConditionData1);
+	watchpoint->SetWriteConditionData2(_watchpointWriteConditionData2);
+	watchpoint->SetBreakOnCounter(_watchpointCounterEnable);
+	watchpoint->SetHitCounter(_watchpointCounter);
+	watchpoint->SetBreakCounter(_watchpointCounterInterval);
 	if(generateName)
 	{
-		watchpointName = watchpoint->GenerateName();
+		_watchpointName = watchpoint->GenerateName();
 	}
-	watchpoint->SetName(watchpointName);
+	watchpoint->SetName(_watchpointName);
 }
 
 //----------------------------------------------------------------------------------------
 void WatchpointView::ClearWatchpointData()
 {
-	watchpointName.clear();
-	watchpointEnable = true;
-	watchpointLog = true;
-	watchpointBreak = true;
-	watchpointConditionNot = false;
-	watchpointOnRead = true;
-	watchpointOnWrite = true;
-	watchpointReadConditionEnabled = false;
-	watchpointReadConditionNot = false;
-	watchpointWriteConditionEnabled = false;
-	watchpointWriteConditionNot = false;
-	watchpointCondition = IWatchpoint::Condition::Equal;
-	watchpointReadCondition = IWatchpoint::Condition::Equal;
-	watchpointWriteCondition = IWatchpoint::Condition::Equal;
-	watchpointLocation1 = 0;
-	watchpointLocation2 = 0;
-	watchpointLocationMask = model.GetAddressBusMask();
-	watchpointReadConditionData1 = 0;
-	watchpointReadConditionData2 = 0;
-	watchpointWriteConditionData1 = 0;
-	watchpointWriteConditionData2 = 0;
-	watchpointCounterEnable = false;
-	watchpointCounter = 0;
-	watchpointCounterInterval = 1;
+	_watchpointName.clear();
+	_watchpointEnable = true;
+	_watchpointLog = true;
+	_watchpointBreak = true;
+	_watchpointConditionNot = false;
+	_watchpointOnRead = true;
+	_watchpointOnWrite = true;
+	_watchpointReadConditionEnabled = false;
+	_watchpointReadConditionNot = false;
+	_watchpointWriteConditionEnabled = false;
+	_watchpointWriteConditionNot = false;
+	_watchpointCondition = IWatchpoint::Condition::Equal;
+	_watchpointReadCondition = IWatchpoint::Condition::Equal;
+	_watchpointWriteCondition = IWatchpoint::Condition::Equal;
+	_watchpointLocation1 = 0;
+	_watchpointLocation2 = 0;
+	_watchpointLocationMask = _model.GetAddressBusMask();
+	_watchpointReadConditionData1 = 0;
+	_watchpointReadConditionData2 = 0;
+	_watchpointWriteConditionData1 = 0;
+	_watchpointWriteConditionData2 = 0;
+	_watchpointCounterEnable = false;
+	_watchpointCounter = 0;
+	_watchpointCounterInterval = 1;
 }
 
 //----------------------------------------------------------------------------------------
 void WatchpointView::UpdateWatchpointFields(HWND hwnd)
 {
-	unsigned int addressCharWidth = model.GetAddressBusCharWidth();
-	unsigned int dataCharWidth = model.GetDataBusCharWidth();
-	UpdateDlgItemString(hwnd, IDC_PROCESSOR_WATCH_NAME, watchpointName);
-	CheckDlgButton(hwnd, IDC_PROCESSOR_WATCH_ENABLE, (watchpointEnable)? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_PROCESSOR_WATCH_LOG, (watchpointLog)? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_PROCESSOR_WATCH_BREAK, (watchpointBreak)? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_PROCESSOR_WATCH_ONREAD, (watchpointOnRead)? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_PROCESSOR_WATCH_ONWRITE, (watchpointOnWrite)? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_PROCESSOR_WATCH_BREAKONCOUNTER, (watchpointCounterEnable)? BST_CHECKED: BST_UNCHECKED);
-	UpdateDlgItemBin(hwnd, IDC_PROCESSOR_WATCH_BREAKCOUNTER, watchpointCounterInterval);
-	UpdateDlgItemBin(hwnd, IDC_PROCESSOR_WATCH_HITCOUNT, watchpointCounter);
+	unsigned int addressCharWidth = _model.GetAddressBusCharWidth();
+	unsigned int dataCharWidth = _model.GetDataBusCharWidth();
+	UpdateDlgItemString(hwnd, IDC_PROCESSOR_WATCH_NAME, _watchpointName);
+	CheckDlgButton(hwnd, IDC_PROCESSOR_WATCH_ENABLE, (_watchpointEnable)? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_PROCESSOR_WATCH_LOG, (_watchpointLog)? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_PROCESSOR_WATCH_BREAK, (_watchpointBreak)? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_PROCESSOR_WATCH_ONREAD, (_watchpointOnRead)? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_PROCESSOR_WATCH_ONWRITE, (_watchpointOnWrite)? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_PROCESSOR_WATCH_BREAKONCOUNTER, (_watchpointCounterEnable)? BST_CHECKED: BST_UNCHECKED);
+	UpdateDlgItemBin(hwnd, IDC_PROCESSOR_WATCH_BREAKCOUNTER, _watchpointCounterInterval);
+	UpdateDlgItemBin(hwnd, IDC_PROCESSOR_WATCH_HITCOUNT, _watchpointCounter);
 
-	UpdateDlgItemHex(hwnd, IDC_PROCESSOR_WATCH_LOCCONDDATA1, addressCharWidth, watchpointLocation1);
-	UpdateDlgItemHex(hwnd, IDC_PROCESSOR_WATCH_LOCCONDDATA2, addressCharWidth, watchpointLocation2);
-	UpdateDlgItemHex(hwnd, IDC_PROCESSOR_WATCH_LOCMASK, addressCharWidth, watchpointLocationMask);
-	CheckDlgButton(hwnd, IDC_PROCESSOR_WATCH_LOCCONDNOT, (watchpointConditionNot)? BST_CHECKED: BST_UNCHECKED);
-	switch(watchpointCondition)
+	UpdateDlgItemHex(hwnd, IDC_PROCESSOR_WATCH_LOCCONDDATA1, addressCharWidth, _watchpointLocation1);
+	UpdateDlgItemHex(hwnd, IDC_PROCESSOR_WATCH_LOCCONDDATA2, addressCharWidth, _watchpointLocation2);
+	UpdateDlgItemHex(hwnd, IDC_PROCESSOR_WATCH_LOCMASK, addressCharWidth, _watchpointLocationMask);
+	CheckDlgButton(hwnd, IDC_PROCESSOR_WATCH_LOCCONDNOT, (_watchpointConditionNot)? BST_CHECKED: BST_UNCHECKED);
+	switch(_watchpointCondition)
 	{
 	case IWatchpoint::Condition::Equal:
 		CheckRadioButton(hwnd, IDC_PROCESSOR_WATCH_LOCCOND1, IDC_PROCESSOR_WATCH_LOCCOND4, IDC_PROCESSOR_WATCH_LOCCOND1);
@@ -517,7 +517,7 @@ void WatchpointView::UpdateWatchpointFields(HWND hwnd)
 		CheckRadioButton(hwnd, IDC_PROCESSOR_WATCH_LOCCOND1, IDC_PROCESSOR_WATCH_LOCCOND4, IDC_PROCESSOR_WATCH_LOCCOND4);
 		break;
 	}
-	if(watchpointCondition == IWatchpoint::Condition::GreaterAndLess)
+	if(_watchpointCondition == IWatchpoint::Condition::GreaterAndLess)
 	{
 		EnableWindow(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LOCCONDDATA2), TRUE);
 	}
@@ -526,16 +526,16 @@ void WatchpointView::UpdateWatchpointFields(HWND hwnd)
 		EnableWindow(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_LOCCONDDATA2), FALSE);
 	}
 
-	CheckDlgButton(hwnd, IDC_PROCESSOR_WATCH_READCONDENABLED, (watchpointReadConditionEnabled)? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_PROCESSOR_WATCH_READCONDNOT, (watchpointReadConditionNot)? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_PROCESSOR_WATCH_WRITECONDENABLED, (watchpointWriteConditionEnabled)? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_PROCESSOR_WATCH_WRITECONDNOT, (watchpointWriteConditionNot)? BST_CHECKED: BST_UNCHECKED);
-	UpdateDlgItemHex(hwnd, IDC_PROCESSOR_WATCH_READCONDDATA1, dataCharWidth, watchpointReadConditionData1);
-	UpdateDlgItemHex(hwnd, IDC_PROCESSOR_WATCH_READCONDDATA2, dataCharWidth, watchpointReadConditionData2);
-	UpdateDlgItemHex(hwnd, IDC_PROCESSOR_WATCH_WRITECONDDATA1, dataCharWidth, watchpointWriteConditionData1);
-	UpdateDlgItemHex(hwnd, IDC_PROCESSOR_WATCH_WRITECONDDATA2, dataCharWidth, watchpointWriteConditionData2);
+	CheckDlgButton(hwnd, IDC_PROCESSOR_WATCH_READCONDENABLED, (_watchpointReadConditionEnabled)? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_PROCESSOR_WATCH_READCONDNOT, (_watchpointReadConditionNot)? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_PROCESSOR_WATCH_WRITECONDENABLED, (_watchpointWriteConditionEnabled)? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_PROCESSOR_WATCH_WRITECONDNOT, (_watchpointWriteConditionNot)? BST_CHECKED: BST_UNCHECKED);
+	UpdateDlgItemHex(hwnd, IDC_PROCESSOR_WATCH_READCONDDATA1, dataCharWidth, _watchpointReadConditionData1);
+	UpdateDlgItemHex(hwnd, IDC_PROCESSOR_WATCH_READCONDDATA2, dataCharWidth, _watchpointReadConditionData2);
+	UpdateDlgItemHex(hwnd, IDC_PROCESSOR_WATCH_WRITECONDDATA1, dataCharWidth, _watchpointWriteConditionData1);
+	UpdateDlgItemHex(hwnd, IDC_PROCESSOR_WATCH_WRITECONDDATA2, dataCharWidth, _watchpointWriteConditionData2);
 
-	switch(watchpointReadCondition)
+	switch(_watchpointReadCondition)
 	{
 	case IWatchpoint::Condition::Equal:
 		CheckRadioButton(hwnd, IDC_PROCESSOR_WATCH_READCOND1, IDC_PROCESSOR_WATCH_READCOND4, IDC_PROCESSOR_WATCH_READCOND1);
@@ -550,7 +550,7 @@ void WatchpointView::UpdateWatchpointFields(HWND hwnd)
 		CheckRadioButton(hwnd, IDC_PROCESSOR_WATCH_READCOND1, IDC_PROCESSOR_WATCH_READCOND4, IDC_PROCESSOR_WATCH_READCOND4);
 		break;
 	}
-	if(watchpointReadCondition == IWatchpoint::Condition::GreaterAndLess)
+	if(_watchpointReadCondition == IWatchpoint::Condition::GreaterAndLess)
 	{
 		EnableWindow(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_READCONDDATA2), TRUE);
 	}
@@ -559,7 +559,7 @@ void WatchpointView::UpdateWatchpointFields(HWND hwnd)
 		EnableWindow(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_READCONDDATA2), FALSE);
 	}
 
-	switch(watchpointWriteCondition)
+	switch(_watchpointWriteCondition)
 	{
 	case IWatchpoint::Condition::Equal:
 		CheckRadioButton(hwnd, IDC_PROCESSOR_WATCH_WRITECOND1, IDC_PROCESSOR_WATCH_WRITECOND4, IDC_PROCESSOR_WATCH_WRITECOND1);
@@ -574,7 +574,7 @@ void WatchpointView::UpdateWatchpointFields(HWND hwnd)
 		CheckRadioButton(hwnd, IDC_PROCESSOR_WATCH_WRITECOND1, IDC_PROCESSOR_WATCH_WRITECOND4, IDC_PROCESSOR_WATCH_WRITECOND4);
 		break;
 	}
-	if(watchpointWriteCondition == IWatchpoint::Condition::GreaterAndLess)
+	if(_watchpointWriteCondition == IWatchpoint::Condition::GreaterAndLess)
 	{
 		EnableWindow(GetDlgItem(hwnd, IDC_PROCESSOR_WATCH_WRITECONDDATA2), TRUE);
 	}

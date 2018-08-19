@@ -6,7 +6,7 @@ template<class T> class ROMBase :public MemoryRead
 {
 public:
 	//Constructors
-	inline ROMBase(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
+	inline ROMBase(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 	virtual ~ROMBase();
 
 	//Initialization functions
@@ -16,8 +16,8 @@ public:
 	virtual unsigned int GetMemoryEntrySizeInBytes() const;
 
 protected:
-	unsigned int memoryArraySize;
-	T* memoryArray;
+	unsigned int _memoryArraySize;
+	T* _memoryArray;
 };
 
 #include "ROMBase.inl"

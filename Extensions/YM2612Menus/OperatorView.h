@@ -9,10 +9,10 @@ class OperatorView :public ViewBase
 {
 public:
 	//Constructors
-	OperatorView(IUIManager& auiManager, OperatorViewPresenter& apresenter, IYM2612& amodel, unsigned int achannelNo, unsigned int aoperatorNo);
+	OperatorView(IUIManager& uiManager, OperatorViewPresenter& presenter, IYM2612& model, unsigned int channelNo, unsigned int operatorNo);
 
 	//Operator functions
-	void SetTargetOperator(unsigned int achannelNo, unsigned int aoperatorNo);
+	void SetTargetOperator(unsigned int channelNo, unsigned int operatorNo);
 
 protected:
 	//Member window procedure
@@ -26,13 +26,13 @@ private:
 	INT_PTR msgWM_COMMAND(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
 private:
-	OperatorViewPresenter& presenter;
-	IYM2612& model;
-	bool initializedDialog;
-	std::wstring previousText;
-	unsigned int currentControlFocus;
-	unsigned int channelNo;
-	unsigned int operatorNo;
+	OperatorViewPresenter& _presenter;
+	IYM2612& _model;
+	bool _initializedDialog;
+	std::wstring _previousText;
+	unsigned int _currentControlFocus;
+	unsigned int _channelNo;
+	unsigned int _operatorNo;
 };
 
 #endif

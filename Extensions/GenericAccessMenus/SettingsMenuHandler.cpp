@@ -4,8 +4,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-SettingsMenuHandler::SettingsMenuHandler(GenericAccessMenus& aowner, const IDevice& amodelInstanceKey, IGenericAccess& amodel)
-:MenuHandlerBase(L"GenericAccessSettingsMenu", aowner.GetViewManager()), owner(aowner), modelInstanceKey(amodelInstanceKey), model(amodel)
+SettingsMenuHandler::SettingsMenuHandler(GenericAccessMenus& owner, const IDevice& modelInstanceKey, IGenericAccess& model)
+:MenuHandlerBase(L"GenericAccessSettingsMenu", owner.GetViewManager()), _owner(owner), _modelInstanceKey(modelInstanceKey), _model(model)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -13,10 +13,10 @@ SettingsMenuHandler::SettingsMenuHandler(GenericAccessMenus& aowner, const IDevi
 //----------------------------------------------------------------------------------------
 void SettingsMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) const
 {
-	unsigned int pageCount = model.GetGenericAccessPageCount();
+	unsigned int pageCount = _model.GetGenericAccessPageCount();
 	for(unsigned int i = 0; i < pageCount; ++i)
 	{
-		const IGenericAccessPage* page = model.GetGenericAccessPage(i);
+		const IGenericAccessPage* page = _model.GetGenericAccessPage(i);
 		if(page->GetPageType() == IGenericAccessPage::Type::Settings)
 		{
 			menuItems.push_back(MenuItemDefinition((int)i, page->GetName(), page->GetTitle(), true, true));
@@ -27,8 +27,8 @@ void SettingsMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems)
 //----------------------------------------------------------------------------------------
 IViewPresenter* SettingsMenuHandler::CreateViewForItem(int menuItemID, const std::wstring& viewName)
 {
-	const IGenericAccessPage* page = model.GetGenericAccessPage((unsigned int)menuItemID);
-	return new GenericDataViewPresenter(GetMenuHandlerName(), viewName, menuItemID, owner, modelInstanceKey, model, page);
+	const IGenericAccessPage* page = _model.GetGenericAccessPage((unsigned int)menuItemID);
+	return new GenericDataViewPresenter(GetMenuHandlerName(), viewName, menuItemID, _owner, _modelInstanceKey, _model, page);
 }
 
 //----------------------------------------------------------------------------------------

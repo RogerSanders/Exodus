@@ -10,7 +10,7 @@ class ExceptionsView :public ViewBase
 {
 public:
 	//Constructors
-	ExceptionsView(IUIManager& auiManager, ExceptionsViewPresenter& apresenter, IM68000& amodel);
+	ExceptionsView(IUIManager& uiManager, ExceptionsViewPresenter& presenter, IM68000& model);
 
 protected:
 	//Member window procedure
@@ -28,15 +28,15 @@ private:
 	std::wstring BuildExceptionName(IM68000::Exceptions vectorNumber) const;
 
 private:
-	ExceptionsViewPresenter& presenter;
-	IM68000& model;
-	bool initializedDialog;
-	std::wstring previousText;
-	unsigned int currentControlFocus;
-	unsigned int addressBusCharWidth;
-	int exceptionListIndex;
-	IM68000::ExceptionDebuggingEntry exceptionEntry;
-	std::list<IM68000::ExceptionDebuggingEntry> cachedExceptionList;
+	ExceptionsViewPresenter& _presenter;
+	IM68000& _model;
+	bool _initializedDialog;
+	std::wstring _previousText;
+	unsigned int _currentControlFocus;
+	unsigned int _addressBusCharWidth;
+	int _exceptionListIndex;
+	IM68000::ExceptionDebuggingEntry _exceptionEntry;
+	std::list<IM68000::ExceptionDebuggingEntry> _cachedExceptionList;
 };
 
 #endif

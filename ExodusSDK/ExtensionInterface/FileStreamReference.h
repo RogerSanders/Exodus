@@ -7,7 +7,7 @@ class FileStreamReference
 {
 public:
 	//Constructors
-	inline FileStreamReference(const IGUIExtensionInterface& aguiExtensionInterface);
+	inline FileStreamReference(const IGUIExtensionInterface& guiExtensionInterface);
 	inline ~FileStreamReference();
 
 	//File handling functions
@@ -21,8 +21,8 @@ public:
 	inline Stream::IStream& operator->();
 
 private:
-	const IGUIExtensionInterface& guiExtensionInterface;
-	Stream::IStream* stream;
+	const IGUIExtensionInterface& _guiExtensionInterface;
+	Stream::IStream* _stream;
 };
 
 #include "FileStreamReference.inl"

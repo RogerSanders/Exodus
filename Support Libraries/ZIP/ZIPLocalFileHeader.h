@@ -3,11 +3,11 @@
 #include "StreamInterface/StreamInterface.pkg"
 #include <string>
 
-struct ZIPChunk_LocalFileHeader
+struct ZIPChunkLocalFileHeader
 {
 public:
 	//Constructors
-	inline ZIPChunk_LocalFileHeader();
+	inline ZIPChunkLocalFileHeader();
 	inline void Initialize();
 
 	//Serialization functions
@@ -15,7 +15,10 @@ public:
 	inline bool SaveToStream(Stream::IStream& stream) const;
 
 public:
-	static const unsigned int validSignature = 0x04034B50;
+	//Constants
+	static const unsigned int ValidSignature = 0x04034B50;
+
+public:
 	unsigned int signature;
 	unsigned short versionToExtract;
 	unsigned short bitFlags;

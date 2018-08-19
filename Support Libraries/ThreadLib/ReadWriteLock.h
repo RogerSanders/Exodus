@@ -44,18 +44,18 @@ private:
 
 private:
 	//Thread synchronization
-	std::mutex accessMutex;
-	std::condition_variable writeLockReleased;
-	std::condition_variable writeLockAvailable;
+	std::mutex _accessMutex;
+	std::condition_variable _writeLockReleased;
+	std::condition_variable _writeLockAvailable;
 
 	//Read lock info
-	std::map<DWORD, unsigned int> readLockCount;
+	std::map<DWORD, unsigned int> _readLockCount;
 
 	//Write lock info
-	bool writeLocked;
-	DWORD writeLockThreadID;
-	unsigned int writeLockCount;
-	std::set<DWORD> writeLockPendingThreadIDs;
+	bool _writeLocked;
+	DWORD _writeLockThreadID;
+	unsigned int _writeLockCount;
+	std::set<DWORD> _writeLockPendingThreadIDs;
 };
 
 #endif

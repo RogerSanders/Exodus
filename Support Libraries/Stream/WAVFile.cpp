@@ -8,7 +8,7 @@ namespace Stream {
 WAVFile::~WAVFile()
 {
 	Close();
-	delete[] fileBuffer;
+	delete[] _fileBuffer;
 }
 
 //----------------------------------------------------------------------------------------
@@ -23,7 +23,7 @@ bool WAVFile::IsAtEnd() const
 bool WAVFile::SkipBytes(SizeType byteCount)
 {
 	bool result = false;
-	if(fileOpen)
+	if(_fileOpen)
 	{
 		result = true;
 		unsigned char temp;

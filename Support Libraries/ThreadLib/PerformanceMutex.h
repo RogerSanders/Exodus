@@ -12,7 +12,7 @@ struct PerformanceMutex
 {
 public:
 	inline PerformanceMutex()
-	:mutex(0)
+	:_mutex(0)
 	{}
 
 	inline void Lock()
@@ -27,7 +27,7 @@ public:
 
 		//Enter a spin lock until the mutex can be acquired
 		//while(InterlockedCompareExchangeAcquire(&mutex, 1, 0) != 0) {}
-		while(PerformanceInterlockedBitTestAndSet(&mutex, 0)) {}
+		while(PerformanceInterlockedBitTestAndSet(&_mutex, 0)) {}
 
 		//This final write barrier ensures that the compiler doesn't re-order our acquire
 		//of the mutex after any following instructions.
@@ -46,7 +46,7 @@ public:
 
 		//Release the mutex
 		//InterlockedCompareExchangeRelease(&mutex, 0, 1);
-		PerformanceInterlockedBitTestAndReset(&mutex, 0);
+		PerformanceInterlockedBitTestAndReset(&_mutex, 0);
 
 		//This final write barrier ensures that the compiler doesn't re-order our release
 		//of the mutex after any following instructions.
@@ -64,7 +64,7 @@ public:
 	//		mov     eax, 1
 
 	//		spin_loop:
-	//		xchg    eax, [ebx].mutex
+	//		xchg    eax, [ebx]._mutex
 	//		test    eax, eax
 	//		jnz     spin_loop
 	//	}
@@ -77,13 +77,16 @@ public:
 	//		mov     ebx, this
 	//		mov     eax, 0
 
-	//		xchg    eax, [ebx].mutex
-	//		//mov    eax, [ebx].mutex
+	//		xchg    eax, [ebx]._mutex
+	//		//mov    eax, [ebx]._mutex
 	//	}
 	//}
 
 private:
-	volatile InterlockedVarAligned32 mutex;
+	//Note that we need to use the align directive here to guarantee that our interlocked
+	//types will be correctly aligned to a memory boundary. All the interlocked memory
+	//functions require this alignment, otherwise the result is undefined.
+	__declspec(align(32)) volatile InterlockedVar32 _mutex;
 };
 
 #endif

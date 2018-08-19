@@ -19,25 +19,25 @@ unsigned int ModuleSettingOptionInfo::GetIModuleSettingOptionInfoVersion() const
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> ModuleSettingOptionInfo::GetName() const
 {
-	return name;
+	return _name;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> ModuleSettingOptionInfo::GetDisplayName() const
 {
-	return displayName;
+	return _displayName;
 }
 
 //----------------------------------------------------------------------------------------
 //Setters
 //----------------------------------------------------------------------------------------
-void ModuleSettingOptionInfo::SetName(const Marshal::In<std::wstring>& aname)
+void ModuleSettingOptionInfo::SetName(const Marshal::In<std::wstring>& name)
 {
-	name = aname;
+	_name = name;
 }
 
 //----------------------------------------------------------------------------------------
-void ModuleSettingOptionInfo::SetDisplayName(const Marshal::In<std::wstring>& adisplayName)
+void ModuleSettingOptionInfo::SetDisplayName(const Marshal::In<std::wstring>& displayName)
 {
-	displayName = adisplayName;
+	_displayName = displayName;
 }

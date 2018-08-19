@@ -29,8 +29,8 @@ private:
 	{}
 
 private:
-	mutable std::mutex accessMutex;
-	std::set<IObserverSubscription*> observers;
+	mutable std::mutex _accessMutex;
+	std::set<IObserverSubscription*> _observers;
 };
 
 #include "ObserverCollection.inl"

@@ -22,7 +22,7 @@ public:
 
 	virtual Disassembly M68000Disassemble(const M68000::LabelSubstitutionSettings& labelSettings) const
 	{
-		return Disassembly(GetOpcodeName() + L"." + DisassembleSize(size), source.Disassemble(labelSettings) + L", " + target.Disassemble(labelSettings));
+		return Disassembly(GetOpcodeName() + L"." + DisassembleSize(_size), _source.Disassemble(labelSettings) + L", " + _target.Disassemble(labelSettings));
 	}
 
 	virtual void M68000Decode(const M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)
@@ -37,22 +37,22 @@ public:
 //	-----------------------------------------------------------------
 		if(!data.GetBit(6))
 		{
-			size = BITCOUNT_WORD;
+			_size = BITCOUNT_WORD;
 		}
 		else
 		{
-			size = BITCOUNT_LONG;
+			_size = BITCOUNT_LONG;
 		}
 
-		memoryTarget = data.GetBit(7);
+		_memoryTarget = data.GetBit(7);
 
-		if(memoryTarget)
+		if(_memoryTarget)
 		{
 			//MOVEP	Dx,(d,Ay)
-			source.BuildDataDirect(size, location + GetInstructionSize(), data.GetDataSegment(9, 3));
-			target.BuildAddressIndirectDisplace(size, location + GetInstructionSize(), data.GetDataSegment(0, 3), cpu, transparent, GetInstructionRegister());
-			AddInstructionSize(target.ExtensionSize());
-			if(size != BITCOUNT_LONG)
+			_source.BuildDataDirect(_size, location + GetInstructionSize(), data.GetDataSegment(9, 3));
+			_target.BuildAddressIndirectDisplace(_size, location + GetInstructionSize(), data.GetDataSegment(0, 3), cpu, transparent, GetInstructionRegister());
+			AddInstructionSize(_target.ExtensionSize());
+			if(_size != BITCOUNT_LONG)
 			{
 				AddExecuteCycleCount(ExecuteTime(16, 4, 0));
 			}
@@ -64,10 +64,10 @@ public:
 		else
 		{
 			//MOVEP	(d,Ay),Dx
-			source.BuildAddressIndirectDisplace(size, location + GetInstructionSize(), data.GetDataSegment(0, 3), cpu, transparent, GetInstructionRegister());
-			AddInstructionSize(source.ExtensionSize());
-			target.BuildDataDirect(size, location + GetInstructionSize(), data.GetDataSegment(9, 3));
-			if(size != BITCOUNT_LONG)
+			_source.BuildAddressIndirectDisplace(_size, location + GetInstructionSize(), data.GetDataSegment(0, 3), cpu, transparent, GetInstructionRegister());
+			AddInstructionSize(_source.ExtensionSize());
+			_target.BuildDataDirect(_size, location + GetInstructionSize(), data.GetDataSegment(9, 3));
+			if(_size != BITCOUNT_LONG)
 			{
 				AddExecuteCycleCount(ExecuteTime(16, 2, 2));
 			}
@@ -81,16 +81,16 @@ public:
 	virtual ExecuteTime M68000Execute(M68000* cpu, const M68000Long& location) const
 	{
 		double additionalTime = 0;
-		EffectiveAddress newTarget(target);
-		EffectiveAddress newSource(source);
+		EffectiveAddress newTarget(_target);
+		EffectiveAddress newSource(_source);
 
-		if(memoryTarget)
+		if(_memoryTarget)
 		{
-			//Move the data from the source to the target memory location
-			Data totalData(size);
-			additionalTime += source.Read(cpu, totalData, GetInstructionRegister());
+			//Move the data from the _source to the _target memory location
+			Data totalData(_size);
+			additionalTime += _source.Read(cpu, totalData, GetInstructionRegister());
 			M68000Long address;
-			target.GetAddress(cpu, address);
+			_target.GetAddress(cpu, address);
 			for(unsigned int i = 0; i < totalData.GetByteSize(); ++i)
 			{
 				M68000Byte byte = totalData.GetByteFromTopDown(i);
@@ -100,10 +100,10 @@ public:
 		}
 		else
 		{
-			//Read the data from the memory address and load it into the target
+			//Read the data from the memory address and load it into the _target
 			M68000Long address;
-			source.GetAddress(cpu, address);
-			Data totalData(size);
+			_source.GetAddress(cpu, address);
+			Data totalData(_size);
 			totalData = 0;
 			for(unsigned int i = 0; i < totalData.GetByteSize(); ++i)
 			{
@@ -117,7 +117,7 @@ public:
 				totalData <<= byte.GetBitCount();
 				totalData.SetLowerBits(byte);
 			}
-			additionalTime += target.Write(cpu, totalData, GetInstructionRegister());
+			additionalTime += _target.Write(cpu, totalData, GetInstructionRegister());
 		}
 
 		//Adjust the PC and return the execution time
@@ -127,15 +127,15 @@ public:
 
 	virtual void GetLabelTargetLocations(std::set<unsigned int>& labelTargetLocations) const
 	{
-		source.AddLabelTargetsToSet(labelTargetLocations);
-		target.AddLabelTargetsToSet(labelTargetLocations);
+		_source.AddLabelTargetsToSet(labelTargetLocations);
+		_target.AddLabelTargetsToSet(labelTargetLocations);
 	}
 
 private:
-	bool memoryTarget;
-	Bitcount size;
-	EffectiveAddress source;
-	EffectiveAddress target;
+	bool _memoryTarget;
+	Bitcount _size;
+	EffectiveAddress _source;
+	EffectiveAddress _target;
 };
 
 } //Close namespace M68000

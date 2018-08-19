@@ -25,37 +25,37 @@ std::wstring Breakpoint::GetLogString() const
 //----------------------------------------------------------------------------------------
 bool Breakpoint::GetEnabled() const
 {
-	return enabled;
+	return _enabled;
 }
 
 //----------------------------------------------------------------------------------------
 void Breakpoint::SetEnabled(bool state)
 {
-	enabled = state;
+	_enabled = state;
 }
 
 //----------------------------------------------------------------------------------------
 bool Breakpoint::GetLogEvent() const
 {
-	return logEvent;
+	return _logEvent;
 }
 
 //----------------------------------------------------------------------------------------
 void Breakpoint::SetLogEvent(bool state)
 {
-	logEvent = state;
+	_logEvent = state;
 }
 
 //----------------------------------------------------------------------------------------
 bool Breakpoint::GetBreakEvent() const
 {
-	return breakEvent;
+	return _breakEvent;
 }
 
 //----------------------------------------------------------------------------------------
 void Breakpoint::SetBreakEvent(bool state)
 {
-	breakEvent = state;
+	_breakEvent = state;
 }
 
 //----------------------------------------------------------------------------------------
@@ -63,42 +63,42 @@ void Breakpoint::SetBreakEvent(bool state)
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> Breakpoint::GetName() const
 {
-	return name;
+	return _name;
 }
 
 //----------------------------------------------------------------------------------------
-void Breakpoint::SetName(const Marshal::In<std::wstring>& aname)
+void Breakpoint::SetName(const Marshal::In<std::wstring>& name)
 {
-	name = aname;
+	_name = name;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> Breakpoint::GenerateName() const
 {
 	std::wstring newName;
-	switch(locationCondition)
+	switch(_locationCondition)
 	{
 	case Condition::Equal:{
 		std::wstring locationData1AsString;
-		IntToStringBase16(GetLocationConditionData1(), locationData1AsString, addressBusCharWidth, false);
-		newName += (!locationConditionNot)? locationData1AsString: L"!=" + locationData1AsString;
+		IntToStringBase16(GetLocationConditionData1(), locationData1AsString, _addressBusCharWidth, false);
+		newName += (!_locationConditionNot)? locationData1AsString: L"!=" + locationData1AsString;
 		break;}
 	case Condition::Greater:{
 		std::wstring locationData1AsString;
-		IntToStringBase16(GetLocationConditionData1(), locationData1AsString, addressBusCharWidth, false);
-		newName += (!locationConditionNot)? L">" + locationData1AsString: L"<=" + locationData1AsString;
+		IntToStringBase16(GetLocationConditionData1(), locationData1AsString, _addressBusCharWidth, false);
+		newName += (!_locationConditionNot)? L">" + locationData1AsString: L"<=" + locationData1AsString;
 		break;}
 	case Condition::Less:{
 		std::wstring locationData1AsString;
-		IntToStringBase16(GetLocationConditionData1(), locationData1AsString, addressBusCharWidth, false);
-		newName += (!locationConditionNot)? L"<" + locationData1AsString: L">=" + locationData1AsString;
+		IntToStringBase16(GetLocationConditionData1(), locationData1AsString, _addressBusCharWidth, false);
+		newName += (!_locationConditionNot)? L"<" + locationData1AsString: L">=" + locationData1AsString;
 		break;}
 	case Condition::GreaterAndLess:{
 		std::wstring locationData1AsString;
 		std::wstring locationData2AsString;
-		IntToStringBase16(GetLocationConditionData1(), locationData1AsString, addressBusCharWidth, false);
-		IntToStringBase16(GetLocationConditionData2(), locationData2AsString, addressBusCharWidth, false);
-		newName += (!locationConditionNot)? L">" + locationData1AsString + L" && " + L"<" + locationData2AsString: L"<=" + locationData1AsString + L" || " + L">=" + locationData2AsString;
+		IntToStringBase16(GetLocationConditionData1(), locationData1AsString, _addressBusCharWidth, false);
+		IntToStringBase16(GetLocationConditionData2(), locationData2AsString, _addressBusCharWidth, false);
+		newName += (!_locationConditionNot)? L">" + locationData1AsString + L" && " + L"<" + locationData2AsString: L"<=" + locationData1AsString + L" || " + L">=" + locationData2AsString;
 		break;}
 	}
 	return newName;
@@ -109,68 +109,68 @@ Marshal::Ret<std::wstring> Breakpoint::GenerateName() const
 //----------------------------------------------------------------------------------------
 bool Breakpoint::GetLocationConditionNot() const
 {
-	return locationConditionNot;
+	return _locationConditionNot;
 }
 
 //----------------------------------------------------------------------------------------
 void Breakpoint::SetLocationConditionNot(bool state)
 {
-	locationConditionNot = state;
+	_locationConditionNot = state;
 }
 
 //----------------------------------------------------------------------------------------
 Breakpoint::Condition Breakpoint::GetLocationCondition() const
 {
-	return locationCondition;
+	return _locationCondition;
 }
 
 //----------------------------------------------------------------------------------------
 void Breakpoint::SetLocationCondition(Condition condition)
 {
-	locationCondition = condition;
+	_locationCondition = condition;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int Breakpoint::GetLocationConditionData1() const
 {
-	return locationConditionData1;
+	return _locationConditionData1;
 }
 
 //----------------------------------------------------------------------------------------
 void Breakpoint::SetLocationConditionData1(unsigned int data)
 {
-	locationConditionData1 = data;
+	_locationConditionData1 = data;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int Breakpoint::GetLocationConditionData2() const
 {
-	return locationConditionData2;
+	return _locationConditionData2;
 }
 
 //----------------------------------------------------------------------------------------
 void Breakpoint::SetLocationConditionData2(unsigned int data)
 {
-	locationConditionData2 = data;
+	_locationConditionData2 = data;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int Breakpoint::GetLocationMask() const
 {
-	return locationMask;
+	return _locationMask;
 }
 
 //----------------------------------------------------------------------------------------
 void Breakpoint::SetLocationMask(unsigned int data)
 {
-	locationMask = data & ((1 << addressBusWidth) - 1);
+	_locationMask = data & ((1 << _addressBusWidth) - 1);
 }
 
 //----------------------------------------------------------------------------------------
 bool Breakpoint::PassesLocationCondition(unsigned int location)
 {
 	bool result = true;
-	unsigned int locationMasked = (location & locationMask);
+	unsigned int locationMasked = (location & _locationMask);
 	switch(GetLocationCondition())
 	{
 	case Condition::Equal:
@@ -195,37 +195,37 @@ bool Breakpoint::PassesLocationCondition(unsigned int location)
 //----------------------------------------------------------------------------------------
 unsigned int Breakpoint::GetHitCounter() const
 {
-	return hitCounter;
+	return _hitCounter;
 }
 
 //----------------------------------------------------------------------------------------
-void Breakpoint::SetHitCounter(unsigned int ahitCounter)
+void Breakpoint::SetHitCounter(unsigned int hitCounter)
 {
-	hitCounter = ahitCounter;
+	_hitCounter = hitCounter;
 }
 
 //----------------------------------------------------------------------------------------
 bool Breakpoint::GetBreakOnCounter() const
 {
-	return breakOnCounter;
+	return _breakOnCounter;
 }
 
 //----------------------------------------------------------------------------------------
 void Breakpoint::SetBreakOnCounter(bool state)
 {
-	breakOnCounter = state;
+	_breakOnCounter = state;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int Breakpoint::GetBreakCounter() const
 {
-	return breakCounter;
+	return _breakCounter;
 }
 
 //----------------------------------------------------------------------------------------
-void Breakpoint::SetBreakCounter(unsigned int abreakCounter)
+void Breakpoint::SetBreakCounter(unsigned int breakCounter)
 {
-	breakCounter = (abreakCounter > 0)? abreakCounter: 1;
+	_breakCounter = (breakCounter > 0)? breakCounter: 1;
 }
 
 //----------------------------------------------------------------------------------------
@@ -247,37 +247,37 @@ bool Breakpoint::CheckHitCounter()
 //----------------------------------------------------------------------------------------
 void Breakpoint::LoadState(IHierarchicalStorageNode& node)
 {
-	node.ExtractAttribute(L"Name", name);
-	node.ExtractAttribute(L"Enabled", enabled);
-	node.ExtractAttribute(L"LogEvent", logEvent);
-	node.ExtractAttribute(L"BreakEvent", breakEvent);
-	node.ExtractAttribute(L"LocationConditionNot", locationConditionNot);
+	node.ExtractAttribute(L"Name", _name);
+	node.ExtractAttribute(L"Enabled", _enabled);
+	node.ExtractAttribute(L"LogEvent", _logEvent);
+	node.ExtractAttribute(L"BreakEvent", _breakEvent);
+	node.ExtractAttribute(L"LocationConditionNot", _locationConditionNot);
 	unsigned int locationConditionAsInt;
 	node.ExtractAttribute(L"LocationCondition", locationConditionAsInt);
-	locationCondition = (Condition)locationConditionAsInt;
-	node.ExtractAttributeHex(L"LocationConditionData1", locationConditionData1);
-	node.ExtractAttributeHex(L"LocationConditionData2", locationConditionData2);
-	node.ExtractAttributeHex(L"LocationMask", locationMask);
-	node.ExtractAttribute(L"HitCounter", hitCounter);
-	node.ExtractAttribute(L"HitCounterIncrement", hitCounterIncrement);
-	node.ExtractAttribute(L"BreakOnCounter", breakOnCounter);
-	node.ExtractAttribute(L"BreakCounter", breakCounter);
+	_locationCondition = (Condition)locationConditionAsInt;
+	node.ExtractAttributeHex(L"LocationConditionData1", _locationConditionData1);
+	node.ExtractAttributeHex(L"LocationConditionData2", _locationConditionData2);
+	node.ExtractAttributeHex(L"LocationMask", _locationMask);
+	node.ExtractAttribute(L"HitCounter", _hitCounter);
+	node.ExtractAttribute(L"HitCounterIncrement", _hitCounterIncrement);
+	node.ExtractAttribute(L"BreakOnCounter", _breakOnCounter);
+	node.ExtractAttribute(L"BreakCounter", _breakCounter);
 }
 
 //----------------------------------------------------------------------------------------
 void Breakpoint::SaveState(IHierarchicalStorageNode& node) const
 {
-	node.CreateAttribute(L"Name", name);
-	node.CreateAttribute(L"Enabled", enabled);
-	node.CreateAttribute(L"LogEvent", logEvent);
-	node.CreateAttribute(L"BreakEvent", breakEvent);
-	node.CreateAttribute(L"LocationConditionNot", locationConditionNot);
-	node.CreateAttribute(L"LocationCondition", (unsigned int)locationCondition);
-	node.CreateAttributeHex(L"LocationConditionData1", locationConditionData1, 8);
-	node.CreateAttributeHex(L"LocationConditionData2", locationConditionData2, 8);
-	node.CreateAttributeHex(L"LocationMask", locationMask, 8);
-	node.CreateAttribute(L"HitCounter", hitCounter);
-	node.CreateAttribute(L"HitCounterIncrement", hitCounterIncrement);
-	node.CreateAttribute(L"BreakOnCounter", breakOnCounter);
-	node.CreateAttribute(L"BreakCounter", breakCounter);
+	node.CreateAttribute(L"Name", _name);
+	node.CreateAttribute(L"Enabled", _enabled);
+	node.CreateAttribute(L"LogEvent", _logEvent);
+	node.CreateAttribute(L"BreakEvent", _breakEvent);
+	node.CreateAttribute(L"LocationConditionNot", _locationConditionNot);
+	node.CreateAttribute(L"LocationCondition", (unsigned int)_locationCondition);
+	node.CreateAttributeHex(L"LocationConditionData1", _locationConditionData1, 8);
+	node.CreateAttributeHex(L"LocationConditionData2", _locationConditionData2, 8);
+	node.CreateAttributeHex(L"LocationMask", _locationMask, 8);
+	node.CreateAttribute(L"HitCounter", _hitCounter);
+	node.CreateAttribute(L"HitCounterIncrement", _hitCounterIncrement);
+	node.CreateAttribute(L"BreakOnCounter", _breakOnCounter);
+	node.CreateAttribute(L"BreakCounter", _breakCounter);
 }

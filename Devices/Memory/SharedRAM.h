@@ -9,7 +9,7 @@ class SharedRAM :public MemoryWrite
 {
 public:
 	//Constructors
-	SharedRAM(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
+	SharedRAM(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 	virtual bool Construct(IHierarchicalStorageNode& node);
 
 	//Memory size functions
@@ -61,10 +61,10 @@ private:
 	typedef std::map<unsigned int, MemoryWriteStatus> MemoryAccessBuffer;
 	typedef std::pair<unsigned int, MemoryWriteStatus> MemoryAccessBufferEntry;
 
-	std::mutex accessLock;
-	MemoryAccessBuffer buffer;
-	std::vector<unsigned char> memory;
-	std::vector<bool> memoryLocked;
+	std::mutex _accessLock;
+	MemoryAccessBuffer _buffer;
+	std::vector<unsigned char> _memory;
+	std::vector<bool> _memoryLocked;
 };
 
 #endif

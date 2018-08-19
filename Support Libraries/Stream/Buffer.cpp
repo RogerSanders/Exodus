@@ -6,37 +6,37 @@ namespace Stream {
 //----------------------------------------------------------------------------------------
 bool Buffer::IsAtEnd() const
 {
-	return (streamPos >= bufferSize);
+	return (_streamPos >= _bufferSize);
 }
 
 //----------------------------------------------------------------------------------------
 Buffer::SizeType Buffer::Size() const
 {
-	return bufferSize;
+	return _bufferSize;
 }
 
 //----------------------------------------------------------------------------------------
 Buffer::SizeType Buffer::GetStreamPos() const
 {
-	return streamPos;
+	return _streamPos;
 }
 
 //----------------------------------------------------------------------------------------
 void Buffer::SetStreamPos(SizeType position)
 {
-	streamPos = position;
+	_streamPos = position;
 }
 
 //----------------------------------------------------------------------------------------
 bool Buffer::SkipBytes(SizeType byteCount)
 {
 	//Return false if there are less than the requested number of bytes left in the buffer
-	if((streamPos + byteCount) > bufferSize)
+	if((_streamPos + byteCount) > _bufferSize)
 	{
 		return false;
 	}
 
-	streamPos += byteCount;
+	_streamPos += byteCount;
 	return true;
 }
 

@@ -57,42 +57,42 @@ enum class EffectiveAddress::Mode
 //Constructors
 //----------------------------------------------------------------------------------------
 EffectiveAddress::EffectiveAddress()
-:data(0), indexState(IndexState::None), mode(Mode::Unset)
+:_data(0), _indexState(IndexState::None), _mode(Mode::Unset)
 {}
 
 //----------------------------------------------------------------------------------------
 //Decode functions
 //----------------------------------------------------------------------------------------
-void EffectiveAddress::SetMode(Mode amode)
+void EffectiveAddress::SetMode(Mode mode)
 {
-	mode = amode;
+	_mode = mode;
 }
 
 //----------------------------------------------------------------------------------------
-bool EffectiveAddress::Decode8BitRegister(unsigned int adata)
+bool EffectiveAddress::Decode8BitRegister(unsigned int data)
 {
-	switch(adata & 0x07)
+	switch(data & 0x07)
 	{
 	case 0:	//000
-		mode = Mode::B;
+		_mode = Mode::B;
 		break;
 	case 1:	//001
-		mode = Mode::C;
+		_mode = Mode::C;
 		break;
 	case 2:	//010
-		mode = Mode::D;
+		_mode = Mode::D;
 		break;
 	case 3:	//011
-		mode = Mode::E;
+		_mode = Mode::E;
 		break;
 	case 4:	//100
-		mode = Mode::H;
+		_mode = Mode::H;
 		break;
 	case 5:	//101
-		mode = Mode::L;
+		_mode = Mode::L;
 		break;
 	case 7:	//111
-		mode = Mode::A;
+		_mode = Mode::A;
 		break;
 	default:
 		return false;
@@ -102,58 +102,58 @@ bool EffectiveAddress::Decode8BitRegister(unsigned int adata)
 }
 
 //----------------------------------------------------------------------------------------
-bool EffectiveAddress::Decode16BitRegister(unsigned int adata)
+bool EffectiveAddress::Decode16BitRegister(unsigned int data)
 {
-	switch(adata & 0x03)
+	switch(data & 0x03)
 	{
 	default:
 		DebugAssert(false);
 		break;
 	case 0:	//00
-		mode = Mode::BC;
+		_mode = Mode::BC;
 		break;
 	case 1:	//01
-		mode = Mode::DE;
+		_mode = Mode::DE;
 		break;
 	case 2:	//10
-		mode = Mode::HL;
+		_mode = Mode::HL;
 		break;
 	case 3:	//11
-		mode = Mode::SP;
+		_mode = Mode::SP;
 		break;
 	}
 	return true;
 }
 
 //----------------------------------------------------------------------------------------
-void EffectiveAddress::BuildImmediateData(Bitcount asize, const Z80Word& location, const Z80* cpu, bool transparent)
+void EffectiveAddress::BuildImmediateData(Bitcount size, const Z80Word& location, const Z80* cpu, bool transparent)
 {
-	mode = Mode::Immediate;
-	data.Resize(asize);
-	cpu->ReadMemory(location, data, transparent);
+	_mode = Mode::Immediate;
+	_data.Resize(size);
+	cpu->ReadMemory(location, _data, transparent);
 }
 
 //----------------------------------------------------------------------------------------
-void EffectiveAddress::BuildImmediateData(const Data& adata)
+void EffectiveAddress::BuildImmediateData(const Data& data)
 {
-	mode = Mode::Immediate;
-	data.Resize(adata.GetBitCount());
-	data = adata;
+	_mode = Mode::Immediate;
+	_data.Resize(data.GetBitCount());
+	_data = data;
 }
 
 //----------------------------------------------------------------------------------------
-void EffectiveAddress::BuildQuickData(unsigned int adata)
+void EffectiveAddress::BuildQuickData(unsigned int data)
 {
-	mode = Mode::Immediate;
-	data.Resize(BITCOUNT_BYTE);
-	data = adata;
+	_mode = Mode::Immediate;
+	_data.Resize(BITCOUNT_BYTE);
+	_data = data;
 }
 
 //----------------------------------------------------------------------------------------
-void EffectiveAddress::BuildAbsoluteAddress(const Z80Word& aaddress)
+void EffectiveAddress::BuildAbsoluteAddress(const Z80Word& address)
 {
-	mode = Mode::AddressIndirect;
-	address = aaddress;
+	_mode = Mode::AddressIndirect;
+	_address = address;
 }
 
 //----------------------------------------------------------------------------------------
@@ -161,8 +161,8 @@ void EffectiveAddress::BuildAbsoluteAddress(const Z80Word& location, const Z80* 
 {
 	Z80Word tempAddress;
 	cpu->ReadMemory(location, tempAddress, transparent);
-	mode = Mode::AddressIndirect;
-	address = tempAddress;
+	_mode = Mode::AddressIndirect;
+	_address = tempAddress;
 }
 
 //----------------------------------------------------------------------------------------
@@ -170,20 +170,20 @@ void EffectiveAddress::BuildAbsoluteAddress(const Z80Word& location, const Z80* 
 //----------------------------------------------------------------------------------------
 EffectiveAddress::Mode EffectiveAddress::GetMode() const
 {
-	return mode;
+	return _mode;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int EffectiveAddress::ExtensionSize()
 {
 	unsigned int extensionSize = 0;
-	if(mode == Mode::Immediate)
+	if(_mode == Mode::Immediate)
 	{
-		extensionSize += data.GetByteSize();
+		extensionSize += _data.GetByteSize();
 	}
-	else if(mode == Mode::AddressIndirect)
+	else if(_mode == Mode::AddressIndirect)
 	{
-		extensionSize += address.GetByteSize();
+		extensionSize += _address.GetByteSize();
 	}
 	return extensionSize;
 }
@@ -191,18 +191,18 @@ unsigned int EffectiveAddress::ExtensionSize()
 //----------------------------------------------------------------------------------------
 //Index state functions
 //----------------------------------------------------------------------------------------
-void EffectiveAddress::SetIndexState(IndexState aindexState, const Z80Byte& aindexOffset)
+void EffectiveAddress::SetIndexState(IndexState indexState, const Z80Byte& indexOffset)
 {
-	indexState = aindexState;
-	indexOffset = aindexOffset;
+	_indexState = indexState;
+	_indexOffset = indexOffset;
 }
 
 //----------------------------------------------------------------------------------------
 bool EffectiveAddress::UsesIndexOffset() const
 {
-	if(indexState != IndexState::None)
+	if(_indexState != IndexState::None)
 	{
-		if((mode == Mode::HLIndirect) || (mode == Mode::HLPostInc) || (mode == Mode::HLPostDec))
+		if((_mode == Mode::HLIndirect) || (_mode == Mode::HLPostInc) || (_mode == Mode::HLPostDec))
 		{
 			return true;
 		}
@@ -213,7 +213,7 @@ bool EffectiveAddress::UsesIndexOffset() const
 //----------------------------------------------------------------------------------------
 Z80Byte EffectiveAddress::GetIndexOffset() const
 {
-	return indexOffset;
+	return _indexOffset;
 }
 
 } //Close namespace Z80

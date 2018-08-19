@@ -7,8 +7,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-MenuHandler::MenuHandler(ExodusInterface& aowner, ExodusInterface& amodel)
-:MenuHandlerBase(L"GUIMenus", aowner.GetViewManager()), owner(aowner), model(amodel)
+MenuHandler::MenuHandler(ExodusInterface& owner, ExodusInterface& model)
+:MenuHandlerBase(L"GUIMenus", owner.GetViewManager()), _owner(owner), _model(model)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -28,13 +28,13 @@ IViewPresenter* MenuHandler::CreateViewForItem(int menuItemID, const std::wstrin
 	switch(menuItemID)
 	{
 	case MENUITEM_ABOUT:
-		return new AboutViewPresenter(GetMenuHandlerName(), viewName, menuItemID, owner, model);
+		return new AboutViewPresenter(GetMenuHandlerName(), viewName, menuItemID, _owner, _model);
 	case MENUITEM_SETTINGS:
-		return new SettingsViewPresenter(GetMenuHandlerName(), viewName, menuItemID, owner, model);
+		return new SettingsViewPresenter(GetMenuHandlerName(), viewName, menuItemID, _owner, _model);
 	case MENUITEM_MODULEMANAGER:
-		return new ModuleManagerViewPresenter(GetMenuHandlerName(), viewName, menuItemID, owner, model);
+		return new ModuleManagerViewPresenter(GetMenuHandlerName(), viewName, menuItemID, _owner, _model);
 	case MENUITEM_CREATEDASHBOARD:
-		return new CreateDashboardViewPresenter(GetMenuHandlerName(), viewName, menuItemID, owner, model);
+		return new CreateDashboardViewPresenter(GetMenuHandlerName(), viewName, menuItemID, _owner, _model);
 	}
 	return 0;
 }

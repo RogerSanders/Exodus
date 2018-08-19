@@ -29,15 +29,15 @@ public:
 	{
 		std::wstring argumentDisassembly;
 
-		if(dr == 0)
+		if(_dr == 0)
 		{
 			//MOVE	An,USP
-			argumentDisassembly = source.Disassemble(labelSettings) + L", USP";
+			argumentDisassembly = _source.Disassemble(labelSettings) + L", USP";
 		}
 		else
 		{
 			//MOVE	USP,An
-			argumentDisassembly = L"USP, " + source.Disassemble(labelSettings);
+			argumentDisassembly = L"USP, " + _source.Disassemble(labelSettings);
 		}
 
 		return Disassembly(L"MOVE." + DisassembleSize(BITCOUNT_LONG), argumentDisassembly);
@@ -52,8 +52,8 @@ public:
 //	-----------------------------------------------------------------
 
 //##TODO## Consider splitting this opcode into "Move to USP" and "Move from USP"
-		dr = data.GetDataSegment(3, 1);
-		source.BuildAddressDirect(BITCOUNT_LONG, location + GetInstructionSize(), data.GetDataSegment(0, 3));
+		_dr = data.GetDataSegment(3, 1);
+		_source.BuildAddressDirect(BITCOUNT_LONG, location + GetInstructionSize(), data.GetDataSegment(0, 3));
 		AddExecuteCycleCount(ExecuteTime(4, 1, 0));
 	}
 
@@ -63,17 +63,17 @@ public:
 		M68000Long result;
 
 		//Perform the operation
-		if(dr == 0)
+		if(_dr == 0)
 		{
 		//MOVE	An,USP
-			additionalTime += source.Read(cpu, result, GetInstructionRegister());
+			additionalTime += _source.Read(cpu, result, GetInstructionRegister());
 			cpu->SetUSP(result);
 		}
 		else
 		{
 		//MOVE	USP,An
 			cpu->GetUSP(result);
-			additionalTime += source.Write(cpu, result, GetInstructionRegister());
+			additionalTime += _source.Write(cpu, result, GetInstructionRegister());
 		}
 
 		//Adjust the PC and return the execution time
@@ -83,12 +83,12 @@ public:
 
 	virtual void GetLabelTargetLocations(std::set<unsigned int>& labelTargetLocations) const
 	{
-		source.AddLabelTargetsToSet(labelTargetLocations);
+		_source.AddLabelTargetsToSet(labelTargetLocations);
 	}
 
 private:
-	unsigned int dr;
-	EffectiveAddress source;
+	unsigned int _dr;
+	EffectiveAddress _source;
 };
 
 } //Close namespace M68000

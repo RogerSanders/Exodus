@@ -7,7 +7,7 @@ class Breakpoint :public IBreakpoint
 {
 public:
 	//Constructors
-	inline Breakpoint(unsigned int aaddressBusWidth, unsigned int adataBusWidth, unsigned int aaddressBusCharWidth);
+	inline Breakpoint(unsigned int addressBusWidth, unsigned int dataBusWidth, unsigned int addressBusCharWidth);
 
 	//Interface version functions
 	virtual unsigned int GetIBreakpointVersion() const;
@@ -29,7 +29,7 @@ public:
 
 	//Name functions
 	virtual Marshal::Ret<std::wstring> GetName() const;
-	virtual void SetName(const Marshal::In<std::wstring>& aname);
+	virtual void SetName(const Marshal::In<std::wstring>& name);
 	virtual Marshal::Ret<std::wstring> GenerateName() const;
 
 	//Location condition functions
@@ -47,14 +47,14 @@ public:
 
 	//Hit counter functions
 	virtual unsigned int GetHitCounter() const;
-	virtual void SetHitCounter(unsigned int ahitCounter);
+	virtual void SetHitCounter(unsigned int hitCounter);
 	inline unsigned int GetLiveHitCounter() const;
 	inline void IncrementHitCounter();
 	inline void PreIncrementHitCounter();
 	virtual bool GetBreakOnCounter() const;
 	virtual void SetBreakOnCounter(bool state);
 	virtual unsigned int GetBreakCounter() const;
-	virtual void SetBreakCounter(unsigned int abreakCounter);
+	virtual void SetBreakCounter(unsigned int breakCounter);
 	bool CheckHitCounter();
 
 	//Savestate functions
@@ -63,31 +63,31 @@ public:
 
 private:
 	//Bus sizes
-	unsigned int addressBusWidth;
-	unsigned int dataBusWidth;
-	unsigned int addressBusCharWidth;
+	unsigned int _addressBusWidth;
+	unsigned int _dataBusWidth;
+	unsigned int _addressBusCharWidth;
 
 	//Breakpoint name
-	std::wstring name;
+	std::wstring _name;
 
 	//Breakpoint event triggers
-	bool enabled;
-	bool logEvent;
-	bool breakEvent;
+	bool _enabled;
+	bool _logEvent;
+	bool _breakEvent;
 
 	//Location condition data
-	bool locationConditionNot;
-	Condition locationCondition;
-	unsigned int locationConditionData1;
-	unsigned int locationConditionData2;
-	unsigned int locationMask;
+	bool _locationConditionNot;
+	Condition _locationCondition;
+	unsigned int _locationConditionData1;
+	unsigned int _locationConditionData2;
+	unsigned int _locationMask;
 
 	//Hit counter data
-	unsigned int hitCounter;
-	unsigned int hitCounterIncrement;
-	bool preIncrementCounter;
-	bool breakOnCounter;
-	unsigned int breakCounter;
+	unsigned int _hitCounter;
+	unsigned int _hitCounterIncrement;
+	bool _preIncrementCounter;
+	bool _breakOnCounter;
+	unsigned int _breakCounter;
 };
 
 #include "Breakpoint.inl"

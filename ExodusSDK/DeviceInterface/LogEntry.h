@@ -10,9 +10,9 @@ class LogEntry :public ILogEntry
 {
 public:
 	//Constructors
-	LogEntry(EventLevel alevel);
-	LogEntry(EventLevel alevel, const std::wstring& atext);
-	LogEntry(EventLevel alevel, const std::wstring& asource, const std::wstring& atext);
+	LogEntry(EventLevel level);
+	LogEntry(EventLevel level, const std::wstring& text);
+	LogEntry(EventLevel level, const std::wstring& source, const std::wstring& text);
 	LogEntry(const LogEntry& object);
 
 	//Interface version functions
@@ -26,10 +26,10 @@ public:
 	virtual Marshal::Ret<std::wstring> GetTimeString() const;
 
 	//Setters
-	inline void SetText(const std::wstring& atext);
-	inline void SetSource(const std::wstring& asource);
-	inline void SetEventLevel(EventLevel alevel);
-	virtual void OverrideSourceText(const Marshal::In<std::wstring>& asource) const;
+	inline void SetText(const std::wstring& text);
+	inline void SetSource(const std::wstring& source);
+	inline void SetEventLevel(EventLevel level);
+	virtual void OverrideSourceText(const Marshal::In<std::wstring>& source) const;
 
 	//Version functions
 	virtual unsigned int GetInterfaceVersion() const;
@@ -39,13 +39,13 @@ public:
 	template<class T> inline LogEntry& operator<<(const T& data);
 
 private:
-	EventLevel eventLevel;
-	int hour;
-	int minute;
-	int second;
-	int millisecond;
-	mutable std::wstring source;
-	std::wstringstream text;
+	EventLevel _eventLevel;
+	int _hour;
+	int _minute;
+	int _second;
+	int _millisecond;
+	mutable std::wstring _source;
+	std::wstringstream _text;
 };
 
 #include "LogEntry.inl"

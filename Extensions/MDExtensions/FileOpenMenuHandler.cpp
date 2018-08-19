@@ -3,8 +3,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-MegaDriveROMLoader::FileOpenMenuHandler::FileOpenMenuHandler(MegaDriveROMLoader& aextension)
-:MenuHandlerBase(L"MegaDriveROMLoaderFileOpenMenu", aextension.GetViewManager()), extension(aextension)
+MegaDriveROMLoader::FileOpenMenuHandler::FileOpenMenuHandler(MegaDriveROMLoader& extension)
+:MenuHandlerBase(L"MegaDriveROMLoaderFileOpenMenu", extension.GetViewManager()), _extension(extension)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -29,15 +29,15 @@ void MegaDriveROMLoader::FileOpenMenuHandler::DeleteViewForItem(int menuItemID, 
 }
 
 //----------------------------------------------------------------------------------------
-void MegaDriveROMLoader::FileOpenMenuHandler::HandleMenuItemSelectNonView(int menuItemID, IViewManager& aviewManager)
+void MegaDriveROMLoader::FileOpenMenuHandler::HandleMenuItemSelectNonView(int menuItemID, IViewManager& viewManager)
 {
 	switch(menuItemID)
 	{
 	case MENUITEM_OPENMEGADRIVEROM:
-		extension.LoadROMFile();
+		_extension.LoadROMFile();
 		break;
 	case MENUITEM_CLOSEMEGADRIVEROM:
-		extension.UnloadROMFile();
+		_extension.UnloadROMFile();
 		break;
 	}
 }

@@ -67,7 +67,7 @@ class YM2612 :public Device, public GenericAccessBase<IYM2612>
 {
 public:
 	//Constructors
-	YM2612(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
+	YM2612(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 
 	//Interface version functions
 	virtual unsigned int GetIYM2612Version() const;
@@ -200,6 +200,34 @@ private:
 	//Typedefs
 	typedef RandomTimeAccessBuffer<Data, double>::AccessTarget AccessTarget;
 
+	//Constants
+	static const unsigned int ChannelAddressOffsets[ChannelCount];
+	static const unsigned int OperatorAddressOffsets[ChannelCount][OperatorCount];
+	static const unsigned int Channel3OperatorFrequencyAddressOffsets[2][OperatorCount];
+
+	//Envelope generator constants
+	static const unsigned int RateBitCount = 6;
+	static const unsigned int AttenuationBitCount = 10;
+	static const unsigned int FnumDataBitCount = 11;
+	static const unsigned int PhaseGeneratorOutputBitCount = 10;
+	static const unsigned int KeyCodeBitCount = 5;
+	static const unsigned int CounterShiftTable[1 << RateBitCount];
+	static const unsigned int AttenuationIncrementTable[1 << RateBitCount][8];
+	static const unsigned int PmsBitCount = 3;
+	static const unsigned int PhaseModIndexBitCount = 5;
+	static const unsigned int PhaseModIncrementTable[1 << PmsBitCount][1 << (PhaseModIndexBitCount - 2)];
+	static const unsigned int DetuneBitCount = 3;
+	static const unsigned int DetunePhaseIncrementTable[1 << KeyCodeBitCount][1 << (DetuneBitCount - 1)];
+
+	//Operator unit constants
+	static const unsigned int PhaseBitCount = 10;
+	static const unsigned int SinTableBitCount = 8;
+	static const unsigned int PowTableBitCount = 8;
+	static const unsigned int SinTableOutputBitCount = 12;
+	static const unsigned int PowTableOutputBitCount = 11;
+	static const unsigned int OperatorOutputBitCount = 14;
+	static const unsigned int AccumulatorOutputBitCount = 16;
+
 private:
 	//Execute functions
 	void RenderThread();
@@ -328,13 +356,13 @@ private:
 
 	//Status register functions
 	inline Data GetStatusRegister() const;
-	inline void SetStatusRegister(unsigned int adata);
+	inline void SetStatusRegister(unsigned int data);
 	inline bool GetBusyFlag() const;
-	inline void SetBusyFlag(bool astate);
+	inline void SetBusyFlag(bool state);
 	inline bool GetTimerBOverflow() const;
-	inline void SetTimerBOverflow(bool astate);
+	inline void SetTimerBOverflow(bool state);
 	inline bool GetTimerAOverflow() const;
-	inline void SetTimerAOverflow(bool astate);
+	inline void SetTimerAOverflow(bool state);
 
 	//Audio logging functions
 	void SetAudioLoggingEnabled(bool state);
@@ -343,150 +371,123 @@ private:
 	static bool ToggleLoggingEnabledState(Stream::WAVFile& wavFile, const std::wstring& fileName, bool currentState, bool newState, unsigned int channelCount, unsigned int bitsPerSample, unsigned int samplesPerSec);
 
 private:
-	//Constants
-	static const unsigned int channelAddressOffsets[channelCount];
-	static const unsigned int operatorAddressOffsets[channelCount][operatorCount];
-	static const unsigned int channel3OperatorFrequencyAddressOffsets[2][operatorCount];
+	//Calculated internal lookup tables
+	unsigned int sinTable[1 << SinTableBitCount];
+	unsigned int powTable[1 << PowTableBitCount];
 
-	//Envelope generator constants
-	static const unsigned int rateBitCount = 6;
-	static const unsigned int attenuationBitCount = 10;
-	static const unsigned int fnumDataBitCount = 11;
-	static const unsigned int phaseGeneratorOutputBitCount = 10;
-	static const unsigned int keyCodeBitCount = 5;
-	static const unsigned int counterShiftTable[1 << rateBitCount];
-	static const unsigned int attenuationIncrementTable[1 << rateBitCount][8];
-	static const unsigned int pmsBitCount = 3;
-	static const unsigned int phaseModIndexBitCount = 5;
-	static const unsigned int phaseModIncrementTable[1 << pmsBitCount][1 << (phaseModIndexBitCount - 2)];
-	static const unsigned int detuneBitCount = 3;
-	static const unsigned int detunePhaseIncrementTable[1 << keyCodeBitCount][1 << (detuneBitCount - 1)];
-
-	//Operator unit constants
-	static const unsigned int phaseBitCount = 10;
-	static const unsigned int sinTableBitCount = 8;
-	static const unsigned int powTableBitCount = 8;
-	static const unsigned int sinTableOutputBitCount = 12;
-	static const unsigned int powTableOutputBitCount = 11;
-	static const unsigned int operatorOutputBitCount = 14;
-	static const unsigned int accumulatorOutputBitCount = 16;
-	unsigned int sinTable[1 << sinTableBitCount];
-	unsigned int powTable[1 << powTableBitCount];
-
-private:
 	//Clock settings
-	double externalClockRate;
-	double bexternalClockRate;
-	unsigned int fmClockDivider;
-	unsigned int egClockDivider;
-	unsigned int outputClockDivider;
-	unsigned int timerAClockDivider;
-	unsigned int timerBClockDivider;
+	double _externalClockRate;
+	double _bexternalClockRate;
+	unsigned int _fmClockDivider;
+	unsigned int _egClockDivider;
+	unsigned int _outputClockDivider;
+	unsigned int _timerAClockDivider;
+	unsigned int _timerBClockDivider;
 
 	//Bus interface
-	mutable std::mutex lineMutex;
-	IBusInterface* memoryBus;
-	volatile bool icLineState;
-	bool bicLineState;
+	mutable std::mutex _lineMutex;
+	IBusInterface* _memoryBus;
+	volatile bool _icLineState;
+	bool _bicLineState;
 
 	//Registers
-	mutable std::mutex accessMutex;
-	double lastAccessTime;
-	RandomTimeAccessBuffer<Data, double> reg;
-	unsigned int currentReg;
-	unsigned int bcurrentReg;
-	Data status;
-	Data bstatus;
+	mutable std::mutex _accessMutex;
+	double _lastAccessTime;
+	RandomTimeAccessBuffer<Data, double> _reg;
+	unsigned int _currentReg;
+	unsigned int _bcurrentReg;
+	Data _status;
+	Data _bstatus;
 
 	//Temporary storage for fnum/block register latch behaviour
-	bool latchedFrequencyDataPending[channelCount];
-	std::vector<Data> latchedFrequencyData;
-	bool latchedFrequencyDataPendingCH3[3];
-	std::vector<Data> latchedFrequencyDataCH3;
-	bool blatchedFrequencyDataPending[channelCount];
-	std::vector<Data> blatchedFrequencyData;
-	bool blatchedFrequencyDataPendingCH3[3];
-	std::vector<Data> blatchedFrequencyDataCH3;
+	bool _latchedFrequencyDataPending[ChannelCount];
+	std::vector<Data> _latchedFrequencyData;
+	bool _latchedFrequencyDataPendingCH3[3];
+	std::vector<Data> _latchedFrequencyDataCH3;
+	bool _blatchedFrequencyDataPending[ChannelCount];
+	std::vector<Data> _blatchedFrequencyData;
+	bool _blatchedFrequencyDataPendingCH3[3];
+	std::vector<Data> _blatchedFrequencyDataCH3;
 
 	//Timer status
-	double lastTimesliceLength;
-	double timersLastUpdateTime;
-	double timersRemainingTime;
-	double btimersRemainingTime;
-	unsigned int timerARemainingCycles;
-	unsigned int timerBRemainingCycles;
-	unsigned int btimerARemainingCycles;
-	unsigned int btimerBRemainingCycles;
-	unsigned int timerACounter;
-	unsigned int timerBCounter;
-	unsigned int btimerACounter;
-	unsigned int btimerBCounter;
-	unsigned int timerAInitialCounter;
-	unsigned int timerBInitialCounter;
-	unsigned int btimerAInitialCounter;
-	unsigned int btimerBInitialCounter;
-	bool timerAEnable;
-	bool timerBEnable;
-	bool btimerAEnable;
-	bool btimerBEnable;
-	bool timerALoad;
-	bool timerBLoad;
-	bool btimerALoad;
-	bool btimerBLoad;
-	bool irqLineState;
-	bool birqLineState;
+	double _lastTimesliceLength;
+	double _timersLastUpdateTime;
+	double _timersRemainingTime;
+	double _btimersRemainingTime;
+	unsigned int _timerARemainingCycles;
+	unsigned int _timerBRemainingCycles;
+	unsigned int _btimerARemainingCycles;
+	unsigned int _btimerBRemainingCycles;
+	unsigned int _timerACounter;
+	unsigned int _timerBCounter;
+	unsigned int _btimerACounter;
+	unsigned int _btimerBCounter;
+	unsigned int _timerAInitialCounter;
+	unsigned int _timerBInitialCounter;
+	unsigned int _btimerAInitialCounter;
+	unsigned int _btimerBInitialCounter;
+	bool _timerAEnable;
+	bool _timerBEnable;
+	bool _btimerAEnable;
+	bool _btimerBEnable;
+	bool _timerALoad;
+	bool _timerBLoad;
+	bool _btimerALoad;
+	bool _btimerBLoad;
+	bool _irqLineState;
+	bool _birqLineState;
 
 	//This register records the times at which Timer A overflows. It is needed in order to
 	//implement CSM support.
-	RandomTimeAccessValue<bool, double> timerAOverflowTimes;
+	RandomTimeAccessValue<bool, double> _timerAOverflowTimes;
 
 	//Render thread properties
-	mutable std::mutex renderThreadMutex;
-	mutable std::mutex timesliceMutex;
-	std::condition_variable renderThreadUpdate;
-	std::condition_variable renderThreadStopped;
-	bool renderThreadActive;
+	mutable std::mutex _renderThreadMutex;
+	mutable std::mutex _timesliceMutex;
+	std::condition_variable _renderThreadUpdate;
+	std::condition_variable _renderThreadStopped;
+	bool _renderThreadActive;
 	static const unsigned int maxPendingRenderOperationCount = 4;
-	bool renderThreadLagging;
-	std::condition_variable renderThreadLaggingStateChange;
-	unsigned int pendingRenderOperationCount;
-	std::list<RandomTimeAccessBuffer<Data, double>::Timeslice> regTimesliceList;
-	std::list<RandomTimeAccessValue<bool, double>::Timeslice> timerATimesliceList;
-	std::list<RandomTimeAccessBuffer<Data, double>::Timeslice> regTimesliceListUncommitted;
-	std::list<RandomTimeAccessValue<bool, double>::Timeslice> timerATimesliceListUncommitted;
-	double remainingRenderTime;
-	int egRemainingRenderCycles;
-	unsigned int outputSampleRate;
-	AudioStream outputStream;
-	std::vector<short> outputBuffer;
+	bool _renderThreadLagging;
+	std::condition_variable _renderThreadLaggingStateChange;
+	unsigned int _pendingRenderOperationCount;
+	std::list<RandomTimeAccessBuffer<Data, double>::Timeslice> _regTimesliceList;
+	std::list<RandomTimeAccessValue<bool, double>::Timeslice> _timerATimesliceList;
+	std::list<RandomTimeAccessBuffer<Data, double>::Timeslice> _regTimesliceListUncommitted;
+	std::list<RandomTimeAccessValue<bool, double>::Timeslice> _timerATimesliceListUncommitted;
+	double _remainingRenderTime;
+	int _egRemainingRenderCycles;
+	unsigned int _outputSampleRate;
+	AudioStream _outputStream;
+	std::vector<short> _outputBuffer;
 
 	//Render data
-	unsigned int envelopeCycleCounter;
-	OperatorData operatorData[channelCount][operatorCount];
-	int operatorOutput[channelCount][operatorCount];
-	int feedbackBuffer[channelCount][2];
-	int cyclesUntilLFOIncrement;
-	unsigned int currentLFOCounter;
+	unsigned int _envelopeCycleCounter;
+	OperatorData _operatorData[ChannelCount][OperatorCount];
+	int _operatorOutput[ChannelCount][OperatorCount];
+	int _feedbackBuffer[ChannelCount][2];
+	int _cyclesUntilLFOIncrement;
+	unsigned int _currentLFOCounter;
 
 	//Register locking
-	mutable std::mutex registerLockMutex;
-	bool keyStateLocking[channelCount][operatorCount];
-	bool rawRegisterLocking[registerCountTotal];
-	std::map<unsigned int, std::list<RegisterLocking>> lockedRegisterState;
-	TimerStateLocking timerAStateLocking;
-	TimerStateLocking timerBStateLocking;
+	mutable std::mutex _registerLockMutex;
+	bool _keyStateLocking[ChannelCount][OperatorCount];
+	bool _rawRegisterLocking[RegisterCountTotal];
+	std::map<unsigned int, std::list<RegisterLocking>> _lockedRegisterState;
+	TimerStateLocking _timerAStateLocking;
+	TimerStateLocking _timerBStateLocking;
 
 	//Wave logging
-	mutable std::mutex waveLoggingMutex;
-	bool wavLoggingEnabled;
-	bool wavLoggingChannelEnabled[channelCount];
-	bool wavLoggingOperatorEnabled[channelCount][operatorCount];
-	std::wstring wavLoggingPath;
-	std::wstring wavLoggingChannelPath[channelCount];
-	std::wstring wavLoggingOperatorPath[channelCount][operatorCount];
-	Stream::WAVFile wavLog;
-	Stream::WAVFile wavLogChannel[channelCount];
-	Stream::WAVFile wavLogOperator[channelCount][operatorCount];
+	mutable std::mutex _waveLoggingMutex;
+	bool _wavLoggingEnabled;
+	bool _wavLoggingChannelEnabled[ChannelCount];
+	bool _wavLoggingOperatorEnabled[ChannelCount][OperatorCount];
+	std::wstring _wavLoggingPath;
+	std::wstring _wavLoggingChannelPath[ChannelCount];
+	std::wstring _wavLoggingOperatorPath[ChannelCount][OperatorCount];
+	Stream::WAVFile _wavLog;
+	Stream::WAVFile _wavLogChannel[ChannelCount];
+	Stream::WAVFile _wavLogOperator[ChannelCount][OperatorCount];
 };
 
 #include "YM2612.inl"

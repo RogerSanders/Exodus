@@ -11,9 +11,6 @@
 class DashboardWindow :public IDockingWindow
 {
 public:
-	//Constants
-	static const wchar_t* windowClassName;
-
 	//Enumerations
 	enum class WindowMessages :unsigned int;
 	enum class InsertDirection;
@@ -22,14 +19,17 @@ public:
 	struct AddWindowParams;
 	struct DividerListEntry;
 
+	//Constants
+	static const wchar_t* WindowClassName;
+
 public:
 	//Constructors
-	DashboardWindow(HINSTANCE amoduleHandle, HWND ahwnd);
+	DashboardWindow(HINSTANCE moduleHandle, HWND hwnd);
 	virtual ~DashboardWindow();
 
 	//Class registration
-	static bool RegisterWindowClass(HINSTANCE amoduleHandle);
-	static bool UnregisterWindowClass(HINSTANCE amoduleHandle);
+	static bool RegisterWindowClass(HINSTANCE moduleHandle);
+	static bool UnregisterWindowClass(HINSTANCE moduleHandle);
 
 	//Message handlers
 	static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -38,11 +38,6 @@ private:
 	//Enumerations
 	enum class DockTargetPos;
 
-	//Constants
-	static const wchar_t* placementTargetWindowClassName;
-	static const wchar_t* placementShadowWindowClassName;
-	static const wchar_t* dividerHighlightWindowClassName;
-
 	//Structures
 	struct DividerContentEntry;
 	struct Divider;
@@ -50,6 +45,12 @@ private:
 	struct DashboardWindowDropTargetInfo;
 	struct DividerSplitPosition;
 	struct DividerExtendButtonPosition;
+
+	//Constants
+	static const wchar_t* PlacementTargetWindowClassName;
+	static const wchar_t* PlacementShadowWindowClassName;
+	static const wchar_t* DividerHighlightWindowClassName;
+	static const unsigned int DividerHighlightWindowCount = 4;
 
 private:
 	//Message handlers
@@ -132,8 +133,8 @@ private:
 	virtual unsigned int GetSortedContentEntryNo(unsigned int sortedContentEntryIndex) const { return 0; }
 	virtual bool GetHostedContentIndexFromWindow(HWND contentWindow, unsigned int& contentEntryNo) const { contentEntryNo = 0; return true; }
 	virtual void SetActiveContent(unsigned int contentEntryNo) { }
-	virtual Marshal::Ret<std::wstring> GetHostedContentTitle(unsigned int contentEntryNo) const { return GetWindowText(hwnd); }
-	virtual HWND GetHostedContentWindow(unsigned int contentEntryNo) const { return hwnd; }
+	virtual Marshal::Ret<std::wstring> GetHostedContentTitle(unsigned int contentEntryNo) const { return GetWindowText(_hwnd); }
+	virtual HWND GetHostedContentWindow(unsigned int contentEntryNo) const { return _hwnd; }
 
 	//Parent docking window methods
 	virtual IDockingWindow* GetParentDockingWindow() const;
@@ -183,74 +184,73 @@ private:
 
 private:
 	//Window handles
-	HINSTANCE moduleHandle;
-	HWND hwnd;
+	HINSTANCE _moduleHandle;
+	HWND _hwnd;
 
 	//Font info
-	HFONT controlFont;
-	int controlFontHeight;
+	HFONT _controlFont;
+	int _controlFontHeight;
 
 	//Cursor info
-	HCURSOR cursorSizeHorizontal;
-	HCURSOR cursorSizeVertical;
-	HCURSOR cursorSizeAll;
+	HCURSOR _cursorSizeHorizontal;
+	HCURSOR _cursorSizeVertical;
+	HCURSOR _cursorSizeAll;
 
 	//Window metrics
-	int dividerSizeX;
-	int dividerSizeY;
-	int controlWidth;
-	int controlHeight;
+	int _dividerSizeX;
+	int _dividerSizeY;
+	int _controlWidth;
+	int _controlHeight;
 
 	//Parent docking window info
-	IDockingWindow* parentDockingWindow;
+	IDockingWindow* _parentDockingWindow;
 
 	//Drag-info
-	bool windowDragInProgress;
-	IDockingWindow* dockingWindowUnderDragPos;
-	RECT windowSizeMoveInitialPos;
-	int lastDragCursorPosX;
-	int lastDragCursorPosY;
-	bool leftMouseButtonDown;
-	bool ignoreNextSizeAndMove;
+	bool _windowDragInProgress;
+	IDockingWindow* _dockingWindowUnderDragPos;
+	RECT _windowSizeMoveInitialPos;
+	int _lastDragCursorPosX;
+	int _lastDragCursorPosY;
+	bool _leftMouseButtonDown;
+	bool _ignoreNextSizeAndMove;
 
 	//Region and divider info
-	std::list<DividerContentEntry> topLevelDividersFromTop;
-	std::list<DividerContentEntry> topLevelDividersFromLeft;
-	std::list<ContentRegion*> regions;
-	std::list<Divider*> dividers;
+	std::list<DividerContentEntry> _topLevelDividersFromTop;
+	std::list<DividerContentEntry> _topLevelDividersFromLeft;
+	std::list<ContentRegion*> _regions;
+	std::list<Divider*> _dividers;
 
 	//Divider drag info
-	bool dividerDragActive;
-	int dragLastPosX;
-	int dragLastPosY;
-	int dragPosOverLimitX;
-	int dragPosOverLimitY;
-	int dragPosSnapDisplacementX;
-	int dragPosSnapDisplacementY;
-	std::set<Divider*> verticalDividersBeingDragged;
-	std::set<Divider*> horizontalDividersBeingDragged;
+	bool _dividerDragActive;
+	int _dragLastPosX;
+	int _dragLastPosY;
+	int _dragPosOverLimitX;
+	int _dragPosOverLimitY;
+	int _dragPosSnapDisplacementX;
+	int _dragPosSnapDisplacementY;
+	std::set<Divider*> _verticalDividersBeingDragged;
+	std::set<Divider*> _horizontalDividersBeingDragged;
 
 	//Drop target info
-	std::map<DockTargetPos, HWND> dropTargets;
-	IDockingWindow* dropTargetsChildDockingWindow;
-	bool dropTargetsVisible;
-	ContentRegion* currentRegionDropTarget;
-	bool dropShadowVisible;
-	DockTargetPos dropShadowCurrentPos;
-	HWND dropShadow;
+	std::map<DockTargetPos, HWND> _dropTargets;
+	IDockingWindow* _dropTargetsChildDockingWindow;
+	bool _dropTargetsVisible;
+	ContentRegion* _currentRegionDropTarget;
+	bool _dropShadowVisible;
+	DockTargetPos _dropShadowCurrentPos;
+	HWND _dropShadow;
 
 	//Divider highlight info
-	unsigned int dividerHighlightVisibleWindowCount;
-	static const unsigned int dividerHighlightWindowCount = 4;
-	HWND dividerHighlightWindows[dividerHighlightWindowCount];
+	unsigned int _dividerHighlightVisibleWindowCount;
+	HWND _dividerHighlightWindows[DividerHighlightWindowCount];
 
 	//Render info
-	WinColor dividerBackgroundColor;
-	Image grabberImage;
-	Image arrowImageTopLeft;
-	Image arrowImageTopRight;
-	Image arrowImageBottomLeft;
-	Image arrowImageBottomRight;
+	WinColor _dividerBackgroundColor;
+	Image _grabberImage;
+	Image _arrowImageTopLeft;
+	Image _arrowImageTopRight;
+	Image _arrowImageBottomLeft;
+	Image _arrowImageBottomRight;
 };
 
 #include "DashboardWindow.inl"

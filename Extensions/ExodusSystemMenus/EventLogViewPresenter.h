@@ -7,21 +7,21 @@ class EventLogViewPresenter :public ViewPresenterBase
 {
 public:
 	//Constructors
-	EventLogViewPresenter(const std::wstring& aviewGroupName, const std::wstring& aviewName, int aviewID, ExodusSystemMenus& aowner, ISystemGUIInterface& amodel);
+	EventLogViewPresenter(const std::wstring& viewGroupName, const std::wstring& viewName, int viewID, ExodusSystemMenus& owner, ISystemGUIInterface& model);
 
 	//View title functions
 	static std::wstring GetUnqualifiedViewTitle();
 
 	//View creation and deletion
 	virtual IView* CreateView(IUIManager& uiManager);
-	virtual void DeleteView(IView* aview);
+	virtual void DeleteView(IView* view);
 
 	//Log functions
 	void SaveEventLog(const std::vector<ISystemGUIInterface::SystemLogEntry>& eventLog, const std::wstring& filePath);
 
 private:
-	ExodusSystemMenus& owner;
-	ISystemGUIInterface& model;
+	ExodusSystemMenus& _owner;
+	ISystemGUIInterface& _model;
 };
 
 #endif

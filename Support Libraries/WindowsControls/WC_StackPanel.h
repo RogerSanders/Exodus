@@ -7,9 +7,6 @@
 class WC_StackPanel
 {
 public:
-	//Constants
-	static const wchar_t* windowClassName;
-
 	//Enumerations
 	enum class WindowMessages :unsigned int;
 	enum class StackDirection;
@@ -20,13 +17,16 @@ public:
 	//Structures
 	struct SetAlignmentParams;
 
+	//Constants
+	static const wchar_t* WindowClassName;
+
 public:
 	//Constructors
-	WC_StackPanel(HINSTANCE amoduleHandle, HWND ahwnd);
+	WC_StackPanel(HINSTANCE moduleHandle, HWND hwnd);
 
 	//Class registration
-	static bool RegisterWindowClass(HINSTANCE amoduleHandle);
-	static bool UnregisterWindowClass(HINSTANCE amoduleHandle);
+	static bool RegisterWindowClass(HINSTANCE moduleHandle);
+	static bool UnregisterWindowClass(HINSTANCE moduleHandle);
 
 	//Message handlers
 	static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -65,20 +65,20 @@ private:
 	void UpdateChildWindowPositions();
 
 private:
-	HINSTANCE moduleHandle;
-	HWND hwnd;
-	int currentControlWidth;
-	int currentControlHeight;
-	StackDirection stackDirection;
-	double verticalContentAlignmentDisplacement;
-	double horizontalContentAlignmentDisplacement;
-	SizeMode sizeMode;
-	bool wrappingEnabled;
-	bool updatingControlSizeInternally;
-	unsigned int verticalPadding;
-	unsigned int horizontalPadding;
-	std::map<HWND, unsigned int> hostedWindowsSet;
-	std::vector<HostedWindowInfo> hostedWindows;
+	HINSTANCE _moduleHandle;
+	HWND _hwnd;
+	int _currentControlWidth;
+	int _currentControlHeight;
+	StackDirection _stackDirection;
+	double _verticalContentAlignmentDisplacement;
+	double _horizontalContentAlignmentDisplacement;
+	SizeMode _sizeMode;
+	bool _wrappingEnabled;
+	bool _updatingControlSizeInternally;
+	unsigned int _verticalPadding;
+	unsigned int _horizontalPadding;
+	std::map<HWND, unsigned int> _hostedWindowsSet;
+	std::vector<HostedWindowInfo> _hostedWindows;
 };
 
 #include "WC_StackPanel.inl"

@@ -4,12 +4,12 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-InputMappingView::InputMappingView(IUIManager& auiManager, InputMappingViewPresenter& apresenter, ISystemGUIInterface& amodel)
-:ViewBase(auiManager, apresenter), presenter(apresenter), model(amodel)
+InputMappingView::InputMappingView(IUIManager& uiManager, InputMappingViewPresenter& presenter, ISystemGUIInterface& model)
+:ViewBase(uiManager, presenter), _presenter(presenter), _model(model)
 {
-	inputDeviceListLastModifiedToken = 0;
-	selectedInputDevice = 0;
-	SetDialogTemplateSettings(apresenter.GetUnqualifiedViewTitle(), GetAssemblyHandle(), MAKEINTRESOURCE(IDD_INPUTMAPPING));
+	_inputDeviceListLastModifiedToken = 0;
+	_selectedInputDevice = 0;
+	SetDialogTemplateSettings(presenter.GetUnqualifiedViewTitle(), GetAssemblyHandle(), MAKEINTRESOURCE(IDD_INPUTMAPPING));
 	SetDialogViewType();
 }
 
@@ -55,14 +55,14 @@ INT_PTR InputMappingView::msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 INT_PTR InputMappingView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	//If the input device list hasn't been modified, abort any further processing.
-	unsigned int newInputDeviceListLastModifiedToken = model.GetInputDeviceListLastModifiedToken();
-	if(inputDeviceListLastModifiedToken == newInputDeviceListLastModifiedToken)
+	unsigned int newInputDeviceListLastModifiedToken = _model.GetInputDeviceListLastModifiedToken();
+	if(_inputDeviceListLastModifiedToken == newInputDeviceListLastModifiedToken)
 	{
 		return TRUE;
 	}
 
 	//Obtain the current set of input devices
-	std::list<IDevice*> inputDeviceList = model.GetInputDeviceList();
+	std::list<IDevice*> inputDeviceList = _model.GetInputDeviceList();
 
 	//Disable visual updates to the input device list
 	SendMessage(GetDlgItem(hwnd, IDC_INPUTMAPPING_LIST), WM_SETREDRAW, FALSE, 0);
@@ -76,7 +76,7 @@ INT_PTR InputMappingView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		//Attempt to retrieve the display name of the next input device
 		IDevice* inputDevice = *i;
 		std::wstring deviceDisplayName;
-		if(!model.GetFullyQualifiedDeviceDisplayName(inputDevice, deviceDisplayName))
+		if(!_model.GetFullyQualifiedDeviceDisplayName(inputDevice, deviceDisplayName))
 		{
 			continue;
 		}
@@ -87,7 +87,7 @@ INT_PTR InputMappingView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 
 		//If this input device was the previously selected input device, record its index
 		//in the list.
-		if(inputDevice == selectedInputDevice)
+		if(inputDevice == _selectedInputDevice)
 		{
 			SendMessage(GetDlgItem(hwnd, IDC_INPUTMAPPING_LIST), LB_SETCURSEL, newItemIndex, 0);
 			foundCurrentlySelectedInputDevice = true;
@@ -99,7 +99,7 @@ INT_PTR InputMappingView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	//in the list.
 	if(!foundCurrentlySelectedInputDevice)
 	{
-		selectedInputDevice = 0;
+		_selectedInputDevice = 0;
 		SendMessage(GetDlgItem(hwnd, IDC_INPUTMAPPING_LIST), LB_SETCURSEL, (WPARAM)-1, 0);
 	}
 
@@ -108,7 +108,7 @@ INT_PTR InputMappingView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	InvalidateRect(GetDlgItem(hwnd, IDC_INPUTMAPPING_LIST), NULL, FALSE);
 
 	//Save the new last modified token as the current last modified token
-	inputDeviceListLastModifiedToken = newInputDeviceListLastModifiedToken;
+	_inputDeviceListLastModifiedToken = newInputDeviceListLastModifiedToken;
 
 	//If we currently have an open details view looking at input mappings for a particular
 	//device, ensure that device still exists, and close the details view if it does not,
@@ -121,7 +121,7 @@ INT_PTR InputMappingView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	//removed when the message is received.
 	if(!foundCurrentlySelectedInputDevice)
 	{
-		presenter.CloseInputMappingDetailsView();
+		_presenter.CloseInputMappingDetailsView();
 	}
 
 	return TRUE;
@@ -140,8 +140,8 @@ INT_PTR InputMappingView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			if(getCurrentSelectionResult != LB_ERR)
 			{
 				int currentItemListIndex = (int)getCurrentSelectionResult;
-				selectedInputDevice = (IDevice*)SendMessage(GetDlgItem(hwnd, IDC_INPUTMAPPING_LIST), LB_GETITEMDATA, currentItemListIndex, NULL);
-				presenter.OpenInputMappingDetailsView(selectedInputDevice);
+				_selectedInputDevice = (IDevice*)SendMessage(GetDlgItem(hwnd, IDC_INPUTMAPPING_LIST), LB_GETITEMDATA, currentItemListIndex, NULL);
+				_presenter.OpenInputMappingDetailsView(_selectedInputDevice);
 			}
 			break;}
 		}

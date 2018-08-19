@@ -8,19 +8,19 @@ class RegistersViewPresenter :public ViewPresenterBase
 {
 public:
 	//Constructors
-	RegistersViewPresenter(const std::wstring& aviewGroupName, const std::wstring& aviewName, int aviewID, YM2612Menus& aowner, const IDevice& amodelInstanceKey, IYM2612& amodel);
+	RegistersViewPresenter(const std::wstring& viewGroupName, const std::wstring& viewName, int viewID, YM2612Menus& owner, const IDevice& modelInstanceKey, IYM2612& model);
 
 	//View title functions
 	static std::wstring GetUnqualifiedViewTitle();
 
 	//View creation and deletion
 	virtual IView* CreateView(IUIManager& uiManager);
-	virtual void DeleteView(IView* aview);
+	virtual void DeleteView(IView* view);
 
 private:
-	YM2612Menus& owner;
-	const IDevice& modelInstanceKey;
-	IYM2612& model;
+	YM2612Menus& _owner;
+	const IDevice& _modelInstanceKey;
+	IYM2612& _model;
 };
 
 #endif

@@ -4,8 +4,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-ExceptionsViewPresenter::ExceptionsViewPresenter(const std::wstring& aviewGroupName, const std::wstring& aviewName, int aviewID, M68000Menus& aowner, const IDevice& amodelInstanceKey, IM68000& amodel)
-:ViewPresenterBase(aowner.GetAssemblyHandle(), aviewGroupName, aviewName, aviewID, amodelInstanceKey.GetDeviceInstanceName(), amodelInstanceKey.GetDeviceModuleID(), amodelInstanceKey.GetModuleDisplayName()), owner(aowner), modelInstanceKey(amodelInstanceKey), model(amodel)
+ExceptionsViewPresenter::ExceptionsViewPresenter(const std::wstring& viewGroupName, const std::wstring& viewName, int viewID, M68000Menus& owner, const IDevice& modelInstanceKey, IM68000& model)
+:ViewPresenterBase(owner.GetAssemblyHandle(), viewGroupName, viewName, viewID, modelInstanceKey.GetDeviceInstanceName(), modelInstanceKey.GetDeviceModuleID(), modelInstanceKey.GetModuleDisplayName()), _owner(owner), _modelInstanceKey(modelInstanceKey), _model(model)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -21,11 +21,11 @@ std::wstring ExceptionsViewPresenter::GetUnqualifiedViewTitle()
 //----------------------------------------------------------------------------------------
 IView* ExceptionsViewPresenter::CreateView(IUIManager& uiManager)
 {
-	return new ExceptionsView(uiManager, *this, model);
+	return new ExceptionsView(uiManager, *this, _model);
 }
 
 //----------------------------------------------------------------------------------------
-void ExceptionsViewPresenter::DeleteView(IView* aview)
+void ExceptionsViewPresenter::DeleteView(IView* view)
 {
-	delete aview;
+	delete view;
 }

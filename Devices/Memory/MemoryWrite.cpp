@@ -3,6 +3,6 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-MemoryWrite::MemoryWrite(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
-:MemoryRead(aimplementationName, ainstanceName, amoduleID)
+MemoryWrite::MemoryWrite(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
+:MemoryRead(implementationName, instanceName, moduleID)
 {}

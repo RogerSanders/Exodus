@@ -5,24 +5,24 @@
 struct PerformanceLock
 {
 public:
-	inline PerformanceLock(PerformanceMutex& amutex)
-	:mutex(amutex)
+	inline PerformanceLock(PerformanceMutex& mutex)
+	:_mutex(mutex)
 	{
-		mutex.Lock();
+		_mutex.Lock();
 	}
 	inline ~PerformanceLock()
 	{
-		mutex.Unlock();
+		_mutex.Unlock();
 	}
 
 private:
 	//Don't allow the lock to be copied
 	PerformanceLock(const PerformanceLock& object)
-	:mutex(object.mutex)
+	:_mutex(object._mutex)
 	{}
 
 private:
-	PerformanceMutex& mutex;
+	PerformanceMutex& _mutex;
 };
 
 #endif

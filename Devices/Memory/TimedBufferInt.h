@@ -55,8 +55,8 @@ protected:
 	virtual void GetLatestBufferCopy(DataType* buffer, unsigned int bufferSize) const;
 
 private:
-	RandomTimeAccessBuffer<DataType, TimesliceType> memory;
-	std::vector<bool> memoryLocked;
+	RandomTimeAccessBuffer<DataType, TimesliceType> _memory;
+	std::vector<bool> _memoryLocked;
 };
 
 #endif

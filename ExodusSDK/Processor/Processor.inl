@@ -184,7 +184,7 @@ struct Processor::ActiveDisassemblyAnalysisData
 //----------------------------------------------------------------------------------------
 double Processor::CalculateExecutionTime(unsigned int cycles) const
 {
-	return ((double)cycles * (1000000000.0 / reportedClockSpeed));
+	return ((double)cycles * (1000000000.0 / _reportedClockSpeed));
 }
 
 //----------------------------------------------------------------------------------------
@@ -198,7 +198,7 @@ void Processor::CheckExecution(unsigned int location) const
 	//which we expect it will almost all the time, due to a lack of inlining and needing
 	//to prepare the stack and registers for inner variables that never get used. This has
 	//been verified through profiling as a performance bottleneck.
-	if(breakpointExists || breakOnNextOpcode || stepOver)
+	if(_breakpointExists || _breakOnNextOpcode || _stepOver)
 	{
 		CheckExecutionInternal(location);
 	}
@@ -215,7 +215,7 @@ void Processor::CheckMemoryRead(unsigned int location, unsigned int data) const
 	//which we expect it will almost all the time, due to a lack of inlining and needing
 	//to prepare the stack and registers for inner variables that never get used. This has
 	//been verified through profiling as a performance bottleneck.
-	if(watchpointExists)
+	if(_watchpointExists)
 	{
 		CheckMemoryReadInternal(location, data);
 	}
@@ -230,7 +230,7 @@ void Processor::CheckMemoryWrite(unsigned int location, unsigned int data) const
 	//which we expect it will almost all the time, due to a lack of inlining and needing
 	//to prepare the stack and registers for inner variables that never get used. This has
 	//been verified through profiling as a performance bottleneck.
-	if(watchpointExists)
+	if(_watchpointExists)
 	{
 		CheckMemoryWriteInternal(location, data);
 	}
@@ -247,7 +247,7 @@ void Processor::RecordTrace(unsigned int pc)
 	//which we expect it will almost all the time, due to a lack of inlining and needing
 	//to prepare the stack and registers for inner variables that never get used. This has
 	//been verified through profiling as a performance bottleneck.
-	if(traceLogEnabled)
+	if(_traceLogEnabled)
 	{
 		return RecordTraceInternal(pc);
 	}

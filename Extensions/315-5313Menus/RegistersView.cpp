@@ -4,19 +4,19 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-RegistersView::RegistersView(IUIManager& auiManager, RegistersViewPresenter& apresenter, IS315_5313& amodel)
-:ViewBase(auiManager, apresenter), presenter(apresenter), model(amodel), initializedDialog(false), currentControlFocus(0), activeTabWindow(NULL)
+RegistersView::RegistersView(IUIManager& uiManager, RegistersViewPresenter& presenter, IS315_5313& model)
+:ViewBase(uiManager, presenter), _presenter(presenter), _model(model), _initializedDialog(false), _currentControlFocus(0), _activeTabWindow(NULL)
 {
-	lockedColor = RGB(255,127,127);
-	lockedBrush = CreateSolidBrush(lockedColor);
-	SetDialogTemplateSettings(apresenter.GetUnqualifiedViewTitle(), GetAssemblyHandle(), MAKEINTRESOURCE(IDD_VDP_REGISTERS));
+	_lockedColor = RGB(255,127,127);
+	_lockedBrush = CreateSolidBrush(_lockedColor);
+	SetDialogTemplateSettings(presenter.GetUnqualifiedViewTitle(), GetAssemblyHandle(), MAKEINTRESOURCE(IDD_VDP_REGISTERS));
 	SetDockableViewType();
 }
 
 //----------------------------------------------------------------------------------------
 RegistersView::~RegistersView()
 {
-	DeleteObject(lockedBrush);
+	DeleteObject(_lockedBrush);
 }
 
 //----------------------------------------------------------------------------------------
@@ -43,16 +43,16 @@ INT_PTR RegistersView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM 
 INT_PTR RegistersView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	//Add our set of tab items to the list of tabs
-	tabItems.push_back(TabInfo(L"Raw Registers", IDD_VDP_REGISTERS_RAWREGISTERS, WndProcRawRegistersStatic));
-	tabItems.push_back(TabInfo(L"Mode Registers", IDD_VDP_REGISTERS_MODEREGISTERS, WndProcModeRegistersStatic));
-	tabItems.push_back(TabInfo(L"Other Registers", IDD_VDP_REGISTERS_OTHERREGISTERS, WndProcOtherRegistersStatic));
+	_tabItems.push_back(TabInfo(L"Raw Registers", IDD_VDP_REGISTERS_RAWREGISTERS, WndProcRawRegistersStatic));
+	_tabItems.push_back(TabInfo(L"Mode Registers", IDD_VDP_REGISTERS_MODEREGISTERS, WndProcModeRegistersStatic));
+	_tabItems.push_back(TabInfo(L"Other Registers", IDD_VDP_REGISTERS_OTHERREGISTERS, WndProcOtherRegistersStatic));
 
 	//Insert our tabs into the tab control
-	for(unsigned int i = 0; i < (unsigned int)tabItems.size(); ++i)
+	for(unsigned int i = 0; i < (unsigned int)_tabItems.size(); ++i)
 	{
 		TCITEM tabItem;
 		tabItem.mask = TCIF_TEXT;
-		tabItem.pszText = (LPWSTR)tabItems[i].tabName.c_str();
+		tabItem.pszText = (LPWSTR)_tabItems[i].tabName.c_str();
 		SendMessage(GetDlgItem(hwnd, IDC_VDP_REGISTERS_TABCONTROL), TCM_INSERTITEM, i, (LPARAM)&tabItem);
 	}
 
@@ -60,16 +60,16 @@ INT_PTR RegistersView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	//client area of the tab control to fit the largest tab window.
 	int requiredTabClientWidth = 0;
 	int requiredTabClientHeight = 0;
-	for(unsigned int i = 0; i < (unsigned int)tabItems.size(); ++i)
+	for(unsigned int i = 0; i < (unsigned int)_tabItems.size(); ++i)
 	{
 		//Create the dialog window for this tab
-		DLGPROC dialogWindowProc = tabItems[i].dialogProc;
-		LPCWSTR dialogTemplateName = MAKEINTRESOURCE(tabItems[i].dialogID);
-		tabItems[i].hwndDialog = CreateDialogParam(GetAssemblyHandle(), dialogTemplateName, GetDlgItem(hwnd, IDC_VDP_REGISTERS_TABCONTROL), dialogWindowProc, (LPARAM)this);
+		DLGPROC dialogWindowProc = _tabItems[i].dialogProc;
+		LPCWSTR dialogTemplateName = MAKEINTRESOURCE(_tabItems[i].dialogID);
+		_tabItems[i].hwndDialog = CreateDialogParam(GetAssemblyHandle(), dialogTemplateName, GetDlgItem(hwnd, IDC_VDP_REGISTERS_TABCONTROL), dialogWindowProc, (LPARAM)this);
 
 		//Calculate the required size of the window for this tab in pixel units
 		RECT rect;
-		GetClientRect(tabItems[i].hwndDialog, &rect);
+		GetClientRect(_tabItems[i].hwndDialog, &rect);
 		int tabWidth = rect.right;
 		int tabHeight = rect.bottom;
 
@@ -113,9 +113,9 @@ INT_PTR RegistersView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	int tabRequiredSizeY = currentTabControlRect.bottom - currentTabControlRect.top;
 
 	//Position and size each tab window
-	for(unsigned int i = 0; i < (unsigned int)tabItems.size(); ++i)
+	for(unsigned int i = 0; i < (unsigned int)_tabItems.size(); ++i)
 	{
-		SetWindowPos(tabItems[i].hwndDialog, NULL, tabRequiredPosX, tabRequiredPosY, tabRequiredSizeX, tabRequiredSizeY, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER);
+		SetWindowPos(_tabItems[i].hwndDialog, NULL, tabRequiredPosX, tabRequiredPosY, tabRequiredSizeX, tabRequiredSizeY, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER);
 	}
 
 	//Calculate the current size of the owning window
@@ -130,8 +130,8 @@ INT_PTR RegistersView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	SetWindowPos(hwnd, NULL, 0, 0, newMainDialogWidth, newMainDialogHeight, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER | SWP_NOMOVE);
 
 	//Explicitly select and show the first tab
-	activeTabWindow = tabItems[0].hwndDialog;
-	ShowWindow(activeTabWindow, SW_SHOWNA);
+	_activeTabWindow = _tabItems[0].hwndDialog;
+	ShowWindow(_activeTabWindow, SW_SHOWNA);
 
 	return TRUE;
 }
@@ -146,10 +146,10 @@ INT_PTR RegistersView::msgWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam)
 	//explicitly destroy the child window here. The child window is fully destroyed before
 	//the DestroyWindow() function returns, and our state is still valid until we return
 	//from handling this WM_DESTROY message.
-	if(activeTabWindow != NULL)
+	if(_activeTabWindow != NULL)
 	{
-		DestroyWindow(activeTabWindow);
-		activeTabWindow = NULL;
+		DestroyWindow(_activeTabWindow);
+		_activeTabWindow = NULL;
 	}
 
 	return FALSE;
@@ -169,21 +169,21 @@ INT_PTR RegistersView::msgWM_NOTIFY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			HDWP deferWindowPosSession = BeginDeferWindowPos(2);
 
 			//If another tab window is currently visible, hide it now.
-			if(activeTabWindow != NULL)
+			if(_activeTabWindow != NULL)
 			{
-				DeferWindowPos(deferWindowPosSession, activeTabWindow, NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
-				activeTabWindow = NULL;
-				initializedDialog = false;
+				DeferWindowPos(deferWindowPosSession, _activeTabWindow, NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
+				_activeTabWindow = NULL;
+				_initializedDialog = false;
 			}
 
 			//Show the window for the new selected tab on the tab control
 			int currentlySelectedTab = (int)SendMessage(nmhdr->hwndFrom, TCM_GETCURSEL, 0, 0);
-			if((currentlySelectedTab < 0) || (currentlySelectedTab >= (int)tabItems.size()))
+			if((currentlySelectedTab < 0) || (currentlySelectedTab >= (int)_tabItems.size()))
 			{
 				currentlySelectedTab = 0;
 			}
-			activeTabWindow = tabItems[currentlySelectedTab].hwndDialog;
-			DeferWindowPos(deferWindowPosSession, activeTabWindow, NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
+			_activeTabWindow = _tabItems[currentlySelectedTab].hwndDialog;
+			DeferWindowPos(deferWindowPosSession, _activeTabWindow, NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
 
 			//Process all the window size and position changes involved in this update
 			EndDeferWindowPos(deferWindowPosSession);
@@ -324,58 +324,58 @@ INT_PTR RegistersView::msgRawRegistersWM_DESTROY(HWND hwnd, WPARAM wparam, LPARA
 //----------------------------------------------------------------------------------------
 INT_PTR RegistersView::msgRawRegistersWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	initializedDialog = true;
+	_initializedDialog = true;
 
 	//Update raw registers
-	for(unsigned int i = 0; i < IS315_5313::registerCount; ++i)
+	for(unsigned int i = 0; i < IS315_5313::RegisterCount; ++i)
 	{
-		if(currentControlFocus != (IDC_REG_0 + i))	UpdateDlgItemHex(hwnd, IDC_REG_0 + i, 2, model.GetRegisterData(i));
+		if(_currentControlFocus != (IDC_REG_0 + i))	UpdateDlgItemHex(hwnd, IDC_REG_0 + i, 2, _model.GetRegisterData(i));
 	}
 
 	//Port registers
-	if(currentControlFocus != IDC_CODE)	UpdateDlgItemHex(hwnd, IDC_CODE, 2, model.RegGetPortCode());
-	if(currentControlFocus != IDC_ADDRESS)	UpdateDlgItemHex(hwnd, IDC_ADDRESS, 5, model.RegGetPortAddress());
-	CheckDlgButton(hwnd, IDC_WRITEPENDING, model.RegGetPortWritePending()? BST_CHECKED: BST_UNCHECKED);
+	if(_currentControlFocus != IDC_CODE)	UpdateDlgItemHex(hwnd, IDC_CODE, 2, _model.RegGetPortCode());
+	if(_currentControlFocus != IDC_ADDRESS)	UpdateDlgItemHex(hwnd, IDC_ADDRESS, 5, _model.RegGetPortAddress());
+	CheckDlgButton(hwnd, IDC_WRITEPENDING, _model.RegGetPortWritePending()? BST_CHECKED: BST_UNCHECKED);
 
 	//Interrupt registers
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_VINTPENDING, model.RegGetVINTPending()? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_HINTPENDING, model.RegGetHINTPending()? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_EXINTPENDING, model.RegGetEXINTPending()? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_VINTPENDING, _model.RegGetVINTPending()? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_HINTPENDING, _model.RegGetHINTPending()? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_EXINTPENDING, _model.RegGetEXINTPending()? BST_CHECKED: BST_UNCHECKED);
 
 	//FIFO registers
-	if(currentControlFocus != IDC_VDP_REGISTERS_FIFOBUFFER_CODE1) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_CODE1, 2, model.RegGetFIFOCode(0));
-	if(currentControlFocus != IDC_VDP_REGISTERS_FIFOBUFFER_ADDRESS1) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_ADDRESS1, 5, model.RegGetFIFOAddress(0));
-	if(currentControlFocus != IDC_VDP_REGISTERS_FIFOBUFFER_DATA1) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_DATA1, 4, model.RegGetFIFOData(0));
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_WRITEPENDING1, (model.RegGetFIFOWritePending(0))? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_HALFWRITTEN1, (model.RegGetFIFOHalfWritten(0))? BST_CHECKED: BST_UNCHECKED);
-	if(currentControlFocus != IDC_VDP_REGISTERS_FIFOBUFFER_CODE2) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_CODE2, 2, model.RegGetFIFOCode(1));
-	if(currentControlFocus != IDC_VDP_REGISTERS_FIFOBUFFER_ADDRESS2) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_ADDRESS2, 5, model.RegGetFIFOAddress(1));
-	if(currentControlFocus != IDC_VDP_REGISTERS_FIFOBUFFER_DATA2) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_DATA2, 4, model.RegGetFIFOData(1));
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_WRITEPENDING1, (model.RegGetFIFOWritePending(1))? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_HALFWRITTEN1, (model.RegGetFIFOHalfWritten(1))? BST_CHECKED: BST_UNCHECKED);
-	if(currentControlFocus != IDC_VDP_REGISTERS_FIFOBUFFER_CODE3) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_CODE3, 2, model.RegGetFIFOCode(2));
-	if(currentControlFocus != IDC_VDP_REGISTERS_FIFOBUFFER_ADDRESS3) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_ADDRESS3, 5, model.RegGetFIFOAddress(2));
-	if(currentControlFocus != IDC_VDP_REGISTERS_FIFOBUFFER_DATA3) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_DATA3, 4, model.RegGetFIFOData(2));
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_WRITEPENDING1, (model.RegGetFIFOWritePending(2))? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_HALFWRITTEN1, (model.RegGetFIFOHalfWritten(2))? BST_CHECKED: BST_UNCHECKED);
-	if(currentControlFocus != IDC_VDP_REGISTERS_FIFOBUFFER_CODE4) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_CODE4, 2, model.RegGetFIFOCode(3));
-	if(currentControlFocus != IDC_VDP_REGISTERS_FIFOBUFFER_ADDRESS4) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_ADDRESS4, 5, model.RegGetFIFOAddress(3));
-	if(currentControlFocus != IDC_VDP_REGISTERS_FIFOBUFFER_DATA4) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_DATA4, 4, model.RegGetFIFOData(3));
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_WRITEPENDING1, (model.RegGetFIFOWritePending(3))? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_HALFWRITTEN1, (model.RegGetFIFOHalfWritten(3))? BST_CHECKED: BST_UNCHECKED);
-	if(currentControlFocus != IDC_VDP_REGISTERS_NEXTFIFOREADENTRY) UpdateDlgItemBin(hwnd, IDC_VDP_REGISTERS_NEXTFIFOREADENTRY, model.RegGetFIFONextReadEntry());
-	if(currentControlFocus != IDC_VDP_REGISTERS_NEXTFIFOWRITEENTRY) UpdateDlgItemBin(hwnd, IDC_VDP_REGISTERS_NEXTFIFOWRITEENTRY, model.RegGetFIFONextReadEntry());
-	if(currentControlFocus != IDC_VDP_REGISTERS_READBUFFER) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_READBUFFER, 4, model.RegGetReadBuffer());
-	CheckDlgButton(hwnd, IDC_VDP_SETTINGS_READDATAHALFCACHED, (model.RegGetReadHalfCached())? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_VDP_SETTINGS_READDATAFULLYCACHED, (model.RegGetReadFullyCached())? BST_CHECKED: BST_UNCHECKED);
+	if(_currentControlFocus != IDC_VDP_REGISTERS_FIFOBUFFER_CODE1) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_CODE1, 2, _model.RegGetFIFOCode(0));
+	if(_currentControlFocus != IDC_VDP_REGISTERS_FIFOBUFFER_ADDRESS1) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_ADDRESS1, 5, _model.RegGetFIFOAddress(0));
+	if(_currentControlFocus != IDC_VDP_REGISTERS_FIFOBUFFER_DATA1) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_DATA1, 4, _model.RegGetFIFOData(0));
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_WRITEPENDING1, (_model.RegGetFIFOWritePending(0))? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_HALFWRITTEN1, (_model.RegGetFIFOHalfWritten(0))? BST_CHECKED: BST_UNCHECKED);
+	if(_currentControlFocus != IDC_VDP_REGISTERS_FIFOBUFFER_CODE2) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_CODE2, 2, _model.RegGetFIFOCode(1));
+	if(_currentControlFocus != IDC_VDP_REGISTERS_FIFOBUFFER_ADDRESS2) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_ADDRESS2, 5, _model.RegGetFIFOAddress(1));
+	if(_currentControlFocus != IDC_VDP_REGISTERS_FIFOBUFFER_DATA2) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_DATA2, 4, _model.RegGetFIFOData(1));
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_WRITEPENDING1, (_model.RegGetFIFOWritePending(1))? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_HALFWRITTEN1, (_model.RegGetFIFOHalfWritten(1))? BST_CHECKED: BST_UNCHECKED);
+	if(_currentControlFocus != IDC_VDP_REGISTERS_FIFOBUFFER_CODE3) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_CODE3, 2, _model.RegGetFIFOCode(2));
+	if(_currentControlFocus != IDC_VDP_REGISTERS_FIFOBUFFER_ADDRESS3) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_ADDRESS3, 5, _model.RegGetFIFOAddress(2));
+	if(_currentControlFocus != IDC_VDP_REGISTERS_FIFOBUFFER_DATA3) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_DATA3, 4, _model.RegGetFIFOData(2));
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_WRITEPENDING1, (_model.RegGetFIFOWritePending(2))? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_HALFWRITTEN1, (_model.RegGetFIFOHalfWritten(2))? BST_CHECKED: BST_UNCHECKED);
+	if(_currentControlFocus != IDC_VDP_REGISTERS_FIFOBUFFER_CODE4) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_CODE4, 2, _model.RegGetFIFOCode(3));
+	if(_currentControlFocus != IDC_VDP_REGISTERS_FIFOBUFFER_ADDRESS4) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_ADDRESS4, 5, _model.RegGetFIFOAddress(3));
+	if(_currentControlFocus != IDC_VDP_REGISTERS_FIFOBUFFER_DATA4) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_DATA4, 4, _model.RegGetFIFOData(3));
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_WRITEPENDING1, (_model.RegGetFIFOWritePending(3))? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_FIFOBUFFER_HALFWRITTEN1, (_model.RegGetFIFOHalfWritten(3))? BST_CHECKED: BST_UNCHECKED);
+	if(_currentControlFocus != IDC_VDP_REGISTERS_NEXTFIFOREADENTRY) UpdateDlgItemBin(hwnd, IDC_VDP_REGISTERS_NEXTFIFOREADENTRY, _model.RegGetFIFONextReadEntry());
+	if(_currentControlFocus != IDC_VDP_REGISTERS_NEXTFIFOWRITEENTRY) UpdateDlgItemBin(hwnd, IDC_VDP_REGISTERS_NEXTFIFOWRITEENTRY, _model.RegGetFIFONextReadEntry());
+	if(_currentControlFocus != IDC_VDP_REGISTERS_READBUFFER) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_READBUFFER, 4, _model.RegGetReadBuffer());
+	CheckDlgButton(hwnd, IDC_VDP_SETTINGS_READDATAHALFCACHED, (_model.RegGetReadHalfCached())? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_SETTINGS_READDATAFULLYCACHED, (_model.RegGetReadFullyCached())? BST_CHECKED: BST_UNCHECKED);
 
 	//Status and HV counter registers
-	if(currentControlFocus != IDC_STATUSREGISTER) UpdateDlgItemHex(hwnd, IDC_STATUSREGISTER, 4, model.GetStatus());
-	if(currentControlFocus != IDC_HVCOUNTER) UpdateDlgItemHex(hwnd, IDC_HVCOUNTER, 4, model.RegGetHVCounterExternal());
-	if(currentControlFocus != IDC_VDP_REGISTERS_INTERNALCOUNTERH) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_INTERNALCOUNTERH, 4, model.RegGetHCounterInternal());
-	if(currentControlFocus != IDC_VDP_REGISTERS_INTERNALCOUNTERV) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_INTERNALCOUNTERV, 4, model.RegGetVCounterInternal());
-	if(currentControlFocus != IDC_VDP_REGISTERS_LATCHEDCOUNTERH) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_LATCHEDCOUNTERH, 4, model.RegGetHCounterLatched());
-	if(currentControlFocus != IDC_VDP_REGISTERS_LATCHEDCOUNTERV) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_LATCHEDCOUNTERV, 4, model.RegGetVCounterLatched());
+	if(_currentControlFocus != IDC_STATUSREGISTER) UpdateDlgItemHex(hwnd, IDC_STATUSREGISTER, 4, _model.GetStatus());
+	if(_currentControlFocus != IDC_HVCOUNTER) UpdateDlgItemHex(hwnd, IDC_HVCOUNTER, 4, _model.RegGetHVCounterExternal());
+	if(_currentControlFocus != IDC_VDP_REGISTERS_INTERNALCOUNTERH) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_INTERNALCOUNTERH, 4, _model.RegGetHCounterInternal());
+	if(_currentControlFocus != IDC_VDP_REGISTERS_INTERNALCOUNTERV) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_INTERNALCOUNTERV, 4, _model.RegGetVCounterInternal());
+	if(_currentControlFocus != IDC_VDP_REGISTERS_LATCHEDCOUNTERH) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_LATCHEDCOUNTERH, 4, _model.RegGetHCounterLatched());
+	if(_currentControlFocus != IDC_VDP_REGISTERS_LATCHEDCOUNTERV) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_LATCHEDCOUNTERV, 4, _model.RegGetVCounterLatched());
 
 	return TRUE;
 }
@@ -390,18 +390,18 @@ INT_PTR RegistersView::msgRawRegistersWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 		{
 		//Port registers
 		case IDC_WRITEPENDING:
-			model.RegSetPortWritePending(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSetPortWritePending(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 
 		//Interrupt registers
 		case IDC_VDP_REGISTERS_VINTPENDING:
-			model.RegSetVINTPending(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSetVINTPending(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		case IDC_VDP_REGISTERS_HINTPENDING:
-			model.RegSetHINTPending(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSetHINTPending(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		case IDC_VDP_REGISTERS_EXINTPENDING:
-			model.RegSetEXINTPending(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSetEXINTPending(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 
 		//FIFO registers
@@ -410,105 +410,105 @@ INT_PTR RegistersView::msgRawRegistersWM_COMMAND(HWND hwnd, WPARAM wparam, LPARA
 		case IDC_VDP_REGISTERS_FIFOBUFFER_WRITEPENDING3:
 		case IDC_VDP_REGISTERS_FIFOBUFFER_WRITEPENDING4:{
 			unsigned int fifoIndex = (unsigned int)(controlID - IDC_VDP_REGISTERS_FIFOBUFFER_WRITEPENDING1);
-			model.RegSetFIFOWritePending(fifoIndex, IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSetFIFOWritePending(fifoIndex, IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;}
 		case IDC_VDP_REGISTERS_FIFOBUFFER_HALFWRITTEN1:
 		case IDC_VDP_REGISTERS_FIFOBUFFER_HALFWRITTEN2:
 		case IDC_VDP_REGISTERS_FIFOBUFFER_HALFWRITTEN3:
 		case IDC_VDP_REGISTERS_FIFOBUFFER_HALFWRITTEN4:{
 			unsigned int fifoIndex = (unsigned int)(controlID - IDC_VDP_REGISTERS_FIFOBUFFER_HALFWRITTEN1);
-			model.RegSetFIFOHalfWritten(fifoIndex, IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSetFIFOHalfWritten(fifoIndex, IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;}
 		case IDC_VDP_SETTINGS_READDATAHALFCACHED:
-			model.RegSetReadHalfCached(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSetReadHalfCached(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		case IDC_VDP_SETTINGS_READDATAFULLYCACHED:
-			model.RegSetReadFullyCached(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSetReadFullyCached(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		}
 	}
-	else if((HIWORD(wparam) == EN_SETFOCUS) && initializedDialog)
+	else if((HIWORD(wparam) == EN_SETFOCUS) && _initializedDialog)
 	{
-		previousText = GetDlgItemString(hwnd, LOWORD(wparam));
-		currentControlFocus = LOWORD(wparam);
+		_previousText = GetDlgItemString(hwnd, LOWORD(wparam));
+		_currentControlFocus = LOWORD(wparam);
 	}
-	else if((HIWORD(wparam) == EN_KILLFOCUS) && initializedDialog)
+	else if((HIWORD(wparam) == EN_KILLFOCUS) && _initializedDialog)
 	{
 		std::wstring newText = GetDlgItemString(hwnd, LOWORD(wparam));
-		if(newText != previousText)
+		if(newText != _previousText)
 		{
 			//Raw registers
-			if((LOWORD(wparam) >= IDC_REG_0) && (LOWORD(wparam) < (IDC_REG_0 + IS315_5313::registerCount)))
+			if((LOWORD(wparam) >= IDC_REG_0) && (LOWORD(wparam) < (IDC_REG_0 + IS315_5313::RegisterCount)))
 			{
 				unsigned int registerNo = LOWORD(wparam) - IDC_REG_0;
-				model.SetRegisterData(registerNo, GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.SetRegisterData(registerNo, GetDlgItemHex(hwnd, LOWORD(wparam)));
 			}
 			else switch(LOWORD(wparam))
 			{
 			//Port registers
 			case IDC_CODE:
-				model.RegSetPortCode(GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSetPortCode(GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_ADDRESS:
-				model.RegSetPortAddress(GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSetPortAddress(GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 
 			//FIFO registers
 			case IDC_VDP_REGISTERS_FIFOBUFFER_CODE1:
-				model.RegSetFIFOCode(0, GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSetFIFOCode(0, GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_FIFOBUFFER_ADDRESS1:
-				model.RegSetFIFOAddress(0, GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSetFIFOAddress(0, GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_FIFOBUFFER_DATA1:
-				model.RegSetFIFOData(0, GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSetFIFOData(0, GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_FIFOBUFFER_CODE2:
-				model.RegSetFIFOCode(1, GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSetFIFOCode(1, GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_FIFOBUFFER_ADDRESS2:
-				model.RegSetFIFOAddress(1, GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSetFIFOAddress(1, GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_FIFOBUFFER_DATA2:
-				model.RegSetFIFOData(1, GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSetFIFOData(1, GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_FIFOBUFFER_CODE3:
-				model.RegSetFIFOCode(2, GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSetFIFOCode(2, GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_FIFOBUFFER_ADDRESS3:
-				model.RegSetFIFOAddress(2, GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSetFIFOAddress(2, GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_FIFOBUFFER_DATA3:
-				model.RegSetFIFOData(2, GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSetFIFOData(2, GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_FIFOBUFFER_CODE4:
-				model.RegSetFIFOCode(3, GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSetFIFOCode(3, GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_FIFOBUFFER_ADDRESS4:
-				model.RegSetFIFOAddress(3, GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSetFIFOAddress(3, GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_FIFOBUFFER_DATA4:
-				model.RegSetFIFOData(3, GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSetFIFOData(3, GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_READBUFFER:
-				model.RegSetReadBuffer(GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSetReadBuffer(GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 
 			//Status and HV counter registers
 			case IDC_STATUSREGISTER:
-				model.SetStatus(GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.SetStatus(GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_INTERNALCOUNTERH:
-				model.RegSetHCounterInternal(GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSetHCounterInternal(GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_INTERNALCOUNTERV:
-				model.RegSetVCounterInternal(GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSetVCounterInternal(GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_LATCHEDCOUNTERH:
-				model.RegSetHCounterLatched(GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSetHCounterLatched(GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_LATCHEDCOUNTERV:
-				model.RegSetVCounterInternal(GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSetVCounterInternal(GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			}
 		}
@@ -535,7 +535,7 @@ INT_PTR RegistersView::msgRawRegistersWM_BOUNCE(HWND hwnd, WPARAM wparam, LPARAM
 			const IS315_5313::DataContext* dataContext;
 			if(RawRegistersControlIDToDataID(controlID, dataID, registerDataContext, &dataContext))
 			{
-				model.SetGenericDataLocked(dataID, dataContext, !model.GetGenericDataLocked(dataID, dataContext));
+				_model.SetGenericDataLocked(dataID, dataContext, !_model.GetGenericDataLocked(dataID, dataContext));
 			}
 
 			//Force the control to redraw when the lock state is toggled
@@ -559,10 +559,10 @@ INT_PTR RegistersView::msgRawRegistersWM_CTLCOLOREDIT(HWND hwnd, WPARAM wparam, 
 	const IS315_5313::DataContext* dataContext;
 	if(RawRegistersControlIDToDataID(controlID, dataID, registerDataContext, &dataContext))
 	{
-		if(model.GetGenericDataLocked(dataID, dataContext))
+		if(_model.GetGenericDataLocked(dataID, dataContext))
 		{
-			SetBkColor((HDC)wparam, lockedColor);
-			return (BOOL)HandleToLong(lockedBrush);
+			SetBkColor((HDC)wparam, _lockedColor);
+			return (BOOL)HandleToLong(_lockedBrush);
 		}
 	}
 	return FALSE;
@@ -886,41 +886,41 @@ INT_PTR RegistersView::msgModeRegistersWM_DESTROY(HWND hwnd, WPARAM wparam, LPAR
 //----------------------------------------------------------------------------------------
 INT_PTR RegistersView::msgModeRegistersWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	initializedDialog = true;
+	_initializedDialog = true;
 
 	//Mode registers
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_VSI, (model.RegGetVSI())? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_HSI, (model.RegGetHSI())? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_LCB, (model.RegGetLCB())? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_IE1, (model.RegGetIE1())? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_SS, (model.RegGetSS())? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_PS, (model.RegGetPS())? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_M2, (model.RegGetM2())? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_ES, (model.RegGetES())? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_EVRAM, (model.RegGetEVRAM())? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_DISP, (model.RegGetDisplayEnabled())? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_IE0, (model.RegGetIE0())? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_M1, (model.RegGetDMAEnabled())? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_M3, (model.RegGetM3())? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_M5, (model.RegGetMode5())? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_SZ, (model.RegGetSZ())? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_MAG, (model.RegGetMAG())? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_0B7, (model.RegGet0B7())? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_0B6, (model.RegGet0B6())? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_0B5, (model.RegGet0B5())? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_0B4, (model.RegGet0B4())? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_IE2, (model.RegGetIE2())? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_VSCR, (model.RegGetVSCR())? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_HSCR, (model.RegGetHSCR())? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_LSCR, (model.RegGetLSCR())? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_RS0, (model.RegGetRS0())? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_U1, (model.RegGetU1())? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_U2, (model.RegGetU2())? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_U3, (model.RegGetU3())? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_STE, (model.RegGetSTE())? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_LSM1, (model.RegGetLSM1())? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_LSM0, (model.RegGetLSM0())? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_RS1, (model.RegGetRS1())? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_VSI, (_model.RegGetVSI())? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_HSI, (_model.RegGetHSI())? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_LCB, (_model.RegGetLCB())? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_IE1, (_model.RegGetIE1())? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_SS, (_model.RegGetSS())? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_PS, (_model.RegGetPS())? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_M2, (_model.RegGetM2())? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_ES, (_model.RegGetES())? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_EVRAM, (_model.RegGetEVRAM())? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_DISP, (_model.RegGetDisplayEnabled())? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_IE0, (_model.RegGetIE0())? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_M1, (_model.RegGetDMAEnabled())? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_M3, (_model.RegGetM3())? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_M5, (_model.RegGetMode5())? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_SZ, (_model.RegGetSZ())? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_MAG, (_model.RegGetMAG())? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_0B7, (_model.RegGet0B7())? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_0B6, (_model.RegGet0B6())? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_0B5, (_model.RegGet0B5())? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_0B4, (_model.RegGet0B4())? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_IE2, (_model.RegGetIE2())? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_VSCR, (_model.RegGetVSCR())? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_HSCR, (_model.RegGetHSCR())? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_LSCR, (_model.RegGetLSCR())? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_RS0, (_model.RegGetRS0())? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_U1, (_model.RegGetU1())? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_U2, (_model.RegGetU2())? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_U3, (_model.RegGetU3())? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_STE, (_model.RegGetSTE())? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_LSM1, (_model.RegGetLSM1())? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_LSM0, (_model.RegGetLSM0())? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_RS1, (_model.RegGetRS1())? BST_CHECKED: BST_UNCHECKED);
 
 	return TRUE;
 }
@@ -934,100 +934,100 @@ INT_PTR RegistersView::msgModeRegistersWM_COMMAND(HWND hwnd, WPARAM wparam, LPAR
 		switch(controlID)
 		{
 		case IDC_VDP_REGISTERS_VSI:
-			model.RegSetVSI(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSetVSI(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		case IDC_VDP_REGISTERS_HSI:
-			model.RegSetHSI(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSetHSI(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		case IDC_VDP_REGISTERS_LCB:
-			model.RegSetLCB(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSetLCB(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		case IDC_VDP_REGISTERS_IE1:
-			model.RegSetIE1(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSetIE1(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		case IDC_VDP_REGISTERS_SS:
-			model.RegSetSS(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSetSS(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		case IDC_VDP_REGISTERS_PS:
-			model.RegSetPS(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSetPS(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		case IDC_VDP_REGISTERS_M2:
-			model.RegSetM2(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSetM2(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		case IDC_VDP_REGISTERS_ES:
-			model.RegSetES(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSetES(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		case IDC_VDP_REGISTERS_EVRAM:
-			model.RegSetEVRAM(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSetEVRAM(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		case IDC_VDP_REGISTERS_DISP:
-			model.RegSetDisplayEnabled(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSetDisplayEnabled(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		case IDC_VDP_REGISTERS_IE0:
-			model.RegSetIE0(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSetIE0(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		case IDC_VDP_REGISTERS_M1:
-			model.RegSetDMAEnabled(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSetDMAEnabled(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		case IDC_VDP_REGISTERS_M3:
-			model.RegSetM3(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSetM3(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		case IDC_VDP_REGISTERS_M5:
-			model.RegSetMode5(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSetMode5(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		case IDC_VDP_REGISTERS_SZ:
-			model.RegSetSZ(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSetSZ(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		case IDC_VDP_REGISTERS_MAG:
-			model.RegSetMAG(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSetMAG(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		case IDC_VDP_REGISTERS_0B7:
-			model.RegSet0B7(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSet0B7(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		case IDC_VDP_REGISTERS_0B6:
-			model.RegSet0B6(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSet0B6(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		case IDC_VDP_REGISTERS_0B5:
-			model.RegSet0B5(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSet0B5(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		case IDC_VDP_REGISTERS_0B4:
-			model.RegSet0B4(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSet0B4(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		case IDC_VDP_REGISTERS_IE2:
-			model.RegSetIE2(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSetIE2(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		case IDC_VDP_REGISTERS_VSCR:
-			model.RegSetVSCR(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSetVSCR(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		case IDC_VDP_REGISTERS_HSCR:
-			model.RegSetHSCR(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSetHSCR(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		case IDC_VDP_REGISTERS_LSCR:
-			model.RegSetLSCR(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSetLSCR(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		case IDC_VDP_REGISTERS_RS0:
-			model.RegSetRS0(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSetRS0(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		case IDC_VDP_REGISTERS_U1:
-			model.RegSetU1(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSetU1(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		case IDC_VDP_REGISTERS_U2:
-			model.RegSetU2(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSetU2(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		case IDC_VDP_REGISTERS_U3:
-			model.RegSetU3(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSetU3(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		case IDC_VDP_REGISTERS_STE:
-			model.RegSetSTE(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSetSTE(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		case IDC_VDP_REGISTERS_LSM1:
-			model.RegSetLSM1(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSetLSM1(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		case IDC_VDP_REGISTERS_LSM0:
-			model.RegSetLSM0(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSetLSM0(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		case IDC_VDP_REGISTERS_RS1:
-			model.RegSetRS1(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSetRS1(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		}
 	}
@@ -1051,7 +1051,7 @@ INT_PTR RegistersView::msgModeRegistersWM_BOUNCE(HWND hwnd, WPARAM wparam, LPARA
 			unsigned int dataID;
 			if(ModeRegistersControlIDToDataID(controlID, dataID))
 			{
-				model.SetGenericDataLocked(dataID, 0, !model.GetGenericDataLocked(dataID, 0));
+				_model.SetGenericDataLocked(dataID, 0, !_model.GetGenericDataLocked(dataID, 0));
 			}
 
 			//Force the control to redraw when the lock state is toggled
@@ -1099,7 +1099,7 @@ INT_PTR RegistersView::msgModeRegistersWM_BOUNCE(HWND hwnd, WPARAM wparam, LPARA
 			unsigned int dataID;
 			if(ModeRegistersControlIDToDataID(controlID, dataID))
 			{
-				if(model.GetGenericDataLocked(dataID, 0))
+				if(_model.GetGenericDataLocked(dataID, 0))
 				{
 					PaintCheckboxHighlight(GetDlgItem(hwnd, controlID));
 					bounceMessage->SetResult(TRUE);
@@ -1370,59 +1370,59 @@ INT_PTR RegistersView::msgOtherRegistersWM_DESTROY(HWND hwnd, WPARAM wparam, LPA
 //----------------------------------------------------------------------------------------
 INT_PTR RegistersView::msgOtherRegistersWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	initializedDialog = true;
+	_initializedDialog = true;
 
 	//Other registers
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_077, (model.RegGet077())? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_076, (model.RegGet076())? BST_CHECKED: BST_UNCHECKED);
-	if(currentControlFocus != IDC_VDP_REGISTERS_BACKGROUNDPALETTEROW) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_BACKGROUNDPALETTEROW, 1, model.RegGetBackgroundPaletteRow());
-	if(currentControlFocus != IDC_VDP_REGISTERS_BACKGROUNDPALETTECOLUMN) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_BACKGROUNDPALETTECOLUMN, 1, model.RegGetBackgroundPaletteColumn());
-	if(currentControlFocus != IDC_VDP_REGISTERS_BACKGROUNDSCROLLX) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_BACKGROUNDSCROLLX, 2, model.RegGetBackgroundScrollX());
-	if(currentControlFocus != IDC_VDP_REGISTERS_BACKGROUNDSCROLLY) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_BACKGROUNDSCROLLY, 2, model.RegGetBackgroundScrollY());
-	if(currentControlFocus != IDC_VDP_REGISTERS_HINTLINECOUNTER) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_HINTLINECOUNTER, 2, model.RegGetHInterruptData());
-	if(currentControlFocus != IDC_VDP_REGISTERS_AUTOINCREMENT) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_AUTOINCREMENT, 2, model.RegGetAutoIncrementData());
-	if(currentControlFocus != IDC_VDP_REGISTERS_SCROLLABASE) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_SCROLLABASE, 2, model.GetRegisterData(0x02));
-	if(currentControlFocus != IDC_VDP_REGISTERS_SCROLLABASE_E) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_SCROLLABASE_E, 5, model.RegGetNameTableBaseScrollA());
-	if(currentControlFocus != IDC_VDP_REGISTERS_WINDOWBASE) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_WINDOWBASE, 2, model.GetRegisterData(0x03));
-	if(currentControlFocus != IDC_VDP_REGISTERS_WINDOWBASE_E) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_WINDOWBASE_E, 5, model.RegGetNameTableBaseWindow());
-	if(currentControlFocus != IDC_VDP_REGISTERS_SCROLLBBASE) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_SCROLLBBASE, 2, model.GetRegisterData(0x04));
-	if(currentControlFocus != IDC_VDP_REGISTERS_SCROLLBBASE_E) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_SCROLLBBASE_E, 5, model.RegGetNameTableBaseScrollB());
-	if(currentControlFocus != IDC_VDP_REGISTERS_SPRITEBASE) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_SPRITEBASE, 2, model.GetRegisterData(0x05));
-	if(currentControlFocus != IDC_VDP_REGISTERS_SPRITEBASE_E) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_SPRITEBASE_E, 5, model.RegGetNameTableBaseSprite());
-	if(currentControlFocus != IDC_VDP_REGISTERS_SPRITEPATTERNBASE) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_SPRITEPATTERNBASE, 2, model.GetRegisterData(0x06));
-	if(currentControlFocus != IDC_VDP_REGISTERS_SPRITEPATTERNBASE_E) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_SPRITEPATTERNBASE_E, 5, model.RegGetPatternBaseSprite());
-	if(currentControlFocus != IDC_VDP_REGISTERS_HSCROLLBASE) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_HSCROLLBASE, 2, model.GetRegisterData(0x0D));
-	if(currentControlFocus != IDC_VDP_REGISTERS_HSCROLLBASE_E) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_HSCROLLBASE_E, 5, model.RegGetHScrollDataBase());
-	if(currentControlFocus != IDC_VDP_REGISTERS_DMALENGTH) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_DMALENGTH, 4, model.RegGetDMALengthCounter());
-	if(currentControlFocus != IDC_VDP_REGISTERS_DMASOURCE) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_DMASOURCE, 6, model.RegGetDMASourceAddress() >> 1);
-	if(currentControlFocus != IDC_VDP_REGISTERS_DMASOURCE_E) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_DMASOURCE_E, 6, model.RegGetDMASourceAddress());
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_DMD1, (model.RegGetDMD1())? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_DMD0, (model.RegGetDMD0())? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_077, (_model.RegGet077())? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_076, (_model.RegGet076())? BST_CHECKED: BST_UNCHECKED);
+	if(_currentControlFocus != IDC_VDP_REGISTERS_BACKGROUNDPALETTEROW) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_BACKGROUNDPALETTEROW, 1, _model.RegGetBackgroundPaletteRow());
+	if(_currentControlFocus != IDC_VDP_REGISTERS_BACKGROUNDPALETTECOLUMN) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_BACKGROUNDPALETTECOLUMN, 1, _model.RegGetBackgroundPaletteColumn());
+	if(_currentControlFocus != IDC_VDP_REGISTERS_BACKGROUNDSCROLLX) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_BACKGROUNDSCROLLX, 2, _model.RegGetBackgroundScrollX());
+	if(_currentControlFocus != IDC_VDP_REGISTERS_BACKGROUNDSCROLLY) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_BACKGROUNDSCROLLY, 2, _model.RegGetBackgroundScrollY());
+	if(_currentControlFocus != IDC_VDP_REGISTERS_HINTLINECOUNTER) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_HINTLINECOUNTER, 2, _model.RegGetHInterruptData());
+	if(_currentControlFocus != IDC_VDP_REGISTERS_AUTOINCREMENT) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_AUTOINCREMENT, 2, _model.RegGetAutoIncrementData());
+	if(_currentControlFocus != IDC_VDP_REGISTERS_SCROLLABASE) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_SCROLLABASE, 2, _model.GetRegisterData(0x02));
+	if(_currentControlFocus != IDC_VDP_REGISTERS_SCROLLABASE_E) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_SCROLLABASE_E, 5, _model.RegGetNameTableBaseScrollA());
+	if(_currentControlFocus != IDC_VDP_REGISTERS_WINDOWBASE) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_WINDOWBASE, 2, _model.GetRegisterData(0x03));
+	if(_currentControlFocus != IDC_VDP_REGISTERS_WINDOWBASE_E) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_WINDOWBASE_E, 5, _model.RegGetNameTableBaseWindow());
+	if(_currentControlFocus != IDC_VDP_REGISTERS_SCROLLBBASE) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_SCROLLBBASE, 2, _model.GetRegisterData(0x04));
+	if(_currentControlFocus != IDC_VDP_REGISTERS_SCROLLBBASE_E) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_SCROLLBBASE_E, 5, _model.RegGetNameTableBaseScrollB());
+	if(_currentControlFocus != IDC_VDP_REGISTERS_SPRITEBASE) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_SPRITEBASE, 2, _model.GetRegisterData(0x05));
+	if(_currentControlFocus != IDC_VDP_REGISTERS_SPRITEBASE_E) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_SPRITEBASE_E, 5, _model.RegGetNameTableBaseSprite());
+	if(_currentControlFocus != IDC_VDP_REGISTERS_SPRITEPATTERNBASE) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_SPRITEPATTERNBASE, 2, _model.GetRegisterData(0x06));
+	if(_currentControlFocus != IDC_VDP_REGISTERS_SPRITEPATTERNBASE_E) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_SPRITEPATTERNBASE_E, 5, _model.RegGetPatternBaseSprite());
+	if(_currentControlFocus != IDC_VDP_REGISTERS_HSCROLLBASE) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_HSCROLLBASE, 2, _model.GetRegisterData(0x0D));
+	if(_currentControlFocus != IDC_VDP_REGISTERS_HSCROLLBASE_E) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_HSCROLLBASE_E, 5, _model.RegGetHScrollDataBase());
+	if(_currentControlFocus != IDC_VDP_REGISTERS_DMALENGTH) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_DMALENGTH, 4, _model.RegGetDMALengthCounter());
+	if(_currentControlFocus != IDC_VDP_REGISTERS_DMASOURCE) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_DMASOURCE, 6, _model.RegGetDMASourceAddress() >> 1);
+	if(_currentControlFocus != IDC_VDP_REGISTERS_DMASOURCE_E) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_DMASOURCE_E, 6, _model.RegGetDMASourceAddress());
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_DMD1, (_model.RegGetDMD1())? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_DMD0, (_model.RegGetDMD0())? BST_CHECKED: BST_UNCHECKED);
 
-	if(currentControlFocus != IDC_VDP_REGISTERS_0E57) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_0E57, 1, model.RegGet0E57());
-	if(currentControlFocus != IDC_VDP_REGISTERS_SCROLLAPATTERNBASE) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_SCROLLAPATTERNBASE, 1, model.GetRegisterData(0x0E) & 0x0F);
-	if(currentControlFocus != IDC_VDP_REGISTERS_SCROLLAPATTERNBASE_E) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_SCROLLAPATTERNBASE_E, 5, model.RegGetPatternBaseScrollA());
-	if(currentControlFocus != IDC_VDP_REGISTERS_0E13) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_0E13, 1, model.RegGet0E13());
-	if(currentControlFocus != IDC_VDP_REGISTERS_SCROLLBPATTERNBASE) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_SCROLLBPATTERNBASE, 1, (model.GetRegisterData(0x0E) >> 4) & 0x0F);
-	if(currentControlFocus != IDC_VDP_REGISTERS_SCROLLBPATTERNBASE_E) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_SCROLLBPATTERNBASE_E, 5, model.RegGetPatternBaseScrollB());
-	if(currentControlFocus != IDC_VDP_REGISTERS_1067) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_1067, 1, model.RegGet1067());
-	if(currentControlFocus != IDC_VDP_REGISTERS_VSZ) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_VSZ, 1, model.RegGetVSZ());
-	if(currentControlFocus != IDC_VDP_REGISTERS_1023) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_1023, 1, model.RegGet1023());
-	if(currentControlFocus != IDC_VDP_REGISTERS_HSZ) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_HSZ, 1, model.RegGetHSZ());
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_WINDOWRIGHT, (model.RegGetWindowRightAligned())? BST_CHECKED: BST_UNCHECKED);
-	if(currentControlFocus != IDC_VDP_REGISTERS_1156) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_1156, 1, model.RegGet1156());
-	if(currentControlFocus != IDC_VDP_REGISTERS_WINDOWBASEX) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_WINDOWBASEX, 1, model.RegGetWindowBasePointX());
-	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_WINDOWDOWN, (model.RegGetWindowBottomAligned())? BST_CHECKED: BST_UNCHECKED);
-	if(currentControlFocus != IDC_VDP_REGISTERS_1256) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_1256, 1, model.RegGet1256());
-	if(currentControlFocus != IDC_VDP_REGISTERS_WINDOWBASEY) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_WINDOWBASEY, 1, model.RegGetWindowBasePointY());
+	if(_currentControlFocus != IDC_VDP_REGISTERS_0E57) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_0E57, 1, _model.RegGet0E57());
+	if(_currentControlFocus != IDC_VDP_REGISTERS_SCROLLAPATTERNBASE) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_SCROLLAPATTERNBASE, 1, _model.GetRegisterData(0x0E) & 0x0F);
+	if(_currentControlFocus != IDC_VDP_REGISTERS_SCROLLAPATTERNBASE_E) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_SCROLLAPATTERNBASE_E, 5, _model.RegGetPatternBaseScrollA());
+	if(_currentControlFocus != IDC_VDP_REGISTERS_0E13) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_0E13, 1, _model.RegGet0E13());
+	if(_currentControlFocus != IDC_VDP_REGISTERS_SCROLLBPATTERNBASE) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_SCROLLBPATTERNBASE, 1, (_model.GetRegisterData(0x0E) >> 4) & 0x0F);
+	if(_currentControlFocus != IDC_VDP_REGISTERS_SCROLLBPATTERNBASE_E) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_SCROLLBPATTERNBASE_E, 5, _model.RegGetPatternBaseScrollB());
+	if(_currentControlFocus != IDC_VDP_REGISTERS_1067) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_1067, 1, _model.RegGet1067());
+	if(_currentControlFocus != IDC_VDP_REGISTERS_VSZ) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_VSZ, 1, _model.RegGetVSZ());
+	if(_currentControlFocus != IDC_VDP_REGISTERS_1023) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_1023, 1, _model.RegGet1023());
+	if(_currentControlFocus != IDC_VDP_REGISTERS_HSZ) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_HSZ, 1, _model.RegGetHSZ());
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_WINDOWRIGHT, (_model.RegGetWindowRightAligned())? BST_CHECKED: BST_UNCHECKED);
+	if(_currentControlFocus != IDC_VDP_REGISTERS_1156) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_1156, 1, _model.RegGet1156());
+	if(_currentControlFocus != IDC_VDP_REGISTERS_WINDOWBASEX) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_WINDOWBASEX, 1, _model.RegGetWindowBasePointX());
+	CheckDlgButton(hwnd, IDC_VDP_REGISTERS_WINDOWDOWN, (_model.RegGetWindowBottomAligned())? BST_CHECKED: BST_UNCHECKED);
+	if(_currentControlFocus != IDC_VDP_REGISTERS_1256) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_1256, 1, _model.RegGet1256());
+	if(_currentControlFocus != IDC_VDP_REGISTERS_WINDOWBASEY) UpdateDlgItemHex(hwnd, IDC_VDP_REGISTERS_WINDOWBASEY, 1, _model.RegGetWindowBasePointY());
 
 	//Calculate the effective width and height of the main scroll planes based on the
 	//current register settings
-	unsigned int hszState = model.RegGetHSZ();
-	unsigned int vszState = model.RegGetVSZ();
+	unsigned int hszState = _model.RegGetHSZ();
+	unsigned int vszState = _model.RegGetVSZ();
 	unsigned int screenSizeCellsH;
 	unsigned int screenSizeCellsV;
-	model.CalculateEffectiveCellScrollSize(hszState, vszState, screenSizeCellsH, screenSizeCellsV);
+	_model.CalculateEffectiveCellScrollSize(hszState, vszState, screenSizeCellsH, screenSizeCellsV);
 
 	//Update the effective scroll plane width and height on the debug window
 	UpdateDlgItemBin(hwnd, IDC_VDP_REGISTERS_HSZ_E, screenSizeCellsH);
@@ -1440,141 +1440,141 @@ INT_PTR RegistersView::msgOtherRegistersWM_COMMAND(HWND hwnd, WPARAM wparam, LPA
 		switch(controlID)
 		{
 		case IDC_VDP_REGISTERS_077:
-			model.RegSet077(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSet077(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		case IDC_VDP_REGISTERS_076:
-			model.RegSet076(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSet076(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		case IDC_VDP_REGISTERS_DMD1:
-			model.RegSetDMD1(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSetDMD1(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		case IDC_VDP_REGISTERS_DMD0:
-			model.RegSetDMD0(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSetDMD0(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		case IDC_VDP_REGISTERS_WINDOWRIGHT:
-			model.RegSetWindowRightAligned(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSetWindowRightAligned(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		case IDC_VDP_REGISTERS_WINDOWDOWN:
-			model.RegSetWindowBottomAligned(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
+			_model.RegSetWindowBottomAligned(IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED);
 			break;
 		}
 	}
-	else if((HIWORD(wparam) == EN_SETFOCUS) && initializedDialog)
+	else if((HIWORD(wparam) == EN_SETFOCUS) && _initializedDialog)
 	{
-		previousText = GetDlgItemString(hwnd, LOWORD(wparam));
-		currentControlFocus = LOWORD(wparam);
+		_previousText = GetDlgItemString(hwnd, LOWORD(wparam));
+		_currentControlFocus = LOWORD(wparam);
 	}
-	else if((HIWORD(wparam) == EN_KILLFOCUS) && initializedDialog)
+	else if((HIWORD(wparam) == EN_KILLFOCUS) && _initializedDialog)
 	{
 		std::wstring newText = GetDlgItemString(hwnd, LOWORD(wparam));
-		if(newText != previousText)
+		if(newText != _previousText)
 		{
 			switch(LOWORD(wparam))
 			{
 			case IDC_VDP_REGISTERS_BACKGROUNDPALETTEROW:
-				model.RegSetBackgroundPaletteRow(GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSetBackgroundPaletteRow(GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_BACKGROUNDPALETTECOLUMN:
-				model.RegSetBackgroundPaletteColumn(GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSetBackgroundPaletteColumn(GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_BACKGROUNDSCROLLX:
-				model.RegSetBackgroundScrollX(GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSetBackgroundScrollX(GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_BACKGROUNDSCROLLY:
-				model.RegSetBackgroundScrollY(GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSetBackgroundScrollY(GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_HINTLINECOUNTER:
-				model.RegSetHInterruptData(GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSetHInterruptData(GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_AUTOINCREMENT:
-				model.RegSetAutoIncrementData(GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSetAutoIncrementData(GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_SCROLLABASE:
-				model.SetRegisterData(0x02, GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.SetRegisterData(0x02, GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_SCROLLABASE_E:
-				model.RegSetNameTableBaseScrollA(GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSetNameTableBaseScrollA(GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_WINDOWBASE:
-				model.SetRegisterData(0x03, GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.SetRegisterData(0x03, GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_WINDOWBASE_E:
-				model.RegSetNameTableBaseWindow(GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSetNameTableBaseWindow(GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_SCROLLBBASE:
-				model.SetRegisterData(0x04, GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.SetRegisterData(0x04, GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_SCROLLBBASE_E:
-				model.RegSetNameTableBaseScrollB(GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSetNameTableBaseScrollB(GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_SPRITEBASE:
-				model.SetRegisterData(0x05, GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.SetRegisterData(0x05, GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_SPRITEBASE_E:
-				model.RegSetNameTableBaseSprite(GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSetNameTableBaseSprite(GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_SPRITEPATTERNBASE:
-				model.SetRegisterData(0x06, GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.SetRegisterData(0x06, GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_SPRITEPATTERNBASE_E:
-				model.RegSetPatternBaseSprite(GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSetPatternBaseSprite(GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_HSCROLLBASE:
-				model.SetRegisterData(0x0D, GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.SetRegisterData(0x0D, GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_HSCROLLBASE_E:
-				model.RegSetHScrollDataBase(GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSetHScrollDataBase(GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_DMALENGTH:
-				model.RegSetDMALengthCounter(GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSetDMALengthCounter(GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_DMASOURCE:
-				model.RegSetDMASourceAddress(GetDlgItemHex(hwnd, LOWORD(wparam)) << 1);
+				_model.RegSetDMASourceAddress(GetDlgItemHex(hwnd, LOWORD(wparam)) << 1);
 				break;
 			case IDC_VDP_REGISTERS_DMASOURCE_E:
-				model.RegSetDMASourceAddress(GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSetDMASourceAddress(GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_0E57:
-				model.RegSet0E57(GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSet0E57(GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_SCROLLAPATTERNBASE:
-				model.SetRegisterData(0x0E, (model.GetRegisterData(0x0E) & 0xF0) | GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.SetRegisterData(0x0E, (_model.GetRegisterData(0x0E) & 0xF0) | GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_SCROLLAPATTERNBASE_E:
-				model.RegSetPatternBaseScrollA(GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSetPatternBaseScrollA(GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_0E13:
-				model.RegSet0E13(GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSet0E13(GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_SCROLLBPATTERNBASE:
-				model.SetRegisterData(0x0E, (model.GetRegisterData(0x0E) & 0x0F) | GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.SetRegisterData(0x0E, (_model.GetRegisterData(0x0E) & 0x0F) | GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_SCROLLBPATTERNBASE_E:
-				model.RegSetPatternBaseScrollB(GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSetPatternBaseScrollB(GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_1067:
-				model.RegSet1067(GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSet1067(GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_VSZ:
-				model.RegSetVSZ(GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSetVSZ(GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_1023:
-				model.RegSet1023(GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSet1023(GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_HSZ:
-				model.RegSetHSZ(GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSetHSZ(GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_1156:
-				model.RegSet1156(GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSet1156(GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_WINDOWBASEX:
-				model.RegSetWindowBasePointX(GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSetWindowBasePointX(GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_1256:
-				model.RegSet1256(GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSet1256(GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			case IDC_VDP_REGISTERS_WINDOWBASEY:
-				model.RegSetWindowBasePointY(GetDlgItemHex(hwnd, LOWORD(wparam)));
+				_model.RegSetWindowBasePointY(GetDlgItemHex(hwnd, LOWORD(wparam)));
 				break;
 			}
 		}
@@ -1599,7 +1599,7 @@ INT_PTR RegistersView::msgOtherRegistersWM_BOUNCE(HWND hwnd, WPARAM wparam, LPAR
 			unsigned int dataID;
 			if(OtherRegistersControlIDToDataID(controlID, dataID))
 			{
-				model.SetGenericDataLocked(dataID, 0, !model.GetGenericDataLocked(dataID, 0));
+				_model.SetGenericDataLocked(dataID, 0, !_model.GetGenericDataLocked(dataID, 0));
 			}
 
 			//Force the control to redraw when the lock state is toggled
@@ -1621,7 +1621,7 @@ INT_PTR RegistersView::msgOtherRegistersWM_BOUNCE(HWND hwnd, WPARAM wparam, LPAR
 			unsigned int dataID;
 			if(ModeRegistersControlIDToDataID(controlID, dataID))
 			{
-				if(model.GetGenericDataLocked(dataID, 0))
+				if(_model.GetGenericDataLocked(dataID, 0))
 				{
 					PaintCheckboxHighlight(GetDlgItem(hwnd, controlID));
 					bounceMessage->SetResult(TRUE);
@@ -1643,10 +1643,10 @@ INT_PTR RegistersView::msgOtherRegistersWM_CTLCOLOREDIT(HWND hwnd, WPARAM wparam
 	unsigned int dataID;
 	if(OtherRegistersControlIDToDataID(controlID, dataID))
 	{
-		if(model.GetGenericDataLocked(dataID, 0))
+		if(_model.GetGenericDataLocked(dataID, 0))
 		{
-			SetBkColor((HDC)wparam, lockedColor);
-			return (BOOL)HandleToLong(lockedBrush);
+			SetBkColor((HDC)wparam, _lockedColor);
+			return (BOOL)HandleToLong(_lockedBrush);
 		}
 	}
 	return FALSE;

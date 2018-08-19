@@ -4,8 +4,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-DebugMenuHandler::DebugMenuHandler(MemoryMenus& aowner, const IDevice& amodelInstanceKey, IMemory& amodel)
-:MenuHandlerBase(L"MemoryReadDebugMenu", aowner.GetViewManager()), owner(aowner), modelInstanceKey(amodelInstanceKey), model(amodel)
+DebugMenuHandler::DebugMenuHandler(MemoryMenus& owner, const IDevice& modelInstanceKey, IMemory& model)
+:MenuHandlerBase(L"MemoryReadDebugMenu", owner.GetViewManager()), _owner(owner), _modelInstanceKey(modelInstanceKey), _model(model)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -22,7 +22,7 @@ IViewPresenter* DebugMenuHandler::CreateViewForItem(int menuItemID, const std::w
 	switch(menuItemID)
 	{
 	case MENUITEM_MEMORYEDITOR:
-		return new MemoryEditorViewPresenter(GetMenuHandlerName(), viewName, menuItemID, owner, modelInstanceKey, model);
+		return new MemoryEditorViewPresenter(GetMenuHandlerName(), viewName, menuItemID, _owner, _modelInstanceKey, _model);
 	}
 	return 0;
 }

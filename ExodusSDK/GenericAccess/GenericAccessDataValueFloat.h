@@ -42,12 +42,12 @@ public:
 	virtual void ApplyLimitSettingsToCurrentValue();
 
 private:
-	float dataValue;
-	FloatDisplayMode displayMode;
-	unsigned int minWholeNumberChars;
-	unsigned int minFractionalNumberChars;
-	float minValue;
-	float maxValue;
+	float _dataValue;
+	FloatDisplayMode _displayMode;
+	unsigned int _minWholeNumberChars;
+	unsigned int _minFractionalNumberChars;
+	float _minValue;
+	float _maxValue;
 };
 
 #endif

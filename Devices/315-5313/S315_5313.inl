@@ -451,121 +451,121 @@ struct S315_5313::ImageBufferColorEntry
 //----------------------------------------------------------------------------------------
 bool S315_5313::GetStatusFlagFIFOEmpty() const
 {
-	return status.GetBit(9);
+	return _status.GetBit(9);
 }
 
 //----------------------------------------------------------------------------------------
 void S315_5313::SetStatusFlagFIFOEmpty(bool state)
 {
-	status.SetBit(9, state);
+	_status.SetBit(9, state);
 }
 
 //----------------------------------------------------------------------------------------
 bool S315_5313::GetStatusFlagFIFOFull() const
 {
-	return status.GetBit(8);
+	return _status.GetBit(8);
 }
 
 //----------------------------------------------------------------------------------------
 void S315_5313::SetStatusFlagFIFOFull(bool state)
 {
-	status.SetBit(8, state);
+	_status.SetBit(8, state);
 }
 
 //----------------------------------------------------------------------------------------
 bool S315_5313::GetStatusFlagF() const
 {
-	return status.GetBit(7);
+	return _status.GetBit(7);
 }
 
 //----------------------------------------------------------------------------------------
 void S315_5313::SetStatusFlagF(bool state)
 {
-	status.SetBit(7, state);
+	_status.SetBit(7, state);
 }
 
 //----------------------------------------------------------------------------------------
 bool S315_5313::GetStatusFlagSpriteOverflow() const
 {
-	return status.GetBit(6);
+	return _status.GetBit(6);
 }
 
 //----------------------------------------------------------------------------------------
 void S315_5313::SetStatusFlagSpriteOverflow(bool state)
 {
-	status.SetBit(6, state);
+	_status.SetBit(6, state);
 }
 
 //----------------------------------------------------------------------------------------
 bool S315_5313::GetStatusFlagSpriteCollision() const
 {
-	return status.GetBit(5);
+	return _status.GetBit(5);
 }
 
 //----------------------------------------------------------------------------------------
 void S315_5313::SetStatusFlagSpriteCollision(bool state)
 {
-	status.SetBit(5, state);
+	_status.SetBit(5, state);
 }
 
 //----------------------------------------------------------------------------------------
 bool S315_5313::GetStatusFlagOddInterlaceFrame() const
 {
-	return status.GetBit(4);
+	return _status.GetBit(4);
 }
 
 //----------------------------------------------------------------------------------------
 void S315_5313::SetStatusFlagOddInterlaceFrame(bool state)
 {
-	status.SetBit(4, state);
+	_status.SetBit(4, state);
 }
 
 //----------------------------------------------------------------------------------------
 bool S315_5313::GetStatusFlagVBlank() const
 {
-	return status.GetBit(3);
+	return _status.GetBit(3);
 }
 
 //----------------------------------------------------------------------------------------
 void S315_5313::SetStatusFlagVBlank(bool state)
 {
-	status.SetBit(3, state);
+	_status.SetBit(3, state);
 }
 
 //----------------------------------------------------------------------------------------
 bool S315_5313::GetStatusFlagHBlank() const
 {
-	return status.GetBit(2);
+	return _status.GetBit(2);
 }
 
 //----------------------------------------------------------------------------------------
 void S315_5313::SetStatusFlagHBlank(bool state)
 {
-	status.SetBit(2, state);
+	_status.SetBit(2, state);
 }
 
 //----------------------------------------------------------------------------------------
 bool S315_5313::GetStatusFlagDMA() const
 {
-	return status.GetBit(1);
+	return _status.GetBit(1);
 }
 
 //----------------------------------------------------------------------------------------
 void S315_5313::SetStatusFlagDMA(bool state)
 {
-	status.SetBit(1, state);
+	_status.SetBit(1, state);
 }
 
 //----------------------------------------------------------------------------------------
 bool S315_5313::GetStatusFlagPAL() const
 {
-	return status.GetBit(0);
+	return _status.GetBit(0);
 }
 
 //----------------------------------------------------------------------------------------
 void S315_5313::SetStatusFlagPAL(bool state)
 {
-	status.SetBit(0, state);
+	_status.SetBit(0, state);
 }
 
 //----------------------------------------------------------------------------------------
@@ -573,13 +573,13 @@ void S315_5313::SetStatusFlagPAL(bool state)
 //----------------------------------------------------------------------------------------
 Data S315_5313::GetRegisterData(unsigned int location, const AccessTarget& accessTarget) const
 {
-	return reg.Read(location, accessTarget);
+	return _reg.Read(location, accessTarget);
 }
 
 //----------------------------------------------------------------------------------------
 void S315_5313::SetRegisterData(unsigned int location, const AccessTarget& accessTarget, const Data& data)
 {
-	reg.Write(location, data, accessTarget);
+	_reg.Write(location, data, accessTarget);
 }
 
 //----------------------------------------------------------------------------------------

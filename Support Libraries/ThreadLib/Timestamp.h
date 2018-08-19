@@ -20,8 +20,8 @@ public:
 	inline std::wstring GetFilenameTimestamp() const;
 
 private:
-	std::wstring date;
-	std::wstring time;
+	std::wstring _date;
+	std::wstring _time;
 };
 
 #include "Timestamp.inl"

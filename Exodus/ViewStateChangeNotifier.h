@@ -7,7 +7,7 @@ class ViewStateChangeNotifier :public IViewStateChangeNotifier
 {
 public:
 	//Constructors
-	ViewStateChangeNotifier(IViewManagerNotifierInterface& aviewManager, IViewPresenter& aviewPresenter);
+	ViewStateChangeNotifier(IViewManagerNotifierInterface& viewManager, IViewPresenter& viewPresenter);
 
 	//Interface version functions
 	virtual unsigned int GetIViewStateChangeNotifierVersion() const;
@@ -16,8 +16,8 @@ public:
 	virtual void NotifyViewClosed();
 
 private:
-	IViewPresenter& viewPresenter;
-	IViewManagerNotifierInterface& viewManager;
+	IViewPresenter& _viewPresenter;
+	IViewManagerNotifierInterface& _viewManager;
 };
 
 #endif

@@ -8,11 +8,11 @@ class HierarchicalStorageAttribute :public IHierarchicalStorageAttribute
 public:
 	//Constructors
 	HierarchicalStorageAttribute();
-	explicit HierarchicalStorageAttribute(const std::wstring& aname);
+	explicit HierarchicalStorageAttribute(const std::wstring& name);
 
 	//Name functions
 	virtual Marshal::Ret<std::wstring> GetName() const;
-	virtual void SetName(const Marshal::In<std::wstring>& aname);
+	virtual void SetName(const Marshal::In<std::wstring>& name);
 
 protected:
 	//Stream functions
@@ -21,8 +21,8 @@ protected:
 	virtual Stream::IStream& GetInternalStream() const;
 
 private:
-	std::wstring name;
-	mutable Stream::Buffer buffer;
+	std::wstring _name;
+	mutable Stream::Buffer _buffer;
 };
 
 #endif

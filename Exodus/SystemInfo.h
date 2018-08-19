@@ -17,18 +17,18 @@ public:
 	virtual Marshal::Ret<std::wstring> GetSystemComments() const;
 
 	//Setters
-	virtual void SetSystemSettings(AllocatorPointer aAllocator, DestructorPointer aDestructor, unsigned int asystemVersionNo, const Marshal::In<std::wstring>& asystemCopyright, const Marshal::In<std::wstring>& asystemComments);
-	virtual void SetSystemAllocators(AllocatorPointer aAllocator, DestructorPointer aDestructor);
-	virtual void SetSystemVersionNo(unsigned int asystemVersionNo);
-	virtual void SetSystemCopyright(const Marshal::In<std::wstring>& asystemCopyright);
-	virtual void SetSystemComments(const Marshal::In<std::wstring>& asystemmComments);
+	virtual void SetSystemSettings(AllocatorPointer allocator, DestructorPointer destructor, unsigned int systemVersionNo, const Marshal::In<std::wstring>& systemCopyright, const Marshal::In<std::wstring>& systemComments);
+	virtual void SetSystemAllocators(AllocatorPointer allocator, DestructorPointer destructor);
+	virtual void SetSystemVersionNo(unsigned int systemVersionNo);
+	virtual void SetSystemCopyright(const Marshal::In<std::wstring>& systemCopyright);
+	virtual void SetSystemComments(const Marshal::In<std::wstring>& systemmComments);
 
 private:
-	AllocatorPointer Allocator;
-	DestructorPointer Destructor;
-	unsigned int versionNo;
-	std::wstring copyright;
-	std::wstring comments;
+	AllocatorPointer _allocator;
+	DestructorPointer _destructor;
+	unsigned int _versionNo;
+	std::wstring _copyright;
+	std::wstring _comments;
 };
 
 #endif

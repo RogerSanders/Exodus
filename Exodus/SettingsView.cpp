@@ -5,10 +5,10 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-SettingsView::SettingsView(IUIManager& auiManager, SettingsViewPresenter& apresenter, ExodusInterface& amodel)
-:ViewBase(auiManager, apresenter), presenter(apresenter), model(amodel)
+SettingsView::SettingsView(IUIManager& uiManager, SettingsViewPresenter& presenter, ExodusInterface& model)
+:ViewBase(uiManager, presenter), _presenter(presenter), _model(model)
 {
-	SetDialogTemplateSettings(apresenter.GetUnqualifiedViewTitle(), GetAssemblyHandle(), MAKEINTRESOURCE(IDD_SETTINGS));
+	SetDialogTemplateSettings(presenter.GetUnqualifiedViewTitle(), GetAssemblyHandle(), MAKEINTRESOURCE(IDD_SETTINGS));
 	SetDialogViewType(DialogMode::Modal, false, DialogPos::Center);
 }
 
@@ -47,20 +47,20 @@ INT_PTR SettingsView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	SendMessage(GetDlgItem(hwnd, IDC_SETTINGS_PATHASSEMBLIESCHANGE), BM_SETIMAGE, IMAGE_ICON, (LPARAM)folderIconHandle);
 	SendMessage(GetDlgItem(hwnd, IDC_SETTINGS_LOADSYSTEMCHANGE), BM_SETIMAGE, IMAGE_ICON, (LPARAM)folderIconHandle);
 	SendMessage(GetDlgItem(hwnd, IDC_SETTINGS_LOADWORKSPACECHANGE), BM_SETIMAGE, IMAGE_ICON, (LPARAM)folderIconHandle);
-	std::wstring preferenceDirPath = model.GetPreferenceDirectoryPath();
-	SetDlgItemText(hwnd, IDC_SETTINGS_PATHMODULES, PathRemoveBasePath(preferenceDirPath, model.GetGlobalPreferencePathModules()).c_str());
-	SetDlgItemText(hwnd, IDC_SETTINGS_PATHSAVESTATES, PathRemoveBasePath(preferenceDirPath, model.GetGlobalPreferencePathSavestates()).c_str());
-	SetDlgItemText(hwnd, IDC_SETTINGS_PATHPERSISTENTSTATE, PathRemoveBasePath(preferenceDirPath, model.GetGlobalPreferencePathPersistentState()).c_str());
-	SetDlgItemText(hwnd, IDC_SETTINGS_PATHWORKSPACES, PathRemoveBasePath(preferenceDirPath, model.GetGlobalPreferencePathWorkspaces()).c_str());
-	SetDlgItemText(hwnd, IDC_SETTINGS_PATHCAPTURES, PathRemoveBasePath(preferenceDirPath, model.GetGlobalPreferencePathCaptures()).c_str());
-	SetDlgItemText(hwnd, IDC_SETTINGS_PATHASSEMBLIES, PathRemoveBasePath(preferenceDirPath, model.GetGlobalPreferencePathAssemblies()).c_str());
-	SetDlgItemText(hwnd, IDC_SETTINGS_LOADSYSTEM, PathRemoveBasePath(model.GetGlobalPreferencePathModules(), model.GetGlobalPreferenceInitialSystem()).c_str());
-	SetDlgItemText(hwnd, IDC_SETTINGS_LOADWORKSPACE, PathRemoveBasePath(model.GetGlobalPreferencePathWorkspaces(), model.GetGlobalPreferenceInitialWorkspace()).c_str());
-	CheckDlgButton(hwnd, IDC_SETTINGS_ENABLETHROTTLE, model.GetGlobalPreferenceEnableThrottling()? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_SETTINGS_RUNWHENPROGRAMLOADED, model.GetGlobalPreferenceRunWhenProgramModuleLoaded()? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_SETTINGS_ENABLEPERSISTENTSTATE, model.GetGlobalPreferenceEnablePersistentState()? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_SETTINGS_LOADWORKSPACEWITHDEBUGSTATE, model.GetGlobalPreferenceLoadWorkspaceWithDebugState()? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_SETTINGS_SHOWDEBUGCONSOLE, model.GetGlobalPreferenceShowDebugConsole()? BST_CHECKED: BST_UNCHECKED);
+	std::wstring preferenceDirPath = _model.GetPreferenceDirectoryPath();
+	SetDlgItemText(hwnd, IDC_SETTINGS_PATHMODULES, PathRemoveBasePath(preferenceDirPath, _model.GetGlobalPreferencePathModules()).c_str());
+	SetDlgItemText(hwnd, IDC_SETTINGS_PATHSAVESTATES, PathRemoveBasePath(preferenceDirPath, _model.GetGlobalPreferencePathSavestates()).c_str());
+	SetDlgItemText(hwnd, IDC_SETTINGS_PATHPERSISTENTSTATE, PathRemoveBasePath(preferenceDirPath, _model.GetGlobalPreferencePathPersistentState()).c_str());
+	SetDlgItemText(hwnd, IDC_SETTINGS_PATHWORKSPACES, PathRemoveBasePath(preferenceDirPath, _model.GetGlobalPreferencePathWorkspaces()).c_str());
+	SetDlgItemText(hwnd, IDC_SETTINGS_PATHCAPTURES, PathRemoveBasePath(preferenceDirPath, _model.GetGlobalPreferencePathCaptures()).c_str());
+	SetDlgItemText(hwnd, IDC_SETTINGS_PATHASSEMBLIES, PathRemoveBasePath(preferenceDirPath, _model.GetGlobalPreferencePathAssemblies()).c_str());
+	SetDlgItemText(hwnd, IDC_SETTINGS_LOADSYSTEM, PathRemoveBasePath(_model.GetGlobalPreferencePathModules(), _model.GetGlobalPreferenceInitialSystem()).c_str());
+	SetDlgItemText(hwnd, IDC_SETTINGS_LOADWORKSPACE, PathRemoveBasePath(_model.GetGlobalPreferencePathWorkspaces(), _model.GetGlobalPreferenceInitialWorkspace()).c_str());
+	CheckDlgButton(hwnd, IDC_SETTINGS_ENABLETHROTTLE, _model.GetGlobalPreferenceEnableThrottling()? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_SETTINGS_RUNWHENPROGRAMLOADED, _model.GetGlobalPreferenceRunWhenProgramModuleLoaded()? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_SETTINGS_ENABLEPERSISTENTSTATE, _model.GetGlobalPreferenceEnablePersistentState()? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_SETTINGS_LOADWORKSPACEWITHDEBUGSTATE, _model.GetGlobalPreferenceLoadWorkspaceWithDebugState()? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_SETTINGS_SHOWDEBUGCONSOLE, _model.GetGlobalPreferenceShowDebugConsole()? BST_CHECKED: BST_UNCHECKED);
 
 	EnableWindow(GetDlgItem(hwnd, IDC_SETTINGS_APPLY), FALSE);
 
@@ -101,24 +101,24 @@ INT_PTR SettingsView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			CloseView();
 			break;
 		case IDC_SETTINGS_APPLY:
-			model.SetGlobalPreferencePathModules(GetDlgItemString(hwnd, IDC_SETTINGS_PATHMODULES));
-			model.SetGlobalPreferencePathSavestates(GetDlgItemString(hwnd, IDC_SETTINGS_PATHSAVESTATES));
-			model.SetGlobalPreferencePathPersistentState(GetDlgItemString(hwnd, IDC_SETTINGS_PATHPERSISTENTSTATE));
-			model.SetGlobalPreferencePathWorkspaces(GetDlgItemString(hwnd, IDC_SETTINGS_PATHWORKSPACES));
-			model.SetGlobalPreferencePathCaptures(GetDlgItemString(hwnd, IDC_SETTINGS_PATHCAPTURES));
-			model.SetGlobalPreferencePathAssemblies(GetDlgItemString(hwnd, IDC_SETTINGS_PATHASSEMBLIES));
-			model.SetGlobalPreferenceInitialSystem(GetDlgItemString(hwnd, IDC_SETTINGS_LOADSYSTEM));
-			model.SetGlobalPreferenceInitialWorkspace(GetDlgItemString(hwnd, IDC_SETTINGS_LOADWORKSPACE));
-			model.SetGlobalPreferenceEnableThrottling(IsDlgButtonChecked(hwnd, IDC_SETTINGS_ENABLETHROTTLE) == BST_CHECKED);
-			model.SetGlobalPreferenceRunWhenProgramModuleLoaded(IsDlgButtonChecked(hwnd, IDC_SETTINGS_RUNWHENPROGRAMLOADED) == BST_CHECKED);
-			model.SetGlobalPreferenceEnablePersistentState(IsDlgButtonChecked(hwnd, IDC_SETTINGS_ENABLEPERSISTENTSTATE) == BST_CHECKED);
-			model.SetGlobalPreferenceLoadWorkspaceWithDebugState(IsDlgButtonChecked(hwnd, IDC_SETTINGS_LOADWORKSPACEWITHDEBUGSTATE) == BST_CHECKED);
-			model.SetGlobalPreferenceShowDebugConsole(IsDlgButtonChecked(hwnd, IDC_SETTINGS_SHOWDEBUGCONSOLE) == BST_CHECKED);
+			_model.SetGlobalPreferencePathModules(GetDlgItemString(hwnd, IDC_SETTINGS_PATHMODULES));
+			_model.SetGlobalPreferencePathSavestates(GetDlgItemString(hwnd, IDC_SETTINGS_PATHSAVESTATES));
+			_model.SetGlobalPreferencePathPersistentState(GetDlgItemString(hwnd, IDC_SETTINGS_PATHPERSISTENTSTATE));
+			_model.SetGlobalPreferencePathWorkspaces(GetDlgItemString(hwnd, IDC_SETTINGS_PATHWORKSPACES));
+			_model.SetGlobalPreferencePathCaptures(GetDlgItemString(hwnd, IDC_SETTINGS_PATHCAPTURES));
+			_model.SetGlobalPreferencePathAssemblies(GetDlgItemString(hwnd, IDC_SETTINGS_PATHASSEMBLIES));
+			_model.SetGlobalPreferenceInitialSystem(GetDlgItemString(hwnd, IDC_SETTINGS_LOADSYSTEM));
+			_model.SetGlobalPreferenceInitialWorkspace(GetDlgItemString(hwnd, IDC_SETTINGS_LOADWORKSPACE));
+			_model.SetGlobalPreferenceEnableThrottling(IsDlgButtonChecked(hwnd, IDC_SETTINGS_ENABLETHROTTLE) == BST_CHECKED);
+			_model.SetGlobalPreferenceRunWhenProgramModuleLoaded(IsDlgButtonChecked(hwnd, IDC_SETTINGS_RUNWHENPROGRAMLOADED) == BST_CHECKED);
+			_model.SetGlobalPreferenceEnablePersistentState(IsDlgButtonChecked(hwnd, IDC_SETTINGS_ENABLEPERSISTENTSTATE) == BST_CHECKED);
+			_model.SetGlobalPreferenceLoadWorkspaceWithDebugState(IsDlgButtonChecked(hwnd, IDC_SETTINGS_LOADWORKSPACEWITHDEBUGSTATE) == BST_CHECKED);
+			_model.SetGlobalPreferenceShowDebugConsole(IsDlgButtonChecked(hwnd, IDC_SETTINGS_SHOWDEBUGCONSOLE) == BST_CHECKED);
 			EnableWindow(GetDlgItem(hwnd, IDC_SETTINGS_APPLY), FALSE);
 			break;
 		case IDC_SETTINGS_LOADSYSTEMCHANGE:{
 			//Get the fully resolved path to the current target file
-			std::wstring moduleFolderPath = model.GetGlobalPreferencePathModules();
+			std::wstring moduleFolderPath = _model.GetGlobalPreferencePathModules();
 			std::wstring fileNameCurrent = GetDlgItemString(hwnd, IDC_SETTINGS_LOADSYSTEM);
 			if(!fileNameCurrent.empty() && PathIsRelativePath(fileNameCurrent))
 			{
@@ -127,7 +127,7 @@ INT_PTR SettingsView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 
 			//Select a new target file
 			std::wstring selectedFilePath;
-			if(model.SelectExistingFile(L"System Definitions|xml", L"xml", fileNameCurrent, moduleFolderPath, true, selectedFilePath))
+			if(_model.SelectExistingFile(L"System Definitions|xml", L"xml", fileNameCurrent, moduleFolderPath, true, selectedFilePath))
 			{
 				selectedFilePath = PathRemoveBasePath(moduleFolderPath, selectedFilePath);
 				SetDlgItemText(hwnd, IDC_SETTINGS_LOADSYSTEM, selectedFilePath.c_str());
@@ -135,7 +135,7 @@ INT_PTR SettingsView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			break;}
 		case IDC_SETTINGS_LOADWORKSPACECHANGE:{
 			//Get the fully resolved path to the current target file
-			std::wstring workspaceFolderPath = model.GetGlobalPreferencePathWorkspaces();
+			std::wstring workspaceFolderPath = _model.GetGlobalPreferencePathWorkspaces();
 			std::wstring fileNameCurrent = GetDlgItemString(hwnd, IDC_SETTINGS_LOADWORKSPACE);
 			if(!fileNameCurrent.empty() && PathIsRelativePath(fileNameCurrent))
 			{
@@ -144,7 +144,7 @@ INT_PTR SettingsView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 
 			//Select a new target file
 			std::wstring selectedFilePath;
-			if(model.SelectExistingFile(L"Workspace Files|xml", L"xml", fileNameCurrent, workspaceFolderPath, true, selectedFilePath))
+			if(_model.SelectExistingFile(L"Workspace Files|xml", L"xml", fileNameCurrent, workspaceFolderPath, true, selectedFilePath))
 			{
 				selectedFilePath = PathRemoveBasePath(workspaceFolderPath, selectedFilePath);
 				SetDlgItemText(hwnd, IDC_SETTINGS_LOADWORKSPACE, selectedFilePath.c_str());
@@ -187,14 +187,14 @@ INT_PTR SettingsView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			std::wstring currentSelectedDir = GetDlgItemString(hwnd, textboxControlID);
 			if(PathIsRelativePath(currentSelectedDir))
 			{
-				currentSelectedDir = PathCombinePaths(model.GetPreferenceDirectoryPath(), currentSelectedDir);
+				currentSelectedDir = PathCombinePaths(_model.GetPreferenceDirectoryPath(), currentSelectedDir);
 			}
 
 			//Select a new target directory
 			std::wstring newSelectedDir;
-			if(SelectExistingDirectory((HWND)model.GetMainWindowHandle(), currentSelectedDir, newSelectedDir))
+			if(SelectExistingDirectory((HWND)_model.GetMainWindowHandle(), currentSelectedDir, newSelectedDir))
 			{
-				newSelectedDir = PathRemoveBasePath(model.GetPreferenceDirectoryPath(), newSelectedDir);
+				newSelectedDir = PathRemoveBasePath(_model.GetPreferenceDirectoryPath(), newSelectedDir);
 				SetDlgItemText(hwnd, textboxControlID, newSelectedDir.c_str());
 			}
 			break;}

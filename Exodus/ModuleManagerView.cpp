@@ -6,10 +6,10 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-ModuleManagerView::ModuleManagerView(IUIManager& auiManager, ModuleManagerViewPresenter& apresenter, ExodusInterface& amodel)
-:ViewBase(auiManager, apresenter), presenter(apresenter), model(amodel), windowHandle(NULL)
+ModuleManagerView::ModuleManagerView(IUIManager& uiManager, ModuleManagerViewPresenter& presenter, ExodusInterface& model)
+:ViewBase(uiManager, presenter), _presenter(presenter), _model(model), _windowHandle(NULL)
 {
-	SetDialogTemplateSettings(apresenter.GetUnqualifiedViewTitle(), GetAssemblyHandle(), MAKEINTRESOURCE(IDD_MODULEMANAGER));
+	SetDialogTemplateSettings(presenter.GetUnqualifiedViewTitle(), GetAssemblyHandle(), MAKEINTRESOURCE(IDD_MODULEMANAGER));
 	SetDialogViewType(DialogMode::Modeless);
 }
 
@@ -18,9 +18,9 @@ ModuleManagerView::ModuleManagerView(IUIManager& auiManager, ModuleManagerViewPr
 //----------------------------------------------------------------------------------------
 void ModuleManagerView::RefreshModuleList() const
 {
-	if(windowHandle != NULL)
+	if(_windowHandle != NULL)
 	{
-		SendMessage(windowHandle, WM_USER, 0, 0);
+		SendMessage(_windowHandle, WM_USER, 0, 0);
 	}
 }
 
@@ -48,12 +48,12 @@ INT_PTR ModuleManagerView::WndProcDialog(HWND hwnd, UINT msg, WPARAM wparam, LPA
 INT_PTR ModuleManagerView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	//Subscribe to change notifications for the loaded module list
-	loadedModulesChangeSubscription.SetBoundCallback(std::bind(std::mem_fn(&ModuleManagerView::RefreshModuleList), this));
-	ISystemGUIInterface& systemInterface = *model.GetSystemInterface();
-	systemInterface.LoadedModulesChangeNotifyRegister(loadedModulesChangeSubscription);
+	_loadedModulesChangeSubscription.SetBoundCallback(std::bind(std::mem_fn(&ModuleManagerView::RefreshModuleList), this));
+	ISystemGUIInterface& systemInterface = *_model.GetSystemInterface();
+	systemInterface.LoadedModulesChangeNotifyRegister(_loadedModulesChangeSubscription);
 
 	//Refresh our module list
-	windowHandle = hwnd;
+	_windowHandle = hwnd;
 	RefreshModuleList();
 	return TRUE;
 }
@@ -66,7 +66,7 @@ INT_PTR ModuleManagerView::msgWM_USER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	LRESULT top = SendMessage(GetDlgItem(hwnd, IDC_MODULEMANAGER_MODULES_LIST), LB_GETTOPINDEX, 0, 0);
 	LRESULT selected = SendMessage(GetDlgItem(hwnd, IDC_MODULEMANAGER_MODULES_LIST), LB_GETCURSEL, 0, 0);
 	SendMessage(GetDlgItem(hwnd, IDC_MODULEMANAGER_MODULES_LIST), LB_RESETCONTENT, 0, NULL);
-	ISystemGUIInterface& systemInterface = *model.GetSystemInterface();
+	ISystemGUIInterface& systemInterface = *_model.GetSystemInterface();
 	std::list<unsigned int> loadedModuleIDs = systemInterface.GetLoadedModuleIDs();
 	for(std::list<unsigned int>::const_iterator i = loadedModuleIDs.begin(); i != loadedModuleIDs.end(); ++i)
 	{
@@ -96,7 +96,7 @@ INT_PTR ModuleManagerView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam
 		switch(LOWORD(wparam))
 		{
 		case IDC_MODULEMANAGER_LOAD:
-			model.LoadModule(model.GetGlobalPreferencePathModules());
+			_model.LoadModule(_model.GetGlobalPreferencePathModules());
 			break;
 		case IDC_MODULEMANAGER_UNLOADSELECTED:{
 			//Retrieve the selected list item
@@ -109,13 +109,13 @@ INT_PTR ModuleManagerView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam
 				{
 					//Unload the selected module
 					unsigned int targetModuleID = (unsigned int)listItemData;
-					model.UnloadModule(targetModuleID);
+					_model.UnloadModule(targetModuleID);
 				}
 			}
 			break;}
 		case IDC_MODULEMANAGER_UNLOADALL:
 			//Clear all loaded modules
-			model.UnloadAllModules();
+			_model.UnloadAllModules();
 			break;
 		}
 	}

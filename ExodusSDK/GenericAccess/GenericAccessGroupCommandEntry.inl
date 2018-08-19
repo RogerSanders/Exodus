@@ -1,45 +1,45 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-template<class T> GenericAccessGroupCommandEntry::GenericAccessGroupCommandEntry(T acommandID, const std::wstring& aname)
-:parent(0), dataContext(0), commandID((unsigned int)acommandID), name(aname)
+template<class T> GenericAccessGroupCommandEntry::GenericAccessGroupCommandEntry(T commandID, const std::wstring& name)
+:_parent(0), _dataContext(0), _commandID((unsigned int)commandID), _name(name)
 {}
 
 //----------------------------------------------------------------------------------------
 GenericAccessGroupCommandEntry::~GenericAccessGroupCommandEntry()
 {
 	//Delete the data context object we've been assigned
-	delete dataContext;
+	delete _dataContext;
 }
 
 //----------------------------------------------------------------------------------------
 //Data context functions
 //----------------------------------------------------------------------------------------
-GenericAccessGroupCommandEntry* GenericAccessGroupCommandEntry::SetDataContext(const IGenericAccess::DataContext* adataContext)
+GenericAccessGroupCommandEntry* GenericAccessGroupCommandEntry::SetDataContext(const IGenericAccess::DataContext* dataContext)
 {
-	dataContext = adataContext;
+	_dataContext = dataContext;
 	return this;
 }
 
 //----------------------------------------------------------------------------------------
 //Command info methods
 //----------------------------------------------------------------------------------------
-GenericAccessGroupCommandEntry* GenericAccessGroupCommandEntry::SetName(const std::wstring& aname)
+GenericAccessGroupCommandEntry* GenericAccessGroupCommandEntry::SetName(const std::wstring& name)
 {
-	name = aname;
+	_name = name;
 	return this;
 }
 
 //----------------------------------------------------------------------------------------
-GenericAccessGroupCommandEntry* GenericAccessGroupCommandEntry::SetDescription(const std::wstring& adescription)
+GenericAccessGroupCommandEntry* GenericAccessGroupCommandEntry::SetDescription(const std::wstring& description)
 {
-	description = adescription;
+	_description = description;
 	return this;
 }
 
 //----------------------------------------------------------------------------------------
-GenericAccessGroupCommandEntry* GenericAccessGroupCommandEntry::SetHelpFileLink(const std::wstring& ahelpFileLink)
+GenericAccessGroupCommandEntry* GenericAccessGroupCommandEntry::SetHelpFileLink(const std::wstring& helpFileLink)
 {
-	helpFileLink = ahelpFileLink;
+	_helpFileLink = helpFileLink;
 	return this;
 }

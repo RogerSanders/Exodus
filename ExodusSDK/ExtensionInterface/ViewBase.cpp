@@ -3,8 +3,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-ViewBase::ViewBase(IUIManager& auiManager, IViewPresenter& aviewPresenter)
-:hwndInternal(NULL), parentWindow(0), uiManager(auiManager), viewPresenter(aviewPresenter), assemblyHandle(0), dialogSettingsCaptured(false), windowSettingsCaptured(false), initiallyDocked(false), initiallyCollapsed(false), windowShownForFirstTime(false), viewType(ViewType::Dockable), initialDialogPos(DialogPos::Default)
+ViewBase::ViewBase(IUIManager& uiManager, IViewPresenter& viewPresenter)
+:_hwndInternal(NULL), _parentWindow(0), _uiManager(uiManager), _viewPresenter(viewPresenter), _assemblyHandle(0), _dialogSettingsCaptured(false), _windowSettingsCaptured(false), _initiallyDocked(false), _initiallyCollapsed(false), _windowShownForFirstTime(false), _viewType(ViewType::Dockable), _initialDialogPos(DialogPos::Default)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -18,48 +18,48 @@ unsigned int ViewBase::GetIViewVersion() const
 //----------------------------------------------------------------------------------------
 //Window settings
 //----------------------------------------------------------------------------------------
-void ViewBase::SetWindowSettings(const std::wstring& ainitialWindowTitle, DWORD awindowStyle, DWORD aextendedWindowStyle, unsigned int awidth, unsigned int aheight)
+void ViewBase::SetWindowSettings(const std::wstring& initialWindowTitle, DWORD windowStyle, DWORD extendedWindowStyle, unsigned int width, unsigned int height)
 {
-	windowSettingsCaptured = true;
-	initialWindowTitle = ainitialWindowTitle;
-	windowStyle = awindowStyle;
-	extendedWindowStyle = aextendedWindowStyle;
-	originalWindowWidth = awidth;
-	originalWindowHeight = aheight;
+	_windowSettingsCaptured = true;
+	_initialWindowTitle = initialWindowTitle;
+	_windowStyle = windowStyle;
+	_extendedWindowStyle = extendedWindowStyle;
+	_originalWindowWidth = width;
+	_originalWindowHeight = height;
 }
 
 //----------------------------------------------------------------------------------------
-void ViewBase::SetDialogTemplateSettings(const std::wstring& ainitialWindowTitle, void* aassemblyHandle, LPCWSTR atemplateName)
+void ViewBase::SetDialogTemplateSettings(const std::wstring& initialWindowTitle, void* assemblyHandle, LPCWSTR templateName)
 {
-	dialogSettingsCaptured = true;
-	initialWindowTitle = ainitialWindowTitle;
-	assemblyHandle = aassemblyHandle;
-	templateName = atemplateName;
+	_dialogSettingsCaptured = true;
+	_initialWindowTitle = initialWindowTitle;
+	_assemblyHandle = assemblyHandle;
+	_templateName = templateName;
 }
 
 //----------------------------------------------------------------------------------------
 void ViewBase::SetDocumentViewType()
 {
-	viewType = ViewType::Document;
+	_viewType = ViewType::Document;
 }
 
 //----------------------------------------------------------------------------------------
-void ViewBase::SetDockableViewType(bool ainitiallyDocked, DockPos ainitialDockPos, bool ainitiallyCollapsed, const std::wstring& aviewDockingGroup)
+void ViewBase::SetDockableViewType(bool initiallyDocked, DockPos initialDockPos, bool initiallyCollapsed, const std::wstring& viewDockingGroup)
 {
-	viewType = ViewType::Dockable;
-	viewDockingGroup = aviewDockingGroup;
-	initiallyDocked = ainitiallyDocked;
-	initialDockPos = ainitialDockPos;
-	initiallyCollapsed = ainitiallyCollapsed;
+	_viewType = ViewType::Dockable;
+	_viewDockingGroup = viewDockingGroup;
+	_initiallyDocked = initiallyDocked;
+	_initialDockPos = initialDockPos;
+	_initiallyCollapsed = initiallyCollapsed;
 }
 
 //----------------------------------------------------------------------------------------
-void ViewBase::SetDialogViewType(DialogMode adialogMode, bool adialogResizable, DialogPos ainitialDialogPos)
+void ViewBase::SetDialogViewType(DialogMode dialogMode, bool dialogResizable, DialogPos initialDialogPos)
 {
-	viewType = ViewType::Dialog;
-	dialogMode = adialogMode;
-	dialogResizable = adialogResizable;
-	initialDialogPos = ainitialDialogPos;
+	_viewType = ViewType::Dialog;
+	_dialogMode = dialogMode;
+	_dialogResizable = dialogResizable;
+	_initialDialogPos = initialDialogPos;
 }
 
 //----------------------------------------------------------------------------------------
@@ -69,25 +69,25 @@ bool ViewBase::OpenView(IHierarchicalStorageNode* viewState)
 {
 	//Create the native window for this view. Note that the window will initially appear
 	//hidden.
-	hwndInternal = NULL;
-	if(dialogSettingsCaptured)
+	_hwndInternal = NULL;
+	if(_dialogSettingsCaptured)
 	{
-		hwndInternal = uiManager.CreateDialogWindow(*this, viewPresenter, (HINSTANCE)assemblyHandle, WndProcDialogInternal, templateName);
+		_hwndInternal = _uiManager.CreateDialogWindow(*this, _viewPresenter, (HINSTANCE)_assemblyHandle, WndProcDialogInternal, _templateName);
 	}
-	else if(windowSettingsCaptured)
+	else if(_windowSettingsCaptured)
 	{
-		hwndInternal = uiManager.CreateNativeWindow(*this, viewPresenter, (HINSTANCE)viewPresenter.GetAssemblyHandle(), WndProcWindowInternal, windowStyle, extendedWindowStyle);
+		_hwndInternal = _uiManager.CreateNativeWindow(*this, _viewPresenter, (HINSTANCE)_viewPresenter.GetAssemblyHandle(), WndProcWindowInternal, _windowStyle, _extendedWindowStyle);
 	}
-	if(hwndInternal == NULL)
+	if(_hwndInternal == NULL)
 	{
 		return false;
 	}
 
 	//If we're opening a native window rather than a dialog, resize the window to the
 	//requested window size.
-	if(!dialogSettingsCaptured && windowSettingsCaptured)
+	if(!_dialogSettingsCaptured && _windowSettingsCaptured)
 	{
-		uiManager.ResizeWindowToTargetClientSize(*this, viewPresenter, hwndInternal, originalWindowWidth, originalWindowHeight);
+		_uiManager.ResizeWindowToTargetClientSize(*this, _viewPresenter, _hwndInternal, _originalWindowWidth, _originalWindowHeight);
 	}
 
 	//If a view state has been defined to restore, load it now, otherwise show the window.
@@ -97,19 +97,19 @@ bool ViewBase::OpenView(IHierarchicalStorageNode* viewState)
 		//saved state for the window.
 		if(!LoadViewState(*viewState))
 		{
-			uiManager.CloseWindow(*this, viewPresenter, hwndInternal);
+			_uiManager.CloseWindow(*this, _viewPresenter, _hwndInternal);
 			return false;
 		}
 	}
 	else
 	{
 		//Request the UI manager to show this view for the first time
-		if(!uiManager.ShowWindowFirstTime(*this, viewPresenter, hwndInternal, initialWindowTitle))
+		if(!_uiManager.ShowWindowFirstTime(*this, _viewPresenter, _hwndInternal, _initialWindowTitle))
 		{
-			uiManager.CloseWindow(*this, viewPresenter, hwndInternal);
+			_uiManager.CloseWindow(*this, _viewPresenter, _hwndInternal);
 			return false;
 		}
-		windowShownForFirstTime = true;
+		_windowShownForFirstTime = true;
 	}
 
 	//Return the result to the caller
@@ -119,36 +119,36 @@ bool ViewBase::OpenView(IHierarchicalStorageNode* viewState)
 //----------------------------------------------------------------------------------------
 void ViewBase::CloseView()
 {
-	if(hwndInternal != NULL)
+	if(_hwndInternal != NULL)
 	{
-		uiManager.CloseWindow(*this, viewPresenter, hwndInternal);
+		_uiManager.CloseWindow(*this, _viewPresenter, _hwndInternal);
 	}
 }
 
 //----------------------------------------------------------------------------------------
 void ViewBase::ShowView()
 {
-	if(hwndInternal != NULL)
+	if(_hwndInternal != NULL)
 	{
-		uiManager.ShowWindow(*this, viewPresenter, hwndInternal);
+		_uiManager.ShowWindow(*this, _viewPresenter, _hwndInternal);
 	}
 }
 
 //----------------------------------------------------------------------------------------
 void ViewBase::HideView()
 {
-	if(hwndInternal != NULL)
+	if(_hwndInternal != NULL)
 	{
-		uiManager.HideWindow(*this, viewPresenter, hwndInternal);
+		_uiManager.HideWindow(*this, _viewPresenter, _hwndInternal);
 	}
 }
 
 //----------------------------------------------------------------------------------------
 void ViewBase::ActivateView()
 {
-	if(hwndInternal != NULL)
+	if(_hwndInternal != NULL)
 	{
-		uiManager.ActivateWindow(*this, viewPresenter, hwndInternal);
+		_uiManager.ActivateWindow(*this, _viewPresenter, _hwndInternal);
 	}
 }
 
@@ -158,26 +158,26 @@ void ViewBase::ActivateView()
 bool ViewBase::LoadViewState(IHierarchicalStorageNode& viewState)
 {
 	//Ensure the window has been created
-	if(hwndInternal == NULL)
+	if(_hwndInternal == NULL)
 	{
 		return false;
 	}
 
 	//Load the window state for this view if present
 	IHierarchicalStorageNode* windowState = viewState.GetChild(L"WindowState");
-	if(!windowShownForFirstTime)
+	if(!_windowShownForFirstTime)
 	{
-		if(!uiManager.ShowWindowFirstTime(*this, viewPresenter, hwndInternal, initialWindowTitle, windowState))
+		if(!_uiManager.ShowWindowFirstTime(*this, _viewPresenter, _hwndInternal, _initialWindowTitle, windowState))
 		{
 			return false;
 		}
-		windowShownForFirstTime = true;
+		_windowShownForFirstTime = true;
 	}
 	else
 	{
 		if(windowState != 0)
 		{
-			if(!uiManager.LoadWindowState(*this, viewPresenter, hwndInternal, *windowState))
+			if(!_uiManager.LoadWindowState(*this, _viewPresenter, _hwndInternal, *windowState))
 			{
 				return false;
 			}
@@ -192,13 +192,13 @@ bool ViewBase::LoadViewState(IHierarchicalStorageNode& viewState)
 bool ViewBase::SaveViewState(IHierarchicalStorageNode& viewState) const
 {
 	//Ensure the window has been created
-	if(hwndInternal == NULL)
+	if(_hwndInternal == NULL)
 	{
 		return false;
 	}
 
 	//Save the window state for this view
-	return uiManager.SaveWindowState(*this, viewPresenter, hwndInternal, viewState.CreateChild(L"WindowState"));
+	return _uiManager.SaveWindowState(*this, _viewPresenter, _hwndInternal, viewState.CreateChild(L"WindowState"));
 }
 
 //----------------------------------------------------------------------------------------
@@ -206,49 +206,49 @@ bool ViewBase::SaveViewState(IHierarchicalStorageNode& viewState) const
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> ViewBase::GetViewDockingGroup() const
 {
-	return viewDockingGroup;
+	return _viewDockingGroup;
 }
 
 //----------------------------------------------------------------------------------------
 bool ViewBase::IsViewInitiallyDocked() const
 {
-	return initiallyDocked;
+	return _initiallyDocked;
 }
 
 //----------------------------------------------------------------------------------------
 bool ViewBase::IsViewInitiallyCollapsed() const
 {
-	return initiallyCollapsed;
+	return _initiallyCollapsed;
 }
 
 //----------------------------------------------------------------------------------------
 ViewBase::DockPos ViewBase::GetViewInitialDockPosition() const
 {
-	return initialDockPos;
+	return _initialDockPos;
 }
 
 //----------------------------------------------------------------------------------------
 ViewBase::ViewType ViewBase::GetViewType() const
 {
-	return viewType;
+	return _viewType;
 }
 
 //----------------------------------------------------------------------------------------
 ViewBase::DialogMode ViewBase::GetViewDialogMode() const
 {
-	return dialogMode;
+	return _dialogMode;
 }
 
 //----------------------------------------------------------------------------------------
 ViewBase::DialogPos ViewBase::GetViewInitialDialogPosition() const
 {
-	return initialDialogPos;
+	return _initialDialogPos;
 }
 
 //----------------------------------------------------------------------------------------
 bool ViewBase::CanResizeDialog() const
 {
-	return dialogResizable;
+	return _dialogResizable;
 }
 
 //----------------------------------------------------------------------------------------
@@ -256,7 +256,7 @@ bool ViewBase::CanResizeDialog() const
 //----------------------------------------------------------------------------------------
 HINSTANCE ViewBase::GetAssemblyHandle() const
 {
-	return (HINSTANCE)viewPresenter.GetAssemblyHandle();
+	return (HINSTANCE)_viewPresenter.GetAssemblyHandle();
 }
 
 //----------------------------------------------------------------------------------------
@@ -318,16 +318,16 @@ void ViewBase::WndProcDialogImplementGiveFocusToChildWindowOnClick(HWND hwnd, UI
 //----------------------------------------------------------------------------------------
 //Child window functions
 //----------------------------------------------------------------------------------------
-HWND ViewBase::CreateChildDialog(HWND aparentWindow, void* aassemblyHandle, LPCWSTR atemplateName, const std::function<INT_PTR(HWND, UINT, WPARAM, LPARAM)>& dlgProcHandler)
+HWND ViewBase::CreateChildDialog(HWND parentWindow, void* assemblyHandle, LPCWSTR templateName, const std::function<INT_PTR(HWND, UINT, WPARAM, LPARAM)>& dlgProcHandler)
 {
 	ChildDialogState state;
 	state.view = this;
 	state.windowProcedureMethod = dlgProcHandler;
-	return CreateDialogParam((HINSTANCE)aassemblyHandle, atemplateName, aparentWindow, WndProcChildDialog, (LPARAM)&state);
+	return CreateDialogParam((HINSTANCE)assemblyHandle, templateName, parentWindow, WndProcChildDialog, (LPARAM)&state);
 }
 
 //----------------------------------------------------------------------------------------
-HWND ViewBase::CreateChildWindow(DWORD awindowStyle, DWORD aextendedWindowStyle, unsigned int aposX, unsigned int aposY, unsigned int awidth, unsigned int aheight, HWND aparentWindow, const std::function<INT_PTR(HWND, UINT, WPARAM, LPARAM)>& wndProcHandler)
+HWND ViewBase::CreateChildWindow(DWORD windowStyle, DWORD extendedWindowStyle, unsigned int posX, unsigned int posY, unsigned int width, unsigned int height, HWND parentWindow, const std::function<INT_PTR(HWND, UINT, WPARAM, LPARAM)>& wndProcHandler)
 {
 	//Register the child window class
 	static const std::wstring childWindowClassName = L"ViewBaseChildWindow";
@@ -347,7 +347,7 @@ HWND ViewBase::CreateChildWindow(DWORD awindowStyle, DWORD aextendedWindowStyle,
 	RegisterClassEx(&wc);
 
 	//Create the child window
-	return CreateWindowEx(aextendedWindowStyle, childWindowClassName.c_str(), L"", awindowStyle, aposX, aposY, awidth, aheight, aparentWindow, NULL, GetAssemblyHandle(), (LPVOID)&wndProcHandler);
+	return CreateWindowEx(extendedWindowStyle, childWindowClassName.c_str(), L"", windowStyle, posX, posY, width, height, parentWindow, NULL, GetAssemblyHandle(), (LPVOID)&wndProcHandler);
 }
 
 //----------------------------------------------------------------------------------------
@@ -387,11 +387,11 @@ INT_PTR CALLBACK ViewBase::WndProcChildDialog(HWND hwnd, UINT msg, WPARAM wparam
 		{
 			if(LOWORD(wparam) == WA_ACTIVE)
 			{
-				state->view->uiManager.NotifyDialogActivated(hwnd);
+				state->view->_uiManager.NotifyDialogActivated(hwnd);
 			}
 			else if(LOWORD(wparam) == WA_INACTIVE)
 			{
-				state->view->uiManager.NotifyDialogDeactivated(hwnd);
+				state->view->_uiManager.NotifyDialogDeactivated(hwnd);
 			}
 		}
 		break;}
@@ -485,7 +485,7 @@ INT_PTR CALLBACK ViewBase::WndProcDialogInternal(HWND hwnd, UINT msg, WPARAM wpa
 			//cleanup.
 			if(result == FALSE)
 			{
-				state->uiManager.CloseWindow(*state, state->viewPresenter, hwnd);
+				state->_uiManager.CloseWindow(*state, state->_viewPresenter, hwnd);
 			}
 
 			//Since we've handled this message ourselves, return true. We also need to
@@ -499,7 +499,7 @@ INT_PTR CALLBACK ViewBase::WndProcDialogInternal(HWND hwnd, UINT msg, WPARAM wpa
 		{
 			//Notify the UI manager that the window has been destroyed. Note that we need
 			//to do this for any window that the UI manager created for us.
-			state->uiManager.NotifyWindowDestroyed(*state, state->viewPresenter, hwnd);
+			state->_uiManager.NotifyWindowDestroyed(*state, state->_viewPresenter, hwnd);
 
 			//Pass this message on to the member window procedure function
 			INT_PTR result = state->WndProcDialog(hwnd, msg, wparam, lparam);
@@ -508,7 +508,7 @@ INT_PTR CALLBACK ViewBase::WndProcDialogInternal(HWND hwnd, UINT msg, WPARAM wpa
 			SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)0);
 
 			//Notify the view presenter that the view has closed
-			state->viewPresenter.NotifyViewClosed(state);
+			state->_viewPresenter.NotifyViewClosed(state);
 
 			//Return the result from processing the message
 			return result;
@@ -550,7 +550,7 @@ LRESULT CALLBACK ViewBase::WndProcWindowInternal(HWND hwnd, UINT msg, WPARAM wpa
 		{
 			//Notify the UI manager that the window has been destroyed. Note that we need
 			//to do this for any window that the UI manager created for us.
-			state->uiManager.NotifyWindowDestroyed(*state, state->viewPresenter, hwnd);
+			state->_uiManager.NotifyWindowDestroyed(*state, state->_viewPresenter, hwnd);
 
 			//Pass this message on to the member window procedure function
 			LRESULT result = state->WndProcWindow(hwnd, msg, wparam, lparam);
@@ -559,7 +559,7 @@ LRESULT CALLBACK ViewBase::WndProcWindowInternal(HWND hwnd, UINT msg, WPARAM wpa
 			SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)0);
 
 			//Notify the view presenter that the view has closed
-			state->viewPresenter.NotifyViewClosed(state);
+			state->_viewPresenter.NotifyViewClosed(state);
 
 			//Return the result from processing the message
 			return result;

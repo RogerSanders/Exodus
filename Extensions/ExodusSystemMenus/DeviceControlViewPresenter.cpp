@@ -4,8 +4,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-DeviceControlViewPresenter::DeviceControlViewPresenter(const std::wstring& aviewGroupName, const std::wstring& aviewName, int aviewID, ExodusSystemMenus& aowner, ISystemGUIInterface& amodel)
-:ViewPresenterBase(aowner.GetAssemblyHandle(), aviewGroupName, aviewName, aviewID), owner(aowner), model(amodel)
+DeviceControlViewPresenter::DeviceControlViewPresenter(const std::wstring& viewGroupName, const std::wstring& viewName, int viewID, ExodusSystemMenus& owner, ISystemGUIInterface& model)
+:ViewPresenterBase(owner.GetAssemblyHandle(), viewGroupName, viewName, viewID), _owner(owner), _model(model)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -21,11 +21,11 @@ std::wstring DeviceControlViewPresenter::GetUnqualifiedViewTitle()
 //----------------------------------------------------------------------------------------
 IView* DeviceControlViewPresenter::CreateView(IUIManager& uiManager)
 {
-	return new DeviceControlView(uiManager, *this, model);
+	return new DeviceControlView(uiManager, *this, _model);
 }
 
 //----------------------------------------------------------------------------------------
-void DeviceControlViewPresenter::DeleteView(IView* aview)
+void DeviceControlViewPresenter::DeleteView(IView* view)
 {
-	delete aview;
+	delete view;
 }

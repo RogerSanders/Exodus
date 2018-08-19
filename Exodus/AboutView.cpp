@@ -5,13 +5,13 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-AboutView::AboutView(IUIManager& auiManager, AboutViewPresenter& apresenter, ExodusInterface& amodel)
-:ViewBase(auiManager, apresenter), presenter(apresenter), model(amodel)
+AboutView::AboutView(IUIManager& uiManager, AboutViewPresenter& presenter, ExodusInterface& model)
+:ViewBase(uiManager, presenter), _presenter(presenter), _model(model)
 {
-	hwndLayoutGrid = NULL;
-	hwndNestedDialog = NULL;
-	fontHandle = NULL;
-	SetWindowSettings(apresenter.GetUnqualifiedViewTitle(), 0, WS_EX_COMPOSITED, 700, 565);
+	_hwndLayoutGrid = NULL;
+	_hwndNestedDialog = NULL;
+	_fontHandle = NULL;
+	SetWindowSettings(presenter.GetUnqualifiedViewTitle(), 0, WS_EX_COMPOSITED, 700, 565);
 	SetDialogViewType(DialogMode::Modal, true, DialogPos::Center);
 }
 
@@ -42,24 +42,24 @@ LRESULT AboutView::WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lpar
 LRESULT AboutView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	//Create the dialog control panel
-	hwndNestedDialog = CreateDialogParam(GetAssemblyHandle(), MAKEINTRESOURCE(IDD_ABOUT), hwnd, WndProcPanelStatic, (LPARAM)this);
-	ShowWindow(hwndNestedDialog, SW_SHOWNORMAL);
-	UpdateWindow(hwndNestedDialog);
+	_hwndNestedDialog = CreateDialogParam(GetAssemblyHandle(), MAKEINTRESOURCE(IDD_ABOUT), hwnd, WndProcPanelStatic, (LPARAM)this);
+	ShowWindow(_hwndNestedDialog, SW_SHOWNORMAL);
+	UpdateWindow(_hwndNestedDialog);
 
 	//Calculate the width and height of the border region for the dialog
 	RECT controlPanelDialogRect;
-	GetWindowRect(hwndNestedDialog, &controlPanelDialogRect);
+	GetWindowRect(_hwndNestedDialog, &controlPanelDialogRect);
 	RECT borderMeasureRect;
-	GetWindowRect(GetDlgItem(hwndNestedDialog, IDC_BORDERMEASURE), &borderMeasureRect);
+	GetWindowRect(GetDlgItem(_hwndNestedDialog, IDC_BORDERMEASURE), &borderMeasureRect);
 	int dialogBorderWidth = borderMeasureRect.left - controlPanelDialogRect.left;
 	int dialogBorderHeight = borderMeasureRect.top - controlPanelDialogRect.top;
 
 	//Restrict the width and height of the control panel to the desired size
 	RECT controlPanelDialogBottomMarkerRect;
-	GetWindowRect(GetDlgItem(hwndNestedDialog, IDC_LOADEDDEVICESTEXT), &controlPanelDialogBottomMarkerRect);
+	GetWindowRect(GetDlgItem(_hwndNestedDialog, IDC_LOADEDDEVICESTEXT), &controlPanelDialogBottomMarkerRect);
 	int controlPanelDialogWidth = controlPanelDialogRect.right - controlPanelDialogRect.left;
 	int controlPanelDialogHeight = controlPanelDialogBottomMarkerRect.top - controlPanelDialogRect.top;
-	SetWindowPos(hwndNestedDialog, NULL, 0, 0, controlPanelDialogWidth, controlPanelDialogHeight, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
+	SetWindowPos(_hwndNestedDialog, NULL, 0, 0, controlPanelDialogWidth, controlPanelDialogHeight, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
 
 	//Create the default font for this window
 	int fontPointSize = 8;
@@ -67,23 +67,23 @@ LRESULT AboutView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	int fontnHeight = -MulDiv(fontPointSize, GetDeviceCaps(hdc, LOGPIXELSY), 72);
 	ReleaseDC(hwnd, hdc);
 	std::wstring fontTypefaceName = L"MS Shell Dlg";
-	fontHandle = CreateFont(fontnHeight, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FIXED_PITCH | FF_MODERN, &fontTypefaceName[0]);
+	_fontHandle = CreateFont(fontnHeight, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FIXED_PITCH | FF_MODERN, &fontTypefaceName[0]);
 
 	//Register the DataGrid window class
 	WC_DataGrid::RegisterWindowClass(GetAssemblyHandle());
 
 	//Create the DataGrid child controls
-	HWND hwndDeviceList = CreateWindowEx(WS_EX_CLIENTEDGE, WC_DataGrid::windowClassName, L"", WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_HSCROLL, 0, 0, 0, 0, hwnd, NULL, GetAssemblyHandle(), NULL);
-	HWND hwndExtensionList = CreateWindowEx(WS_EX_CLIENTEDGE, WC_DataGrid::windowClassName, L"", WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_HSCROLL, 0, 0, 0, 0, hwnd, NULL, GetAssemblyHandle(), NULL);
+	HWND hwndDeviceList = CreateWindowEx(WS_EX_CLIENTEDGE, WC_DataGrid::WindowClassName, L"", WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_HSCROLL, 0, 0, 0, 0, hwnd, NULL, GetAssemblyHandle(), NULL);
+	HWND hwndExtensionList = CreateWindowEx(WS_EX_CLIENTEDGE, WC_DataGrid::WindowClassName, L"", WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_HSCROLL, 0, 0, 0, 0, hwnd, NULL, GetAssemblyHandle(), NULL);
 
 	//Set the default font for the child controls
-	SendMessage(hwndDeviceList, WM_SETFONT, (WPARAM)fontHandle, (LPARAM)TRUE);
-	SendMessage(hwndExtensionList, WM_SETFONT, (WPARAM)fontHandle, (LPARAM)TRUE);
-	SendMessage(hwndDeviceList, (UINT)WC_DataGrid::WindowMessages::SetDataAreaFont, (WPARAM)fontHandle, (LPARAM)TRUE);
-	SendMessage(hwndExtensionList, (UINT)WC_DataGrid::WindowMessages::SetDataAreaFont, (WPARAM)fontHandle, (LPARAM)TRUE);
+	SendMessage(hwndDeviceList, WM_SETFONT, (WPARAM)_fontHandle, (LPARAM)TRUE);
+	SendMessage(hwndExtensionList, WM_SETFONT, (WPARAM)_fontHandle, (LPARAM)TRUE);
+	SendMessage(hwndDeviceList, (UINT)WC_DataGrid::WindowMessages::SetDataAreaFont, (WPARAM)_fontHandle, (LPARAM)TRUE);
+	SendMessage(hwndExtensionList, (UINT)WC_DataGrid::WindowMessages::SetDataAreaFont, (WPARAM)_fontHandle, (LPARAM)TRUE);
 
 	//Read all the device data to be shown in the data grid
-	std::list<ExodusInterface::RegisteredDeviceInfo> registeredDevices = model.GetRegisteredDevices();
+	std::list<ExodusInterface::RegisteredDeviceInfo> registeredDevices = _model.GetRegisteredDevices();
 	unsigned int registeredDeviceCount = (unsigned int)registeredDevices.size();
 	std::vector<std::wstring> deviceColumnDataName(registeredDeviceCount);
 	std::vector<std::wstring> deviceColumnDataAssembly(registeredDeviceCount);
@@ -121,7 +121,7 @@ LRESULT AboutView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	SendMessage(hwndDeviceList, (UINT)WC_DataGrid::WindowMessages::UpdateColumnText, 6, (LPARAM)&deviceColumnDataComments);
 
 	//Read all the extension data to be shown in the data grid
-	std::list<ExodusInterface::RegisteredExtensionInfo> registeredExtensions = model.GetRegisteredExtensions();
+	std::list<ExodusInterface::RegisteredExtensionInfo> registeredExtensions = _model.GetRegisteredExtensions();
 	unsigned int registeredExtensionCount = (unsigned int)registeredExtensions.size();
 	std::vector<std::wstring> extensionColumnDataName(registeredExtensionCount);
 	std::vector<std::wstring> extensionColumnDataAssembly(registeredExtensionCount);
@@ -162,25 +162,25 @@ LRESULT AboutView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	WC_LayoutGrid::RegisterWindowClass(GetAssemblyHandle());
 
 	//Create the LayoutGrid child control
-	layoutGridBorderWidth = dialogBorderWidth;
-	layoutGridBorderHeight = dialogBorderHeight;
-	hwndLayoutGrid = CreateWindowEx(WS_EX_TRANSPARENT, WC_LayoutGrid::windowClassName, L"", WS_CHILD | WS_VISIBLE, layoutGridBorderWidth, layoutGridBorderHeight, 0, 0, hwnd, NULL, GetAssemblyHandle(), NULL);
+	_layoutGridBorderWidth = dialogBorderWidth;
+	_layoutGridBorderHeight = dialogBorderHeight;
+	_hwndLayoutGrid = CreateWindowEx(WS_EX_TRANSPARENT, WC_LayoutGrid::WindowClassName, L"", WS_CHILD | WS_VISIBLE, _layoutGridBorderWidth, _layoutGridBorderHeight, 0, 0, hwnd, NULL, GetAssemblyHandle(), NULL);
 
 	//Insert our rows and columns into the layout grid
-	SendMessage(hwndLayoutGrid, (UINT)WC_LayoutGrid::WindowMessages::AddRow, 0, (LPARAM)&(const WC_LayoutGrid::AddRowParams&)WC_LayoutGrid::AddRowParams(WC_LayoutGrid::SizeMode::Content));
-	SendMessage(hwndLayoutGrid, (UINT)WC_LayoutGrid::WindowMessages::AddRow, 0, (LPARAM)&(const WC_LayoutGrid::AddRowParams&)WC_LayoutGrid::AddRowParams(WC_LayoutGrid::SizeMode::Content));
-	SendMessage(hwndLayoutGrid, (UINT)WC_LayoutGrid::WindowMessages::AddRow, 0, (LPARAM)&(const WC_LayoutGrid::AddRowParams&)WC_LayoutGrid::AddRowParams(WC_LayoutGrid::SizeMode::Proportional));
-	SendMessage(hwndLayoutGrid, (UINT)WC_LayoutGrid::WindowMessages::AddRow, 0, (LPARAM)&(const WC_LayoutGrid::AddRowParams&)WC_LayoutGrid::AddRowParams(WC_LayoutGrid::SizeMode::Content));
-	SendMessage(hwndLayoutGrid, (UINT)WC_LayoutGrid::WindowMessages::AddRow, 0, (LPARAM)&(const WC_LayoutGrid::AddRowParams&)WC_LayoutGrid::AddRowParams(WC_LayoutGrid::SizeMode::Proportional));
-	SendMessage(hwndLayoutGrid, (UINT)WC_LayoutGrid::WindowMessages::AddRow, 0, (LPARAM)&(const WC_LayoutGrid::AddRowParams&)WC_LayoutGrid::AddRowParams(WC_LayoutGrid::SizeMode::Content));
+	SendMessage(_hwndLayoutGrid, (UINT)WC_LayoutGrid::WindowMessages::AddRow, 0, (LPARAM)&(const WC_LayoutGrid::AddRowParams&)WC_LayoutGrid::AddRowParams(WC_LayoutGrid::SizeMode::Content));
+	SendMessage(_hwndLayoutGrid, (UINT)WC_LayoutGrid::WindowMessages::AddRow, 0, (LPARAM)&(const WC_LayoutGrid::AddRowParams&)WC_LayoutGrid::AddRowParams(WC_LayoutGrid::SizeMode::Content));
+	SendMessage(_hwndLayoutGrid, (UINT)WC_LayoutGrid::WindowMessages::AddRow, 0, (LPARAM)&(const WC_LayoutGrid::AddRowParams&)WC_LayoutGrid::AddRowParams(WC_LayoutGrid::SizeMode::Proportional));
+	SendMessage(_hwndLayoutGrid, (UINT)WC_LayoutGrid::WindowMessages::AddRow, 0, (LPARAM)&(const WC_LayoutGrid::AddRowParams&)WC_LayoutGrid::AddRowParams(WC_LayoutGrid::SizeMode::Content));
+	SendMessage(_hwndLayoutGrid, (UINT)WC_LayoutGrid::WindowMessages::AddRow, 0, (LPARAM)&(const WC_LayoutGrid::AddRowParams&)WC_LayoutGrid::AddRowParams(WC_LayoutGrid::SizeMode::Proportional));
+	SendMessage(_hwndLayoutGrid, (UINT)WC_LayoutGrid::WindowMessages::AddRow, 0, (LPARAM)&(const WC_LayoutGrid::AddRowParams&)WC_LayoutGrid::AddRowParams(WC_LayoutGrid::SizeMode::Content));
 
 	//Add each child control to the layout grid
-	SendMessage(hwndLayoutGrid, (UINT)WC_LayoutGrid::WindowMessages::AddWindow, 0, (LPARAM)&(const WC_LayoutGrid::AddWindowParams&)WC_LayoutGrid::AddWindowParams(hwndNestedDialog, 0, 0).SetSizeMode(WC_LayoutGrid::WindowSizeMode::Fixed).SetAlignment(WC_LayoutGrid::HorizontalAlignment::Centre, WC_LayoutGrid::VerticalAlignment::Top));
-	SendMessage(hwndLayoutGrid, (UINT)WC_LayoutGrid::WindowMessages::AddWindow, 0, (LPARAM)&(const WC_LayoutGrid::AddWindowParams&)WC_LayoutGrid::AddWindowParams(GetDlgItem(hwndNestedDialog, IDC_LOADEDDEVICESTEXT), 1, 0).SetSizeMode(WC_LayoutGrid::WindowSizeMode::Fixed).SetPadding(0, 0, 5, 0));
-	SendMessage(hwndLayoutGrid, (UINT)WC_LayoutGrid::WindowMessages::AddWindow, 0, (LPARAM)&(const WC_LayoutGrid::AddWindowParams&)WC_LayoutGrid::AddWindowParams(hwndDeviceList, 2, 0));
-	SendMessage(hwndLayoutGrid, (UINT)WC_LayoutGrid::WindowMessages::AddWindow, 0, (LPARAM)&(const WC_LayoutGrid::AddWindowParams&)WC_LayoutGrid::AddWindowParams(GetDlgItem(hwndNestedDialog, IDC_LOADEDEXTENSIONSTEXT), 3, 0).SetSizeMode(WC_LayoutGrid::WindowSizeMode::Fixed).SetPadding(0, 0, 5, 0));
-	SendMessage(hwndLayoutGrid, (UINT)WC_LayoutGrid::WindowMessages::AddWindow, 0, (LPARAM)&(const WC_LayoutGrid::AddWindowParams&)WC_LayoutGrid::AddWindowParams(hwndExtensionList, 4, 0));
-	SendMessage(hwndLayoutGrid, (UINT)WC_LayoutGrid::WindowMessages::AddWindow, 0, (LPARAM)&(const WC_LayoutGrid::AddWindowParams&)WC_LayoutGrid::AddWindowParams(GetDlgItem(hwndNestedDialog, IDOK), 5, 0).SetSizeMode(WC_LayoutGrid::WindowSizeMode::Fixed).SetAlignment(WC_LayoutGrid::HorizontalAlignment::Centre, WC_LayoutGrid::VerticalAlignment::Centre).SetPadding(0, 0, 5, 0));
+	SendMessage(_hwndLayoutGrid, (UINT)WC_LayoutGrid::WindowMessages::AddWindow, 0, (LPARAM)&(const WC_LayoutGrid::AddWindowParams&)WC_LayoutGrid::AddWindowParams(_hwndNestedDialog, 0, 0).SetSizeMode(WC_LayoutGrid::WindowSizeMode::Fixed).SetAlignment(WC_LayoutGrid::HorizontalAlignment::Centre, WC_LayoutGrid::VerticalAlignment::Top));
+	SendMessage(_hwndLayoutGrid, (UINT)WC_LayoutGrid::WindowMessages::AddWindow, 0, (LPARAM)&(const WC_LayoutGrid::AddWindowParams&)WC_LayoutGrid::AddWindowParams(GetDlgItem(_hwndNestedDialog, IDC_LOADEDDEVICESTEXT), 1, 0).SetSizeMode(WC_LayoutGrid::WindowSizeMode::Fixed).SetPadding(0, 0, 5, 0));
+	SendMessage(_hwndLayoutGrid, (UINT)WC_LayoutGrid::WindowMessages::AddWindow, 0, (LPARAM)&(const WC_LayoutGrid::AddWindowParams&)WC_LayoutGrid::AddWindowParams(hwndDeviceList, 2, 0));
+	SendMessage(_hwndLayoutGrid, (UINT)WC_LayoutGrid::WindowMessages::AddWindow, 0, (LPARAM)&(const WC_LayoutGrid::AddWindowParams&)WC_LayoutGrid::AddWindowParams(GetDlgItem(_hwndNestedDialog, IDC_LOADEDEXTENSIONSTEXT), 3, 0).SetSizeMode(WC_LayoutGrid::WindowSizeMode::Fixed).SetPadding(0, 0, 5, 0));
+	SendMessage(_hwndLayoutGrid, (UINT)WC_LayoutGrid::WindowMessages::AddWindow, 0, (LPARAM)&(const WC_LayoutGrid::AddWindowParams&)WC_LayoutGrid::AddWindowParams(hwndExtensionList, 4, 0));
+	SendMessage(_hwndLayoutGrid, (UINT)WC_LayoutGrid::WindowMessages::AddWindow, 0, (LPARAM)&(const WC_LayoutGrid::AddWindowParams&)WC_LayoutGrid::AddWindowParams(GetDlgItem(_hwndNestedDialog, IDOK), 5, 0).SetSizeMode(WC_LayoutGrid::WindowSizeMode::Fixed).SetAlignment(WC_LayoutGrid::HorizontalAlignment::Centre, WC_LayoutGrid::VerticalAlignment::Centre).SetPadding(0, 0, 5, 0));
 
 	return 0;
 }
@@ -192,7 +192,7 @@ LRESULT AboutView::msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	//screen at this point, it should be safe to delete this object here even though child
 	//controls still hold references to it, as long as we don't attempt to use the font
 	//handle while the window is being destroyed.
-	DeleteObject(fontHandle);
+	DeleteObject(_fontHandle);
 	return 0;
 }
 
@@ -206,7 +206,7 @@ LRESULT AboutView::msgWM_SIZE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	int controlHeight = rect.bottom;
 
 	//Resize the layout grid to the desired width and height
-	SetWindowPos(hwndLayoutGrid, NULL, layoutGridBorderWidth, layoutGridBorderHeight, controlWidth - (layoutGridBorderWidth * 2), controlHeight - (layoutGridBorderHeight * 2), SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
+	SetWindowPos(_hwndLayoutGrid, NULL, _layoutGridBorderWidth, _layoutGridBorderHeight, controlWidth - (_layoutGridBorderWidth * 2), controlHeight - (_layoutGridBorderHeight * 2), SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
 	return 0;
 }
 
@@ -224,7 +224,7 @@ LRESULT AboutView::msgWM_ERASEBKGND(HWND hwnd, WPARAM wParam, LPARAM lParam)
 LRESULT AboutView::msgWM_COMMAND(HWND hwnd, WPARAM wParam, LPARAM lParam)
 {
 	//Forward all commands to our contained dialog
-	return SendMessage(hwndNestedDialog, WM_COMMAND, wParam, lParam);
+	return SendMessage(_hwndNestedDialog, WM_COMMAND, wParam, lParam);
 }
 
 //----------------------------------------------------------------------------------------

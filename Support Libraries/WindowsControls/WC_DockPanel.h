@@ -6,9 +6,6 @@
 class WC_DockPanel
 {
 public:
-	//Constants
-	static const wchar_t* windowClassName;
-
 	//Enumerations
 	enum class WindowMessages :unsigned int;
 	enum class DockLocation;
@@ -16,13 +13,16 @@ public:
 	//Structures
 	struct CalculateNewDockedWindowRectParams;
 
+	//Constants
+	static const wchar_t* WindowClassName;
+
 public:
 	//Constructors
-	WC_DockPanel(HINSTANCE amoduleHandle, HWND ahwnd);
+	WC_DockPanel(HINSTANCE moduleHandle, HWND hwnd);
 
 	//Class registration
-	static bool RegisterWindowClass(HINSTANCE amoduleHandle);
-	static bool UnregisterWindowClass(HINSTANCE amoduleHandle);
+	static bool RegisterWindowClass(HINSTANCE moduleHandle);
+	static bool UnregisterWindowClass(HINSTANCE moduleHandle);
 
 	//Message handlers
 	static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -62,8 +62,8 @@ private:
 	void SetDockedWindowDesiredHeight(HWND dockedWindow, int desiredHeight);
 
 	//Hosted content methods
-	void AddHostedContent(HWND ahostedContent);
-	void RemoveHostedContent(HWND ahostedContent);
+	void AddHostedContent(HWND hostedContent);
+	void RemoveHostedContent(HWND hostedContent);
 
 	//Sizing methods
 	void HandleSizeChanged(int newWidth, int newHeight);
@@ -72,17 +72,17 @@ private:
 	static void UpdateDockedWindowPositionAndSize(DockedWindowEntry& entry, bool& updatedWindowSize, bool& updatedWindowPosition, int& currentClientPosX, int& currentClientPosY, int& remainingClientWidth, int& remainingClientHeight);
 
 private:
-	HINSTANCE moduleHandle;
-	HWND hwnd;
-	int currentControlWidth;
-	int currentControlHeight;
+	HINSTANCE _moduleHandle;
+	HWND _hwnd;
+	int _currentControlWidth;
+	int _currentControlHeight;
 
-	std::list<DockedWindowEntry> dockedWindows;
-	std::list<HWND> hostedContent;
-	int hostedContentWindowPosX;
-	int hostedContentWindowPosY;
-	int hostedContentWindowWidth;
-	int hostedContentWindowHeight;
+	std::list<DockedWindowEntry> _dockedWindows;
+	std::list<HWND> _hostedContent;
+	int _hostedContentWindowPosX;
+	int _hostedContentWindowPosY;
+	int _hostedContentWindowWidth;
+	int _hostedContentWindowHeight;
 };
 
 #include "WC_DockPanel.inl"

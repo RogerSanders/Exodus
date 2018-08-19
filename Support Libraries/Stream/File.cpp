@@ -8,7 +8,7 @@ namespace Stream {
 File::~File()
 {
 	Close();
-	delete[] fileBuffer;
+	delete[] _fileBuffer;
 }
 
 //----------------------------------------------------------------------------------------
@@ -23,20 +23,20 @@ bool File::IsAtEnd() const
 File::SizeType File::Size() const
 {
 	SizeType fileSize = 0;
-	if(fileOpen)
+	if(_fileOpen)
 	{
 		LARGE_INTEGER fileSizeWindows;
-		BOOL getFileSizeExReturn = GetFileSizeEx(fileHandle, &fileSizeWindows);
+		BOOL getFileSizeExReturn = GetFileSizeEx(_fileHandle, &fileSizeWindows);
 		if(getFileSizeExReturn != 0)
 		{
 			fileSize = (SizeType)fileSizeWindows.QuadPart;
 
 			//Adjust the reported file size to take into account any unwritten data
 			//currently held in the data buffer.
-			if(bufferInWriteMode)
+			if(_bufferInWriteMode)
 			{
 				SizeType virtualFilePos = GetStreamPos();
-				virtualFilePos += (SizeType)bufferPosOffset;
+				virtualFilePos += (SizeType)_bufferPosOffset;
 				if(virtualFilePos > fileSize)
 				{
 					fileSize = virtualFilePos;
@@ -51,25 +51,25 @@ File::SizeType File::Size() const
 File::SizeType File::GetStreamPos() const
 {
 	SizeType streamPos = 0;
-	if(fileOpen)
+	if(_fileOpen)
 	{
 		LARGE_INTEGER dummyFilePointer;
 		dummyFilePointer.QuadPart = 0;
 		LARGE_INTEGER currentFilePointer;
-		BOOL setFilePointerExReturn = SetFilePointerEx(fileHandle, dummyFilePointer, &currentFilePointer, FILE_CURRENT);
+		BOOL setFilePointerExReturn = SetFilePointerEx(_fileHandle, dummyFilePointer, &currentFilePointer, FILE_CURRENT);
 		if(setFilePointerExReturn != 0)
 		{
 			streamPos = (SizeType)currentFilePointer.QuadPart;
 
 			//Adjust the reported file position to take into account our position in the
 			//data buffer.
-			if(bufferInWriteMode)
+			if(_bufferInWriteMode)
 			{
-				streamPos += (SizeType)bufferPosOffset;
+				streamPos += (SizeType)_bufferPosOffset;
 			}
 			else
 			{
-				streamPos -= (SizeType)bytesRemainingInBuffer;
+				streamPos -= (SizeType)_bytesRemainingInBuffer;
 			}
 		}
 	}
@@ -79,7 +79,7 @@ File::SizeType File::GetStreamPos() const
 //----------------------------------------------------------------------------------------
 void File::SetStreamPos(SizeType position)
 {
-	if(fileOpen)
+	if(_fileOpen)
 	{
 		//Empty the contents of the data buffer before we perform a seek operation
 		EmptyDataBuffer();
@@ -87,7 +87,7 @@ void File::SetStreamPos(SizeType position)
 		//Set the new file seek position
 		LARGE_INTEGER filePointer;
 		filePointer.QuadPart = (LONGLONG)position;
-		SetFilePointerEx(fileHandle, filePointer, NULL, FILE_BEGIN);
+		SetFilePointerEx(_fileHandle, filePointer, NULL, FILE_BEGIN);
 	}
 }
 
@@ -95,7 +95,7 @@ void File::SetStreamPos(SizeType position)
 bool File::SkipBytes(SizeType byteCount)
 {
 	bool result = false;
-	if(fileOpen)
+	if(_fileOpen)
 	{
 		result = true;
 		unsigned char temp;

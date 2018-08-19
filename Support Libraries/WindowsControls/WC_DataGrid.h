@@ -26,9 +26,6 @@ Things to do:
 class WC_DataGrid
 {
 public:
-	//Constants
-	static const wchar_t* windowClassName;
-
 	//Enumerations
 	enum class WindowMessages :unsigned int;
 	enum class WindowNotifications :unsigned int;
@@ -59,22 +56,22 @@ public:
 	struct Grid_CellButtonClickEvent;
 	struct Grid_TreeEntryExpandEvent;
 
+	//Constants
+	static const wchar_t* WindowClassName;
+
 public:
 	//Constructors
-	WC_DataGrid(HINSTANCE amoduleHandle, HWND ahwnd);
+	WC_DataGrid(HINSTANCE moduleHandle, HWND hwnd);
 	~WC_DataGrid();
 
 	//Class registration
-	static bool RegisterWindowClass(HINSTANCE amoduleHandle);
-	static bool UnregisterWindowClass(HINSTANCE amoduleHandle);
+	static bool RegisterWindowClass(HINSTANCE moduleHandle);
+	static bool UnregisterWindowClass(HINSTANCE moduleHandle);
 
 	//Message handlers
 	static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 private:
-	//Constants
-	static const long long IDC_HEADER = 0x101;
-
 	//Internal structures
 	struct ColumnData;
 	struct CustomColorData
@@ -95,6 +92,9 @@ private:
 		WinColor colorLine;
 	};
 	struct CellControlInfo;
+
+	//Constants
+	static const long long HeaderControlID = 0x101;
 
 private:
 	//Header functions
@@ -190,36 +190,35 @@ private:
 
 private:
 	//Window metrics
-	int controlWidth;
-	int controlHeight;
-	int headerWidth;
-	int headerHeight;
-	int headerPosX;
-	int headerPosY;
-	unsigned int visibleRows;
-	unsigned int fullyVisibleRows;
+	int _controlWidth;
+	int _controlHeight;
+	int _headerWidth;
+	int _headerHeight;
+	int _headerPosX;
+	int _headerPosY;
+	unsigned int _visibleRows;
+	unsigned int _fullyVisibleRows;
 
 	//Scroll settings
-	bool autoScrollingManagement;
-	int vscrollMin;
-	int vscrollMax;
-	int vscrollMaxTrueLimit;
-	int vscrollCurrent;
-	int vscrollValuesPerPage;
-	int currentScrollHOffset;
-	int lastAppliedCurrentScrollHOffset;
+	bool _autoScrollingManagement;
+	int _vscrollMin;
+	int _vscrollMax;
+	int _vscrollMaxTrueLimit;
+	int _vscrollCurrent;
+	int _vscrollValuesPerPage;
+	int _currentScrollHOffset;
 
 	//Handles
-	HINSTANCE moduleHandle;
-	HWND hwnd;
-	HWND hwndHeader;
-	HWND hwndComboBoxList;
-	HFONT controlFont;
-	HFONT dataAreaFont;
+	HINSTANCE _moduleHandle;
+	HWND _hwnd;
+	HWND _hwndHeader;
+	HWND _hwndComboBoxList;
+	HFONT _controlFont;
+	HFONT _dataAreaFont;
 
 	//##FIX## Comment and group these correctly
-	int openComboBoxColumnID;
-	int openComboBoxRowNo;
+	int _openComboBoxColumnID;
+	int _openComboBoxRowNo;
 	struct CellMapping
 	{
 		CellMapping(unsigned int acolumnID, unsigned int arowNo)
@@ -229,48 +228,48 @@ private:
 		unsigned int columnID;
 		unsigned int rowNo;
 	};
-	std::map<unsigned int, std::vector<CellControlInfo>> customControlForCell;
-	std::set<HWND> childControlSet;
-	std::map<HWND, CellMapping> childControlMapping;
+	std::map<unsigned int, std::vector<CellControlInfo>> _customControlForCell;
+	std::set<HWND> _childControlSet;
+	std::map<HWND, CellMapping> _childControlMapping;
 
 	//Color settings
-	CustomColorData defaultColorData;
-	CustomColorData userColorData;
-	std::vector<CustomColorData> rowColorDataArray;
-	std::map<unsigned int, std::map<unsigned int, CustomColorData>> cellCustomColorData;
+	CustomColorData _defaultColorData;
+	CustomColorData _userColorData;
+	std::vector<CustomColorData> _rowColorDataArray;
+	std::map<unsigned int, std::map<unsigned int, CustomColorData>> _cellCustomColorData;
 
 	//Font metrics
-	int fontWidth;
-	int fontHeight;
-	int marginSize;
+	int _fontWidth;
+	int _fontHeight;
+	int _marginSize;
 
 	//Selection info
-	bool rowSelected;
-	bool columnSelected;
-	unsigned int selectedRowNo;
-	unsigned int selectedColumnID;
-	bool editModeActive;
-	unsigned int selectedCharacterNo;
-	bool editModeShowCaretPending;
-	bool editModeSelectionPosChangePending;
-	bool editModeSelectionPosChangePendingInPixels;
-	bool ignoreDragSelectStart;
-	int editModeNewSelectionPosInPixels;
-	std::wstring editBuffer;
-	unsigned int editCellHorizontalPixelOffset;
+	bool _rowSelected;
+	bool _columnSelected;
+	unsigned int _selectedRowNo;
+	unsigned int _selectedColumnID;
+	bool _editModeActive;
+	unsigned int _selectedCharacterNo;
+	bool _editModeShowCaretPending;
+	bool _editModeSelectionPosChangePending;
+	bool _editModeSelectionPosChangePendingInPixels;
+	bool _ignoreDragSelectStart;
+	int _editModeNewSelectionPosInPixels;
+	std::wstring _editBuffer;
+	unsigned int _editCellHorizontalPixelOffset;
 
 	//Drag-select info
-	bool mouseButtonDown;
-	bool dragSelectActive;
-	unsigned int dragSelectStartPos;
-	unsigned int dragSelectEndPos;
+	bool _mouseButtonDown;
+	bool _dragSelectActive;
+	unsigned int _dragSelectStartPos;
+	unsigned int _dragSelectEndPos;
 
 	//Column data
-	unsigned int largestColumnDataArraySize;
-	std::list<ColumnData> columnData;
-	std::map<int, ColumnData*> columnIndex;
-	std::map<int, ColumnData*> columnSortIndex;
-	std::map<int, ColumnData*> columnIDIndex;
+	unsigned int _largestColumnDataArraySize;
+	std::list<ColumnData> _columnData;
+	std::map<int, ColumnData*> _columnIndex;
+	std::map<int, ColumnData*> _columnSortIndex;
+	std::map<int, ColumnData*> _columnIDIndex;
 };
 
 #include "WC_DataGrid.inl"

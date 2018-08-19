@@ -23,24 +23,24 @@ public:
 	virtual bool GetIsPersistentGlobalExtension() const;
 
 	//Setters
-	virtual void SetExtensionSettings(AllocatorPointer aAllocator, DestructorPointer aDestructor, const Marshal::In<std::wstring>& aextensionClassName, const Marshal::In<std::wstring>& aextensionImplementationName, unsigned int aextensionVersionNo, const Marshal::In<std::wstring>& aextensionCopyright, const Marshal::In<std::wstring>& aextensionComments, bool apersistentGlobalExtension = false);
-	virtual void SetExtensionAllocators(AllocatorPointer aAllocator, DestructorPointer aDestructor);
-	virtual void SetExtensionClassName(const Marshal::In<std::wstring>& aextensionClassName);
-	virtual void SetExtensionImplementationName(const Marshal::In<std::wstring>& aextensionImplementationName);
-	virtual void SetExtensionVersionNo(unsigned int aextensionVersionNo);
-	virtual void SetExtensionCopyright(const Marshal::In<std::wstring>& aextensionCopyright);
-	virtual void SetExtensionComments(const Marshal::In<std::wstring>& aextensionComments);
+	virtual void SetExtensionSettings(AllocatorPointer allocator, DestructorPointer destructor, const Marshal::In<std::wstring>& extensionClassName, const Marshal::In<std::wstring>& extensionImplementationName, unsigned int extensionVersionNo, const Marshal::In<std::wstring>& extensionCopyright, const Marshal::In<std::wstring>& extensionComments, bool persistentGlobalExtension = false);
+	virtual void SetExtensionAllocators(AllocatorPointer allocator, DestructorPointer destructor);
+	virtual void SetExtensionClassName(const Marshal::In<std::wstring>& extensionClassName);
+	virtual void SetExtensionImplementationName(const Marshal::In<std::wstring>& extensionImplementationName);
+	virtual void SetExtensionVersionNo(unsigned int extensionVersionNo);
+	virtual void SetExtensionCopyright(const Marshal::In<std::wstring>& extensionCopyright);
+	virtual void SetExtensionComments(const Marshal::In<std::wstring>& extensionComments);
 	virtual void SetIsPersistentGlobalExtension(bool state);
 
 private:
-	AllocatorPointer Allocator;
-	DestructorPointer Destructor;
-	std::wstring className;
-	std::wstring implementationName;
-	unsigned int versionNo;
-	std::wstring copyright;
-	std::wstring comments;
-	bool persistentGlobalExtension;
+	AllocatorPointer _allocator;
+	DestructorPointer _destructor;
+	std::wstring _className;
+	std::wstring _implementationName;
+	unsigned int _versionNo;
+	std::wstring _copyright;
+	std::wstring _comments;
+	bool _persistentGlobalExtension;
 };
 
 #endif

@@ -11,17 +11,17 @@ class ViewBase :public IView
 {
 public:
 	//Constructors
-	ViewBase(IUIManager& auiManager, IViewPresenter& aviewPresenter);
+	ViewBase(IUIManager& uiManager, IViewPresenter& viewPresenter);
 
 	//Interface version functions
 	virtual unsigned int GetIViewVersion() const;
 
 	//Window settings
-	void SetWindowSettings(const std::wstring& ainitialWindowTitle, DWORD awindowStyle, DWORD aextendedWindowStyle, unsigned int awidth, unsigned int aheight);
-	void SetDialogTemplateSettings(const std::wstring& ainitialWindowTitle, void* aassemblyHandle, LPCWSTR atemplateName);
+	void SetWindowSettings(const std::wstring& initialWindowTitle, DWORD windowStyle, DWORD extendedWindowStyle, unsigned int width, unsigned int height);
+	void SetDialogTemplateSettings(const std::wstring& initialWindowTitle, void* assemblyHandle, LPCWSTR templateName);
 	void SetDocumentViewType();
-	void SetDockableViewType(bool ainitiallyDocked = false, DockPos ainitialDockPos = DockPos::Left, bool ainitiallyCollapsed = false, const std::wstring& aviewDockingGroup = L"");
-	void SetDialogViewType(DialogMode adialogMode = DialogMode::Modeless, bool adialogResizable = false, DialogPos ainitialDialogPos = DialogPos::Default);
+	void SetDockableViewType(bool initiallyDocked = false, DockPos initialDockPos = DockPos::Left, bool initiallyCollapsed = false, const std::wstring& viewDockingGroup = L"");
+	void SetDialogViewType(DialogMode dialogMode = DialogMode::Modeless, bool dialogResizable = false, DialogPos initialDialogPos = DialogPos::Default);
 
 	//View management functions
 	virtual bool OpenView(IHierarchicalStorageNode* viewState);
@@ -53,8 +53,8 @@ protected:
 	virtual LRESULT WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
 	//Child window functions
-	HWND CreateChildDialog(HWND aparentWindow, void* aassemblyHandle, LPCWSTR atemplateName, const std::function<INT_PTR(HWND, UINT, WPARAM, LPARAM)>& dlgProcHandler);
-	HWND CreateChildWindow(DWORD awindowStyle, DWORD aextendedWindowStyle, unsigned int aposX, unsigned int aposY, unsigned int awidth, unsigned int aheight, HWND aparentWindow, const std::function<INT_PTR(HWND, UINT, WPARAM, LPARAM)>& wndProcHandler);
+	HWND CreateChildDialog(HWND parentWindow, void* assemblyHandle, LPCWSTR templateName, const std::function<INT_PTR(HWND, UINT, WPARAM, LPARAM)>& dlgProcHandler);
+	HWND CreateChildWindow(DWORD windowStyle, DWORD extendedWindowStyle, unsigned int posX, unsigned int posY, unsigned int width, unsigned int height, HWND parentWindow, const std::function<INT_PTR(HWND, UINT, WPARAM, LPARAM)>& wndProcHandler);
 	static INT_PTR CALLBACK WndProcChildDialog(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 	static LRESULT CALLBACK WndProcChildWindow(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
@@ -76,32 +76,32 @@ private:
 	static LRESULT CALLBACK WndProcWindowInternal(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
 private:
-	HWND hwndInternal;
-	HWND parentWindow;
-	IUIManager& uiManager;
-	IViewPresenter& viewPresenter;
-	bool windowShownForFirstTime;
+	HWND _hwndInternal;
+	HWND _parentWindow;
+	IUIManager& _uiManager;
+	IViewPresenter& _viewPresenter;
+	bool _windowShownForFirstTime;
 
 	//Window settings
-	bool dialogSettingsCaptured;
-	bool windowSettingsCaptured;
-	std::wstring initialWindowTitle;
-	void* assemblyHandle;
-	LPCWSTR templateName;
-	DWORD windowStyle;
-	DWORD extendedWindowStyle;
-	unsigned int originalWindowWidth;
-	unsigned int originalWindowHeight;
+	bool _dialogSettingsCaptured;
+	bool _windowSettingsCaptured;
+	std::wstring _initialWindowTitle;
+	void* _assemblyHandle;
+	LPCWSTR _templateName;
+	DWORD _windowStyle;
+	DWORD _extendedWindowStyle;
+	unsigned int _originalWindowWidth;
+	unsigned int _originalWindowHeight;
 
 	//View settings
-	std::wstring viewDockingGroup;
-	bool initiallyDocked;
-	bool initiallyCollapsed;
-	DockPos initialDockPos;
-	ViewType viewType;
-	DialogMode dialogMode;
-	DialogPos initialDialogPos;
-	bool dialogResizable;
+	std::wstring _viewDockingGroup;
+	bool _initiallyDocked;
+	bool _initiallyCollapsed;
+	DockPos _initialDockPos;
+	ViewType _viewType;
+	DialogMode _dialogMode;
+	DialogPos _initialDialogPos;
+	bool _dialogResizable;
 };
 
 #endif

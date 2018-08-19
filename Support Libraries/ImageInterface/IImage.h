@@ -43,7 +43,7 @@ public:
 	virtual PixelFormat GetPixelFormat() const = 0;
 	virtual DataFormat GetDataFormat() const = 0;
 	virtual unsigned int GetDataPlaneCount() const = 0;
-	virtual void SetImageFormat(unsigned int aimageWidth, unsigned int aimageHeight, PixelFormat apixelFormat = PIXELFORMAT_RGB, DataFormat adataFormat = DATAFORMAT_8BIT) = 0;
+	virtual void SetImageFormat(unsigned int imageWidth, unsigned int imageHeight, PixelFormat pixelFormat = PIXELFORMAT_RGB, DataFormat dataFormat = DATAFORMAT_8BIT) = 0;
 
 	//Pixel data manipulation
 	virtual void GetRawPixelData(unsigned int posX, unsigned int posY, unsigned int planeNo, PixelData& data) const = 0;

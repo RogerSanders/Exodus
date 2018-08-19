@@ -3,8 +3,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-MenuSelectableOption::MenuSelectableOption(IMenuHandler& amenuHandler, int amenuItemID, const std::wstring& atitle)
-:menuHandler(amenuHandler), menuItemID(amenuItemID), title(atitle), physicalMenuHandle(0), physicalMenuItemID(0), checkedState(false)
+MenuSelectableOption::MenuSelectableOption(IMenuHandler& menuHandler, int menuItemID, const std::wstring& title)
+:_menuHandler(menuHandler), _menuItemID(menuItemID), _title(title), _physicalMenuHandle(0), _physicalMenuItemID(0), _checkedState(false)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -34,7 +34,7 @@ MenuSelectableOption::Type MenuSelectableOption::GetType() const
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> MenuSelectableOption::GetMenuTitle() const
 {
-	return title;
+	return _title;
 }
 
 //----------------------------------------------------------------------------------------
@@ -42,13 +42,13 @@ Marshal::Ret<std::wstring> MenuSelectableOption::GetMenuTitle() const
 //----------------------------------------------------------------------------------------
 IMenuHandler& MenuSelectableOption::GetMenuHandler() const
 {
-	return menuHandler;
+	return _menuHandler;
 }
 
 //----------------------------------------------------------------------------------------
 int MenuSelectableOption::GetMenuItemID() const
 {
-	return menuItemID;
+	return _menuItemID;
 }
 
 //----------------------------------------------------------------------------------------
@@ -56,25 +56,25 @@ int MenuSelectableOption::GetMenuItemID() const
 //----------------------------------------------------------------------------------------
 HMENU MenuSelectableOption::GetPhysicalMenuHandle() const
 {
-	return physicalMenuHandle;
+	return _physicalMenuHandle;
 }
 
 //----------------------------------------------------------------------------------------
-void MenuSelectableOption::SetPhysicalMenuHandle(HMENU aphysicalMenuHandle)
+void MenuSelectableOption::SetPhysicalMenuHandle(HMENU physicalMenuHandle)
 {
-	physicalMenuHandle = aphysicalMenuHandle;
+	_physicalMenuHandle = physicalMenuHandle;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int MenuSelectableOption::GetPhysicalMenuItemID() const
 {
-	return physicalMenuItemID;
+	return _physicalMenuItemID;
 }
 
 //----------------------------------------------------------------------------------------
-void MenuSelectableOption::SetPhysicalMenuItemID(unsigned int aphysicalMenuItemID)
+void MenuSelectableOption::SetPhysicalMenuItemID(unsigned int physicalMenuItemID)
 {
-	physicalMenuItemID = aphysicalMenuItemID;
+	_physicalMenuItemID = physicalMenuItemID;
 }
 
 //----------------------------------------------------------------------------------------
@@ -82,17 +82,17 @@ void MenuSelectableOption::SetPhysicalMenuItemID(unsigned int aphysicalMenuItemI
 //----------------------------------------------------------------------------------------
 bool MenuSelectableOption::GetCheckedState() const
 {
-	return checkedState;
+	return _checkedState;
 }
 
 //----------------------------------------------------------------------------------------
-void MenuSelectableOption::SetCheckedState(bool acheckedState)
+void MenuSelectableOption::SetCheckedState(bool checkedState)
 {
-	checkedState = acheckedState;
+	_checkedState = checkedState;
 
 	//Change the checked state on the physical menu item
-	if((physicalMenuHandle != 0) && (physicalMenuItemID != 0))
+	if((_physicalMenuHandle != 0) && (_physicalMenuItemID != 0))
 	{
-		CheckMenuItem(physicalMenuHandle, (UINT)physicalMenuItemID, checkedState? MF_CHECKED: MF_UNCHECKED);
+		CheckMenuItem(_physicalMenuHandle, (UINT)_physicalMenuItemID, _checkedState? MF_CHECKED: MF_UNCHECKED);
 	}
 }

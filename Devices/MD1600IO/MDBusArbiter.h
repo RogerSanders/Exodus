@@ -8,7 +8,7 @@ class MDBusArbiter :public Device
 {
 public:
 	//Constructors
-	MDBusArbiter(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
+	MDBusArbiter(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 
 	//Initialization functions
 	virtual bool ValidateDevice();
@@ -76,94 +76,94 @@ private:
 
 private:
 	//Device references
-	IDevice* bootROM;
+	IDevice* _bootROM;
 
 	//Bus interfaces
-	IBusInterface* z80MemoryBus;
-	IBusInterface* m68kMemoryBus;
+	IBusInterface* _z80MemoryBus;
+	IBusInterface* _m68kMemoryBus;
 
 	//Device settings
-	bool activateTMSS;
-	bool bactivateTMSS;
-	bool activateBootROM;
-	bool bactivateBootROM;
+	bool _activateTMSS;
+	bool _bactivateTMSS;
+	bool _activateBootROM;
+	bool _bactivateBootROM;
 
 	//TMSS Security settings
-	bool bootROMEnabled;
-	bool bbootROMEnabled;
-	bool vdpLockoutActive;
-	bool bvdpLockoutActive;
-	mutable bool vdpLockoutTripped;
-	bool bvdpLockoutTripped;
+	bool _bootROMEnabled;
+	bool _bbootROMEnabled;
+	bool _vdpLockoutActive;
+	bool _bvdpLockoutActive;
+	mutable bool _vdpLockoutTripped;
+	bool _bvdpLockoutTripped;
 
 	//Z80 to M68K memory bankswitch register settings
-	mutable std::mutex bankswitchAccessMutex;
-	Data z80BankswitchDataCurrent;
-	Data bz80BankswitchDataCurrent;
-	Data z80BankswitchDataNew;
-	Data bz80BankswitchDataNew;
-	unsigned int z80BankswitchBitsWritten;
-	unsigned int bz80BankswitchBitsWritten;
+	mutable std::mutex _bankswitchAccessMutex;
+	Data _z80BankswitchDataCurrent;
+	Data _bz80BankswitchDataCurrent;
+	Data _z80BankswitchDataNew;
+	Data _bz80BankswitchDataNew;
+	unsigned int _z80BankswitchBitsWritten;
+	unsigned int _bz80BankswitchBitsWritten;
 
 	//CE line masks
-	unsigned int ceLineMaskReadHighWriteLow;
-	unsigned int ceLineMaskUDS;
-	unsigned int ceLineMaskLDS;
-	unsigned int ceLineMaskOE0;
-	unsigned int ceLineMaskCE0;
-	unsigned int ceLineMaskBootROM;
-	unsigned int ceLineMaskROM;
-	unsigned int ceLineMaskASEL;
-	unsigned int ceLineMaskFDC;
-	unsigned int ceLineMaskFDWR;
-	unsigned int ceLineMaskTIME;
-	unsigned int ceLineMaskIO;
-	unsigned int ceLineMaskEOE;
-	unsigned int ceLineMaskNOE;
-	unsigned int ceLineMaskZRAM;
-	unsigned int ceLineMaskSOUND;
+	unsigned int _ceLineMaskReadHighWriteLow;
+	unsigned int _ceLineMaskUDS;
+	unsigned int _ceLineMaskLDS;
+	unsigned int _ceLineMaskOE0;
+	unsigned int _ceLineMaskCE0;
+	unsigned int _ceLineMaskBootROM;
+	unsigned int _ceLineMaskROM;
+	unsigned int _ceLineMaskASEL;
+	unsigned int _ceLineMaskFDC;
+	unsigned int _ceLineMaskFDWR;
+	unsigned int _ceLineMaskTIME;
+	unsigned int _ceLineMaskIO;
+	unsigned int _ceLineMaskEOE;
+	unsigned int _ceLineMaskNOE;
+	unsigned int _ceLineMaskZRAM;
+	unsigned int _ceLineMaskSOUND;
 
 	//Line access
-	std::mutex lineMutex;
-	mutable double lastLineCheckTime;
-	volatile bool lineAccessPending;
-	double lastTimesliceLength;
-	double blastTimesliceLength;
-	std::list<LineAccess> lineAccessBuffer;
-	std::list<LineAccess> blineAccessBuffer;
+	std::mutex _lineMutex;
+	mutable double _lastLineCheckTime;
+	volatile bool _lineAccessPending;
+	double _lastTimesliceLength;
+	double _blastTimesliceLength;
+	std::list<LineAccess> _lineAccessBuffer;
+	std::list<LineAccess> _blineAccessBuffer;
 
 	//Line state
-	volatile bool cartInLineState;
-	bool bcartInLineState;
-	volatile bool z80BusRequestLineState;
-	bool bz80BusRequestLineState;
-	volatile bool z80BusGrantLineState;
-	bool bz80BusGrantLineState;
-	volatile bool z80BusResetLineState;
-	bool bz80BusResetLineState;
-	volatile bool m68kBusRequestLineState;
-	bool bm68kBusRequestLineState;
-	volatile bool m68kBusGrantLineState;
-	bool bm68kBusGrantLineState;
-	volatile bool vresLineState;
-	bool bvresLineState;
-	volatile bool haltLineState;
-	bool bhaltLineState;
-	volatile bool sresLineState;
-	bool bsresLineState;
-	volatile bool wresLineState;
-	bool bwresLineState;
+	volatile bool _cartInLineState;
+	bool _bcartInLineState;
+	volatile bool _z80BusRequestLineState;
+	bool _bz80BusRequestLineState;
+	volatile bool _z80BusGrantLineState;
+	bool _bz80BusGrantLineState;
+	volatile bool _z80BusResetLineState;
+	bool _bz80BusResetLineState;
+	volatile bool _m68kBusRequestLineState;
+	bool _bm68kBusRequestLineState;
+	volatile bool _m68kBusGrantLineState;
+	bool _bm68kBusGrantLineState;
+	volatile bool _vresLineState;
+	bool _bvresLineState;
+	volatile bool _haltLineState;
+	bool _bhaltLineState;
+	volatile bool _sresLineState;
+	bool _bsresLineState;
+	volatile bool _wresLineState;
+	bool _bwresLineState;
 
-	mutable bool z80BusRequestLineStateChangeTimeLatchEnable;
-	mutable bool z80BusGrantLineStateChangeTimeLatchEnable;
-	mutable bool z80BusResetLineStateChangeTimeLatchEnable;
-	mutable bool m68kBusRequestLineStateChangeTimeLatchEnable;
-	mutable bool m68kBusGrantLineStateChangeTimeLatchEnable;
-	mutable double z80BusRequestLineStateChangeTimeLatch;
-	mutable double z80BusGrantLineStateChangeTimeLatch;
-	mutable double z80BusResetLineStateChangeTimeLatch;
-	mutable double m68kBusRequestLineStateChangeTimeLatch;
-	mutable double m68kBusGrantLineStateChangeTimeLatch;
+	mutable bool _z80BusRequestLineStateChangeTimeLatchEnable;
+	mutable bool _z80BusGrantLineStateChangeTimeLatchEnable;
+	mutable bool _z80BusResetLineStateChangeTimeLatchEnable;
+	mutable bool _m68kBusRequestLineStateChangeTimeLatchEnable;
+	mutable bool _m68kBusGrantLineStateChangeTimeLatchEnable;
+	mutable double _z80BusRequestLineStateChangeTimeLatch;
+	mutable double _z80BusGrantLineStateChangeTimeLatch;
+	mutable double _z80BusResetLineStateChangeTimeLatch;
+	mutable double _m68kBusRequestLineStateChangeTimeLatch;
+	mutable double _m68kBusGrantLineStateChangeTimeLatch;
 };
 
 #include "MDBusArbiter.inl"

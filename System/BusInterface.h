@@ -196,44 +196,44 @@ private:
 
 private:
 	//Memory map
-	bool memoryInterfaceDefined;
-	bool usePhysicalMemoryMap;
-	std::vector<ThinVector<MapEntry*,1>*> physicalMemoryMap;
-	std::vector<MapEntry*> memoryMap;
-	unsigned int addressBusWidth;
-	unsigned int dataBusWidth;
-	unsigned int addressBusMask;
+	bool _memoryInterfaceDefined;
+	bool _usePhysicalMemoryMap;
+	std::vector<ThinVector<MapEntry*,1>*> _physicalMemoryMap;
+	std::vector<MapEntry*> _memoryMap;
+	unsigned int _addressBusWidth;
+	unsigned int _dataBusWidth;
+	unsigned int _addressBusMask;
 
 	//Port map
-	bool portInterfaceDefined;
-	bool usePhysicalPortMap;
-	std::vector<ThinVector<MapEntry*,1>*> physicalPortMap;
-	std::vector<MapEntry*> portMap;
-	unsigned int portAddressBusWidth;
-	unsigned int portDataBusWidth;
-	unsigned int portAddressBusMask;
+	bool _portInterfaceDefined;
+	bool _usePhysicalPortMap;
+	std::vector<ThinVector<MapEntry*,1>*> _physicalPortMap;
+	std::vector<MapEntry*> _portMap;
+	unsigned int _portAddressBusWidth;
+	unsigned int _portDataBusWidth;
+	unsigned int _portAddressBusMask;
 
 	//Other mapped lines
-	std::vector<LineEntry*> lineMap;
-	std::vector<std::vector<ThinVector<LineEntry*,1>*>> physicalLineMapOnSourceDevice;
-	std::vector<std::vector<ThinVector<LineEntry*,1>*>> physicalLineMapOnTargetDevice;
+	std::vector<LineEntry*> _lineMap;
+	std::vector<std::vector<ThinVector<LineEntry*,1>*>> _physicalLineMapOnSourceDevice;
+	std::vector<std::vector<ThinVector<LineEntry*,1>*>> _physicalLineMapOnTargetDevice;
 
 	//Line mapping templates
-	LineGroupMappings lineGroupMappingTemplates;
+	LineGroupMappings _lineGroupMappingTemplates;
 
 	//CE line mappings
-	unsigned int nextCELineID;
-	CELineMap ceLineDefinitionsMemory;
-	CELineMap ceLineDefinitionsPort;
-	unsigned int ceLineInitialStateMemory;
-	unsigned int ceLineInitialStatePort;
-	unsigned int ceLineDeviceMappingsMemoryOutputDeviceSize;
-	std::vector<CELineDeviceEntry> ceLineDeviceMappingsMemory;
-	unsigned int ceLineDeviceMappingsPortOutputDeviceSize;
-	std::vector<CELineDeviceEntry> ceLineDeviceMappingsPort;
+	unsigned int _nextCELineID;
+	CELineMap _ceLineDefinitionsMemory;
+	CELineMap _ceLineDefinitionsPort;
+	unsigned int _ceLineInitialStateMemory;
+	unsigned int _ceLineInitialStatePort;
+	unsigned int _ceLineDeviceMappingsMemoryOutputDeviceSize;
+	std::vector<CELineDeviceEntry> _ceLineDeviceMappingsMemory;
+	unsigned int _ceLineDeviceMappingsPortOutputDeviceSize;
+	std::vector<CELineDeviceEntry> _ceLineDeviceMappingsPort;
 
 	//Clock source mappings
-	std::list<ClockSourceEntry> clockSourceMap;
+	std::list<ClockSourceEntry> _clockSourceMap;
 };
 
 #include "BusInterface.inl"

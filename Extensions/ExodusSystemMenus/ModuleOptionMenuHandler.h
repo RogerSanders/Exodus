@@ -9,7 +9,7 @@ class ModuleOptionMenuHandler :public IMenuHandler
 {
 public:
 	//Constructors
-	ModuleOptionMenuHandler(ExodusSystemMenus& aowner, ISystemGUIInterface& amodel, unsigned int amoduleID);
+	ModuleOptionMenuHandler(ExodusSystemMenus& owner, ISystemGUIInterface& model, unsigned int moduleID);
 	~ModuleOptionMenuHandler();
 
 	//Interface version functions
@@ -40,8 +40,8 @@ private:
 	};
 	struct SettingEntry
 	{
-		SettingEntry(ISystemGUIInterface& asystemInterface, unsigned int amoduleID, unsigned int asettingID, const std::function<void()>& acallback)
-		:systemInterface(asystemInterface), moduleID(amoduleID), settingID(asettingID), optionChangeObserver(acallback)
+		SettingEntry(ISystemGUIInterface& asystemInterface, unsigned int moduleID, unsigned int asettingID, const std::function<void()>& acallback)
+		:systemInterface(asystemInterface), moduleID(moduleID), settingID(asettingID), optionChangeObserver(acallback)
 		{
 			systemInterface.ModuleSettingActiveOptionChangeNotifyRegister(moduleID, settingID, optionChangeObserver);
 		}
@@ -68,12 +68,12 @@ private:
 	void RefreshActiveMenuSettingOption(unsigned int settingID);
 
 private:
-	ExodusSystemMenus& owner;
-	ISystemGUIInterface& model;
-	unsigned int moduleID;
-	std::map<unsigned int, SettingEntry*> moduleSettings;
-	std::map<int, MenuOption> menuOptions;
-	bool builtModuleSettingsList;
+	ExodusSystemMenus& _owner;
+	ISystemGUIInterface& _model;
+	unsigned int _moduleID;
+	std::map<unsigned int, SettingEntry*> _moduleSettings;
+	std::map<int, MenuOption> _menuOptions;
+	bool _builtModuleSettingsList;
 };
 
 #endif

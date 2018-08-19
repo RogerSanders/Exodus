@@ -7,18 +7,18 @@ class ModuleManagerViewPresenter :public ViewPresenterBase
 {
 public:
 	//Constructors
-	ModuleManagerViewPresenter(const std::wstring& aviewGroupName, const std::wstring& aviewName, int aviewID, ExodusInterface& aowner, ExodusInterface& amodel);
+	ModuleManagerViewPresenter(const std::wstring& viewGroupName, const std::wstring& viewName, int viewID, ExodusInterface& owner, ExodusInterface& model);
 
 	//View title functions
 	static std::wstring GetUnqualifiedViewTitle();
 
 	//View creation and deletion
 	virtual IView* CreateView(IUIManager& uiManager);
-	virtual void DeleteView(IView* aview);
+	virtual void DeleteView(IView* view);
 
 private:
-	ExodusInterface& owner;
-	ExodusInterface& model;
+	ExodusInterface& _owner;
+	ExodusInterface& _model;
 };
 
 #endif

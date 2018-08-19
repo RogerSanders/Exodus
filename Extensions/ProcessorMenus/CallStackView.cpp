@@ -7,15 +7,15 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-CallStackView::CallStackView(IUIManager& auiManager, CallStackViewPresenter& apresenter, IProcessor& amodel)
-:ViewBase(auiManager, apresenter), presenter(apresenter), model(amodel), initializedDialog(false), currentControlFocus(0)
+CallStackView::CallStackView(IUIManager& uiManager, CallStackViewPresenter& presenter, IProcessor& model)
+:ViewBase(uiManager, presenter), _presenter(presenter), _model(model), _initializedDialog(false), _currentControlFocus(0)
 {
-	hwndDataGrid = NULL;
-	hwndControlPanel = NULL;
-	hfontHeader = NULL;
-	hfontData = NULL;
-	logLastModifiedToken = 0;
-	SetWindowSettings(apresenter.GetUnqualifiedViewTitle(), 0, 0, 400, 300);
+	_hwndDataGrid = NULL;
+	_hwndControlPanel = NULL;
+	_hfontHeader = NULL;
+	_hfontData = NULL;
+	_logLastModifiedToken = 0;
+	SetWindowSettings(presenter.GetUnqualifiedViewTitle(), 0, 0, 400, 300);
 	SetDockableViewType(true, DockPos::Bottom);
 }
 
@@ -50,22 +50,22 @@ LRESULT CallStackView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	WC_DataGrid::RegisterWindowClass(GetAssemblyHandle());
 
 	//Create the DataGrid child control
-	hwndDataGrid = CreateWindowEx(WS_EX_CLIENTEDGE, WC_DataGrid::windowClassName, L"", WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_HSCROLL, 0, 0, 0, 0, hwnd, (HMENU)CTL_DATAGRID, GetAssemblyHandle(), NULL);
+	_hwndDataGrid = CreateWindowEx(WS_EX_CLIENTEDGE, WC_DataGrid::WindowClassName, L"", WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_HSCROLL, 0, 0, 0, 0, hwnd, (HMENU)CTL_DATAGRID, GetAssemblyHandle(), NULL);
 
 	//Insert our columns into the DataGrid control
 	WC_DataGrid::Grid_InsertColumn sourceColumn(L"Source", COLUMN_SOURCE);
 	WC_DataGrid::Grid_InsertColumn targetColumn(L"Target", COLUMN_TARGET);
 	WC_DataGrid::Grid_InsertColumn returnColumn(L"Return", COLUMN_RETURN);
 	WC_DataGrid::Grid_InsertColumn disassemblyColumn(L"Disassembly", COLUMN_DISASSEMBLY);
-	SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&sourceColumn);
-	SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&targetColumn);
-	SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&returnColumn);
-	SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&disassemblyColumn);
+	SendMessage(_hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&sourceColumn);
+	SendMessage(_hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&targetColumn);
+	SendMessage(_hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&returnColumn);
+	SendMessage(_hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&disassemblyColumn);
 
 	//Create the dialog control panel
-	hwndControlPanel = CreateDialogParam(GetAssemblyHandle(), MAKEINTRESOURCE(IDD_PROCESSOR_STACK_PANEL), hwnd, WndProcPanelStatic, (LPARAM)this);
-	ShowWindow(hwndControlPanel, SW_SHOWNORMAL);
-	UpdateWindow(hwndControlPanel);
+	_hwndControlPanel = CreateDialogParam(GetAssemblyHandle(), MAKEINTRESOURCE(IDD_PROCESSOR_STACK_PANEL), hwnd, WndProcPanelStatic, (LPARAM)this);
+	ShowWindow(_hwndControlPanel, SW_SHOWNORMAL);
+	UpdateWindow(_hwndControlPanel);
 
 	//Obtain the correct metrics for our custom font object
 	int fontPointSize = 8;
@@ -75,17 +75,17 @@ LRESULT CallStackView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 
 	//Create the font for the header in the grid control
 	std::wstring headerFontTypefaceName = L"MS Shell Dlg";
-	hfontHeader = CreateFont(fontnHeight, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FIXED_PITCH | FF_MODERN, &headerFontTypefaceName[0]);
+	_hfontHeader = CreateFont(fontnHeight, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FIXED_PITCH | FF_MODERN, &headerFontTypefaceName[0]);
 
 	//Set the header font for the grid control
-	SendMessage(hwndDataGrid, WM_SETFONT, (WPARAM)hfontHeader, (LPARAM)TRUE);
+	SendMessage(_hwndDataGrid, WM_SETFONT, (WPARAM)_hfontHeader, (LPARAM)TRUE);
 
 	//Create the font for the data region in the grid control
 	std::wstring dataFontTypefaceName = L"Courier New";
-	hfontData = CreateFont(fontnHeight, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FIXED_PITCH | FF_MODERN, &dataFontTypefaceName[0]);
+	_hfontData = CreateFont(fontnHeight, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FIXED_PITCH | FF_MODERN, &dataFontTypefaceName[0]);
 
 	//Set the data region font for the grid control
-	SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::SetDataAreaFont, (WPARAM)hfontData, (LPARAM)TRUE);
+	SendMessage(_hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::SetDataAreaFont, (WPARAM)_hfontData, (LPARAM)TRUE);
 
 	//Create a timer to trigger updates to the grid
 	SetTimer(hwnd, 1, 200, NULL);
@@ -97,10 +97,10 @@ LRESULT CallStackView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 LRESULT CallStackView::msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	//Delete our custom font objects
-	SendMessage(hwndDataGrid, WM_SETFONT, (WPARAM)NULL, (LPARAM)FALSE);
-	SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::SetDataAreaFont, (WPARAM)NULL, (LPARAM)FALSE);
-	DeleteObject(hfontHeader);
-	DeleteObject(hfontData);
+	SendMessage(_hwndDataGrid, WM_SETFONT, (WPARAM)NULL, (LPARAM)FALSE);
+	SendMessage(_hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::SetDataAreaFont, (WPARAM)NULL, (LPARAM)FALSE);
+	DeleteObject(_hfontHeader);
+	DeleteObject(_hfontData);
 
 	KillTimer(hwnd, 1);
 
@@ -111,34 +111,34 @@ LRESULT CallStackView::msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 LRESULT CallStackView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	//Update the control panel
-	SendMessage(hwndControlPanel, WM_TIMER, wparam, lparam);
+	SendMessage(_hwndControlPanel, WM_TIMER, wparam, lparam);
 
 	//If the call stack hasn't changed since the last refresh, abort any further
 	//processing.
-	unsigned int newLogLastModifiedToken = model.GetCallStackLastModifiedToken();
-	if(newLogLastModifiedToken == logLastModifiedToken)
+	unsigned int newLogLastModifiedToken = _model.GetCallStackLastModifiedToken();
+	if(newLogLastModifiedToken == _logLastModifiedToken)
 	{
 		return 0;
 	}
-	logLastModifiedToken = newLogLastModifiedToken;
+	_logLastModifiedToken = newLogLastModifiedToken;
 
 	//Retrieve the latest call stack
-	std::list<IProcessor::CallStackEntry> callStack = model.GetCallStack();
+	std::list<IProcessor::CallStackEntry> callStack = _model.GetCallStack();
 
 	//Delete any extra rows from the data grid that are no longer required
-	unsigned int currentRowCount = (unsigned int)SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::GetRowCount, 0, 0);
+	unsigned int currentRowCount = (unsigned int)SendMessage(_hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::GetRowCount, 0, 0);
 	if((unsigned int)callStack.size() < currentRowCount)
 	{
 		unsigned int rowCountToRemove = currentRowCount - (unsigned int)callStack.size();
 		WC_DataGrid::Grid_DeleteRows deleteRowsInfo;
 		deleteRowsInfo.targetRowNo = currentRowCount - rowCountToRemove;
 		deleteRowsInfo.rowCount = rowCountToRemove;
-		SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::DeleteRows, 0, (LPARAM)&deleteRowsInfo);
+		SendMessage(_hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::DeleteRows, 0, (LPARAM)&deleteRowsInfo);
 	}
 
 	//Update the data grid with the latest text
 	std::map<unsigned int, std::map<unsigned int, std::wstring>> rowText;
-	unsigned int pcLength = model.GetPCCharWidth();
+	unsigned int pcLength = _model.GetPCCharWidth();
 	unsigned int currentRow = 0;
 	for(std::list<IProcessor::CallStackEntry>::const_iterator i = callStack.begin(); i != callStack.end(); ++i)
 	{
@@ -155,7 +155,7 @@ LRESULT CallStackView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		columnText[COLUMN_RETURN] = returnAddressString;
 		columnText[COLUMN_DISASSEMBLY] = entry.disassembly;
 	}
-	SendMessage(hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::UpdateMultipleRowText, 0, (LPARAM)&rowText);
+	SendMessage(_hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::UpdateMultipleRowText, 0, (LPARAM)&rowText);
 
 	return 0;
 }
@@ -168,7 +168,7 @@ LRESULT CallStackView::msgWM_SIZE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	GetClientRect(hwnd, &rect);
 	int controlWidth = rect.right;
 	int controlHeight = rect.bottom;
-	GetClientRect(hwndControlPanel, &rect);
+	GetClientRect(_hwndControlPanel, &rect);
 	int controlPanelWidth = rect.right;
 	int controlPanelHeight = rect.bottom;
 
@@ -178,14 +178,14 @@ LRESULT CallStackView::msgWM_SIZE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	//Calculate the new position of the control panel
 	int controlPanelPosX = borderSize;
 	int controlPanelPosY = controlHeight - (borderSize + controlPanelHeight);
-	MoveWindow(hwndControlPanel, controlPanelPosX, controlPanelPosY, controlPanelWidth, controlPanelHeight, TRUE);
+	MoveWindow(_hwndControlPanel, controlPanelPosX, controlPanelPosY, controlPanelWidth, controlPanelHeight, TRUE);
 
 	//Calculate the new size and position of the list
 	int listBoxWidth = controlWidth - (borderSize * 2);
 	int listBoxPosX = borderSize;
 	int listBoxHeight = controlHeight - ((borderSize * 2) + controlPanelHeight);
 	int listBoxPosY = borderSize;
-	MoveWindow(hwndDataGrid, listBoxPosX, listBoxPosY, listBoxWidth, listBoxHeight, TRUE);
+	MoveWindow(_hwndDataGrid, listBoxPosX, listBoxPosY, listBoxWidth, listBoxHeight, TRUE);
 
 	return 0;
 }
@@ -276,10 +276,10 @@ INT_PTR CallStackView::WndProcPanel(HWND hwnd, UINT msg, WPARAM wparam, LPARAM l
 //----------------------------------------------------------------------------------------
 INT_PTR CallStackView::msgPanelWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	initializedDialog = true;
+	_initializedDialog = true;
 
 	//Set the initial state for the controls
-	CheckDlgButton(hwnd, IDC_PROCESSOR_STACK_DISASSEMBLE, (model.GetCallStackDisassemble())? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_PROCESSOR_STACK_DISASSEMBLE, (_model.GetCallStackDisassemble())? BST_CHECKED: BST_UNCHECKED);
 
 	return TRUE;
 }
@@ -287,7 +287,7 @@ INT_PTR CallStackView::msgPanelWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lp
 //----------------------------------------------------------------------------------------
 INT_PTR CallStackView::msgPanelWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	CheckDlgButton(hwnd, IDC_PROCESSOR_STACK_DISASSEMBLE, (model.GetCallStackDisassemble())? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_PROCESSOR_STACK_DISASSEMBLE, (_model.GetCallStackDisassemble())? BST_CHECKED: BST_UNCHECKED);
 
 	return TRUE;
 }
@@ -300,10 +300,10 @@ INT_PTR CallStackView::msgPanelWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lpara
 		switch(LOWORD(wparam))
 		{
 		case IDC_PROCESSOR_STACK_DISASSEMBLE:{
-			model.SetCallStackDisassemble(IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED);
+			_model.SetCallStackDisassemble(IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED);
 			break;}
 		case IDC_PROCESSOR_STACK_CLEAR:
-			model.ClearCallStack();
+			_model.ClearCallStack();
 			break;
 		}
 	}

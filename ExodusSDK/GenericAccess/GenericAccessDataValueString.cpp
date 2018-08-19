@@ -5,9 +5,9 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 GenericAccessDataValueString::GenericAccessDataValueString(const std::wstring& value)
-:dataValue(value)
+:_dataValue(value)
 {
-	maxLength = 0;
+	_maxLength = 0;
 }
 
 //----------------------------------------------------------------------------------------
@@ -31,13 +31,13 @@ GenericAccessDataValueString::DataType GenericAccessDataValueString::GetType() c
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> GenericAccessDataValueString::GetValue() const
 {
-	return dataValue;
+	return _dataValue;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> GenericAccessDataValueString::GetValueString() const
 {
-	return dataValue;
+	return _dataValue;
 }
 
 //----------------------------------------------------------------------------------------
@@ -45,7 +45,7 @@ Marshal::Ret<std::wstring> GenericAccessDataValueString::GetValueString() const
 //----------------------------------------------------------------------------------------
 bool GenericAccessDataValueString::SetValueString(const Marshal::In<std::wstring>& value)
 {
-	dataValue = value;
+	_dataValue = value;
 	ApplyLimitSettingsToCurrentValue();
 	return true;
 }
@@ -55,13 +55,13 @@ bool GenericAccessDataValueString::SetValueString(const Marshal::In<std::wstring
 //----------------------------------------------------------------------------------------
 unsigned int GenericAccessDataValueString::GetMaxLength() const
 {
-	return maxLength;
+	return _maxLength;
 }
 
 //----------------------------------------------------------------------------------------
 void GenericAccessDataValueString::SetMaxLength(unsigned int state)
 {
-	maxLength = state;
+	_maxLength = state;
 }
 
 //----------------------------------------------------------------------------------------
@@ -69,8 +69,8 @@ void GenericAccessDataValueString::SetMaxLength(unsigned int state)
 //----------------------------------------------------------------------------------------
 void GenericAccessDataValueString::ApplyLimitSettingsToCurrentValue()
 {
-	if((maxLength > 0) && (dataValue.length() > (size_t)maxLength))
+	if((_maxLength > 0) && (_dataValue.length() > (size_t)_maxLength))
 	{
-		dataValue.resize((size_t)maxLength);
+		_dataValue.resize((size_t)_maxLength);
 	}
 }

@@ -70,7 +70,7 @@ public:
 	virtual ~ExodusInterface();
 
 	//System interface functions
-	void BindToSystem(ISystemGUIInterface* asystem);
+	void BindToSystem(ISystemGUIInterface* system);
 	void UnbindFromSystem();
 	ISystemGUIInterface* GetSystemInterface() const;
 
@@ -213,7 +213,7 @@ private:
 	bool SelectExistingFileScanIntoArchive(const std::list<FileSelectionType>& selectionTypes, const std::wstring archivePath, std::wstring& selectedFilePath) const;
 
 	//Menu functions
-	bool BuildMenuRecursive(HMENU parentMenu, IMenuItem& amenuItem, unsigned int& nextMenuID, int& insertPos, bool& leadingMenuItemsPresent, bool& trailingSeparatorPresent, bool& insertLeadingSeparatorBeforeNextItem);
+	bool BuildMenuRecursive(HMENU parentMenu, IMenuItem& menuItem, unsigned int& nextMenuID, int& insertPos, bool& leadingMenuItemsPresent, bool& trailingSeparatorPresent, bool& insertLeadingSeparatorBeforeNextItem);
 	bool InsertMenuItemSeparator(HMENU parentMenu, int& insertPos);
 	bool BuildFileMenu();
 	bool BuildSystemMenu();
@@ -240,72 +240,75 @@ private:
 	void JoystickInputWorkerThread();
 
 private:
-	ISystemGUIInterface* system;
-	HMENU fileMenu;
-	int fileMenuNonDynamicMenuItemCount;
-	HMENU systemMenu;
-	int systemMenuFirstItemIndex;
-	HMENU settingsMenu;
-	int settingsMenuFirstItemIndex;
-	HMENU debugMenu;
-	int debugMenuFirstItemIndex;
-	MenuSubmenu* fileSubmenu;
-	MenuSubmenu* systemSubmenu;
-	MenuSubmenu* settingsSubmenu;
-	MenuSubmenu* debugSubmenu;
-	NewMenuList newMenuList;
-	unsigned int nextFreeMenuID;
-	SystemPrefs prefs;
-	std::wstring preferenceDirectoryPath;
-	volatile bool moduleCommandComplete;
-	bool systemLoaded;
-	bool systemDestructionInProgress;
-	bool debugConsoleOpen;
+	//Constants
+	static const unsigned int CellCount = 10;
 
-	mutable std::mutex joystickWorkerThreadMutex;
-	volatile bool joystickWorkerThreadActive;
-	std::condition_variable joystickWorkerThreadStopped;
-	std::map<unsigned int, JOYCAPS> connectedJoystickInfo;
+private:
+	ISystemGUIInterface* _system;
+	HMENU _fileMenu;
+	int _fileMenuNonDynamicMenuItemCount;
+	HMENU _systemMenu;
+	int _systemMenuFirstItemIndex;
+	HMENU _settingsMenu;
+	int _settingsMenuFirstItemIndex;
+	HMENU _debugMenu;
+	int _debugMenuFirstItemIndex;
+	MenuSubmenu* _fileSubmenu;
+	MenuSubmenu* _systemSubmenu;
+	MenuSubmenu* _settingsSubmenu;
+	MenuSubmenu* _debugSubmenu;
+	NewMenuList _newMenuList;
+	unsigned int _nextFreeMenuID;
+	SystemPrefs _prefs;
+	std::wstring _preferenceDirectoryPath;
+	volatile bool _moduleCommandComplete;
+	bool _systemLoaded;
+	bool _systemDestructionInProgress;
+	bool _debugConsoleOpen;
 
-	ViewManager* viewManager;
+	mutable std::mutex _joystickWorkerThreadMutex;
+	volatile bool _joystickWorkerThreadActive;
+	std::condition_variable _joystickWorkerThreadStopped;
+	std::map<unsigned int, JOYCAPS> _connectedJoystickInfo;
 
-	mutable std::mutex registeredElementMutex;
-	std::list<RegisteredDeviceInfo> registeredDevices;
-	std::list<RegisteredExtensionInfo> registeredExtensions;
+	ViewManager* _viewManager;
 
-	HWND mainWindowHandle;
-	HWND mainDockingWindowHandle;
-	HFONT hfont;
-	bool mainWindowPosCaptured;
-	int mainWindowPosX;
-	int mainWindowPosY;
+	mutable std::mutex _registeredElementMutex;
+	std::list<RegisteredDeviceInfo> _registeredDevices;
+	std::list<RegisteredExtensionInfo> _registeredExtensions;
 
-	static const unsigned int cellCount = 10;
-	std::vector<SavestateCellWindowState> cell;
-	HWND savestatePopup;
-	unsigned int selectedSaveCell;
-	unsigned int savestatePopupTimeout;
-	int savestateMonitorPosX;
-	int savestateMonitorPosY;
-	int savestateMonitorWidth;
-	int savestateMonitorHeight;
+	HWND _mainWindowHandle;
+	HWND _mainDockingWindowHandle;
+	HFONT _hfont;
+	bool _mainWindowPosCaptured;
+	int _mainWindowPosX;
+	int _mainWindowPosY;
 
-	HWND windowSelectHandle;
-	std::vector<HWND> topLevelWindowList;
-	unsigned int selectedWindow;
-	unsigned int windowSelectColumns;
-	unsigned int windowSelectEntriesPerColumn;
+	std::vector<SavestateCellWindowState> _cell;
+	HWND _savestatePopup;
+	unsigned int _selectedSaveCell;
+	unsigned int _savestatePopupTimeout;
+	int _savestateMonitorPosX;
+	int _savestateMonitorPosY;
+	int _savestateMonitorWidth;
+	int _savestateMonitorHeight;
+
+	HWND _windowSelectHandle;
+	std::vector<HWND> _topLevelWindowList;
+	unsigned int _selectedWindow;
+	unsigned int _windowSelectColumns;
+	unsigned int _windowSelectEntriesPerColumn;
 
 	//Plugin load progress
-	mutable std::mutex loadPluginsMutex;
-	volatile float loadPluginsProgress;
-	volatile bool loadPluginsComplete;
-	volatile bool loadPluginsResult;
-	volatile bool loadPluginsAborted;
-	std::wstring loadPluginsCurrentPluginName;
+	mutable std::mutex _loadPluginsMutex;
+	volatile float _loadPluginsProgress;
+	volatile bool _loadPluginsComplete;
+	volatile bool _loadPluginsResult;
+	volatile bool _loadPluginsAborted;
+	std::wstring _loadPluginsCurrentPluginName;
 
 	//Menu handling
-	MenuHandler* menuHandler;
+	MenuHandler* _menuHandler;
 };
 
 #include "ExodusInterface.inl"

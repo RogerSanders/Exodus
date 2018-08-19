@@ -7,7 +7,7 @@ class GenericAccessGroupCollectionEntry :public IGenericAccessGroupCollectionEnt
 {
 public:
 	//Constructors
-	inline GenericAccessGroupCollectionEntry(const std::wstring& aname, IGenericAccessDataValue::DataType akeyDataType);
+	inline GenericAccessGroupCollectionEntry(const std::wstring& name, IGenericAccessDataValue::DataType keyDataType);
 	inline ~GenericAccessGroupCollectionEntry();
 
 	//Interface version functions
@@ -24,17 +24,17 @@ public:
 
 	//Data context functions
 	virtual const IGenericAccess::DataContext* GetDataContext() const;
-	inline GenericAccessGroupCollectionEntry* SetDataContext(const IGenericAccess::DataContext* adataContext);
+	inline GenericAccessGroupCollectionEntry* SetDataContext(const IGenericAccess::DataContext* dataContext);
 
 	//Group info functions
 	virtual Marshal::Ret<std::wstring> GetName() const;
-	inline GenericAccessGroupCollectionEntry* SetName(const std::wstring& aname);
+	inline GenericAccessGroupCollectionEntry* SetName(const std::wstring& name);
 	virtual bool GetOpenByDefault() const;
 	inline GenericAccessGroupCollectionEntry* SetOpenByDefault(bool state);
 
 	//Collection entry functions
 	virtual IGenericAccessDataValue::DataType GetKeyDataType() const;
-	inline GenericAccessGroupCollectionEntry* SetKeyDataType(IGenericAccessDataValue::DataType akeyDataType);
+	inline GenericAccessGroupCollectionEntry* SetKeyDataType(IGenericAccessDataValue::DataType keyDataType);
 	virtual unsigned int GetEntryCount() const;
 	virtual Marshal::Ret<std::list<IGenericAccessGroupEntry*>> GetEntries() const;
 	virtual Marshal::Ret<std::list<CollectionEntry>> GetCollectionEntries() const;
@@ -55,17 +55,17 @@ public:
 
 protected:
 	//Parent functions
-	virtual void SetParent(IGenericAccessGroup* aparent);
+	virtual void SetParent(IGenericAccessGroup* parent);
 
 private:
-	IGenericAccessGroup* parent;
-	const IGenericAccess::DataContext* dataContext;
-	std::wstring name;
-	bool openByDefault;
-	unsigned int lastModifiedToken;
-	IGenericAccessDataValue::DataType keyDataType;
-	std::list<CollectionEntry> entries;
-	mutable ReadWriteLock readWriteLock;
+	IGenericAccessGroup* _parent;
+	const IGenericAccess::DataContext* _dataContext;
+	std::wstring _name;
+	bool _openByDefault;
+	unsigned int _lastModifiedToken;
+	IGenericAccessDataValue::DataType _keyDataType;
+	std::list<CollectionEntry> _entries;
+	mutable ReadWriteLock _readWriteLock;
 };
 
 #include "GenericAccessGroupCollectionEntry.inl"

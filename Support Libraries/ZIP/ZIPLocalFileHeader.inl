@@ -1,15 +1,15 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-ZIPChunk_LocalFileHeader::ZIPChunk_LocalFileHeader()
+ZIPChunkLocalFileHeader::ZIPChunkLocalFileHeader()
 {
 	Initialize();
 }
 
 //----------------------------------------------------------------------------------------
-void ZIPChunk_LocalFileHeader::Initialize()
+void ZIPChunkLocalFileHeader::Initialize()
 {
-	signature = validSignature;
+	signature = ValidSignature;
 	versionToExtract = 0;
 	bitFlags = 0;
 	compressionMethod = 0;
@@ -25,7 +25,7 @@ void ZIPChunk_LocalFileHeader::Initialize()
 //----------------------------------------------------------------------------------------
 //Serialization functions
 //----------------------------------------------------------------------------------------
-bool ZIPChunk_LocalFileHeader::LoadFromStream(Stream::IStream& stream)
+bool ZIPChunkLocalFileHeader::LoadFromStream(Stream::IStream& stream)
 {
 	bool result = true;
 
@@ -43,11 +43,11 @@ bool ZIPChunk_LocalFileHeader::LoadFromStream(Stream::IStream& stream)
 	result &= stream.ReadTextFixedLengthBufferAsASCII(fileNameLength, fileName);
 	result &= stream.ReadTextFixedLengthBufferAsASCII(extraFieldLength, extraField);
 
-	return (result && (signature == validSignature));
+	return (result && (signature == ValidSignature));
 }
 
 //----------------------------------------------------------------------------------------
-bool ZIPChunk_LocalFileHeader::SaveToStream(Stream::IStream& stream) const
+bool ZIPChunkLocalFileHeader::SaveToStream(Stream::IStream& stream) const
 {
 	bool result = true;
 

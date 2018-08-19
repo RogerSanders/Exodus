@@ -14,13 +14,13 @@ public:
 	inline EffectiveAddress();
 
 	//Decode functions
-	inline void SetMode(Mode amode);
-	inline bool Decode8BitRegister(unsigned int adata);
-	inline bool Decode16BitRegister(unsigned int adata);
-	inline void BuildImmediateData(Bitcount asize, const Z80Word& location, const Z80* cpu, bool transparent);
-	inline void BuildImmediateData(const Data& adata);
-	inline void BuildQuickData(unsigned int adata);
-	inline void BuildAbsoluteAddress(const Z80Word& aaddress);
+	inline void SetMode(Mode mode);
+	inline bool Decode8BitRegister(unsigned int data);
+	inline bool Decode16BitRegister(unsigned int data);
+	inline void BuildImmediateData(Bitcount size, const Z80Word& location, const Z80* cpu, bool transparent);
+	inline void BuildImmediateData(const Data& data);
+	inline void BuildQuickData(unsigned int data);
+	inline void BuildAbsoluteAddress(const Z80Word& address);
 	inline void BuildAbsoluteAddress(const Z80Word& location, const Z80* cpu, bool transparent);
 
 	//Effective address info
@@ -28,7 +28,7 @@ public:
 	inline unsigned int ExtensionSize();
 
 	//Index state functions
-	inline void SetIndexState(IndexState aindexState, const Z80Byte& aindexOffset);
+	inline void SetIndexState(IndexState indexState, const Z80Byte& indexOffset);
 	inline bool UsesIndexOffset() const;
 
 	//Data transfer
@@ -44,11 +44,11 @@ private:
 	inline Z80Byte GetIndexOffset() const;
 
 private:
-	Mode mode;
-	Data data;
-	Z80Word address;
-	IndexState indexState;
-	Z80Byte indexOffset;
+	Mode _mode;
+	Data _data;
+	Z80Word _address;
+	IndexState _indexState;
+	Z80Byte _indexOffset;
 };
 
 } //Close namespace Z80

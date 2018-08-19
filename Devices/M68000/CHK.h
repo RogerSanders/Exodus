@@ -22,7 +22,7 @@ public:
 
 	virtual Disassembly M68000Disassemble(const M68000::LabelSubstitutionSettings& labelSettings) const
 	{
-		return Disassembly(GetOpcodeName() + L"." + DisassembleSize(size), source.Disassemble(labelSettings) + L", " + target.Disassemble(labelSettings));
+		return Disassembly(GetOpcodeName() + L"." + DisassembleSize(_size), _source.Disassemble(labelSettings) + L", " + _target.Disassemble(labelSettings));
 	}
 
 	virtual void M68000Decode(const M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)
@@ -36,27 +36,27 @@ public:
 		switch(data.GetDataSegment(7, 2))
 		{
 		case 3:	//11
-			size = BITCOUNT_WORD;
+			_size = BITCOUNT_WORD;
 			break;
 		}
 
-		source.BuildDataDirect(size, location + GetInstructionSize(), data.GetDataSegment(9, 3));
-		target.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), size, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
-		AddInstructionSize(target.ExtensionSize());
+		_source.BuildDataDirect(_size, location + GetInstructionSize(), data.GetDataSegment(9, 3));
+		_target.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), _size, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
+		AddInstructionSize(_target.ExtensionSize());
 		AddExecuteCycleCount(ExecuteTime(4, 1, 0));
-		AddExecuteCycleCount(target.DecodeTime());
+		AddExecuteCycleCount(_target.DecodeTime());
 	}
 
 	virtual ExecuteTime M68000Execute(M68000* cpu, const M68000Long& location) const
 	{
 		double additionalTime = 0;
-		Data op1(size);
-		Data op2(size);
+		Data op1(_size);
+		Data op2(_size);
 		ExecuteTime exceptionTime;
 
 		//Perform the operation
-		additionalTime += source.Read(cpu, op1, GetInstructionRegister());
-		additionalTime += target.Read(cpu, op2, GetInstructionRegister());
+		additionalTime += _source.Read(cpu, op1, GetInstructionRegister());
+		additionalTime += _target.Read(cpu, op2, GetInstructionRegister());
 
 		//##NOTE## Although these flags are officially undefined, their behaviour is
 		//described in "68000 Undocumented Behavior Notes" by Bart Trzynadlowski.
@@ -98,14 +98,14 @@ public:
 
 	virtual void GetLabelTargetLocations(std::set<unsigned int>& labelTargetLocations) const
 	{
-		source.AddLabelTargetsToSet(labelTargetLocations);
-		target.AddLabelTargetsToSet(labelTargetLocations);
+		_source.AddLabelTargetsToSet(labelTargetLocations);
+		_target.AddLabelTargetsToSet(labelTargetLocations);
 	}
 
 private:
-	EffectiveAddress source;
-	EffectiveAddress target;
-	Bitcount size;
+	EffectiveAddress _source;
+	EffectiveAddress _target;
+	Bitcount _size;
 };
 
 } //Close namespace M68000

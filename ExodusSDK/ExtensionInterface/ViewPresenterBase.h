@@ -9,10 +9,10 @@ class ViewPresenterBase :public IViewPresenter
 {
 public:
 	//Constructors
-	ViewPresenterBase(AssemblyHandle aassemblyHandle, const std::wstring& aviewGroupName, const std::wstring& aviewName, int aviewID);
-	ViewPresenterBase(AssemblyHandle aassemblyHandle, const std::wstring& aviewGroupName, const std::wstring& aviewName, int aviewID, unsigned int amoduleID, const std::wstring& amoduleDisplayName);
-	ViewPresenterBase(AssemblyHandle aassemblyHandle, const std::wstring& aviewGroupName, const std::wstring& aviewName, int aviewID, const std::wstring& adeviceInstanceName, unsigned int amoduleID, const std::wstring& amoduleDisplayName);
-	ViewPresenterBase(AssemblyHandle aassemblyHandle, const std::wstring& aviewGroupName, const std::wstring& aviewName, int aviewID, const std::wstring& aextensionInstanceName, bool aglobalExtension, unsigned int amoduleID = 0, const std::wstring& amoduleDisplayName = L"");
+	ViewPresenterBase(AssemblyHandle assemblyHandle, const std::wstring& viewGroupName, const std::wstring& viewName, int viewID);
+	ViewPresenterBase(AssemblyHandle assemblyHandle, const std::wstring& viewGroupName, const std::wstring& viewName, int viewID, unsigned int moduleID, const std::wstring& moduleDisplayName);
+	ViewPresenterBase(AssemblyHandle assemblyHandle, const std::wstring& viewGroupName, const std::wstring& viewName, int viewID, const std::wstring& deviceInstanceName, unsigned int moduleID, const std::wstring& moduleDisplayName);
+	ViewPresenterBase(AssemblyHandle assemblyHandle, const std::wstring& viewGroupName, const std::wstring& viewName, int viewID, const std::wstring& extensionInstanceName, bool globalExtension, unsigned int moduleID = 0, const std::wstring& moduleDisplayName = L"");
 
 	//Interface version functions
 	virtual unsigned int GetIViewPresenterVersion() const;
@@ -22,15 +22,15 @@ public:
 
 	//View creation and deletion
 	virtual IView* CreateView(IUIManager& uiManager) = 0;
-	virtual void DeleteView(IView* aview) = 0;
+	virtual void DeleteView(IView* view) = 0;
 
 	//View management functions
-	virtual bool OpenView(IUIManager& uiManager, IViewStateChangeNotifier* anotifier, IHierarchicalStorageNode* viewState);
+	virtual bool OpenView(IUIManager& uiManager, IViewStateChangeNotifier* notifier, IHierarchicalStorageNode* viewState);
 	virtual void CloseView();
 	virtual void ShowView();
 	virtual void HideView();
 	virtual void ActivateView();
-	virtual void NotifyViewClosed(IView* aview);
+	virtual void NotifyViewClosed(IView* view);
 
 	//View target functions
 	virtual ViewTarget GetViewTarget() const;
@@ -56,19 +56,19 @@ protected:
 	IView* GetOpenView() const;
 
 private:
-	bool viewOpen;
-	IViewStateChangeNotifier* notifier;
-	IView* view;
-	int viewID;
-	AssemblyHandle assemblyHandle;
-	ViewTarget viewTarget;
-	std::wstring viewTargetDeviceInstanceName;
-	std::wstring viewTargetExtensionInstanceName;
-	bool viewTargetGlobalExtension;
-	std::wstring viewTargetModuleDisplayName;
-	unsigned int viewTargetModuleID;
-	std::wstring viewGroupName;
-	std::wstring viewName;
+	bool _viewOpen;
+	IViewStateChangeNotifier* _notifier;
+	IView* _view;
+	int _viewID;
+	AssemblyHandle _assemblyHandle;
+	ViewTarget _viewTarget;
+	std::wstring _viewTargetDeviceInstanceName;
+	std::wstring _viewTargetExtensionInstanceName;
+	bool _viewTargetGlobalExtension;
+	std::wstring _viewTargetModuleDisplayName;
+	unsigned int _viewTargetModuleID;
+	std::wstring _viewGroupName;
+	std::wstring _viewName;
 };
 
 #endif

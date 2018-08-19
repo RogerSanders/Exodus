@@ -22,14 +22,14 @@ public:
 
 	virtual Disassembly Z80Disassemble(const Z80::LabelSubstitutionSettings& labelSettings) const
 	{
-		return Disassembly(GetOpcodeName(), target.Disassemble());
+		return Disassembly(GetOpcodeName(), _target.Disassemble());
 	}
 
 	virtual void Z80Decode(const Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)
 	{
-		target.SetIndexState(GetIndexState(), GetIndexOffset());
+		_target.SetIndexState(GetIndexState(), GetIndexOffset());
 
-		if(target.Decode8BitRegister(data.GetDataSegment(3, 3)))
+		if(_target.Decode8BitRegister(data.GetDataSegment(3, 3)))
 		{
 			//INC r		00rrr100
 			AddExecuteCycleCount(4);
@@ -39,7 +39,7 @@ public:
 			//INC (HL)		00110100
 			//INC (IX + d)	11011101 00110100 dddddddd
 			//INC (IY + d)	11111101 00110100 dddddddd
-			target.SetMode(EffectiveAddress::Mode::HLIndirect);
+			_target.SetMode(EffectiveAddress::Mode::HLIndirect);
 			if(GetIndexState() == EffectiveAddress::IndexState::None)
 			{
 				AddExecuteCycleCount(11);
@@ -50,8 +50,8 @@ public:
 			}
 		}
 
-		AddInstructionSize(GetIndexOffsetSize(target.UsesIndexOffset()));
-		AddInstructionSize(target.ExtensionSize());
+		AddInstructionSize(GetIndexOffsetSize(_target.UsesIndexOffset()));
+		AddInstructionSize(_target.ExtensionSize());
 	}
 
 	virtual ExecuteTime Z80Execute(Z80* cpu, const Z80Word& location) const
@@ -61,9 +61,9 @@ public:
 		Z80Byte result;
 
 		//Perform the operation
-		additionalTime += target.Read(cpu, location, op1);
+		additionalTime += _target.Read(cpu, location, op1);
 		result = op1 + 1;
-		additionalTime += target.Write(cpu, location, result);
+		additionalTime += _target.Write(cpu, location, result);
 
 		//Set the flag results
 		cpu->SetFlagS(result.Negative());
@@ -80,7 +80,7 @@ public:
 	}
 
 private:
-	EffectiveAddress target;
+	EffectiveAddress _target;
 };
 
 } //Close namespace Z80

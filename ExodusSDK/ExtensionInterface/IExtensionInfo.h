@@ -31,13 +31,13 @@ public:
 	virtual bool GetIsPersistentGlobalExtension() const = 0;
 
 	//Setters
-	virtual void SetExtensionSettings(AllocatorPointer aAllocator, DestructorPointer aDestructor, const Marshal::In<std::wstring>& aextensionClassName, const Marshal::In<std::wstring>& aextensionImplementationName, unsigned int aextensionVersionNo, const Marshal::In<std::wstring>& aextensionCopyright, const Marshal::In<std::wstring>& aextensionComments, bool apersistentGlobalExtension = false) = 0;
-	virtual void SetExtensionAllocators(AllocatorPointer aAllocator, DestructorPointer aDestructor) = 0;
-	virtual void SetExtensionClassName(const Marshal::In<std::wstring>& aextensionClassName) = 0;
-	virtual void SetExtensionImplementationName(const Marshal::In<std::wstring>& aextensionImplementationName) = 0;
-	virtual void SetExtensionVersionNo(unsigned int aextensionVersionNo) = 0;
-	virtual void SetExtensionCopyright(const Marshal::In<std::wstring>& aextensionCopyright) = 0;
-	virtual void SetExtensionComments(const Marshal::In<std::wstring>& aextensionComments) = 0;
+	virtual void SetExtensionSettings(AllocatorPointer allocator, DestructorPointer destructor, const Marshal::In<std::wstring>& extensionClassName, const Marshal::In<std::wstring>& extensionImplementationName, unsigned int extensionVersionNo, const Marshal::In<std::wstring>& extensionCopyright, const Marshal::In<std::wstring>& extensionComments, bool persistentGlobalExtension = false) = 0;
+	virtual void SetExtensionAllocators(AllocatorPointer allocator, DestructorPointer destructor) = 0;
+	virtual void SetExtensionClassName(const Marshal::In<std::wstring>& extensionClassName) = 0;
+	virtual void SetExtensionImplementationName(const Marshal::In<std::wstring>& extensionImplementationName) = 0;
+	virtual void SetExtensionVersionNo(unsigned int extensionVersionNo) = 0;
+	virtual void SetExtensionCopyright(const Marshal::In<std::wstring>& extensionCopyright) = 0;
+	virtual void SetExtensionComments(const Marshal::In<std::wstring>& extensionComments) = 0;
 	virtual void SetIsPersistentGlobalExtension(bool state) = 0;
 };
 

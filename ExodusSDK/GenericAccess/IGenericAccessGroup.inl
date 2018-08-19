@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------------------
 //Parent functions
 //----------------------------------------------------------------------------------------
-void IGenericAccessGroup::SetParentForTargetEntry(IGenericAccessGroupEntry* entry, IGenericAccessGroup* aparent) const
+void IGenericAccessGroup::SetParentForTargetEntry(IGenericAccessGroupEntry* entry, IGenericAccessGroup* parent) const
 {
-	entry->SetParent(aparent);
+	entry->SetParent(parent);
 }

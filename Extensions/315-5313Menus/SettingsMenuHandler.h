@@ -8,7 +8,7 @@ class SettingsMenuHandler :public MenuHandlerBase
 {
 public:
 	//Constructors
-	SettingsMenuHandler(S315_5313Menus& aowner, const IDevice& amodelInstanceKey, IS315_5313& amodel);
+	SettingsMenuHandler(S315_5313Menus& owner, const IDevice& modelInstanceKey, IS315_5313& model);
 
 protected:
 	//Management functions
@@ -17,9 +17,9 @@ protected:
 	virtual void DeleteViewForItem(int menuItemID, IViewPresenter* viewPresenter);
 
 private:
-	S315_5313Menus& owner;
-	const IDevice& modelInstanceKey;
-	IS315_5313& model;
+	S315_5313Menus& _owner;
+	const IDevice& _modelInstanceKey;
+	IS315_5313& _model;
 };
 
 #endif

@@ -13,9 +13,9 @@ public:
 	inline void Sync(double targetExecutionTime, bool enableSync = true, bool outputTimerDebug = false, double executeAheadTolerance = 0.001);
 
 private:
-	LARGE_INTEGER counterFrequency;
-	LARGE_INTEGER executionTimeStart;
-	LONGLONG executionTimeAhead;
+	LARGE_INTEGER _counterFrequency;
+	LARGE_INTEGER _executionTimeStart;
+	LONGLONG _executionTimeAhead;
 };
 
 #include "PerformanceTimer.inl"

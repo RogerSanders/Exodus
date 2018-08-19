@@ -27,17 +27,17 @@ public:
 
 	virtual void Z80Decode(const Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)
 	{
-		source.SetIndexState(GetIndexState(), GetIndexOffset());
-		target.SetIndexState(GetIndexState(), GetIndexOffset());
+		_source.SetIndexState(GetIndexState(), GetIndexOffset());
+		_target.SetIndexState(GetIndexState(), GetIndexOffset());
 
 		//CPI		11101101 10100000
-		source.SetMode(EffectiveAddress::Mode::HLPostInc);
-		target.SetMode(EffectiveAddress::Mode::A);
+		_source.SetMode(EffectiveAddress::Mode::HLPostInc);
+		_target.SetMode(EffectiveAddress::Mode::A);
 		AddExecuteCycleCount(12);
 
-		AddInstructionSize(GetIndexOffsetSize(source.UsesIndexOffset() || target.UsesIndexOffset()));
-		AddInstructionSize(source.ExtensionSize());
-		AddInstructionSize(target.ExtensionSize());
+		AddInstructionSize(GetIndexOffsetSize(_source.UsesIndexOffset() || _target.UsesIndexOffset()));
+		AddInstructionSize(_source.ExtensionSize());
+		AddInstructionSize(_target.ExtensionSize());
 	}
 
 	virtual ExecuteTime Z80Execute(Z80* cpu, const Z80Word& location) const
@@ -48,8 +48,8 @@ public:
 		Z80Byte result;
 
 		//Perform the operation
-		additionalTime += source.Read(cpu, location, op1);
-		additionalTime += target.Read(cpu, location, op2);
+		additionalTime += _source.Read(cpu, location, op1);
+		additionalTime += _target.Read(cpu, location, op2);
 		result = op2 - op1;
 		cpu->SetBC(cpu->GetBC() - 1);
 
@@ -72,8 +72,8 @@ public:
 	}
 
 private:
-	EffectiveAddress source;
-	EffectiveAddress target;
+	EffectiveAddress _source;
+	EffectiveAddress _target;
 };
 
 } //Close namespace Z80

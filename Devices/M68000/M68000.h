@@ -80,7 +80,7 @@ public:
 
 public:
 	//Constructors
-	M68000(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
+	M68000(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 	~M68000();
 
 	//Interface version functions
@@ -100,8 +100,8 @@ public:
 	virtual void RemoveReference(IBusInterface* target);
 
 	//Exception functions
-	double PushStackFrame(const M68000Long& apc, const M68000Word& asr, bool processingInstruction = true);
-	double PushStackFrame(const M68000Long& apc, const M68000Word& asr, const M68000Word& ainstructionRegister, const M68000Long& aaccessAddress, bool aread, bool aprocessingInstruction, FunctionCode afunctionCode);
+	double PushStackFrame(const M68000Long& pc, const M68000Word& sr, bool processingInstruction = true);
+	double PushStackFrame(const M68000Long& pc, const M68000Word& sr, const M68000Word& instructionRegister, const M68000Long& accessAddress, bool read, bool processingInstruction, FunctionCode functionCode);
 	ExecuteTime ProcessException(Exceptions vector);
 	ExecuteTime GetExceptionProcessingTime(Exceptions vector) const;
 	bool ExceptionDisabled(Exceptions vector);
@@ -178,7 +178,7 @@ public:
 	inline bool GetSR_S() const;
 	inline void SetSR_S(bool flag);
 	inline unsigned int GetSR_IPM() const;
-	inline void SetSR_IPM(unsigned int aIPM);
+	inline void SetSR_IPM(unsigned int ipm);
 
 	//Register functions
 	inline M68000Long GetPC() const;
@@ -299,138 +299,137 @@ private:
 
 private:
 	//Bus interface
-	mutable ReadWriteLock externalReferenceLock;
-	IBusInterface* memoryBus;
+	mutable ReadWriteLock _externalReferenceLock;
+	IBusInterface* _memoryBus;
 
 	//Opcode decode table
-	std::list<M68000Instruction*> opcodeList;
-	OpcodeTable<M68000Instruction> opcodeTable;
+	std::list<M68000Instruction*> _opcodeList;
+	OpcodeTable<M68000Instruction> _opcodeTable;
 
 	//Opcode allocation buffer for placement new
-	void* opcodeBuffer;
+	void* _opcodeBuffer;
 
 	//User registers
-	M68000Long a[addressRegCount - 1];
-	M68000Long ba[addressRegCount - 1];
-	M68000Long d[dataRegCount];
-	M68000Long bd[dataRegCount];
-	M68000Long ssp;
-	M68000Long bssp;
-	M68000Long usp;
-	M68000Long busp;
-	M68000Long pc;
-	M68000Long bpc;
-	M68000Word sr;
-	M68000Word bsr;
+	M68000Long _a[AddressRegCount - 1];
+	M68000Long _ba[AddressRegCount - 1];
+	M68000Long _d[DataRegCount];
+	M68000Long _bd[DataRegCount];
+	M68000Long _ssp;
+	M68000Long _bssp;
+	M68000Long _usp;
+	M68000Long _busp;
+	M68000Long _pc;
+	M68000Long _bpc;
+	M68000Word _sr;
+	M68000Word _bsr;
 
 	//Disassembly register info
-	RegisterDisassemblyInfo aDisassemblyInfo[addressRegCount - 1];
-	RegisterDisassemblyInfo baDisassemblyInfo[addressRegCount - 1];
-	RegisterDisassemblyInfo dDisassemblyInfo[dataRegCount];
-	RegisterDisassemblyInfo bdDisassemblyInfo[dataRegCount];
+	RegisterDisassemblyInfo _aDisassemblyInfo[AddressRegCount - 1];
+	RegisterDisassemblyInfo _baDisassemblyInfo[AddressRegCount - 1];
+	RegisterDisassemblyInfo _dDisassemblyInfo[DataRegCount];
+	RegisterDisassemblyInfo _bdDisassemblyInfo[DataRegCount];
 
 	//Processor status data
-	State processorState;
-	State bprocessorState;
-	mutable M68000Word lastReadBusData;
-	M68000Word blastReadBusData;
-	bool wordIsPrefetched;
-	bool bwordIsPrecached;
-	M68000Word prefetchedWord;
-	M68000Word bprefetchedWord;
-	M68000Long prefetchedWordAddress;
-	M68000Long bprefetchedWordAddress;
-	bool powerOnDelayPending;
-	bool bpowerOnDelayPending;
+	State _processorState;
+	State _bprocessorState;
+	mutable M68000Word _lastReadBusData;
+	M68000Word _blastReadBusData;
+	bool _wordIsPrefetched;
+	bool _bwordIsPrecached;
+	M68000Word _prefetchedWord;
+	M68000Word _bprefetchedWord;
+	M68000Long _prefetchedWordAddress;
+	M68000Long _bprefetchedWordAddress;
+	bool _powerOnDelayPending;
+	bool _bpowerOnDelayPending;
 
 	//Group 0 exception info
-	mutable bool group0ExceptionPending;
-	bool bgroup0ExceptionPending;
-	mutable M68000Word group0InstructionRegister;
-	M68000Word bgroup0InstructionRegister;
-	mutable M68000Long group0Address;
-	M68000Long bgroup0Address;
-	mutable M68000Long group0PC;
-	M68000Long bgroup0PC;
-	mutable M68000Word group0SR;
-	M68000Word bgroup0SR;
-	mutable bool group0ReadWriteFlag;
-	bool bgroup0ReadWriteFlag;
-	mutable bool group0InstructionFlag;
-	bool bgroup0InstructionFlag;
-	mutable Exceptions group0Vector;
-	Exceptions bgroup0Vector;
-	mutable FunctionCode group0FunctionCode;
-	FunctionCode bgroup0FunctionCode;
+	mutable bool _group0ExceptionPending;
+	bool _bgroup0ExceptionPending;
+	mutable M68000Word _group0InstructionRegister;
+	M68000Word _bgroup0InstructionRegister;
+	mutable M68000Long _group0Address;
+	M68000Long _bgroup0Address;
+	mutable M68000Long _group0PC;
+	M68000Long _bgroup0PC;
+	mutable M68000Word _group0SR;
+	M68000Word _bgroup0SR;
+	mutable bool _group0ReadWriteFlag;
+	bool _bgroup0ReadWriteFlag;
+	mutable bool _group0InstructionFlag;
+	bool _bgroup0InstructionFlag;
+	mutable Exceptions _group0Vector;
+	Exceptions _bgroup0Vector;
+	mutable FunctionCode _group0FunctionCode;
+	FunctionCode _bgroup0FunctionCode;
 
 	//Exception debugging
-	mutable std::mutex debugMutex;
-	std::list<ExceptionDebuggingEntry> exceptionList;
-	volatile bool exceptionListEmpty;
-	volatile bool logAllExceptions;
-	volatile bool breakOnAllExceptions;
-	volatile bool disableAllExceptions;
-	volatile bool debugExceptionTriggerPending;
-	Exceptions debugExceptionTriggerVector;
+	mutable std::mutex _debugMutex;
+	std::list<ExceptionDebuggingEntry> _exceptionList;
+	volatile bool _exceptionListEmpty;
+	volatile bool _logAllExceptions;
+	volatile bool _breakOnAllExceptions;
+	volatile bool _disableAllExceptions;
+	volatile bool _debugExceptionTriggerPending;
+	Exceptions _debugExceptionTriggerVector;
 
 	//Changed register state
-	unsigned int regChangedA[addressRegCount];
-	unsigned int regChangedD[dataRegCount];
-	unsigned int regChangedSP;
-	unsigned int regChangedSSP;
-	unsigned int regChangedUSP;
-	unsigned int regChangedPC;
-	unsigned int regChangedSR;
-	unsigned int regChangedCCR;
-	bool regChangedX;
-	bool regChangedN;
-	bool regChangedZ;
-	bool regChangedV;
-	bool regChangedC;
-	bool regChangedS;
-	bool regChangedT;
-	unsigned int regChangedIPM;
+	unsigned int _regChangedA[AddressRegCount];
+	unsigned int _regChangedD[DataRegCount];
+	unsigned int _regChangedSP;
+	unsigned int _regChangedSSP;
+	unsigned int _regChangedUSP;
+	unsigned int _regChangedPC;
+	unsigned int _regChangedSR;
+	unsigned int _regChangedCCR;
+	bool _regChangedX;
+	bool _regChangedN;
+	bool _regChangedZ;
+	bool _regChangedV;
+	bool _regChangedC;
+	bool _regChangedS;
+	bool _regChangedT;
+	unsigned int _regChangedIPM;
 
 	//CE line masks
-	unsigned int ceLineMaskLowerDataStrobe;
-	unsigned int ceLineMaskUpperDataStrobe;
-	unsigned int ceLineMaskReadHighWriteLow;
-	unsigned int ceLineMaskAddressStrobe;
-	unsigned int ceLineMaskFunctionCode;
-	unsigned int ceLineBitNumberFunctionCode;
-	unsigned int ceLineMaskFCCPUSpace;
-	unsigned int ceLineMaskRMWCycleInProgress;
-	unsigned int ceLineMaskRMWCycleFirstOperation;
+	unsigned int _ceLineMaskLowerDataStrobe;
+	unsigned int _ceLineMaskUpperDataStrobe;
+	unsigned int _ceLineMaskReadHighWriteLow;
+	unsigned int _ceLineMaskAddressStrobe;
+	unsigned int _ceLineMaskFunctionCode;
+	unsigned int _ceLineBitNumberFunctionCode;
+	unsigned int _ceLineMaskFCCPUSpace;
+	unsigned int _ceLineMaskRMWCycleInProgress;
+	unsigned int _ceLineMaskRMWCycleFirstOperation;
 
 	//Line access
-	std::mutex lineMutex;
-	double lastLineCheckTime;
-	volatile bool lineAccessPending;
-	double lastTimesliceLength;
-	double blastTimesliceLength;
-	std::list<LineAccess> lineAccessBuffer;
-	std::list<LineAccess> blineAccessBuffer;
-	bool suspendWhenBusReleased;
-	bool suspendUntilLineStateChangeReceived;
-	bool bsuspendUntilLineStateChangeReceived;
-	std::condition_variable lineStateChangeReceived;
-	bool manualDeviceAdvanceInProgress;
-	volatile bool executionReachedEndOfTimeslice;
-	std::condition_variable advanceToTargetLineStateChanged;
-	mutable bool autoVectorPendingInterrupt;
-	mutable double autoVectorPendingInterruptChangeTime;
-	bool resetLineState;
-	bool haltLineState;
-	bool brLineState;
-	bool bgLineState;
-	bool forceInterrupt;
-	unsigned int interruptPendingLevel;
-	bool bresetLineState;
-	bool bhaltLineState;
-	bool bbrLineState;
-	bool bbgLineState;
-	bool bforceInterrupt;
-	unsigned int binterruptPendingLevel;
+	std::mutex _lineMutex;
+	double _lastLineCheckTime;
+	volatile bool _lineAccessPending;
+	double _lastTimesliceLength;
+	double _blastTimesliceLength;
+	std::list<LineAccess> _lineAccessBuffer;
+	std::list<LineAccess> _blineAccessBuffer;
+	bool _suspendWhenBusReleased;
+	bool _suspendUntilLineStateChangeReceived;
+	bool _bsuspendUntilLineStateChangeReceived;
+	bool _manualDeviceAdvanceInProgress;
+	volatile bool _executionReachedEndOfTimeslice;
+	std::condition_variable _advanceToTargetLineStateChanged;
+	mutable bool _autoVectorPendingInterrupt;
+	mutable double _autoVectorPendingInterruptChangeTime;
+	bool _resetLineState;
+	bool _haltLineState;
+	bool _brLineState;
+	bool _bgLineState;
+	bool _forceInterrupt;
+	unsigned int _interruptPendingLevel;
+	bool _bresetLineState;
+	bool _bhaltLineState;
+	bool _bbrLineState;
+	bool _bbgLineState;
+	bool _bforceInterrupt;
+	unsigned int _binterruptPendingLevel;
 };
 
 } //Close namespace M68000

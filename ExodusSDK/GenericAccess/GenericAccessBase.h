@@ -47,9 +47,9 @@ public:
 	virtual bool ExecuteGenericCommand(unsigned int commandID, const typename B::DataContext* dataContext);
 
 private:
-	std::map<unsigned int, const IGenericAccessDataInfo*> genericDataList;
-	std::map<unsigned int, const IGenericAccessCommandInfo*> genericCommandList;
-	std::vector<const IGenericAccessPage*> genericPageList;
+	std::map<unsigned int, const IGenericAccessDataInfo*> _genericDataList;
+	std::map<unsigned int, const IGenericAccessCommandInfo*> _genericCommandList;
+	std::vector<const IGenericAccessPage*> _genericPageList;
 };
 
 #include "GenericAccessBase.inl"

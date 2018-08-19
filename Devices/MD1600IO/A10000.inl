@@ -101,49 +101,49 @@ unsigned int A10000::GetPortIndexForPort(Ports portNo)
 //----------------------------------------------------------------------------------------
 bool A10000::GetOverseasFlag() const
 {
-	return versionRegister.GetBit(7);
+	return _versionRegister.GetBit(7);
 }
 
 //----------------------------------------------------------------------------------------
 void A10000::SetOverseasFlag(bool data)
 {
-	versionRegister.SetBit(7, data);
+	_versionRegister.SetBit(7, data);
 }
 
 //----------------------------------------------------------------------------------------
 bool A10000::GetPALFlag() const
 {
-	return versionRegister.GetBit(6);
+	return _versionRegister.GetBit(6);
 }
 
 //----------------------------------------------------------------------------------------
 void A10000::SetPALFlag(bool data)
 {
-	versionRegister.SetBit(6, data);
+	_versionRegister.SetBit(6, data);
 }
 
 //----------------------------------------------------------------------------------------
 bool A10000::GetNoDiskFlag() const
 {
-	return versionRegister.GetBit(5);
+	return _versionRegister.GetBit(5);
 }
 
 //----------------------------------------------------------------------------------------
 void A10000::SetNoDiskFlag(bool data)
 {
-	versionRegister.SetBit(5, data);
+	_versionRegister.SetBit(5, data);
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int A10000::GetHardwareVersion() const
 {
-	return versionRegister.GetDataSegment(0, 4);
+	return _versionRegister.GetDataSegment(0, 4);
 }
 
 //----------------------------------------------------------------------------------------
 void A10000::SetHardwareVersion(unsigned int data)
 {
-	versionRegister.SetDataSegment(0, 4, data);
+	_versionRegister.SetDataSegment(0, 4, data);
 }
 
 //----------------------------------------------------------------------------------------
@@ -151,73 +151,73 @@ void A10000::SetHardwareVersion(unsigned int data)
 //----------------------------------------------------------------------------------------
 Data A10000::GetVersionRegister() const
 {
-	return versionRegister;
+	return _versionRegister;
 }
 
 //----------------------------------------------------------------------------------------
 void A10000::SetVersionRegister(const Data& data)
 {
-	versionRegister = data;
+	_versionRegister = data;
 }
 
 //----------------------------------------------------------------------------------------
 Data A10000::GetDataRegister(Ports portNo) const
 {
-	return dataRegisters[GetPortIndexForPort(portNo)];
+	return _dataRegisters[GetPortIndexForPort(portNo)];
 }
 
 //----------------------------------------------------------------------------------------
 void A10000::SetDataRegister(Ports portNo, const Data& data)
 {
-	dataRegisters[GetPortIndexForPort(portNo)] = data;
+	_dataRegisters[GetPortIndexForPort(portNo)] = data;
 }
 
 //----------------------------------------------------------------------------------------
 Data A10000::GetControlRegister(Ports portNo) const
 {
-	return controlRegisters[GetPortIndexForPort(portNo)];
+	return _controlRegisters[GetPortIndexForPort(portNo)];
 }
 
 //----------------------------------------------------------------------------------------
 void A10000::SetControlRegister(Ports portNo, const Data& data)
 {
-	controlRegisters[GetPortIndexForPort(portNo)] = data;
+	_controlRegisters[GetPortIndexForPort(portNo)] = data;
 }
 
 //----------------------------------------------------------------------------------------
 Data A10000::GetSerialControlRegister(Ports portNo) const
 {
-	return serialControlRegisters[GetPortIndexForPort(portNo)];
+	return _serialControlRegisters[GetPortIndexForPort(portNo)];
 }
 
 //----------------------------------------------------------------------------------------
 void A10000::SetSerialControlRegister(Ports portNo, const Data& data)
 {
-	serialControlRegisters[GetPortIndexForPort(portNo)] = data;
+	_serialControlRegisters[GetPortIndexForPort(portNo)] = data;
 }
 
 //----------------------------------------------------------------------------------------
 Data A10000::GetTxDataRegister(Ports portNo) const
 {
-	return txDataRegisters[GetPortIndexForPort(portNo)];
+	return _txDataRegisters[GetPortIndexForPort(portNo)];
 }
 
 //----------------------------------------------------------------------------------------
 void A10000::SetTxDataRegister(Ports portNo, const Data& data)
 {
-	txDataRegisters[GetPortIndexForPort(portNo)] = data;
+	_txDataRegisters[GetPortIndexForPort(portNo)] = data;
 }
 
 //----------------------------------------------------------------------------------------
 Data A10000::GetRxDataRegister(Ports portNo) const
 {
-	return rxDataRegisters[GetPortIndexForPort(portNo)];
+	return _rxDataRegisters[GetPortIndexForPort(portNo)];
 }
 
 //----------------------------------------------------------------------------------------
 void A10000::SetRxDataRegister(Ports portNo, const Data& data)
 {
-	rxDataRegisters[GetPortIndexForPort(portNo)] = data;
+	_rxDataRegisters[GetPortIndexForPort(portNo)] = data;
 }
 
 //----------------------------------------------------------------------------------------
@@ -235,97 +235,97 @@ void A10000::SetRxDataRegister(Ports portNo, const Data& data)
 //----------------------------------------------------------------------------------------
 bool A10000::GetDataRegisterHL(Ports portNo) const
 {
-	return dataRegisters[GetPortIndexForPort(portNo)].GetBit(7);
+	return _dataRegisters[GetPortIndexForPort(portNo)].GetBit(7);
 }
 
 //----------------------------------------------------------------------------------------
 void A10000::SetDataRegisterHL(Ports portNo, bool state)
 {
-	dataRegisters[GetPortIndexForPort(portNo)].SetBit(7, state);
+	_dataRegisters[GetPortIndexForPort(portNo)].SetBit(7, state);
 }
 
 //----------------------------------------------------------------------------------------
 bool A10000::GetDataRegisterTH(Ports portNo) const
 {
-	return dataRegisters[GetPortIndexForPort(portNo)].GetBit(6);
+	return _dataRegisters[GetPortIndexForPort(portNo)].GetBit(6);
 }
 
 //----------------------------------------------------------------------------------------
 void A10000::SetDataRegisterTH(Ports portNo, bool state)
 {
-	dataRegisters[GetPortIndexForPort(portNo)].SetBit(6, state);
+	_dataRegisters[GetPortIndexForPort(portNo)].SetBit(6, state);
 }
 
 //----------------------------------------------------------------------------------------
 bool A10000::GetDataRegisterTR(Ports portNo) const
 {
-	return dataRegisters[GetPortIndexForPort(portNo)].GetBit(5);
+	return _dataRegisters[GetPortIndexForPort(portNo)].GetBit(5);
 }
 
 //----------------------------------------------------------------------------------------
 void A10000::SetDataRegisterTR(Ports portNo, bool state)
 {
-	dataRegisters[GetPortIndexForPort(portNo)].SetBit(5, state);
+	_dataRegisters[GetPortIndexForPort(portNo)].SetBit(5, state);
 }
 
 //----------------------------------------------------------------------------------------
 bool A10000::GetDataRegisterTL(Ports portNo) const
 {
-	return dataRegisters[GetPortIndexForPort(portNo)].GetBit(4);
+	return _dataRegisters[GetPortIndexForPort(portNo)].GetBit(4);
 }
 
 //----------------------------------------------------------------------------------------
 void A10000::SetDataRegisterTL(Ports portNo, bool state)
 {
-	dataRegisters[GetPortIndexForPort(portNo)].SetBit(4, state);
+	_dataRegisters[GetPortIndexForPort(portNo)].SetBit(4, state);
 }
 
 //----------------------------------------------------------------------------------------
 bool A10000::GetDataRegisterD3(Ports portNo) const
 {
-	return dataRegisters[GetPortIndexForPort(portNo)].GetBit(3);
+	return _dataRegisters[GetPortIndexForPort(portNo)].GetBit(3);
 }
 
 //----------------------------------------------------------------------------------------
 void A10000::SetDataRegisterD3(Ports portNo, bool state)
 {
-	dataRegisters[GetPortIndexForPort(portNo)].SetBit(3, state);
+	_dataRegisters[GetPortIndexForPort(portNo)].SetBit(3, state);
 }
 
 //----------------------------------------------------------------------------------------
 bool A10000::GetDataRegisterD2(Ports portNo) const
 {
-	return dataRegisters[GetPortIndexForPort(portNo)].GetBit(2);
+	return _dataRegisters[GetPortIndexForPort(portNo)].GetBit(2);
 }
 
 //----------------------------------------------------------------------------------------
 void A10000::SetDataRegisterD2(Ports portNo, bool state)
 {
-	dataRegisters[GetPortIndexForPort(portNo)].SetBit(2, state);
+	_dataRegisters[GetPortIndexForPort(portNo)].SetBit(2, state);
 }
 
 //----------------------------------------------------------------------------------------
 bool A10000::GetDataRegisterD1(Ports portNo) const
 {
-	return dataRegisters[GetPortIndexForPort(portNo)].GetBit(1);
+	return _dataRegisters[GetPortIndexForPort(portNo)].GetBit(1);
 }
 
 //----------------------------------------------------------------------------------------
 void A10000::SetDataRegisterD1(Ports portNo, bool state)
 {
-	dataRegisters[GetPortIndexForPort(portNo)].SetBit(1, state);
+	_dataRegisters[GetPortIndexForPort(portNo)].SetBit(1, state);
 }
 
 //----------------------------------------------------------------------------------------
 bool A10000::GetDataRegisterD0(Ports portNo) const
 {
-	return dataRegisters[GetPortIndexForPort(portNo)].GetBit(0);
+	return _dataRegisters[GetPortIndexForPort(portNo)].GetBit(0);
 }
 
 //----------------------------------------------------------------------------------------
 void A10000::SetDataRegisterD0(Ports portNo, bool state)
 {
-	dataRegisters[GetPortIndexForPort(portNo)].SetBit(0, state);
+	_dataRegisters[GetPortIndexForPort(portNo)].SetBit(0, state);
 }
 
 //----------------------------------------------------------------------------------------
@@ -344,97 +344,97 @@ void A10000::SetDataRegisterD0(Ports portNo, bool state)
 //----------------------------------------------------------------------------------------
 bool A10000::GetControlRegisterHL(Ports portNo) const
 {
-	return controlRegisters[GetPortIndexForPort(portNo)].GetBit(7);
+	return _controlRegisters[GetPortIndexForPort(portNo)].GetBit(7);
 }
 
 //----------------------------------------------------------------------------------------
 void A10000::SetControlRegisterHL(Ports portNo, bool state)
 {
-	controlRegisters[GetPortIndexForPort(portNo)].SetBit(7, state);
+	_controlRegisters[GetPortIndexForPort(portNo)].SetBit(7, state);
 }
 
 //----------------------------------------------------------------------------------------
 bool A10000::GetControlRegisterTH(Ports portNo) const
 {
-	return controlRegisters[GetPortIndexForPort(portNo)].GetBit(6);
+	return _controlRegisters[GetPortIndexForPort(portNo)].GetBit(6);
 }
 
 //----------------------------------------------------------------------------------------
 void A10000::SetControlRegisterTH(Ports portNo, bool state)
 {
-	controlRegisters[GetPortIndexForPort(portNo)].SetBit(6, state);
+	_controlRegisters[GetPortIndexForPort(portNo)].SetBit(6, state);
 }
 
 //----------------------------------------------------------------------------------------
 bool A10000::GetControlRegisterTR(Ports portNo) const
 {
-	return controlRegisters[GetPortIndexForPort(portNo)].GetBit(5);
+	return _controlRegisters[GetPortIndexForPort(portNo)].GetBit(5);
 }
 
 //----------------------------------------------------------------------------------------
 void A10000::SetControlRegisterTR(Ports portNo, bool state)
 {
-	controlRegisters[GetPortIndexForPort(portNo)].SetBit(5, state);
+	_controlRegisters[GetPortIndexForPort(portNo)].SetBit(5, state);
 }
 
 //----------------------------------------------------------------------------------------
 bool A10000::GetControlRegisterTL(Ports portNo) const
 {
-	return controlRegisters[GetPortIndexForPort(portNo)].GetBit(4);
+	return _controlRegisters[GetPortIndexForPort(portNo)].GetBit(4);
 }
 
 //----------------------------------------------------------------------------------------
 void A10000::SetControlRegisterTL(Ports portNo, bool state)
 {
-	controlRegisters[GetPortIndexForPort(portNo)].SetBit(4, state);
+	_controlRegisters[GetPortIndexForPort(portNo)].SetBit(4, state);
 }
 
 //----------------------------------------------------------------------------------------
 bool A10000::GetControlRegisterD3(Ports portNo) const
 {
-	return controlRegisters[GetPortIndexForPort(portNo)].GetBit(3);
+	return _controlRegisters[GetPortIndexForPort(portNo)].GetBit(3);
 }
 
 //----------------------------------------------------------------------------------------
 void A10000::SetControlRegisterD3(Ports portNo, bool state)
 {
-	controlRegisters[GetPortIndexForPort(portNo)].SetBit(3, state);
+	_controlRegisters[GetPortIndexForPort(portNo)].SetBit(3, state);
 }
 
 //----------------------------------------------------------------------------------------
 bool A10000::GetControlRegisterD2(Ports portNo) const
 {
-	return controlRegisters[GetPortIndexForPort(portNo)].GetBit(2);
+	return _controlRegisters[GetPortIndexForPort(portNo)].GetBit(2);
 }
 
 //----------------------------------------------------------------------------------------
 void A10000::SetControlRegisterD2(Ports portNo, bool state)
 {
-	controlRegisters[GetPortIndexForPort(portNo)].SetBit(2, state);
+	_controlRegisters[GetPortIndexForPort(portNo)].SetBit(2, state);
 }
 
 //----------------------------------------------------------------------------------------
 bool A10000::GetControlRegisterD1(Ports portNo) const
 {
-	return controlRegisters[GetPortIndexForPort(portNo)].GetBit(1);
+	return _controlRegisters[GetPortIndexForPort(portNo)].GetBit(1);
 }
 
 //----------------------------------------------------------------------------------------
 void A10000::SetControlRegisterD1(Ports portNo, bool state)
 {
-	controlRegisters[GetPortIndexForPort(portNo)].SetBit(1, state);
+	_controlRegisters[GetPortIndexForPort(portNo)].SetBit(1, state);
 }
 
 //----------------------------------------------------------------------------------------
 bool A10000::GetControlRegisterD0(Ports portNo) const
 {
-	return controlRegisters[GetPortIndexForPort(portNo)].GetBit(0);
+	return _controlRegisters[GetPortIndexForPort(portNo)].GetBit(0);
 }
 
 //----------------------------------------------------------------------------------------
 void A10000::SetControlRegisterD0(Ports portNo, bool state)
 {
-	controlRegisters[GetPortIndexForPort(portNo)].SetBit(0, state);
+	_controlRegisters[GetPortIndexForPort(portNo)].SetBit(0, state);
 }
 
 //----------------------------------------------------------------------------------------
@@ -462,83 +462,83 @@ void A10000::SetControlRegisterD0(Ports portNo, bool state)
 //----------------------------------------------------------------------------------------
 unsigned int A10000::GetSerialBaudRate(Ports portNo) const
 {
-	return serialControlRegisters[GetPortIndexForPort(portNo)].GetDataSegment(6, 2);
+	return _serialControlRegisters[GetPortIndexForPort(portNo)].GetDataSegment(6, 2);
 }
 
 //----------------------------------------------------------------------------------------
 void A10000::SetSerialBaudRate(Ports portNo, unsigned int state)
 {
-	serialControlRegisters[GetPortIndexForPort(portNo)].SetDataSegment(6, 2, state);
+	_serialControlRegisters[GetPortIndexForPort(portNo)].SetDataSegment(6, 2, state);
 }
 
 //----------------------------------------------------------------------------------------
 bool A10000::GetSerialInputEnabled(Ports portNo) const
 {
-	return serialControlRegisters[GetPortIndexForPort(portNo)].GetBit(5);
+	return _serialControlRegisters[GetPortIndexForPort(portNo)].GetBit(5);
 }
 
 //----------------------------------------------------------------------------------------
 void A10000::SetSerialInputEnabled(Ports portNo, bool state)
 {
-	serialControlRegisters[GetPortIndexForPort(portNo)].SetBit(5, state);
+	_serialControlRegisters[GetPortIndexForPort(portNo)].SetBit(5, state);
 }
 
 //----------------------------------------------------------------------------------------
 bool A10000::GetSerialOutputEnabled(Ports portNo) const
 {
-	return serialControlRegisters[GetPortIndexForPort(portNo)].GetBit(4);
+	return _serialControlRegisters[GetPortIndexForPort(portNo)].GetBit(4);
 }
 
 //----------------------------------------------------------------------------------------
 void A10000::SetSerialOutputEnabled(Ports portNo, bool state)
 {
-	serialControlRegisters[GetPortIndexForPort(portNo)].SetBit(4, state);
+	_serialControlRegisters[GetPortIndexForPort(portNo)].SetBit(4, state);
 }
 
 //----------------------------------------------------------------------------------------
 bool A10000::GetSerialInterruptEnabled(Ports portNo) const
 {
-	return serialControlRegisters[GetPortIndexForPort(portNo)].GetBit(3);
+	return _serialControlRegisters[GetPortIndexForPort(portNo)].GetBit(3);
 }
 
 //----------------------------------------------------------------------------------------
 void A10000::SetSerialInterruptEnabled(Ports portNo, bool state)
 {
-	serialControlRegisters[GetPortIndexForPort(portNo)].SetBit(3, state);
+	_serialControlRegisters[GetPortIndexForPort(portNo)].SetBit(3, state);
 }
 
 //----------------------------------------------------------------------------------------
 bool A10000::GetSerialErrorFlag(Ports portNo) const
 {
-	return serialControlRegisters[GetPortIndexForPort(portNo)].GetBit(2);
+	return _serialControlRegisters[GetPortIndexForPort(portNo)].GetBit(2);
 }
 
 //----------------------------------------------------------------------------------------
 void A10000::SetSerialErrorFlag(Ports portNo, bool state)
 {
-	serialControlRegisters[GetPortIndexForPort(portNo)].SetBit(2, state);
+	_serialControlRegisters[GetPortIndexForPort(portNo)].SetBit(2, state);
 }
 
 //----------------------------------------------------------------------------------------
 bool A10000::GetRxDataBufferFull(Ports portNo) const
 {
-	return serialControlRegisters[GetPortIndexForPort(portNo)].GetBit(1);
+	return _serialControlRegisters[GetPortIndexForPort(portNo)].GetBit(1);
 }
 
 //----------------------------------------------------------------------------------------
 void A10000::SetRxDataBufferFull(Ports portNo, bool state)
 {
-	serialControlRegisters[GetPortIndexForPort(portNo)].SetBit(1, state);
+	_serialControlRegisters[GetPortIndexForPort(portNo)].SetBit(1, state);
 }
 
 //----------------------------------------------------------------------------------------
 bool A10000::GetTxDataBufferFull(Ports portNo) const
 {
-	return serialControlRegisters[GetPortIndexForPort(portNo)].GetBit(0);
+	return _serialControlRegisters[GetPortIndexForPort(portNo)].GetBit(0);
 }
 
 //----------------------------------------------------------------------------------------
 void A10000::SetTxDataBufferFull(Ports portNo, bool state)
 {
-	serialControlRegisters[GetPortIndexForPort(portNo)].SetBit(0, state);
+	_serialControlRegisters[GetPortIndexForPort(portNo)].SetBit(0, state);
 }

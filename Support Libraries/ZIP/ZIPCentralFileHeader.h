@@ -4,12 +4,12 @@
 #include <string>
 #include "ZIPLocalFileHeader.h"
 
-struct ZIPChunk_CentralFileHeader
+struct ZIPChunkCentralFileHeader
 {
 public:
 	//Constructors
-	inline ZIPChunk_CentralFileHeader();
-	inline ZIPChunk_CentralFileHeader(const ZIPChunk_LocalFileHeader& localFileHeader);
+	inline ZIPChunkCentralFileHeader();
+	inline ZIPChunkCentralFileHeader(const ZIPChunkLocalFileHeader& localFileHeader);
 	inline void Initialize();
 
 	//Serialization functions
@@ -20,7 +20,10 @@ public:
 	inline unsigned int GetSize();
 
 public:
-	static const unsigned int validSignature = 0x02014B50;
+	//Constants
+	static const unsigned int ValidSignature = 0x02014B50;
+
+public:
 	unsigned int signature;
 	unsigned short versionMadeBy;
 	unsigned short versionNeededToExtract;

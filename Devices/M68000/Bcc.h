@@ -24,11 +24,11 @@ public:
 	{
 		if(labelSettings.enableSubstitution)
 		{
-			return Disassembly(L"B" + DisassembleConditionCode(conditionCode) + L"." + DisassembleSize(size), target.DisassembleImmediateAsPCDisplacement(labelSettings));
+			return Disassembly(L"B" + DisassembleConditionCode(_conditionCode) + L"." + DisassembleSize(_size), _target.DisassembleImmediateAsPCDisplacement(labelSettings));
 		}
 		else
 		{
-			return Disassembly(L"B" + DisassembleConditionCode(conditionCode) + L"." + DisassembleSize(size), target.DisassembleImmediateAsPCDisplacement(labelSettings), target.DisassembleImmediateAsPCDisplacementTargetAddressString());
+			return Disassembly(L"B" + DisassembleConditionCode(_conditionCode) + L"." + DisassembleSize(_size), _target.DisassembleImmediateAsPCDisplacement(labelSettings), _target.DisassembleImmediateAsPCDisplacementTargetAddressString());
 		}
 	}
 
@@ -41,19 +41,19 @@ public:
 //	|---------------------------------------------------------------|
 //	|            16 BITS OFFSET, IF 8 BITS OFFSET = $00             |
 //	-----------------------------------------------------------------
-		conditionCode = (ConditionCode)data.GetDataSegment(8, 4);
+		_conditionCode = (ConditionCode)data.GetDataSegment(8, 4);
 
 		//Bcc	<label>
 		if(data.GetDataSegment(0, 8) != 0x00)
 		{
-			size = BITCOUNT_BYTE;
-			target.BuildImmediateData(location + GetInstructionSize(), M68000Byte(data.GetDataSegment(0, 8)));
+			_size = BITCOUNT_BYTE;
+			_target.BuildImmediateData(location + GetInstructionSize(), M68000Byte(data.GetDataSegment(0, 8)));
 		}
 		else
 		{
-			size = BITCOUNT_WORD;
-			target.BuildImmediateData(size, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
-			AddInstructionSize(target.ExtensionSize());
+			_size = BITCOUNT_WORD;
+			_target.BuildImmediateData(_size, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
+			AddInstructionSize(_target.ExtensionSize());
 		}
 	}
 
@@ -63,16 +63,16 @@ public:
 		M68000Long newPC;
 
 		//Test the condition code
-		bool result = ConditionCodeTrue(cpu, conditionCode);
+		bool result = ConditionCodeTrue(cpu, _conditionCode);
 
 		ExecuteTime additionalCycles;
 		if(result)
 		{
-			//If the condition is true, branch to the target location and run the loop
+			//If the condition is true, branch to the _target location and run the loop
 			//again.
-			Data offset(size);
-			additionalTime += target.Read(cpu, offset, GetInstructionRegister());
-			newPC = target.GetSavedPC() + M68000Long(offset.SignExtend(BITCOUNT_LONG));
+			Data offset(_size);
+			additionalTime += _target.Read(cpu, offset, GetInstructionRegister());
+			newPC = _target.GetSavedPC() + M68000Long(offset.SignExtend(BITCOUNT_LONG));
 			additionalCycles.Set(10, 2, 0);
 		}
 		else
@@ -80,7 +80,7 @@ public:
 			//If the condition is false, skip the branch, and continue execution at the
 			//next instruction.
 			newPC = location + GetInstructionSize();
-			if(size == BITCOUNT_BYTE)
+			if(_size == BITCOUNT_BYTE)
 			{
 				additionalCycles.Set(8, 1, 0);
 			}
@@ -102,21 +102,21 @@ public:
 		//executing this opcode.
 		undeterminedResultantPCLocation = false;
 		unsigned int nextOpcodeAddress = GetInstructionLocation().GetData() + GetInstructionSize();
-		unsigned int branchOpcodeAddress = (target.GetSavedPC() + target.ExtractProcessedImmediateData()).GetData();
+		unsigned int branchOpcodeAddress = (_target.GetSavedPC() + _target.ExtractProcessedImmediateData()).GetData();
 		resultantPCLocations.insert(nextOpcodeAddress);
 		resultantPCLocations.insert(branchOpcodeAddress);
 	}
 
 	virtual void GetLabelTargetLocations(std::set<unsigned int>& labelTargetLocations) const
 	{
-		unsigned int branchOpcodeAddress = (target.GetSavedPC() + target.ExtractProcessedImmediateData()).GetData();
+		unsigned int branchOpcodeAddress = (_target.GetSavedPC() + _target.ExtractProcessedImmediateData()).GetData();
 		labelTargetLocations.insert(branchOpcodeAddress);
 	}
 
 private:
-	Bitcount size;
-	ConditionCode conditionCode;
-	EffectiveAddress target;
+	Bitcount _size;
+	ConditionCode _conditionCode;
+	EffectiveAddress _target;
 };
 
 } //Close namespace M68000

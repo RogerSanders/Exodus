@@ -8,7 +8,7 @@ class InputMappingView :public ViewBase
 {
 public:
 	//Constructors
-	InputMappingView(IUIManager& auiManager, InputMappingViewPresenter& apresenter, ISystemGUIInterface& amodel);
+	InputMappingView(IUIManager& uiManager, InputMappingViewPresenter& presenter, ISystemGUIInterface& model);
 
 protected:
 	//Member window procedure
@@ -22,10 +22,10 @@ private:
 	INT_PTR msgWM_COMMAND(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
 private:
-	InputMappingViewPresenter& presenter;
-	ISystemGUIInterface& model;
-	unsigned int inputDeviceListLastModifiedToken;
-	IDevice* selectedInputDevice;
+	InputMappingViewPresenter& _presenter;
+	ISystemGUIInterface& _model;
+	unsigned int _inputDeviceListLastModifiedToken;
+	IDevice* _selectedInputDevice;
 };
 
 #endif

@@ -45,14 +45,14 @@ public:
 	virtual unsigned int GetISystemGUIInterfaceVersion() const = 0;
 
 	//Path functions
-	virtual void SetCapturePath(const Marshal::In<std::wstring>& apath) = 0;
+	virtual void SetCapturePath(const Marshal::In<std::wstring>& path) = 0;
 
 	//Logging functions
 	virtual Marshal::Ret<std::vector<SystemLogEntry>> GetEventLog() const = 0;
 	virtual unsigned int GetEventLogLastModifiedToken() const = 0;
 	virtual void ClearEventLog() = 0;
 	virtual unsigned int GetEventLogSize() const = 0;
-	virtual void SetEventLogSize(unsigned int alogSize) = 0;
+	virtual void SetEventLogSize(unsigned int logSize) = 0;
 
 	//Embedded ROM functions
 	virtual Marshal::Ret<std::list<unsigned int>> GetEmbeddedROMIDs() const = 0;

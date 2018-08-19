@@ -4,8 +4,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-EmbeddedROMViewPresenter::EmbeddedROMViewPresenter(const std::wstring& aviewGroupName, const std::wstring& aviewName, int aviewID, ExodusSystemMenus& aowner, ISystemGUIInterface& amodel)
-:ViewPresenterBase(aowner.GetAssemblyHandle(), aviewGroupName, aviewName, aviewID), owner(aowner), model(amodel)
+EmbeddedROMViewPresenter::EmbeddedROMViewPresenter(const std::wstring& viewGroupName, const std::wstring& viewName, int viewID, ExodusSystemMenus& owner, ISystemGUIInterface& model)
+:ViewPresenterBase(owner.GetAssemblyHandle(), viewGroupName, viewName, viewID), _owner(owner), _model(model)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -21,13 +21,13 @@ std::wstring EmbeddedROMViewPresenter::GetUnqualifiedViewTitle()
 //----------------------------------------------------------------------------------------
 IView* EmbeddedROMViewPresenter::CreateView(IUIManager& uiManager)
 {
-	return new EmbeddedROMView(uiManager, *this, model);
+	return new EmbeddedROMView(uiManager, *this, _model);
 }
 
 //----------------------------------------------------------------------------------------
-void EmbeddedROMViewPresenter::DeleteView(IView* aview)
+void EmbeddedROMViewPresenter::DeleteView(IView* view)
 {
-	delete aview;
+	delete view;
 }
 
 //----------------------------------------------------------------------------------------
@@ -35,5 +35,5 @@ void EmbeddedROMViewPresenter::DeleteView(IView* aview)
 //----------------------------------------------------------------------------------------
 IGUIExtensionInterface& EmbeddedROMViewPresenter::GetGUIInterface() const
 {
-	return owner.GetGUIInterface();
+	return _owner.GetGUIInterface();
 }

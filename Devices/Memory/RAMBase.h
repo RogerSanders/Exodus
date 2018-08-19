@@ -8,7 +8,7 @@ template<class T> class RAMBase :public MemoryWrite
 {
 public:
 	//Constructors
-	inline RAMBase(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
+	inline RAMBase(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 	virtual ~RAMBase();
 
 	//Initialization functions
@@ -43,16 +43,16 @@ protected:
 	typedef std::map<unsigned int, T> MemoryAccessBuffer;
 	typedef std::pair<unsigned int, T> MemoryAccessBufferEntry;
 
-	unsigned int memoryArraySize;
-	T* memoryArray;
-	bool* memoryLockedArray;
-	MemoryAccessBuffer buffer;
+	unsigned int _memoryArraySize;
+	T* _memoryArray;
+	bool* _memoryLockedArray;
+	MemoryAccessBuffer _buffer;
 
 private:
-	bool initialMemoryDataSpecified;
-	bool repeatInitialMemoryData;
-	std::vector<T> initialMemoryData;
-	bool dataIsPersistent;
+	bool _initialMemoryDataSpecified;
+	bool _repeatInitialMemoryData;
+	std::vector<T> _initialMemoryData;
+	bool _dataIsPersistent;
 };
 
 #include "RAMBase.inl"

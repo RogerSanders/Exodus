@@ -24,37 +24,37 @@ enum class YM2612::AccessContext
 //----------------------------------------------------------------------------------------
 Data YM2612::GetRegisterData(unsigned int location, const AccessTarget& accessTarget) const
 {
-	return reg.Read(location, accessTarget);
+	return _reg.Read(location, accessTarget);
 }
 
 //----------------------------------------------------------------------------------------
 void YM2612::SetRegisterData(unsigned int location, const Data& data, const AccessTarget& accessTarget)
 {
-	reg.Write(location, data, accessTarget);
+	_reg.Write(location, data, accessTarget);
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int YM2612::GetChannelBlockAddressOffset(unsigned int channelNo) const
 {
-	return channelAddressOffsets[channelNo];
+	return ChannelAddressOffsets[channelNo];
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int YM2612::GetOperatorBlockAddressOffset(unsigned int channelNo, unsigned int operatorNo) const
 {
-	return operatorAddressOffsets[channelNo][operatorNo];
+	return OperatorAddressOffsets[channelNo][operatorNo];
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int YM2612::GetAddressChannel3FrequencyBlock1(unsigned int operatorNo) const
 {
-	return channel3OperatorFrequencyAddressOffsets[0][operatorNo];
+	return Channel3OperatorFrequencyAddressOffsets[0][operatorNo];
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int YM2612::GetAddressChannel3FrequencyBlock2(unsigned int operatorNo) const
 {
-	return channel3OperatorFrequencyAddressOffsets[1][operatorNo];
+	return Channel3OperatorFrequencyAddressOffsets[1][operatorNo];
 }
 
 //----------------------------------------------------------------------------------------
@@ -745,47 +745,47 @@ void YM2612::SetPMSData(unsigned int channelAddressOffset, unsigned int data, co
 //----------------------------------------------------------------------------------------
 Data YM2612::GetStatusRegister() const
 {
-	return status;
+	return _status;
 }
 
 //----------------------------------------------------------------------------------------
-void YM2612::SetStatusRegister(unsigned int adata)
+void YM2612::SetStatusRegister(unsigned int data)
 {
-	status = adata;
+	_status = data;
 }
 
 //----------------------------------------------------------------------------------------
 bool YM2612::GetBusyFlag() const
 {
-	return status.GetBit(7);
+	return _status.GetBit(7);
 }
 
 //----------------------------------------------------------------------------------------
-void YM2612::SetBusyFlag(bool astate)
+void YM2612::SetBusyFlag(bool state)
 {
-	status.SetBit(7, astate);
+	_status.SetBit(7, state);
 }
 
 //----------------------------------------------------------------------------------------
 bool YM2612::GetTimerBOverflow() const
 {
-	return status.GetBit(1);
+	return _status.GetBit(1);
 }
 
 //----------------------------------------------------------------------------------------
-void YM2612::SetTimerBOverflow(bool astate)
+void YM2612::SetTimerBOverflow(bool state)
 {
-	status.SetBit(1, astate);
+	_status.SetBit(1, state);
 }
 
 //----------------------------------------------------------------------------------------
 bool YM2612::GetTimerAOverflow() const
 {
-	return status.GetBit(0);
+	return _status.GetBit(0);
 }
 
 //----------------------------------------------------------------------------------------
-void YM2612::SetTimerAOverflow(bool astate)
+void YM2612::SetTimerAOverflow(bool state)
 {
-	status.SetBit(0, astate);
+	_status.SetBit(0, state);
 }

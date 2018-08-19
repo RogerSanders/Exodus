@@ -14,7 +14,7 @@ public:
 	};
 
 	//Constructors
-	DebugMenuHandler(MemoryMenus& aowner, const IDevice& amodelInstanceKey, IMemory& amodel);
+	DebugMenuHandler(MemoryMenus& owner, const IDevice& modelInstanceKey, IMemory& model);
 
 protected:
 	//Management functions
@@ -23,9 +23,9 @@ protected:
 	virtual void DeleteViewForItem(int menuItemID, IViewPresenter* viewPresenter);
 
 private:
-	MemoryMenus& owner;
-	const IDevice& modelInstanceKey;
-	IMemory& model;
+	MemoryMenus& _owner;
+	const IDevice& _modelInstanceKey;
+	IMemory& _model;
 };
 
 #endif

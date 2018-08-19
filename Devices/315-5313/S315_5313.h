@@ -66,7 +66,7 @@ class S315_5313 :public Device, public GenericAccessBase<IS315_5313>
 {
 public:
 	//Constructors
-	S315_5313(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
+	S315_5313(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 
 	//Interface version functions
 	virtual unsigned int GetIS315_5313Version() const;
@@ -181,35 +181,35 @@ private:
 	typedef ITimedBufferInt::AccessTarget RAMAccessTarget;
 
 	//Render constants
-	static const unsigned int renderDigitalBlockPixelSizeY = 8;
-	static const unsigned char paletteEntryTo8Bit[8];
-	static const unsigned char paletteEntryTo8BitShadow[8];
-	static const unsigned char paletteEntryTo8BitHighlight[8];
-	static const VRAMRenderOp vramOperationsH32ActiveLine[171];
-	static const VRAMRenderOp vramOperationsH32InactiveLine[171];
-	static const VRAMRenderOp vramOperationsH40ActiveLine[210];
-	static const VRAMRenderOp vramOperationsH40InactiveLine[210];
-	static const InternalRenderOp internalOperationsH32[342];
-	static const InternalRenderOp internalOperationsH40[420];
+	static const unsigned int RenderDigitalBlockPixelSizeY = 8;
+	static const unsigned char PaletteEntryTo8Bit[8];
+	static const unsigned char PaletteEntryTo8BitShadow[8];
+	static const unsigned char PaletteEntryTo8BitHighlight[8];
+	static const VRAMRenderOp VramOperationsH32ActiveLine[171];
+	static const VRAMRenderOp VramOperationsH32InactiveLine[171];
+	static const VRAMRenderOp VramOperationsH40ActiveLine[210];
+	static const VRAMRenderOp VramOperationsH40InactiveLine[210];
+	static const InternalRenderOp InternalOperationsH32[342];
+	static const InternalRenderOp InternalOperationsH40[420];
 
 	//Interrupt settings
-	static const unsigned int exintIPLLineState = 2;
-	static const unsigned int hintIPLLineState = 4;
-	static const unsigned int vintIPLLineState = 6;
+	static const unsigned int ExintIPLLineState = 2;
+	static const unsigned int HintIPLLineState = 4;
+	static const unsigned int VintIPLLineState = 6;
 
 	//Horizontal scan timing settings
-	static const HScanSettings h32ScanSettingsStatic;
-	static const HScanSettings h40ScanSettingsStatic;
+	static const HScanSettings H32ScanSettingsStatic;
+	static const HScanSettings H40ScanSettingsStatic;
 
 	//Vertical scan timing settings
-	static const VScanSettings v28PalNoIntScanSettingsStatic;
-	static const VScanSettings v28PalIntEnScanSettingsStatic;
-	static const VScanSettings v30PalNoIntScanSettingsStatic;
-	static const VScanSettings v30PalIntEnScanSettingsStatic;
-	static const VScanSettings v28NtscNoIntScanSettingsStatic;
-	static const VScanSettings v28NtscIntEnScanSettingsStatic;
-	static const VScanSettings v30NtscNoIntScanSettingsStatic;
-	static const VScanSettings v30NtscIntEnScanSettingsStatic;
+	static const VScanSettings V28PalNoIntScanSettingsStatic;
+	static const VScanSettings V28PalIntEnScanSettingsStatic;
+	static const VScanSettings V30PalNoIntScanSettingsStatic;
+	static const VScanSettings V30PalIntEnScanSettingsStatic;
+	static const VScanSettings V28NtscNoIntScanSettingsStatic;
+	static const VScanSettings V28NtscIntEnScanSettingsStatic;
+	static const VScanSettings V30NtscNoIntScanSettingsStatic;
+	static const VScanSettings V30NtscIntEnScanSettingsStatic;
 
 private:
 	//Line functions
@@ -543,291 +543,280 @@ private:
 
 private:
 	//Debug output
-	bool outputPortAccessDebugMessages;
-	bool outputTimingDebugMessages;
-	bool outputRenderSyncMessages;
-	bool outputInterruptDebugMessages;
-	bool videoDisableRenderOutput;
-	bool videoEnableSpriteBoxing;
-	bool videoHighlightRenderPos;
-	volatile bool videoSingleBuffering;
-	volatile bool videoFixedAspectRatio;
-	volatile bool videoShowStatusBar;
-	volatile bool videoEnableLineSmoothing;
-	volatile bool currentRenderPosOnScreen;
-	volatile unsigned int currentRenderPosScreenX;
-	volatile unsigned int currentRenderPosScreenY;
-	bool videoShowBoundaryActiveImage;
-	bool videoShowBoundaryActionSafe;
-	bool videoShowBoundaryTitleSafe;
-	bool videoEnableFullImageBufferInfo;
+	bool _outputPortAccessDebugMessages;
+	bool _outputTimingDebugMessages;
+	bool _outputRenderSyncMessages;
+	bool _outputInterruptDebugMessages;
+	bool _videoDisableRenderOutput;
+	bool _videoEnableSpriteBoxing;
+	bool _videoHighlightRenderPos;
+	volatile bool _videoSingleBuffering;
+	volatile bool _videoFixedAspectRatio;
+	volatile bool _videoShowStatusBar;
+	volatile bool _videoEnableLineSmoothing;
+	volatile bool _currentRenderPosOnScreen;
+	volatile unsigned int _currentRenderPosScreenX;
+	volatile unsigned int _currentRenderPosScreenY;
+	bool _videoShowBoundaryActiveImage;
+	bool _videoShowBoundaryActionSafe;
+	bool _videoShowBoundaryTitleSafe;
+	bool _videoEnableFullImageBufferInfo;
 
 	//Bus interface
-	IBusInterface* memoryBus;
-	volatile bool busGranted;
-	bool bbusGranted;
-	volatile bool palModeLineState;
-	bool bpalModeLineState;
-	volatile bool resetLineState;
-	bool bresetLineState;
-	volatile unsigned int lineStateIPL;
-	unsigned int blineStateIPL;
-	bool busRequestLineState;
-	bool bbusRequestLineState;
+	IBusInterface* _memoryBus;
+	volatile bool _busGranted;
+	bool _bbusGranted;
+	volatile bool _palModeLineState;
+	bool _bpalModeLineState;
+	volatile bool _resetLineState;
+	bool _bresetLineState;
+	volatile unsigned int _lineStateIPL;
+	unsigned int _blineStateIPL;
+	bool _busRequestLineState;
+	bool _bbusRequestLineState;
 
 	//Embedded PSG device
-	IDevice* psg;
+	IDevice* _psg;
 
 	//Clock sources
-	IClockSource* clockSourceCLK0;
-	IClockSource* clockSourceCLK1;
-	double clockMclkCurrent;
-	double bclockMclkCurrent;
+	IClockSource* _clockSourceCLK0;
+	IClockSource* _clockSourceCLK1;
+	double _clockMclkCurrent;
+	double _bclockMclkCurrent;
 
 	//Layer removal settings
-	bool enableLayerAHigh;
-	bool enableLayerALow;
-	bool enableLayerBHigh;
-	bool enableLayerBLow;
-	bool enableWindowHigh;
-	bool enableWindowLow;
-	bool enableSpriteHigh;
-	bool enableSpriteLow;
+	bool _enableLayerAHigh;
+	bool _enableLayerALow;
+	bool _enableLayerBHigh;
+	bool _enableLayerBLow;
+	bool _enableWindowHigh;
+	bool _enableWindowLow;
+	bool _enableSpriteHigh;
+	bool _enableSpriteLow;
 
 	//Port monitor settings
-	mutable std::mutex portMonitorMutex;
-	bool logStatusRegisterRead;
-	bool logDataPortRead;
-	bool logHVCounterRead;
-	bool logControlPortWrite;
-	bool logDataPortWrite;
-	unsigned int portMonitorListSize;
-	unsigned int portMonitorLastModifiedToken;
-	std::list<PortMonitorEntry> portMonitorList;
-	std::list<PortMonitorEntry> bportMonitorList;
+	mutable std::mutex _portMonitorMutex;
+	bool _logStatusRegisterRead;
+	bool _logDataPortRead;
+	bool _logHVCounterRead;
+	bool _logControlPortWrite;
+	bool _logDataPortWrite;
+	unsigned int _portMonitorListSize;
+	unsigned int _portMonitorLastModifiedToken;
+	std::list<PortMonitorEntry> _portMonitorList;
+	std::list<PortMonitorEntry> _bportMonitorList;
 
 	//Physical registers and memory buffers
-	mutable std::mutex accessMutex; //Top-level, protects against concurrent interface access.
-	mutable std::mutex lineMutex; //Top level, must never be held during a blocking operation
-	double lastAccessTime;
-	RegBuffer reg;
-	ITimedBufferInt* vram;
-	ITimedBufferInt* cram;
-	ITimedBufferInt* vsram;
-	ITimedBufferInt* spriteCache;
-	ReadWriteLock externalReferenceLock;
-	Data status;
-	Data bstatus;
-	Data hcounter;
-	Data bhcounter;
-	Data vcounter;
-	Data bvcounter;
-	Data hcounterLatchedData;
-	Data bhcounterLatchedData;
-	Data vcounterLatchedData;
-	Data bvcounterLatchedData;
-	unsigned int hintCounter;
-	unsigned int bhintCounter;
-	bool vintPending;
-	bool bvintPending;
-	bool hintPending;
-	bool bhintPending;
-	bool exintPending;
-	bool bexintPending;
+	mutable std::mutex _accessMutex; //Top-level, protects against concurrent interface access.
+	mutable std::mutex _lineMutex; //Top level, must never be held during a blocking operation
+	double _lastAccessTime;
+	RegBuffer _reg;
+	ITimedBufferInt* _vram;
+	ITimedBufferInt* _cram;
+	ITimedBufferInt* _vsram;
+	ITimedBufferInt* _spriteCache;
+	ReadWriteLock _externalReferenceLock;
+	Data _status;
+	Data _bstatus;
+	Data _hcounter;
+	Data _bhcounter;
+	Data _vcounter;
+	Data _bvcounter;
+	Data _hcounterLatchedData;
+	Data _bhcounterLatchedData;
+	Data _vcounterLatchedData;
+	Data _bvcounterLatchedData;
+	unsigned int _hintCounter;
+	unsigned int _bhintCounter;
+	bool _vintPending;
+	bool _bvintPending;
+	bool _hintPending;
+	bool _bhintPending;
+	bool _exintPending;
+	bool _bexintPending;
 
 	//Register locking
-	mutable std::mutex registerLockMutex;
-	bool rawRegisterLocking[registerCount];
-	std::map<unsigned int, std::wstring> lockedRegisterState;
+	mutable std::mutex _registerLockMutex;
+	bool _rawRegisterLocking[RegisterCount];
+	std::map<unsigned int, std::wstring> _lockedRegisterState;
 
 	//Active register settings
-	bool interlaceEnabled;
-	bool binterlaceEnabled;
-	bool interlaceDouble;
-	bool binterlaceDouble;
-	bool screenModeRS0;
-	bool bscreenModeRS0;
-	bool screenModeRS1;
-	bool bscreenModeRS1;
-	bool screenModeV30;
-	bool bscreenModeV30;
-	bool palMode;
-	bool bpalMode;
+	bool _interlaceEnabled;
+	bool _binterlaceEnabled;
+	bool _interlaceDouble;
+	bool _binterlaceDouble;
+	bool _screenModeRS0;
+	bool _bscreenModeRS0;
+	bool _screenModeRS1;
+	bool _bscreenModeRS1;
+	bool _screenModeV30;
+	bool _bscreenModeV30;
+	bool _palMode;
+	bool _bpalMode;
 
 	//Cached register settings
-	bool hvCounterLatchEnabled;
-	bool bhvCounterLatchEnabled;
-	bool vintEnabled;
-	bool bvintEnabled;
-	bool hintEnabled;
-	bool bhintEnabled;
-	bool exintEnabled;
-	bool bexintEnabled;
-	unsigned int hintCounterReloadValue;
-	unsigned int bhintCounterReloadValue;
-	bool dmaEnabled;
-	bool bdmaEnabled;
-	bool dmd0;
-	bool bdmd0;
-	bool dmd1;
-	bool bdmd1;
-	unsigned int dmaLengthCounter;
-	unsigned int bdmaLengthCounter;
-	unsigned int dmaSourceAddressByte1;
-	unsigned int bdmaSourceAddressByte1;
-	unsigned int dmaSourceAddressByte2;
-	unsigned int bdmaSourceAddressByte2;
-	unsigned int dmaSourceAddressByte3;
-	unsigned int bdmaSourceAddressByte3;
-	unsigned int autoIncrementData;
-	unsigned int bautoIncrementData;
-	bool interlaceEnabledCached;
-	bool binterlaceEnabledCached;
-	bool interlaceDoubleCached;
-	bool binterlaceDoubleCached;
-	bool screenModeRS0Cached;
-	bool bscreenModeRS0Cached;
-	bool screenModeRS1Cached;
-	bool bscreenModeRS1Cached;
-	bool screenModeV30Cached;
-	bool bscreenModeV30Cached;
-	bool screenModeM5Cached;
-	bool bscreenModeM5Cached;
-	bool displayEnabledCached;
-	bool bdisplayEnabledCached;
-	unsigned int spriteAttributeTableBaseAddressDecoded;
-	unsigned int bspriteAttributeTableBaseAddressDecoded;
-	bool verticalScrollModeCached;
-	bool bverticalScrollModeCached;
-	bool cachedDMASettingsChanged;
+	bool _hvCounterLatchEnabled;
+	bool _bhvCounterLatchEnabled;
+	bool _vintEnabled;
+	bool _bvintEnabled;
+	bool _hintEnabled;
+	bool _bhintEnabled;
+	bool _exintEnabled;
+	bool _bexintEnabled;
+	unsigned int _hintCounterReloadValue;
+	unsigned int _bhintCounterReloadValue;
+	bool _dmaEnabled;
+	bool _bdmaEnabled;
+	bool _dmd0;
+	bool _bdmd0;
+	bool _dmd1;
+	bool _bdmd1;
+	unsigned int _dmaLengthCounter;
+	unsigned int _bdmaLengthCounter;
+	unsigned int _dmaSourceAddressByte1;
+	unsigned int _bdmaSourceAddressByte1;
+	unsigned int _dmaSourceAddressByte2;
+	unsigned int _bdmaSourceAddressByte2;
+	unsigned int _dmaSourceAddressByte3;
+	unsigned int _bdmaSourceAddressByte3;
+	unsigned int _autoIncrementData;
+	unsigned int _bautoIncrementData;
+	bool _interlaceEnabledCached;
+	bool _binterlaceEnabledCached;
+	bool _interlaceDoubleCached;
+	bool _binterlaceDoubleCached;
+	bool _screenModeRS0Cached;
+	bool _bscreenModeRS0Cached;
+	bool _screenModeRS1Cached;
+	bool _bscreenModeRS1Cached;
+	bool _screenModeV30Cached;
+	bool _bscreenModeV30Cached;
+	bool _screenModeM5Cached;
+	bool _bscreenModeM5Cached;
+	bool _displayEnabledCached;
+	bool _bdisplayEnabledCached;
+	unsigned int _spriteAttributeTableBaseAddressDecoded;
+	unsigned int _bspriteAttributeTableBaseAddressDecoded;
+	bool _verticalScrollModeCached;
+	bool _bverticalScrollModeCached;
+	bool _cachedDMASettingsChanged;
 
 	//FIFO buffer registers
-	unsigned int fifoNextReadEntry;
-	unsigned int bfifoNextReadEntry;
-	unsigned int fifoNextWriteEntry;
-	unsigned int bfifoNextWriteEntry;
-	std::vector<FIFOBufferEntry> fifoBuffer;
-	std::vector<FIFOBufferEntry> bfifoBuffer;
-	Data readBuffer;
-	Data breadBuffer;
-	bool readDataAvailable;
-	bool breadDataAvailable;
-	bool readDataHalfCached;
-	bool breadDataHalfCached;
-	bool dmaFillOperationRunning;
-	bool bdmaFillOperationRunning;
-	unsigned int vsramReadCacheIndex;
-	unsigned int bvsramReadCacheIndex;
-	Data vsramLastRenderReadCache;
-	Data bvsramLastRenderReadCache;
+	unsigned int _fifoNextReadEntry;
+	unsigned int _bfifoNextReadEntry;
+	unsigned int _fifoNextWriteEntry;
+	unsigned int _bfifoNextWriteEntry;
+	std::vector<FIFOBufferEntry> _fifoBuffer;
+	std::vector<FIFOBufferEntry> _bfifoBuffer;
+	Data _readBuffer;
+	Data _breadBuffer;
+	bool _readDataAvailable;
+	bool _breadDataAvailable;
+	bool _readDataHalfCached;
+	bool _breadDataHalfCached;
+	bool _dmaFillOperationRunning;
+	bool _bdmaFillOperationRunning;
+	Data _vsramLastRenderReadCache;
+	Data _bvsramLastRenderReadCache;
 
 	//Update state
-	double currentTimesliceLength; //The length of the current timeslice, as passed to NotifyUpcomingTimeslice().
-	double bcurrentTimesliceLength;
-	double lastTimesliceMclkCyclesRemainingTime; //The unused portion of the last timeslice which wasn't be consumed by an mclk cycle. Note that this does NOT factor in time we ran over the last timeslice, as specified in lastTimesliceMclkCyclesOverrun.
-	double blastTimesliceMclkCyclesRemainingTime;
-	double currentTimesliceMclkCyclesRemainingTime; //Rolling value, the unused portion of the current timeslice which can't be consumed by an mclk cycle, as predicted during NotifyUpcomingTimeslice().
-	double bcurrentTimesliceMclkCyclesRemainingTime;
-	unsigned int currentTimesliceTotalMclkCycles; //The total number of mclk cycles added by the current timeslice, taking into account free from the last timeslice as included in the currentTimesliceMclkCyclesRemainingTime value. Note that this does NOT factor in time we ran over the last timeslice, as specified in lastTimesliceMclkCyclesOverrun.
-	unsigned int lastTimesliceMclkCyclesOverrun; //The total number of mclk cycles we advanced past the end of the last timeslice
-	unsigned int blastTimesliceMclkCyclesOverrun;
-	double stateLastUpdateTime;
-	double bstateLastUpdateTime;
-	unsigned int stateLastUpdateMclk;
-	unsigned int bstateLastUpdateMclk;
-	unsigned int stateLastUpdateMclkUnused;
-	unsigned int bstateLastUpdateMclkUnused;
-	unsigned int stateLastUpdateMclkUnusedFromLastTimeslice;
-	unsigned int bstateLastUpdateMclkUnusedFromLastTimeslice;
+	double _currentTimesliceLength; //The length of the current timeslice, as passed to NotifyUpcomingTimeslice().
+	double _bcurrentTimesliceLength;
+	double _lastTimesliceMclkCyclesRemainingTime; //The unused portion of the last timeslice which wasn't be consumed by an mclk cycle. Note that this does NOT factor in time we ran over the last timeslice, as specified in lastTimesliceMclkCyclesOverrun.
+	double _blastTimesliceMclkCyclesRemainingTime;
+	double _currentTimesliceMclkCyclesRemainingTime; //Rolling value, the unused portion of the current timeslice which can't be consumed by an mclk cycle, as predicted during NotifyUpcomingTimeslice().
+	double _bcurrentTimesliceMclkCyclesRemainingTime;
+	unsigned int _currentTimesliceTotalMclkCycles; //The total number of mclk cycles added by the current timeslice, taking into account free from the last timeslice as included in the currentTimesliceMclkCyclesRemainingTime value. Note that this does NOT factor in time we ran over the last timeslice, as specified in lastTimesliceMclkCyclesOverrun.
+	unsigned int _lastTimesliceMclkCyclesOverrun; //The total number of mclk cycles we advanced past the end of the last timeslice
+	unsigned int _blastTimesliceMclkCyclesOverrun;
+	double _stateLastUpdateTime;
+	double _bstateLastUpdateTime;
+	unsigned int _stateLastUpdateMclk;
+	unsigned int _bstateLastUpdateMclk;
+	unsigned int _stateLastUpdateMclkUnused;
+	unsigned int _bstateLastUpdateMclkUnused;
+	unsigned int _stateLastUpdateMclkUnusedFromLastTimeslice;
+	unsigned int _bstateLastUpdateMclkUnusedFromLastTimeslice;
 
 	//Interrupt line rollback data
-	bool lineStateChangePendingVINT;
-	bool blineStateChangePendingVINT;
-	unsigned int lineStateChangeVINTMClkCountFromCurrent;
-	unsigned int blineStateChangeVINTMClkCountFromCurrent;
-	double lineStateChangeVINTTime;
-	double blineStateChangeVINTTime;
-	bool lineStateChangePendingHINT;
-	bool blineStateChangePendingHINT;
-	unsigned int lineStateChangeHINTMClkCountFromCurrent;
-	unsigned int blineStateChangeHINTMClkCountFromCurrent;
-	double lineStateChangeHINTTime;
-	double blineStateChangeHINTTime;
-	bool lineStateChangePendingEXINT;
-	bool blineStateChangePendingEXINT;
-	unsigned int lineStateChangeEXINTMClkCountFromCurrent;
-	unsigned int blineStateChangeEXINTMClkCountFromCurrent;
-	double lineStateChangeEXINTTime;
-	double blineStateChangeEXINTTime;
-	bool lineStateChangePendingINTAsserted;
-	bool blineStateChangePendingINTAsserted;
-	unsigned int lineStateChangeINTAssertedMClkCountFromCurrent;
-	unsigned int blineStateChangeINTAssertedMClkCountFromCurrent;
-	double lineStateChangeINTAssertedTime;
-	double blineStateChangeINTAssertedTime;
-	bool lineStateChangePendingINTNegated;
-	bool blineStateChangePendingINTNegated;
-	unsigned int lineStateChangeINTNegatedMClkCountFromCurrent;
-	unsigned int blineStateChangeINTNegatedMClkCountFromCurrent;
-	double lineStateChangeINTNegatedTime;
-	double blineStateChangeINTNegatedTime;
+	bool _lineStateChangePendingVINT;
+	bool _blineStateChangePendingVINT;
+	unsigned int _lineStateChangeVINTMClkCountFromCurrent;
+	unsigned int _blineStateChangeVINTMClkCountFromCurrent;
+	double _lineStateChangeVINTTime;
+	double _blineStateChangeVINTTime;
+	bool _lineStateChangePendingHINT;
+	bool _blineStateChangePendingHINT;
+	unsigned int _lineStateChangeHINTMClkCountFromCurrent;
+	unsigned int _blineStateChangeHINTMClkCountFromCurrent;
+	double _lineStateChangeHINTTime;
+	double _blineStateChangeHINTTime;
+	bool _lineStateChangePendingEXINT;
+	bool _blineStateChangePendingEXINT;
+	unsigned int _lineStateChangeEXINTMClkCountFromCurrent;
+	unsigned int _blineStateChangeEXINTMClkCountFromCurrent;
+	double _lineStateChangeEXINTTime;
+	double _blineStateChangeEXINTTime;
+	bool _lineStateChangePendingINTAsserted;
+	bool _blineStateChangePendingINTAsserted;
+	unsigned int _lineStateChangeINTAssertedMClkCountFromCurrent;
+	unsigned int _blineStateChangeINTAssertedMClkCountFromCurrent;
+	double _lineStateChangeINTAssertedTime;
+	double _blineStateChangeINTAssertedTime;
+	bool _lineStateChangePendingINTNegated;
+	bool _blineStateChangePendingINTNegated;
+	unsigned int _lineStateChangeINTNegatedMClkCountFromCurrent;
+	unsigned int _blineStateChangeINTNegatedMClkCountFromCurrent;
+	double _lineStateChangeINTNegatedTime;
+	double _blineStateChangeINTNegatedTime;
 
 	//Control port registers
-	bool codeAndAddressRegistersModifiedSinceLastWrite;
-	bool bcodeAndAddressRegistersModifiedSinceLastWrite;
-	bool commandWritePending;
-	bool bcommandWritePending;
-	Data originalCommandAddress;
-	Data boriginalCommandAddress;
-	Data commandAddress;
-	Data bcommandAddress;
-	Data commandCode;
-	Data bcommandCode;
+	bool _codeAndAddressRegistersModifiedSinceLastWrite;
+	bool _bcodeAndAddressRegistersModifiedSinceLastWrite;
+	bool _commandWritePending;
+	bool _bcommandWritePending;
+	Data _originalCommandAddress;
+	Data _boriginalCommandAddress;
+	Data _commandAddress;
+	Data _bcommandAddress;
+	Data _commandCode;
+	Data _bcommandCode;
 
 	//Render thread properties
-	mutable std::mutex renderThreadMutex; //Top level, timesliceMutex child
-	mutable std::mutex timesliceMutex; //Child of renderThreadMutex
-	std::condition_variable renderThreadUpdate;
-	std::condition_variable renderThreadStopped;
-	bool renderThreadActive;
-	bool pendingRenderOperation;
-	bool renderTimeslicePending;
-	RegBuffer::Timeslice regTimeslice;
-	ITimedBufferInt::Timeslice* vramTimeslice;
-	ITimedBufferInt::Timeslice* cramTimeslice;
-	ITimedBufferInt::Timeslice* vsramTimeslice;
-	ITimedBufferInt::Timeslice* spriteCacheTimeslice;
-	double remainingRenderTime;
-	RegBuffer::Timeslice regTimesliceCopy;
-	ITimedBufferInt::Timeslice* vramTimesliceCopy;
-	ITimedBufferInt::Timeslice* cramTimesliceCopy;
-	ITimedBufferInt::Timeslice* vsramTimesliceCopy;
-	ITimedBufferInt::Timeslice* spriteCacheTimesliceCopy;
-	RegBuffer::AdvanceSession regSession;
-	ITimedBufferInt::AdvanceSession vramSession;
-	ITimedBufferInt::AdvanceSession cramSession;
-	ITimedBufferInt::AdvanceSession vsramSession;
-	ITimedBufferInt::AdvanceSession spriteCacheSession;
-	unsigned int mclkCycleRenderProgress;
+	mutable std::mutex _renderThreadMutex; //Top level, timesliceMutex child
+	mutable std::mutex _timesliceMutex; //Child of renderThreadMutex
+	std::condition_variable _renderThreadUpdate;
+	std::condition_variable _renderThreadStopped;
+	bool _renderThreadActive;
+	RegBuffer::Timeslice _regTimesliceCopy;
+	ITimedBufferInt::Timeslice* _vramTimesliceCopy;
+	ITimedBufferInt::Timeslice* _cramTimesliceCopy;
+	ITimedBufferInt::Timeslice* _vsramTimesliceCopy;
+	ITimedBufferInt::Timeslice* _spriteCacheTimesliceCopy;
+	RegBuffer::AdvanceSession _regSession;
+	ITimedBufferInt::AdvanceSession _vramSession;
+	ITimedBufferInt::AdvanceSession _cramSession;
+	ITimedBufferInt::AdvanceSession _vsramSession;
+	ITimedBufferInt::AdvanceSession _spriteCacheSession;
 	static const unsigned int layerPriorityLookupTableSize = 0x200;
-	std::vector<unsigned int> layerPriorityLookupTable;
+	std::vector<unsigned int> _layerPriorityLookupTable;
 
 	static const unsigned int maxPendingRenderOperationCount = 4;
-	volatile bool renderThreadLagging;
-	std::condition_variable renderThreadLaggingStateChange;
-	unsigned int pendingRenderOperationCount;
-	std::list<TimesliceRenderInfo> timesliceRenderInfoList;
-	std::list<RegBuffer::Timeslice> regTimesliceList;
-	std::list<ITimedBufferInt::Timeslice*> vramTimesliceList;
-	std::list<ITimedBufferInt::Timeslice*> cramTimesliceList;
-	std::list<ITimedBufferInt::Timeslice*> vsramTimesliceList;
-	std::list<ITimedBufferInt::Timeslice*> spriteCacheTimesliceList;
-	std::list<TimesliceRenderInfo> timesliceRenderInfoListUncommitted;
-	std::list<RegBuffer::Timeslice> regTimesliceListUncommitted;
-	std::list<ITimedBufferInt::Timeslice*> vramTimesliceListUncommitted;
-	std::list<ITimedBufferInt::Timeslice*> cramTimesliceListUncommitted;
-	std::list<ITimedBufferInt::Timeslice*> vsramTimesliceListUncommitted;
-	std::list<ITimedBufferInt::Timeslice*> spriteCacheTimesliceListUncommitted;
+	volatile bool _renderThreadLagging;
+	std::condition_variable _renderThreadLaggingStateChange;
+	unsigned int _pendingRenderOperationCount;
+	std::list<TimesliceRenderInfo> _timesliceRenderInfoList;
+	std::list<RegBuffer::Timeslice> _regTimesliceList;
+	std::list<ITimedBufferInt::Timeslice*> _vramTimesliceList;
+	std::list<ITimedBufferInt::Timeslice*> _cramTimesliceList;
+	std::list<ITimedBufferInt::Timeslice*> _vsramTimesliceList;
+	std::list<ITimedBufferInt::Timeslice*> _spriteCacheTimesliceList;
+	std::list<TimesliceRenderInfo> _timesliceRenderInfoListUncommitted;
+	std::list<RegBuffer::Timeslice> _regTimesliceListUncommitted;
+	std::list<ITimedBufferInt::Timeslice*> _vramTimesliceListUncommitted;
+	std::list<ITimedBufferInt::Timeslice*> _cramTimesliceListUncommitted;
+	std::list<ITimedBufferInt::Timeslice*> _vsramTimesliceListUncommitted;
+	std::list<ITimedBufferInt::Timeslice*> _spriteCacheTimesliceListUncommitted;
 
 	//Digital render data buffers
 	//##TODO## Separate the analog and digital renderers into their own classes. Our
@@ -838,138 +827,137 @@ private:
 	static const unsigned int maxSpriteDisplayCellCacheSize = 40;
 	static const unsigned int spritePixelBufferSize = maxCellsPerRow*8;
 	static const unsigned int renderSpritePixelBufferPlaneCount = 2;
-	unsigned int renderDigitalHCounterPos;
-	unsigned int renderDigitalVCounterPos;
-	unsigned int renderDigitalVCounterPosPreviousLine;
-	unsigned int renderDigitalRemainingMclkCycles;
-	bool renderDigitalScreenModeRS0Active;
-	bool renderDigitalScreenModeRS1Active;
-	bool renderDigitalScreenModeV30Active;
-	bool renderDigitalInterlaceEnabledActive;
-	bool renderDigitalInterlaceDoubleActive;
-	bool renderDigitalPalModeActive;
-	bool renderDigitalOddFlagSet;
-	unsigned int renderDigitalMclkCycleProgress; //No backup needed
-	unsigned int renderLayerAHscrollPatternDisplacement;
-	unsigned int renderLayerBHscrollPatternDisplacement;
-	unsigned int renderLayerAHscrollMappingDisplacement;
-	unsigned int renderLayerBHscrollMappingDisplacement;
-	unsigned int renderLayerAVscrollPatternDisplacement;
-	unsigned int renderLayerBVscrollPatternDisplacement;
-	unsigned int renderLayerAVscrollMappingDisplacement;
-	unsigned int renderLayerBVscrollMappingDisplacement;
-	std::vector<bool> renderWindowActiveCache;
-	std::vector<Data> renderMappingDataCacheLayerA;
-	std::vector<Data> renderMappingDataCacheLayerB;
-	std::vector<unsigned int> renderMappingDataCacheSourceAddressLayerA;
-	std::vector<unsigned int> renderMappingDataCacheSourceAddressLayerB;
-	std::vector<Data> renderPatternDataCacheLayerA;
-	std::vector<Data> renderPatternDataCacheLayerB;
-	std::vector<unsigned int> renderPatternDataCacheRowNoLayerA;
-	std::vector<unsigned int> renderPatternDataCacheRowNoLayerB;
-	std::vector<SpriteDisplayCacheEntry> renderSpriteDisplayCache;
-	unsigned int renderSpriteDisplayCacheEntryCount;
-	unsigned int renderSpriteDisplayCacheCurrentIndex;
-	bool renderSpriteSearchComplete;
-	bool renderSpriteOverflow;
-	unsigned int renderSpriteNextAttributeTableEntryToRead;
-	std::vector<SpriteCellDisplayCacheEntry> renderSpriteDisplayCellCache;
-	unsigned int renderSpriteDisplayCellCacheEntryCount;
-	unsigned int renderSpriteDisplayCellCacheCurrentIndex;
-	bool renderSpriteDotOverflow;
-	bool renderSpriteDotOverflowPreviousLine;
-	unsigned int renderSpritePixelBufferDigitalRenderPlane;
-	unsigned int renderSpritePixelBufferAnalogRenderPlane;
-	std::vector<SpritePixelBufferEntry> spritePixelBuffer[renderSpritePixelBufferPlaneCount];
-	bool nonSpriteMaskCellEncountered;
-	bool renderSpriteMaskActive;
-	bool renderSpriteCollision;
-	Data renderVSRAMCachedRead;
+	unsigned int _renderDigitalHCounterPos;
+	unsigned int _renderDigitalVCounterPos;
+	unsigned int _renderDigitalVCounterPosPreviousLine;
+	unsigned int _renderDigitalRemainingMclkCycles;
+	bool _renderDigitalScreenModeRS0Active;
+	bool _renderDigitalScreenModeRS1Active;
+	bool _renderDigitalScreenModeV30Active;
+	bool _renderDigitalInterlaceEnabledActive;
+	bool _renderDigitalInterlaceDoubleActive;
+	bool _renderDigitalPalModeActive;
+	bool _renderDigitalOddFlagSet;
+	unsigned int _renderDigitalMclkCycleProgress; //No backup needed
+	unsigned int _renderLayerAHscrollPatternDisplacement;
+	unsigned int _renderLayerBHscrollPatternDisplacement;
+	unsigned int _renderLayerAHscrollMappingDisplacement;
+	unsigned int _renderLayerBHscrollMappingDisplacement;
+	unsigned int _renderLayerAVscrollPatternDisplacement;
+	unsigned int _renderLayerBVscrollPatternDisplacement;
+	unsigned int _renderLayerAVscrollMappingDisplacement;
+	unsigned int _renderLayerBVscrollMappingDisplacement;
+	std::vector<bool> _renderWindowActiveCache;
+	std::vector<Data> _renderMappingDataCacheLayerA;
+	std::vector<Data> _renderMappingDataCacheLayerB;
+	std::vector<unsigned int> _renderMappingDataCacheSourceAddressLayerA;
+	std::vector<unsigned int> _renderMappingDataCacheSourceAddressLayerB;
+	std::vector<Data> _renderPatternDataCacheLayerA;
+	std::vector<Data> _renderPatternDataCacheLayerB;
+	std::vector<unsigned int> _renderPatternDataCacheRowNoLayerA;
+	std::vector<unsigned int> _renderPatternDataCacheRowNoLayerB;
+	std::vector<SpriteDisplayCacheEntry> _renderSpriteDisplayCache;
+	unsigned int _renderSpriteDisplayCacheEntryCount;
+	unsigned int _renderSpriteDisplayCacheCurrentIndex;
+	bool _renderSpriteSearchComplete;
+	bool _renderSpriteOverflow;
+	unsigned int _renderSpriteNextAttributeTableEntryToRead;
+	std::vector<SpriteCellDisplayCacheEntry> _renderSpriteDisplayCellCache;
+	unsigned int _renderSpriteDisplayCellCacheEntryCount;
+	unsigned int _renderSpriteDisplayCellCacheCurrentIndex;
+	bool _renderSpriteDotOverflow;
+	bool _renderSpriteDotOverflowPreviousLine;
+	unsigned int _renderSpritePixelBufferDigitalRenderPlane;
+	unsigned int _renderSpritePixelBufferAnalogRenderPlane;
+	std::vector<SpritePixelBufferEntry> _spritePixelBuffer[renderSpritePixelBufferPlaneCount];
+	bool _nonSpriteMaskCellEncountered;
+	bool _renderSpriteMaskActive;
+	bool _renderSpriteCollision;
+	Data _renderVSRAMCachedRead;
 
 	//Analog render data buffers
-	mutable std::mutex imageBufferMutex;
-	unsigned int drawingImageBufferPlane;
-	volatile unsigned int lastRenderedFrameToken;
-	mutable ReadWriteLock imageBufferLock[imageBufferPlanes];
-	unsigned char imageBuffer[imageBufferPlanes][imageBufferHeight * imageBufferWidth * 4];
-	ImageBufferInfo imageBufferInfo[imageBufferPlanes][imageBufferHeight * imageBufferWidth];
-	bool imageBufferOddInterlaceFrame[imageBufferPlanes];
-	unsigned int imageBufferLineCount[imageBufferPlanes];
-	unsigned int imageBufferLineWidth[imageBufferPlanes][imageBufferHeight];
-	unsigned int imageBufferActiveScanPosXStart[imageBufferPlanes][imageBufferHeight];
-	unsigned int imageBufferActiveScanPosXEnd[imageBufferPlanes][imageBufferHeight];
-	unsigned int imageBufferActiveScanPosYStart[imageBufferPlanes];
-	unsigned int imageBufferActiveScanPosYEnd[imageBufferPlanes];
-	mutable std::mutex spriteBoundaryMutex[imageBufferPlanes];
-	mutable std::list<SpriteBoundaryLineEntry> imageBufferSpriteBoundaryLines[imageBufferPlanes];
+	unsigned int _drawingImageBufferPlane;
+	volatile unsigned int _lastRenderedFrameToken;
+	mutable ReadWriteLock _imageBufferLock[ImageBufferPlanes];
+	unsigned char _imageBuffer[ImageBufferPlanes][ImageBufferHeight * ImageBufferWidth * 4];
+	ImageBufferInfo _imageBufferInfo[ImageBufferPlanes][ImageBufferHeight * ImageBufferWidth];
+	bool _imageBufferOddInterlaceFrame[ImageBufferPlanes];
+	unsigned int _imageBufferLineCount[ImageBufferPlanes];
+	unsigned int _imageBufferLineWidth[ImageBufferPlanes][ImageBufferHeight];
+	unsigned int _imageBufferActiveScanPosXStart[ImageBufferPlanes][ImageBufferHeight];
+	unsigned int _imageBufferActiveScanPosXEnd[ImageBufferPlanes][ImageBufferHeight];
+	unsigned int _imageBufferActiveScanPosYStart[ImageBufferPlanes];
+	unsigned int _imageBufferActiveScanPosYEnd[ImageBufferPlanes];
+	mutable std::mutex _spriteBoundaryMutex[ImageBufferPlanes];
+	mutable std::list<SpriteBoundaryLineEntry> _imageBufferSpriteBoundaryLines[ImageBufferPlanes];
 
 	//DMA worker thread properties
-	mutable std::mutex workerThreadMutex; //Top-level, required in order to interact with state affecting DMA worker thread.
-	std::condition_variable workerThreadUpdate;
-	std::condition_variable workerThreadStopped;
-	std::condition_variable workerThreadIdle;
-	bool workerThreadActive;
-	bool workerThreadPaused;
-	bool bworkerThreadPaused;
+	mutable std::mutex _workerThreadMutex; //Top-level, required in order to interact with state affecting DMA worker thread.
+	std::condition_variable _workerThreadUpdate;
+	std::condition_variable _workerThreadStopped;
+	std::condition_variable _workerThreadIdle;
+	bool _workerThreadActive;
+	bool _workerThreadPaused;
+	bool _bworkerThreadPaused;
 
 	//DMA transfer registers
 	//##FIX## Everything related to DMA transfers should be done in SC cycles, not MCLK
 	//cycles.
 	static const unsigned int dmaTransferReadTimeInMclkCycles = 16; //The number of mclk cycles required for a DMA operation to read a byte from the external bus
-	bool dmaTransferActive;
-	bool bdmaTransferActive;
-	bool dmaTransferReadDataCached;
-	bool bdmaTransferReadDataCached;
-	Data dmaTransferReadCache;
-	Data bdmaTransferReadCache;
-	unsigned int dmaTransferNextReadMclk;
-	unsigned int bdmaTransferNextReadMclk;
-	unsigned int dmaTransferLastTimesliceUsedReadDelay;
-	unsigned int bdmaTransferLastTimesliceUsedReadDelay;
-	bool dmaTransferInvalidPortWriteCached;
-	bool bdmaTransferInvalidPortWriteCached;
-	unsigned int dmaTransferInvalidPortWriteAddressCache;
-	unsigned int bdmaTransferInvalidPortWriteAddressCache;
-	Data dmaTransferInvalidPortWriteDataCache;
-	Data bdmaTransferInvalidPortWriteDataCache;
-	volatile bool dmaAdvanceUntilDMAComplete;
+	bool _dmaTransferActive;
+	bool _bdmaTransferActive;
+	bool _dmaTransferReadDataCached;
+	bool _bdmaTransferReadDataCached;
+	Data _dmaTransferReadCache;
+	Data _bdmaTransferReadCache;
+	unsigned int _dmaTransferNextReadMclk;
+	unsigned int _bdmaTransferNextReadMclk;
+	unsigned int _dmaTransferLastTimesliceUsedReadDelay;
+	unsigned int _bdmaTransferLastTimesliceUsedReadDelay;
+	bool _dmaTransferInvalidPortWriteCached;
+	bool _bdmaTransferInvalidPortWriteCached;
+	unsigned int _dmaTransferInvalidPortWriteAddressCache;
+	unsigned int _bdmaTransferInvalidPortWriteAddressCache;
+	Data _dmaTransferInvalidPortWriteDataCache;
+	Data _bdmaTransferInvalidPortWriteDataCache;
+	volatile bool _dmaAdvanceUntilDMAComplete;
 
 	//External interrupt settings
-	bool externalInterruptVideoTriggerPointPending;
-	bool bexternalInterruptVideoTriggerPointPending;
-	unsigned int externalInterruptVideoTriggerPointHCounter;
-	unsigned int bexternalInterruptVideoTriggerPointHCounter;
-	unsigned int externalInterruptVideoTriggerPointVCounter;
-	unsigned int bexternalInterruptVideoTriggerPointVCounter;
+	bool _externalInterruptVideoTriggerPointPending;
+	bool _bexternalInterruptVideoTriggerPointPending;
+	unsigned int _externalInterruptVideoTriggerPointHCounter;
+	unsigned int _bexternalInterruptVideoTriggerPointHCounter;
+	unsigned int _externalInterruptVideoTriggerPointVCounter;
+	unsigned int _bexternalInterruptVideoTriggerPointVCounter;
 
 	//CE line masks
-	unsigned int ceLineMaskLowerDataStrobeInput;
-	unsigned int ceLineMaskUpperDataStrobeInput;
-	unsigned int ceLineMaskReadHighWriteLowInput;
-	unsigned int ceLineMaskAddressStrobeInput;
-	unsigned int ceLineMaskLowerDataStrobeOutput;
-	unsigned int ceLineMaskUpperDataStrobeOutput;
-	unsigned int ceLineMaskReadHighWriteLowOutput;
-	unsigned int ceLineMaskAddressStrobeOutput;
-	unsigned int ceLineMaskRMWCycleInProgress;
-	unsigned int ceLineMaskRMWCycleFirstOperation;
-	unsigned int ceLineMaskLWR;
-	unsigned int ceLineMaskUWR;
-	unsigned int ceLineMaskCAS0;
-	unsigned int ceLineMaskRAS0;
-	unsigned int ceLineMaskOE0;
+	unsigned int _ceLineMaskLowerDataStrobeInput;
+	unsigned int _ceLineMaskUpperDataStrobeInput;
+	unsigned int _ceLineMaskReadHighWriteLowInput;
+	unsigned int _ceLineMaskAddressStrobeInput;
+	unsigned int _ceLineMaskLowerDataStrobeOutput;
+	unsigned int _ceLineMaskUpperDataStrobeOutput;
+	unsigned int _ceLineMaskReadHighWriteLowOutput;
+	unsigned int _ceLineMaskAddressStrobeOutput;
+	unsigned int _ceLineMaskRMWCycleInProgress;
+	unsigned int _ceLineMaskRMWCycleFirstOperation;
+	unsigned int _ceLineMaskLWR;
+	unsigned int _ceLineMaskUWR;
+	unsigned int _ceLineMaskCAS0;
+	unsigned int _ceLineMaskRAS0;
+	unsigned int _ceLineMaskOE0;
 
 	//Saved CE line state for Read-Modify-Write cycles
-	mutable bool lineLWRSavedStateRMW;
-	mutable bool lineUWRSavedStateRMW;
-	mutable bool lineCAS0SavedStateRMW;
-	mutable bool lineRAS0SavedStateRMW;
-	mutable bool lineOE0SavedStateRMW;
-	bool blineLWRSavedStateRMW;
-	bool blineUWRSavedStateRMW;
-	bool blineCAS0SavedStateRMW;
-	bool blineRAS0SavedStateRMW;
-	bool blineOE0SavedStateRMW;
+	mutable bool _lineLWRSavedStateRMW;
+	mutable bool _lineUWRSavedStateRMW;
+	mutable bool _lineCAS0SavedStateRMW;
+	mutable bool _lineRAS0SavedStateRMW;
+	mutable bool _lineOE0SavedStateRMW;
+	bool _blineLWRSavedStateRMW;
+	bool _blineUWRSavedStateRMW;
+	bool _blineCAS0SavedStateRMW;
+	bool _blineRAS0SavedStateRMW;
+	bool _blineOE0SavedStateRMW;
 };
 
 #include "S315_5313.inl"

@@ -6,7 +6,7 @@ class ROM32Variable :public ROMBase<unsigned int>
 {
 public:
 	//Constructors
-	ROM32Variable(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
+	ROM32Variable(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 
 	//Memory interface functions
 	virtual IBusInterface::AccessResult ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);

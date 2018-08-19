@@ -5,30 +5,30 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-SN76489::SN76489(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
-:Device(aimplementationName, ainstanceName, amoduleID), reg(channelCount * 2, false, Data(toneRegisterBitCount))
+SN76489::SN76489(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
+:Device(implementationName, instanceName, moduleID), _reg(ChannelCount * 2, false, Data(ToneRegisterBitCount))
 {
 	//Initialize the audio output stream
-	outputSampleRate = 48000;	//44100;
-	outputStream.Open(1, 16, outputSampleRate, outputSampleRate/4, outputSampleRate/20);
+	_outputSampleRate = 48000;	//44100;
+	_outputStream.Open(1, 16, _outputSampleRate, _outputSampleRate/4, _outputSampleRate/20);
 
 	//Initialize the locked register state
-	for(unsigned int i = 0; i < channelCount; ++i)
+	for(unsigned int i = 0; i < ChannelCount; ++i)
 	{
-		channelVolumeRegisterLocked[i] = false;
-		channelDataRegisterLocked[i] = false;
+		_channelVolumeRegisterLocked[i] = false;
+		_channelDataRegisterLocked[i] = false;
 	}
-	noiseChannelTypeLocked = false;
-	noiseChannelPeriodLocked = false;
+	_noiseChannelTypeLocked = false;
+	_noiseChannelPeriodLocked = false;
 
 	//##TODO## Provide a way for these properties to be defined externally, and provide
 	//debug windows which can modify them on the fly.
-	externalClockRate = 0.0;
-	externalClockDivider = 16.0;
-	shiftRegisterBitCount = 16;
-	shiftRegisterDefaultValue = 0x8000;
-	noiseWhiteTappedBitMask = 0x0009;
-	noisePeriodicTappedBitMask = 0x0001;
+	_externalClockRate = 0.0;
+	_externalClockDivider = 16.0;
+	_shiftRegisterBitCount = 16;
+	_shiftRegisterDefaultValue = 0x8000;
+	_noiseWhiteTappedBitMask = 0x0009;
+	_noisePeriodicTappedBitMask = 0x0001;
 }
 
 //----------------------------------------------------------------------------------------
@@ -46,15 +46,15 @@ bool SN76489::BuildDevice()
 {
 	//Initialize the wave logging state
 	std::wstring captureFolder = GetSystemInterface().GetCapturePath();
-	wavLoggingEnabled = false;
+	_wavLoggingEnabled = false;
 	std::wstring wavLoggingFileName = GetDeviceInstanceName() + L".wav";
-	wavLoggingPath = PathCombinePaths(captureFolder, wavLoggingFileName);
-	for(unsigned int channelNo = 0; channelNo < channelCount; ++channelNo)
+	_wavLoggingPath = PathCombinePaths(captureFolder, wavLoggingFileName);
+	for(unsigned int channelNo = 0; channelNo < ChannelCount; ++channelNo)
 	{
-		wavLoggingChannelEnabled[channelNo] = false;
+		_wavLoggingChannelEnabled[channelNo] = false;
 		std::wstringstream wavLoggingChannelFileName;
 		wavLoggingChannelFileName << GetDeviceInstanceName() << L" - C" << channelNo << L".wav";
-		wavLoggingChannelPath[channelNo] = PathCombinePaths(captureFolder, wavLoggingChannelFileName.str());
+		_wavLoggingChannelPath[channelNo] = PathCombinePaths(captureFolder, wavLoggingChannelFileName.str());
 	}
 
 	//Register each data source with the generic data access base class
@@ -65,18 +65,18 @@ bool SN76489::BuildDevice()
 	GenericAccessDataInfo* dataInfoShiftRegisterWhiteNoiseBits;
 	GenericAccessDataInfo* dataInfoShiftRegisterPeriodicNoiseBits;
 	bool result = true;
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::Channel1VolumeRegister, IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue((1<<volumeRegisterBitCount)-1)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::Channel2VolumeRegister, IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue((1<<volumeRegisterBitCount)-1)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::Channel3VolumeRegister, IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue((1<<volumeRegisterBitCount)-1)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::Channel4VolumeRegister, IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue((1<<volumeRegisterBitCount)-1)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::Channel1ToneRegister,   IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue((1<<toneRegisterBitCount  )-1)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::Channel2ToneRegister,   IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue((1<<toneRegisterBitCount  )-1)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::Channel3ToneRegister,   IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue((1<<toneRegisterBitCount  )-1)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::Channel4ToneRegister,   IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue((1<<toneRegisterBitCount  )-1)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::Channel1VolumeRegister, IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue((1<<VolumeRegisterBitCount)-1)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::Channel2VolumeRegister, IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue((1<<VolumeRegisterBitCount)-1)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::Channel3VolumeRegister, IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue((1<<VolumeRegisterBitCount)-1)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::Channel4VolumeRegister, IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue((1<<VolumeRegisterBitCount)-1)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::Channel1ToneRegister,   IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue((1<<ToneRegisterBitCount  )-1)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::Channel2ToneRegister,   IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue((1<<ToneRegisterBitCount  )-1)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::Channel3ToneRegister,   IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue((1<<ToneRegisterBitCount  )-1)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::Channel4ToneRegister,   IGenericAccessDataValue::DataType::UInt))->SetLockingSupported(true)->SetUIntMaxValue((1<<ToneRegisterBitCount  )-1)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
 	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::Channel4NoiseType, IGenericAccessDataValue::DataType::Bool))->SetLockingSupported(true));
 	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::Channel4NoisePeriod, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(3)->SetLockingSupported(true));
 	result &= AddGenericDataInfo(dataInfoShiftRegister = (new GenericAccessDataInfo(ISN76489DataSource::NoiseShiftRegister, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue((1<<GetShiftRegisterBitCount())-1)->SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode::Hexadecimal));
-	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::LatchedChannelNo, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(channelCount-1));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::LatchedChannelNo, IGenericAccessDataValue::DataType::UInt))->SetUIntMaxValue(ChannelCount-1));
 	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::VolumeRegisterLatched, IGenericAccessDataValue::DataType::Bool)));
 	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::ExternalClockRate, IGenericAccessDataValue::DataType::Double))->SetDoubleMinValue(0.0));
 	result &= AddGenericDataInfo((new GenericAccessDataInfo(ISN76489DataSource::ExternalClockDivider, IGenericAccessDataValue::DataType::Double))->SetDoubleMinValue(1.0));
@@ -97,10 +97,10 @@ bool SN76489::BuildDevice()
 
 	//Save references to the data info structures which contain values that need to have
 	//their limits changed when the bitcount for the shift register is changed.
-	genericDataToUpdateOnShiftRegisterBitCountChange.push_back(dataInfoShiftRegister);
-	genericDataToUpdateOnShiftRegisterBitCountChange.push_back(dataInfoShiftRegisterDefaultValue);
-	genericDataToUpdateOnShiftRegisterBitCountChange.push_back(dataInfoShiftRegisterWhiteNoiseBits);
-	genericDataToUpdateOnShiftRegisterBitCountChange.push_back(dataInfoShiftRegisterPeriodicNoiseBits);
+	_genericDataToUpdateOnShiftRegisterBitCountChange.push_back(dataInfoShiftRegister);
+	_genericDataToUpdateOnShiftRegisterBitCountChange.push_back(dataInfoShiftRegisterDefaultValue);
+	_genericDataToUpdateOnShiftRegisterBitCountChange.push_back(dataInfoShiftRegisterWhiteNoiseBits);
+	_genericDataToUpdateOnShiftRegisterBitCountChange.push_back(dataInfoShiftRegisterPeriodicNoiseBits);
 
 	//Register page layouts for generic access to this device
 	//##TODO## Investigate implementing a central resource system using resource key names
@@ -171,61 +171,61 @@ bool SN76489::BuildDevice()
 //----------------------------------------------------------------------------------------
 bool SN76489::ValidateDevice()
 {
-	return (externalClockRate != 0.0);
+	return (_externalClockRate != 0.0);
 }
 
 //----------------------------------------------------------------------------------------
 void SN76489::Initialize()
 {
 	//Initialize the render thread properties
-	remainingRenderTime = 0;
+	_remainingRenderTime = 0;
 
 	//Initialize the render data
-	for(unsigned int i = 0; i < channelCount; ++i)
+	for(unsigned int i = 0; i < ChannelCount; ++i)
 	{
-		channelRenderData[i].polarityNegative = false;
-		channelRenderData[i].remainingToneCycles = 0;
+		_channelRenderData[i].polarityNegative = false;
+		_channelRenderData[i].remainingToneCycles = 0;
 	}
-	noiseShiftRegister = shiftRegisterDefaultValue;
-	noiseOutputMasked = true;
-	outputBuffer.clear();
+	_noiseShiftRegister = _shiftRegisterDefaultValue;
+	_noiseOutputMasked = true;
+	_outputBuffer.clear();
 
 	//Initialize the register block, and set the correct register sizes for each entry.
-	reg.Initialize();
-	for(unsigned int i = 0; i < channelCount; ++i)
+	_reg.Initialize();
+	for(unsigned int i = 0; i < ChannelCount; ++i)
 	{
-		if(i == noiseChannelNo)
+		if(i == NoiseChannelNo)
 		{
-			reg.ReferenceCommitted((i*2) + 0).Resize(volumeRegisterBitCount);
-			reg.ReferenceCommitted((i*2) + 1).Resize(noiseRegisterBitCount);
+			_reg.ReferenceCommitted((i*2) + 0).Resize(VolumeRegisterBitCount);
+			_reg.ReferenceCommitted((i*2) + 1).Resize(NoiseRegisterBitCount);
 		}
 		else
 		{
-			reg.ReferenceCommitted((i*2) + 0).Resize(volumeRegisterBitCount);
-			reg.ReferenceCommitted((i*2) + 1).Resize(toneRegisterBitCount);
+			_reg.ReferenceCommitted((i*2) + 0).Resize(VolumeRegisterBitCount);
+			_reg.ReferenceCommitted((i*2) + 1).Resize(ToneRegisterBitCount);
 		}
 	}
 
 	//According to SN76489.txt by Maxim, SEGA integrated versions of the PSG have the
 	//channels initialized with data all zeros, and volume all ones. This has been
 	//verified through hardware tests.
-	for(unsigned int i = 0; i < channelCount; ++i)
+	for(unsigned int i = 0; i < ChannelCount; ++i)
 	{
-		if(!channelVolumeRegisterLocked[i])
+		if(!_channelVolumeRegisterLocked[i])
 		{
-			SetVolumeRegister(i, Data(volumeRegisterBitCount, ~0u), AccessTarget().AccessLatest());
+			SetVolumeRegister(i, Data(VolumeRegisterBitCount, ~0u), AccessTarget().AccessLatest());
 		}
-		if(!channelDataRegisterLocked[i])
+		if(!_channelDataRegisterLocked[i])
 		{
-			SetToneRegister(i, Data(toneRegisterBitCount, 0), AccessTarget().AccessLatest());
+			SetToneRegister(i, Data(ToneRegisterBitCount, 0), AccessTarget().AccessLatest());
 		}
 	}
 
 	//Note that hardware tests on a Mega Drive have shown that SEGA integrated versions of
 	//the PSG are initialized with the volume register of the second channel latched.
 	//##TODO## Make these power-on defaults configurable through the system XML file
-	latchedChannel = 1;
-	latchedVolume = true;
+	_latchedChannel = 1;
+	_latchedVolume = true;
 }
 
 //----------------------------------------------------------------------------------------
@@ -257,7 +257,7 @@ void SN76489::SetClockSourceRate(unsigned int clockInput, double clockRate, IDev
 	//Apply the input clock rate change
 	if((ClockID)clockInput == ClockID::Clock)
 	{
-		externalClockRate = clockRate;
+		_externalClockRate = clockRate;
 	}
 
 	//Since a clock rate change will affect our timing point calculations, trigger a
@@ -271,7 +271,7 @@ void SN76489::TransparentSetClockSourceRate(unsigned int clockInput, double cloc
 	//Apply the input clock rate change
 	if((ClockID)clockInput == ClockID::Clock)
 	{
-		externalClockRate = clockRate;
+		_externalClockRate = clockRate;
 	}
 }
 
@@ -281,12 +281,12 @@ void SN76489::TransparentSetClockSourceRate(unsigned int clockInput, double cloc
 void SN76489::BeginExecution()
 {
 	//Initialize the worker thread state
-	pendingRenderOperationCount = 0;
-	renderThreadLagging = false;
-	regTimesliceList.clear();
+	_pendingRenderOperationCount = 0;
+	_renderThreadLagging = false;
+	_regTimesliceList.clear();
 
 	//Start the render worker thread
-	renderThreadActive = true;
+	_renderThreadActive = true;
 	std::thread workerThread(std::bind(std::mem_fn(&SN76489::RenderThread), this));
 	workerThread.detach();
 }
@@ -294,14 +294,14 @@ void SN76489::BeginExecution()
 //----------------------------------------------------------------------------------------
 void SN76489::SuspendExecution()
 {
-	std::unique_lock<std::mutex> lock(renderThreadMutex);
+	std::unique_lock<std::mutex> lock(_renderThreadMutex);
 
 	//Suspend the render worker thread
-	if(renderThreadActive)
+	if(_renderThreadActive)
 	{
-		renderThreadActive = false;
-		renderThreadUpdate.notify_all();
-		renderThreadStopped.wait(lock);
+		_renderThreadActive = false;
+		_renderThreadUpdate.notify_all();
+		_renderThreadStopped.wait(lock);
 	}
 }
 
@@ -314,14 +314,14 @@ bool SN76489::SendNotifyUpcomingTimeslice() const
 //----------------------------------------------------------------------------------------
 void SN76489::NotifyUpcomingTimeslice(double nanoseconds)
 {
-	lastAccessTime = 0;
+	_lastAccessTime = 0;
 
 	//Add the new timeslice to all our timed buffers
-	reg.AddTimeslice(nanoseconds);
+	_reg.AddTimeslice(nanoseconds);
 
 	//Add references to the new timeslice entry from our timed buffers to the uncommitted
 	//timeslice lists for the buffers
-	regTimesliceListUncommitted.push_back(reg.GetLatestTimeslice());
+	_regTimesliceListUncommitted.push_back(_reg.GetLatestTimeslice());
 }
 
 //----------------------------------------------------------------------------------------
@@ -336,12 +336,12 @@ void SN76489::ExecuteTimeslice(double nanoseconds)
 	//If the render thread is lagging, pause here until it has caught up, so we don't
 	//leave the render thread behind with an ever-increasing workload it will never be
 	//able to complete.
-	if(renderThreadLagging)
+	if(_renderThreadLagging)
 	{
-		std::unique_lock<std::mutex> lock(timesliceMutex);
-		while(renderThreadLagging)
+		std::unique_lock<std::mutex> lock(_timesliceMutex);
+		while(_renderThreadLagging)
 		{
-			renderThreadLaggingStateChange.wait(lock);
+			_renderThreadLaggingStateChange.wait(lock);
 		}
 	}
 }
@@ -350,42 +350,42 @@ void SN76489::ExecuteTimeslice(double nanoseconds)
 void SN76489::ExecuteRollback()
 {
 	//Rollback our timed buffers
-	reg.Rollback();
+	_reg.Rollback();
 
-	latchedChannel = blatchedChannel;
-	latchedVolume = blatchedVolume;
+	_latchedChannel = _blatchedChannel;
+	_latchedVolume = _blatchedVolume;
 
 	//Clear any uncommitted timeslices from our render timeslice buffers
-	regTimesliceListUncommitted.clear();
+	_regTimesliceListUncommitted.clear();
 }
 
 //----------------------------------------------------------------------------------------
 void SN76489::ExecuteCommit()
 {
 	//Commit our timed buffers
-	reg.Commit();
+	_reg.Commit();
 
-	blatchedChannel = latchedChannel;
-	blatchedVolume = latchedVolume;
+	_blatchedChannel = _latchedChannel;
+	_blatchedVolume = _latchedVolume;
 
 	//Ensure that a valid latest timeslice exists in all our buffers. We need this check
 	//here, because commits can be triggered by the system at potentially any point in
 	//time, whether a timeslice has been issued or not.
-	if(!regTimesliceListUncommitted.empty())
+	if(!_regTimesliceListUncommitted.empty())
 	{
 		//Obtain a timeslice lock so we can update the data we feed to the render thread
-		std::unique_lock<std::mutex> lock(timesliceMutex);
+		std::unique_lock<std::mutex> lock(_timesliceMutex);
 
 		//Add the number of timeslices we are about to commit to the count of pending
 		//render operations. This is used to track if the render thread is lagging.
-		pendingRenderOperationCount += (unsigned int)regTimesliceListUncommitted.size();
+		_pendingRenderOperationCount += (unsigned int)_regTimesliceListUncommitted.size();
 
 		//Move all timeslices in our uncommitted timeslice lists over to the committed
 		//timeslice lists, for processing by the render thread.
-		regTimesliceList.splice(regTimesliceList.end(), regTimesliceListUncommitted);
+		_regTimesliceList.splice(_regTimesliceList.end(), _regTimesliceListUncommitted);
 
 		//Notify the render thread that it's got more work to do
-		renderThreadUpdate.notify_all();
+		_renderThreadUpdate.notify_all();
 	}
 }
 
@@ -394,7 +394,7 @@ void SN76489::ExecuteCommit()
 //----------------------------------------------------------------------------------------
 void SN76489::RenderThread()
 {
-	std::unique_lock<std::mutex> lock(renderThreadMutex);
+	std::unique_lock<std::mutex> lock(_renderThreadMutex);
 
 	//Start the render loop
 	bool done = false;
@@ -404,19 +404,19 @@ void SN76489::RenderThread()
 		RandomTimeAccessBuffer<Data, double>::Timeslice regTimesliceCopy;
 		bool renderTimesliceObtained = false;
 		{
-			std::unique_lock<std::mutex> timesliceLock(timesliceMutex);
+			std::unique_lock<std::mutex> timesliceLock(_timesliceMutex);
 
 			//If there is at least one render timeslice pending, grab it from the queue.
-			if(!regTimesliceList.empty())
+			if(!_regTimesliceList.empty())
 			{
 				//Update the lagging state for the render thread
-				--pendingRenderOperationCount;
-				renderThreadLagging = (pendingRenderOperationCount > maxPendingRenderOperationCount);
-				renderThreadLaggingStateChange.notify_all();
+				--_pendingRenderOperationCount;
+				_renderThreadLagging = (_pendingRenderOperationCount > maxPendingRenderOperationCount);
+				_renderThreadLaggingStateChange.notify_all();
 
 				//Grab the next completed timeslice from the timeslice list
-				regTimesliceCopy = *regTimesliceList.begin();
-				regTimesliceList.pop_front();
+				regTimesliceCopy = *_regTimesliceList.begin();
+				_regTimesliceList.pop_front();
 
 				//Flag that we managed to obtain a render timeslice
 				renderTimesliceObtained = true;
@@ -430,22 +430,22 @@ void SN76489::RenderThread()
 			//If the render thread has not already been instructed to stop, suspend this
 			//thread until a timeslice becomes available or this thread is instructed to
 			//stop.
-			if(renderThreadActive)
+			if(_renderThreadActive)
 			{
-				renderThreadUpdate.wait(lock);
+				_renderThreadUpdate.wait(lock);
 			}
 
 			//If the render thread has been suspended, flag that we need to exit this
 			//render loop.
-			done = !renderThreadActive;
+			done = !_renderThreadActive;
 
 			//Begin the loop again
 			continue;
 		}
 
 		//Render the audio output
-		size_t outputBufferPos = outputBuffer.size();
-		double outputFrequency = externalClockRate / externalClockDivider;
+		size_t outputBufferPos = _outputBuffer.size();
+		double outputFrequency = _externalClockRate / _externalClockDivider;
 		bool moreSamplesRemaining = true;
 		while(moreSamplesRemaining)
 		{
@@ -454,34 +454,34 @@ void SN76489::RenderThread()
 			//the end of a timeslice. Negative times won't cause writes to be processed at
 			//the incorrect time under the current model, but we do need to ensure that
 			//remainingRenderTime isn't negative before attempting to generate an output.
-			remainingRenderTime += reg.GetNextWriteTime(regTimesliceCopy);
+			_remainingRenderTime += _reg.GetNextWriteTime(regTimesliceCopy);
 
 			//Calculate the output sample count. Note that remainingRenderTime may be
 			//negative, but we catch that below before using outputSampleCount.
-			unsigned int outputSampleCount = (unsigned int)(remainingRenderTime * (outputFrequency / 1000000000.0));
+			unsigned int outputSampleCount = (unsigned int)(_remainingRenderTime * (outputFrequency / 1000000000.0));
 
 			//If we have one or more output samples to generate before the next settings
 			//change or the end of the target timeslice, generate and output the samples.
-			if((remainingRenderTime > 0) && (outputSampleCount > 0))
+			if((_remainingRenderTime > 0) && (outputSampleCount > 0))
 			{
 				//Resize the output buffer to fit the samples we're about to add
-				outputBuffer.resize(outputBuffer.size() + outputSampleCount);
+				_outputBuffer.resize(_outputBuffer.size() + outputSampleCount);
 
 				//For each channel, calculate the output data for the elapsed time
-				std::vector<float> channelBuffer[channelCount];
-				for(unsigned int channelNo = 0; channelNo < channelCount; ++channelNo)
+				std::vector<float> channelBuffer[ChannelCount];
+				for(unsigned int channelNo = 0; channelNo < ChannelCount; ++channelNo)
 				{
 					channelBuffer[channelNo].resize(outputSampleCount);
 					UpdateChannel(channelNo, outputSampleCount, channelBuffer[channelNo]);
 
 					//Output the channel wave log
-					if(wavLoggingChannelEnabled[channelNo])
+					if(_wavLoggingChannelEnabled[channelNo])
 					{
-						std::unique_lock<std::mutex> lock(waveLoggingMutex);
+						std::unique_lock<std::mutex> lock(_waveLoggingMutex);
 						for(unsigned int i = 0; i < channelBuffer[channelNo].size(); ++i)
 						{
-							short sample = (short)(channelBuffer[channelNo][i] * (32767.0f/channelCount));
-							wavLogChannel[channelNo].WriteData(sample);
+							short sample = (short)(channelBuffer[channelNo][i] * (32767.0f/ChannelCount));
+							_wavLogChannel[channelNo].WriteData(sample);
 						}
 					}
 				}
@@ -490,72 +490,72 @@ void SN76489::RenderThread()
 				for(unsigned int sampleNo = 0; sampleNo < outputSampleCount; ++sampleNo)
 				{
 					float mixedSample = 0.0;
-					for(unsigned int channelNo = 0; channelNo < channelCount; ++channelNo)
+					for(unsigned int channelNo = 0; channelNo < ChannelCount; ++channelNo)
 					{
 						mixedSample += channelBuffer[channelNo][sampleNo];
 					}
-					mixedSample /= channelCount;
-					outputBuffer[outputBufferPos++] = (short)(mixedSample * (32767.0f / 6.0f));
+					mixedSample /= ChannelCount;
+					_outputBuffer[outputBufferPos++] = (short)(mixedSample * (32767.0f / 6.0f));
 				}
 
-				RandomTimeAccessBuffer<Data, double>::WriteInfo writeInfo = reg.GetWriteInfo(0, regTimesliceCopy);
+				RandomTimeAccessBuffer<Data, double>::WriteInfo writeInfo = _reg.GetWriteInfo(0, regTimesliceCopy);
 				if(writeInfo.exists)
 				{
 					//If the noise register is being modified, we need to reset the LFSR
 					//to the default for value for the next cycle.
-					if(writeInfo.writeAddress == (noiseChannelNo * 2) + 1)
+					if(writeInfo.writeAddress == (NoiseChannelNo * 2) + 1)
 					{
-						noiseShiftRegister = shiftRegisterDefaultValue;
+						_noiseShiftRegister = _shiftRegisterDefaultValue;
 					}
 				}
 
 				//Adjust the remainingRenderTime variable to remove the time we just
 				//consumed generating the output samples.
-				remainingRenderTime -= (double)outputSampleCount * (1000000000.0 / outputFrequency);
+				_remainingRenderTime -= (double)outputSampleCount * (1000000000.0 / outputFrequency);
 			}
 
 			//Advance to the next write operation, or the end of the current timeslice.
-			moreSamplesRemaining = reg.AdvanceByStep(regTimesliceCopy);
+			moreSamplesRemaining = _reg.AdvanceByStep(regTimesliceCopy);
 		}
 
 		//Output the mixed channel wave log
-		if(wavLoggingEnabled)
+		if(_wavLoggingEnabled)
 		{
-			std::unique_lock<std::mutex> lock(waveLoggingMutex);
-			wavLog.WriteData(outputBuffer);
+			std::unique_lock<std::mutex> lock(_waveLoggingMutex);
+			_wavLog.WriteData(_outputBuffer);
 		}
 
 		//Play the mixed audio stream. Note that we fold samples from successive render
 		//operations together, ensuring that we only send data to the output audio stream
 		//when we have a significant number of samples to send.
 		size_t minimumSamplesToOutput = (size_t)(outputFrequency / 60.0);
-		if(outputBuffer.size() >= minimumSamplesToOutput)
+		if(_outputBuffer.size() >= minimumSamplesToOutput)
 		{
-			unsigned int internalSampleCount = (unsigned int)outputBuffer.size();
-			unsigned int outputSampleCount = (unsigned int)((double)internalSampleCount * ((double)outputSampleRate / outputFrequency));
-			AudioStream::AudioBuffer* outputBufferFinal = outputStream.CreateAudioBuffer(outputSampleCount, 1);
+			unsigned int internalSampleCount = (unsigned int)_outputBuffer.size();
+			unsigned int outputSampleCount = (unsigned int)((double)internalSampleCount * ((double)_outputSampleRate / outputFrequency));
+			AudioStream::AudioBuffer* outputBufferFinal = _outputStream.CreateAudioBuffer(outputSampleCount, 1);
 			if(outputBufferFinal != 0)
 			{
-				outputStream.ConvertSampleRate(outputBuffer, internalSampleCount, 1, outputBufferFinal->buffer, outputSampleCount);
-				outputStream.PlayBuffer(outputBufferFinal);
+				_outputStream.ConvertSampleRate(_outputBuffer, internalSampleCount, 1, outputBufferFinal->buffer, outputSampleCount);
+				_outputStream.PlayBuffer(outputBufferFinal);
 			}
-			outputBuffer.clear();
-			outputBuffer.reserve(minimumSamplesToOutput * 2);
+			_outputBuffer.clear();
+			_outputBuffer.reserve(minimumSamplesToOutput * 2);
 		}
 
 		//Advance past the timeslice we've just rendered from
 		{
-			std::unique_lock<std::mutex> lock(timesliceMutex);
-			reg.AdvancePastTimeslice(regTimesliceCopy);
+			std::unique_lock<std::mutex> lock(_timesliceMutex);
+			_reg.AdvancePastTimeslice(regTimesliceCopy);
 		}
 	}
-	renderThreadStopped.notify_all();
+	_renderThreadStopped.notify_all();
 }
 
 //----------------------------------------------------------------------------------------
 void SN76489::UpdateChannel(unsigned int channelNo, unsigned int outputSampleCount, std::vector<float>& outputBuffer)
 {
-	ChannelRenderData* renderData = &channelRenderData[channelNo];
+	ChannelRenderData* renderData = &_channelRenderData[channelNo];
 
 	//Read current register data, and calculate half-frequency and amplitude
 	Data volumeRegisterData(GetVolumeRegister(channelNo, AccessTarget().AccessCommitted()));
@@ -581,7 +581,7 @@ void SN76489::UpdateChannel(unsigned int channelNo, unsigned int outputSampleCou
 
 	//If we're updating the noise register, decode the noise register data.
 	bool whiteNoiseSelected = false;
-	if(channelNo == noiseChannelNo)
+	if(channelNo == NoiseChannelNo)
 	{
 		//Noise register format
 		//	--------------
@@ -620,10 +620,10 @@ void SN76489::UpdateChannel(unsigned int channelNo, unsigned int outputSampleCou
 
 		//If we're updating the noise register, calculate the output data based on
 		//the shift register.
-		if(channelNo == noiseChannelNo)
+		if(channelNo == NoiseChannelNo)
 		{
 			//Use the current noise bit to calculate the output data
-			writeData = (noiseOutputMasked)? 0: amplitude;
+			writeData = (_noiseOutputMasked)? 0: amplitude;
 		}
 
 		//Write the sample to the output buffer
@@ -662,24 +662,24 @@ void SN76489::UpdateChannel(unsigned int channelNo, unsigned int outputSampleCou
 
 		//If we're updating the noise register, calculate the output data based on
 		//the shift register.
-		if(channelNo == noiseChannelNo)
+		if(channelNo == NoiseChannelNo)
 		{
-			unsigned int tappedBitMask = whiteNoiseSelected? noiseWhiteTappedBitMask: noisePeriodicTappedBitMask;
+			unsigned int tappedBitMask = whiteNoiseSelected? _noiseWhiteTappedBitMask: _noisePeriodicTappedBitMask;
 
 			//If the polarity has shifted from -1 to +1, read a new output bit
 			//and adjust the shift register.
 			if(!renderData->polarityNegative)
 			{
-				Data shiftRegister(shiftRegisterBitCount, noiseShiftRegister);
-				noiseOutputMasked = !shiftRegister.GetBit(0);
+				Data shiftRegister(_shiftRegisterBitCount, _noiseShiftRegister);
+				_noiseOutputMasked = !shiftRegister.GetBit(0);
 				bool newUpperBit = !((shiftRegister & tappedBitMask).ParityEven());
 				shiftRegister >>= 1;
 				shiftRegister.SetBit(shiftRegister.GetBitCount() - 1, newUpperBit);
-				noiseShiftRegister = shiftRegister.GetData();
+				_noiseShiftRegister = shiftRegister.GetData();
 			}
 
 			//Use the current noise bit to calculate the output data
-			writeData = (noiseOutputMasked)? 0: amplitude;
+			writeData = (_noiseOutputMasked)? 0: amplitude;
 		}
 
 		if(samplesToWrite > (outputSampleCount - samplesWritten))
@@ -705,18 +705,18 @@ void SN76489::UpdateChannel(unsigned int channelNo, unsigned int outputSampleCou
 //----------------------------------------------------------------------------------------
 IBusInterface::AccessResult SN76489::WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
-	std::unique_lock<std::mutex> lock(accessMutex);
+	std::unique_lock<std::mutex> lock(_accessMutex);
 	AccessTarget accessTarget;
 	accessTarget.AccessTime(accessTime);
 
 	//Trigger a system rollback if the device has been accessed out of order. This is
 	//required in order to ensure that the register latch settings are correct when each
 	//write occurs.
-	if(accessTime < lastAccessTime)
+	if(accessTime < _lastAccessTime)
 	{
 		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 	}
-	lastAccessTime = accessTime;
+	_lastAccessTime = accessTime;
 
 	//Process the write
 	if(data.MSB())
@@ -729,35 +729,35 @@ IBusInterface::AccessResult SN76489::WriteInterface(unsigned int interfaceNumber
 		//----------------------------------
 
 		//Process a latch/data byte
-		latchedChannel = data.GetDataSegment(5, 2);
-		latchedVolume = data.GetBit(4);
-		if(latchedVolume)
+		_latchedChannel = data.GetDataSegment(5, 2);
+		_latchedVolume = data.GetBit(4);
+		if(_latchedVolume)
 		{
-			Data temp(GetVolumeRegister(latchedChannel, accessTarget));
+			Data temp(GetVolumeRegister(_latchedChannel, accessTarget));
 			temp.SetLowerBits(4, data.GetDataSegment(0, 4));
-			if(!channelVolumeRegisterLocked[latchedChannel])
+			if(!_channelVolumeRegisterLocked[_latchedChannel])
 			{
-				SetVolumeRegister(latchedChannel, temp, accessTarget);
+				SetVolumeRegister(_latchedChannel, temp, accessTarget);
 			}
 		}
 		else
 		{
-			Data temp(GetToneRegister(latchedChannel, accessTarget));
+			Data temp(GetToneRegister(_latchedChannel, accessTarget));
 			temp.SetLowerBits(4, data.GetDataSegment(0, 4));
-			if(latchedChannel == noiseChannelNo)
+			if(_latchedChannel == NoiseChannelNo)
 			{
-				if(noiseChannelTypeLocked)
+				if(_noiseChannelTypeLocked)
 				{
-					temp.SetBit(2, GetToneRegister(latchedChannel, accessTarget).GetBit(2));
+					temp.SetBit(2, GetToneRegister(_latchedChannel, accessTarget).GetBit(2));
 				}
-				if(noiseChannelPeriodLocked)
+				if(_noiseChannelPeriodLocked)
 				{
-					temp.SetDataSegment(0, 2, GetToneRegister(latchedChannel, accessTarget).GetDataSegment(0, 2));
+					temp.SetDataSegment(0, 2, GetToneRegister(_latchedChannel, accessTarget).GetDataSegment(0, 2));
 				}
 			}
-			if(!channelDataRegisterLocked[latchedChannel])
+			if(!_channelDataRegisterLocked[_latchedChannel])
 			{
-				SetToneRegister(latchedChannel, temp, accessTarget);
+				SetToneRegister(_latchedChannel, temp, accessTarget);
 			}
 		}
 	}
@@ -771,33 +771,33 @@ IBusInterface::AccessResult SN76489::WriteInterface(unsigned int interfaceNumber
 		//---------------------------------
 
 		//Process a data byte
-		if(latchedVolume)
+		if(_latchedVolume)
 		{
-			Data temp(GetVolumeRegister(latchedChannel, accessTarget));
+			Data temp(GetVolumeRegister(_latchedChannel, accessTarget));
 			temp.SetUpperBits(6, data.GetDataSegment(0, 6));
-			if(!channelVolumeRegisterLocked[latchedChannel])
+			if(!_channelVolumeRegisterLocked[_latchedChannel])
 			{
-				SetVolumeRegister(latchedChannel, temp, accessTarget);
+				SetVolumeRegister(_latchedChannel, temp, accessTarget);
 			}
 		}
 		else
 		{
-			Data temp(GetToneRegister(latchedChannel, accessTarget));
+			Data temp(GetToneRegister(_latchedChannel, accessTarget));
 			temp.SetUpperBits(6, data.GetDataSegment(0, 6));
-			if(latchedChannel == noiseChannelNo)
+			if(_latchedChannel == NoiseChannelNo)
 			{
-				if(noiseChannelTypeLocked)
+				if(_noiseChannelTypeLocked)
 				{
-					temp.SetBit(2, GetToneRegister(latchedChannel, accessTarget).GetBit(2));
+					temp.SetBit(2, GetToneRegister(_latchedChannel, accessTarget).GetBit(2));
 				}
-				if(noiseChannelPeriodLocked)
+				if(_noiseChannelPeriodLocked)
 				{
-					temp.SetDataSegment(0, 2, GetToneRegister(latchedChannel, accessTarget).GetDataSegment(0, 2));
+					temp.SetDataSegment(0, 2, GetToneRegister(_latchedChannel, accessTarget).GetDataSegment(0, 2));
 				}
 			}
-			if(!channelDataRegisterLocked[latchedChannel])
+			if(!_channelDataRegisterLocked[_latchedChannel])
 			{
-				SetToneRegister(latchedChannel, temp, accessTarget);
+				SetToneRegister(_latchedChannel, temp, accessTarget);
 			}
 		}
 	}
@@ -816,53 +816,53 @@ void SN76489::LoadState(IHierarchicalStorageNode& node)
 		//Clock settings
 		if((*i)->GetName() == L"ExternalClockRate")
 		{
-			(*i)->ExtractData(externalClockRate);
+			(*i)->ExtractData(_externalClockRate);
 		}
 
 		//Register data
 		else if((*i)->GetName() == L"Registers")
 		{
-			reg.LoadState(*(*i));
+			_reg.LoadState(*(*i));
 		}
 
 		//Register latch settings
 		else if((*i)->GetName() == L"LatchedChannel")
 		{
-			(*i)->ExtractData(latchedChannel);
-			if(latchedChannel >= channelCount)
+			(*i)->ExtractData(_latchedChannel);
+			if(_latchedChannel >= ChannelCount)
 			{
-				latchedChannel = channelCount - 1;
+				_latchedChannel = ChannelCount - 1;
 			}
 		}
 		else if((*i)->GetName() == L"VolumeRegisterLatched")
 		{
-			(*i)->ExtractData(latchedVolume);
+			(*i)->ExtractData(_latchedVolume);
 		}
 
 		//Render thread properties
 		else if((*i)->GetName() == L"RemainingRenderTime")
 		{
-			(*i)->ExtractData(remainingRenderTime);
+			(*i)->ExtractData(_remainingRenderTime);
 		}
 
 		//Render data
 		else if((*i)->GetName() == L"RenderData")
 		{
 			unsigned int channelNo;
-			if((*i)->ExtractAttribute(L"ChannelNo", channelNo) && (channelNo < channelCount))
+			if((*i)->ExtractAttribute(L"ChannelNo", channelNo) && (channelNo < ChannelCount))
 			{
-				(*i)->ExtractAttributeHex(L"InitialToneCycles", channelRenderData[channelNo].initialToneCycles);
-				(*i)->ExtractAttributeHex(L"RemainingToneCycles", channelRenderData[channelNo].remainingToneCycles);
-				(*i)->ExtractAttribute(L"PolarityNegative", channelRenderData[channelNo].polarityNegative);
+				(*i)->ExtractAttributeHex(L"InitialToneCycles", _channelRenderData[channelNo].initialToneCycles);
+				(*i)->ExtractAttributeHex(L"RemainingToneCycles", _channelRenderData[channelNo].remainingToneCycles);
+				(*i)->ExtractAttribute(L"PolarityNegative", _channelRenderData[channelNo].polarityNegative);
 			}
 		}
 		else if((*i)->GetName() == L"NoiseShiftRegister")
 		{
-			(*i)->ExtractHexData(noiseShiftRegister);
+			(*i)->ExtractHexData(_noiseShiftRegister);
 		}
 		else if((*i)->GetName() == L"NoiseOutputMasked")
 		{
-			(*i)->ExtractData(noiseOutputMasked);
+			(*i)->ExtractData(_noiseOutputMasked);
 		}
 	}
 }
@@ -871,39 +871,39 @@ void SN76489::LoadState(IHierarchicalStorageNode& node)
 void SN76489::SaveState(IHierarchicalStorageNode& node) const
 {
 	//Clock settings
-	node.CreateChild(L"ExternalClockRate").SetData(externalClockRate);
+	node.CreateChild(L"ExternalClockRate").SetData(_externalClockRate);
 
 	//Register data
-	reg.SaveState(node.CreateChild(L"Registers"), L"", true);
+	_reg.SaveState(node.CreateChild(L"Registers"), L"", true);
 
 	//Register latch settings
-	node.CreateChild(L"LatchedChannel", latchedChannel);
-	node.CreateChild(L"VolumeRegisterLatched", latchedVolume);
+	node.CreateChild(L"LatchedChannel", _latchedChannel);
+	node.CreateChild(L"VolumeRegisterLatched", _latchedVolume);
 
 	//Render thread properties
-	node.CreateChild(L"RemainingRenderTime", remainingRenderTime);
+	node.CreateChild(L"RemainingRenderTime", _remainingRenderTime);
 
 	//Render data
-	for(unsigned int i = 0; i < channelCount; ++i)
+	for(unsigned int i = 0; i < ChannelCount; ++i)
 	{
 		IHierarchicalStorageNode& renderDataState = node.CreateChild(L"RenderData");
 		renderDataState.CreateAttribute(L"ChannelNo", i);
-		renderDataState.CreateAttributeHex(L"InitialToneCycles", channelRenderData[i].initialToneCycles, (toneRegisterBitCount+3)/4);
-		renderDataState.CreateAttributeHex(L"RemainingToneCycles", channelRenderData[i].remainingToneCycles, (toneRegisterBitCount+3)/4);
-		renderDataState.CreateAttribute(L"PolarityNegative", channelRenderData[i].polarityNegative);
+		renderDataState.CreateAttributeHex(L"InitialToneCycles", _channelRenderData[i].initialToneCycles, (ToneRegisterBitCount+3)/4);
+		renderDataState.CreateAttributeHex(L"RemainingToneCycles", _channelRenderData[i].remainingToneCycles, (ToneRegisterBitCount+3)/4);
+		renderDataState.CreateAttribute(L"PolarityNegative", _channelRenderData[i].polarityNegative);
 	}
-	node.CreateChildHex(L"NoiseShiftRegister", noiseShiftRegister, (shiftRegisterBitCount+3)/4);
-	node.CreateChild(L"NoiseOutputMasked", noiseOutputMasked);
+	node.CreateChildHex(L"NoiseShiftRegister", _noiseShiftRegister, (_shiftRegisterBitCount+3)/4);
+	node.CreateChild(L"NoiseOutputMasked", _noiseOutputMasked);
 }
 
 //----------------------------------------------------------------------------------------
 void SN76489::LoadDebuggerState(IHierarchicalStorageNode& node)
 {
 	//Initialize the register locking state
-	for(unsigned int i = 0; i < channelCount; ++i)
+	for(unsigned int i = 0; i < ChannelCount; ++i)
 	{
-		channelVolumeRegisterLocked[i] = false;
-		channelDataRegisterLocked[i] = false;
+		_channelVolumeRegisterLocked[i] = false;
+		_channelDataRegisterLocked[i] = false;
 	}
 
 	//Load the register locking state
@@ -913,17 +913,17 @@ void SN76489::LoadDebuggerState(IHierarchicalStorageNode& node)
 		if((*i)->GetName() == L"LockedVolumeRegister")
 		{
 			unsigned int channelNo;
-			if((*i)->ExtractAttribute(L"ChannelNo", channelNo) && (channelNo < channelCount))
+			if((*i)->ExtractAttribute(L"ChannelNo", channelNo) && (channelNo < ChannelCount))
 			{
-				channelVolumeRegisterLocked[channelNo] = true;
+				_channelVolumeRegisterLocked[channelNo] = true;
 			}
 		}
 		else if((*i)->GetName() == L"LockedDataRegister")
 		{
 			unsigned int channelNo;
-			if((*i)->ExtractAttribute(L"ChannelNo", channelNo) && (channelNo < channelCount))
+			if((*i)->ExtractAttribute(L"ChannelNo", channelNo) && (channelNo < ChannelCount))
 			{
-				channelDataRegisterLocked[channelNo] = true;
+				_channelDataRegisterLocked[channelNo] = true;
 			}
 		}
 	}
@@ -933,13 +933,13 @@ void SN76489::LoadDebuggerState(IHierarchicalStorageNode& node)
 void SN76489::SaveDebuggerState(IHierarchicalStorageNode& node) const
 {
 	//Save the register locking state
-	for(unsigned int i = 0; i < channelCount; ++i)
+	for(unsigned int i = 0; i < ChannelCount; ++i)
 	{
-		if(channelVolumeRegisterLocked[i])
+		if(_channelVolumeRegisterLocked[i])
 		{
 			node.CreateChild(L"LockedVolumeRegister").CreateAttribute(L"ChannelNo", i);
 		}
-		if(channelDataRegisterLocked[i])
+		if(_channelDataRegisterLocked[i])
 		{
 			node.CreateChild(L"LockedDataRegister").CreateAttribute(L"ChannelNo", i);
 		}
@@ -975,43 +975,43 @@ bool SN76489::ReadGenericData(unsigned int dataID, const DataContext* dataContex
 	case ISN76489DataSource::Channel4NoisePeriod:
 		return dataValue.SetValue(GetToneRegister(3, AccessTarget().AccessLatest()).GetDataSegment(0, 2));
 	case ISN76489DataSource::NoiseShiftRegister:
-		return dataValue.SetValue(noiseShiftRegister);
+		return dataValue.SetValue(_noiseShiftRegister);
 	case ISN76489DataSource::LatchedChannelNo:
-		return dataValue.SetValue(latchedChannel);
+		return dataValue.SetValue(_latchedChannel);
 	case ISN76489DataSource::VolumeRegisterLatched:
-		return dataValue.SetValue(latchedVolume);
+		return dataValue.SetValue(_latchedVolume);
 	case ISN76489DataSource::ExternalClockRate:
-		return dataValue.SetValue(externalClockRate);
+		return dataValue.SetValue(_externalClockRate);
 	case ISN76489DataSource::ExternalClockDivider:
-		return dataValue.SetValue(externalClockDivider);
+		return dataValue.SetValue(_externalClockDivider);
 	case ISN76489DataSource::ShiftRegisterBitCount:
-		return dataValue.SetValue(shiftRegisterBitCount);
+		return dataValue.SetValue(_shiftRegisterBitCount);
 	case ISN76489DataSource::ShiftRegisterDefaultValue:
-		return dataValue.SetValue(shiftRegisterDefaultValue);
+		return dataValue.SetValue(_shiftRegisterDefaultValue);
 	case ISN76489DataSource::WhiteNoiseTappedBitMask:
-		return dataValue.SetValue(noiseWhiteTappedBitMask);
+		return dataValue.SetValue(_noiseWhiteTappedBitMask);
 	case ISN76489DataSource::PeriodicNoiseTappedBitMask:
-		return dataValue.SetValue(noisePeriodicTappedBitMask);
+		return dataValue.SetValue(_noisePeriodicTappedBitMask);
 	case ISN76489DataSource::AudioLoggingEnabled:
-		return dataValue.SetValue(wavLoggingEnabled);
+		return dataValue.SetValue(_wavLoggingEnabled);
 	case ISN76489DataSource::AudioLoggingPath:
-		return dataValue.SetValue(wavLoggingPath);
+		return dataValue.SetValue(_wavLoggingPath);
 	case ISN76489DataSource::Channel1AudioLoggingEnabled:
-		return dataValue.SetValue(wavLoggingChannelEnabled[0]);
+		return dataValue.SetValue(_wavLoggingChannelEnabled[0]);
 	case ISN76489DataSource::Channel2AudioLoggingEnabled:
-		return dataValue.SetValue(wavLoggingChannelEnabled[1]);
+		return dataValue.SetValue(_wavLoggingChannelEnabled[1]);
 	case ISN76489DataSource::Channel3AudioLoggingEnabled:
-		return dataValue.SetValue(wavLoggingChannelEnabled[2]);
+		return dataValue.SetValue(_wavLoggingChannelEnabled[2]);
 	case ISN76489DataSource::Channel4AudioLoggingEnabled:
-		return dataValue.SetValue(wavLoggingChannelEnabled[3]);
+		return dataValue.SetValue(_wavLoggingChannelEnabled[3]);
 	case ISN76489DataSource::Channel1AudioLoggingPath:
-		return dataValue.SetValue(wavLoggingChannelPath[0]);
+		return dataValue.SetValue(_wavLoggingChannelPath[0]);
 	case ISN76489DataSource::Channel2AudioLoggingPath:
-		return dataValue.SetValue(wavLoggingChannelPath[1]);
+		return dataValue.SetValue(_wavLoggingChannelPath[1]);
 	case ISN76489DataSource::Channel3AudioLoggingPath:
-		return dataValue.SetValue(wavLoggingChannelPath[2]);
+		return dataValue.SetValue(_wavLoggingChannelPath[2]);
 	case ISN76489DataSource::Channel4AudioLoggingPath:
-		return dataValue.SetValue(wavLoggingChannelPath[3]);
+		return dataValue.SetValue(_wavLoggingChannelPath[3]);
 	}
 	return false;
 }
@@ -1028,61 +1028,61 @@ bool SN76489::WriteGenericData(unsigned int dataID, const DataContext* dataConte
 		switch((ISN76489DataSource)dataID)
 		{
 		case ISN76489DataSource::Channel1VolumeRegister:
-			SetVolumeRegister(0, Data(volumeRegisterBitCount, dataValueAsUInt.GetValue()), AccessTarget().AccessLatest());
+			SetVolumeRegister(0, Data(VolumeRegisterBitCount, dataValueAsUInt.GetValue()), AccessTarget().AccessLatest());
 			return true;
 		case ISN76489DataSource::Channel2VolumeRegister:
-			SetVolumeRegister(1, Data(volumeRegisterBitCount, dataValueAsUInt.GetValue()), AccessTarget().AccessLatest());
+			SetVolumeRegister(1, Data(VolumeRegisterBitCount, dataValueAsUInt.GetValue()), AccessTarget().AccessLatest());
 			return true;
 		case ISN76489DataSource::Channel3VolumeRegister:
-			SetVolumeRegister(2, Data(volumeRegisterBitCount, dataValueAsUInt.GetValue()), AccessTarget().AccessLatest());
+			SetVolumeRegister(2, Data(VolumeRegisterBitCount, dataValueAsUInt.GetValue()), AccessTarget().AccessLatest());
 			return true;
 		case ISN76489DataSource::Channel4VolumeRegister:
-			SetVolumeRegister(3, Data(volumeRegisterBitCount, dataValueAsUInt.GetValue()), AccessTarget().AccessLatest());
+			SetVolumeRegister(3, Data(VolumeRegisterBitCount, dataValueAsUInt.GetValue()), AccessTarget().AccessLatest());
 			return true;
 		case ISN76489DataSource::Channel1ToneRegister:
-			SetToneRegister(0, Data(toneRegisterBitCount, dataValueAsUInt.GetValue()), AccessTarget().AccessLatest());
+			SetToneRegister(0, Data(ToneRegisterBitCount, dataValueAsUInt.GetValue()), AccessTarget().AccessLatest());
 			return true;
 		case ISN76489DataSource::Channel2ToneRegister:
-			SetToneRegister(1, Data(toneRegisterBitCount, dataValueAsUInt.GetValue()), AccessTarget().AccessLatest());
+			SetToneRegister(1, Data(ToneRegisterBitCount, dataValueAsUInt.GetValue()), AccessTarget().AccessLatest());
 			return true;
 		case ISN76489DataSource::Channel3ToneRegister:
-			SetToneRegister(2, Data(toneRegisterBitCount, dataValueAsUInt.GetValue()), AccessTarget().AccessLatest());
+			SetToneRegister(2, Data(ToneRegisterBitCount, dataValueAsUInt.GetValue()), AccessTarget().AccessLatest());
 			return true;
 		case ISN76489DataSource::Channel4ToneRegister:
-			SetToneRegister(3, Data(toneRegisterBitCount, dataValueAsUInt.GetValue()), AccessTarget().AccessLatest());
+			SetToneRegister(3, Data(ToneRegisterBitCount, dataValueAsUInt.GetValue()), AccessTarget().AccessLatest());
 			return true;
 		case ISN76489DataSource::Channel4NoisePeriod:
 			SetToneRegister(3, GetToneRegister(3, AccessTarget().AccessLatest()).SetDataSegment(0, 2, dataValueAsUInt.GetValue()), AccessTarget().AccessLatest());
 			return true;
 		case ISN76489DataSource::NoiseShiftRegister:
-			noiseShiftRegister = Data(GetShiftRegisterBitCount(), dataValueAsUInt.GetValue()).GetData();
+			_noiseShiftRegister = Data(GetShiftRegisterBitCount(), dataValueAsUInt.GetValue()).GetData();
 			return true;
 		case ISN76489DataSource::LatchedChannelNo:
-			latchedChannel = dataValueAsUInt.GetValue();
+			_latchedChannel = dataValueAsUInt.GetValue();
 			return true;
 		case ISN76489DataSource::ShiftRegisterBitCount:{
-			shiftRegisterBitCount = dataValueAsUInt.GetValue();
+			_shiftRegisterBitCount = dataValueAsUInt.GetValue();
 			//Update the maximum allowable values for each data value that depends on the
 			//shift register bit count
-			unsigned int shiftRegisterBitCountMask = (((1 << (shiftRegisterBitCount - 1)) - 1) << 1) | 1;
-			for(std::list<GenericAccessDataInfo*>::const_iterator i = genericDataToUpdateOnShiftRegisterBitCountChange.begin(); i != genericDataToUpdateOnShiftRegisterBitCountChange.end(); ++i)
+			unsigned int shiftRegisterBitCountMask = (((1 << (_shiftRegisterBitCount - 1)) - 1) << 1) | 1;
+			for(std::list<GenericAccessDataInfo*>::const_iterator i = _genericDataToUpdateOnShiftRegisterBitCountChange.begin(); i != _genericDataToUpdateOnShiftRegisterBitCountChange.end(); ++i)
 			{
 				(*i)->SetUIntMaxValue(shiftRegisterBitCountMask);
 			}
 			//Limit the current values of any settings that are affected by the shift
 			//register bit count
-			shiftRegisterDefaultValue &= shiftRegisterBitCountMask;
-			noiseWhiteTappedBitMask &= shiftRegisterBitCountMask;
-			noisePeriodicTappedBitMask &= shiftRegisterBitCountMask;
+			_shiftRegisterDefaultValue &= shiftRegisterBitCountMask;
+			_noiseWhiteTappedBitMask &= shiftRegisterBitCountMask;
+			_noisePeriodicTappedBitMask &= shiftRegisterBitCountMask;
 			return true;}
 		case ISN76489DataSource::ShiftRegisterDefaultValue:
-			shiftRegisterDefaultValue = dataValueAsUInt.GetValue();
+			_shiftRegisterDefaultValue = dataValueAsUInt.GetValue();
 			return true;
 		case ISN76489DataSource::WhiteNoiseTappedBitMask:
-			noiseWhiteTappedBitMask = dataValueAsUInt.GetValue();
+			_noiseWhiteTappedBitMask = dataValueAsUInt.GetValue();
 			return true;
 		case ISN76489DataSource::PeriodicNoiseTappedBitMask:
-			noisePeriodicTappedBitMask = dataValueAsUInt.GetValue();
+			_noisePeriodicTappedBitMask = dataValueAsUInt.GetValue();
 			return true;
 		}
 	}
@@ -1095,7 +1095,7 @@ bool SN76489::WriteGenericData(unsigned int dataID, const DataContext* dataConte
 			SetToneRegister(3, GetToneRegister(3, AccessTarget().AccessLatest()).SetBit(2, dataValueAsBool.GetValue()), AccessTarget().AccessLatest());
 			return true;
 		case ISN76489DataSource::VolumeRegisterLatched:
-			latchedVolume = dataValueAsBool.GetValue();
+			_latchedVolume = dataValueAsBool.GetValue();
 			return true;
 		case ISN76489DataSource::AudioLoggingEnabled:
 			SetAudioLoggingEnabled(dataValueAsBool.GetValue());
@@ -1120,10 +1120,10 @@ bool SN76489::WriteGenericData(unsigned int dataID, const DataContext* dataConte
 		switch((ISN76489DataSource)dataID)
 		{
 		case ISN76489DataSource::ExternalClockRate:
-			externalClockRate = dataValueAsDouble.GetValue();
+			_externalClockRate = dataValueAsDouble.GetValue();
 			return true;
 		case ISN76489DataSource::ExternalClockDivider:
-			externalClockDivider = dataValueAsDouble.GetValue();
+			_externalClockDivider = dataValueAsDouble.GetValue();
 			return true;
 		}
 	}
@@ -1133,19 +1133,19 @@ bool SN76489::WriteGenericData(unsigned int dataID, const DataContext* dataConte
 		switch((ISN76489DataSource)dataID)
 		{
 		case ISN76489DataSource::AudioLoggingPath:
-			wavLoggingPath = dataValueAsFilePath.GetValue();
+			_wavLoggingPath = dataValueAsFilePath.GetValue();
 			return true;
 		case ISN76489DataSource::Channel1AudioLoggingPath:
-			wavLoggingChannelPath[0] = dataValueAsFilePath.GetValue();
+			_wavLoggingChannelPath[0] = dataValueAsFilePath.GetValue();
 			return true;
 		case ISN76489DataSource::Channel2AudioLoggingPath:
-			wavLoggingChannelPath[1] = dataValueAsFilePath.GetValue();
+			_wavLoggingChannelPath[1] = dataValueAsFilePath.GetValue();
 			return true;
 		case ISN76489DataSource::Channel3AudioLoggingPath:
-			wavLoggingChannelPath[2] = dataValueAsFilePath.GetValue();
+			_wavLoggingChannelPath[2] = dataValueAsFilePath.GetValue();
 			return true;
 		case ISN76489DataSource::Channel4AudioLoggingPath:
-			wavLoggingChannelPath[3] = dataValueAsFilePath.GetValue();
+			_wavLoggingChannelPath[3] = dataValueAsFilePath.GetValue();
 			return true;
 		}
 	}
@@ -1160,25 +1160,25 @@ bool SN76489::GetGenericDataLocked(unsigned int dataID, const DataContext* dataC
 	switch((ISN76489DataSource)dataID)
 	{
 	case ISN76489DataSource::Channel1VolumeRegister:
-		return channelVolumeRegisterLocked[0];
+		return _channelVolumeRegisterLocked[0];
 	case ISN76489DataSource::Channel2VolumeRegister:
-		return channelVolumeRegisterLocked[1];
+		return _channelVolumeRegisterLocked[1];
 	case ISN76489DataSource::Channel3VolumeRegister:
-		return channelVolumeRegisterLocked[2];
+		return _channelVolumeRegisterLocked[2];
 	case ISN76489DataSource::Channel4VolumeRegister:
-		return channelVolumeRegisterLocked[3];
+		return _channelVolumeRegisterLocked[3];
 	case ISN76489DataSource::Channel1ToneRegister:
-		return channelDataRegisterLocked[0];
+		return _channelDataRegisterLocked[0];
 	case ISN76489DataSource::Channel2ToneRegister:
-		return channelDataRegisterLocked[1];
+		return _channelDataRegisterLocked[1];
 	case ISN76489DataSource::Channel3ToneRegister:
-		return channelDataRegisterLocked[2];
+		return _channelDataRegisterLocked[2];
 	case ISN76489DataSource::Channel4ToneRegister:
-		return channelDataRegisterLocked[3];
+		return _channelDataRegisterLocked[3];
 	case ISN76489DataSource::Channel4NoiseType:
-		return channelDataRegisterLocked[3] || noiseChannelTypeLocked;
+		return _channelDataRegisterLocked[3] || _noiseChannelTypeLocked;
 	case ISN76489DataSource::Channel4NoisePeriod:
-		return channelDataRegisterLocked[3] || noiseChannelPeriodLocked;
+		return _channelDataRegisterLocked[3] || _noiseChannelPeriodLocked;
 	}
 	return false;
 }
@@ -1189,36 +1189,36 @@ bool SN76489::SetGenericDataLocked(unsigned int dataID, const DataContext* dataC
 	switch((ISN76489DataSource)dataID)
 	{
 	case ISN76489DataSource::Channel1VolumeRegister:
-		channelVolumeRegisterLocked[0] = state;
+		_channelVolumeRegisterLocked[0] = state;
 		return true;
 	case ISN76489DataSource::Channel2VolumeRegister:
-		channelVolumeRegisterLocked[1] = state;
+		_channelVolumeRegisterLocked[1] = state;
 		return true;
 	case ISN76489DataSource::Channel3VolumeRegister:
-		channelVolumeRegisterLocked[2] = state;
+		_channelVolumeRegisterLocked[2] = state;
 		return true;
 	case ISN76489DataSource::Channel4VolumeRegister:
-		channelVolumeRegisterLocked[3] = state;
+		_channelVolumeRegisterLocked[3] = state;
 		return true;
 	case ISN76489DataSource::Channel1ToneRegister:
-		channelDataRegisterLocked[0] = state;
+		_channelDataRegisterLocked[0] = state;
 		return true;
 	case ISN76489DataSource::Channel2ToneRegister:
-		channelDataRegisterLocked[1] = state;
+		_channelDataRegisterLocked[1] = state;
 		return true;
 	case ISN76489DataSource::Channel3ToneRegister:
-		channelDataRegisterLocked[2] = state;
+		_channelDataRegisterLocked[2] = state;
 		return true;
 	case ISN76489DataSource::Channel4ToneRegister:
-		channelDataRegisterLocked[3] = state;
+		_channelDataRegisterLocked[3] = state;
 		return true;
 	case ISN76489DataSource::Channel4NoiseType:
-		noiseChannelTypeLocked = state;
-		channelDataRegisterLocked[3] = false;
+		_noiseChannelTypeLocked = state;
+		_channelDataRegisterLocked[3] = false;
 		return true;
 	case ISN76489DataSource::Channel4NoisePeriod:
-		noiseChannelPeriodLocked = state;
-		channelDataRegisterLocked[3] = false;
+		_noiseChannelPeriodLocked = state;
+		_channelDataRegisterLocked[3] = false;
 		return true;
 	}
 	return false;
@@ -1229,39 +1229,39 @@ bool SN76489::SetGenericDataLocked(unsigned int dataID, const DataContext* dataC
 //----------------------------------------------------------------------------------------
 void SN76489::SetAudioLoggingEnabled(bool state)
 {
-	std::unique_lock<std::mutex> lock(waveLoggingMutex);
-	if(wavLoggingEnabled != state)
+	std::unique_lock<std::mutex> lock(_waveLoggingMutex);
+	if(_wavLoggingEnabled != state)
 	{
 		if(state)
 		{
-			double outputFrequency = externalClockRate / externalClockDivider;
-			wavLog.SetDataFormat(1, 16, (unsigned int)outputFrequency);
-			wavLog.Open(wavLoggingPath, Stream::WAVFile::OpenMode::WriteOnly, Stream::WAVFile::CreateMode::Create);
+			double outputFrequency = _externalClockRate / _externalClockDivider;
+			_wavLog.SetDataFormat(1, 16, (unsigned int)outputFrequency);
+			_wavLog.Open(_wavLoggingPath, Stream::WAVFile::OpenMode::WriteOnly, Stream::WAVFile::CreateMode::Create);
 		}
 		else
 		{
-			wavLog.Close();
+			_wavLog.Close();
 		}
-		wavLoggingEnabled = state;
+		_wavLoggingEnabled = state;
 	}
 }
 
 //----------------------------------------------------------------------------------------
 void SN76489::SetChannelAudioLoggingEnabled(unsigned int channelNo, bool state)
 {
-	std::unique_lock<std::mutex> lock(waveLoggingMutex);
-	if(wavLoggingChannelEnabled[channelNo] != state)
+	std::unique_lock<std::mutex> lock(_waveLoggingMutex);
+	if(_wavLoggingChannelEnabled[channelNo] != state)
 	{
 		if(state)
 		{
-			double outputFrequency = externalClockRate / externalClockDivider;
-			wavLogChannel[channelNo].SetDataFormat(1, 16, (unsigned int)outputFrequency);
-			wavLogChannel[channelNo].Open(wavLoggingChannelPath[channelNo], Stream::WAVFile::OpenMode::WriteOnly, Stream::WAVFile::CreateMode::Create);
+			double outputFrequency = _externalClockRate / _externalClockDivider;
+			_wavLogChannel[channelNo].SetDataFormat(1, 16, (unsigned int)outputFrequency);
+			_wavLogChannel[channelNo].Open(_wavLoggingChannelPath[channelNo], Stream::WAVFile::OpenMode::WriteOnly, Stream::WAVFile::CreateMode::Create);
 		}
 		else
 		{
-			wavLogChannel[channelNo].Close();
+			_wavLogChannel[channelNo].Close();
 		}
-		wavLoggingChannelEnabled[channelNo] = state;
+		_wavLoggingChannelEnabled[channelNo] = state;
 	}
 }

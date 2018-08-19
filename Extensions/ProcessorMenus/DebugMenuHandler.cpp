@@ -9,8 +9,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-DebugMenuHandler::DebugMenuHandler(ProcessorMenus& aowner, const IDevice& amodelInstanceKey, IProcessor& amodel)
-:MenuHandlerBase(L"ProcessorDebugMenu", aowner.GetViewManager()), owner(aowner), modelInstanceKey(amodelInstanceKey), model(amodel)
+DebugMenuHandler::DebugMenuHandler(ProcessorMenus& owner, const IDevice& modelInstanceKey, IProcessor& model)
+:MenuHandlerBase(L"ProcessorDebugMenu", owner.GetViewManager()), _owner(owner), _modelInstanceKey(modelInstanceKey), _model(model)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -18,7 +18,7 @@ DebugMenuHandler::DebugMenuHandler(ProcessorMenus& aowner, const IDevice& amodel
 //----------------------------------------------------------------------------------------
 void DebugMenuHandler::GetMenuItems(std::list<MenuItemDefinition>& menuItems) const
 {
-	if(model.ActiveDisassemblySupported())
+	if(_model.ActiveDisassemblySupported())
 	{
 		menuItems.push_back(MenuItemDefinition(MENUITEM_ACTIVEDISASSEMBLY, L"ActiveDisassembly", ActiveDisassemblyViewPresenter::GetUnqualifiedViewTitle(), true, true));
 	}
@@ -35,17 +35,17 @@ IViewPresenter* DebugMenuHandler::CreateViewForItem(int menuItemID, const std::w
 	switch(menuItemID)
 	{
 	case MENUITEM_CONTROL:
-		return new ControlViewPresenter(GetMenuHandlerName(), viewName, menuItemID, owner, modelInstanceKey, model);
+		return new ControlViewPresenter(GetMenuHandlerName(), viewName, menuItemID, _owner, _modelInstanceKey, _model);
 	case MENUITEM_WATCHPOINTS:
-		return new WatchpointViewPresenter(GetMenuHandlerName(), viewName, menuItemID, owner, modelInstanceKey, model);
+		return new WatchpointViewPresenter(GetMenuHandlerName(), viewName, menuItemID, _owner, _modelInstanceKey, _model);
 	case MENUITEM_CALLSTACK:
-		return new CallStackViewPresenter(GetMenuHandlerName(), viewName, menuItemID, owner, modelInstanceKey, model);
+		return new CallStackViewPresenter(GetMenuHandlerName(), viewName, menuItemID, _owner, _modelInstanceKey, _model);
 	case MENUITEM_TRACE:
-		return new TraceViewPresenter(GetMenuHandlerName(), viewName, menuItemID, owner, modelInstanceKey, model);
+		return new TraceViewPresenter(GetMenuHandlerName(), viewName, menuItemID, _owner, _modelInstanceKey, _model);
 	case MENUITEM_DISASSEMBLY:
-		return new DisassemblyViewPresenter(GetMenuHandlerName(), viewName, menuItemID, owner, modelInstanceKey, model);
+		return new DisassemblyViewPresenter(GetMenuHandlerName(), viewName, menuItemID, _owner, _modelInstanceKey, _model);
 	case MENUITEM_ACTIVEDISASSEMBLY:
-		return new ActiveDisassemblyViewPresenter(GetMenuHandlerName(), viewName, menuItemID, owner, modelInstanceKey, model);
+		return new ActiveDisassemblyViewPresenter(GetMenuHandlerName(), viewName, menuItemID, _owner, _modelInstanceKey, _model);
 	}
 	return 0;
 }

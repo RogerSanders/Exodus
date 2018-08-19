@@ -27,7 +27,7 @@ public:
 	virtual void ApplyLimitSettingsToCurrentValue();
 
 private:
-	bool dataValue;
+	bool _dataValue;
 };
 
 #endif

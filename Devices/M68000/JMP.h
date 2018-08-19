@@ -6,43 +6,43 @@ namespace M68000 {
 class JMP :public M68000Instruction
 {
 public:
-	ExecuteTime GetExecuteTime(EffectiveAddress::Mode targetMode)
+	ExecuteTime GetExecuteTime(EffectiveAddress::Mode _targetMode)
 	{
 		const ExecuteTime executeTimeArray[9] = {
 			//(An)					(An)+					-(An)					d(An)					d(An,ix)+				xxx.W					xxx.L					d(PC)					d(PC,ix)
 			ExecuteTime(8, 2, 0),	ExecuteTime(0, 0, 0),	ExecuteTime(0, 0, 0),	ExecuteTime(10, 2, 0),	ExecuteTime(14, 3, 0),	ExecuteTime(10, 2, 0),	ExecuteTime(12, 3, 0),	ExecuteTime(10, 2, 0),	ExecuteTime(14, 3, 0)};
-		unsigned int targetIndex = 0;
-		switch(targetMode)
+		unsigned int _targetIndex = 0;
+		switch(_targetMode)
 		{
 		case EffectiveAddress::Mode::AddRegIndirect:
-			targetIndex = 0;
+			_targetIndex = 0;
 			break;
 		case EffectiveAddress::Mode::AddRegIndirectPostInc:
-			targetIndex = 1;
+			_targetIndex = 1;
 			break;
 		case EffectiveAddress::Mode::AddRegIndirectPreDec:
-			targetIndex = 2;
+			_targetIndex = 2;
 			break;
 		case EffectiveAddress::Mode::AddRegIndirectDisplace:
-			targetIndex = 3;
+			_targetIndex = 3;
 			break;
 		case EffectiveAddress::Mode::AddRegIndirectIndex8Bit:
-			targetIndex = 4;
+			_targetIndex = 4;
 			break;
 		case EffectiveAddress::Mode::ABSWord:
-			targetIndex = 5;
+			_targetIndex = 5;
 			break;
 		case EffectiveAddress::Mode::ABSLong:
-			targetIndex = 6;
+			_targetIndex = 6;
 			break;
 		case EffectiveAddress::Mode::PCIndirectDisplace:
-			targetIndex = 7;
+			_targetIndex = 7;
 			break;
 		case EffectiveAddress::Mode::PCIndirectIndex8Bit:
-			targetIndex = 8;
+			_targetIndex = 8;
 			break;
 		}
-		return executeTimeArray[targetIndex];
+		return executeTimeArray[_targetIndex];
 	}
 
 	virtual JMP* Clone() const {return new JMP();}
@@ -61,7 +61,7 @@ public:
 
 	virtual Disassembly M68000Disassemble(const M68000::LabelSubstitutionSettings& labelSettings) const
 	{
-		return Disassembly(GetOpcodeName(), target.Disassemble(labelSettings));
+		return Disassembly(GetOpcodeName(), _target.Disassemble(labelSettings));
 	}
 
 	virtual void M68000Decode(const M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)
@@ -74,36 +74,36 @@ public:
 //	                                        |----------<ea>---------|
 
 		//JMP	<ea>
-		target.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), BITCOUNT_LONG, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
-		AddInstructionSize(target.ExtensionSize());
-		AddExecuteCycleCount(GetExecuteTime(target.GetAddressMode()));
+		_target.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), BITCOUNT_LONG, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
+		AddInstructionSize(_target.ExtensionSize());
+		AddExecuteCycleCount(GetExecuteTime(_target.GetAddressMode()));
 	}
 
 	virtual ExecuteTime M68000Execute(M68000* cpu, const M68000Long& location) const
 	{
 		M68000Long address;
 
-		//If the target location was read from a memory address, and the read value hasn't
-		//been modified up to this point, record the source memory address as a pointer to
+		//If the _target location was read from a memory address, and the read value hasn't
+		//been modified up to this point, record the _source memory address as a pointer to
 		//code for disassembly purposes.
-		unsigned int targetReadFromAddress;
+		unsigned int _targetReadFromAddress;
 		bool dataIsOffset;
 		unsigned int offsetBaseAddress;
 		unsigned int dataSize;
-		if(target.IsTargetUnmodifiedFromMemoryReadV2(cpu, targetReadFromAddress, dataIsOffset, offsetBaseAddress, dataSize))
+		if(_target.IsTargetUnmodifiedFromMemoryReadV2(cpu, _targetReadFromAddress, dataIsOffset, offsetBaseAddress, dataSize))
 		{
-			cpu->AddDisassemblyAddressInfoOffset(targetReadFromAddress, dataSize, true, dataIsOffset, offsetBaseAddress);
+			cpu->AddDisassemblyAddressInfoOffset(_targetReadFromAddress, dataSize, true, dataIsOffset, offsetBaseAddress);
 		}
 
 		//Perform the operation
-		target.GetAddress(cpu, address);
+		_target.GetAddress(cpu, address);
 		cpu->SetPC(address);
 
 		//Detect possible jump tables for active disassembly
-		if(cpu->ActiveDisassemblyEnabled() && ((target.GetAddressMode() == EffectiveAddress::Mode::AddRegIndirectIndex8Bit) || (target.GetAddressMode() == EffectiveAddress::Mode::PCIndirectIndex8Bit)))
+		if(cpu->ActiveDisassemblyEnabled() && ((_target.GetAddressMode() == EffectiveAddress::Mode::AddRegIndirectIndex8Bit) || (_target.GetAddressMode() == EffectiveAddress::Mode::PCIndirectIndex8Bit)))
 		{
 			M68000Long baseAddress;
-			target.GetAddressDisplacementTargetNoIndex(cpu, baseAddress);
+			_target.GetAddressDisplacementTargetNoIndex(cpu, baseAddress);
 			cpu->AddDisassemblyPossibleBranchTable(baseAddress.GetData(), address.GetData(), GetInstructionSize());
 		}
 
@@ -120,7 +120,7 @@ public:
 		//executing this opcode.
 		undeterminedResultantPCLocation = false;
 		M68000Long jumpOpcodeAddress;
-		if(target.GetAddressTransparent(jumpOpcodeAddress))
+		if(_target.GetAddressTransparent(jumpOpcodeAddress))
 		{
 			resultantPCLocations.insert(jumpOpcodeAddress.GetData());
 		}
@@ -132,11 +132,11 @@ public:
 
 	virtual void GetLabelTargetLocations(std::set<unsigned int>& labelTargetLocations) const
 	{
-		target.AddLabelTargetsToSet(labelTargetLocations);
+		_target.AddLabelTargetsToSet(labelTargetLocations);
 	}
 
 private:
-	EffectiveAddress target;
+	EffectiveAddress _target;
 };
 
 } //Close namespace M68000

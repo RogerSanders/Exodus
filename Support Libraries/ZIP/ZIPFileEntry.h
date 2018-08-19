@@ -31,15 +31,15 @@ public:
 
 	//File name functions
 	std::wstring GetFileName() const;
-	void SetFileName(const std::wstring& aname);
+	void SetFileName(const std::wstring& name);
 
 	//File header functions
-	ZIPChunk_CentralFileHeader GetCentralDirectoryFileHeader() const;
+	ZIPChunkCentralFileHeader GetCentralDirectoryFileHeader() const;
 
 private:
-	bool compressedDataWritten;
-	Stream::Buffer data;
-	ZIPChunk_LocalFileHeader localFileHeader;
+	bool _compressedDataWritten;
+	Stream::Buffer _data;
+	ZIPChunkLocalFileHeader _localFileHeader;
 };
 
 #endif

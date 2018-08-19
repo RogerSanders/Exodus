@@ -29,8 +29,8 @@ public:
 
 	//Size functions
 	inline unsigned int GetInstructionSize() const;
-	inline void SetInstructionSize(unsigned int ainstructionSize);
-	inline void AddInstructionSize(unsigned int ainstructionSize);
+	inline void SetInstructionSize(unsigned int instructionSize);
+	inline void AddInstructionSize(unsigned int instructionSize);
 
 	//Condition code functions
 	static bool ConditionCodeTrue(M68000* cpu, ConditionCode code);
@@ -42,18 +42,18 @@ public:
 	//Execute time functions
 	inline ExecuteTime GetExecuteCycleCount() const;
 	inline ExecuteTime GetExecuteCycleCount(double additionalTime) const;
-	inline void AddExecuteCycleCount(const ExecuteTime& aexecuteCycleCount);
+	inline void AddExecuteCycleCount(const ExecuteTime& executeCycleCount);
 
 	//Instruction info functions
 	virtual bool Privileged() const;
 	inline const M68000Word& GetInstructionRegister() const;
-	inline void SetInstructionRegister(const M68000Word& ainstructionData);
+	inline void SetInstructionRegister(const M68000Word& instructionData);
 	inline const M68000Long& GetInstructionLocation() const;
-	inline void SetInstructionLocation(const M68000Long& ainstructionLocation);
+	inline void SetInstructionLocation(const M68000Long& instructionLocation);
 
 	//Transparent decode functions
 	inline bool GetTransparentFlag() const;
-	inline void SetTransparentFlag(bool astate);
+	inline void SetTransparentFlag(bool state);
 
 	//Disassembly functions
 	virtual std::wstring GetOpcodeName() const;
@@ -61,14 +61,14 @@ public:
 	virtual void GetResultantPCLocations(std::set<unsigned int>& resultantPCLocations, bool& undeterminedResultantPCLocation) const;
 	virtual void GetLabelTargetLocations(std::set<unsigned int>& labelTargetLocations) const = 0;
 	static std::wstring DisassembleConditionCode(ConditionCode code);
-	static std::wstring DisassembleSize(Bitcount asize);
+	static std::wstring DisassembleSize(Bitcount size);
 
 private:
-	unsigned int instructionSize;
-	ExecuteTime executeCycleCount;
-	M68000Word instructionRegister;
-	M68000Long instructionLocation;
-	bool transparentOpcode;
+	unsigned int _instructionSize;
+	ExecuteTime _executeCycleCount;
+	M68000Word _instructionRegister;
+	M68000Long _instructionLocation;
+	bool _transparentOpcode;
 };
 
 } //Close namespace M68000

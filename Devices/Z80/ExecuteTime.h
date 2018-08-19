@@ -7,10 +7,10 @@ class ExecuteTime
 public:
 	//Constructors
 	inline ExecuteTime();
-	inline ExecuteTime(unsigned int acycles, double aadditionalTime = 0);
+	inline ExecuteTime(unsigned int cycles, double additionalTime = 0);
 
 	//Set functions
-	inline void Set(unsigned int acycles, double aadditionalTime = 0);
+	inline void Set(unsigned int cycles, double additionalTime = 0);
 
 	//Addition operators
 	inline ExecuteTime operator+(const ExecuteTime& target) const;

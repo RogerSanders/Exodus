@@ -7,61 +7,61 @@
 //----------------------------------------------------------------------------------------
 //Constants
 //----------------------------------------------------------------------------------------
-const wchar_t* WC_HexEdit::windowClassName = L"EX_HexEdit";
+const wchar_t* WC_HexEdit::WindowClassName = L"EX_HexEdit";
 
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-WC_HexEdit::WC_HexEdit(HINSTANCE amoduleHandle, HWND ahwnd)
-:moduleHandle(amoduleHandle), hwnd(ahwnd)
+WC_HexEdit::WC_HexEdit(HINSTANCE moduleHandle, HWND hwnd)
+:_moduleHandle(moduleHandle), _hwnd(hwnd)
 {
-	hfont = NULL;
-	hcontextMenu = NULL;
+	_hfont = NULL;
+	_hcontextMenu = NULL;
 
-	colorBackground = WinColor(255, 255, 255);
-	colorAddressText = WinColor(0, 0, 0);
-	colorAddressBack = WinColor(255, 255, 255);
-	colorLine = WinColor(0, 0, 0);
-	colorDataText1 = WinColor(0, 0, 255);
-	colorDataBack1 = WinColor(255, 255, 255);
-	colorDataText2 = WinColor(0, 0, 132);
-	colorDataBack2 = WinColor(255, 251, 255);
-	colorMarkedDataText = WinColor(255, 255, 255);
-	colorMarkedDataBack = WinColor(255, 0, 0);
-	colorModifiedDataText = WinColor(255, 0, 0);
-	colorModifiedDataBack = WinColor(255, 255, 255);
-	colorTextText = WinColor(0, 0, 0);
-	colorTextBack = WinColor(255, 255, 255);
-	colorMarkedTextText = WinColor(255, 255, 255);
-	colorMarkedTextBack = WinColor(255, 0, 0);
+	_colorBackground = WinColor(255, 255, 255);
+	_colorAddressText = WinColor(0, 0, 0);
+	_colorAddressBack = WinColor(255, 255, 255);
+	_colorLine = WinColor(0, 0, 0);
+	_colorDataText1 = WinColor(0, 0, 255);
+	_colorDataBack1 = WinColor(255, 255, 255);
+	_colorDataText2 = WinColor(0, 0, 132);
+	_colorDataBack2 = WinColor(255, 251, 255);
+	_colorMarkedDataText = WinColor(255, 255, 255);
+	_colorMarkedDataBack = WinColor(255, 0, 0);
+	_colorModifiedDataText = WinColor(255, 0, 0);
+	_colorModifiedDataBack = WinColor(255, 255, 255);
+	_colorTextText = WinColor(0, 0, 0);
+	_colorTextBack = WinColor(255, 255, 255);
+	_colorMarkedTextText = WinColor(255, 255, 255);
+	_colorMarkedTextBack = WinColor(255, 0, 0);
 
-	addressOffset = 0;
-	valuesPerColumn = 2;
-	addressWidth = 4;
-	textDisplayEnabled = true;
-	fontPointSize = 8;
-	fontTypefaceName = L"Courier New";
+	_addressOffset = 0;
+	_valuesPerColumn = 2;
+	_addressWidth = 4;
+	_textDisplayEnabled = true;
+	_fontPointSize = 8;
+	_fontTypefaceName = L"Courier New";
 
-	dataSize = 0;
-	dataViewPos = 0;
+	_dataSize = 0;
+	_dataViewPos = 0;
 
-	selectedByte = 0;
-	firstNybbleWritten = false;
-	inputOnTextWindow = false;
+	_selectedByte = 0;
+	_firstNybbleWritten = false;
+	_inputOnTextWindow = false;
 
-	hwndTooltip = NULL;
-	tooltipVisible = false;
+	_hwndTooltip = NULL;
+	_tooltipVisible = false;
 
-	mouseButtonDown = false;
-	dragSelectActive = false;
+	_mouseButtonDown = false;
+	_dragSelectActive = false;
 
-	markingEnabled = false;
+	_markingEnabled = false;
 }
 
 //----------------------------------------------------------------------------------------
 //Class registration
 //----------------------------------------------------------------------------------------
-bool WC_HexEdit::RegisterWindowClass(HINSTANCE amoduleHandle)
+bool WC_HexEdit::RegisterWindowClass(HINSTANCE moduleHandle)
 {
 	//Attempt to register the window class for this control, and return the result to the
 	//caller.
@@ -71,23 +71,23 @@ bool WC_HexEdit::RegisterWindowClass(HINSTANCE amoduleHandle)
 	wc.lpfnWndProc   = WndProc;
 	wc.cbClsExtra    = 0;
 	wc.cbWndExtra    = 0;
-	wc.hInstance     = amoduleHandle;
+	wc.hInstance     = moduleHandle;
 	wc.hIcon         = NULL;
 	wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
 	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
 	wc.lpszMenuName  = NULL;
-	wc.lpszClassName = windowClassName;
+	wc.lpszClassName = WindowClassName;
 	wc.hIconSm       = NULL;
 	ATOM registerClassExReturn = RegisterClassEx(&wc);
 	return (registerClassExReturn != 0);
 }
 
 //----------------------------------------------------------------------------------------
-bool WC_HexEdit::UnregisterWindowClass(HINSTANCE amoduleHandle)
+bool WC_HexEdit::UnregisterWindowClass(HINSTANCE moduleHandle)
 {
 	//Attempt to unregister the window class for this control, and return the result to
 	//the caller.
-	BOOL unregisterClassReturn = UnregisterClass(windowClassName, amoduleHandle);
+	BOOL unregisterClassReturn = UnregisterClass(WindowClassName, moduleHandle);
 	return (unregisterClassReturn != 0);
 }
 
@@ -101,54 +101,54 @@ void WC_HexEdit::UpdateDragSelectPos(int newSelectPosSigned)
 	{
 		newSelectPos = 0;
 	}
-	else if((unsigned int)newSelectPosSigned > dataSize)
+	else if((unsigned int)newSelectPosSigned > _dataSize)
 	{
-		newSelectPos = dataSize;
+		newSelectPos = _dataSize;
 	}
 	else
 	{
 		newSelectPos = (unsigned int)newSelectPosSigned;
 	}
 
-	if(newSelectPos < selectedByte)
+	if(newSelectPos < _selectedByte)
 	{
-		dragSelectStartPos = newSelectPos;
-		dragSelectEndPos = selectedByte;
+		_dragSelectStartPos = newSelectPos;
+		_dragSelectEndPos = _selectedByte;
 	}
 	else
 	{
-		dragSelectStartPos = selectedByte;
-		dragSelectEndPos = newSelectPos;
+		_dragSelectStartPos = _selectedByte;
+		_dragSelectEndPos = newSelectPos;
 	}
 	//Update the tooltip text, so that the drag select region shown in the tooltip will
 	//be updated when the keyboard is used to adjust the selected region, or when the
 	//mouse is being held outside the window area.
-	UpdateTooltipText(tooltipLastValue);
+	UpdateTooltipText(_tooltipLastValue);
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int WC_HexEdit::GetDragSelectPos() const
 {
-	if(dragSelectEndPos != selectedByte)
+	if(_dragSelectEndPos != _selectedByte)
 	{
-		return dragSelectEndPos;
+		return _dragSelectEndPos;
 	}
 	else
 	{
-		return dragSelectStartPos;
+		return _dragSelectStartPos;
 	}
 }
 
 //----------------------------------------------------------------------------------------
 void WC_HexEdit::StartDragSelect()
 {
-	if(!dragSelectActive)
+	if(!_dragSelectActive)
 	{
-		dragSelectActive = true;
-		dragSelectStartPos = selectedByte;
-		dragSelectEndPos = selectedByte;
-		lastCursorDragSelectPosX = 0;
-		lastCursorDragSelectPosY = 0;
+		_dragSelectActive = true;
+		_dragSelectStartPos = _selectedByte;
+		_dragSelectEndPos = _selectedByte;
+		_lastCursorDragSelectPosX = 0;
+		_lastCursorDragSelectPosY = 0;
 		EnableSelectionMenuItems(true);
 	}
 }
@@ -156,10 +156,10 @@ void WC_HexEdit::StartDragSelect()
 //----------------------------------------------------------------------------------------
 void WC_HexEdit::StopDragSelect()
 {
-	if(dragSelectActive)
+	if(_dragSelectActive)
 	{
-		dragSelectActive = false;
-		selectedByte = GetDragSelectPos();
+		_dragSelectActive = false;
+		_selectedByte = GetDragSelectPos();
 		EnableSelectionMenuItems(false);
 	}
 }
@@ -167,7 +167,7 @@ void WC_HexEdit::StopDragSelect()
 //----------------------------------------------------------------------------------------
 bool WC_HexEdit::DragSelectActive() const
 {
-	return dragSelectActive;
+	return _dragSelectActive;
 }
 
 //----------------------------------------------------------------------------------------
@@ -177,36 +177,36 @@ void WC_HexEdit::UpdateTooltipText(unsigned int newSelectedByte)
 {
 	//Build the new text for the tooltip control
 	std::wstringstream stream;
-	unsigned int dragSelectSize = dragSelectEndPos - dragSelectStartPos;
+	unsigned int dragSelectSize = _dragSelectEndPos - _dragSelectStartPos;
 	if(DragSelectActive() && (dragSelectSize > 0))
 	{
-		stream << L"0x" << std::setw(addressWidth) << std::setfill(L'0') << std::hex << std::uppercase << dragSelectStartPos;
+		stream << L"0x" << std::setw(_addressWidth) << std::setfill(L'0') << std::hex << std::uppercase << _dragSelectStartPos;
 		stream << L"-";
-		stream << L"0x" << std::setw(addressWidth) << std::setfill(L'0') << std::hex << std::uppercase << dragSelectEndPos;
+		stream << L"0x" << std::setw(_addressWidth) << std::setfill(L'0') << std::hex << std::uppercase << _dragSelectEndPos;
 		stream << L" (";
-		stream << "0x" << std::setw(addressWidth) << std::setfill(L'0') << std::hex << std::uppercase << dragSelectSize;
+		stream << "0x" << std::setw(_addressWidth) << std::setfill(L'0') << std::hex << std::uppercase << dragSelectSize;
 		stream << L"/";
 		stream << std::dec << dragSelectSize;
 		stream << L")";
 	}
 	else
 	{
-		stream << L"0x" << std::setw(addressWidth) << std::setfill(L'0') << std::hex << std::uppercase << newSelectedByte;
+		stream << L"0x" << std::setw(_addressWidth) << std::setfill(L'0') << std::hex << std::uppercase << newSelectedByte;
 	}
 	std::wstring text = stream.str();
 
 	//Update the tooltip text
-	if(text != lastTooltipText)
+	if(text != _lastTooltipText)
 	{
-		lastTooltipText = text;
+		_lastTooltipText = text;
 		TOOLINFO toolInfo;
 		toolInfo.cbSize = sizeof(TOOLINFO);
 		toolInfo.lpReserved = 0;
-		toolInfo.hwnd = hwnd;
-		toolInfo.hinst = moduleHandle;
-		toolInfo.uId = (UINT_PTR)hwnd;
+		toolInfo.hwnd = _hwnd;
+		toolInfo.hinst = _moduleHandle;
+		toolInfo.uId = (UINT_PTR)_hwnd;
 		toolInfo.lpszText = &text[0];
-		SendMessage(hwndTooltip, TTM_UPDATETIPTEXT, 0, (LPARAM)&toolInfo);
+		SendMessage(_hwndTooltip, TTM_UPDATETIPTEXT, 0, (LPARAM)&toolInfo);
 	}
 }
 
@@ -216,11 +216,11 @@ void WC_HexEdit::UpdateTooltipText(unsigned int newSelectedByte)
 void WC_HexEdit::UpdateContextMenu()
 {
 	//Create our rightclick context menu
-	if(hcontextMenu != NULL)
+	if(_hcontextMenu != NULL)
 	{
-		DestroyMenu(hcontextMenu);
+		DestroyMenu(_hcontextMenu);
 	}
-	hcontextMenu = CreatePopupMenu();
+	_hcontextMenu = CreatePopupMenu();
 
 	std::wstring copyText = L"Copy";
 	MENUITEMINFO copyMenuItem;
@@ -230,7 +230,7 @@ void WC_HexEdit::UpdateContextMenu()
 	copyMenuItem.wID = (UINT)MenuItem::Copy;
 	copyMenuItem.dwTypeData = &copyText[0];
 	copyMenuItem.cch = (UINT)copyText.size();
-	InsertMenuItem(hcontextMenu, 9999, TRUE, &copyMenuItem);
+	InsertMenuItem(_hcontextMenu, 9999, TRUE, &copyMenuItem);
 
 	std::wstring pasteText = L"Paste";
 	MENUITEMINFO pasteMenuItem;
@@ -240,11 +240,11 @@ void WC_HexEdit::UpdateContextMenu()
 	pasteMenuItem.wID = (UINT)MenuItem::Paste;
 	pasteMenuItem.dwTypeData = &pasteText[0];
 	pasteMenuItem.cch = (UINT)pasteText.size();
-	InsertMenuItem(hcontextMenu, 9999, TRUE, &pasteMenuItem);
+	InsertMenuItem(_hcontextMenu, 9999, TRUE, &pasteMenuItem);
 
-	if(markingEnabled)
+	if(_markingEnabled)
 	{
-		std::wstring markText = markName;
+		std::wstring markText = _markName;
 		MENUITEMINFO markMenuItem;
 		markMenuItem.cbSize = sizeof(markMenuItem);
 		markMenuItem.fMask = MIIM_FTYPE | MIIM_STRING | MIIM_ID;
@@ -252,9 +252,9 @@ void WC_HexEdit::UpdateContextMenu()
 		markMenuItem.wID = (UINT)MenuItem::Mark;
 		markMenuItem.dwTypeData = &markText[0];
 		markMenuItem.cch = (UINT)markText.size();
-		InsertMenuItem(hcontextMenu, 9999, TRUE, &markMenuItem);
+		InsertMenuItem(_hcontextMenu, 9999, TRUE, &markMenuItem);
 
-		std::wstring unmarkText = unmarkName;
+		std::wstring unmarkText = _unmarkName;
 		MENUITEMINFO unmarkMenuItem;
 		unmarkMenuItem.cbSize = sizeof(unmarkMenuItem);
 		unmarkMenuItem.fMask = MIIM_FTYPE | MIIM_STRING | MIIM_ID;
@@ -262,14 +262,14 @@ void WC_HexEdit::UpdateContextMenu()
 		unmarkMenuItem.wID = (UINT)MenuItem::Unmark;
 		unmarkMenuItem.dwTypeData = &unmarkText[0];
 		unmarkMenuItem.cch = (UINT)unmarkText.size();
-		InsertMenuItem(hcontextMenu, 9999, TRUE, &unmarkMenuItem);
+		InsertMenuItem(_hcontextMenu, 9999, TRUE, &unmarkMenuItem);
 	}
 
 	MENUITEMINFO divider1MenuItem;
 	divider1MenuItem.cbSize = sizeof(divider1MenuItem);
 	divider1MenuItem.fMask = MIIM_FTYPE;
 	divider1MenuItem.fType = MFT_SEPARATOR;
-	InsertMenuItem(hcontextMenu, 9999, TRUE, &divider1MenuItem);
+	InsertMenuItem(_hcontextMenu, 9999, TRUE, &divider1MenuItem);
 
 	HMENU hcolumnSizeMenu = CreatePopupMenu();
 	std::wstring columnSizeMenuText1 = L"1 byte";
@@ -277,7 +277,7 @@ void WC_HexEdit::UpdateContextMenu()
 	columnSizeMenuItem1.cbSize = sizeof(columnSizeMenuItem1);
 	columnSizeMenuItem1.fMask = MIIM_FTYPE | MIIM_STRING | MIIM_ID | MIIM_STATE;
 	columnSizeMenuItem1.fType = MFT_STRING | MFT_RADIOCHECK;
-	columnSizeMenuItem1.fState = (valuesPerColumn == 1)? MFS_CHECKED: MFS_UNCHECKED;
+	columnSizeMenuItem1.fState = (_valuesPerColumn == 1)? MFS_CHECKED: MFS_UNCHECKED;
 	columnSizeMenuItem1.wID = (UINT)MenuItem::ColumnWidth1;
 	columnSizeMenuItem1.dwTypeData = &columnSizeMenuText1[0];
 	columnSizeMenuItem1.cch = (UINT)columnSizeMenuText1.size();
@@ -290,7 +290,7 @@ void WC_HexEdit::UpdateContextMenu()
 	columnSizeMenuItem2.fType = MFT_STRING | MFT_RADIOCHECK;
 	columnSizeMenuItem2.hbmpChecked = NULL;
 	columnSizeMenuItem2.hbmpUnchecked = NULL;
-	columnSizeMenuItem2.fState = (valuesPerColumn == 2)? MFS_CHECKED: MFS_UNCHECKED;
+	columnSizeMenuItem2.fState = (_valuesPerColumn == 2)? MFS_CHECKED: MFS_UNCHECKED;
 	columnSizeMenuItem2.wID = (UINT)MenuItem::ColumnWidth2;
 	columnSizeMenuItem2.dwTypeData = &columnSizeMenuText2[0];
 	columnSizeMenuItem2.cch = (UINT)columnSizeMenuText2.size();
@@ -303,7 +303,7 @@ void WC_HexEdit::UpdateContextMenu()
 	columnSizeMenuItem4.fType = MFT_STRING | MFT_RADIOCHECK;
 	columnSizeMenuItem4.hbmpChecked = NULL;
 	columnSizeMenuItem4.hbmpUnchecked = NULL;
-	columnSizeMenuItem4.fState = (valuesPerColumn == 4)? MFS_CHECKED: MFS_UNCHECKED;
+	columnSizeMenuItem4.fState = (_valuesPerColumn == 4)? MFS_CHECKED: MFS_UNCHECKED;
 	columnSizeMenuItem4.wID = (UINT)MenuItem::ColumnWidth4;
 	columnSizeMenuItem4.dwTypeData = &columnSizeMenuText4[0];
 	columnSizeMenuItem4.cch = (UINT)columnSizeMenuText4.size();
@@ -316,7 +316,7 @@ void WC_HexEdit::UpdateContextMenu()
 	columnSizeMenuItem8.fType = MFT_STRING | MFT_RADIOCHECK;
 	columnSizeMenuItem8.hbmpChecked = NULL;
 	columnSizeMenuItem8.hbmpUnchecked = NULL;
-	columnSizeMenuItem8.fState = (valuesPerColumn == 8)? MFS_CHECKED: MFS_UNCHECKED;
+	columnSizeMenuItem8.fState = (_valuesPerColumn == 8)? MFS_CHECKED: MFS_UNCHECKED;
 	columnSizeMenuItem8.wID = (UINT)MenuItem::ColumnWidth8;
 	columnSizeMenuItem8.dwTypeData = &columnSizeMenuText8[0];
 	columnSizeMenuItem8.cch = (UINT)columnSizeMenuText8.size();
@@ -329,7 +329,7 @@ void WC_HexEdit::UpdateContextMenu()
 	columnSizeMenuItem16.fType = MFT_STRING | MFT_RADIOCHECK;
 	columnSizeMenuItem16.hbmpChecked = NULL;
 	columnSizeMenuItem16.hbmpUnchecked = NULL;
-	columnSizeMenuItem16.fState = (valuesPerColumn == 16)? MFS_CHECKED: MFS_UNCHECKED;
+	columnSizeMenuItem16.fState = (_valuesPerColumn == 16)? MFS_CHECKED: MFS_UNCHECKED;
 	columnSizeMenuItem16.wID = (UINT)MenuItem::ColumnWidth16;
 	columnSizeMenuItem16.dwTypeData = &columnSizeMenuText16[0];
 	columnSizeMenuItem16.cch = (UINT)columnSizeMenuText16.size();
@@ -345,24 +345,24 @@ void WC_HexEdit::UpdateContextMenu()
 	columnSizeMenuItem.dwItemData = (ULONG_PTR)hcolumnSizeMenu;
 	columnSizeMenuItem.dwTypeData = &columnSizeMenuText[0];
 	columnSizeMenuItem.cch = (UINT)columnSizeMenuText.size();
-	InsertMenuItem(hcontextMenu, 9999, TRUE, &columnSizeMenuItem);
+	InsertMenuItem(_hcontextMenu, 9999, TRUE, &columnSizeMenuItem);
 
 	std::wstring enableTextMenuText = L"Show Text";
 	MENUITEMINFO enableTextMenuItem;
 	enableTextMenuItem.cbSize = sizeof(enableTextMenuItem);
 	enableTextMenuItem.fMask = MIIM_FTYPE | MIIM_STRING | MIIM_ID | MIIM_STATE;
 	enableTextMenuItem.fType = MFT_STRING;
-	enableTextMenuItem.fState = (textDisplayEnabled)? MFS_CHECKED: MFS_UNCHECKED;
+	enableTextMenuItem.fState = (_textDisplayEnabled)? MFS_CHECKED: MFS_UNCHECKED;
 	enableTextMenuItem.wID = (UINT)MenuItem::EnableText;
 	enableTextMenuItem.dwTypeData = &enableTextMenuText[0];
 	enableTextMenuItem.cch = (UINT)enableTextMenuText.size();
-	InsertMenuItem(hcontextMenu, 9999, TRUE, &enableTextMenuItem);
+	InsertMenuItem(_hcontextMenu, 9999, TRUE, &enableTextMenuItem);
 
 	MENUITEMINFO divider2MenuItem;
 	divider2MenuItem.cbSize = sizeof(divider2MenuItem);
 	divider2MenuItem.fMask = MIIM_FTYPE;
 	divider2MenuItem.fType = MFT_SEPARATOR;
-	InsertMenuItem(hcontextMenu, 9999, TRUE, &divider2MenuItem);
+	InsertMenuItem(_hcontextMenu, 9999, TRUE, &divider2MenuItem);
 
 	std::wstring saveToFileText = L"Save to File";
 	MENUITEMINFO saveToFileMenuItem;
@@ -372,7 +372,7 @@ void WC_HexEdit::UpdateContextMenu()
 	saveToFileMenuItem.wID = (UINT)MenuItem::SaveToFile;
 	saveToFileMenuItem.dwTypeData = &saveToFileText[0];
 	saveToFileMenuItem.cch = (UINT)saveToFileText.size();
-	InsertMenuItem(hcontextMenu, 9999, TRUE, &saveToFileMenuItem);
+	InsertMenuItem(_hcontextMenu, 9999, TRUE, &saveToFileMenuItem);
 
 	std::wstring loadFromFileText = L"Load from File";
 	MENUITEMINFO loadFromFileMenuItem;
@@ -382,7 +382,7 @@ void WC_HexEdit::UpdateContextMenu()
 	loadFromFileMenuItem.wID = (UINT)MenuItem::LoadFromFile;
 	loadFromFileMenuItem.dwTypeData = &loadFromFileText[0];
 	loadFromFileMenuItem.cch = (UINT)loadFromFileText.size();
-	InsertMenuItem(hcontextMenu, 9999, TRUE, &loadFromFileMenuItem);
+	InsertMenuItem(_hcontextMenu, 9999, TRUE, &loadFromFileMenuItem);
 
 	EnableSelectionMenuItems(DragSelectActive());
 }
@@ -391,43 +391,43 @@ void WC_HexEdit::UpdateContextMenu()
 void WC_HexEdit::EnableSelectionMenuItems(bool state)
 {
 	UINT enableState = state? MF_ENABLED: MF_GRAYED;
-	EnableMenuItem(hcontextMenu, (UINT)MenuItem::Copy, enableState);
-	if(markingEnabled)
+	EnableMenuItem(_hcontextMenu, (UINT)MenuItem::Copy, enableState);
+	if(_markingEnabled)
 	{
-		EnableMenuItem(hcontextMenu, (UINT)MenuItem::Mark, enableState);
-		EnableMenuItem(hcontextMenu, (UINT)MenuItem::Unmark, enableState);
+		EnableMenuItem(_hcontextMenu, (UINT)MenuItem::Mark, enableState);
+		EnableMenuItem(_hcontextMenu, (UINT)MenuItem::Unmark, enableState);
 	}
 }
 
 //----------------------------------------------------------------------------------------
 void WC_HexEdit::MarkSelection(bool state)
 {
-	if(dragSelectActive)
+	if(_dragSelectActive)
 	{
 		Hex_UpdateDataMarkingState updateDataMarkingState;
-		updateDataMarkingState.offset = dragSelectStartPos;
-		updateDataMarkingState.size = dragSelectEndPos - dragSelectStartPos;
+		updateDataMarkingState.offset = _dragSelectStartPos;
+		updateDataMarkingState.size = _dragSelectEndPos - _dragSelectStartPos;
 		updateDataMarkingState.state = state;
-		SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), WindowNotifications::UpdateDataMarking), (LPARAM)&updateDataMarkingState);
+		SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::UpdateDataMarking), (LPARAM)&updateDataMarkingState);
 	}
 }
 
 //----------------------------------------------------------------------------------------
 bool WC_HexEdit::CopyToClipboard()
 {
-	if(!dragSelectActive)
+	if(!_dragSelectActive)
 	{
 		return false;
 	}
-	if(OpenClipboard(hwnd) == 0)
+	if(OpenClipboard(_hwnd) == 0)
 	{
 		return false;
 	}
 
 	//Copy data to the clipboard
-	unsigned int dragSelectByteSize = dragSelectEndPos - dragSelectStartPos;
+	unsigned int dragSelectByteSize = _dragSelectEndPos - _dragSelectStartPos;
 	unsigned int dragSelectTextSize = dragSelectByteSize;
-	if(!inputOnTextWindow)
+	if(!_inputOnTextWindow)
 	{
 		dragSelectTextSize *= 2;
 	}
@@ -447,12 +447,12 @@ bool WC_HexEdit::CopyToClipboard()
 		unsigned int blockSize = dragSelectByteSize;
 		unsigned char* buffer = new unsigned char[blockSize];
 
-		bool readBlockResult = ReadBlockToBuffer(dragSelectStartPos, dragSelectByteSize, buffer);
+		bool readBlockResult = ReadBlockToBuffer(_dragSelectStartPos, dragSelectByteSize, buffer);
 		if(readBlockResult)
 		{
 			for(unsigned int i = 0; i < dragSelectByteSize; ++i)
 			{
-				if(inputOnTextWindow)
+				if(_inputOnTextWindow)
 				{
 					unsigned char byte = buffer[i];
 					*(clipboardData + clipboardDataOffset++) = byte;
@@ -488,7 +488,7 @@ bool WC_HexEdit::PasteFromClipboard()
 	{
 		return false;
 	}
-	if(OpenClipboard(hwnd) == 0)
+	if(OpenClipboard(_hwnd) == 0)
 	{
 		return false;
 	}
@@ -503,17 +503,17 @@ bool WC_HexEdit::PasteFromClipboard()
 	unsigned char* clipboardData = (unsigned char*)GlobalLock(clipboardDataHandle);
 	if(clipboardData != NULL)
 	{
-		unsigned int pastePos = selectedByte;
+		unsigned int pastePos = _selectedByte;
 		if(DragSelectActive())
 		{
-			pastePos = dragSelectStartPos;
+			pastePos = _dragSelectStartPos;
 			StopDragSelect();
 		}
-		unsigned int blockSize = dataSize - pastePos;
+		unsigned int blockSize = _dataSize - pastePos;
 		unsigned char* buffer = new unsigned char[blockSize];
 		unsigned int bufferOffset = 0;
 
-		if(inputOnTextWindow)
+		if(_inputOnTextWindow)
 		{
 			while((*clipboardData != 0) && (bufferOffset < blockSize))
 			{
@@ -537,7 +537,7 @@ bool WC_HexEdit::PasteFromClipboard()
 
 		WriteBlockFromBuffer(pastePos, bufferOffset, buffer);
 		SelectByte(pastePos + bufferOffset);
-		ForceByteIntoView(selectedByte);
+		ForceByteIntoView(_selectedByte);
 	}
 
 	CloseClipboard();
@@ -549,7 +549,7 @@ bool WC_HexEdit::SaveToFile()
 {
 	//Obtain a path to the target file
 	std::wstring selectedFilePath;
-	if(!SelectNewFile(hwnd, L"Binary files|bin", L"bin", L"", L"", selectedFilePath))
+	if(!SelectNewFile(_hwnd, L"Binary files|bin", L"bin", L"", L"", selectedFilePath))
 	{
 		return false;
 	}
@@ -562,7 +562,7 @@ bool WC_HexEdit::SaveToFile()
 	}
 
 	//Read data from our memory buffer into a temporary buffer
-	unsigned int blockSize = dataSize;
+	unsigned int blockSize = _dataSize;
 	unsigned char* buffer = new unsigned char[blockSize];
 	if(!ReadBlockToBuffer(0, blockSize, buffer))
 	{
@@ -583,7 +583,7 @@ bool WC_HexEdit::LoadFromFile()
 {
 	//Obtain a path to the target file
 	std::wstring selectedFilePath;
-	if(!SelectExistingFile(hwnd, L"Binary files|bin", L"bin", L"", L"", selectedFilePath))
+	if(!SelectExistingFile(_hwnd, L"Binary files|bin", L"bin", L"", L"", selectedFilePath))
 	{
 		return false;
 	}
@@ -596,7 +596,7 @@ bool WC_HexEdit::LoadFromFile()
 	}
 
 	//Load data from the target file into the memory buffer
-	unsigned int blockSize = dataSize;
+	unsigned int blockSize = _dataSize;
 	unsigned char* buffer = new unsigned char[blockSize];
 	unsigned int fileSize = (unsigned int)file.Size();
 	bool result = true;
@@ -614,29 +614,29 @@ bool WC_HexEdit::LoadFromFile()
 //----------------------------------------------------------------------------------------
 void WC_HexEdit::SetWindowSettings(unsigned int windowPos, unsigned int windowSize)
 {
-	dataViewPos = windowPos;
-	dataBuffer.resize(windowSize);
-	dataMarkBuffer.resize(windowSize);
+	_dataViewPos = windowPos;
+	_dataBuffer.resize(windowSize);
+	_dataMarkBuffer.resize(windowSize);
 
 	//Notify the parent control about the change in position and size so it can update
 	//the data buffer.
 	Hex_NewWindowPosInfo windowPosInfo;
-	windowPosInfo.windowPos = dataViewPos;
+	windowPosInfo.windowPos = _dataViewPos;
 	windowPosInfo.windowSize = windowSize;
-	SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), WindowNotifications::NewWindowPos), (LPARAM)&windowPosInfo);
+	SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::NewWindowPos), (LPARAM)&windowPosInfo);
 }
 
 //----------------------------------------------------------------------------------------
 void WC_HexEdit::UpdateColumnSettings(unsigned int columnCount, unsigned int valuesPerColumn, bool textAreaEnabled)
 {
-	columns = columnCount;
+	_columns = columnCount;
 	valuesPerColumn = valuesPerColumn;
-	textDisplayEnabled = textAreaEnabled;
+	_textDisplayEnabled = textAreaEnabled;
 	//Ensure there is always at least one column visible, and at least one value in each
 	//column.
-	if(columns < 1)
+	if(_columns < 1)
 	{
-		columns = 1;
+		_columns = 1;
 	}
 	if(valuesPerColumn < 1)
 	{
@@ -645,90 +645,90 @@ void WC_HexEdit::UpdateColumnSettings(unsigned int columnCount, unsigned int val
 
 	//Calculate the number of rows which can be shown within the control. We lock the
 	//control at a minimum of 1 complete row.
-	unsigned int completeRows = (controlHeight / fontHeight);
-	unsigned int partialRows = ((controlHeight % fontHeight) != 0)? 1: 0;
+	unsigned int completeRows = (_controlHeight / _fontHeight);
+	unsigned int partialRows = ((_controlHeight % _fontHeight) != 0)? 1: 0;
 	if(completeRows < 1)
 	{
 		completeRows = 1;
 	}
 
 	//Calculate the maximum number of lines we can display
-	valuesPerRow = columns * valuesPerColumn;
-	valuesPerPage = completeRows * valuesPerRow;
-	visibleRows = completeRows + partialRows;
-	visibleValuesPerPage = visibleRows * valuesPerRow;
+	_valuesPerRow = _columns * valuesPerColumn;
+	_valuesPerPage = completeRows * _valuesPerRow;
+	_visibleRows = completeRows + partialRows;
+	_visibleValuesPerPage = _visibleRows * _valuesPerRow;
 
 	//Calculate the positions and sizes of the various sections within the control
-	addressSectionPos = 0;
-	addressSectionWidth = addressWidth * fontWidth;
-	dataDividerLinePosX = addressSectionPos + addressSectionWidth + (dividerSpace / 2);
-	dataSectionPos = addressSectionPos + addressSectionWidth + dividerSpace;
-	dataSectionWidth = (valuesPerColumn * columns * fontWidth * 2) + ((columns - 1) * columnSpace);
-	charDividerLinePosX = dataSectionPos + dataSectionWidth + (dividerSpace / 2);
-	textSectionPos = dataSectionPos + dataSectionWidth + dividerSpace;
-	textSectionWidth = valuesPerColumn * columns * fontWidth;
+	_addressSectionPos = 0;
+	_addressSectionWidth = _addressWidth * _fontWidth;
+	_dataDividerLinePosX = _addressSectionPos + _addressSectionWidth + (_dividerSpace / 2);
+	_dataSectionPos = _addressSectionPos + _addressSectionWidth + _dividerSpace;
+	_dataSectionWidth = (valuesPerColumn * _columns * _fontWidth * 2) + ((_columns - 1) * _columnSpace);
+	_charDividerLinePosX = _dataSectionPos + _dataSectionWidth + (_dividerSpace / 2);
+	_textSectionPos = _dataSectionPos + _dataSectionWidth + _dividerSpace;
+	_textSectionWidth = valuesPerColumn * _columns * _fontWidth;
 
 	//When the column size changes, we need to re-select the current byte so that
 	//the caret is drawn in the correct location.
-	SelectByte((int)selectedByte);
+	SelectByte((int)_selectedByte);
 
 	//Update the data window settings with the new size
-	SetWindowSettings(dataViewPos, visibleValuesPerPage);
+	SetWindowSettings(_dataViewPos, _visibleValuesPerPage);
 }
 
 //----------------------------------------------------------------------------------------
 void WC_HexEdit::UpdateControlSize(unsigned int clientWidth, unsigned int clientHeight)
 {
-	controlWidth = clientWidth;
-	controlHeight = clientHeight;
+	_controlWidth = clientWidth;
+	_controlHeight = clientHeight;
 
 	//Calculate the maximum possible number of columns that can fit in the control
-	int availableSpace = controlWidth;
-	availableSpace -= (addressWidth * fontWidth);
-	availableSpace -= dividerSpace;
-	if(textDisplayEnabled)
+	int availableSpace = _controlWidth;
+	availableSpace -= (_addressWidth * _fontWidth);
+	availableSpace -= _dividerSpace;
+	if(_textDisplayEnabled)
 	{
-		availableSpace -= dividerSpace;
+		availableSpace -= _dividerSpace;
 	}
 	if(availableSpace < 0)
 	{
 		availableSpace = 0;
 	}
-	unsigned int columnWidth = (valuesPerColumn * 2 * fontWidth) + columnSpace;
-	if(textDisplayEnabled)
+	unsigned int columnWidth = (_valuesPerColumn * 2 * _fontWidth) + _columnSpace;
+	if(_textDisplayEnabled)
 	{
-		columnWidth += fontWidth * valuesPerColumn;
+		columnWidth += _fontWidth * _valuesPerColumn;
 	}
 	unsigned int newColumnCount = (unsigned int)availableSpace / columnWidth;
-	if(newColumnCount != columns)
+	if(newColumnCount != _columns)
 	{
 		//Only force a full redraw if the column sizes change. This prevents
 		//excessive flickering when resizing the control.
-		InvalidateRect(hwnd, NULL, FALSE);
+		InvalidateRect(_hwnd, NULL, FALSE);
 	}
 	//Apply the new window size settings
-	UpdateColumnSettings(newColumnCount, valuesPerColumn, textDisplayEnabled);
+	UpdateColumnSettings(newColumnCount, _valuesPerColumn, _textDisplayEnabled);
 
 	//Calculate the new settings for the scrollbar
 	unsigned int newScrollCurrentPos = 0;
 	unsigned int newScrollMaxPos = 0;
-	if(valuesPerRow > 0)
+	if(_valuesPerRow > 0)
 	{
-		newScrollCurrentPos = dataViewPos - (dataViewPos % valuesPerRow);
-		newScrollMaxPos = dataSize - (dataSize % valuesPerRow) + valuesPerRow;
+		newScrollCurrentPos = _dataViewPos - (_dataViewPos % _valuesPerRow);
+		newScrollMaxPos = _dataSize - (_dataSize % _valuesPerRow) + _valuesPerRow;
 	}
-	SetWindowSettings(newScrollCurrentPos, visibleValuesPerPage);
-	scrollMaxPos = newScrollMaxPos;
+	SetWindowSettings(newScrollCurrentPos, _visibleValuesPerPage);
+	_scrollMaxPos = newScrollMaxPos;
 
 	//Apply the new scrollbar settings
 	SCROLLINFO scrollInfo;
 	scrollInfo.cbSize = sizeof(scrollInfo);
 	scrollInfo.nMin = 0;
-	scrollInfo.nMax = scrollMaxPos;
-	scrollInfo.nPos = dataViewPos;
-	scrollInfo.nPage = valuesPerPage;
+	scrollInfo.nMax = _scrollMaxPos;
+	scrollInfo.nPos = _dataViewPos;
+	scrollInfo.nPage = _valuesPerPage;
 	scrollInfo.fMask = SIF_POS | SIF_RANGE | SIF_PAGE;
-	SetScrollInfo(hwnd, SB_VERT, &scrollInfo, TRUE);
+	SetScrollInfo(_hwnd, SB_VERT, &scrollInfo, TRUE);
 }
 
 //----------------------------------------------------------------------------------------
@@ -736,30 +736,30 @@ void WC_HexEdit::UpdateControlSize(unsigned int clientWidth, unsigned int client
 //----------------------------------------------------------------------------------------
 bool WC_HexEdit::DataSelectedFromCursorPos(int cursorPosX, int cursorPosY) const
 {
-	return (cursorPosX > (int)dataSectionPos) && (cursorPosX < ((int)dataSectionPos + (int)dataSectionWidth));
+	return (cursorPosX > (int)_dataSectionPos) && (cursorPosX < ((int)_dataSectionPos + (int)_dataSectionWidth));
 }
 
 //----------------------------------------------------------------------------------------
 bool WC_HexEdit::TextSelectedFromCursorPos(int cursorPosX, int cursorPosY) const
 {
-	return (cursorPosX > (int)textSectionPos) && (cursorPosX < ((int)textSectionPos + (int)textSectionWidth));
+	return (cursorPosX > (int)_textSectionPos) && (cursorPosX < ((int)_textSectionPos + (int)_textSectionWidth));
 }
 
 //----------------------------------------------------------------------------------------
 int WC_HexEdit::ByteNumberFromCursorPos(int cursorPosX, int cursorPosY) const
 {
-	int selectedRow = cursorPosY / (int)fontHeight;
-	int newSelectedByte = (int)dataViewPos + (selectedRow * (int)valuesPerRow);
+	int selectedRow = cursorPosY / (int)_fontHeight;
+	int newSelectedByte = (int)_dataViewPos + (selectedRow * (int)_valuesPerRow);
 	if(DataSelectedFromCursorPos(cursorPosX, cursorPosY))
 	{
-		unsigned int columnWidth = (fontWidth * valuesPerColumn * 2) + columnSpace;
-		unsigned int columnNo = (cursorPosX - dataSectionPos) / columnWidth;
-		unsigned int valueNo = ((cursorPosX - dataSectionPos) % columnWidth) / (fontWidth * 2);
-		newSelectedByte += (int)((columnNo * valuesPerColumn) + valueNo);
+		unsigned int columnWidth = (_fontWidth * _valuesPerColumn * 2) + _columnSpace;
+		unsigned int columnNo = (cursorPosX - _dataSectionPos) / columnWidth;
+		unsigned int valueNo = ((cursorPosX - _dataSectionPos) % columnWidth) / (_fontWidth * 2);
+		newSelectedByte += (int)((columnNo * _valuesPerColumn) + valueNo);
 	}
 	else if(TextSelectedFromCursorPos(cursorPosX, cursorPosY))
 	{
-		newSelectedByte += (cursorPosX - (int)textSectionPos) / (int)fontWidth;
+		newSelectedByte += (cursorPosX - (int)_textSectionPos) / (int)_fontWidth;
 	}
 	return newSelectedByte;
 }
@@ -768,12 +768,12 @@ int WC_HexEdit::ByteNumberFromCursorPos(int cursorPosX, int cursorPosY) const
 void WC_HexEdit::SelectByte(int bytePos)
 {
 	//Commit the write to the current byte if one is in progress
-	if(firstNybbleWritten)
+	if(_firstNybbleWritten)
 	{
-		firstNybbleWritten = false;
-		unsigned char originalByte = ReadByte(selectedByte);
-		unsigned char dataToWrite = (storedNybble << 4) | (originalByte & 0x0F);
-		WriteByte(selectedByte, dataToWrite);
+		_firstNybbleWritten = false;
+		unsigned char originalByte = ReadByte(_selectedByte);
+		unsigned char dataToWrite = (_storedNybble << 4) | (originalByte & 0x0F);
+		WriteByte(_selectedByte, dataToWrite);
 	}
 
 	//Don't allow the selected byte to move past the non-existent element after the last
@@ -782,21 +782,21 @@ void WC_HexEdit::SelectByte(int bytePos)
 	{
 		bytePos = 0;
 	}
-	else if(bytePos > (int)dataSize)
+	else if(bytePos > (int)_dataSize)
 	{
-		bytePos = (int)dataSize;
+		bytePos = (int)_dataSize;
 	}
-	selectedByte = (unsigned int)bytePos;
+	_selectedByte = (unsigned int)bytePos;
 
 	//Calculate the position of the selected byte in the data region
-	unsigned int selectedCharacterValue = selectedByte % valuesPerRow;
-	selectedCharacterDataPosX = ((selectedCharacterValue % valuesPerColumn) * (fontWidth * 2));
-	selectedCharacterDataPosX += ((selectedCharacterValue / valuesPerColumn) * (columnSpace + (valuesPerColumn * fontWidth * 2)));
+	unsigned int selectedCharacterValue = _selectedByte % _valuesPerRow;
+	_selectedCharacterDataPosX = ((selectedCharacterValue % _valuesPerColumn) * (_fontWidth * 2));
+	_selectedCharacterDataPosX += ((selectedCharacterValue / _valuesPerColumn) * (_columnSpace + (_valuesPerColumn * _fontWidth * 2)));
 
-	if(textDisplayEnabled)
+	if(_textDisplayEnabled)
 	{
 		//Calculate the position of the selected byte in the text region
-		selectedCharacterTextPosX = (selectedCharacterValue * fontWidth);
+		_selectedCharacterTextPosX = (selectedCharacterValue * _fontWidth);
 	}
 }
 
@@ -805,14 +805,14 @@ void WC_HexEdit::ForceByteIntoView(unsigned int bytePos)
 {
 	//If the caret position is outside the currently viewable area of the control, shift
 	//the view position to bring it back into view.
-	if(bytePos < dataViewPos)
+	if(bytePos < _dataViewPos)
 	{
-		int newViewPos = bytePos - (bytePos % valuesPerRow);
+		int newViewPos = bytePos - (bytePos % _valuesPerRow);
 		UpdateViewPos(newViewPos);
 	}
-	else if(bytePos >= (dataViewPos + valuesPerPage))
+	else if(bytePos >= (_dataViewPos + _valuesPerPage))
 	{
-		int newViewPos = ((bytePos - (bytePos % valuesPerRow)) - valuesPerPage) + valuesPerRow;
+		int newViewPos = ((bytePos - (bytePos % _valuesPerRow)) - _valuesPerPage) + _valuesPerRow;
 		UpdateViewPos(newViewPos);
 	}
 }
@@ -825,28 +825,28 @@ void WC_HexEdit::UpdateViewPos(int newViewPosSigned)
 	{
 		newViewPos = 0;
 	}
-	else if((unsigned int)newViewPosSigned > (scrollMaxPos - valuesPerPage))
+	else if((unsigned int)newViewPosSigned > (_scrollMaxPos - _valuesPerPage))
 	{
-		newViewPos = (scrollMaxPos - valuesPerPage);
+		newViewPos = (_scrollMaxPos - _valuesPerPage);
 	}
 	else
 	{
 		newViewPos = (unsigned int)newViewPosSigned;
 	}
 
-	if(newViewPos != dataViewPos)
+	if(newViewPos != _dataViewPos)
 	{
-		SetWindowSettings(newViewPos, visibleValuesPerPage);
+		SetWindowSettings(newViewPos, _visibleValuesPerPage);
 
 		//Force the entire control to redraw if the view position changes
-		InvalidateRect(hwnd, NULL, FALSE);
+		InvalidateRect(_hwnd, NULL, FALSE);
 
 		//Update the current scroll position
 		SCROLLINFO scrollInfo;
 		scrollInfo.cbSize = sizeof(scrollInfo);
 		scrollInfo.fMask = SIF_POS;
 		scrollInfo.nPos = newViewPos;
-		SetScrollInfo(hwnd, SB_VERT, &scrollInfo, TRUE);
+		SetScrollInfo(_hwnd, SB_VERT, &scrollInfo, TRUE);
 	}
 }
 
@@ -859,7 +859,7 @@ unsigned char WC_HexEdit::ReadByte(unsigned int bytePos) const
 	readDataInfo.offset = bytePos;
 	readDataInfo.processed = false;
 	readDataInfo.data = 0;
-	SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), WindowNotifications::ReadData), (LPARAM)&readDataInfo);
+	SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::ReadData), (LPARAM)&readDataInfo);
 	return readDataInfo.data;
 }
 
@@ -869,10 +869,10 @@ void WC_HexEdit::WriteByte(unsigned int bytePos, unsigned char data)
 	Hex_WriteDataInfo writeDataInfo;
 	writeDataInfo.offset = bytePos;
 	writeDataInfo.data = data;
-	SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), WindowNotifications::WriteData), (LPARAM)&writeDataInfo);
-	if((bytePos >= dataViewPos) && (bytePos < (dataViewPos + visibleValuesPerPage)))
+	SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::WriteData), (LPARAM)&writeDataInfo);
+	if((bytePos >= _dataViewPos) && (bytePos < (_dataViewPos + _visibleValuesPerPage)))
 	{
-		dataBuffer[bytePos - dataViewPos] = data;
+		_dataBuffer[bytePos - _dataViewPos] = data;
 	}
 }
 
@@ -884,7 +884,7 @@ bool WC_HexEdit::ReadBlockToBuffer(unsigned int startPos, unsigned int blockSize
 	readDataBlockInfo.size = blockSize;
 	readDataBlockInfo.buffer = buffer;
 	readDataBlockInfo.processed = false;
-	SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), WindowNotifications::ReadDataBlock), (LPARAM)&readDataBlockInfo);
+	SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::ReadDataBlock), (LPARAM)&readDataBlockInfo);
 	return readDataBlockInfo.processed;
 }
 
@@ -896,7 +896,7 @@ bool WC_HexEdit::WriteBlockFromBuffer(unsigned int startPos, unsigned int blockS
 	writeDataBlockInfo.size = blockSize;
 	writeDataBlockInfo.buffer = buffer;
 	writeDataBlockInfo.processed = false;
-	SendMessage(GetParent(hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(hwnd) & 0xFFFF), WindowNotifications::WriteDataBlock), (LPARAM)&writeDataBlockInfo);
+	SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::WriteDataBlock), (LPARAM)&writeDataBlockInfo);
 	return writeDataBlockInfo.processed;
 }
 
@@ -995,17 +995,17 @@ LRESULT WC_HexEdit::WndProcPrivate(UINT message, WPARAM wParam, LPARAM lParam)
 		return msgHEX_SETMARKINGINFO(wParam, lParam);
 	}
 
-	return DefWindowProc(hwnd, message, wParam, lParam);
+	return DefWindowProc(_hwnd, message, wParam, lParam);
 }
 
 //----------------------------------------------------------------------------------------
 LRESULT WC_HexEdit::msgWM_CREATE(WPARAM wParam, LPARAM lParam)
 {
 	//Set our font options, and read the font metrics
-	HDC hdc = GetDC(hwnd);
-	int fontnHeight = -MulDiv(fontPointSize, GetDeviceCaps(hdc, LOGPIXELSY), 72);
-	hfont = CreateFont(fontnHeight, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FIXED_PITCH | FF_MODERN, &fontTypefaceName[0]);
-	HFONT hfontOld = (HFONT)SelectObject(hdc, hfont);
+	HDC hdc = GetDC(_hwnd);
+	int fontnHeight = -MulDiv(_fontPointSize, GetDeviceCaps(hdc, LOGPIXELSY), 72);
+	_hfont = CreateFont(fontnHeight, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FIXED_PITCH | FF_MODERN, &_fontTypefaceName[0]);
+	HFONT hfontOld = (HFONT)SelectObject(hdc, _hfont);
 
 	//Calculate the required font metrics of of the selected font. Note that we use the
 	//tmAveCharWidth value rather than the tmMaxCharWidth value to determine our font
@@ -1020,13 +1020,13 @@ LRESULT WC_HexEdit::msgWM_CREATE(WPARAM wParam, LPARAM lParam)
 	//value here.
 	TEXTMETRIC textMetric;
 	GetTextMetrics(hdc, &textMetric);
-	fontWidth = textMetric.tmAveCharWidth;
-	fontHeight = textMetric.tmHeight;
-	dividerSpace = (unsigned int)((float)fontWidth * 1.0f);
-	columnSpace = (unsigned int)((float)fontWidth * 0.7f);
+	_fontWidth = textMetric.tmAveCharWidth;
+	_fontHeight = textMetric.tmHeight;
+	_dividerSpace = (unsigned int)((float)_fontWidth * 1.0f);
+	_columnSpace = (unsigned int)((float)_fontWidth * 0.7f);
 
 	SelectObject(hdc, hfontOld);
-	ReleaseDC(hwnd, hdc);
+	ReleaseDC(_hwnd, hdc);
 
 	UpdateContextMenu();
 
@@ -1037,10 +1037,10 @@ LRESULT WC_HexEdit::msgWM_CREATE(WPARAM wParam, LPARAM lParam)
 	InitCommonControlsEx(&iccex);
 
 	//Create a tooltip window
-	hwndTooltip = CreateWindowEx(WS_EX_TOPMOST, TOOLTIPS_CLASS, NULL, WS_POPUP | TTS_NOPREFIX | TTS_NOFADE, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, hwnd, NULL, moduleHandle, NULL);
+	_hwndTooltip = CreateWindowEx(WS_EX_TOPMOST, TOOLTIPS_CLASS, NULL, WS_POPUP | TTS_NOPREFIX | TTS_NOFADE, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, _hwnd, NULL, _moduleHandle, NULL);
 
 	//Set the tooltip window as topmost
-	SetWindowPos(hwndTooltip, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+	SetWindowPos(_hwndTooltip, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
 
 	//Define the properties of the tooltip
 	std::wstring text;
@@ -1049,13 +1049,13 @@ LRESULT WC_HexEdit::msgWM_CREATE(WPARAM wParam, LPARAM lParam)
 	toolInfo.cbSize = sizeof(TOOLINFO);
 	toolInfo.lpReserved = 0;
 	toolInfo.uFlags = TTF_TRACK | TTF_ABSOLUTE | TTF_IDISHWND;
-	toolInfo.hwnd = hwnd;
-	toolInfo.hinst = moduleHandle;
-	toolInfo.uId = (UINT_PTR)hwnd;
+	toolInfo.hwnd = _hwnd;
+	toolInfo.hinst = _moduleHandle;
+	toolInfo.uId = (UINT_PTR)_hwnd;
 	toolInfo.lpszText = &text[0];
 
 	//Register the tooltip with the tooltip control
-	SendMessage(hwndTooltip, TTM_ADDTOOL, 0, (LPARAM)&toolInfo);
+	SendMessage(_hwndTooltip, TTM_ADDTOOL, 0, (LPARAM)&toolInfo);
 
 	return 0;
 }
@@ -1064,7 +1064,7 @@ LRESULT WC_HexEdit::msgWM_CREATE(WPARAM wParam, LPARAM lParam)
 LRESULT WC_HexEdit::msgWM_TIMER(WPARAM wParam, LPARAM lParam)
 {
 	//If drag select has been activated, update the end position
-	int newSelectedByte = ByteNumberFromCursorPos(lastCursorDragSelectPosX, lastCursorDragSelectPosY);
+	int newSelectedByte = ByteNumberFromCursorPos(_lastCursorDragSelectPosX, _lastCursorDragSelectPosY);
 	UpdateDragSelectPos(newSelectedByte);
 	ForceByteIntoView(GetDragSelectPos());
 	return 0;
@@ -1083,28 +1083,28 @@ LRESULT WC_HexEdit::msgWM_MOUSEMOVE(WPARAM wParam, LPARAM lParam)
 	//tooltip, and abort further processing.
 	if(!byteSelected)
 	{
-		if(tooltipVisible)
+		if(_tooltipVisible)
 		{
-			tooltipVisible = false;
+			_tooltipVisible = false;
 			TOOLINFO toolInfo;
 			toolInfo.cbSize = sizeof(TOOLINFO);
 			toolInfo.lpReserved = 0;
-			toolInfo.hwnd = hwnd;
-			toolInfo.uId = (UINT_PTR)hwnd;
-			SendMessage(hwndTooltip, TTM_TRACKACTIVATE, FALSE, (LPARAM)&toolInfo);
+			toolInfo.hwnd = _hwnd;
+			toolInfo.uId = (UINT_PTR)_hwnd;
+			SendMessage(_hwndTooltip, TTM_TRACKACTIVATE, FALSE, (LPARAM)&toolInfo);
 		}
 		return 0;
 	}
 
 	//If drag select has been activated, update the end position
-	if(mouseButtonDown && (newSelectedByte != (int)GetDragSelectPos()))
+	if(_mouseButtonDown && (newSelectedByte != (int)GetDragSelectPos()))
 	{
-		lastCursorDragSelectPosX = cursorPosX;
-		lastCursorDragSelectPosY = cursorPosY;
+		_lastCursorDragSelectPosX = cursorPosX;
+		_lastCursorDragSelectPosY = cursorPosY;
 		if(!DragSelectActive())
 		{
 			StartDragSelect();
-			SetTimer(hwnd, 1, 50, NULL);
+			SetTimer(_hwnd, 1, 50, NULL);
 		}
 		UpdateDragSelectPos(newSelectedByte);
 		ForceByteIntoView(GetDragSelectPos());
@@ -1114,52 +1114,52 @@ LRESULT WC_HexEdit::msgWM_MOUSEMOVE(WPARAM wParam, LPARAM lParam)
 	//before we position it, as due to an undocumented quirk or bug in the Win32 API, we
 	//get a crash if we send a TTM_GETBUBBLESIZE message to the tooltip when it is not
 	//activated.
-	bool tooltipInitiallyVisible = tooltipVisible;
-	if(!tooltipVisible)
+	bool tooltipInitiallyVisible = _tooltipVisible;
+	if(!_tooltipVisible)
 	{
-		tooltipVisible = true;
+		_tooltipVisible = true;
 		TOOLINFO toolInfo;
 		toolInfo.cbSize = sizeof(TOOLINFO);
 		toolInfo.lpReserved = 0;
-		toolInfo.hwnd = hwnd;
-		toolInfo.uId = (UINT_PTR)hwnd;
-		SendMessage(hwndTooltip, TTM_TRACKACTIVATE, TRUE, (LPARAM)&toolInfo);
+		toolInfo.hwnd = _hwnd;
+		toolInfo.uId = (UINT_PTR)_hwnd;
+		SendMessage(_hwndTooltip, TTM_TRACKACTIVATE, TRUE, (LPARAM)&toolInfo);
 
 		TRACKMOUSEEVENT trackMouseEvent;
 		trackMouseEvent.cbSize = sizeof(trackMouseEvent);
 		trackMouseEvent.dwFlags = TME_LEAVE;
-		trackMouseEvent.hwndTrack = hwnd;
+		trackMouseEvent.hwndTrack = _hwnd;
 		TrackMouseEvent(&trackMouseEvent);
 	}
 
 	//If we've only just activated the tooltip control, or the selected byte has
 	//changed, update the text for the tooltip.
-	if(!tooltipInitiallyVisible || ((int)tooltipLastValue != newSelectedByte))
+	if(!tooltipInitiallyVisible || ((int)_tooltipLastValue != newSelectedByte))
 	{
 		UpdateTooltipText(newSelectedByte);
 	}
-	tooltipLastValue = newSelectedByte;
+	_tooltipLastValue = newSelectedByte;
 
 	//Read the current dimensions of the tooltip
 	TOOLINFO toolInfo;
 	toolInfo.cbSize = sizeof(TOOLINFO);
 	toolInfo.lpReserved = 0;
-	toolInfo.hwnd = hwnd;
-	toolInfo.hinst = moduleHandle;
-	toolInfo.uId = (UINT_PTR)hwnd;
-	LRESULT tooltipSize = SendMessage(hwndTooltip, TTM_GETBUBBLESIZE, 0, (LPARAM)&toolInfo);
+	toolInfo.hwnd = _hwnd;
+	toolInfo.hinst = _moduleHandle;
+	toolInfo.uId = (UINT_PTR)_hwnd;
+	LRESULT tooltipSize = SendMessage(_hwndTooltip, TTM_GETBUBBLESIZE, 0, (LPARAM)&toolInfo);
 
 	//Calculate the position of the mouse cursor in screen coordinates
 	POINT position;
 	position.x = (short)LOWORD(lParam);
 	position.y = (short)HIWORD(lParam);
-	ClientToScreen(hwnd, &position);
+	ClientToScreen(_hwnd, &position);
 
 	//Adjust the tooltip position to place it above the cursor
 	position.y -= (short)HIWORD(tooltipSize);
 	position.x += 8;
 	position.y -= 8;
-	SendMessage(hwndTooltip, TTM_TRACKPOSITION, 0, (LPARAM)MAKELONG(position.x, position.y));
+	SendMessage(_hwndTooltip, TTM_TRACKPOSITION, 0, (LPARAM)MAKELONG(position.x, position.y));
 
 	return 0;
 }
@@ -1167,20 +1167,20 @@ LRESULT WC_HexEdit::msgWM_MOUSEMOVE(WPARAM wParam, LPARAM lParam)
 //----------------------------------------------------------------------------------------
 LRESULT WC_HexEdit::msgWM_MOUSELEAVE(WPARAM wParam, LPARAM lParam)
 {
-	tooltipVisible = false;
+	_tooltipVisible = false;
 	TOOLINFO toolInfo;
 	toolInfo.cbSize = sizeof(TOOLINFO);
 	toolInfo.lpReserved = 0;
-	toolInfo.hwnd = hwnd;
-	toolInfo.uId = (UINT_PTR)hwnd;
-	SendMessage(hwndTooltip, TTM_TRACKACTIVATE, FALSE, (LPARAM)&toolInfo);
+	toolInfo.hwnd = _hwnd;
+	toolInfo.uId = (UINT_PTR)_hwnd;
+	SendMessage(_hwndTooltip, TTM_TRACKACTIVATE, FALSE, (LPARAM)&toolInfo);
 	return 0;
 }
 
 //----------------------------------------------------------------------------------------
 LRESULT WC_HexEdit::msgWM_CONTEXTMENU(WPARAM wParam, LPARAM lParam)
 {
-	TrackPopupMenuEx(hcontextMenu, TPM_LEFTALIGN | TPM_RIGHTBUTTON, (short)LOWORD(lParam), (short)HIWORD(lParam), hwnd, NULL);
+	TrackPopupMenuEx(_hcontextMenu, TPM_LEFTALIGN | TPM_RIGHTBUTTON, (short)LOWORD(lParam), (short)HIWORD(lParam), _hwnd, NULL);
 	return 0;
 }
 
@@ -1193,15 +1193,15 @@ LRESULT WC_HexEdit::msgWM_COMMAND(WPARAM wParam, LPARAM lParam)
 		switch((MenuItem)LOWORD(wParam))
 		{
 		case MenuItem::EnableText:{
-			textDisplayEnabled = !textDisplayEnabled;
+			_textDisplayEnabled = !_textDisplayEnabled;
 			RECT rect;
-			GetClientRect(hwnd, &rect);
+			GetClientRect(_hwnd, &rect);
 			UpdateControlSize(rect.right, rect.bottom);
 			MENUITEMINFO menuItemInfo;
 			menuItemInfo.cbSize = sizeof(menuItemInfo);
 			menuItemInfo.fMask = MIIM_STATE;
-			menuItemInfo.fState = (textDisplayEnabled)? MFS_CHECKED: MFS_UNCHECKED;
-			SetMenuItemInfo(hcontextMenu, (UINT)MenuItem::EnableText, FALSE, &menuItemInfo);
+			menuItemInfo.fState = (_textDisplayEnabled)? MFS_CHECKED: MFS_UNCHECKED;
+			SetMenuItemInfo(_hcontextMenu, (UINT)MenuItem::EnableText, FALSE, &menuItemInfo);
 			break;}
 		case MenuItem::ColumnWidth1:
 			newColumnWidth = (newColumnWidth != 0)? newColumnWidth: 1;
@@ -1213,15 +1213,15 @@ LRESULT WC_HexEdit::msgWM_COMMAND(WPARAM wParam, LPARAM lParam)
 			newColumnWidth = (newColumnWidth != 0)? newColumnWidth: 8;
 		case MenuItem::ColumnWidth16:{
 			newColumnWidth = (newColumnWidth != 0)? newColumnWidth: 16;
-			valuesPerColumn = newColumnWidth;
+			_valuesPerColumn = newColumnWidth;
 			RECT rect;
-			GetClientRect(hwnd, &rect);
+			GetClientRect(_hwnd, &rect);
 			UpdateControlSize(rect.right, rect.bottom);
 
 			MENUITEMINFO menuItemInfo;
 			menuItemInfo.cbSize = sizeof(menuItemInfo);
 			menuItemInfo.fMask = MIIM_DATA;
-			GetMenuItemInfo(hcontextMenu, (UINT)MenuItem::ColumnWidth, FALSE, &menuItemInfo);
+			GetMenuItemInfo(_hcontextMenu, (UINT)MenuItem::ColumnWidth, FALSE, &menuItemInfo);
 			HMENU columnWidthMenu = (HMENU)menuItemInfo.dwItemData;
 			unsigned int selectedMenuID = LOWORD(wParam);
 			for(unsigned int i = (unsigned int)MenuItem::ColumnWidth1; i <= (unsigned int)MenuItem::ColumnWidth16; ++i)
@@ -1259,9 +1259,9 @@ LRESULT WC_HexEdit::msgWM_COMMAND(WPARAM wParam, LPARAM lParam)
 //----------------------------------------------------------------------------------------
 LRESULT WC_HexEdit::msgWM_DESTROY(WPARAM wParam, LPARAM lParam)
 {
-	DeleteObject(hfont);
-	DestroyMenu(hcontextMenu);
-	return DefWindowProc(hwnd, WM_DESTROY, wParam, lParam);
+	DeleteObject(_hfont);
+	DestroyMenu(_hcontextMenu);
+	return DefWindowProc(_hwnd, WM_DESTROY, wParam, lParam);
 }
 
 //----------------------------------------------------------------------------------------
@@ -1271,7 +1271,7 @@ LRESULT WC_HexEdit::msgWM_KILLFOCUS(WPARAM wParam, LPARAM lParam)
 	DestroyCaret();
 
 	//Force the entire control to redraw
-	InvalidateRect(hwnd, NULL, FALSE);
+	InvalidateRect(_hwnd, NULL, FALSE);
 	return 0;
 }
 
@@ -1279,8 +1279,8 @@ LRESULT WC_HexEdit::msgWM_KILLFOCUS(WPARAM wParam, LPARAM lParam)
 LRESULT WC_HexEdit::msgWM_SETFOCUS(WPARAM wParam, LPARAM lParam)
 {
 	//Create a caret for the window
-	CreateCaret(hwnd, NULL, 2, fontHeight);
-	ShowCaret(hwnd);
+	CreateCaret(_hwnd, NULL, 2, _fontHeight);
+	ShowCaret(_hwnd);
 	return 0;
 }
 
@@ -1288,9 +1288,9 @@ LRESULT WC_HexEdit::msgWM_SETFOCUS(WPARAM wParam, LPARAM lParam)
 LRESULT WC_HexEdit::msgWM_LBUTTONUP(WPARAM wParam, LPARAM lParam)
 {
 	ReleaseCapture();
-	KillTimer(hwnd, 1);
+	KillTimer(_hwnd, 1);
 
-	mouseButtonDown = false;
+	_mouseButtonDown = false;
 	return 0;
 }
 
@@ -1305,12 +1305,12 @@ LRESULT WC_HexEdit::msgWM_LBUTTONDOWN(WPARAM wParam, LPARAM lParam)
 	if(DataSelectedFromCursorPos(cursorPosX, cursorPosY))
 	{
 		byteSelected = true;
-		inputOnTextWindow = false;
+		_inputOnTextWindow = false;
 	}
 	else if(TextSelectedFromCursorPos(cursorPosX, cursorPosY))
 	{
 		byteSelected = true;
-		inputOnTextWindow = true;
+		_inputOnTextWindow = true;
 	}
 
 	if(byteSelected)
@@ -1326,19 +1326,19 @@ LRESULT WC_HexEdit::msgWM_LBUTTONDOWN(WPARAM wParam, LPARAM lParam)
 		{
 			//Capture the mouse, so that we can track a drag-select if the user starts
 			//a drag operation and moves the cursor outside the window.
-			SetCapture(hwnd);
+			SetCapture(_hwnd);
 
 			//Stop drag-select if it is currently in progress, and flag that the left
 			//mouse button is being held down.
 			StopDragSelect();
-			mouseButtonDown = true;
+			_mouseButtonDown = true;
 
 			//Apply the new selection
 			SelectByte((int)newSelectedByte);
-			ForceByteIntoView(selectedByte);
+			ForceByteIntoView(_selectedByte);
 		}
 		//Force the entire control to redraw if the selected byte changes
-		InvalidateRect(hwnd, NULL, FALSE);
+		InvalidateRect(_hwnd, NULL, FALSE);
 	}
 
 	return 0;
@@ -1359,7 +1359,7 @@ LRESULT WC_HexEdit::msgWM_KEYDOWN(WPARAM wParam, LPARAM lParam)
 		{
 			SelectByte(0);
 			StartDragSelect();
-			UpdateDragSelectPos((int)dataSize);
+			UpdateDragSelectPos((int)_dataSize);
 			ForceByteIntoView(0);
 		}
 		break;
@@ -1378,8 +1378,8 @@ LRESULT WC_HexEdit::msgWM_KEYDOWN(WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	case VK_TAB:
-		inputOnTextWindow = !inputOnTextWindow;
-		SelectByte((int)selectedByte);
+		_inputOnTextWindow = !_inputOnTextWindow;
+		SelectByte((int)_selectedByte);
 		break;
 	case VK_BACK:
 	case VK_LEFT:
@@ -1392,8 +1392,8 @@ LRESULT WC_HexEdit::msgWM_KEYDOWN(WPARAM wParam, LPARAM lParam)
 		else
 		{
 			StopDragSelect();
-			SelectByte((int)selectedByte - 1);
-			ForceByteIntoView(selectedByte);
+			SelectByte((int)_selectedByte - 1);
+			ForceByteIntoView(_selectedByte);
 		}
 		break;
 	case VK_RIGHT:
@@ -1406,64 +1406,64 @@ LRESULT WC_HexEdit::msgWM_KEYDOWN(WPARAM wParam, LPARAM lParam)
 		else
 		{
 			StopDragSelect();
-			SelectByte((int)selectedByte + 1);
-			ForceByteIntoView(selectedByte);
+			SelectByte((int)_selectedByte + 1);
+			ForceByteIntoView(_selectedByte);
 		}
 		break;
 	case VK_UP:
 		if((GetKeyState(VK_SHIFT) & 0x8000) != 0)
 		{
 			StartDragSelect();
-			UpdateDragSelectPos((int)GetDragSelectPos() - (int)valuesPerRow);
+			UpdateDragSelectPos((int)GetDragSelectPos() - (int)_valuesPerRow);
 			ForceByteIntoView(GetDragSelectPos());
 		}
 		else
 		{
 			StopDragSelect();
-			SelectByte((int)selectedByte - (int)valuesPerRow);
-			ForceByteIntoView(selectedByte);
+			SelectByte((int)_selectedByte - (int)_valuesPerRow);
+			ForceByteIntoView(_selectedByte);
 		}
 		break;
 	case VK_DOWN:
 		if((GetKeyState(VK_SHIFT) & 0x8000) != 0)
 		{
 			StartDragSelect();
-			UpdateDragSelectPos((int)GetDragSelectPos() + (int)valuesPerRow);
+			UpdateDragSelectPos((int)GetDragSelectPos() + (int)_valuesPerRow);
 			ForceByteIntoView(GetDragSelectPos());
 		}
 		else
 		{
 			StopDragSelect();
-			SelectByte((int)selectedByte + (int)valuesPerRow);
-			ForceByteIntoView(selectedByte);
+			SelectByte((int)_selectedByte + (int)_valuesPerRow);
+			ForceByteIntoView(_selectedByte);
 		}
 		break;
 	case VK_PRIOR:
 		if((GetKeyState(VK_SHIFT) & 0x8000) != 0)
 		{
 			StartDragSelect();
-			UpdateDragSelectPos((int)GetDragSelectPos() - (int)valuesPerPage);
-			UpdateViewPos((int)dataViewPos - (int)valuesPerPage);
+			UpdateDragSelectPos((int)GetDragSelectPos() - (int)_valuesPerPage);
+			UpdateViewPos((int)_dataViewPos - (int)_valuesPerPage);
 		}
 		else
 		{
 			StopDragSelect();
-			SelectByte((int)selectedByte - (int)valuesPerPage);
-			UpdateViewPos((int)dataViewPos - (int)valuesPerPage);
+			SelectByte((int)_selectedByte - (int)_valuesPerPage);
+			UpdateViewPos((int)_dataViewPos - (int)_valuesPerPage);
 		}
 		break;
 	case VK_NEXT:
 		if((GetKeyState(VK_SHIFT) & 0x8000) != 0)
 		{
 			StartDragSelect();
-			UpdateDragSelectPos((int)GetDragSelectPos() + (int)valuesPerPage);
-			UpdateViewPos((int)dataViewPos + (int)valuesPerPage);
+			UpdateDragSelectPos((int)GetDragSelectPos() + (int)_valuesPerPage);
+			UpdateViewPos((int)_dataViewPos + (int)_valuesPerPage);
 		}
 		else
 		{
 			StopDragSelect();
-			SelectByte((int)selectedByte + (int)valuesPerPage);
-			UpdateViewPos((int)dataViewPos + (int)valuesPerPage);
+			SelectByte((int)_selectedByte + (int)_valuesPerPage);
+			UpdateViewPos((int)_dataViewPos + (int)_valuesPerPage);
 		}
 		break;
 	case VK_HOME:
@@ -1477,27 +1477,27 @@ LRESULT WC_HexEdit::msgWM_KEYDOWN(WPARAM wParam, LPARAM lParam)
 		{
 			StopDragSelect();
 			SelectByte(0);
-			ForceByteIntoView(selectedByte);
+			ForceByteIntoView(_selectedByte);
 		}
 		break;
 	case VK_END:
 		if((GetKeyState(VK_SHIFT) & 0x8000) != 0)
 		{
 			StartDragSelect();
-			UpdateDragSelectPos((int)dataSize);
+			UpdateDragSelectPos((int)_dataSize);
 			ForceByteIntoView(GetDragSelectPos());
 		}
 		else
 		{
 			StopDragSelect();
-			SelectByte((int)dataSize);
-			ForceByteIntoView(selectedByte);
+			SelectByte((int)_dataSize);
+			ForceByteIntoView(_selectedByte);
 		}
 		break;
 	}
 
 	//Force the entire control to redraw
-	InvalidateRect(hwnd, NULL, FALSE);
+	InvalidateRect(_hwnd, NULL, FALSE);
 
 	return 0;
 }
@@ -1506,20 +1506,20 @@ LRESULT WC_HexEdit::msgWM_KEYDOWN(WPARAM wParam, LPARAM lParam)
 LRESULT WC_HexEdit::msgWM_CHAR(WPARAM wParam, LPARAM lParam)
 {
 	//If the caret position is past the last byte of the block, ignore all characters.
-	if(selectedByte >= dataSize)
+	if(_selectedByte >= _dataSize)
 	{
 		return 0;
 	}
 
-	ForceByteIntoView(selectedByte);
+	ForceByteIntoView(_selectedByte);
 
-	if(inputOnTextWindow)
+	if(_inputOnTextWindow)
 	{
 		unsigned char byte = (unsigned char)wParam;
 		if((byte >= 0x20) && (byte < 0x7F))
 		{
-			WriteByte(selectedByte, byte);
-			SelectByte((int)selectedByte + 1);
+			WriteByte(_selectedByte, byte);
+			SelectByte((int)_selectedByte + 1);
 		}
 	}
 	else
@@ -1547,22 +1547,22 @@ LRESULT WC_HexEdit::msgWM_CHAR(WPARAM wParam, LPARAM lParam)
 
 		if(validCharacterWritten)
 		{
-			if(firstNybbleWritten)
+			if(_firstNybbleWritten)
 			{
-				firstNybbleWritten = false;
-				dataToWrite = (storedNybble << 4) | dataToWrite;
-				WriteByte(selectedByte, dataToWrite);
-				SelectByte((int)selectedByte + 1);
+				_firstNybbleWritten = false;
+				dataToWrite = (_storedNybble << 4) | dataToWrite;
+				WriteByte(_selectedByte, dataToWrite);
+				SelectByte((int)_selectedByte + 1);
 			}
 			else
 			{
-				firstNybbleWritten = true;
-				storedNybble = dataToWrite;
+				_firstNybbleWritten = true;
+				_storedNybble = dataToWrite;
 			}
 		}
 	}
 
-	ForceByteIntoView(selectedByte);
+	ForceByteIntoView(_selectedByte);
 
 	return 0;
 }
@@ -1574,9 +1574,9 @@ LRESULT WC_HexEdit::msgWM_MOUSEWHEEL(WPARAM wParam, LPARAM lParam)
 	//by a minimum of 3 lines per division of the scroll wheel. We also invert the
 	//sign, since we want a scroll down to increase the view position.
 	int scrollUnits = ((short)HIWORD(wParam) / WHEEL_DELTA);
-	scrollUnits *= -3 * valuesPerRow;
+	scrollUnits *= -3 * _valuesPerRow;
 
-	UpdateViewPos(dataViewPos + scrollUnits);
+	UpdateViewPos(_dataViewPos + scrollUnits);
 
 	return 0;
 }
@@ -1590,27 +1590,27 @@ LRESULT WC_HexEdit::msgWM_VSCROLL(WPARAM wParam, LPARAM lParam)
 		SCROLLINFO scrollInfo;
 		scrollInfo.cbSize = sizeof(scrollInfo);
 		scrollInfo.fMask = SIF_TRACKPOS;
-		GetScrollInfo(hwnd, SB_VERT, &scrollInfo);
-		int newViewPos = scrollInfo.nTrackPos - (scrollInfo.nTrackPos % valuesPerRow);
+		GetScrollInfo(_hwnd, SB_VERT, &scrollInfo);
+		int newViewPos = scrollInfo.nTrackPos - (scrollInfo.nTrackPos % _valuesPerRow);
 		UpdateViewPos(newViewPos);
 		break;}
 	case SB_TOP:
 		UpdateViewPos(0);
 		break;
 	case SB_BOTTOM:
-		UpdateViewPos(scrollMaxPos - valuesPerPage);
+		UpdateViewPos(_scrollMaxPos - _valuesPerPage);
 		break;
 	case SB_PAGEUP:
-		UpdateViewPos(dataViewPos - valuesPerPage);
+		UpdateViewPos(_dataViewPos - _valuesPerPage);
 		break;
 	case SB_PAGEDOWN:
-		UpdateViewPos(dataViewPos + valuesPerPage);
+		UpdateViewPos(_dataViewPos + _valuesPerPage);
 		break;
 	case SB_LINEUP:
-		UpdateViewPos(dataViewPos - valuesPerRow);
+		UpdateViewPos(_dataViewPos - _valuesPerRow);
 		break;
 	case SB_LINEDOWN:
-		UpdateViewPos(dataViewPos + valuesPerRow);
+		UpdateViewPos(_dataViewPos + _valuesPerRow);
 		break;
 	}
 
@@ -1622,7 +1622,7 @@ LRESULT WC_HexEdit::msgWM_SIZE(WPARAM wParam, LPARAM lParam)
 {
 	//Calculate the dimensions of the drawable surface of this control
 	RECT rect;
-	GetClientRect(hwnd, &rect);
+	GetClientRect(_hwnd, &rect);
 	UpdateControlSize(rect.right, rect.bottom);
 	return 0;
 }
@@ -1643,33 +1643,33 @@ LRESULT WC_HexEdit::msgWM_ERASEBKGND(WPARAM wParam, LPARAM lParam)
 LRESULT WC_HexEdit::msgWM_PAINT(WPARAM wParam, LPARAM lParam)
 {
 	PAINTSTRUCT paintInfo;
-	BeginPaint(hwnd, &paintInfo);
+	BeginPaint(_hwnd, &paintInfo);
 	HDC hdc = paintInfo.hdc;
 
 	//Create a bitmap we can render the control onto
 	HDC hdcControl = hdc;
 	HDC hdcBitmap = CreateCompatibleDC(hdcControl);
-	HBITMAP hbitmap = CreateCompatibleBitmap(hdcControl, controlWidth, controlHeight);
+	HBITMAP hbitmap = CreateCompatibleBitmap(hdcControl, _controlWidth, _controlHeight);
 	HBITMAP hbitmapOriginal = (HBITMAP)SelectObject(hdcBitmap, hbitmap);
 
 	//Send a WM_PRINTCLIENT message to the native control and get it to render into
 	//the bitmap.
-	SendMessage(hwnd, WM_PRINTCLIENT, (WPARAM)hdcBitmap, PRF_ERASEBKGND | PRF_CLIENT | PRF_NONCLIENT);
+	SendMessage(_hwnd, WM_PRINTCLIENT, (WPARAM)hdcBitmap, PRF_ERASEBKGND | PRF_CLIENT | PRF_NONCLIENT);
 
 	//Transfer the final bitmap for the control into the screen buffer
-	BitBlt(hdcControl, 0, 0, controlWidth, controlHeight, hdcBitmap, 0, 0, SRCCOPY);
+	BitBlt(hdcControl, 0, 0, _controlWidth, _controlHeight, hdcBitmap, 0, 0, SRCCOPY);
 
 	//Validate the entire client area of the control. It's REALLY important that we
 	//call this here, otherwise Windows is going to send WM_PAINT messages over and
 	//over again waiting for the region to be validated.
-	ValidateRect(hwnd, NULL);
+	ValidateRect(_hwnd, NULL);
 
 	//Clean up the allocated handles
 	SelectObject(hdcBitmap, hbitmapOriginal);
 	DeleteObject(hbitmap);
 	DeleteDC(hdcBitmap);
 
-	EndPaint(hwnd, &paintInfo);
+	EndPaint(_hwnd, &paintInfo);
 	return 0;
 }
 
@@ -1678,39 +1678,39 @@ LRESULT WC_HexEdit::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 {
 	//Fill the window with the background colour
 	HDC hdc = (HDC)wParam;
-	HBRUSH backgroundBrush = CreateSolidBrush(colorBackground.GetColorREF());
+	HBRUSH backgroundBrush = CreateSolidBrush(_colorBackground.GetColorREF());
 	HBRUSH backgroundBrushOld = (HBRUSH)SelectObject(hdc, backgroundBrush);
-	PatBlt(hdc, 0, 0, controlWidth, controlHeight, PATCOPY);
+	PatBlt(hdc, 0, 0, _controlWidth, _controlHeight, PATCOPY);
 	SelectObject(hdc, backgroundBrushOld);
 	DeleteObject(backgroundBrush);
 
 	//Switch to our font
 	HFONT hfontOld;
-	hfontOld = (HFONT)SelectObject(hdc, hfont);
+	hfontOld = (HFONT)SelectObject(hdc, _hfont);
 
 	//Draw the address numbers down the side
-	for(unsigned int i = 0; i < visibleRows; ++i)
+	for(unsigned int i = 0; i < _visibleRows; ++i)
 	{
-		unsigned int lineAddress = dataViewPos + (i * columns * valuesPerColumn);
-		if(lineAddress <= dataSize)
+		unsigned int lineAddress = _dataViewPos + (i * _columns * _valuesPerColumn);
+		if(lineAddress <= _dataSize)
 		{
-			unsigned int printAddress = addressOffset + lineAddress;
-			printAddress &= ((1 << (addressWidth * 4)) - 1);
+			unsigned int printAddress = _addressOffset + lineAddress;
+			printAddress &= ((1 << (_addressWidth * 4)) - 1);
 
 			std::wstring text;
-			IntToStringBase16(printAddress, text, addressWidth, false);
+			IntToStringBase16(printAddress, text, _addressWidth, false);
 
-			SetTextColor(hdc, colorAddressText.GetColorREF());
-			SetBkColor(hdc, colorAddressBack.GetColorREF());
-			TextOut(hdc, 0, i * fontHeight, &text[0], (int)text.size());
+			SetTextColor(hdc, _colorAddressText.GetColorREF());
+			SetBkColor(hdc, _colorAddressBack.GetColorREF());
+			TextOut(hdc, 0, i * _fontHeight, &text[0], (int)text.size());
 		}
 	}
 
 	//Draw the dividing line between the address numbers and the data
-	HPEN hpen = CreatePen(PS_SOLID, 0, colorLine.GetColorREF());
+	HPEN hpen = CreatePen(PS_SOLID, 0, _colorLine.GetColorREF());
 	HPEN hpenOld = (HPEN)SelectObject(hdc, hpen);
-	MoveToEx(hdc, dataDividerLinePosX, 0, NULL);
-	LineTo(hdc, dataDividerLinePosX, (visibleRows * fontHeight));
+	MoveToEx(hdc, _dataDividerLinePosX, 0, NULL);
+	LineTo(hdc, _dataDividerLinePosX, (_visibleRows * _fontHeight));
 	SelectObject(hdc, hpenOld);
 	DeleteObject(hpen);
 
@@ -1719,49 +1719,49 @@ LRESULT WC_HexEdit::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 	//pixels for each character which directly followed by another one if ClearType
 	//filtering is enabled.
 	SetBkMode(hdc, OPAQUE);
-	for(unsigned int columnNo = 0; columnNo < columns; ++columnNo)
+	for(unsigned int columnNo = 0; columnNo < _columns; ++columnNo)
 	{
-		unsigned int columnRasterPos = dataSectionPos;
-		columnRasterPos += (columnNo * columnSpace);
-		columnRasterPos += (columnNo * fontWidth * valuesPerColumn * 2);
-		for(unsigned int rowNo = 0; rowNo < visibleRows; ++rowNo)
+		unsigned int columnRasterPos = _dataSectionPos;
+		columnRasterPos += (columnNo * _columnSpace);
+		columnRasterPos += (columnNo * _fontWidth * _valuesPerColumn * 2);
+		for(unsigned int rowNo = 0; rowNo < _visibleRows; ++rowNo)
 		{
-			for(unsigned int valueNo = 0; valueNo < valuesPerColumn; ++valueNo)
+			for(unsigned int valueNo = 0; valueNo < _valuesPerColumn; ++valueNo)
 			{
-				unsigned int dataPos = (rowNo * columns * valuesPerColumn) + (columnNo * valuesPerColumn) + valueNo;
-				unsigned int fullDataPos = dataViewPos + dataPos;
+				unsigned int dataPos = (rowNo * _columns * _valuesPerColumn) + (columnNo * _valuesPerColumn) + valueNo;
+				unsigned int fullDataPos = _dataViewPos + dataPos;
 
 				//Determine the background colour
 				WinColor colorBack;
-				if((fullDataPos == selectedByte) && firstNybbleWritten)
+				if((fullDataPos == _selectedByte) && _firstNybbleWritten)
 				{
-					colorBack = colorModifiedDataBack;
+					colorBack = _colorModifiedDataBack;
 				}
-				else if(dataMarkBuffer[dataPos])
+				else if(_dataMarkBuffer[dataPos])
 				{
-					colorBack = colorMarkedDataBack;
+					colorBack = _colorMarkedDataBack;
 				}
 				else
 				{
 					if((columnNo % 2) == 0)
 					{
-						colorBack = colorDataBack1;
+						colorBack = _colorDataBack1;
 					}
 					else
 					{
-						colorBack = colorDataBack2;
+						colorBack = _colorDataBack2;
 					}
 				}
-				if(dragSelectActive && (fullDataPos >= dragSelectStartPos) && (fullDataPos < dragSelectEndPos))
+				if(_dragSelectActive && (fullDataPos >= _dragSelectStartPos) && (fullDataPos < _dragSelectEndPos))
 				{
 					colorBack.Invert();
 				}
 
 				//Fill the text region with a custom background colour if required
-				if(colorBack.GetColorREF() != colorBackground.GetColorREF())
+				if(colorBack.GetColorREF() != _colorBackground.GetColorREF())
 				{
 					SetBkColor(hdc, colorBack.GetColorREF());
-					TextOut(hdc, columnRasterPos + (valueNo * fontWidth * 2), rowNo * fontHeight, L"  ", 2);
+					TextOut(hdc, columnRasterPos + (valueNo * _fontWidth * 2), rowNo * _fontHeight, L"  ", 2);
 				}
 			}
 		}
@@ -1769,40 +1769,40 @@ LRESULT WC_HexEdit::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 
 	//Draw the data values in each column
 	SetBkMode(hdc, TRANSPARENT);
-	for(unsigned int columnNo = 0; columnNo < columns; ++columnNo)
+	for(unsigned int columnNo = 0; columnNo < _columns; ++columnNo)
 	{
-		unsigned int columnRasterPos = dataSectionPos;
-		columnRasterPos += (columnNo * columnSpace);
-		columnRasterPos += (columnNo * fontWidth * valuesPerColumn * 2);
-		for(unsigned int rowNo = 0; rowNo < visibleRows; ++rowNo)
+		unsigned int columnRasterPos = _dataSectionPos;
+		columnRasterPos += (columnNo * _columnSpace);
+		columnRasterPos += (columnNo * _fontWidth * _valuesPerColumn * 2);
+		for(unsigned int rowNo = 0; rowNo < _visibleRows; ++rowNo)
 		{
-			for(unsigned int valueNo = 0; valueNo < valuesPerColumn; ++valueNo)
+			for(unsigned int valueNo = 0; valueNo < _valuesPerColumn; ++valueNo)
 			{
-				unsigned int dataPos = (rowNo * columns * valuesPerColumn) + (columnNo * valuesPerColumn) + valueNo;
-				unsigned int fullDataPos = dataViewPos + dataPos;
+				unsigned int dataPos = (rowNo * _columns * _valuesPerColumn) + (columnNo * _valuesPerColumn) + valueNo;
+				unsigned int fullDataPos = _dataViewPos + dataPos;
 
 				//Determine the text colour
 				WinColor colorText;
-				if((fullDataPos == selectedByte) && firstNybbleWritten)
+				if((fullDataPos == _selectedByte) && _firstNybbleWritten)
 				{
-					colorText = colorModifiedDataText;
+					colorText = _colorModifiedDataText;
 				}
-				else if(dataMarkBuffer[dataPos])
+				else if(_dataMarkBuffer[dataPos])
 				{
-					colorText = colorMarkedDataText;
+					colorText = _colorMarkedDataText;
 				}
 				else
 				{
 					if((columnNo % 2) == 0)
 					{
-						colorText = colorDataText1;
+						colorText = _colorDataText1;
 					}
 					else
 					{
-						colorText = colorDataText2;
+						colorText = _colorDataText2;
 					}
 				}
-				if(dragSelectActive && (fullDataPos >= dragSelectStartPos) && (fullDataPos < dragSelectEndPos))
+				if(_dragSelectActive && (fullDataPos >= _dragSelectStartPos) && (fullDataPos < _dragSelectEndPos))
 				{
 					colorText.Invert();
 				}
@@ -1811,28 +1811,28 @@ LRESULT WC_HexEdit::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 				SetTextColor(hdc, colorText.GetColorREF());
 
 				//Display the data
-				if((dataViewPos + dataPos) < dataSize)
+				if((_dataViewPos + dataPos) < _dataSize)
 				{
-					unsigned char byte = dataBuffer[dataPos];
-					if((fullDataPos == selectedByte) && firstNybbleWritten)
+					unsigned char byte = _dataBuffer[dataPos];
+					if((fullDataPos == _selectedByte) && _firstNybbleWritten)
 					{
-						byte = (storedNybble << 4) | (byte & 0xF);
+						byte = (_storedNybble << 4) | (byte & 0xF);
 					}
 					std::wstring text;
 					IntToStringBase16(byte, text, 2, false);
-					TextOut(hdc, columnRasterPos + (valueNo * fontWidth * 2), rowNo * fontHeight, &text[0], 2);
+					TextOut(hdc, columnRasterPos + (valueNo * _fontWidth * 2), rowNo * _fontHeight, &text[0], 2);
 				}
 			}
 		}
 	}
 
-	if(textDisplayEnabled)
+	if(_textDisplayEnabled)
 	{
 		//Draw the dividing line between the data and the text
-		HPEN hpen = CreatePen(PS_SOLID, 0, colorLine.GetColorREF());
+		HPEN hpen = CreatePen(PS_SOLID, 0, _colorLine.GetColorREF());
 		HPEN hpenOld = (HPEN)SelectObject(hdc, hpen);
-		MoveToEx(hdc, charDividerLinePosX, 0, NULL);
-		LineTo(hdc, charDividerLinePosX, (visibleRows * fontHeight));
+		MoveToEx(hdc, _charDividerLinePosX, 0, NULL);
+		LineTo(hdc, _charDividerLinePosX, (_visibleRows * _fontHeight));
 		SelectObject(hdc, hpenOld);
 		DeleteObject(hpen);
 
@@ -1841,50 +1841,50 @@ LRESULT WC_HexEdit::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 		//of pixels for each character which directly followed by another one if ClearType
 		//filtering is enabled.
 		SetBkMode(hdc, OPAQUE);
-		for(unsigned int rowNo = 0; rowNo < visibleRows; ++rowNo)
+		for(unsigned int rowNo = 0; rowNo < _visibleRows; ++rowNo)
 		{
-			for(unsigned int i = 0; i < valuesPerRow; ++i)
+			for(unsigned int i = 0; i < _valuesPerRow; ++i)
 			{
-				unsigned int dataPos = (rowNo * valuesPerRow) + i;
-				unsigned int fullDataPos = dataViewPos + (rowNo * valuesPerRow) + i;
+				unsigned int dataPos = (rowNo * _valuesPerRow) + i;
+				unsigned int fullDataPos = _dataViewPos + (rowNo * _valuesPerRow) + i;
 
 				//Determine the background colour
 				WinColor colorBack;
-				if(dataMarkBuffer[dataPos])
+				if(_dataMarkBuffer[dataPos])
 				{
-					colorBack = colorMarkedTextBack;
+					colorBack = _colorMarkedTextBack;
 				}
 				else
 				{
-					colorBack = colorTextBack;
+					colorBack = _colorTextBack;
 				}
-				if(dragSelectActive && (fullDataPos >= dragSelectStartPos) && (fullDataPos < dragSelectEndPos))
+				if(_dragSelectActive && (fullDataPos >= _dragSelectStartPos) && (fullDataPos < _dragSelectEndPos))
 				{
 					colorBack.Invert();
 				}
 
 				//Fill the text region with a custom background colour if required
-				if(colorBack.GetColorREF() != colorBackground.GetColorREF())
+				if(colorBack.GetColorREF() != _colorBackground.GetColorREF())
 				{
 					SetBkColor(hdc, colorBack.GetColorREF());
-					TextOut(hdc, textSectionPos + (i * fontWidth), rowNo * fontHeight, L" ", 1);
+					TextOut(hdc, _textSectionPos + (i * _fontWidth), rowNo * _fontHeight, L" ", 1);
 				}
 			}
 		}
 
 		//Draw the text values
 		SetBkMode(hdc, TRANSPARENT);
-		for(unsigned int rowNo = 0; rowNo < visibleRows; ++rowNo)
+		for(unsigned int rowNo = 0; rowNo < _visibleRows; ++rowNo)
 		{
-			for(unsigned int i = 0; i < valuesPerRow; ++i)
+			for(unsigned int i = 0; i < _valuesPerRow; ++i)
 			{
-				unsigned int dataPos = (rowNo * valuesPerRow) + i;
-				unsigned int fullDataPos = dataViewPos + (rowNo * valuesPerRow) + i;
+				unsigned int dataPos = (rowNo * _valuesPerRow) + i;
+				unsigned int fullDataPos = _dataViewPos + (rowNo * _valuesPerRow) + i;
 
 				char character = ' ';
-				if(fullDataPos < dataSize)
+				if(fullDataPos < _dataSize)
 				{
-					unsigned char data = dataBuffer[dataPos];
+					unsigned char data = _dataBuffer[dataPos];
 					if((data < 0x20) || (data >= 0x7F))
 					{
 						character = '.';
@@ -1897,15 +1897,15 @@ LRESULT WC_HexEdit::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 
 				//Determine the text colour
 				WinColor colorText;
-				if(dataMarkBuffer[dataPos])
+				if(_dataMarkBuffer[dataPos])
 				{
-					colorText = colorMarkedTextText;
+					colorText = _colorMarkedTextText;
 				}
 				else
 				{
-					colorText = colorTextText;
+					colorText = _colorTextText;
 				}
-				if(dragSelectActive && (fullDataPos >= dragSelectStartPos) && (fullDataPos < dragSelectEndPos))
+				if(_dragSelectActive && (fullDataPos >= _dragSelectStartPos) && (fullDataPos < _dragSelectEndPos))
 				{
 					colorText.Invert();
 				}
@@ -1915,50 +1915,50 @@ LRESULT WC_HexEdit::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 
 				//Draw the text
 				wchar_t unicodeCharacter = (wchar_t)character;
-				TextOut(hdc, textSectionPos + (i * fontWidth), rowNo * fontHeight, &unicodeCharacter, 1);
+				TextOut(hdc, _textSectionPos + (i * _fontWidth), rowNo * _fontHeight, &unicodeCharacter, 1);
 			}
 		}
 	}
 
 	//Check if the selected byte is within the visible area of the control
-	if(!dragSelectActive && (selectedByte >= dataViewPos) && (selectedByte < (dataViewPos + visibleValuesPerPage)))
+	if(!_dragSelectActive && (_selectedByte >= _dataViewPos) && (_selectedByte < (_dataViewPos + _visibleValuesPerPage)))
 	{
 		//Calculate the vertical pixel coordinates of the selected value
-		unsigned int selectedCharacterPosY = ((selectedByte - dataViewPos) / valuesPerRow) * fontHeight;
+		unsigned int selectedCharacterPosY = ((_selectedByte - _dataViewPos) / _valuesPerRow) * _fontHeight;
 
 		//Underline or position the caret at the data value
-		if(inputOnTextWindow || (GetFocus() != hwnd))
+		if(_inputOnTextWindow || (GetFocus() != _hwnd))
 		{
-			PatBlt(hdc, dataSectionPos + selectedCharacterDataPosX, selectedCharacterPosY + (fontHeight - 2), fontWidth * 2, 2, DSTINVERT);
+			PatBlt(hdc, _dataSectionPos + _selectedCharacterDataPosX, selectedCharacterPosY + (_fontHeight - 2), _fontWidth * 2, 2, DSTINVERT);
 		}
 		else
 		{
-			unsigned int caretPosX = dataSectionPos + selectedCharacterDataPosX;
-			if(firstNybbleWritten)
+			unsigned int caretPosX = _dataSectionPos + _selectedCharacterDataPosX;
+			if(_firstNybbleWritten)
 			{
-				caretPosX += fontWidth;
+				caretPosX += _fontWidth;
 			}
 			SetCaretPos(caretPosX, selectedCharacterPosY);
 		}
 
-		if(textDisplayEnabled)
+		if(_textDisplayEnabled)
 		{
 			//Underline or position the caret at the text value
-			if(!inputOnTextWindow || (GetFocus() != hwnd))
+			if(!_inputOnTextWindow || (GetFocus() != _hwnd))
 			{
-				PatBlt(hdc, textSectionPos + selectedCharacterTextPosX, selectedCharacterPosY + (fontHeight - 2), fontWidth, 2, DSTINVERT);
+				PatBlt(hdc, _textSectionPos + _selectedCharacterTextPosX, selectedCharacterPosY + (_fontHeight - 2), _fontWidth, 2, DSTINVERT);
 			}
 			else
 			{
-				SetCaretPos(textSectionPos + selectedCharacterTextPosX, selectedCharacterPosY);
+				SetCaretPos(_textSectionPos + _selectedCharacterTextPosX, selectedCharacterPosY);
 			}
 		}
 	}
 	else
 	{
-		if(GetFocus() == hwnd)
+		if(GetFocus() == _hwnd)
 		{
-			SetCaretPos(0, controlHeight);
+			SetCaretPos(0, _controlHeight);
 		}
 	}
 
@@ -1971,10 +1971,10 @@ LRESULT WC_HexEdit::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 //----------------------------------------------------------------------------------------
 LRESULT WC_HexEdit::msgHEX_SETWINDOWSIZE(WPARAM wParam, LPARAM lParam)
 {
-	dataSize = (unsigned int)wParam;
+	_dataSize = (unsigned int)wParam;
 	//Calculate the dimensions of the drawable surface of this control
 	RECT rect;
-	GetClientRect(hwnd, &rect);
+	GetClientRect(_hwnd, &rect);
 	UpdateControlSize(rect.right, rect.bottom);
 	return 0;
 }
@@ -1982,10 +1982,10 @@ LRESULT WC_HexEdit::msgHEX_SETWINDOWSIZE(WPARAM wParam, LPARAM lParam)
 //----------------------------------------------------------------------------------------
 LRESULT WC_HexEdit::msgHEX_SETWINDOWPOS(WPARAM wParam, LPARAM lParam)
 {
-	dataViewPos = (unsigned int)wParam;
+	_dataViewPos = (unsigned int)wParam;
 	//Calculate the dimensions of the drawable surface of this control
 	RECT rect;
-	GetClientRect(hwnd, &rect);
+	GetClientRect(_hwnd, &rect);
 	UpdateControlSize(rect.right, rect.bottom);
 	return 0;
 }
@@ -1993,10 +1993,10 @@ LRESULT WC_HexEdit::msgHEX_SETWINDOWPOS(WPARAM wParam, LPARAM lParam)
 //----------------------------------------------------------------------------------------
 LRESULT WC_HexEdit::msgHEX_SETWINDOWADDRESSOFFSET(WPARAM wParam, LPARAM lParam)
 {
-	addressOffset = (unsigned int)wParam;
+	_addressOffset = (unsigned int)wParam;
 	//Calculate the dimensions of the drawable surface of this control
 	RECT rect;
-	GetClientRect(hwnd, &rect);
+	GetClientRect(_hwnd, &rect);
 	UpdateControlSize(rect.right, rect.bottom);
 	return 0;
 }
@@ -2004,10 +2004,10 @@ LRESULT WC_HexEdit::msgHEX_SETWINDOWADDRESSOFFSET(WPARAM wParam, LPARAM lParam)
 //----------------------------------------------------------------------------------------
 LRESULT WC_HexEdit::msgHEX_SETWINDOWADDRESSWIDTH(WPARAM wParam, LPARAM lParam)
 {
-	addressWidth = (unsigned int)wParam;
+	_addressWidth = (unsigned int)wParam;
 	//Calculate the dimensions of the drawable surface of this control
 	RECT rect;
-	GetClientRect(hwnd, &rect);
+	GetClientRect(_hwnd, &rect);
 	UpdateControlSize(rect.right, rect.bottom);
 	return 0;
 }
@@ -2015,31 +2015,31 @@ LRESULT WC_HexEdit::msgHEX_SETWINDOWADDRESSWIDTH(WPARAM wParam, LPARAM lParam)
 //----------------------------------------------------------------------------------------
 LRESULT WC_HexEdit::msgHEX_GETWINDOWSIZE(WPARAM wParam, LPARAM lParam)
 {
-	return visibleValuesPerPage;
+	return _visibleValuesPerPage;
 }
 
 //----------------------------------------------------------------------------------------
 LRESULT WC_HexEdit::msgHEX_GETWINDOWPOS(WPARAM wParam, LPARAM lParam)
 {
-	return dataViewPos;
+	return _dataViewPos;
 }
 
 //----------------------------------------------------------------------------------------
 LRESULT WC_HexEdit::msgHEX_UPDATEWINDOWDATA(WPARAM wParam, LPARAM lParam)
 {
 	Hex_UpdateWindowData* info = (Hex_UpdateWindowData*)lParam;
-	for(unsigned int i = 0; (i < info->newBufferSize) && (i < visibleValuesPerPage); ++i)
+	for(unsigned int i = 0; (i < info->newBufferSize) && (i < _visibleValuesPerPage); ++i)
 	{
 		if(info->newBufferData != 0)
 		{
-			dataBuffer[i] = *(info->newBufferData + i);
+			_dataBuffer[i] = *(info->newBufferData + i);
 		}
 		if(info->newMarkBufferData != 0)
 		{
-			dataMarkBuffer[i] = *(info->newMarkBufferData + i) != 0;
+			_dataMarkBuffer[i] = *(info->newMarkBufferData + i) != 0;
 		}
 	}
-	InvalidateRect(hwnd, NULL, FALSE);
+	InvalidateRect(_hwnd, NULL, FALSE);
 	return 0;
 }
 
@@ -2047,9 +2047,9 @@ LRESULT WC_HexEdit::msgHEX_UPDATEWINDOWDATA(WPARAM wParam, LPARAM lParam)
 LRESULT WC_HexEdit::msgHEX_SETMARKINGINFO(WPARAM wParam, LPARAM lParam)
 {
 	Hex_DataMarkingInfo* info = (Hex_DataMarkingInfo*)lParam;
-	markingEnabled = info->markingEnabled;
-	markName = info->markName;
-	unmarkName = info->unmarkName;
+	_markingEnabled = info->markingEnabled;
+	_markName = info->markName;
+	_unmarkName = info->unmarkName;
 	UpdateContextMenu();
 	return 0;
 }

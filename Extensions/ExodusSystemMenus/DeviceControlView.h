@@ -9,7 +9,7 @@ class DeviceControlView :public ViewBase
 {
 public:
 	//Constructors
-	DeviceControlView(IUIManager& auiManager, DeviceControlViewPresenter& apresenter, ISystemGUIInterface& amodel);
+	DeviceControlView(IUIManager& uiManager, DeviceControlViewPresenter& presenter, ISystemGUIInterface& model);
 
 protected:
 	//Member window procedure
@@ -22,15 +22,15 @@ private:
 	INT_PTR msgWM_COMMAND(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
 private:
-	DeviceControlViewPresenter& presenter;
-	ISystemGUIInterface& model;
-	bool initializedDialog;
-	std::wstring previousText;
-	unsigned int currentControlFocus;
-	int deviceListIndex;
-	unsigned int systemStep;
-	unsigned int deviceStep;
-	std::list<IDevice*> deviceList;
+	DeviceControlViewPresenter& _presenter;
+	ISystemGUIInterface& _model;
+	bool _initializedDialog;
+	std::wstring _previousText;
+	unsigned int _currentControlFocus;
+	int _deviceListIndex;
+	unsigned int _systemStep;
+	unsigned int _deviceStep;
+	std::list<IDevice*> _deviceList;
 };
 
 #endif

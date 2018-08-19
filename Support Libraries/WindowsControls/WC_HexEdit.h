@@ -34,9 +34,6 @@ allow a column from a repeating set of data to be selected, copied, pasted, etc.
 class WC_HexEdit
 {
 public:
-	//Constants
-	static const wchar_t* windowClassName;
-
 	//Message numbers
 	enum class WindowMessages :unsigned int;
 	enum class WindowNotifications :unsigned int;
@@ -51,13 +48,16 @@ public:
 	struct Hex_WriteDataBlockInfo;
 	struct Hex_UpdateDataMarkingState;
 
+	//Constants
+	static const wchar_t* WindowClassName;
+
 public:
 	//Constructors
-	WC_HexEdit(HINSTANCE amoduleHandle, HWND ahwnd);
+	WC_HexEdit(HINSTANCE moduleHandle, HWND hwnd);
 
 	//Class registration
-	static bool RegisterWindowClass(HINSTANCE amoduleHandle);
-	static bool UnregisterWindowClass(HINSTANCE amoduleHandle);
+	static bool RegisterWindowClass(HINSTANCE moduleHandle);
+	static bool UnregisterWindowClass(HINSTANCE moduleHandle);
 
 	//Message handlers
 	static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -137,99 +137,99 @@ private:
 
 private:
 	//Colour settings
-	WinColor colorBackground;
-	WinColor colorAddressText;
-	WinColor colorAddressBack;
-	WinColor colorLine;
-	WinColor colorDataText1;
-	WinColor colorDataBack1;
-	WinColor colorDataText2;
-	WinColor colorDataBack2;
-	WinColor colorMarkedDataText;
-	WinColor colorMarkedDataBack;
-	WinColor colorModifiedDataText;
-	WinColor colorModifiedDataBack;
-	WinColor colorTextText;
-	WinColor colorTextBack;
-	WinColor colorMarkedTextText;
-	WinColor colorMarkedTextBack;
+	WinColor _colorBackground;
+	WinColor _colorAddressText;
+	WinColor _colorAddressBack;
+	WinColor _colorLine;
+	WinColor _colorDataText1;
+	WinColor _colorDataBack1;
+	WinColor _colorDataText2;
+	WinColor _colorDataBack2;
+	WinColor _colorMarkedDataText;
+	WinColor _colorMarkedDataBack;
+	WinColor _colorModifiedDataText;
+	WinColor _colorModifiedDataBack;
+	WinColor _colorTextText;
+	WinColor _colorTextBack;
+	WinColor _colorMarkedTextText;
+	WinColor _colorMarkedTextBack;
 
 	//Handles
-	HINSTANCE moduleHandle;
-	HWND hwnd;
-	HFONT hfont;
-	HMENU hcontextMenu;
+	HINSTANCE _moduleHandle;
+	HWND _hwnd;
+	HFONT _hfont;
+	HMENU _hcontextMenu;
 
 	//Font settings
-	unsigned int fontPointSize;
-	std::wstring fontTypefaceName;
+	unsigned int _fontPointSize;
+	std::wstring _fontTypefaceName;
 
 	//Font metrics
-	unsigned int fontWidth;
-	unsigned int fontHeight;
+	unsigned int _fontWidth;
+	unsigned int _fontHeight;
 
 	//Display settings
-	unsigned int dividerSpace;
-	unsigned int columnSpace;
-	unsigned int addressWidth;
-	unsigned int addressOffset;
-	unsigned int valuesPerColumn;
-	bool textDisplayEnabled;
+	unsigned int _dividerSpace;
+	unsigned int _columnSpace;
+	unsigned int _addressWidth;
+	unsigned int _addressOffset;
+	unsigned int _valuesPerColumn;
+	bool _textDisplayEnabled;
 
 	//Data window settings
-	unsigned int dataSize;
-	unsigned int dataViewPos;
-	std::vector<unsigned char> dataBuffer;
-	std::vector<bool> dataMarkBuffer;
+	unsigned int _dataSize;
+	unsigned int _dataViewPos;
+	std::vector<unsigned char> _dataBuffer;
+	std::vector<bool> _dataMarkBuffer;
 
 	//Scroll parameters
-	unsigned int valuesPerRow;
-	unsigned int valuesPerPage;
-	unsigned int scrollMaxPos;
+	unsigned int _valuesPerRow;
+	unsigned int _valuesPerPage;
+	unsigned int _scrollMaxPos;
 
 	//Data entry parameters
-	unsigned int selectedByte;
-	unsigned char storedNybble;
-	bool firstNybbleWritten;
-	bool inputOnTextWindow;
+	unsigned int _selectedByte;
+	unsigned char _storedNybble;
+	bool _firstNybbleWritten;
+	bool _inputOnTextWindow;
 
 	//Window caret position info
-	unsigned int selectedCharacterDataPosX;
-	unsigned int selectedCharacterTextPosX;
+	unsigned int _selectedCharacterDataPosX;
+	unsigned int _selectedCharacterTextPosX;
 
 	//Window metrics
-	unsigned int controlWidth;
-	unsigned int controlHeight;
-	unsigned int columns;
-	unsigned int visibleRows;
-	unsigned int visibleValuesPerPage;
-	unsigned int addressSectionPos;
-	unsigned int addressSectionWidth;
-	unsigned int dataDividerLinePosX;
-	unsigned int dataSectionPos;
-	unsigned int dataSectionWidth;
-	unsigned int charDividerLinePosX;
-	unsigned int textSectionPos;
-	unsigned int textSectionWidth;
+	unsigned int _controlWidth;
+	unsigned int _controlHeight;
+	unsigned int _columns;
+	unsigned int _visibleRows;
+	unsigned int _visibleValuesPerPage;
+	unsigned int _addressSectionPos;
+	unsigned int _addressSectionWidth;
+	unsigned int _dataDividerLinePosX;
+	unsigned int _dataSectionPos;
+	unsigned int _dataSectionWidth;
+	unsigned int _charDividerLinePosX;
+	unsigned int _textSectionPos;
+	unsigned int _textSectionWidth;
 
 	//Tooltip info
-	HWND hwndTooltip;
-	bool tooltipVisible;
-	unsigned int tooltipLastValue;
-	std::wstring lastTooltipText;
+	HWND _hwndTooltip;
+	bool _tooltipVisible;
+	unsigned int _tooltipLastValue;
+	std::wstring _lastTooltipText;
 
 	//Drag-select info
-	bool mouseButtonDown;
-	bool dragSelectActive;
-	unsigned int dragSelectStartPos;
-	unsigned int dragSelectEndPos;
-	int lastCursorDragSelectPosX;
-	int lastCursorDragSelectPosY;
+	bool _mouseButtonDown;
+	bool _dragSelectActive;
+	unsigned int _dragSelectStartPos;
+	unsigned int _dragSelectEndPos;
+	int _lastCursorDragSelectPosX;
+	int _lastCursorDragSelectPosY;
 
 	//Data marking info
-	bool markingEnabled;
-	std::wstring markName;
-	std::wstring unmarkName;
+	bool _markingEnabled;
+	std::wstring _markName;
+	std::wstring _unmarkName;
 };
 
 #include "WC_HexEdit.inl"

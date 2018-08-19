@@ -120,76 +120,76 @@ struct IM68000::ExceptionDebuggingEntry
 //----------------------------------------------------------------------------------------
 bool IM68000::GetX() const
 {
-	GenericAccessDataValueBool data;
-	ReadGenericData((unsigned int)IM68000DataSource::RegisterSRX, 0, data);
-	return data.GetValue();
+	GenericAccessDataValueBool genericData;
+	ReadGenericData((unsigned int)IM68000DataSource::RegisterSRX, 0, genericData);
+	return genericData.GetValue();
 }
 
 //----------------------------------------------------------------------------------------
-void IM68000::SetX(bool adata)
+void IM68000::SetX(bool data)
 {
-	GenericAccessDataValueBool data(adata);
-	WriteGenericData((unsigned int)IM68000DataSource::RegisterSRX, 0, data);
+	GenericAccessDataValueBool genericData(data);
+	WriteGenericData((unsigned int)IM68000DataSource::RegisterSRX, 0, genericData);
 }
 
 //----------------------------------------------------------------------------------------
 bool IM68000::GetN() const
 {
-	GenericAccessDataValueBool data;
-	ReadGenericData((unsigned int)IM68000DataSource::RegisterSRN, 0, data);
-	return data.GetValue();
+	GenericAccessDataValueBool genericData;
+	ReadGenericData((unsigned int)IM68000DataSource::RegisterSRN, 0, genericData);
+	return genericData.GetValue();
 }
 
 //----------------------------------------------------------------------------------------
-void IM68000::SetN(bool adata)
+void IM68000::SetN(bool data)
 {
-	GenericAccessDataValueBool data(adata);
-	WriteGenericData((unsigned int)IM68000DataSource::RegisterSRN, 0, data);
+	GenericAccessDataValueBool genericData(data);
+	WriteGenericData((unsigned int)IM68000DataSource::RegisterSRN, 0, genericData);
 }
 
 //----------------------------------------------------------------------------------------
 bool IM68000::GetZ() const
 {
-	GenericAccessDataValueBool data;
-	ReadGenericData((unsigned int)IM68000DataSource::RegisterSRZ, 0, data);
-	return data.GetValue();
+	GenericAccessDataValueBool genericData;
+	ReadGenericData((unsigned int)IM68000DataSource::RegisterSRZ, 0, genericData);
+	return genericData.GetValue();
 }
 
 //----------------------------------------------------------------------------------------
-void IM68000::SetZ(bool adata)
+void IM68000::SetZ(bool data)
 {
-	GenericAccessDataValueBool data(adata);
-	WriteGenericData((unsigned int)IM68000DataSource::RegisterSRZ, 0, data);
+	GenericAccessDataValueBool genericData(data);
+	WriteGenericData((unsigned int)IM68000DataSource::RegisterSRZ, 0, genericData);
 }
 
 //----------------------------------------------------------------------------------------
 bool IM68000::GetV() const
 {
-	GenericAccessDataValueBool data;
-	ReadGenericData((unsigned int)IM68000DataSource::RegisterSRV, 0, data);
-	return data.GetValue();
+	GenericAccessDataValueBool genericData;
+	ReadGenericData((unsigned int)IM68000DataSource::RegisterSRV, 0, genericData);
+	return genericData.GetValue();
 }
 
 //----------------------------------------------------------------------------------------
-void IM68000::SetV(bool adata)
+void IM68000::SetV(bool data)
 {
-	GenericAccessDataValueBool data(adata);
-	WriteGenericData((unsigned int)IM68000DataSource::RegisterSRV, 0, data);
+	GenericAccessDataValueBool genericData(data);
+	WriteGenericData((unsigned int)IM68000DataSource::RegisterSRV, 0, genericData);
 }
 
 //----------------------------------------------------------------------------------------
 bool IM68000::GetC() const
 {
-	GenericAccessDataValueBool data;
-	ReadGenericData((unsigned int)IM68000DataSource::RegisterSRC, 0, data);
-	return data.GetValue();
+	GenericAccessDataValueBool genericData;
+	ReadGenericData((unsigned int)IM68000DataSource::RegisterSRC, 0, genericData);
+	return genericData.GetValue();
 }
 
 //----------------------------------------------------------------------------------------
-void IM68000::SetC(bool adata)
+void IM68000::SetC(bool data)
 {
-	GenericAccessDataValueBool data(adata);
-	WriteGenericData((unsigned int)IM68000DataSource::RegisterSRC, 0, data);
+	GenericAccessDataValueBool genericData(data);
+	WriteGenericData((unsigned int)IM68000DataSource::RegisterSRC, 0, genericData);
 }
 
 //----------------------------------------------------------------------------------------
@@ -197,46 +197,46 @@ void IM68000::SetC(bool adata)
 //----------------------------------------------------------------------------------------
 bool IM68000::GetSR_T() const
 {
-	GenericAccessDataValueBool data;
-	ReadGenericData((unsigned int)IM68000DataSource::RegisterSRT, 0, data);
-	return data.GetValue();
+	GenericAccessDataValueBool genericData;
+	ReadGenericData((unsigned int)IM68000DataSource::RegisterSRT, 0, genericData);
+	return genericData.GetValue();
 }
 
 //----------------------------------------------------------------------------------------
-void IM68000::SetSR_T(bool adata)
+void IM68000::SetSR_T(bool data)
 {
-	GenericAccessDataValueBool data(adata);
-	WriteGenericData((unsigned int)IM68000DataSource::RegisterSRT, 0, data);
+	GenericAccessDataValueBool genericData(data);
+	WriteGenericData((unsigned int)IM68000DataSource::RegisterSRT, 0, genericData);
 }
 
 //----------------------------------------------------------------------------------------
 bool IM68000::GetSR_S() const
 {
-	GenericAccessDataValueBool data;
-	ReadGenericData((unsigned int)IM68000DataSource::RegisterSRS, 0, data);
-	return data.GetValue();
+	GenericAccessDataValueBool genericData;
+	ReadGenericData((unsigned int)IM68000DataSource::RegisterSRS, 0, genericData);
+	return genericData.GetValue();
 }
 
 //----------------------------------------------------------------------------------------
-void IM68000::SetSR_S(bool adata)
+void IM68000::SetSR_S(bool data)
 {
-	GenericAccessDataValueBool data(adata);
-	WriteGenericData((unsigned int)IM68000DataSource::RegisterSRS, 0, data);
+	GenericAccessDataValueBool genericData(data);
+	WriteGenericData((unsigned int)IM68000DataSource::RegisterSRS, 0, genericData);
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int IM68000::GetSR_IPM() const
 {
-	GenericAccessDataValueUInt data;
-	ReadGenericData((unsigned int)IM68000DataSource::RegisterSRIPM, 0, data);
-	return data.GetValue();
+	GenericAccessDataValueUInt genericData;
+	ReadGenericData((unsigned int)IM68000DataSource::RegisterSRIPM, 0, genericData);
+	return genericData.GetValue();
 }
 
 //----------------------------------------------------------------------------------------
-void IM68000::SetSR_IPM(unsigned int adata)
+void IM68000::SetSR_IPM(unsigned int data)
 {
-	GenericAccessDataValueUInt data(adata);
-	WriteGenericData((unsigned int)IM68000DataSource::RegisterSRIPM, 0, data);
+	GenericAccessDataValueUInt genericData(data);
+	WriteGenericData((unsigned int)IM68000DataSource::RegisterSRIPM, 0, genericData);
 }
 
 //----------------------------------------------------------------------------------------
@@ -244,123 +244,123 @@ void IM68000::SetSR_IPM(unsigned int adata)
 //----------------------------------------------------------------------------------------
 unsigned int IM68000::GetPC() const
 {
-	GenericAccessDataValueUInt data;
-	ReadGenericData((unsigned int)IM68000DataSource::RegisterPC, 0, data);
-	return data.GetValue();
+	GenericAccessDataValueUInt genericData;
+	ReadGenericData((unsigned int)IM68000DataSource::RegisterPC, 0, genericData);
+	return genericData.GetValue();
 }
 
 //----------------------------------------------------------------------------------------
-void IM68000::SetPC(unsigned int adata)
+void IM68000::SetPC(unsigned int data)
 {
-	GenericAccessDataValueUInt data(adata);
-	WriteGenericData((unsigned int)IM68000DataSource::RegisterPC, 0, data);
+	GenericAccessDataValueUInt genericData(data);
+	WriteGenericData((unsigned int)IM68000DataSource::RegisterPC, 0, genericData);
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int IM68000::GetSR() const
 {
-	GenericAccessDataValueUInt data;
-	ReadGenericData((unsigned int)IM68000DataSource::RegisterSR, 0, data);
-	return data.GetValue();
+	GenericAccessDataValueUInt genericData;
+	ReadGenericData((unsigned int)IM68000DataSource::RegisterSR, 0, genericData);
+	return genericData.GetValue();
 }
 
 //----------------------------------------------------------------------------------------
-void IM68000::SetSR(unsigned int adata)
+void IM68000::SetSR(unsigned int data)
 {
-	GenericAccessDataValueUInt data(adata);
-	WriteGenericData((unsigned int)IM68000DataSource::RegisterSR, 0, data);
+	GenericAccessDataValueUInt genericData(data);
+	WriteGenericData((unsigned int)IM68000DataSource::RegisterSR, 0, genericData);
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int IM68000::GetCCR() const
 {
-	GenericAccessDataValueUInt data;
-	ReadGenericData((unsigned int)IM68000DataSource::RegisterCCR, 0, data);
-	return data.GetValue();
+	GenericAccessDataValueUInt genericData;
+	ReadGenericData((unsigned int)IM68000DataSource::RegisterCCR, 0, genericData);
+	return genericData.GetValue();
 }
 
 //----------------------------------------------------------------------------------------
-void IM68000::SetCCR(unsigned int adata)
+void IM68000::SetCCR(unsigned int data)
 {
-	GenericAccessDataValueUInt data(adata);
-	WriteGenericData((unsigned int)IM68000DataSource::RegisterCCR, 0, data);
+	GenericAccessDataValueUInt genericData(data);
+	WriteGenericData((unsigned int)IM68000DataSource::RegisterCCR, 0, genericData);
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int IM68000::GetSP() const
 {
-	GenericAccessDataValueUInt data;
-	ReadGenericData((unsigned int)IM68000DataSource::RegisterSP, 0, data);
-	return data.GetValue();
+	GenericAccessDataValueUInt genericData;
+	ReadGenericData((unsigned int)IM68000DataSource::RegisterSP, 0, genericData);
+	return genericData.GetValue();
 }
 
 //----------------------------------------------------------------------------------------
-void IM68000::SetSP(unsigned int adata)
+void IM68000::SetSP(unsigned int data)
 {
-	GenericAccessDataValueUInt data(adata);
-	WriteGenericData((unsigned int)IM68000DataSource::RegisterSP, 0, data);
+	GenericAccessDataValueUInt genericData(data);
+	WriteGenericData((unsigned int)IM68000DataSource::RegisterSP, 0, genericData);
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int IM68000::GetSSP() const
 {
-	GenericAccessDataValueUInt data;
-	ReadGenericData((unsigned int)IM68000DataSource::RegisterSSP, 0, data);
-	return data.GetValue();
+	GenericAccessDataValueUInt genericData;
+	ReadGenericData((unsigned int)IM68000DataSource::RegisterSSP, 0, genericData);
+	return genericData.GetValue();
 }
 
 //----------------------------------------------------------------------------------------
-void IM68000::SetSSP(unsigned int adata)
+void IM68000::SetSSP(unsigned int data)
 {
-	GenericAccessDataValueUInt data(adata);
-	WriteGenericData((unsigned int)IM68000DataSource::RegisterSSP, 0, data);
+	GenericAccessDataValueUInt genericData(data);
+	WriteGenericData((unsigned int)IM68000DataSource::RegisterSSP, 0, genericData);
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int IM68000::GetUSP() const
 {
-	GenericAccessDataValueUInt data;
-	ReadGenericData((unsigned int)IM68000DataSource::RegisterUSP, 0, data);
-	return data.GetValue();
+	GenericAccessDataValueUInt genericData;
+	ReadGenericData((unsigned int)IM68000DataSource::RegisterUSP, 0, genericData);
+	return genericData.GetValue();
 }
 
 //----------------------------------------------------------------------------------------
-void IM68000::SetUSP(unsigned int adata)
+void IM68000::SetUSP(unsigned int data)
 {
-	GenericAccessDataValueUInt data(adata);
-	WriteGenericData((unsigned int)IM68000DataSource::RegisterUSP, 0, data);
+	GenericAccessDataValueUInt genericData(data);
+	WriteGenericData((unsigned int)IM68000DataSource::RegisterUSP, 0, genericData);
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int IM68000::GetA(unsigned int registerNo) const
 {
-	GenericAccessDataValueUInt data;
+	GenericAccessDataValueUInt genericData;
 	RegisterDataContext dataContext(registerNo);
-	ReadGenericData((unsigned int)IM68000DataSource::RegisterA, &dataContext, data);
-	return data.GetValue();
+	ReadGenericData((unsigned int)IM68000DataSource::RegisterA, &dataContext, genericData);
+	return genericData.GetValue();
 }
 
 //----------------------------------------------------------------------------------------
-void IM68000::SetA(unsigned int registerNo, unsigned int adata)
+void IM68000::SetA(unsigned int registerNo, unsigned int data)
 {
-	GenericAccessDataValueUInt data(adata);
+	GenericAccessDataValueUInt genericData(data);
 	RegisterDataContext dataContext(registerNo);
-	WriteGenericData((unsigned int)IM68000DataSource::RegisterA, &dataContext, data);
+	WriteGenericData((unsigned int)IM68000DataSource::RegisterA, &dataContext, genericData);
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int IM68000::GetD(unsigned int registerNo) const
 {
-	GenericAccessDataValueUInt data;
+	GenericAccessDataValueUInt genericData;
 	RegisterDataContext dataContext(registerNo);
-	ReadGenericData((unsigned int)IM68000DataSource::RegisterD, &dataContext, data);
-	return data.GetValue();
+	ReadGenericData((unsigned int)IM68000DataSource::RegisterD, &dataContext, genericData);
+	return genericData.GetValue();
 }
 
 //----------------------------------------------------------------------------------------
-void IM68000::SetD(unsigned int registerNo, unsigned int adata)
+void IM68000::SetD(unsigned int registerNo, unsigned int data)
 {
-	GenericAccessDataValueUInt data(adata);
+	GenericAccessDataValueUInt genericData(data);
 	RegisterDataContext dataContext(registerNo);
-	WriteGenericData((unsigned int)IM68000DataSource::RegisterD, &dataContext, data);
+	WriteGenericData((unsigned int)IM68000DataSource::RegisterD, &dataContext, genericData);
 }

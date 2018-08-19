@@ -9,7 +9,7 @@ class RegistersView :public ViewBase
 {
 public:
 	//Constructors
-	RegistersView(IUIManager& auiManager, RegistersViewPresenter& apresenter, IYM2612& amodel);
+	RegistersView(IUIManager& uiManager, RegistersViewPresenter& presenter, IYM2612& model);
 
 protected:
 	//Member window procedure
@@ -23,11 +23,11 @@ private:
 	INT_PTR msgWM_COMMAND(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
 private:
-	RegistersViewPresenter& presenter;
-	IYM2612& model;
-	bool initializedDialog;
-	std::wstring previousText;
-	unsigned int currentControlFocus;
+	RegistersViewPresenter& _presenter;
+	IYM2612& _model;
+	bool _initializedDialog;
+	std::wstring _previousText;
+	unsigned int _currentControlFocus;
 };
 
 #endif

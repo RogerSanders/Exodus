@@ -6,15 +6,15 @@ class Data
 {
 public:
 	//Constants
-	static const unsigned int bitsPerByte = 8;
+	static const unsigned int BitsPerByte = 8;
 
 public:
 	//Constructors
 	explicit inline Data(unsigned int bitCount);
-	inline Data(unsigned int bitCount, unsigned int adata);
+	inline Data(unsigned int bitCount, unsigned int data);
 
 	//Management functions
-	inline void Resize(unsigned int abitCount);
+	inline void Resize(unsigned int bitCount);
 
 	//Container size properties
 	inline unsigned int GetBitMask() const;
@@ -93,12 +93,12 @@ public:
 	inline Data operator--(int);
 
 	//Data conversion
-	inline Data Convert(unsigned int abitCount) const;
-	inline Data SignExtend(unsigned int abitCount) const;
+	inline Data Convert(unsigned int bitCount) const;
+	inline Data SignExtend(unsigned int bitCount) const;
 
 	//Data segment extraction/insertion
 	inline unsigned int GetData() const;
-	inline Data& SetData(unsigned int adata);
+	inline Data& SetData(unsigned int data);
 	inline bool MSB() const;
 	inline bool LSB() const;
 	inline void MSB(bool state);
@@ -109,26 +109,26 @@ public:
 	inline void SetByteFromBottomUp(unsigned int byte, unsigned int data);
 	inline unsigned char GetByteFromTopDown(unsigned int byte) const;
 	inline void SetByteFromTopDown(unsigned int byte, unsigned int data);
-	inline unsigned int GetDataSegment(unsigned int bitStart, unsigned int abitCount) const;
-	inline Data& SetDataSegment(unsigned int bitStart, unsigned int abitCount, unsigned int adata);
+	inline unsigned int GetDataSegment(unsigned int bitStart, unsigned int bitCount) const;
+	inline Data& SetDataSegment(unsigned int bitStart, unsigned int bitCount, unsigned int data);
 
 	//Upper/Lower half functions
 	inline unsigned int GetUpperHalf() const;
 	inline unsigned int GetLowerHalf() const;
 	inline void GetUpperHalf(Data& target) const;
 	inline void GetLowerHalf(Data& target) const;
-	inline void SetUpperHalf(unsigned int adata);
-	inline void SetLowerHalf(unsigned int adata);
+	inline void SetUpperHalf(unsigned int data);
+	inline void SetLowerHalf(unsigned int data);
 	inline void SetUpperHalf(const Data& target);
 	inline void SetLowerHalf(const Data& target);
 
 	//Upper/Lower bit functions
-	inline unsigned int GetUpperBits(unsigned int abitCount) const;
-	inline unsigned int GetLowerBits(unsigned int abitCount) const;
+	inline unsigned int GetUpperBits(unsigned int bitCount) const;
+	inline unsigned int GetLowerBits(unsigned int bitCount) const;
 	inline void GetUpperBits(Data& target) const;
 	inline void GetLowerBits(Data& target) const;
-	inline void SetUpperBits(unsigned int abitCount, unsigned int adata);
-	inline void SetLowerBits(unsigned int abitCount, unsigned int adata);
+	inline void SetUpperBits(unsigned int bitCount, unsigned int data);
+	inline void SetLowerBits(unsigned int bitCount, unsigned int data);
 	inline void SetUpperBits(const Data& target);
 	inline void SetLowerBits(const Data& target);
 
@@ -164,9 +164,9 @@ protected:
 	//able to come up with a way for our platform to support 64-bit register widths for
 	//processors without breaking compatibility with existing devices, or requiring 64-bit
 	//wide registers on the emulating system.
-	unsigned int data;
-	unsigned int bitMask;
-	unsigned char bitCount;
+	unsigned int _data;
+	unsigned int _bitMask;
+	unsigned char _bitCount;
 };
 
 #include "Data.inl"

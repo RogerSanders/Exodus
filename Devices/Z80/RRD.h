@@ -27,17 +27,17 @@ public:
 
 	virtual void Z80Decode(const Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)
 	{
-		hl.SetIndexState(GetIndexState(), GetIndexOffset());
-		a.SetIndexState(GetIndexState(), GetIndexOffset());
+		_hl.SetIndexState(GetIndexState(), GetIndexOffset());
+		_a.SetIndexState(GetIndexState(), GetIndexOffset());
 
 		//RRD		11101101 01100111
-		hl.SetMode(EffectiveAddress::Mode::HLIndirect);
-		a.SetMode(EffectiveAddress::Mode::A);
+		_hl.SetMode(EffectiveAddress::Mode::HLIndirect);
+		_a.SetMode(EffectiveAddress::Mode::A);
 		AddExecuteCycleCount(14);
 
-		AddInstructionSize(GetIndexOffsetSize(hl.UsesIndexOffset() || a.UsesIndexOffset()));
-		AddInstructionSize(hl.ExtensionSize());
-		AddInstructionSize(a.ExtensionSize());
+		AddInstructionSize(GetIndexOffsetSize(_hl.UsesIndexOffset() || _a.UsesIndexOffset()));
+		AddInstructionSize(_hl.ExtensionSize());
+		AddInstructionSize(_a.ExtensionSize());
 	}
 
 	virtual ExecuteTime Z80Execute(Z80* cpu, const Z80Word& location) const
@@ -49,16 +49,16 @@ public:
 		Z80Byte aResult;
 
 		//Perform the operation
-		additionalTime += hl.Read(cpu, location, hlSource);
-		additionalTime += a.Read(cpu, location, aSource);
+		additionalTime += _hl.Read(cpu, location, hlSource);
+		additionalTime += _a.Read(cpu, location, aSource);
 
 		aResult = aSource;
 		aResult.SetDataSegment(0, 4, hlSource.GetDataSegment(0, 4));
 		hlResult.SetDataSegment(4, 4, aSource.GetDataSegment(0, 4));
 		hlResult.SetDataSegment(0, 4, hlSource.GetDataSegment(4, 4));
 
-		additionalTime += hl.Write(cpu, location, hlResult);
-		additionalTime += a.Write(cpu, location, aResult);
+		additionalTime += _hl.Write(cpu, location, hlResult);
+		additionalTime += _a.Write(cpu, location, aResult);
 
 		//Set the flag results
 		cpu->SetFlagS(aResult.Negative());
@@ -75,8 +75,8 @@ public:
 	}
 
 private:
-	EffectiveAddress hl;
-	EffectiveAddress a;
+	EffectiveAddress _hl;
+	EffectiveAddress _a;
 };
 
 } //Close namespace Z80

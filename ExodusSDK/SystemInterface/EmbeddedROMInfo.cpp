@@ -4,7 +4,7 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 EmbeddedROMInfo::EmbeddedROMInfo()
-:targetDevice(0), moduleID(0), targetInterfaceNo(0), romRegionSize(0), romEntryBitCount(0)
+:_targetDevice(0), _moduleID(0), _targetInterfaceNo(0), _romRegionSize(0), _romEntryBitCount(0)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -20,97 +20,97 @@ unsigned int EmbeddedROMInfo::GetIEmbeddedROMInfoVersion() const
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> EmbeddedROMInfo::GetName() const
 {
-	return name;
+	return _name;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> EmbeddedROMInfo::GetDisplayName() const
 {
-	return name;
+	return _name;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int EmbeddedROMInfo::GetModuleID() const
 {
-	return moduleID;
+	return _moduleID;
 }
 
 //----------------------------------------------------------------------------------------
 IDevice* EmbeddedROMInfo::GetTargetDevice() const
 {
-	return targetDevice;
+	return _targetDevice;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int EmbeddedROMInfo::GetTargetInterfaceNo() const
 {
-	return targetInterfaceNo;
+	return _targetInterfaceNo;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int EmbeddedROMInfo::GetROMRegionSize() const
 {
-	return romRegionSize;
+	return _romRegionSize;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int EmbeddedROMInfo::GetROMEntryBitCount() const
 {
-	return romEntryBitCount;
+	return _romEntryBitCount;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> EmbeddedROMInfo::GetFilePath() const
 {
-	return filePath;
+	return _filePath;
 }
 
 //----------------------------------------------------------------------------------------
 //Setters
 //----------------------------------------------------------------------------------------
-void EmbeddedROMInfo::SetName(const Marshal::In<std::wstring>& aname)
+void EmbeddedROMInfo::SetName(const Marshal::In<std::wstring>& name)
 {
-	name = aname;
+	_name = name;
 }
 
 //----------------------------------------------------------------------------------------
-void EmbeddedROMInfo::SetDisplayName(const Marshal::In<std::wstring>& adisplayName)
+void EmbeddedROMInfo::SetDisplayName(const Marshal::In<std::wstring>& displayName)
 {
-	displayName = adisplayName;
+	_displayName = displayName;
 }
 
 //----------------------------------------------------------------------------------------
-void EmbeddedROMInfo::SetModuleID(unsigned int amoduleID)
+void EmbeddedROMInfo::SetModuleID(unsigned int moduleID)
 {
-	moduleID = amoduleID;
+	_moduleID = moduleID;
 }
 
 //----------------------------------------------------------------------------------------
-void EmbeddedROMInfo::SetTargetDevice(IDevice* atargetDevice)
+void EmbeddedROMInfo::SetTargetDevice(IDevice* targetDevice)
 {
-	targetDevice = atargetDevice;
+	_targetDevice = targetDevice;
 }
 
 //----------------------------------------------------------------------------------------
-void EmbeddedROMInfo::SetTargetInterfaceNo(unsigned int atargetInterfaceNo)
+void EmbeddedROMInfo::SetTargetInterfaceNo(unsigned int targetInterfaceNo)
 {
-	targetInterfaceNo = atargetInterfaceNo;
+	_targetInterfaceNo = targetInterfaceNo;
 }
 
 //----------------------------------------------------------------------------------------
-void EmbeddedROMInfo::SetROMRegionSize(unsigned int aromRegionSize)
+void EmbeddedROMInfo::SetROMRegionSize(unsigned int romRegionSize)
 {
-	romRegionSize = aromRegionSize;
+	_romRegionSize = romRegionSize;
 }
 
 //----------------------------------------------------------------------------------------
-void EmbeddedROMInfo::SetROMEntryBitCount(unsigned int aromEntryBitCount)
+void EmbeddedROMInfo::SetROMEntryBitCount(unsigned int romEntryBitCount)
 {
-	romEntryBitCount = aromEntryBitCount;
+	_romEntryBitCount = romEntryBitCount;
 }
 
 //----------------------------------------------------------------------------------------
-void EmbeddedROMInfo::SetFilePath(const Marshal::In<std::wstring>& afilePath)
+void EmbeddedROMInfo::SetFilePath(const Marshal::In<std::wstring>& filePath)
 {
-	filePath = afilePath;
+	_filePath = filePath;
 }

@@ -5,7 +5,7 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 GenericAccessDataValueBool::GenericAccessDataValueBool(bool value)
-:dataValue(value)
+:_dataValue(value)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -29,14 +29,14 @@ GenericAccessDataValueBool::DataType GenericAccessDataValueBool::GetType() const
 //----------------------------------------------------------------------------------------
 bool GenericAccessDataValueBool::GetValue() const
 {
-	return dataValue;
+	return _dataValue;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> GenericAccessDataValueBool::GetValueString() const
 {
 	std::wstring result;
-	BoolToString(dataValue, result);
+	BoolToString(_dataValue, result);
 	return result;
 }
 
@@ -45,7 +45,7 @@ Marshal::Ret<std::wstring> GenericAccessDataValueBool::GetValueString() const
 //----------------------------------------------------------------------------------------
 bool GenericAccessDataValueBool::SetValueBool(bool value)
 {
-	dataValue = value;
+	_dataValue = value;
 	ApplyLimitSettingsToCurrentValue();
 	return true;
 }

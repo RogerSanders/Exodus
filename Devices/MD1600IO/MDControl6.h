@@ -22,7 +22,7 @@ class MDControl6 :public Device
 {
 public:
 	//Constructors
-	MDControl6(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
+	MDControl6(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 
 	//Initialization functions
 	virtual void Initialize();
@@ -58,11 +58,6 @@ public:
 	virtual void SaveState(IHierarchicalStorageNode& node) const;
 
 private:
-	//Constants
-	static const unsigned int buttonCount = 12;
-	static const unsigned int bankswitchCounterResetPoint = 4;
-	static const unsigned int outputLineCount = 7;
-
 	//Enumerations
 	enum class LineID
 	{
@@ -99,9 +94,13 @@ private:
 		double timeoutTime;
 	};
 
+	//Constants
+	static const unsigned int buttonCount = 12;
+	static const unsigned int bankswitchCounterResetPoint = 4;
+	static const unsigned int outputLineCount = 7;
+
 private:
 	//Line functions
-	void ApplyLineStateChange(LineID targetLine, const Data& lineData);
 	void UpdateLineState(bool timeoutSettingsChanged, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	void UpdateOutputLineStateForLine(LineID lineID, bool revokeAllTimeoutStateChanges, IDeviceContext* caller, double accessTime, unsigned int accessContext);
 	static bool GetDesiredLineState(unsigned int currentBankswitchCounter, unsigned int currentLineInputStateTH, const std::vector<bool>& currentButtonPressedState, LineID lineID);
@@ -109,32 +108,32 @@ private:
 
 private:
 	//Bus interface
-	IBusInterface* memoryBus;
+	IBusInterface* _memoryBus;
 
 	//Button state
-	std::vector<bool> buttonPressed;
-	std::vector<bool> bbuttonPressed;
+	std::vector<bool> _buttonPressed;
+	std::vector<bool> _bbuttonPressed;
 
 	//Device state
-	double bankswitchTimeoutInterval;
-	double currentTimesliceLength;
-	double bcurrentTimesliceLength;
-	bool lineInputStateTH;
-	bool blineInputStateTH;
-	bool bankswitchingDisabled;
-	bool bbankswitchingDisabled;
-	unsigned int bankswitchCounter;
-	unsigned int bbankswitchCounter;
-	double bankswitchCounterToggleLastRisingEdge;
-	double bbankswitchCounterToggleLastRisingEdge;
+	double _bankswitchTimeoutInterval;
+	double _currentTimesliceLength;
+	double _bcurrentTimesliceLength;
+	bool _lineInputStateTH;
+	bool _blineInputStateTH;
+	bool _bankswitchingDisabled;
+	bool _bbankswitchingDisabled;
+	unsigned int _bankswitchCounter;
+	unsigned int _bbankswitchCounter;
+	double _bankswitchCounterToggleLastRisingEdge;
+	double _bbankswitchCounterToggleLastRisingEdge;
 
 	//Line state
-	std::vector<OutputLineState> outputLineState;
-	std::vector<OutputLineState> boutputLineState;
+	std::vector<OutputLineState> _outputLineState;
+	std::vector<OutputLineState> _boutputLineState;
 
 	//Line access
-	std::mutex lineMutex;
-	double lastLineAccessTime;
+	std::mutex _lineMutex;
+	double _lastLineAccessTime;
 };
 
 #endif

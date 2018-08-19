@@ -5,21 +5,21 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 HierarchicalStorageTree::HierarchicalStorageTree()
-:allowSeparateBinaryData(true), storageMode(StorageMode::XML)
+:_allowSeparateBinaryData(true), _storageMode(StorageMode::XML)
 {
-	root = new HierarchicalStorageNode();
+	_root = new HierarchicalStorageNode();
 }
 
 //----------------------------------------------------------------------------------------
 HierarchicalStorageTree::~HierarchicalStorageTree()
 {
-	delete root;
+	delete _root;
 }
 
 //----------------------------------------------------------------------------------------
 void HierarchicalStorageTree::Initialize()
 {
-	root->Initialize();
+	_root->Initialize();
 }
 
 //----------------------------------------------------------------------------------------
@@ -27,7 +27,7 @@ void HierarchicalStorageTree::Initialize()
 //----------------------------------------------------------------------------------------
 bool HierarchicalStorageTree::SaveTree(Stream::IStream& target)
 {
-	return SaveNode(*root, target, L"");
+	return SaveNode(*_root, target, L"");
 }
 
 //----------------------------------------------------------------------------------------
@@ -58,13 +58,13 @@ bool HierarchicalStorageTree::LoadTree(Stream::IStream& source)
 	XML_SetCharacterDataHandler(parser, LoadData);
 
 	//Parse the XML data
-	currentNodeDuringLoad = 0;
+	_currentNodeDuringLoad = 0;
 	if(XML_Parse(parser, (char*)&buffer[0], (int)(buffer.size() * sizeof(wchar_t)), 1) != XML_STATUS_OK)
 	{
 		//If XML parsing failed, set the error string, and return false.
 		std::wstringstream errorStream;
 		errorStream << XML_ErrorString(XML_GetErrorCode(parser)) << L" at line " << XML_GetCurrentLineNumber(parser);
-		errorString = errorStream.str();
+		_errorString = errorStream.str();
 		XML_ParserFree(parser);
 		return false;
 	}
@@ -191,15 +191,15 @@ void XMLCALL HierarchicalStorageTree::LoadStartElement(void *userData, const XML
 {
 	HierarchicalStorageTree* tree = (HierarchicalStorageTree*)userData;
 	HierarchicalStorageNode* node = 0;
-	if(tree->currentNodeDuringLoad == 0)
+	if(tree->_currentNodeDuringLoad == 0)
 	{
-		node = tree->root;
-		tree->currentNodeDuringLoad = node;
+		node = tree->_root;
+		tree->_currentNodeDuringLoad = node;
 	}
 	else
 	{
-		node = (HierarchicalStorageNode*)(&tree->currentNodeDuringLoad->CreateChild());
-		tree->currentNodeDuringLoad = node;
+		node = (HierarchicalStorageNode*)(&tree->_currentNodeDuringLoad->CreateChild());
+		tree->_currentNodeDuringLoad = node;
 	}
 
 	node->SetName(std::wstring(aname));
@@ -220,9 +220,9 @@ void XMLCALL HierarchicalStorageTree::LoadStartElement(void *userData, const XML
 void XMLCALL HierarchicalStorageTree::LoadEndElement(void *userData, const XML_Char *aname)
 {
 	HierarchicalStorageTree* tree = (HierarchicalStorageTree*)userData;
-	if(tree->currentNodeDuringLoad != 0)
+	if(tree->_currentNodeDuringLoad != 0)
 	{
-		tree->currentNodeDuringLoad = &tree->currentNodeDuringLoad->GetParent();
+		tree->_currentNodeDuringLoad = &tree->_currentNodeDuringLoad->GetParent();
 	}
 }
 
@@ -233,9 +233,9 @@ void XMLCALL HierarchicalStorageTree::LoadData(void *userData, const XML_Char *s
 
 	//Append all printable characters to the data stream
 	std::wstring data;
-	if(!tree->currentNodeDuringLoad->GetBinaryDataPresent())
+	if(!tree->_currentNodeDuringLoad->GetBinaryDataPresent())
 	{
-		data = tree->currentNodeDuringLoad->GetData();
+		data = tree->_currentNodeDuringLoad->GetData();
 	}
 	for(int i = 0; i < len; ++i)
 	{
@@ -246,18 +246,18 @@ void XMLCALL HierarchicalStorageTree::LoadData(void *userData, const XML_Char *s
 			data.push_back(*(s + i));
 		}
 	}
-	if(tree->currentNodeDuringLoad->IsAttributePresent(L"BinaryDataPresent"))
+	if(tree->_currentNodeDuringLoad->IsAttributePresent(L"BinaryDataPresent"))
 	{
-		tree->currentNodeDuringLoad->SetBinaryDataPresent(true);
-		if(tree->currentNodeDuringLoad->IsAttributePresent(L"SeparateBinaryData"))
+		tree->_currentNodeDuringLoad->SetBinaryDataPresent(true);
+		if(tree->_currentNodeDuringLoad->IsAttributePresent(L"SeparateBinaryData"))
 		{
-			tree->currentNodeDuringLoad->SetInlineBinaryDataEnabled(false);
+			tree->_currentNodeDuringLoad->SetInlineBinaryDataEnabled(false);
 			//Load the name of the separate binary storage buffer
-			tree->currentNodeDuringLoad->SetBinaryDataBufferName(tree->currentNodeDuringLoad->GetBinaryDataBufferName() + data);
+			tree->_currentNodeDuringLoad->SetBinaryDataBufferName(tree->_currentNodeDuringLoad->GetBinaryDataBufferName() + data);
 		}
 		else
 		{
-			tree->currentNodeDuringLoad->SetInlineBinaryDataEnabled(true);
+			tree->_currentNodeDuringLoad->SetInlineBinaryDataEnabled(true);
 			//Load inline binary data from the XML structure
 			size_t charPos = 0;
 			while((data.length() - charPos) >= 2)
@@ -267,7 +267,7 @@ void XMLCALL HierarchicalStorageTree::LoadData(void *userData, const XML_Char *s
 				unsigned int byte;
 				dataStream >> std::hex >> byte;
 
-				Stream::IStream& bufferStream = tree->currentNodeDuringLoad->GetBinaryDataBufferStream();
+				Stream::IStream& bufferStream = tree->_currentNodeDuringLoad->GetBinaryDataBufferStream();
 				bufferStream.WriteData((unsigned char)byte);
 
 				charPos += 2;
@@ -276,7 +276,7 @@ void XMLCALL HierarchicalStorageTree::LoadData(void *userData, const XML_Char *s
 	}
 	else
 	{
-		tree->currentNodeDuringLoad->SetData(data);
+		tree->_currentNodeDuringLoad->SetData(data);
 	}
 }
 
@@ -285,25 +285,25 @@ void XMLCALL HierarchicalStorageTree::LoadData(void *userData, const XML_Char *s
 //----------------------------------------------------------------------------------------
 HierarchicalStorageTree::StorageMode HierarchicalStorageTree::GetStorageMode() const
 {
-	return storageMode;
+	return _storageMode;
 }
 
 //----------------------------------------------------------------------------------------
 void HierarchicalStorageTree::SetStorageMode(StorageMode astorageMode)
 {
-	storageMode = astorageMode;
+	_storageMode = astorageMode;
 }
 
 //----------------------------------------------------------------------------------------
 bool HierarchicalStorageTree::GetSeparateBinaryDataEnabled() const
 {
-	return allowSeparateBinaryData;
+	return _allowSeparateBinaryData;
 }
 
 //----------------------------------------------------------------------------------------
 void HierarchicalStorageTree::SetSeparateBinaryDataEnabled(bool state)
 {
-	allowSeparateBinaryData = state;
+	_allowSeparateBinaryData = state;
 }
 
 //----------------------------------------------------------------------------------------
@@ -311,7 +311,7 @@ void HierarchicalStorageTree::SetSeparateBinaryDataEnabled(bool state)
 //----------------------------------------------------------------------------------------
 IHierarchicalStorageNode& HierarchicalStorageTree::GetRootNode() const
 {
-	return *root;
+	return *_root;
 }
 
 //----------------------------------------------------------------------------------------
@@ -319,7 +319,7 @@ IHierarchicalStorageNode& HierarchicalStorageTree::GetRootNode() const
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> HierarchicalStorageTree::GetErrorString() const
 {
-	return errorString;
+	return _errorString;
 }
 
 //----------------------------------------------------------------------------------------
@@ -328,7 +328,7 @@ Marshal::Ret<std::wstring> HierarchicalStorageTree::GetErrorString() const
 Marshal::Ret<std::list<IHierarchicalStorageNode*>> HierarchicalStorageTree::GetBinaryDataNodeList()
 {
 	std::list<IHierarchicalStorageNode*> binaryEntityList;
-	root->AddBinaryDataEntitiesToList(binaryEntityList);
+	_root->AddBinaryDataEntitiesToList(binaryEntityList);
 	return binaryEntityList;
 }
 
