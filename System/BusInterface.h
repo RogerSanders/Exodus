@@ -1,4 +1,4 @@
-/*--------------------------------------------------------------------------------------*\
+/*----------------------------------------------------------------------------                              ----------*\
 Things to do:
 -Rename the "location" parameter to "address" on all access functions
 -Add an access mask to the SetLineState() function, to support tri-state line changes, and
@@ -40,7 +40,7 @@ clock rate are timestamped, and each device can check its own execution progress
 sure it hasn't executed past that point yet. Dependent device associations can be used to
 prevent excessive rollbacks in the case of a clock rate which is expected to change
 frequently.
-\*--------------------------------------------------------------------------------------*/
+\*--------------------------------------------------------------------------------------------------------------------*/
 #ifndef __BUSINTERFACE_H__
 #define __BUSINTERFACE_H__
 #include <string>

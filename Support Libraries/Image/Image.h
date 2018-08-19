@@ -1,4 +1,4 @@
-/*--------------------------------------------------------------------------------------*\
+/*----------------------------------------------------------------------------                              ----------*\
 Things to do:
 -Write routines to convert from other colour spaces like CMYK
 -Implement TIFF file save support
@@ -42,7 +42,7 @@ need multi page support for even normal cur and ico files, since they can contai
 variety of images with different sizes and colour depths. Note that with gif files,
 there's a duration value per image too which specifies how long it should be displayed
 for, which should be supported.
-\*--------------------------------------------------------------------------------------*/
+\*--------------------------------------------------------------------------------------------------------------------*/
 #ifndef __IMAGE_H__
 #define __IMAGE_H__
 #include "ImageInterface/ImageInterface.pkg"

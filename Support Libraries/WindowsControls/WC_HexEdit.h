@@ -1,4 +1,4 @@
-/*--------------------------------------------------------------------------------------*\
+/*----------------------------------------------------------------------------                              ----------*\
 Things to do:
 -If you start a drag select but only select a single byte, the tooltip still shows the
 drag select info.
@@ -24,7 +24,7 @@ block of data with the data in memory. This will provide quick ways to construct
 interpolated data sets.
 -Column selection mode, where a region can be bounded both horizontally and vertically, to
 allow a column from a repeating set of data to be selected, copied, pasted, etc.
-\*--------------------------------------------------------------------------------------*/
+\*--------------------------------------------------------------------------------------------------------------------*/
 #ifndef __WC_HEXEDIT_H__
 #define __WC_HEXEDIT_H__
 #include "WindowsSupport/WindowsSupport.pkg"

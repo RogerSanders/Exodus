@@ -1,4 +1,4 @@
-/*--------------------------------------------------------------------------------------*\
+/*----------------------------------------------------------------------------                              ----------*\
 Things to do:
 -Separate the functions into three categories:
 1. Active functions which operate on the current timeslice. These have locks embedded to
@@ -20,7 +20,7 @@ mandated. Since we cannot truly make the container thread safe through internal 
 should hand the responsibility over to the caller, and give them the rules under which
 access must occur. This is consistent with how any other basic container would operate
 anyway.
-\*--------------------------------------------------------------------------------------*/
+\*--------------------------------------------------------------------------------------------------------------------*/
 #ifndef __RANDOMTIMEACCESSBUFFER_H__
 #define __RANDOMTIMEACCESSBUFFER_H__
 #include <list>

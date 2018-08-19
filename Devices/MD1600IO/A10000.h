@@ -1,4 +1,4 @@
-/*--------------------------------------------------------------------------------------*\
+/*----------------------------------------------------------------------------                              ----------*\
 Things to do:
 -Name the bits in the version register properly, corresponding to the names of the
 physical lines they test.
@@ -30,7 +30,7 @@ physical device enough time to register the change.
 References:
 -Sega Genesis I/O Chip and Peripherals, Charles MacDonald
 -Sega Genesis Hardware Notes, Charles MacDonald, v0.8 03/02/2001
-\*--------------------------------------------------------------------------------------*/
+\*--------------------------------------------------------------------------------------------------------------------*/
 #ifndef __A10000_H__
 #define __A10000_H__
 #include "DeviceInterface/DeviceInterface.pkg"

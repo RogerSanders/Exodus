@@ -1,4 +1,4 @@
-/*--------------------------------------------------------------------------------------*\
+/*----------------------------------------------------------------------------                              ----------*\
 Things to do:
 -Build a system for custom text highlighting mid-line. Some kind of text markup language
  applied to the source string will probably be required. This should be supported using a
@@ -14,7 +14,7 @@ Things to do:
  determine which cells to redraw. Switch to a double buffered window rather than drawing
  to a bitmap and blitting it to the window in order to support flicker free partial
  updates of the rendered region.
-\*--------------------------------------------------------------------------------------*/
+\*--------------------------------------------------------------------------------------------------------------------*/
 #ifndef __WC_DATAGRID_H__
 #define __WC_DATAGRID_H__
 #include "WindowsSupport/WindowsSupport.pkg"
