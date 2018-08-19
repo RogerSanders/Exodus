@@ -19,11 +19,11 @@ public:
 	inline M68000Byte()
 	:Data(BITCOUNT_BYTE)
 	{}
-	inline M68000Byte(unsigned int adata)
-	:Data(BITCOUNT_BYTE, adata)
+	inline M68000Byte(unsigned int data)
+	:Data(BITCOUNT_BYTE, data)
 	{}
-	inline explicit M68000Byte(const Data& adata)
-	:Data(BITCOUNT_BYTE, adata.GetData())
+	inline explicit M68000Byte(const Data& data)
+	:Data(BITCOUNT_BYTE, data.GetData())
 	{}
 
 	//Integer operators
@@ -89,93 +89,93 @@ public:
 	}
 	M68000Byte& operator=(unsigned int target)
 	{
-		data = target;
+		_data = target;
 		MaskData();
 		return *this;
 	}
 	M68000Byte& operator+=(unsigned int target)
 	{
-		data += target;
+		_data += target;
 		MaskData();
 		return *this;
 	}
 	M68000Byte& operator-=(unsigned int target)
 	{
-		data -= target;
+		_data -= target;
 		MaskData();
 		return *this;
 	}
 	M68000Byte& operator*=(unsigned int target)
 	{
-		data *= target;
+		_data *= target;
 		MaskData();
 		return *this;
 	}
 	M68000Byte& operator/=(unsigned int target)
 	{
-		data /= target;
+		_data /= target;
 		MaskData();
 		return *this;
 	}
 	M68000Byte& operator&=(unsigned int target)
 	{
-		data &= target;
+		_data &= target;
 		MaskData();
 		return *this;
 	}
 	M68000Byte& operator|=(unsigned int target)
 	{
-		data |= target;
+		_data |= target;
 		MaskData();
 		return *this;
 	}
 	M68000Byte& operator^=(unsigned int target)
 	{
-		data ^= target;
+		_data ^= target;
 		MaskData();
 		return *this;
 	}
 	M68000Byte& operator%=(unsigned int target)
 	{
-		data %= target;
+		_data %= target;
 		MaskData();
 		return *this;
 	}
 	M68000Byte& operator<<=(unsigned int target)
 	{
-		data <<= target;
+		_data <<= target;
 		MaskData();
 		return *this;
 	}
 	M68000Byte& operator>>=(unsigned int target)
 	{
-		data >>= target;
+		_data >>= target;
 		MaskData();
 		return *this;
 	}
 	bool operator==(unsigned int target) const
 	{
-		return data == target;
+		return _data == target;
 	}
 	bool operator!=(unsigned int target) const
 	{
-		return data != target;
+		return _data != target;
 	}
 	bool operator>(unsigned int target) const
 	{
-		return data > target;
+		return _data > target;
 	}
 	bool operator<(unsigned int target) const
 	{
-		return data < target;
+		return _data < target;
 	}
 	bool operator>=(unsigned int target) const
 	{
-		return data >= target;
+		return _data >= target;
 	}
 	bool operator<=(unsigned int target) const
 	{
-		return data <= target;
+		return _data <= target;
 	}
 
 	//M68000Byte operators
@@ -241,126 +241,126 @@ public:
 	}
 	M68000Byte& operator=(const M68000Byte& target)
 	{
-		data = target.data;
+		_data = target._data;
 		MaskData();
 		return *this;
 	}
 	M68000Byte& operator+=(const M68000Byte& target)
 	{
-		data += target.data;
+		_data += target._data;
 		MaskData();
 		return *this;
 	}
 	M68000Byte& operator-=(const M68000Byte& target)
 	{
-		data -= target.data;
+		_data -= target._data;
 		MaskData();
 		return *this;
 	}
 	M68000Byte& operator*=(const M68000Byte& target)
 	{
-		data *= target.data;
+		_data *= target._data;
 		MaskData();
 		return *this;
 	}
 	M68000Byte& operator/=(const M68000Byte& target)
 	{
-		data /= target.data;
+		_data /= target._data;
 		MaskData();
 		return *this;
 	}
 	M68000Byte& operator&=(const M68000Byte& target)
 	{
-		data &= target.data;
+		_data &= target._data;
 		MaskData();
 		return *this;
 	}
 	M68000Byte& operator|=(const M68000Byte& target)
 	{
-		data |= target.data;
+		_data |= target._data;
 		MaskData();
 		return *this;
 	}
 	M68000Byte& operator^=(const M68000Byte& target)
 	{
-		data ^= target.data;
+		_data ^= target._data;
 		MaskData();
 		return *this;
 	}
 	M68000Byte& operator%=(const M68000Byte& target)
 	{
-		data %= target.data;
+		_data %= target._data;
 		MaskData();
 		return *this;
 	}
 	M68000Byte& operator<<=(const M68000Byte& target)
 	{
-		data <<= target.data;
+		_data <<= target._data;
 		MaskData();
 		return *this;
 	}
 	M68000Byte& operator>>=(const M68000Byte& target)
 	{
-		data >>= target.data;
+		_data >>= target._data;
 		MaskData();
 		return *this;
 	}
 	bool operator==(const M68000Byte& target) const
 	{
-		return data == target.data;
+		return _data == target._data;
 	}
 	bool operator!=(const M68000Byte& target) const
 	{
-		return data != target.data;
+		return _data != target._data;
 	}
 	bool operator>(const M68000Byte& target) const
 	{
-		return data > target.data;
+		return _data > target._data;
 	}
 	bool operator<(const M68000Byte& target) const
 	{
-		return data < target.data;
+		return _data < target._data;
 	}
 	bool operator>=(const M68000Byte& target) const
 	{
-		return data >= target.data;
+		return _data >= target._data;
 	}
 	bool operator<=(const M68000Byte& target) const
 	{
-		return data <= target.data;
+		return _data <= target._data;
 	}
 
 	//Unary operators
 	M68000Byte operator~() const
 	{
 		M68000Byte temp(*this);
-		temp.data = ~temp.data;
+		temp._data = ~temp._data;
 		temp.MaskData();
 		return temp;
 	}
 	M68000Byte& operator++()
 	{
-		++data;
+		++_data;
 		MaskData();
 		return *this;
 	}
 	M68000Byte& operator--()
 	{
-		--data;
+		--_data;
 		MaskData();
 		return *this;
 	}
 	M68000Byte operator++(int)
 	{
 		M68000Byte temp(*this);
-		++data;
+		++_data;
 		MaskData();
 		return temp;
 	}
 	M68000Byte operator--(int)
 	{
 		M68000Byte temp(*this);
-		--data;
+		--_data;
 		MaskData();
 		return temp;
 	}
@@ -373,11 +373,11 @@ public:
 	inline M68000Word()
 	:Data(BITCOUNT_WORD)
 	{}
-	inline M68000Word(unsigned int adata)
-	:Data(BITCOUNT_WORD, adata)
+	inline M68000Word(unsigned int data)
+	:Data(BITCOUNT_WORD, data)
 	{}
-	inline explicit M68000Word(const Data& adata)
-	:Data(BITCOUNT_WORD, adata.GetData())
+	inline explicit M68000Word(const Data& data)
+	:Data(BITCOUNT_WORD, data.GetData())
 	{}
 
 	//Integer operators
@@ -443,93 +443,93 @@ public:
 	}
 	M68000Word& operator=(unsigned int target)
 	{
-		data = target;
+		_data = target;
 		MaskData();
 		return *this;
 	}
 	M68000Word& operator+=(unsigned int target)
 	{
-		data += target;
+		_data += target;
 		MaskData();
 		return *this;
 	}
 	M68000Word& operator-=(unsigned int target)
 	{
-		data -= target;
+		_data -= target;
 		MaskData();
 		return *this;
 	}
 	M68000Word& operator*=(unsigned int target)
 	{
-		data *= target;
+		_data *= target;
 		MaskData();
 		return *this;
 	}
 	M68000Word& operator/=(unsigned int target)
 	{
-		data /= target;
+		_data /= target;
 		MaskData();
 		return *this;
 	}
 	M68000Word& operator&=(unsigned int target)
 	{
-		data &= target;
+		_data &= target;
 		MaskData();
 		return *this;
 	}
 	M68000Word& operator|=(unsigned int target)
 	{
-		data |= target;
+		_data |= target;
 		MaskData();
 		return *this;
 	}
 	M68000Word& operator^=(unsigned int target)
 	{
-		data ^= target;
+		_data ^= target;
 		MaskData();
 		return *this;
 	}
 	M68000Word& operator%=(unsigned int target)
 	{
-		data %= target;
+		_data %= target;
 		MaskData();
 		return *this;
 	}
 	M68000Word& operator<<=(unsigned int target)
 	{
-		data <<= target;
+		_data <<= target;
 		MaskData();
 		return *this;
 	}
 	M68000Word& operator>>=(unsigned int target)
 	{
-		data >>= target;
+		_data >>= target;
 		MaskData();
 		return *this;
 	}
 	bool operator==(unsigned int target) const
 	{
-		return data == target;
+		return _data == target;
 	}
 	bool operator!=(unsigned int target) const
 	{
-		return data != target;
+		return _data != target;
 	}
 	bool operator>(unsigned int target) const
 	{
-		return data > target;
+		return _data > target;
 	}
 	bool operator<(unsigned int target) const
 	{
-		return data < target;
+		return _data < target;
 	}
 	bool operator>=(unsigned int target) const
 	{
-		return data >= target;
+		return _data >= target;
 	}
 	bool operator<=(unsigned int target) const
 	{
-		return data <= target;
+		return _data <= target;
 	}
 
 	//M68000Word operators
@@ -595,126 +595,126 @@ public:
 	}
 	M68000Word& operator=(const M68000Word& target)
 	{
-		data = target.data;
+		_data = target._data;
 		MaskData();
 		return *this;
 	}
 	M68000Word& operator+=(const M68000Word& target)
 	{
-		data += target.data;
+		_data += target._data;
 		MaskData();
 		return *this;
 	}
 	M68000Word& operator-=(const M68000Word& target)
 	{
-		data -= target.data;
+		_data -= target._data;
 		MaskData();
 		return *this;
 	}
 	M68000Word& operator*=(const M68000Word& target)
 	{
-		data *= target.data;
+		_data *= target._data;
 		MaskData();
 		return *this;
 	}
 	M68000Word& operator/=(const M68000Word& target)
 	{
-		data /= target.data;
+		_data /= target._data;
 		MaskData();
 		return *this;
 	}
 	M68000Word& operator&=(const M68000Word& target)
 	{
-		data &= target.data;
+		_data &= target._data;
 		MaskData();
 		return *this;
 	}
 	M68000Word& operator|=(const M68000Word& target)
 	{
-		data |= target.data;
+		_data |= target._data;
 		MaskData();
 		return *this;
 	}
 	M68000Word& operator^=(const M68000Word& target)
 	{
-		data ^= target.data;
+		_data ^= target._data;
 		MaskData();
 		return *this;
 	}
 	M68000Word& operator%=(const M68000Word& target)
 	{
-		data %= target.data;
+		_data %= target._data;
 		MaskData();
 		return *this;
 	}
 	M68000Word& operator<<=(const M68000Word& target)
 	{
-		data <<= target.data;
+		_data <<= target._data;
 		MaskData();
 		return *this;
 	}
 	M68000Word& operator>>=(const M68000Word& target)
 	{
-		data >>= target.data;
+		_data >>= target._data;
 		MaskData();
 		return *this;
 	}
 	bool operator==(const M68000Word& target) const
 	{
-		return data == target.data;
+		return _data == target._data;
 	}
 	bool operator!=(const M68000Word& target) const
 	{
-		return data != target.data;
+		return _data != target._data;
 	}
 	bool operator>(const M68000Word& target) const
 	{
-		return data > target.data;
+		return _data > target._data;
 	}
 	bool operator<(const M68000Word& target) const
 	{
-		return data < target.data;
+		return _data < target._data;
 	}
 	bool operator>=(const M68000Word& target) const
 	{
-		return data >= target.data;
+		return _data >= target._data;
 	}
 	bool operator<=(const M68000Word& target) const
 	{
-		return data <= target.data;
+		return _data <= target._data;
 	}
 
 	//Unary operators
 	M68000Word operator~() const
 	{
 		M68000Word temp(*this);
-		temp.data = ~temp.data;
+		temp._data = ~temp._data;
 		temp.MaskData();
 		return temp;
 	}
 	M68000Word& operator++()
 	{
-		++data;
+		++_data;
 		MaskData();
 		return *this;
 	}
 	M68000Word& operator--()
 	{
-		--data;
+		--_data;
 		MaskData();
 		return *this;
 	}
 	M68000Word operator++(int)
 	{
 		M68000Word temp(*this);
-		++data;
+		++_data;
 		MaskData();
 		return temp;
 	}
 	M68000Word operator--(int)
 	{
 		M68000Word temp(*this);
-		--data;
+		--_data;
 		MaskData();
 		return temp;
 	}
@@ -727,11 +727,11 @@ public:
 	inline M68000Long()
 	:Data(BITCOUNT_LONG)
 	{}
-	inline M68000Long(unsigned int adata)
-	:Data(BITCOUNT_LONG, adata)
+	inline M68000Long(unsigned int data)
+	:Data(BITCOUNT_LONG, data)
 	{}
-	inline explicit M68000Long(const Data& adata)
-	:Data(BITCOUNT_LONG, adata.GetData())
+	inline explicit M68000Long(const Data& data)
+	:Data(BITCOUNT_LONG, data.GetData())
 	{}
 
 	//Integer operators
@@ -797,93 +797,93 @@ public:
 	}
 	M68000Long& operator=(unsigned int target)
 	{
-		data = target;
+		_data = target;
 		MaskData();
 		return *this;
 	}
 	M68000Long& operator+=(unsigned int target)
 	{
-		data += target;
+		_data += target;
 		MaskData();
 		return *this;
 	}
 	M68000Long& operator-=(unsigned int target)
 	{
-		data -= target;
+		_data -= target;
 		MaskData();
 		return *this;
 	}
 	M68000Long& operator*=(unsigned int target)
 	{
-		data *= target;
+		_data *= target;
 		MaskData();
 		return *this;
 	}
 	M68000Long& operator/=(unsigned int target)
 	{
-		data /= target;
+		_data /= target;
 		MaskData();
 		return *this;
 	}
 	M68000Long& operator&=(unsigned int target)
 	{
-		data &= target;
+		_data &= target;
 		MaskData();
 		return *this;
 	}
 	M68000Long& operator|=(unsigned int target)
 	{
-		data |= target;
+		_data |= target;
 		MaskData();
 		return *this;
 	}
 	M68000Long& operator^=(unsigned int target)
 	{
-		data ^= target;
+		_data ^= target;
 		MaskData();
 		return *this;
 	}
 	M68000Long& operator%=(unsigned int target)
 	{
-		data %= target;
+		_data %= target;
 		MaskData();
 		return *this;
 	}
 	M68000Long& operator<<=(unsigned int target)
 	{
-		data <<= target;
+		_data <<= target;
 		MaskData();
 		return *this;
 	}
 	M68000Long& operator>>=(unsigned int target)
 	{
-		data >>= target;
+		_data >>= target;
 		MaskData();
 		return *this;
 	}
 	bool operator==(unsigned int target) const
 	{
-		return data == target;
+		return _data == target;
 	}
 	bool operator!=(unsigned int target) const
 	{
-		return data != target;
+		return _data != target;
 	}
 	bool operator>(unsigned int target) const
 	{
-		return data > target;
+		return _data > target;
 	}
 	bool operator<(unsigned int target) const
 	{
-		return data < target;
+		return _data < target;
 	}
 	bool operator>=(unsigned int target) const
 	{
-		return data >= target;
+		return _data >= target;
 	}
 	bool operator<=(unsigned int target) const
 	{
-		return data <= target;
+		return _data <= target;
 	}
 
 	//M68000Long operators
@@ -949,126 +949,126 @@ public:
 	}
 	M68000Long& operator=(const M68000Long& target)
 	{
-		data = target.data;
+		_data = target._data;
 		MaskData();
 		return *this;
 	}
 	M68000Long& operator+=(const M68000Long& target)
 	{
-		data += target.data;
+		_data += target._data;
 		MaskData();
 		return *this;
 	}
 	M68000Long& operator-=(const M68000Long& target)
 	{
-		data -= target.data;
+		_data -= target._data;
 		MaskData();
 		return *this;
 	}
 	M68000Long& operator*=(const M68000Long& target)
 	{
-		data *= target.data;
+		_data *= target._data;
 		MaskData();
 		return *this;
 	}
 	M68000Long& operator/=(const M68000Long& target)
 	{
-		data /= target.data;
+		_data /= target._data;
 		MaskData();
 		return *this;
 	}
 	M68000Long& operator&=(const M68000Long& target)
 	{
-		data &= target.data;
+		_data &= target._data;
 		MaskData();
 		return *this;
 	}
 	M68000Long& operator|=(const M68000Long& target)
 	{
-		data |= target.data;
+		_data |= target._data;
 		MaskData();
 		return *this;
 	}
 	M68000Long& operator^=(const M68000Long& target)
 	{
-		data ^= target.data;
+		_data ^= target._data;
 		MaskData();
 		return *this;
 	}
 	M68000Long& operator%=(const M68000Long& target)
 	{
-		data %= target.data;
+		_data %= target._data;
 		MaskData();
 		return *this;
 	}
 	M68000Long& operator<<=(const M68000Long& target)
 	{
-		data <<= target.data;
+		_data <<= target._data;
 		MaskData();
 		return *this;
 	}
 	M68000Long& operator>>=(const M68000Long& target)
 	{
-		data >>= target.data;
+		_data >>= target._data;
 		MaskData();
 		return *this;
 	}
 	bool operator==(const M68000Long& target) const
 	{
-		return data == target.data;
+		return _data == target._data;
 	}
 	bool operator!=(const M68000Long& target) const
 	{
-		return data != target.data;
+		return _data != target._data;
 	}
 	bool operator>(const M68000Long& target) const
 	{
-		return data > target.data;
+		return _data > target._data;
 	}
 	bool operator<(const M68000Long& target) const
 	{
-		return data < target.data;
+		return _data < target._data;
 	}
 	bool operator>=(const M68000Long& target) const
 	{
-		return data >= target.data;
+		return _data >= target._data;
 	}
 	bool operator<=(const M68000Long& target) const
 	{
-		return data <= target.data;
+		return _data <= target._data;
 	}
 
 	//Unary operators
 	M68000Long operator~() const
 	{
 		M68000Long temp(*this);
-		temp.data = ~temp.data;
+		temp._data = ~temp._data;
 		temp.MaskData();
 		return temp;
 	}
 	M68000Long& operator++()
 	{
-		++data;
+		++_data;
 		MaskData();
 		return *this;
 	}
 	M68000Long& operator--()
 	{
-		--data;
+		--_data;
 		MaskData();
 		return *this;
 	}
 	M68000Long operator++(int)
 	{
 		M68000Long temp(*this);
-		++data;
+		++_data;
 		MaskData();
 		return temp;
 	}
 	M68000Long operator--(int)
 	{
 		M68000Long temp(*this);
-		--data;
+		--_data;
 		MaskData();
 		return temp;
 	}

@@ -4,13 +4,13 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-DeviceControlView::DeviceControlView(IUIManager& auiManager, DeviceControlViewPresenter& apresenter, ISystemGUIInterface& amodel)
-:ViewBase(auiManager, apresenter), presenter(apresenter), model(amodel), initializedDialog(false), currentControlFocus(0)
+DeviceControlView::DeviceControlView(IUIManager& uiManager, DeviceControlViewPresenter& presenter, ISystemGUIInterface& model)
+:ViewBase(uiManager, presenter), _presenter(presenter), _model(model), _initializedDialog(false), _currentControlFocus(0)
 {
-	deviceListIndex = -1;
-	systemStep = 0;
-	deviceStep = 1;
-	SetDialogTemplateSettings(apresenter.GetUnqualifiedViewTitle(), GetAssemblyHandle(), MAKEINTRESOURCE(IDD_DEVICECONTROL));
+	_deviceListIndex = -1;
+	_systemStep = 0;
+	_deviceStep = 1;
+	SetDialogTemplateSettings(presenter.GetUnqualifiedViewTitle(), GetAssemblyHandle(), MAKEINTRESOURCE(IDD_DEVICECONTROL));
 }
 
 //----------------------------------------------------------------------------------------
@@ -44,20 +44,20 @@ INT_PTR DeviceControlView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lpa
 //----------------------------------------------------------------------------------------
 INT_PTR DeviceControlView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	initializedDialog = true;
+	_initializedDialog = true;
 
 	//Update the textboxes
-	if(currentControlFocus != IDC_DEVICECONTROL_SYSTEM_EXECUTEAMOUNT)  UpdateDlgItemBin(hwnd, IDC_DEVICECONTROL_SYSTEM_EXECUTEAMOUNT, systemStep);
-	if(currentControlFocus != IDC_DEVICECONTROL_DEVICE_STEPAMOUNT)     UpdateDlgItemBin(hwnd, IDC_DEVICECONTROL_DEVICE_STEPAMOUNT, deviceStep);
+	if(_currentControlFocus != IDC_DEVICECONTROL_SYSTEM_EXECUTEAMOUNT)  UpdateDlgItemBin(hwnd, IDC_DEVICECONTROL_SYSTEM_EXECUTEAMOUNT, _systemStep);
+	if(_currentControlFocus != IDC_DEVICECONTROL_DEVICE_STEPAMOUNT)     UpdateDlgItemBin(hwnd, IDC_DEVICECONTROL_DEVICE_STEPAMOUNT, _deviceStep);
 
 	//Check if we need to refresh the device list
-	std::list<IDevice*> newDeviceList = model.GetLoadedDevices();
-	bool refreshDeviceList = (newDeviceList.size() != deviceList.size());
+	std::list<IDevice*> newDeviceList = _model.GetLoadedDevices();
+	bool refreshDeviceList = (newDeviceList.size() != _deviceList.size());
 	if(!refreshDeviceList)
 	{
 		std::list<IDevice*>::const_iterator newDeviceListIterator = newDeviceList.begin();
-		std::list<IDevice*>::const_iterator deviceListIterator = deviceList.begin();
-		while(!refreshDeviceList && (newDeviceListIterator != newDeviceList.end()) && (deviceListIterator != deviceList.end()))
+		std::list<IDevice*>::const_iterator deviceListIterator = _deviceList.begin();
+		while(!refreshDeviceList && (newDeviceListIterator != newDeviceList.end()) && (deviceListIterator != _deviceList.end()))
 		{
 			refreshDeviceList |= (*newDeviceListIterator != *deviceListIterator);
 			++newDeviceListIterator;
@@ -69,7 +69,7 @@ INT_PTR DeviceControlView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	//local copy.
 	if(refreshDeviceList)
 	{
-		deviceList = newDeviceList;
+		_deviceList = newDeviceList;
 	}
 
 	//Refresh the device list if required
@@ -79,7 +79,7 @@ INT_PTR DeviceControlView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 
 		LRESULT top = SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_GETTOPINDEX, 0, 0);
 		SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_RESETCONTENT, 0, NULL);
-		for(std::list<IDevice*>::const_iterator i = deviceList.begin(); i != deviceList.end(); ++i)
+		for(std::list<IDevice*>::const_iterator i = _deviceList.begin(); i != _deviceList.end(); ++i)
 		{
 			IDevice* device = *i;
 			if(device->GetUpdateMethod() == IDevice::UpdateMethod::Step)
@@ -94,7 +94,7 @@ INT_PTR DeviceControlView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), WM_SETREDRAW, TRUE, 0);
 		InvalidateRect(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), NULL, FALSE);
 
-		deviceListIndex = -1;
+		_deviceListIndex = -1;
 	}
 
 	//Update the checkboxes
@@ -120,20 +120,20 @@ INT_PTR DeviceControlView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam
 		switch(LOWORD(wparam))
 		{
 		case IDC_DEVICECONTROL_SYSTEM_RUN:
-			model.RunSystem();
+			_model.RunSystem();
 			break;
 		case IDC_DEVICECONTROL_SYSTEM_STOP:
-			model.StopSystem();
+			_model.StopSystem();
 			break;
 		case IDC_DEVICECONTROL_SYSTEM_EXECUTE:
-			model.ExecuteSystemStep(systemStep);
+			_model.ExecuteSystemStep(_systemStep);
 			break;
 		case IDC_DEVICECONTROL_DEVICE_INITIALIZE:{
 			int selectedDeviceIndex = (int)SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_GETCURSEL, 0, NULL);
 			IDevice* device = (IDevice*)SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_GETITEMDATA, selectedDeviceIndex, NULL);
 			if(device != 0)
 			{
-				model.InitializeDevice(device);
+				_model.InitializeDevice(device);
 			}
 			break;}
 		case IDC_DEVICECONTROL_DEVICE_STEP:{
@@ -143,9 +143,9 @@ INT_PTR DeviceControlView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam
 			{
 				//##TODO## Show a dialog box indicating the current step progress, and
 				//giving the user an option to cancel.
-				for(unsigned int i = 0; i < deviceStep; ++i)
+				for(unsigned int i = 0; i < _deviceStep; ++i)
 				{
-					model.ExecuteDeviceStep(device);
+					_model.ExecuteDeviceStep(device);
 				}
 			}
 			break;}
@@ -159,23 +159,23 @@ INT_PTR DeviceControlView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam
 			break;}
 		}
 	}
-	else if((HIWORD(wparam) == EN_SETFOCUS) && initializedDialog)
+	else if((HIWORD(wparam) == EN_SETFOCUS) && _initializedDialog)
 	{
-		previousText = GetDlgItemString(hwnd, LOWORD(wparam));
-		currentControlFocus = LOWORD(wparam);
+		_previousText = GetDlgItemString(hwnd, LOWORD(wparam));
+		_currentControlFocus = LOWORD(wparam);
 	}
-	else if((HIWORD(wparam) == EN_KILLFOCUS) && initializedDialog)
+	else if((HIWORD(wparam) == EN_KILLFOCUS) && _initializedDialog)
 	{
 		std::wstring newText = GetDlgItemString(hwnd, LOWORD(wparam));
-		if(newText != previousText)
+		if(newText != _previousText)
 		{
 			switch(LOWORD(wparam))
 			{
 			case IDC_DEVICECONTROL_DEVICE_STEPAMOUNT:
-				deviceStep = GetDlgItemBin(hwnd, LOWORD(wparam));
+				_deviceStep = GetDlgItemBin(hwnd, LOWORD(wparam));
 				break;
 			case IDC_DEVICECONTROL_SYSTEM_EXECUTEAMOUNT:
-				systemStep = GetDlgItemBin(hwnd, LOWORD(wparam));
+				_systemStep = GetDlgItemBin(hwnd, LOWORD(wparam));
 				break;
 			}
 		}
@@ -188,7 +188,7 @@ INT_PTR DeviceControlView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam
 			int selectedItem = (int)SendMessage(GetDlgItem(hwnd, IDC_DEVICECONTROL_LIST), LB_GETCURSEL, 0, NULL);
 			if(selectedItem != LB_ERR)
 			{
-				deviceListIndex = selectedItem;
+				_deviceListIndex = selectedItem;
 			}
 			break;}
 		}

@@ -2,36 +2,36 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 ObserverSubscription::ObserverSubscription()
-:callback(0)
+:_callback(0)
 {}
 
 //----------------------------------------------------------------------------------------
-ObserverSubscription::ObserverSubscription(const std::function<void()>& acallback)
+ObserverSubscription::ObserverSubscription(const std::function<void()>& callback)
 {
-	callback = new std::function<void()>(acallback);
+	_callback = new std::function<void()>(callback);
 }
 
 //----------------------------------------------------------------------------------------
 ObserverSubscription::~ObserverSubscription()
 {
 	UnsubscribeAll();
-	delete callback;
+	delete _callback;
 }
 
 //----------------------------------------------------------------------------------------
 //Callback binding functions
 //----------------------------------------------------------------------------------------
-void ObserverSubscription::SetBoundCallback(const std::function<void()>& acallback)
+void ObserverSubscription::SetBoundCallback(const std::function<void()>& callback)
 {
-	delete callback;
-	callback = new std::function<void()>(acallback);
+	delete _callback;
+	_callback = new std::function<void()>(callback);
 }
 
 //----------------------------------------------------------------------------------------
 void ObserverSubscription::RemoveBoundCallback()
 {
-	delete callback;
-	callback = 0;
+	delete _callback;
+	_callback = 0;
 }
 
 //----------------------------------------------------------------------------------------
@@ -51,10 +51,10 @@ void ObserverSubscription::Unsubscribe(IObserverCollection& targetCollection)
 //----------------------------------------------------------------------------------------
 void ObserverSubscription::UnsubscribeAll()
 {
-	std::unique_lock<std::mutex> lock(accessMutex);
-	while(!linkedCollections.empty())
+	std::unique_lock<std::mutex> lock(_accessMutex);
+	while(!_linkedCollections.empty())
 	{
-		IObserverCollection& targetCollection = *(*linkedCollections.begin());
+		IObserverCollection& targetCollection = *(*_linkedCollections.begin());
 		lock.unlock();
 		targetCollection.RemoveObserver(*this);
 		lock.lock();
@@ -66,22 +66,22 @@ void ObserverSubscription::UnsubscribeAll()
 //----------------------------------------------------------------------------------------
 void ObserverSubscription::Notify() const
 {
-	if(callback != 0)
+	if(_callback != 0)
 	{
-		(*callback)();
+		(*_callback)();
 	}
 }
 
 //----------------------------------------------------------------------------------------
 void ObserverSubscription::NotifyLinkedToCollection(IObserverCollection& targetCollection)
 {
-	std::unique_lock<std::mutex> lock(accessMutex);
-	linkedCollections.insert(&targetCollection);
+	std::unique_lock<std::mutex> lock(_accessMutex);
+	_linkedCollections.insert(&targetCollection);
 }
 
 //----------------------------------------------------------------------------------------
 void ObserverSubscription::NotifyUnlinkedFromCollection(IObserverCollection& targetCollection)
 {
-	std::unique_lock<std::mutex> lock(accessMutex);
-	linkedCollections.erase(&targetCollection);
+	std::unique_lock<std::mutex> lock(_accessMutex);
+	_linkedCollections.erase(&targetCollection);
 }

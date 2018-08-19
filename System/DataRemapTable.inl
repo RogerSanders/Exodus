@@ -20,11 +20,11 @@ struct DataRemapTable::MappingElement
 //----------------------------------------------------------------------------------------
 unsigned int DataRemapTable::GetBitCountConverted() const
 {
-	return bitCountConverted;
+	return _bitCountConverted;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int DataRemapTable::GetBitMaskOriginalLinesPreserved() const
 {
-	return bitMaskOriginal;
+	return _bitMaskOriginal;
 }

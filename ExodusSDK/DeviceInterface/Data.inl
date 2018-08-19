@@ -1,38 +1,38 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-Data::Data(unsigned int abitCount)
-:data(0)
+Data::Data(unsigned int bitCount)
+:_data(0)
 {
-	Resize(abitCount);
+	Resize(bitCount);
 }
 
 //----------------------------------------------------------------------------------------
-Data::Data(unsigned int abitCount, unsigned int adata)
-:data(adata)
+Data::Data(unsigned int bitCount, unsigned int data)
+:_data(data)
 {
-	Resize(abitCount);
+	Resize(bitCount);
 }
 
 //----------------------------------------------------------------------------------------
 //Management functions
 //----------------------------------------------------------------------------------------
-void Data::Resize(unsigned int abitCount)
+void Data::Resize(unsigned int bitCount)
 {
-	bitCount = (unsigned char)abitCount;
+	_bitCount = (unsigned char)bitCount;
 	//This somewhat strange mask generation code allows us to construct a mask for a
 	//32-bit datatype on a 32-bit system. The simple method of shifting up 32 places and
 	//subtracting 1 would fail in this case, since on x86 the shift count is modulus 32,
 	//or in other words 1 << 32 = 1. The result of this operation, as well as the result
 	//of a right shift on a signed type, is undefined according to the C++ standard.
-	bitMask = (((1 << (bitCount - 1)) - 1) << 1) | 0x01;
+	_bitMask = (((1 << (_bitCount - 1)) - 1) << 1) | 0x01;
 	MaskData();
 }
 
 //----------------------------------------------------------------------------------------
 void Data::MaskData()
 {
-	data &= GetBitMask();
+	_data &= GetBitMask();
 }
 
 //----------------------------------------------------------------------------------------
@@ -40,7 +40,7 @@ void Data::MaskData()
 //----------------------------------------------------------------------------------------
 unsigned int Data::GetBitMask() const
 {
-	return bitMask;
+	return _bitMask;
 }
 
 //----------------------------------------------------------------------------------------
@@ -52,19 +52,19 @@ unsigned int Data::GetMaxValue() const
 //----------------------------------------------------------------------------------------
 unsigned int Data::GetByteSize() const
 {
-	return (bitCount + (bitsPerByte - 1)) / bitsPerByte;
+	return (_bitCount + (BitsPerByte - 1)) / BitsPerByte;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int Data::GetHexCharCount() const
 {
-	return (bitCount + 3) / 4;
+	return (_bitCount + 3) / 4;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int Data::GetBitCount() const
 {
-	return bitCount;
+	return _bitCount;
 }
 
 //----------------------------------------------------------------------------------------
@@ -152,7 +152,7 @@ Data Data::operator>>(unsigned int target) const
 //----------------------------------------------------------------------------------------
 Data& Data::operator=(unsigned int target)
 {
-	data = target;
+	_data = target;
 	MaskData();
 	return *this;
 }
@@ -160,7 +160,7 @@ Data& Data::operator=(unsigned int target)
 //----------------------------------------------------------------------------------------
 Data& Data::operator+=(unsigned int target)
 {
-	data += target;
+	_data += target;
 	MaskData();
 	return *this;
 }
@@ -168,7 +168,7 @@ Data& Data::operator+=(unsigned int target)
 //----------------------------------------------------------------------------------------
 Data& Data::operator-=(unsigned int target)
 {
-	data -= target;
+	_data -= target;
 	MaskData();
 	return *this;
 }
@@ -176,7 +176,7 @@ Data& Data::operator-=(unsigned int target)
 //----------------------------------------------------------------------------------------
 Data& Data::operator*=(unsigned int target)
 {
-	data *= target;
+	_data *= target;
 	MaskData();
 	return *this;
 }
@@ -184,7 +184,7 @@ Data& Data::operator*=(unsigned int target)
 //----------------------------------------------------------------------------------------
 Data& Data::operator/=(unsigned int target)
 {
-	data /= target;
+	_data /= target;
 	MaskData();
 	return *this;
 }
@@ -192,7 +192,7 @@ Data& Data::operator/=(unsigned int target)
 //----------------------------------------------------------------------------------------
 Data& Data::operator&=(unsigned int target)
 {
-	data &= target;
+	_data &= target;
 	MaskData();
 	return *this;
 }
@@ -200,7 +200,7 @@ Data& Data::operator&=(unsigned int target)
 //----------------------------------------------------------------------------------------
 Data& Data::operator|=(unsigned int target)
 {
-	data |= target;
+	_data |= target;
 	MaskData();
 	return *this;
 }
@@ -208,7 +208,7 @@ Data& Data::operator|=(unsigned int target)
 //----------------------------------------------------------------------------------------
 Data& Data::operator^=(unsigned int target)
 {
-	data ^= target;
+	_data ^= target;
 	MaskData();
 	return *this;
 }
@@ -216,7 +216,7 @@ Data& Data::operator^=(unsigned int target)
 //----------------------------------------------------------------------------------------
 Data& Data::operator%=(unsigned int target)
 {
-	data %= target;
+	_data %= target;
 	MaskData();
 	return *this;
 }
@@ -224,7 +224,7 @@ Data& Data::operator%=(unsigned int target)
 //----------------------------------------------------------------------------------------
 Data& Data::operator<<=(unsigned int target)
 {
-	data <<= target;
+	_data <<= target;
 	MaskData();
 	return *this;
 }
@@ -232,7 +232,7 @@ Data& Data::operator<<=(unsigned int target)
 //----------------------------------------------------------------------------------------
 Data& Data::operator>>=(unsigned int target)
 {
-	data >>= target;
+	_data >>= target;
 	MaskData();
 	return *this;
 }
@@ -240,37 +240,37 @@ Data& Data::operator>>=(unsigned int target)
 //----------------------------------------------------------------------------------------
 bool Data::operator==(unsigned int target) const
 {
-	return data == target;
+	return _data == target;
 }
 
 //----------------------------------------------------------------------------------------
 bool Data::operator!=(unsigned int target) const
 {
-	return data != target;
+	return _data != target;
 }
 
 //----------------------------------------------------------------------------------------
 bool Data::operator>(unsigned int target) const
 {
-	return data > target;
+	return _data > target;
 }
 
 //----------------------------------------------------------------------------------------
 bool Data::operator<(unsigned int target) const
 {
-	return data < target;
+	return _data < target;
 }
 
 //----------------------------------------------------------------------------------------
 bool Data::operator>=(unsigned int target) const
 {
-	return data >= target;
+	return _data >= target;
 }
 
 //----------------------------------------------------------------------------------------
 bool Data::operator<=(unsigned int target) const
 {
-	return data <= target;
+	return _data <= target;
 }
 
 //----------------------------------------------------------------------------------------
@@ -358,7 +358,7 @@ Data Data::operator>>(const Data& target) const
 //----------------------------------------------------------------------------------------
 Data& Data::operator=(const Data& target)
 {
-	data = target.data;
+	_data = target._data;
 	MaskData();
 	return *this;
 }
@@ -366,7 +366,7 @@ Data& Data::operator=(const Data& target)
 //----------------------------------------------------------------------------------------
 Data& Data::operator+=(const Data& target)
 {
-	data += target.data;
+	_data += target._data;
 	MaskData();
 	return *this;
 }
@@ -374,7 +374,7 @@ Data& Data::operator+=(const Data& target)
 //----------------------------------------------------------------------------------------
 Data& Data::operator-=(const Data& target)
 {
-	data -= target.data;
+	_data -= target._data;
 	MaskData();
 	return *this;
 }
@@ -382,7 +382,7 @@ Data& Data::operator-=(const Data& target)
 //----------------------------------------------------------------------------------------
 Data& Data::operator*=(const Data& target)
 {
-	data *= target.data;
+	_data *= target._data;
 	MaskData();
 	return *this;
 }
@@ -390,7 +390,7 @@ Data& Data::operator*=(const Data& target)
 //----------------------------------------------------------------------------------------
 Data& Data::operator/=(const Data& target)
 {
-	data /= target.data;
+	_data /= target._data;
 	MaskData();
 	return *this;
 }
@@ -398,7 +398,7 @@ Data& Data::operator/=(const Data& target)
 //----------------------------------------------------------------------------------------
 Data& Data::operator&=(const Data& target)
 {
-	data &= target.data;
+	_data &= target._data;
 	MaskData();
 	return *this;
 }
@@ -406,7 +406,7 @@ Data& Data::operator&=(const Data& target)
 //----------------------------------------------------------------------------------------
 Data& Data::operator|=(const Data& target)
 {
-	data |= target.data;
+	_data |= target._data;
 	MaskData();
 	return *this;
 }
@@ -414,7 +414,7 @@ Data& Data::operator|=(const Data& target)
 //----------------------------------------------------------------------------------------
 Data& Data::operator^=(const Data& target)
 {
-	data ^= target.data;
+	_data ^= target._data;
 	MaskData();
 	return *this;
 }
@@ -422,7 +422,7 @@ Data& Data::operator^=(const Data& target)
 //----------------------------------------------------------------------------------------
 Data& Data::operator%=(const Data& target)
 {
-	data %= target.data;
+	_data %= target._data;
 	MaskData();
 	return *this;
 }
@@ -430,7 +430,7 @@ Data& Data::operator%=(const Data& target)
 //----------------------------------------------------------------------------------------
 Data& Data::operator<<=(const Data& target)
 {
-	data <<= target.data;
+	_data <<= target._data;
 	MaskData();
 	return *this;
 }
@@ -438,7 +438,7 @@ Data& Data::operator<<=(const Data& target)
 //----------------------------------------------------------------------------------------
 Data& Data::operator>>=(const Data& target)
 {
-	data >>= target.data;
+	_data >>= target._data;
 	MaskData();
 	return *this;
 }
@@ -446,37 +446,37 @@ Data& Data::operator>>=(const Data& target)
 //----------------------------------------------------------------------------------------
 bool Data::operator==(const Data& target) const
 {
-	return data == target.data;
+	return _data == target._data;
 }
 
 //----------------------------------------------------------------------------------------
 bool Data::operator!=(const Data& target) const
 {
-	return data != target.data;
+	return _data != target._data;
 }
 
 //----------------------------------------------------------------------------------------
 bool Data::operator>(const Data& target) const
 {
-	return data > target.data;
+	return _data > target._data;
 }
 
 //----------------------------------------------------------------------------------------
 bool Data::operator<(const Data& target) const
 {
-	return data < target.data;
+	return _data < target._data;
 }
 
 //----------------------------------------------------------------------------------------
 bool Data::operator>=(const Data& target) const
 {
-	return data >= target.data;
+	return _data >= target._data;
 }
 
 //----------------------------------------------------------------------------------------
 bool Data::operator<=(const Data& target) const
 {
-	return data <= target.data;
+	return _data <= target._data;
 }
 
 //----------------------------------------------------------------------------------------
@@ -485,7 +485,7 @@ bool Data::operator<=(const Data& target) const
 Data Data::operator~() const
 {
 	Data temp(*this);
-	temp.data = ~temp.data;
+	temp._data = ~temp._data;
 	temp.MaskData();
 	return temp;
 }
@@ -493,7 +493,7 @@ Data Data::operator~() const
 //----------------------------------------------------------------------------------------
 Data& Data::operator++()
 {
-	++data;
+	++_data;
 	MaskData();
 	return *this;
 }
@@ -501,7 +501,7 @@ Data& Data::operator++()
 //----------------------------------------------------------------------------------------
 Data& Data::operator--()
 {
-	--data;
+	--_data;
 	MaskData();
 	return *this;
 }
@@ -510,7 +510,7 @@ Data& Data::operator--()
 Data Data::operator++(int)
 {
 	Data temp(*this);
-	++data;
+	++_data;
 	MaskData();
 	return temp;
 }
@@ -519,7 +519,7 @@ Data Data::operator++(int)
 Data Data::operator--(int)
 {
 	Data temp(*this);
-	--data;
+	--_data;
 	MaskData();
 	return temp;
 }
@@ -527,15 +527,15 @@ Data Data::operator--(int)
 //----------------------------------------------------------------------------------------
 //Data conversion
 //----------------------------------------------------------------------------------------
-Data Data::Convert(unsigned int abitCount) const
+Data Data::Convert(unsigned int bitCount) const
 {
-	return Data(abitCount, GetData());
+	return Data(bitCount, GetData());
 }
 
 //----------------------------------------------------------------------------------------
-Data Data::SignExtend(unsigned int abitCount) const
+Data Data::SignExtend(unsigned int bitCount) const
 {
-	Data result(abitCount, GetData());
+	Data result(bitCount, GetData());
 	result |= (!MSB())? 0: (~0 ^ GetBitMask());
 	return result;
 }
@@ -545,13 +545,13 @@ Data Data::SignExtend(unsigned int abitCount) const
 //----------------------------------------------------------------------------------------
 unsigned int Data::GetData() const
 {
-	return data;
+	return _data;
 }
 
 //----------------------------------------------------------------------------------------
-Data& Data::SetData(unsigned int adata)
+Data& Data::SetData(unsigned int data)
 {
-	data = adata;
+	_data = data;
 	MaskData();
 	return *this;
 }
@@ -583,52 +583,52 @@ void Data::LSB(bool state)
 //----------------------------------------------------------------------------------------
 bool Data::GetBit(unsigned int bitNumber) const
 {
-	return (data & (1 << bitNumber)) != 0;
+	return (_data & (1 << bitNumber)) != 0;
 }
 
 //----------------------------------------------------------------------------------------
 Data& Data::SetBit(unsigned int bitNumber, bool state)
 {
-	data = ((data & ~(1 << bitNumber)) | ((unsigned int)state << bitNumber));
+	_data = ((_data & ~(1 << bitNumber)) | ((unsigned int)state << bitNumber));
 	return *this;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned char Data::GetByteFromBottomUp(unsigned int byte) const
 {
-	return (unsigned char)GetDataSegment(byte * bitsPerByte, bitsPerByte);
+	return (unsigned char)GetDataSegment(byte * BitsPerByte, BitsPerByte);
 }
 
 //----------------------------------------------------------------------------------------
 void Data::SetByteFromBottomUp(unsigned int byte, unsigned int data)
 {
-	SetDataSegment(byte * bitsPerByte, bitsPerByte, data);
+	SetDataSegment(byte * BitsPerByte, BitsPerByte, data);
 }
 
 //----------------------------------------------------------------------------------------
 unsigned char Data::GetByteFromTopDown(unsigned int byte) const
 {
-	return (unsigned char)GetDataSegment(((GetByteSize() - 1) - byte) * bitsPerByte, bitsPerByte);
+	return (unsigned char)GetDataSegment(((GetByteSize() - 1) - byte) * BitsPerByte, BitsPerByte);
 }
 
 //----------------------------------------------------------------------------------------
 void Data::SetByteFromTopDown(unsigned int byte, unsigned int data)
 {
-	SetDataSegment(((GetByteSize() - 1) - byte) * bitsPerByte, bitsPerByte, data);
+	SetDataSegment(((GetByteSize() - 1) - byte) * BitsPerByte, BitsPerByte, data);
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int Data::GetDataSegment(unsigned int bitStart, unsigned int abitCount) const
+unsigned int Data::GetDataSegment(unsigned int bitStart, unsigned int bitCount) const
 {
-	return (data >> bitStart) & ((((1 << (abitCount - 1)) - 1) << 1) | 0x01);
+	return (_data >> bitStart) & ((((1 << (bitCount - 1)) - 1) << 1) | 0x01);
 }
 
 //----------------------------------------------------------------------------------------
-Data& Data::SetDataSegment(unsigned int bitStart, unsigned int abitCount, unsigned int adata)
+Data& Data::SetDataSegment(unsigned int bitStart, unsigned int bitCount, unsigned int data)
 {
-	unsigned int tempMask = (((1 << (abitCount - 1)) - 1) << 1) | 0x01;
-	data &= ~(tempMask << bitStart);
-	data |= ((adata & tempMask) << bitStart);
+	unsigned int tempMask = (((1 << (bitCount - 1)) - 1) << 1) | 0x01;
+	_data &= ~(tempMask << bitStart);
+	_data |= ((data & tempMask) << bitStart);
 	return *this;
 }
 
@@ -649,29 +649,29 @@ unsigned int Data::GetLowerHalf() const
 //----------------------------------------------------------------------------------------
 void Data::GetUpperHalf(Data& target) const
 {
-	target.data = GetUpperHalf();
+	target._data = GetUpperHalf();
 	target.MaskData();
 }
 
 //----------------------------------------------------------------------------------------
 void Data::GetLowerHalf(Data& target) const
 {
-	target.data = GetLowerHalf();
+	target._data = GetLowerHalf();
 	target.MaskData();
 }
 
 //----------------------------------------------------------------------------------------
-void Data::SetUpperHalf(unsigned int adata)
+void Data::SetUpperHalf(unsigned int data)
 {
 	unsigned int segmentBitCount = ((GetBitCount() + 1) / 2);
-	SetUpperBits(segmentBitCount, adata);
+	SetUpperBits(segmentBitCount, data);
 }
 
 //----------------------------------------------------------------------------------------
-void Data::SetLowerHalf(unsigned int adata)
+void Data::SetLowerHalf(unsigned int data)
 {
 	unsigned int segmentBitCount = (GetBitCount() / 2);
-	SetLowerBits(segmentBitCount, adata);
+	SetLowerBits(segmentBitCount, data);
 }
 
 //----------------------------------------------------------------------------------------
@@ -689,60 +689,60 @@ void Data::SetLowerHalf(const Data& target)
 //----------------------------------------------------------------------------------------
 //Upper/Lower bit functions
 //----------------------------------------------------------------------------------------
-unsigned int Data::GetUpperBits(unsigned int abitCount) const
+unsigned int Data::GetUpperBits(unsigned int bitCount) const
 {
-	return (GetData() >> (GetBitCount() - abitCount));
+	return (GetData() >> (GetBitCount() - bitCount));
 }
 
 //----------------------------------------------------------------------------------------
-unsigned int Data::GetLowerBits(unsigned int abitCount) const
+unsigned int Data::GetLowerBits(unsigned int bitCount) const
 {
-	return (GetData() & (GetBitMask() >> (GetBitCount() - abitCount)));
+	return (GetData() & (GetBitMask() >> (GetBitCount() - bitCount)));
 }
 
 //----------------------------------------------------------------------------------------
 void Data::GetUpperBits(Data& target) const
 {
-	target.data = GetUpperBits(target.GetBitCount());
+	target._data = GetUpperBits(target.GetBitCount());
 }
 
 //----------------------------------------------------------------------------------------
 void Data::GetLowerBits(Data& target) const
 {
-	target.data = GetLowerBits(target.GetBitCount());
+	target._data = GetLowerBits(target.GetBitCount());
 }
 
 //----------------------------------------------------------------------------------------
-void Data::SetUpperBits(unsigned int abitCount, unsigned int adata)
+void Data::SetUpperBits(unsigned int bitCount, unsigned int data)
 {
-	unsigned int targetMask = (((1 << (abitCount - 1)) - 1) << 1) | 0x01;
-	data &= ~(targetMask << (GetBitCount() - abitCount));
-	data |= ((adata & targetMask) << (GetBitCount() - abitCount));
+	unsigned int targetMask = (((1 << (bitCount - 1)) - 1) << 1) | 0x01;
+	_data &= ~(targetMask << (GetBitCount() - bitCount));
+	_data |= ((data & targetMask) << (GetBitCount() - bitCount));
 	MaskData();
 }
 
 //----------------------------------------------------------------------------------------
-void Data::SetLowerBits(unsigned int abitCount, unsigned int adata)
+void Data::SetLowerBits(unsigned int bitCount, unsigned int data)
 {
-	unsigned int targetMask = (((1 << (abitCount - 1)) - 1) << 1) | 0x01;
-	data &= ~targetMask;
-	data |= (adata & targetMask);
+	unsigned int targetMask = (((1 << (bitCount - 1)) - 1) << 1) | 0x01;
+	_data &= ~targetMask;
+	_data |= (data & targetMask);
 	MaskData();
 }
 
 //----------------------------------------------------------------------------------------
 void Data::SetUpperBits(const Data& target)
 {
-	data &= ~(target.GetBitMask() << (GetBitCount() - target.GetBitCount()));
-	data |= (target.GetData() << (GetBitCount() - target.GetBitCount()));
+	_data &= ~(target.GetBitMask() << (GetBitCount() - target.GetBitCount()));
+	_data |= (target.GetData() << (GetBitCount() - target.GetBitCount()));
 	MaskData();
 }
 
 //----------------------------------------------------------------------------------------
 void Data::SetLowerBits(const Data& target)
 {
-	data &= ~target.GetBitMask();
-	data |= target.GetData();
+	_data &= ~target.GetBitMask();
+	_data |= target.GetData();
 	MaskData();
 }
 
@@ -819,13 +819,13 @@ unsigned int Data::GetSetBitCount() const
 bool Data::GetHighestSetBitNumber(unsigned int& bitNumber) const
 {
 	//If the data is zero, return false, since there's no set bits in the data.
-	if(data == 0)
+	if(_data == 0)
 	{
 		return false;
 	}
 
 	//Calculate the number of the highest set bit in the data
-	unsigned int searchData = data;
+	unsigned int searchData = _data;
 	bitNumber = 0;
 	while((searchData >>= 1) != 0)
 	{
@@ -840,13 +840,13 @@ bool Data::GetHighestSetBitNumber(unsigned int& bitNumber) const
 bool Data::GetHighestSetBitMask(unsigned int& bitMask) const
 {
 	//If the data is zero, return false, since there's no set bits in the data.
-	if(data == 0)
+	if(_data == 0)
 	{
 		return false;
 	}
 
 	//Calculate the mask of the highest set bit in the data
-	unsigned int searchData = data;
+	unsigned int searchData = _data;
 	bitMask = 1;
 	while((searchData >>= 1) != 0)
 	{
@@ -861,14 +861,14 @@ bool Data::GetHighestSetBitMask(unsigned int& bitMask) const
 bool Data::GetLowestSetBitNumber(unsigned int& bitNumber) const
 {
 	//If the data is zero, return false, since there's no set bits in the data.
-	if(data == 0)
+	if(_data == 0)
 	{
 		return false;
 	}
 
 	//Calculate the number of the lowest set bit in the data
 	bitNumber = 0;
-	while((data & (1 << bitNumber)) == 0)
+	while((_data & (1 << bitNumber)) == 0)
 	{
 		++bitNumber;
 	}
@@ -881,14 +881,14 @@ bool Data::GetLowestSetBitNumber(unsigned int& bitNumber) const
 bool Data::GetLowestSetBitMask(unsigned int& bitMask) const
 {
 	//If the data is zero, return false, since there's no set bits in the data.
-	if(data == 0)
+	if(_data == 0)
 	{
 		return false;
 	}
 
 	//Calculate the mask of the lowest set bit in the data
 	bitMask = 1;
-	while((data & bitMask) == 0)
+	while((_data & bitMask) == 0)
 	{
 		bitMask <<= 1;
 	}
@@ -902,14 +902,14 @@ bool Data::GetLowestSetBitMask(unsigned int& bitMask) const
 //----------------------------------------------------------------------------------------
 Stream::ViewText& operator>>(Stream::ViewText& stream, Data& object)
 {
-	stream >> object.data;
+	stream >> object._data;
 	return stream;
 }
 
 //----------------------------------------------------------------------------------------
 Stream::ViewText& operator<<(Stream::ViewText& stream, const Data& object)
 {
-	stream << object.data;
+	stream << object._data;
 	return stream;
 }
 

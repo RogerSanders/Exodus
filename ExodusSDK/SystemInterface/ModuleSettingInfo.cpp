@@ -4,7 +4,7 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 ModuleSettingInfo::ModuleSettingInfo()
-:optionCount(0), defaultOptionIndex(0), onOptionIndex(0), offOptionIndex(0), toggleSetting(false)
+:_optionCount(0), _defaultOptionIndex(0), _onOptionIndex(0), _offOptionIndex(0), _toggleSetting(false)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -20,85 +20,85 @@ unsigned int ModuleSettingInfo::GetIModuleSettingInfoVersion() const
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> ModuleSettingInfo::GetName() const
 {
-	return name;
+	return _name;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> ModuleSettingInfo::GetDisplayName() const
 {
-	return displayName;
+	return _displayName;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int ModuleSettingInfo::GetOptionCount() const
 {
-	return optionCount;
+	return _optionCount;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int ModuleSettingInfo::GetDefaultOptionIndex() const
 {
-	return defaultOptionIndex;
+	return _defaultOptionIndex;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int ModuleSettingInfo::GetToggleSettingOnOptionIndex() const
 {
-	return onOptionIndex;
+	return _onOptionIndex;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int ModuleSettingInfo::GetToggleSettingOffOptionIndex() const
 {
-	return offOptionIndex;
+	return _offOptionIndex;
 }
 
 //----------------------------------------------------------------------------------------
 bool ModuleSettingInfo::IsToggleSetting() const
 {
-	return toggleSetting;
+	return _toggleSetting;
 }
 
 //----------------------------------------------------------------------------------------
 //Setters
 //----------------------------------------------------------------------------------------
-void ModuleSettingInfo::SetName(const Marshal::In<std::wstring>& aname)
+void ModuleSettingInfo::SetName(const Marshal::In<std::wstring>& name)
 {
-	name = aname;
+	_name = name;
 }
 
 //----------------------------------------------------------------------------------------
-void ModuleSettingInfo::SetDisplayName(const Marshal::In<std::wstring>& adisplayName)
+void ModuleSettingInfo::SetDisplayName(const Marshal::In<std::wstring>& displayName)
 {
-	displayName = adisplayName;
+	_displayName = displayName;
 }
 
 //----------------------------------------------------------------------------------------
-void ModuleSettingInfo::SetOptionCount(unsigned int aoptionCount)
+void ModuleSettingInfo::SetOptionCount(unsigned int optionCount)
 {
-	optionCount = aoptionCount;
+	_optionCount = optionCount;
 }
 
 //----------------------------------------------------------------------------------------
-void ModuleSettingInfo::SetDefaultOptionIndex(unsigned int adefaultOptionIndex)
+void ModuleSettingInfo::SetDefaultOptionIndex(unsigned int defaultOptionIndex)
 {
-	defaultOptionIndex = adefaultOptionIndex;
+	_defaultOptionIndex = defaultOptionIndex;
 }
 
 //----------------------------------------------------------------------------------------
-void ModuleSettingInfo::SetToggleSettingOnOptionIndex(unsigned int aonOptionIndex)
+void ModuleSettingInfo::SetToggleSettingOnOptionIndex(unsigned int onOptionIndex)
 {
-	onOptionIndex = aonOptionIndex;
+	_onOptionIndex = onOptionIndex;
 }
 
 //----------------------------------------------------------------------------------------
-void ModuleSettingInfo::SetToggleSettingOffOptionIndex(unsigned int aoffOptionIndex)
+void ModuleSettingInfo::SetToggleSettingOffOptionIndex(unsigned int offOptionIndex)
 {
-	offOptionIndex = aoffOptionIndex;
+	_offOptionIndex = offOptionIndex;
 }
 
 //----------------------------------------------------------------------------------------
-void ModuleSettingInfo::SetIsToggleSetting(bool atoggleSetting)
+void ModuleSettingInfo::SetIsToggleSetting(bool toggleSetting)
 {
-	toggleSetting = atoggleSetting;
+	_toggleSetting = toggleSetting;
 }

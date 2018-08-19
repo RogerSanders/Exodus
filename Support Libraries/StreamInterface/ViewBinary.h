@@ -1,19 +1,22 @@
 #ifndef __VIEWBINARY_H__
 #define __VIEWBINARY_H__
+#include "IStreamNonSeekable.h"
+#include "IStream.h"
+#include <vector>
 namespace Stream {
 
 class ViewBinary
 {
 public:
 	//Constructors
-	inline ViewBinary(IStreamNonSeekable& astream);
+	inline ViewBinary(IStreamNonSeekable& stream);
 
 	//State functions
 	inline bool NoErrorsOccurred() const;
 	inline void ClearErrorState();
 	inline bool IsAtEnd() const;
 	inline IStream::ByteOrder GetViewByteOrder() const;
-	inline void SetViewByteOrder(IStream::ByteOrder abyteOrder);
+	inline void SetViewByteOrder(IStream::ByteOrder byteOrder);
 
 	//Binary stream functions
 	template<class T> ViewBinary& operator>>(T& data);
@@ -54,9 +57,9 @@ public:
 	inline ViewBinary& operator<<(const std::vector<long double>& data);
 
 private:
-	IStreamNonSeekable& stream;
-	IStream::ByteOrder byteOrder;
-	bool noErrorState;
+	IStreamNonSeekable& _stream;
+	IStream::ByteOrder _byteOrder;
+	bool _noErrorState;
 };
 
 } //Close namespace Stream

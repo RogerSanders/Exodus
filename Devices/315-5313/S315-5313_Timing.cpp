@@ -113,8 +113,8 @@
 //-There are 87 SC cycles from INT negated to HSYNC asserted in H32 mode
 //##TODO## Hardware tests confirm that the INT line remains asserted, even after the Z80
 //runs an interrupt acknowledge cycle.
-const S315_5313::HScanSettings S315_5313::h32ScanSettingsStatic(0x127, 0x1D2, 0x10A, 0x126, 0x00A, 0x001, 0x002, 0x1FF, 0x001, 0x1D9, 0x1F3, 0x018, 0x117, 256, 0x00B, 0x017, 13, 0x118, 0x125, 14, 0x1F3, 0x00A, 24, 0x126, 0x1D8, 9);
-const S315_5313::HScanSettings S315_5313::h40ScanSettingsStatic(0x16C, 0x1C9, 0x14A, 0x166, 0x00B, 0x001, 0x002, 0x1FF, 0x001, 0x1CD, 0x1ED, 0x01A, 0x159, 320, 0x00D, 0x019, 13, 0x15A, 0x167, 14, 0x1ED, 0x00C, 32, 0x168, 0x1CC, 9);
+const S315_5313::HScanSettings S315_5313::H32ScanSettingsStatic(0x127, 0x1D2, 0x10A, 0x126, 0x00A, 0x001, 0x002, 0x1FF, 0x001, 0x1D9, 0x1F3, 0x018, 0x117, 256, 0x00B, 0x017, 13, 0x118, 0x125, 14, 0x1F3, 0x00A, 24, 0x126, 0x1D8, 9);
+const S315_5313::HScanSettings S315_5313::H40ScanSettingsStatic(0x16C, 0x1C9, 0x14A, 0x166, 0x00B, 0x001, 0x002, 0x1FF, 0x001, 0x1CD, 0x1ED, 0x01A, 0x159, 320, 0x00D, 0x019, 13, 0x15A, 0x167, 14, 0x1ED, 0x00C, 32, 0x168, 0x1CC, 9);
 
 //----------------------------------------------------------------------------------------
 //Vertical scan timing settings
@@ -243,19 +243,19 @@ const S315_5313::HScanSettings S315_5313::h40ScanSettingsStatic(0x16C, 0x1C9, 0x
 //code. Note that we subtract 1 from this value for the interlace values in PAL mode, but
 //we use the same values for both interlace and non-interlace modes in NTSC. Confirm if
 //this is correct.
-const S315_5313::VScanSettings S315_5313::v28PalNoIntScanSettingsStatic (0x102, 0x1CA, 0x1C9, 0x0E0, 0x1FF, 0x1FF, 0x100, 0x1DA, 313, 0x000, 0x0DF, 224, 0x1DA, 0x1FF, 38, 0x0E0, 0x0FF, 32, 0x1CD, 0x1D9, 13, 0x100, 0x102, 3);
-const S315_5313::VScanSettings S315_5313::v28PalIntEnScanSettingsStatic (0x101, 0x1CA, 0x1C9, 0x0E0, 0x1FF, 0x1FF, 0x100, 0x1DA, 313, 0x000, 0x0DF, 224, 0x1DA, 0x1FF, 38, 0x0E0, 0x0FF, 32, 0x1CD, 0x1D9, 13, 0x100, 0x102, 3);
-const S315_5313::VScanSettings S315_5313::v30PalNoIntScanSettingsStatic (0x10A, 0x1D2, 0x1D1, 0x0F0, 0x1FF, 0x1FF, 0x108, 0x1E2, 313, 0x000, 0x0EF, 240, 0x1E2, 0x1FF, 30, 0x0F0, 0x107, 24, 0x1D5, 0x1E1, 13, 0x108, 0x10A, 3);
-const S315_5313::VScanSettings S315_5313::v30PalIntEnScanSettingsStatic (0x109, 0x1D2, 0x1D1, 0x0F0, 0x1FF, 0x1FF, 0x108, 0x1E2, 313, 0x000, 0x0EF, 240, 0x1E2, 0x1FF, 30, 0x0F0, 0x107, 24, 0x1D5, 0x1E1, 13, 0x108, 0x10A, 3);
-const S315_5313::VScanSettings S315_5313::v28NtscNoIntScanSettingsStatic(0x0EA, 0x1E5, 0x1E4, 0x0E0, 0x1FF, 0x1FF, 0x0E8, 0x1F5, 262, 0x000, 0x0DF, 224, 0x1F5, 0x1FF, 11, 0x0E0, 0x0E7,  8, 0x1E8, 0x1F4, 13, 0x0E8, 0x0EA, 3);
-const S315_5313::VScanSettings S315_5313::v28NtscIntEnScanSettingsStatic(0x0EA, 0x1E5, 0x1E4, 0x0E0, 0x1FF, 0x1FF, 0x0E8, 0x1F5, 262, 0x000, 0x0DF, 224, 0x1F5, 0x1FF, 11, 0x0E0, 0x0E7,  8, 0x1E8, 0x1F4, 13, 0x0E8, 0x0EA, 3);
-const S315_5313::VScanSettings S315_5313::v30NtscNoIntScanSettingsStatic(0x1FF, 0x200, 0x200, 0x0F0, 0x1FF, 0x1FF, 0x1FF, 0x1FF, 262, 0x000, 0x0EF, 240, 0x200, 0x200,  0, 0x200, 0x200,  0, 0x000, 0x000,  0, 0x000, 0x000, 0);
-const S315_5313::VScanSettings S315_5313::v30NtscIntEnScanSettingsStatic(0x1FF, 0x200, 0x200, 0x0F0, 0x1FF, 0x1FF, 0x1FF, 0x1FF, 262, 0x000, 0x0EF, 240, 0x200, 0x200,  0, 0x200, 0x200,  0, 0x000, 0x000,  0, 0x000, 0x000, 0);
+const S315_5313::VScanSettings S315_5313::V28PalNoIntScanSettingsStatic (0x102, 0x1CA, 0x1C9, 0x0E0, 0x1FF, 0x1FF, 0x100, 0x1DA, 313, 0x000, 0x0DF, 224, 0x1DA, 0x1FF, 38, 0x0E0, 0x0FF, 32, 0x1CD, 0x1D9, 13, 0x100, 0x102, 3);
+const S315_5313::VScanSettings S315_5313::V28PalIntEnScanSettingsStatic (0x101, 0x1CA, 0x1C9, 0x0E0, 0x1FF, 0x1FF, 0x100, 0x1DA, 313, 0x000, 0x0DF, 224, 0x1DA, 0x1FF, 38, 0x0E0, 0x0FF, 32, 0x1CD, 0x1D9, 13, 0x100, 0x102, 3);
+const S315_5313::VScanSettings S315_5313::V30PalNoIntScanSettingsStatic (0x10A, 0x1D2, 0x1D1, 0x0F0, 0x1FF, 0x1FF, 0x108, 0x1E2, 313, 0x000, 0x0EF, 240, 0x1E2, 0x1FF, 30, 0x0F0, 0x107, 24, 0x1D5, 0x1E1, 13, 0x108, 0x10A, 3);
+const S315_5313::VScanSettings S315_5313::V30PalIntEnScanSettingsStatic (0x109, 0x1D2, 0x1D1, 0x0F0, 0x1FF, 0x1FF, 0x108, 0x1E2, 313, 0x000, 0x0EF, 240, 0x1E2, 0x1FF, 30, 0x0F0, 0x107, 24, 0x1D5, 0x1E1, 13, 0x108, 0x10A, 3);
+const S315_5313::VScanSettings S315_5313::V28NtscNoIntScanSettingsStatic(0x0EA, 0x1E5, 0x1E4, 0x0E0, 0x1FF, 0x1FF, 0x0E8, 0x1F5, 262, 0x000, 0x0DF, 224, 0x1F5, 0x1FF, 11, 0x0E0, 0x0E7,  8, 0x1E8, 0x1F4, 13, 0x0E8, 0x0EA, 3);
+const S315_5313::VScanSettings S315_5313::V28NtscIntEnScanSettingsStatic(0x0EA, 0x1E5, 0x1E4, 0x0E0, 0x1FF, 0x1FF, 0x0E8, 0x1F5, 262, 0x000, 0x0DF, 224, 0x1F5, 0x1FF, 11, 0x0E0, 0x0E7,  8, 0x1E8, 0x1F4, 13, 0x0E8, 0x0EA, 3);
+const S315_5313::VScanSettings S315_5313::V30NtscNoIntScanSettingsStatic(0x1FF, 0x200, 0x200, 0x0F0, 0x1FF, 0x1FF, 0x1FF, 0x1FF, 262, 0x000, 0x0EF, 240, 0x200, 0x200,  0, 0x200, 0x200,  0, 0x000, 0x000,  0, 0x000, 0x000, 0);
+const S315_5313::VScanSettings S315_5313::V30NtscIntEnScanSettingsStatic(0x1FF, 0x200, 0x200, 0x0F0, 0x1FF, 0x1FF, 0x1FF, 0x1FF, 262, 0x000, 0x0EF, 240, 0x200, 0x200,  0, 0x200, 0x200,  0, 0x000, 0x000,  0, 0x000, 0x000, 0);
 
 //----------------------------------------------------------------------------------------
 //Constants
 //----------------------------------------------------------------------------------------
-const S315_5313::VRAMRenderOp S315_5313::vramOperationsH32ActiveLine[171] = {
+const S315_5313::VRAMRenderOp S315_5313::VramOperationsH32ActiveLine[171] = {
 	//End of left scrolled 2 cells
 	{S315_5313::VRAMRenderOp::PATTERN_B, 1},
 
@@ -305,7 +305,7 @@ const S315_5313::VRAMRenderOp S315_5313::vramOperationsH32ActiveLine[171] = {
 };
 
 //----------------------------------------------------------------------------------------
-const S315_5313::VRAMRenderOp S315_5313::vramOperationsH32InactiveLine[171] = {
+const S315_5313::VRAMRenderOp S315_5313::VramOperationsH32InactiveLine[171] = {
 	//End of left scrolled 2 cells
 	{S315_5313::VRAMRenderOp::ACC_SLOT, 0},
 
@@ -355,7 +355,7 @@ const S315_5313::VRAMRenderOp S315_5313::vramOperationsH32InactiveLine[171] = {
 };
 
 //----------------------------------------------------------------------------------------
-const S315_5313::VRAMRenderOp S315_5313::vramOperationsH40ActiveLine[210] = {
+const S315_5313::VRAMRenderOp S315_5313::VramOperationsH40ActiveLine[210] = {
 	//Cell block 1
 	{S315_5313::VRAMRenderOp::MAPPING_A, 2}, {S315_5313::VRAMRenderOp::ACC_SLOT,  0}, {S315_5313::VRAMRenderOp::PATTERN_A, 2}, {S315_5313::VRAMRenderOp::PATTERN_A, 3}, {S315_5313::VRAMRenderOp::MAPPING_B, 2}, {S315_5313::VRAMRenderOp::MAPPING_S, 0}, {S315_5313::VRAMRenderOp::PATTERN_B, 2}, {S315_5313::VRAMRenderOp::PATTERN_B, 3},
 	{S315_5313::VRAMRenderOp::MAPPING_A, 4}, {S315_5313::VRAMRenderOp::ACC_SLOT,  0}, {S315_5313::VRAMRenderOp::PATTERN_A, 4}, {S315_5313::VRAMRenderOp::PATTERN_A, 5}, {S315_5313::VRAMRenderOp::MAPPING_B, 4}, {S315_5313::VRAMRenderOp::MAPPING_S, 1}, {S315_5313::VRAMRenderOp::PATTERN_B, 4}, {S315_5313::VRAMRenderOp::PATTERN_B, 5},
@@ -409,7 +409,7 @@ const S315_5313::VRAMRenderOp S315_5313::vramOperationsH40ActiveLine[210] = {
 };
 
 //----------------------------------------------------------------------------------------
-const S315_5313::VRAMRenderOp S315_5313::vramOperationsH40InactiveLine[210] = {
+const S315_5313::VRAMRenderOp S315_5313::VramOperationsH40InactiveLine[210] = {
 	//Cell block 1
 	{S315_5313::VRAMRenderOp::ACC_SLOT, 0}, {S315_5313::VRAMRenderOp::ACC_SLOT, 0}, {S315_5313::VRAMRenderOp::ACC_SLOT, 0}, {S315_5313::VRAMRenderOp::ACC_SLOT, 0}, {S315_5313::VRAMRenderOp::ACC_SLOT, 0}, {S315_5313::VRAMRenderOp::ACC_SLOT, 0}, {S315_5313::VRAMRenderOp::ACC_SLOT, 0}, {S315_5313::VRAMRenderOp::ACC_SLOT, 0},
 	{S315_5313::VRAMRenderOp::ACC_SLOT, 0}, {S315_5313::VRAMRenderOp::ACC_SLOT, 0}, {S315_5313::VRAMRenderOp::ACC_SLOT, 0}, {S315_5313::VRAMRenderOp::ACC_SLOT, 0}, {S315_5313::VRAMRenderOp::ACC_SLOT, 0}, {S315_5313::VRAMRenderOp::ACC_SLOT, 0}, {S315_5313::VRAMRenderOp::ACC_SLOT, 0}, {S315_5313::VRAMRenderOp::ACC_SLOT, 0},
@@ -463,7 +463,7 @@ const S315_5313::VRAMRenderOp S315_5313::vramOperationsH40InactiveLine[210] = {
 };
 
 //----------------------------------------------------------------------------------------
-const S315_5313::InternalRenderOp S315_5313::internalOperationsH32[342] = {
+const S315_5313::InternalRenderOp S315_5313::InternalOperationsH32[342] = {
 	{S315_5313::InternalRenderOp::SPRITEMAPPINGCLEAR, 0}, {S315_5313::InternalRenderOp::NONE, 0},         {S315_5313::InternalRenderOp::NONE, 0},         {S315_5313::InternalRenderOp::NONE, 0},         //0x000-0x003
 	{S315_5313::InternalRenderOp::NONE, 0},               {S315_5313::InternalRenderOp::NONE, 0},         {S315_5313::InternalRenderOp::NONE, 0},         {S315_5313::InternalRenderOp::NONE, 0},         //0x004-0x007
 	{S315_5313::InternalRenderOp::NONE, 0},               {S315_5313::InternalRenderOp::NONE, 0},         {S315_5313::InternalRenderOp::NONE, 0},         {S315_5313::InternalRenderOp::NONE, 0},         //0x008-0x00B
@@ -558,7 +558,7 @@ const S315_5313::InternalRenderOp S315_5313::internalOperationsH32[342] = {
 };
 
 //----------------------------------------------------------------------------------------
-const S315_5313::InternalRenderOp S315_5313::internalOperationsH40[420] = {
+const S315_5313::InternalRenderOp S315_5313::InternalOperationsH40[420] = {
 	{S315_5313::InternalRenderOp::SPRITEMAPPINGCLEAR, 0}, {S315_5313::InternalRenderOp::NONE, 0},         {S315_5313::InternalRenderOp::NONE, 0},         {S315_5313::InternalRenderOp::NONE, 0},         //0x000-0x003
 	{S315_5313::InternalRenderOp::NONE, 0},               {S315_5313::InternalRenderOp::NONE, 0},         {S315_5313::InternalRenderOp::NONE, 0},         {S315_5313::InternalRenderOp::NONE, 0},         //0x004-0x007
 	{S315_5313::InternalRenderOp::NONE, 0},               {S315_5313::InternalRenderOp::NONE, 0},         {S315_5313::InternalRenderOp::NONE, 0},         {S315_5313::InternalRenderOp::NONE, 0},         //0x008-0x00B
@@ -707,7 +707,7 @@ unsigned int S315_5313::VCounterValueFromLinearToVDPInternal(const VScanSettings
 const S315_5313::HScanSettings& S315_5313::GetHScanSettings(bool screenModeRS0Active, bool screenModeRS1Active)
 {
 	//Select the scan settings which correspond with the current screen mode
-	return (screenModeRS1Active)? h40ScanSettingsStatic: h32ScanSettingsStatic;
+	return (screenModeRS1Active)? H40ScanSettingsStatic: H32ScanSettingsStatic;
 }
 
 //----------------------------------------------------------------------------------------
@@ -718,22 +718,22 @@ const S315_5313::VScanSettings& S315_5313::GetVScanSettings(bool screenModeV30Ac
 	{
 		if(screenModeV30Active)
 		{
-			return (interlaceActive)? v30PalIntEnScanSettingsStatic: v30PalNoIntScanSettingsStatic;
+			return (interlaceActive)? V30PalIntEnScanSettingsStatic: V30PalNoIntScanSettingsStatic;
 		}
 		else
 		{
-			return (interlaceActive)? v28PalIntEnScanSettingsStatic: v28PalNoIntScanSettingsStatic;
+			return (interlaceActive)? V28PalIntEnScanSettingsStatic: V28PalNoIntScanSettingsStatic;
 		}
 	}
 	else
 	{
 		if(screenModeV30Active)
 		{
-			return (interlaceActive)? v30NtscIntEnScanSettingsStatic: v30NtscNoIntScanSettingsStatic;
+			return (interlaceActive)? V30NtscIntEnScanSettingsStatic: V30NtscNoIntScanSettingsStatic;
 		}
 		else
 		{
-			return (interlaceActive)? v28NtscIntEnScanSettingsStatic: v28NtscNoIntScanSettingsStatic;
+			return (interlaceActive)? V28NtscIntEnScanSettingsStatic: V28NtscNoIntScanSettingsStatic;
 		}
 	}
 }
@@ -886,26 +886,26 @@ void S315_5313::BeginHVCounterAdvanceSessionFromCurrentState(HVCounterAdvanceSes
 	advanceSession.mclkTicksAdvanced = 0;
 
 	//Cache the current HV counter and video mode state to use in the advance process
-	advanceSession.hcounterCurrent = hcounter.GetData();
-	advanceSession.vcounterCurrent = vcounter.GetData();
-	advanceSession.interlaceEnabledCurrent = interlaceEnabled;
-	advanceSession.interlaceDoubleCurrent = interlaceDouble;
-	advanceSession.screenModeRS0Current = screenModeRS0;
-	advanceSession.screenModeRS1Current = screenModeRS1;
-	advanceSession.screenModeV30Current = screenModeV30;
-	advanceSession.palModeCurrent = palMode;
+	advanceSession.hcounterCurrent = _hcounter.GetData();
+	advanceSession.vcounterCurrent = _vcounter.GetData();
+	advanceSession.interlaceEnabledCurrent = _interlaceEnabled;
+	advanceSession.interlaceDoubleCurrent = _interlaceDouble;
+	advanceSession.screenModeRS0Current = _screenModeRS0;
+	advanceSession.screenModeRS1Current = _screenModeRS1;
+	advanceSession.screenModeV30Current = _screenModeV30;
+	advanceSession.palModeCurrent = _palMode;
 	advanceSession.oddFlagCurrent = GetStatusFlagOddInterlaceFrame();
 
 	//Grab the latest settings for any registers which affect the video mode. This logic
 	//is based on the update steps performed in the AdvanceProcessorState method, and must
 	//predict changes in the same way. See the implementation of that method for further
 	//comments and details.
-	advanceSession.interlaceEnabledNew = interlaceEnabledCached;
-	advanceSession.interlaceDoubleNew = interlaceDoubleCached;
-	advanceSession.screenModeRS0New = screenModeRS0Cached;
-	advanceSession.screenModeRS1New = screenModeRS1Cached;
-	advanceSession.screenModeV30New = screenModeV30Cached;
-	advanceSession.palModeNew = palModeLineState;
+	advanceSession.interlaceEnabledNew = _interlaceEnabledCached;
+	advanceSession.interlaceDoubleNew = _interlaceDoubleCached;
+	advanceSession.screenModeRS0New = _screenModeRS0Cached;
+	advanceSession.screenModeRS1New = _screenModeRS1Cached;
+	advanceSession.screenModeV30New = _screenModeV30Cached;
+	advanceSession.palModeNew = _palModeLineState;
 
 	//Obtain the current hscan and vscan settings
 	advanceSession.hscanSettings = &GetHScanSettings(advanceSession.screenModeRS0Current, advanceSession.screenModeRS1Current);
@@ -2652,15 +2652,15 @@ unsigned int S315_5313::ConvertAccessTimeToMclkCount(double accessTime) const
 		std::wcout << "######################################################\n";
 		std::wcout << "VDP ConvertAccessTimeToMclkCount accessTime < 0!\n";
 		std::wcout << "accessTime:\t" << accessTime << "\n";
-		std::wcout << "lastTimesliceMclkCyclesRemainingTime:\t" << lastTimesliceMclkCyclesRemainingTime << "\n";
-		std::wcout << "currentTimesliceLength:\t" << currentTimesliceLength << "\n";
+		std::wcout << "lastTimesliceMclkCyclesRemainingTime:\t" << _lastTimesliceMclkCyclesRemainingTime << "\n";
+		std::wcout << "currentTimesliceLength:\t" << _currentTimesliceLength << "\n";
 		std::wcout << "GetProcessorStateTime:\t" << GetProcessorStateTime() << "\n";
 		std::wcout << "######################################################\n";
 	}
 
 	//Calculate the current mclk cycle counter
-	double roundOffAdjustment = 0.1 * (1000000000.0 / clockMclkCurrent);
-	unsigned int mclkCyclesTarget = (unsigned int)((accessTime + roundOffAdjustment) * (clockMclkCurrent / 1000000000.0));
+	double roundOffAdjustment = 0.1 * (1000000000.0 / _clockMclkCurrent);
+	unsigned int mclkCyclesTarget = (unsigned int)((accessTime + roundOffAdjustment) * (_clockMclkCurrent / 1000000000.0));
 	return mclkCyclesTarget;
 }
 
@@ -2668,6 +2668,6 @@ unsigned int S315_5313::ConvertAccessTimeToMclkCount(double accessTime) const
 double S315_5313::ConvertMclkCountToAccessTime(unsigned int mclkCount) const
 {
 	//Calculate the access time
-	double accessTime = (double)mclkCount * (1000000000.0 / clockMclkCurrent);
+	double accessTime = (double)mclkCount * (1000000000.0 / _clockMclkCurrent);
 	return accessTime;
 }

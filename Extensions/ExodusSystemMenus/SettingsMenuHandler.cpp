@@ -6,8 +6,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-SettingsMenuHandler::SettingsMenuHandler(ExodusSystemMenus& aowner, ISystemGUIInterface& amodel)
-:MenuHandlerBase(L"SystemSettingsMenu", aowner.GetViewManager()), owner(aowner), model(amodel)
+SettingsMenuHandler::SettingsMenuHandler(ExodusSystemMenus& owner, ISystemGUIInterface& model)
+:MenuHandlerBase(L"SystemSettingsMenu", owner.GetViewManager()), _owner(owner), _model(model)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -26,9 +26,9 @@ IViewPresenter* SettingsMenuHandler::CreateViewForItem(int menuItemID, const std
 	switch(menuItemID)
 	{
 	case MENUITEM_INPUTMAPPING:
-		return new InputMappingViewPresenter(GetMenuHandlerName(), viewName, MENUITEM_INPUTMAPPING, owner, model);
+		return new InputMappingViewPresenter(GetMenuHandlerName(), viewName, MENUITEM_INPUTMAPPING, _owner, _model);
 	case MENUITEM_EMBEDDEDROM:
-		return new EmbeddedROMViewPresenter(GetMenuHandlerName(), viewName, MENUITEM_EMBEDDEDROM, owner, model);
+		return new EmbeddedROMViewPresenter(GetMenuHandlerName(), viewName, MENUITEM_EMBEDDEDROM, _owner, _model);
 	}
 	return 0;
 }
@@ -56,7 +56,7 @@ void SettingsMenuHandler::OpenInputMappingDetailsView(IDevice* targetDevice)
 	}
 	else
 	{
-		IViewPresenter* viewPresenter = new InputMappingDetailsViewPresenter(GetMenuHandlerName(), GetMenuItemName(MENUITEM_INPUTMAPPINGDETAILS), MENUITEM_INPUTMAPPINGDETAILS, owner, model, targetDevice);
+		IViewPresenter* viewPresenter = new InputMappingDetailsViewPresenter(GetMenuHandlerName(), GetMenuItemName(MENUITEM_INPUTMAPPINGDETAILS), MENUITEM_INPUTMAPPINGDETAILS, _owner, _model, targetDevice);
 		if(!AddCreatedView(MENUITEM_INPUTMAPPINGDETAILS, viewPresenter))
 		{
 			delete viewPresenter;

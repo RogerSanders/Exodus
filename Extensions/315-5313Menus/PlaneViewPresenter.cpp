@@ -4,8 +4,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-PlaneViewPresenter::PlaneViewPresenter(const std::wstring& aviewGroupName, const std::wstring& aviewName, int aviewID, S315_5313Menus& aowner, const IDevice& amodelInstanceKey, IS315_5313& amodel)
-:ViewPresenterBase(aowner.GetAssemblyHandle(), aviewGroupName, aviewName, aviewID, amodelInstanceKey.GetDeviceInstanceName(), amodelInstanceKey.GetDeviceModuleID(), amodelInstanceKey.GetModuleDisplayName()), owner(aowner), modelInstanceKey(amodelInstanceKey), model(amodel)
+PlaneViewPresenter::PlaneViewPresenter(const std::wstring& viewGroupName, const std::wstring& viewName, int viewID, S315_5313Menus& owner, const IDevice& modelInstanceKey, IS315_5313& model)
+:ViewPresenterBase(owner.GetAssemblyHandle(), viewGroupName, viewName, viewID, modelInstanceKey.GetDeviceInstanceName(), modelInstanceKey.GetDeviceModuleID(), modelInstanceKey.GetModuleDisplayName()), _owner(owner), _modelInstanceKey(modelInstanceKey), _model(model)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -21,13 +21,13 @@ std::wstring PlaneViewPresenter::GetUnqualifiedViewTitle()
 //----------------------------------------------------------------------------------------
 IView* PlaneViewPresenter::CreateView(IUIManager& uiManager)
 {
-	return new PlaneView(uiManager, *this, model);
+	return new PlaneView(uiManager, *this, _model);
 }
 
 //----------------------------------------------------------------------------------------
-void PlaneViewPresenter::DeleteView(IView* aview)
+void PlaneViewPresenter::DeleteView(IView* view)
 {
-	delete aview;
+	delete view;
 }
 
 //----------------------------------------------------------------------------------------
@@ -35,5 +35,5 @@ void PlaneViewPresenter::DeleteView(IView* aview)
 //----------------------------------------------------------------------------------------
 ISystemExtensionInterface& PlaneViewPresenter::GetSystemInterface() const
 {
-	return owner.GetSystemInterface();
+	return _owner.GetSystemInterface();
 }

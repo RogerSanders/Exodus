@@ -14,7 +14,7 @@ public:
 	ClockSource();
 	bool Construct(IHierarchicalStorageNode& node);
 	bool Construct(const ClockSourceParams& params);
-	static bool DecodeClockTypeString(const std::wstring& clockTypeString, ClockType& aclockType);
+	static bool DecodeClockTypeString(const std::wstring& clockTypeString, ClockType& clockType);
 
 	//Interface version functions
 	virtual unsigned int GetIClockSourceVersion() const;
@@ -56,14 +56,14 @@ private:
 	void TransparentNotifyOutputClockRateChange(double newClockRate) const;
 
 private:
-	std::set<IBusInterface*> busInterfaces;
-	ClockType clockType;
-	double clockFrequency;
-	double clockDivider;
-	double clockMultiplier;
-	double inputClockRate;
-	std::set<ClockSource*> dependentClockSources;
-	ClockSource* inputClockSource;
+	std::set<IBusInterface*> _busInterfaces;
+	ClockType _clockType;
+	double _clockFrequency;
+	double _clockDivider;
+	double _clockMultiplier;
+	double _inputClockRate;
+	std::set<ClockSource*> _dependentClockSources;
+	ClockSource* _inputClockSource;
 };
 
 #include "ClockSource.inl"

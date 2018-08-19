@@ -4,13 +4,13 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 DeviceInternal::DeviceInternal()
-:deviceContext(0)
+:_deviceContext(0)
 {}
 
 //----------------------------------------------------------------------------------------
 DeviceInternal::~DeviceInternal()
 {
-	delete deviceContext;
+	delete _deviceContext;
 }
 
 //----------------------------------------------------------------------------------------
@@ -26,11 +26,11 @@ unsigned int DeviceInternal::GetIDeviceVersion() const
 //----------------------------------------------------------------------------------------
 IDeviceContext* DeviceInternal::GetDeviceContext() const
 {
-	return deviceContext;
+	return _deviceContext;
 }
 
 //----------------------------------------------------------------------------------------
 double DeviceInternal::GetCurrentTimesliceProgress() const
 {
-	return deviceContext->GetCurrentTimesliceProgress();
+	return _deviceContext->GetCurrentTimesliceProgress();
 }

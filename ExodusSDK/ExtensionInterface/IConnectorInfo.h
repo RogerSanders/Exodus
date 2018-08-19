@@ -16,25 +16,25 @@ public:
 
 	//Internal data
 	virtual unsigned int GetConnectorID() const = 0;
-	virtual void SetConnectorID(unsigned int aconnectorID) = 0;
+	virtual void SetConnectorID(unsigned int connectorID) = 0;
 
 	//Exporting module info
 	virtual unsigned int GetExportingModuleID() const = 0;
-	virtual void SetExportingModuleID(unsigned int aexportingModuleID) = 0;
+	virtual void SetExportingModuleID(unsigned int exportingModuleID) = 0;
 	virtual Marshal::Ret<std::wstring> GetConnectorClassName() const = 0;
-	virtual void SetConnectorClassName(const Marshal::In<std::wstring>& aconnectorClassName) = 0;
+	virtual void SetConnectorClassName(const Marshal::In<std::wstring>& connectorClassName) = 0;
 	virtual Marshal::Ret<std::wstring> GetExportingModuleConnectorInstanceName() const = 0;
-	virtual void SetExportingModuleConnectorInstanceName(const Marshal::In<std::wstring>& aexportingModuleConnectorInstanceName) = 0;
+	virtual void SetExportingModuleConnectorInstanceName(const Marshal::In<std::wstring>& exportingModuleConnectorInstanceName) = 0;
 	virtual Marshal::Ret<std::wstring> GetSystemClassName() const = 0;
-	virtual void SetSystemClassName(const Marshal::In<std::wstring>& asystemClassName) = 0;
+	virtual void SetSystemClassName(const Marshal::In<std::wstring>& systemClassName) = 0;
 
 	//Importing module info
 	virtual bool GetIsConnectorUsed() const = 0;
-	virtual void SetIsConnectorUsed(bool aconnectorUser) = 0;
+	virtual void SetIsConnectorUsed(bool connectorUser) = 0;
 	virtual unsigned int GetImportingModuleID() const = 0;
-	virtual void SetImportingModuleID(unsigned int aimportingModuleID) = 0;
+	virtual void SetImportingModuleID(unsigned int importingModuleID) = 0;
 	virtual Marshal::Ret<std::wstring> GetImportingModuleConnectorInstanceName() const = 0;
-	virtual void SetImportingModuleConnectorInstanceName(const Marshal::In<std::wstring>& aimportingModuleConnectorInstanceName) = 0;
+	virtual void SetImportingModuleConnectorInstanceName(const Marshal::In<std::wstring>& importingModuleConnectorInstanceName) = 0;
 };
 
 #endif

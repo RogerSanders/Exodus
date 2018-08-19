@@ -25,20 +25,20 @@ public:
 
 	virtual Disassembly Z80Disassemble(const Z80::LabelSubstitutionSettings& labelSettings) const
 	{
-		if(conditionCode == ConditionCode::None)
+		if(_conditionCode == ConditionCode::None)
 		{
 			return Disassembly(GetOpcodeName(), L"");
 		}
 		else
 		{
-			return Disassembly(GetOpcodeName(), DisassembleConditionCode(conditionCode));
+			return Disassembly(GetOpcodeName(), DisassembleConditionCode(_conditionCode));
 		}
 	}
 
 	virtual void Z80Decode(const Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)
 	{
-		target.SetIndexState(GetIndexState(), GetIndexOffset());
-		conditionCode = ConditionCode::None;
+		_target.SetIndexState(GetIndexState(), GetIndexOffset());
+		_conditionCode = ConditionCode::None;
 
 		if(data.GetBit(0))
 		{
@@ -47,13 +47,13 @@ public:
 		else
 		{
 			//RET cc		//11ccc000
-			conditionCode = (ConditionCode)data.GetDataSegment(3, 3);
+			_conditionCode = (ConditionCode)data.GetDataSegment(3, 3);
 			AddExecuteCycleCount(1);
 		}
-		target.SetMode(EffectiveAddress::Mode::SPPostInc);
+		_target.SetMode(EffectiveAddress::Mode::SPPostInc);
 
-		AddInstructionSize(GetIndexOffsetSize(target.UsesIndexOffset()));
-		AddInstructionSize(target.ExtensionSize());
+		AddInstructionSize(GetIndexOffsetSize(_target.UsesIndexOffset()));
+		AddInstructionSize(_target.ExtensionSize());
 	}
 
 	virtual ExecuteTime Z80Execute(Z80* cpu, const Z80Word& location) const
@@ -62,11 +62,11 @@ public:
 		ExecuteTime additionalCycles;
 
 		//Test the condition code
-		if(ConditionCodeTrue(cpu, conditionCode))
+		if(ConditionCodeTrue(cpu, _conditionCode))
 		{
 			//If the condition is true, restore the PC from the stack.
 			Z80Word oldPC;
-			additionalTime += target.Read(cpu, location + GetInstructionSize(), oldPC);
+			additionalTime += _target.Read(cpu, location + GetInstructionSize(), oldPC);
 			cpu->PopCallStack(oldPC.GetData());
 			cpu->SetPC(oldPC);
 			additionalCycles.cycles = 10;
@@ -83,8 +83,8 @@ public:
 	}
 
 private:
-	EffectiveAddress target;
-	ConditionCode conditionCode;
+	EffectiveAddress _target;
+	ConditionCode _conditionCode;
 };
 
 } //Close namespace Z80

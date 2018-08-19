@@ -8,7 +8,7 @@ template<class T> class OpcodeTable
 {
 public:
 	//Constructors
-	OpcodeTable(unsigned int aopcodeDecodeBits);
+	OpcodeTable(unsigned int opcodeDecodeBits);
 
 	//Initialization functions
 	void InitializeOpcodeTable();
@@ -18,9 +18,9 @@ public:
 	inline const T* GetInstruction(unsigned int opcode) const;
 
 private:
-	unsigned int opcodeDecodeBits;
-	unsigned int opcodeDecodeMask;
-	std::vector<const T*> opcodeArray;
+	unsigned int _opcodeDecodeBits;
+	unsigned int _opcodeDecodeMask;
+	std::vector<const T*> _opcodeArray;
 };
 
 #include "OpcodeTable.inl"

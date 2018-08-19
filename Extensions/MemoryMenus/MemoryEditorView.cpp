@@ -6,11 +6,11 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-MemoryEditorView::MemoryEditorView(IUIManager& auiManager, MemoryEditorViewPresenter& apresenter, IMemory& amodel)
-:ViewBase(auiManager, apresenter), presenter(apresenter), model(amodel)
+MemoryEditorView::MemoryEditorView(IUIManager& uiManager, MemoryEditorViewPresenter& presenter, IMemory& model)
+:ViewBase(uiManager, presenter), _presenter(presenter), _model(model)
 {
-	hwndMem = NULL;
-	SetWindowSettings(apresenter.GetUnqualifiedViewTitle(), 0, 0, 440, 500);
+	_hwndMem = NULL;
+	SetWindowSettings(presenter.GetUnqualifiedViewTitle(), 0, 0, 440, 500);
 	SetDockableViewType(true, DockPos::Right, false, L"Exodus.VerticalWatchers");
 }
 
@@ -48,7 +48,7 @@ LRESULT MemoryEditorView::WndProcWindow(HWND hwnd, UINT msg, WPARAM wparam, LPAR
 LRESULT MemoryEditorView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	//Calculate the maximum number of significant digits in the address
-	unsigned int totalMemorySize = (model.GetMemoryEntryCount() * model.GetMemoryEntrySizeInBytes());
+	unsigned int totalMemorySize = (_model.GetMemoryEntryCount() * _model.GetMemoryEntrySizeInBytes());
 	unsigned int addressWidth = 0;
 	unsigned int maxAddressValue = totalMemorySize - 1;
 	while(maxAddressValue != 0)
@@ -66,22 +66,22 @@ LRESULT MemoryEditorView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	WC_HexEdit::RegisterWindowClass(GetAssemblyHandle());
 
 	//Create the HexEdit control
-	hwndMem = CreateWindowEx(WS_EX_CLIENTEDGE, WC_HexEdit::windowClassName, L"", WS_CHILD | WS_VSCROLL, 0, 0, 0, 0, hwnd, (HMENU)HEXEDITCONTROL, GetAssemblyHandle(), NULL);
-	SendMessage(hwndMem, (UINT)WC_HexEdit::WindowMessages::SetWindowSize, totalMemorySize, 0);
-	SendMessage(hwndMem, (UINT)WC_HexEdit::WindowMessages::SetWindowAddressWidth, addressWidth, 0);
+	_hwndMem = CreateWindowEx(WS_EX_CLIENTEDGE, WC_HexEdit::WindowClassName, L"", WS_CHILD | WS_VSCROLL, 0, 0, 0, 0, hwnd, (HMENU)HexEditControlID, GetAssemblyHandle(), NULL);
+	SendMessage(_hwndMem, (UINT)WC_HexEdit::WindowMessages::SetWindowSize, totalMemorySize, 0);
+	SendMessage(_hwndMem, (UINT)WC_HexEdit::WindowMessages::SetWindowAddressWidth, addressWidth, 0);
 
-	if(model.IsMemoryLockingSupported())
+	if(_model.IsMemoryLockingSupported())
 	{
 		WC_HexEdit::Hex_DataMarkingInfo info;
 		info.markingEnabled = true;
 		info.markName = L"Lock";
 		info.unmarkName = L"Unlock";
-		SendMessage(hwndMem, (UINT)WC_HexEdit::WindowMessages::SetMarkingInfo, 0, (LPARAM)&info);
+		SendMessage(_hwndMem, (UINT)WC_HexEdit::WindowMessages::SetMarkingInfo, 0, (LPARAM)&info);
 	}
 
-	ShowWindow(hwndMem, SW_SHOWNORMAL);
-	UpdateWindow(hwndMem);
-	SetFocus(hwndMem);
+	ShowWindow(_hwndMem, SW_SHOWNORMAL);
+	UpdateWindow(_hwndMem);
+	SetFocus(_hwndMem);
 
 	SetTimer(hwnd, 1, 50, NULL);
 
@@ -99,26 +99,26 @@ LRESULT MemoryEditorView::msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 //----------------------------------------------------------------------------------------
 LRESULT MemoryEditorView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	unsigned int totalMemorySize = (model.GetMemoryEntryCount() * model.GetMemoryEntrySizeInBytes());
-	unsigned int windowSize = (unsigned int)SendMessage(hwndMem, (UINT)WC_HexEdit::WindowMessages::GetWindowSize, 0, 0);
-	unsigned int windowPos = (unsigned int)SendMessage(hwndMem, (UINT)WC_HexEdit::WindowMessages::GetWindowPos, 0, 0);
+	unsigned int totalMemorySize = (_model.GetMemoryEntryCount() * _model.GetMemoryEntrySizeInBytes());
+	unsigned int windowSize = (unsigned int)SendMessage(_hwndMem, (UINT)WC_HexEdit::WindowMessages::GetWindowSize, 0, 0);
+	unsigned int windowPos = (unsigned int)SendMessage(_hwndMem, (UINT)WC_HexEdit::WindowMessages::GetWindowPos, 0, 0);
 	if(windowSize > 0)
 	{
-		unsigned int memoryEntrySizeInBytes = model.GetMemoryEntrySizeInBytes();
+		unsigned int memoryEntrySizeInBytes = _model.GetMemoryEntrySizeInBytes();
 		std::vector<unsigned char> bufferSegment(windowSize);
 		std::vector<unsigned char> markBufferSegment(windowSize);
-		Data data(memoryEntrySizeInBytes * Data::bitsPerByte);
+		Data data(memoryEntrySizeInBytes * Data::BitsPerByte);
 		unsigned int byteNoInWindow = 0;
 		while((byteNoInWindow < windowSize) && ((windowPos + byteNoInWindow) < totalMemorySize))
 		{
 			unsigned int memoryEntryPos = ((windowPos + byteNoInWindow) / memoryEntrySizeInBytes);
 			unsigned int memoryEntrySkippedBytes = ((windowPos + byteNoInWindow) % memoryEntrySizeInBytes);
-			data = model.ReadMemoryEntry(memoryEntryPos);
+			data = _model.ReadMemoryEntry(memoryEntryPos);
 			unsigned int byteNoInEntry = memoryEntrySkippedBytes;
 			while((byteNoInWindow < windowSize) && ((windowPos + byteNoInWindow) < totalMemorySize) && (byteNoInEntry < memoryEntrySizeInBytes))
 			{
 				bufferSegment[byteNoInWindow] = data.GetByteFromTopDown(byteNoInEntry);
-				markBufferSegment[byteNoInWindow] = model.IsAddressLocked(memoryEntryPos)? 1: 0;
+				markBufferSegment[byteNoInWindow] = _model.IsAddressLocked(memoryEntryPos)? 1: 0;
 				++byteNoInWindow;
 				++byteNoInEntry;
 			}
@@ -127,7 +127,7 @@ LRESULT MemoryEditorView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		info.newBufferSize = windowSize;
 		info.newBufferData = &bufferSegment[0];
 		info.newMarkBufferData = &markBufferSegment[0];
-		SendMessage(hwndMem, (UINT)WC_HexEdit::WindowMessages::UpdateWindowData, 0, (LPARAM)&info);
+		SendMessage(_hwndMem, (UINT)WC_HexEdit::WindowMessages::UpdateWindowData, 0, (LPARAM)&info);
 	}
 
 	return 0;
@@ -136,49 +136,49 @@ LRESULT MemoryEditorView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 //----------------------------------------------------------------------------------------
 LRESULT MemoryEditorView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	if(LOWORD(wparam) == HEXEDITCONTROL)
+	if(LOWORD(wparam) == HexEditControlID)
 	{
 		WC_HexEdit::WindowNotifications notification = (WC_HexEdit::WindowNotifications)HIWORD(wparam);
 		if(notification == WC_HexEdit::WindowNotifications::ReadData)
 		{
 			WC_HexEdit::Hex_ReadDataInfo* readDataInfo = (WC_HexEdit::Hex_ReadDataInfo*)lparam;
-			unsigned int memoryEntrySizeInBytes = model.GetMemoryEntrySizeInBytes();
-			Data data(memoryEntrySizeInBytes * Data::bitsPerByte);
+			unsigned int memoryEntrySizeInBytes = _model.GetMemoryEntrySizeInBytes();
+			Data data(memoryEntrySizeInBytes * Data::BitsPerByte);
 			unsigned int memoryEntryPos = (readDataInfo->offset / memoryEntrySizeInBytes);
 			unsigned int memoryEntrySkippedBytes = (readDataInfo->offset % memoryEntrySizeInBytes);
-			data = model.ReadMemoryEntry(memoryEntryPos);
+			data = _model.ReadMemoryEntry(memoryEntryPos);
 			readDataInfo->data = data.GetByteFromTopDown(memoryEntrySkippedBytes);
 			readDataInfo->processed = true;
 		}
 		else if(notification == WC_HexEdit::WindowNotifications::WriteData)
 		{
 			WC_HexEdit::Hex_WriteDataInfo* writeDataInfo = (WC_HexEdit::Hex_WriteDataInfo*)lparam;
-			unsigned int memoryEntrySizeInBytes = model.GetMemoryEntrySizeInBytes();
+			unsigned int memoryEntrySizeInBytes = _model.GetMemoryEntrySizeInBytes();
 			if(memoryEntrySizeInBytes == 1)
 			{
-				model.WriteMemoryEntry(writeDataInfo->offset, writeDataInfo->data);
+				_model.WriteMemoryEntry(writeDataInfo->offset, writeDataInfo->data);
 			}
 			else
 			{
-				Data data(memoryEntrySizeInBytes * Data::bitsPerByte);
+				Data data(memoryEntrySizeInBytes * Data::BitsPerByte);
 				unsigned int memoryEntryPos = (writeDataInfo->offset / memoryEntrySizeInBytes);
 				unsigned int memoryEntrySkippedBytes = (writeDataInfo->offset % memoryEntrySizeInBytes);
-				data = model.ReadMemoryEntry(memoryEntryPos);
+				data = _model.ReadMemoryEntry(memoryEntryPos);
 				data.SetByteFromTopDown(memoryEntrySkippedBytes, writeDataInfo->data);
-				model.WriteMemoryEntry(memoryEntryPos, data.GetData());
+				_model.WriteMemoryEntry(memoryEntryPos, data.GetData());
 			}
 		}
 		else if(notification == WC_HexEdit::WindowNotifications::ReadDataBlock)
 		{
 			WC_HexEdit::Hex_ReadDataBlockInfo* readDataBlockInfo = (WC_HexEdit::Hex_ReadDataBlockInfo*)lparam;
-			unsigned int memoryEntrySizeInBytes = model.GetMemoryEntrySizeInBytes();
-			Data data(memoryEntrySizeInBytes * Data::bitsPerByte);
+			unsigned int memoryEntrySizeInBytes = _model.GetMemoryEntrySizeInBytes();
+			Data data(memoryEntrySizeInBytes * Data::BitsPerByte);
 			unsigned int byteNoInBlock = 0;
 			while(byteNoInBlock < readDataBlockInfo->size)
 			{
 				unsigned int memoryEntryPos = ((readDataBlockInfo->offset + byteNoInBlock) / memoryEntrySizeInBytes);
 				unsigned int memoryEntrySkippedBytes = ((readDataBlockInfo->offset + byteNoInBlock) % memoryEntrySizeInBytes);
-				data = model.ReadMemoryEntry(memoryEntryPos);
+				data = _model.ReadMemoryEntry(memoryEntryPos);
 				unsigned int byteNoInEntry = memoryEntrySkippedBytes;
 				while((byteNoInBlock < readDataBlockInfo->size) && (byteNoInEntry < memoryEntrySizeInBytes))
 				{
@@ -192,8 +192,8 @@ LRESULT MemoryEditorView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		else if(notification == WC_HexEdit::WindowNotifications::WriteDataBlock)
 		{
 			WC_HexEdit::Hex_WriteDataBlockInfo* writeDataBlockInfo = (WC_HexEdit::Hex_WriteDataBlockInfo*)lparam;
-			unsigned int memoryEntrySizeInBytes = model.GetMemoryEntrySizeInBytes();
-			Data data(memoryEntrySizeInBytes * Data::bitsPerByte);
+			unsigned int memoryEntrySizeInBytes = _model.GetMemoryEntrySizeInBytes();
+			Data data(memoryEntrySizeInBytes * Data::BitsPerByte);
 			unsigned int byteNoInBlock = 0;
 			while(byteNoInBlock < writeDataBlockInfo->size)
 			{
@@ -202,7 +202,7 @@ LRESULT MemoryEditorView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 				unsigned int writeDataBlockRemainingBytes = ((writeDataBlockInfo->size - 1) - byteNoInBlock);
 				if((memoryEntrySkippedBytes > 0) || (writeDataBlockRemainingBytes < memoryEntrySizeInBytes))
 				{
-					data = model.ReadMemoryEntry(memoryEntryPos);
+					data = _model.ReadMemoryEntry(memoryEntryPos);
 				}
 				unsigned int byteNoInEntry = memoryEntrySkippedBytes;
 				while((byteNoInBlock < writeDataBlockInfo->size) && (byteNoInEntry < memoryEntrySizeInBytes))
@@ -211,14 +211,14 @@ LRESULT MemoryEditorView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 					++byteNoInBlock;
 					++byteNoInEntry;
 				}
-				model.WriteMemoryEntry(memoryEntryPos, data.GetData());
+				_model.WriteMemoryEntry(memoryEntryPos, data.GetData());
 			}
 			writeDataBlockInfo->processed = true;
 		}
 		else if(notification == WC_HexEdit::WindowNotifications::NewWindowPos)
 		{
 			WC_HexEdit::Hex_NewWindowPosInfo* windowPosInfo = (WC_HexEdit::Hex_NewWindowPosInfo*)lparam;
-			unsigned int totalMemorySize = (model.GetMemoryEntryCount() * model.GetMemoryEntrySizeInBytes());
+			unsigned int totalMemorySize = (_model.GetMemoryEntryCount() * _model.GetMemoryEntrySizeInBytes());
 			unsigned int windowSize = windowPosInfo->windowSize;
 			unsigned int windowPos = windowPosInfo->windowPos;
 			if(windowSize > 0)
@@ -226,19 +226,19 @@ LRESULT MemoryEditorView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 				std::vector<unsigned char> bufferSegment(windowSize);
 				std::vector<unsigned char> markBufferSegment(windowSize);
 
-				unsigned int memoryEntrySizeInBytes = model.GetMemoryEntrySizeInBytes();
-				Data data(memoryEntrySizeInBytes * Data::bitsPerByte);
+				unsigned int memoryEntrySizeInBytes = _model.GetMemoryEntrySizeInBytes();
+				Data data(memoryEntrySizeInBytes * Data::BitsPerByte);
 				unsigned int byteNoInBlock = 0;
 				while((byteNoInBlock < windowSize) && ((windowPos + byteNoInBlock) < totalMemorySize))
 				{
 					unsigned int memoryEntryPos = ((windowPos + byteNoInBlock) / memoryEntrySizeInBytes);
 					unsigned int memoryEntrySkippedBytes = ((windowPos + byteNoInBlock) % memoryEntrySizeInBytes);
-					data = model.ReadMemoryEntry(memoryEntryPos);
+					data = _model.ReadMemoryEntry(memoryEntryPos);
 					unsigned int byteNoInEntry = memoryEntrySkippedBytes;
 					while((byteNoInBlock < windowSize) && ((windowPos + byteNoInBlock) < totalMemorySize) && (byteNoInEntry < memoryEntrySizeInBytes))
 					{
 						bufferSegment[byteNoInBlock] = data.GetByteFromTopDown(byteNoInEntry);
-						markBufferSegment[byteNoInBlock] = model.IsAddressLocked(memoryEntryPos)? 1: 0;
+						markBufferSegment[byteNoInBlock] = _model.IsAddressLocked(memoryEntryPos)? 1: 0;
 						++byteNoInBlock;
 						++byteNoInEntry;
 					}
@@ -248,14 +248,14 @@ LRESULT MemoryEditorView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 				info.newBufferSize = windowSize;
 				info.newBufferData = &bufferSegment[0];
 				info.newMarkBufferData = &markBufferSegment[0];
-				SendMessage(hwndMem, (UINT)WC_HexEdit::WindowMessages::UpdateWindowData, 0, (LPARAM)&info);
+				SendMessage(_hwndMem, (UINT)WC_HexEdit::WindowMessages::UpdateWindowData, 0, (LPARAM)&info);
 			}
 		}
 		else if(notification == WC_HexEdit::WindowNotifications::UpdateDataMarking)
 		{
 			WC_HexEdit::Hex_UpdateDataMarkingState* dataMarkingState = (WC_HexEdit::Hex_UpdateDataMarkingState*)lparam;
-			unsigned int memoryEntrySizeInBytes = model.GetMemoryEntrySizeInBytes();
-			model.LockMemoryBlock(dataMarkingState->offset / memoryEntrySizeInBytes, ((dataMarkingState->size + (memoryEntrySizeInBytes - 1)) / memoryEntrySizeInBytes), dataMarkingState->state);
+			unsigned int memoryEntrySizeInBytes = _model.GetMemoryEntrySizeInBytes();
+			_model.LockMemoryBlock(dataMarkingState->offset / memoryEntrySizeInBytes, ((dataMarkingState->size + (memoryEntrySizeInBytes - 1)) / memoryEntrySizeInBytes), dataMarkingState->state);
 		}
 	}
 
@@ -278,7 +278,7 @@ LRESULT MemoryEditorView::msgWM_SIZE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	unsigned int controlHeight = rect.bottom;
 
 	//Resize the HexEdit control to match
-	MoveWindow(hwndMem, hexEditControlLeftOffset, hexEditControlTopOffset, controlWidth - hexEditControlLeftOffset - hexEditControlRightOffset, controlHeight - hexEditControlTopOffset - hexEditControlBottomOffset, TRUE);
+	MoveWindow(_hwndMem, hexEditControlLeftOffset, hexEditControlTopOffset, controlWidth - hexEditControlLeftOffset - hexEditControlRightOffset, controlHeight - hexEditControlTopOffset - hexEditControlBottomOffset, TRUE);
 
 	return 0;
 }
@@ -305,13 +305,13 @@ LRESULT MemoryEditorView::msgWM_PAINT(HWND hwnd, WPARAM wparam, LPARAM lparam)
 //----------------------------------------------------------------------------------------
 LRESULT MemoryEditorView::msgWM_SETFOCUS(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	SetFocus(hwndMem);
+	SetFocus(_hwndMem);
 	return 0;
 }
 
 //----------------------------------------------------------------------------------------
 LRESULT MemoryEditorView::msgWM_KILLFOCUS(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	SendMessage(hwndMem, WM_KILLFOCUS, NULL, 0);
+	SendMessage(_hwndMem, WM_KILLFOCUS, NULL, 0);
 	return 0;
 }

@@ -34,7 +34,7 @@ protected:
 	friend class IGenericAccessGroup;
 
 	//Parent functions
-	virtual void SetParent(IGenericAccessGroup* aparent) = 0;
+	virtual void SetParent(IGenericAccessGroup* parent) = 0;
 };
 
 #include "IGenericAccessGroupEntry.inl"

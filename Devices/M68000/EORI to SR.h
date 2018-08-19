@@ -27,7 +27,7 @@ public:
 
 	virtual Disassembly M68000Disassemble(const M68000::LabelSubstitutionSettings& labelSettings) const
 	{
-		return Disassembly(L"EORI", source.Disassemble(labelSettings) + L", SR");
+		return Disassembly(L"EORI", _source.Disassemble(labelSettings) + L", SR");
 	}
 
 	virtual void M68000Decode(const M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)
@@ -41,8 +41,8 @@ public:
 //	-----------------------------------------------------------------
 
 		//EORI	#<data>,SR
-		source.BuildImmediateData(BITCOUNT_WORD, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
-		AddInstructionSize(source.ExtensionSize());
+		_source.BuildImmediateData(BITCOUNT_WORD, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
+		AddInstructionSize(_source.ExtensionSize());
 		AddExecuteCycleCount(ExecuteTime(20, 3, 0));
 	}
 
@@ -54,7 +54,7 @@ public:
 		M68000Word result;
 
 		//Perform the operation
-		additionalTime += source.Read(cpu, op1, GetInstructionRegister());
+		additionalTime += _source.Read(cpu, op1, GetInstructionRegister());
 		op2 = cpu->GetSR();
 		result = op1 ^ op2;
 		cpu->SetSR(result);
@@ -66,11 +66,11 @@ public:
 
 	virtual void GetLabelTargetLocations(std::set<unsigned int>& labelTargetLocations) const
 	{
-		source.AddLabelTargetsToSet(labelTargetLocations);
+		_source.AddLabelTargetsToSet(labelTargetLocations);
 	}
 
 private:
-	EffectiveAddress source;
+	EffectiveAddress _source;
 };
 
 } //Close namespace M68000

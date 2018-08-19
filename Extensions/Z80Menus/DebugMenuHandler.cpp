@@ -3,8 +3,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-DebugMenuHandler::DebugMenuHandler(Z80Menus& aowner, const IDevice& amodelInstanceKey, IZ80& amodel)
-:MenuHandlerBase(L"Z80DebugMenu", aowner.GetViewManager()), owner(aowner), modelInstanceKey(amodelInstanceKey), model(amodel)
+DebugMenuHandler::DebugMenuHandler(Z80Menus& owner, const IDevice& modelInstanceKey, IZ80& model)
+:MenuHandlerBase(L"Z80DebugMenu", owner.GetViewManager()), _owner(owner), _modelInstanceKey(modelInstanceKey), _model(model)
 {}
 
 //----------------------------------------------------------------------------------------

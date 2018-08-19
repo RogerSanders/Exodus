@@ -4,8 +4,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-MemoryEditorViewPresenter::MemoryEditorViewPresenter(const std::wstring& aviewGroupName, const std::wstring& aviewName, int aviewID, MemoryMenus& aowner, const IDevice& amodelInstanceKey, IMemory& amodel)
-:ViewPresenterBase(aowner.GetAssemblyHandle(), aviewGroupName, aviewName, aviewID, amodelInstanceKey.GetDeviceInstanceName(), amodelInstanceKey.GetDeviceModuleID(), amodelInstanceKey.GetModuleDisplayName()), owner(aowner), modelInstanceKey(amodelInstanceKey), model(amodel)
+MemoryEditorViewPresenter::MemoryEditorViewPresenter(const std::wstring& viewGroupName, const std::wstring& viewName, int viewID, MemoryMenus& owner, const IDevice& modelInstanceKey, IMemory& model)
+:ViewPresenterBase(owner.GetAssemblyHandle(), viewGroupName, viewName, viewID, modelInstanceKey.GetDeviceInstanceName(), modelInstanceKey.GetDeviceModuleID(), modelInstanceKey.GetModuleDisplayName()), _owner(owner), _modelInstanceKey(modelInstanceKey), _model(model)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -21,11 +21,11 @@ std::wstring MemoryEditorViewPresenter::GetUnqualifiedViewTitle()
 //----------------------------------------------------------------------------------------
 IView* MemoryEditorViewPresenter::CreateView(IUIManager& uiManager)
 {
-	return new MemoryEditorView(uiManager, *this, model);
+	return new MemoryEditorView(uiManager, *this, _model);
 }
 
 //----------------------------------------------------------------------------------------
-void MemoryEditorViewPresenter::DeleteView(IView* aview)
+void MemoryEditorViewPresenter::DeleteView(IView* view)
 {
-	delete aview;
+	delete view;
 }

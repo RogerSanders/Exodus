@@ -13,7 +13,7 @@ public:
 	};
 
 	//Constructors
-	DebugMenuHandler(ExodusSystemMenus& aowner, ISystemGUIInterface& amodel);
+	DebugMenuHandler(ExodusSystemMenus& owner, ISystemGUIInterface& model);
 
 protected:
 	//Management functions
@@ -22,8 +22,8 @@ protected:
 	virtual void DeleteViewForItem(int menuItemID, IViewPresenter* viewPresenter);
 
 private:
-	ExodusSystemMenus& owner;
-	ISystemGUIInterface& model;
+	ExodusSystemMenus& _owner;
+	ISystemGUIInterface& _model;
 };
 
 #endif

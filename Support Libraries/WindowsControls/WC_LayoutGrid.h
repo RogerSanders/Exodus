@@ -6,9 +6,6 @@
 class WC_LayoutGrid
 {
 public:
-	//Constants
-	static const wchar_t* windowClassName;
-
 	//Enumerations
 	enum class WindowMessages :unsigned int;
 	enum class SizeMode;
@@ -22,13 +19,16 @@ public:
 	struct AddColumnParams;
 	struct UpdateWindowSizesParams;
 
+	//Constants
+	static const wchar_t* WindowClassName;
+
 public:
 	//Constructors
-	WC_LayoutGrid(HINSTANCE amoduleHandle, HWND ahwnd);
+	WC_LayoutGrid(HINSTANCE moduleHandle, HWND hwnd);
 
 	//Class registration
-	static bool RegisterWindowClass(HINSTANCE amoduleHandle);
-	static bool UnregisterWindowClass(HINSTANCE amoduleHandle);
+	static bool RegisterWindowClass(HINSTANCE moduleHandle);
+	static bool UnregisterWindowClass(HINSTANCE moduleHandle);
 
 	//Message handlers
 	static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -70,13 +70,13 @@ private:
 	void UpdateChildWindowSizes();
 
 private:
-	HINSTANCE moduleHandle;
-	HWND hwnd;
-	int currentControlWidth;
-	int currentControlHeight;
-	std::vector<RowInfo> rows;
-	std::vector<ColumnInfo> columns;
-	std::map<HWND, HostedWindowInfo> hostedWindows;
+	HINSTANCE _moduleHandle;
+	HWND _hwnd;
+	int _currentControlWidth;
+	int _currentControlHeight;
+	std::vector<RowInfo> _rows;
+	std::vector<ColumnInfo> _columns;
+	std::map<HWND, HostedWindowInfo> _hostedWindows;
 };
 
 #include "WC_LayoutGrid.inl"

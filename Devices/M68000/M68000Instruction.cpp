@@ -132,9 +132,9 @@ std::wstring M68000Instruction::DisassembleConditionCode(ConditionCode code)
 }
 
 //----------------------------------------------------------------------------------------
-std::wstring M68000Instruction::DisassembleSize(Bitcount asize)
+std::wstring M68000Instruction::DisassembleSize(Bitcount size)
 {
-	switch(asize)
+	switch(size)
 	{
 	case BITCOUNT_BYTE:
 		return L"b";

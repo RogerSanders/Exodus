@@ -4,7 +4,7 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 ConnectorInfo::ConnectorInfo()
-:connectorID(0), exportingModuleID(0), connectorUsed(false), importingModuleID(0)
+:_connectorID(0), _exportingModuleID(0), _connectorUsed(false), _importingModuleID(0)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -20,13 +20,13 @@ unsigned int ConnectorInfo::GetIConnectorInfoVersion() const
 //----------------------------------------------------------------------------------------
 unsigned int ConnectorInfo::GetConnectorID() const
 {
-	return connectorID;
+	return _connectorID;
 }
 
 //----------------------------------------------------------------------------------------
-void ConnectorInfo::SetConnectorID(unsigned int aconnectorID)
+void ConnectorInfo::SetConnectorID(unsigned int connectorID)
 {
-	connectorID = aconnectorID;
+	_connectorID = connectorID;
 }
 
 //----------------------------------------------------------------------------------------
@@ -34,49 +34,49 @@ void ConnectorInfo::SetConnectorID(unsigned int aconnectorID)
 //----------------------------------------------------------------------------------------
 unsigned int ConnectorInfo::GetExportingModuleID() const
 {
-	return exportingModuleID;
+	return _exportingModuleID;
 }
 
 //----------------------------------------------------------------------------------------
-void ConnectorInfo::SetExportingModuleID(unsigned int aexportingModuleID)
+void ConnectorInfo::SetExportingModuleID(unsigned int exportingModuleID)
 {
-	exportingModuleID = aexportingModuleID;
+	_exportingModuleID = exportingModuleID;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> ConnectorInfo::GetConnectorClassName() const
 {
-	return connectorClassName;
+	return _connectorClassName;
 }
 
 //----------------------------------------------------------------------------------------
-void ConnectorInfo::SetConnectorClassName(const Marshal::In<std::wstring>& aconnectorClassName)
+void ConnectorInfo::SetConnectorClassName(const Marshal::In<std::wstring>& connectorClassName)
 {
-	connectorClassName = aconnectorClassName;
+	_connectorClassName = connectorClassName;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> ConnectorInfo::GetExportingModuleConnectorInstanceName() const
 {
-	return exportingModuleConnectorInstanceName;
+	return _exportingModuleConnectorInstanceName;
 }
 
 //----------------------------------------------------------------------------------------
-void ConnectorInfo::SetExportingModuleConnectorInstanceName(const Marshal::In<std::wstring>& aexportingModuleConnectorInstanceName)
+void ConnectorInfo::SetExportingModuleConnectorInstanceName(const Marshal::In<std::wstring>& exportingModuleConnectorInstanceName)
 {
-	exportingModuleConnectorInstanceName = aexportingModuleConnectorInstanceName;
+	_exportingModuleConnectorInstanceName = exportingModuleConnectorInstanceName;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> ConnectorInfo::GetSystemClassName() const
 {
-	return systemClassName;
+	return _systemClassName;
 }
 
 //----------------------------------------------------------------------------------------
-void ConnectorInfo::SetSystemClassName(const Marshal::In<std::wstring>& asystemClassName)
+void ConnectorInfo::SetSystemClassName(const Marshal::In<std::wstring>& systemClassName)
 {
-	systemClassName = asystemClassName;
+	_systemClassName = systemClassName;
 }
 
 //----------------------------------------------------------------------------------------
@@ -84,35 +84,35 @@ void ConnectorInfo::SetSystemClassName(const Marshal::In<std::wstring>& asystemC
 //----------------------------------------------------------------------------------------
 bool ConnectorInfo::GetIsConnectorUsed() const
 {
-	return connectorUsed;
+	return _connectorUsed;
 }
 
 //----------------------------------------------------------------------------------------
-void ConnectorInfo::SetIsConnectorUsed(bool aconnectorUser)
+void ConnectorInfo::SetIsConnectorUsed(bool connectorUser)
 {
-	connectorUsed = aconnectorUser;
+	_connectorUsed = connectorUser;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int ConnectorInfo::GetImportingModuleID() const
 {
-	return importingModuleID;
+	return _importingModuleID;
 }
 
 //----------------------------------------------------------------------------------------
-void ConnectorInfo::SetImportingModuleID(unsigned int aimportingModuleID)
+void ConnectorInfo::SetImportingModuleID(unsigned int importingModuleID)
 {
-	importingModuleID = aimportingModuleID;
+	_importingModuleID = importingModuleID;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> ConnectorInfo::GetImportingModuleConnectorInstanceName() const
 {
-	return importingModuleConnectorInstanceName;
+	return _importingModuleConnectorInstanceName;
 }
 
 //----------------------------------------------------------------------------------------
-void ConnectorInfo::SetImportingModuleConnectorInstanceName(const Marshal::In<std::wstring>& aimportingModuleConnectorInstanceName)
+void ConnectorInfo::SetImportingModuleConnectorInstanceName(const Marshal::In<std::wstring>& importingModuleConnectorInstanceName)
 {
-	importingModuleConnectorInstanceName = aimportingModuleConnectorInstanceName;
+	_importingModuleConnectorInstanceName = importingModuleConnectorInstanceName;
 }

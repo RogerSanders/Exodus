@@ -6,7 +6,7 @@ class RAM16 :public RAMBase<unsigned short>
 {
 public:
 	//Constructors
-	RAM16(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
+	RAM16(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 
 	//Memory interface functions
 	virtual IBusInterface::AccessResult ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);

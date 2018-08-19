@@ -6,11 +6,11 @@ class Device :public DeviceInternal
 {
 public:
 	//Constructors
-	inline Device(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
+	inline Device(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 
 	//Initialization functions
-	virtual bool BindToSystemInterface(ISystemDeviceInterface* asystemInterface);
-	virtual bool BindToDeviceContext(IDeviceContext* adeviceContext);
+	virtual bool BindToSystemInterface(ISystemDeviceInterface* systemInterface);
+	virtual bool BindToDeviceContext(IDeviceContext* deviceContext);
 	virtual bool Construct(IHierarchicalStorageNode& node);
 	virtual bool BuildDevice();
 	virtual bool ValidateDevice();
@@ -120,11 +120,11 @@ public:
 	virtual void HandleInputKeyUp(unsigned int keyCodeID);
 
 private:
-	std::wstring implementationName;
-	std::wstring instanceName;
-	unsigned int moduleID;
-	ISystemDeviceInterface* systemInterface;
-	IDeviceContext* deviceContext;
+	std::wstring _implementationName;
+	std::wstring _instanceName;
+	unsigned int _moduleID;
+	ISystemDeviceInterface* _systemInterface;
+	IDeviceContext* _deviceContext;
 };
 
 #include "Device.inl"

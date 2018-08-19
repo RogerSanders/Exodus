@@ -6,13 +6,13 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 GenericAccessDataValueDouble::GenericAccessDataValueDouble(double value)
-:dataValue(value)
+:_dataValue(value)
 {
-	displayMode = FloatDisplayMode::Fixed;
-	minWholeNumberChars = 0;
-	minFractionalNumberChars = 0;
-	minValue = std::numeric_limits<double>::min();
-	maxValue = std::numeric_limits<double>::max();
+	_displayMode = FloatDisplayMode::Fixed;
+	_minWholeNumberChars = 0;
+	_minFractionalNumberChars = 0;
+	_minValue = std::numeric_limits<double>::min();
+	_maxValue = std::numeric_limits<double>::max();
 }
 
 //----------------------------------------------------------------------------------------
@@ -36,15 +36,15 @@ GenericAccessDataValueDouble::DataType GenericAccessDataValueDouble::GetType() c
 //----------------------------------------------------------------------------------------
 double GenericAccessDataValueDouble::GetValue() const
 {
-	return dataValue;
+	return _dataValue;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> GenericAccessDataValueDouble::GetValueString() const
 {
 	std::wstring result;
-	bool useScientificNotation = (displayMode == FloatDisplayMode::Scientific);
-	DoubleToString(dataValue, result, useScientificNotation, minFractionalNumberChars, minWholeNumberChars);
+	bool useScientificNotation = (_displayMode == FloatDisplayMode::Scientific);
+	DoubleToString(_dataValue, result, useScientificNotation, _minFractionalNumberChars, _minWholeNumberChars);
 	return result;
 }
 
@@ -59,7 +59,7 @@ bool GenericAccessDataValueDouble::SetValueFloat(float value)
 //----------------------------------------------------------------------------------------
 bool GenericAccessDataValueDouble::SetValueDouble(double value)
 {
-	dataValue = value;
+	_dataValue = value;
 	ApplyLimitSettingsToCurrentValue();
 	return true;
 }
@@ -80,37 +80,37 @@ bool GenericAccessDataValueDouble::SetValueString(const Marshal::In<std::wstring
 //----------------------------------------------------------------------------------------
 GenericAccessDataValueDouble::FloatDisplayMode GenericAccessDataValueDouble::GetDisplayMode() const
 {
-	return displayMode;
+	return _displayMode;
 }
 
 //----------------------------------------------------------------------------------------
 void GenericAccessDataValueDouble::SetDisplayMode(FloatDisplayMode state)
 {
-	displayMode = state;
+	_displayMode = state;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int GenericAccessDataValueDouble::GetMinWholeNumberChars() const
 {
-	return minWholeNumberChars;
+	return _minWholeNumberChars;
 }
 
 //----------------------------------------------------------------------------------------
 void GenericAccessDataValueDouble::SetMinWholeNumberChars(unsigned int state)
 {
-	minWholeNumberChars = state;
+	_minWholeNumberChars = state;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int GenericAccessDataValueDouble::GetMinFractionalNumberChars() const
 {
-	return minFractionalNumberChars;
+	return _minFractionalNumberChars;
 }
 
 //----------------------------------------------------------------------------------------
 void GenericAccessDataValueDouble::SetMinFractionalNumberChars(unsigned int state)
 {
-	minFractionalNumberChars = state;
+	_minFractionalNumberChars = state;
 }
 
 //----------------------------------------------------------------------------------------
@@ -118,25 +118,25 @@ void GenericAccessDataValueDouble::SetMinFractionalNumberChars(unsigned int stat
 //----------------------------------------------------------------------------------------
 double GenericAccessDataValueDouble::GetMinValue() const
 {
-	return minValue;
+	return _minValue;
 }
 
 //----------------------------------------------------------------------------------------
 void GenericAccessDataValueDouble::SetMinValue(double state)
 {
-	minValue = state;
+	_minValue = state;
 }
 
 //----------------------------------------------------------------------------------------
 double GenericAccessDataValueDouble::GetMaxValue() const
 {
-	return maxValue;
+	return _maxValue;
 }
 
 //----------------------------------------------------------------------------------------
 void GenericAccessDataValueDouble::SetMaxValue(double state)
 {
-	maxValue = state;
+	_maxValue = state;
 }
 
 //----------------------------------------------------------------------------------------
@@ -144,6 +144,6 @@ void GenericAccessDataValueDouble::SetMaxValue(double state)
 //----------------------------------------------------------------------------------------
 void GenericAccessDataValueDouble::ApplyLimitSettingsToCurrentValue()
 {
-	dataValue = (dataValue < minValue)? minValue: dataValue;
-	dataValue = (dataValue > maxValue)? maxValue: dataValue;
+	_dataValue = (_dataValue < _minValue)? _minValue: _dataValue;
+	_dataValue = (_dataValue > _maxValue)? _maxValue: _dataValue;
 }

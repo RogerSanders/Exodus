@@ -61,12 +61,12 @@ public:
 	bool SaveState(IHierarchicalStorageNode& node) const;
 
 private:
-	mutable std::mutex accessLock;
-	std::list<TimesliceEntry> timesliceList;
-	Timeslice latestTimeslice;
-	std::list<WriteEntry> writeList;
-	DataType value;
-	TimesliceType currentTimeOffset;
+	mutable std::mutex _accessLock;
+	std::list<TimesliceEntry> _timesliceList;
+	Timeslice _latestTimeslice;
+	std::list<WriteEntry> _writeList;
+	DataType _value;
+	TimesliceType _currentTimeOffset;
 };
 
 #include "RandomTimeAccessValue.inl"

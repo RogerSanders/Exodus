@@ -9,7 +9,7 @@ class ActiveDisassemblyView :public ViewBase
 {
 public:
 	//Constructors
-	ActiveDisassemblyView(IUIManager& auiManager, ActiveDisassemblyViewPresenter& apresenter, IProcessor& amodel);
+	ActiveDisassemblyView(IUIManager& uiManager, ActiveDisassemblyViewPresenter& presenter, IProcessor& model);
 
 protected:
 	//Member window procedure
@@ -26,11 +26,11 @@ private:
 	void OutputActiveDisassemblyToIDCFile(const std::wstring& filePath);
 
 private:
-	ActiveDisassemblyViewPresenter& presenter;
-	IProcessor& model;
-	bool initializedDialog;
-	std::wstring previousText;
-	unsigned int currentControlFocus;
+	ActiveDisassemblyViewPresenter& _presenter;
+	IProcessor& _model;
+	bool _initializedDialog;
+	std::wstring _previousText;
+	unsigned int _currentControlFocus;
 };
 
 #endif

@@ -3,72 +3,72 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-template<class T> GenericAccessDataInfo::GenericAccessDataInfo(T aid, IGenericAccessDataValue::DataType atype)
-:id((unsigned int)aid), dataType(atype)
+template<class T> GenericAccessDataInfo::GenericAccessDataInfo(T id, IGenericAccessDataValue::DataType type)
+:_id((unsigned int)id), _dataType(type)
 {
 	//Initialize the general data info to defaults
-	lockingSupported = false;
-	readOnly = false;
+	_lockingSupported = false;
+	_readOnly = false;
 
 	//Initialize the display mode state to defaults
-	intDisplayMode = IGenericAccessDataValue::IntDisplayMode::Decimal;
-	floatDisplayMode = IGenericAccessDataValue::FloatDisplayMode::Fixed;
-	minWholeNumberChars = 0;
-	minFractionalNumberChars = 0;
+	_intDisplayMode = IGenericAccessDataValue::IntDisplayMode::Decimal;
+	_floatDisplayMode = IGenericAccessDataValue::FloatDisplayMode::Fixed;
+	_minWholeNumberChars = 0;
+	_minFractionalNumberChars = 0;
 
 	//Initialize the data limit state to defaults
-	intMinValue = std::numeric_limits<int>::min();
-	intMaxValue = std::numeric_limits<int>::max();
-	uintMinValue = std::numeric_limits<unsigned int>::min();
-	uintMaxValue = std::numeric_limits<unsigned int>::max();
-	floatMinValue = std::numeric_limits<float>::min();
-	floatMaxValue = std::numeric_limits<float>::max();
-	doubleMinValue = std::numeric_limits<double>::min();
-	doubleMaxValue = std::numeric_limits<double>::max();
-	maxStringLength = 0;
+	_intMinValue = std::numeric_limits<int>::min();
+	_intMaxValue = std::numeric_limits<int>::max();
+	_uintMinValue = std::numeric_limits<unsigned int>::min();
+	_uintMaxValue = std::numeric_limits<unsigned int>::max();
+	_floatMinValue = std::numeric_limits<float>::min();
+	_floatMaxValue = std::numeric_limits<float>::max();
+	_doubleMinValue = std::numeric_limits<double>::min();
+	_doubleMaxValue = std::numeric_limits<double>::max();
+	_maxStringLength = 0;
 
 	//Initialize the file path settings to defaults
-	filePathCreatingTarget = false;
-	filePathAllowScanningIntoArchives = false;
+	_filePathCreatingTarget = false;
+	_filePathAllowScanningIntoArchives = false;
 
 	//Folder path settings
-	folderPathCreatingTarget = false;
+	_folderPathCreatingTarget = false;
 }
 
 //----------------------------------------------------------------------------------------
 //Data info functions
 //----------------------------------------------------------------------------------------
-GenericAccessDataInfo* GenericAccessDataInfo::SetID(unsigned int aid)
+GenericAccessDataInfo* GenericAccessDataInfo::SetID(unsigned int id)
 {
-	id = aid;
+	_id = id;
 	return this;
 }
 
 //----------------------------------------------------------------------------------------
-GenericAccessDataInfo* GenericAccessDataInfo::SetType(IGenericAccessDataValue::DataType atype)
+GenericAccessDataInfo* GenericAccessDataInfo::SetType(IGenericAccessDataValue::DataType type)
 {
-	dataType = atype;
+	_dataType = type;
 	return this;
 }
 
 //----------------------------------------------------------------------------------------
-GenericAccessDataInfo* GenericAccessDataInfo::SetReadOnly(bool areadOnly)
+GenericAccessDataInfo* GenericAccessDataInfo::SetReadOnly(bool readOnly)
 {
-	readOnly = areadOnly;
+	_readOnly = readOnly;
 	return this;
 }
 
 //----------------------------------------------------------------------------------------
-GenericAccessDataInfo* GenericAccessDataInfo::SetLockingSupported(bool alockingSupported)
+GenericAccessDataInfo* GenericAccessDataInfo::SetLockingSupported(bool lockingSupported)
 {
-	lockingSupported = alockingSupported;
+	_lockingSupported = lockingSupported;
 	return this;
 }
 
 //----------------------------------------------------------------------------------------
-GenericAccessDataInfo* GenericAccessDataInfo::SetHighlightUsed(bool ahighlightUsed)
+GenericAccessDataInfo* GenericAccessDataInfo::SetHighlightUsed(bool highlightUsed)
 {
-	highlightUsed = ahighlightUsed;
+	_highlightUsed = highlightUsed;
 	return this;
 }
 
@@ -77,28 +77,28 @@ GenericAccessDataInfo* GenericAccessDataInfo::SetHighlightUsed(bool ahighlightUs
 //----------------------------------------------------------------------------------------
 GenericAccessDataInfo* GenericAccessDataInfo::SetIntDisplayMode(IGenericAccessDataValue::IntDisplayMode state)
 {
-	intDisplayMode = state;
+	_intDisplayMode = state;
 	return this;
 }
 
 //----------------------------------------------------------------------------------------
 GenericAccessDataInfo* GenericAccessDataInfo::SetFloatDisplayMode(IGenericAccessDataValue::FloatDisplayMode state)
 {
-	floatDisplayMode = state;
+	_floatDisplayMode = state;
 	return this;
 }
 
 //----------------------------------------------------------------------------------------
 GenericAccessDataInfo* GenericAccessDataInfo::SetMinWholeNumberChars(unsigned int state)
 {
-	minWholeNumberChars = state;
+	_minWholeNumberChars = state;
 	return this;
 }
 
 //----------------------------------------------------------------------------------------
 GenericAccessDataInfo* GenericAccessDataInfo::SetMinFractionalNumberChars(unsigned int state)
 {
-	minFractionalNumberChars = state;
+	_minFractionalNumberChars = state;
 	return this;
 }
 
@@ -107,63 +107,63 @@ GenericAccessDataInfo* GenericAccessDataInfo::SetMinFractionalNumberChars(unsign
 //----------------------------------------------------------------------------------------
 GenericAccessDataInfo* GenericAccessDataInfo::SetIntMinValue(int state)
 {
-	intMinValue = state;
+	_intMinValue = state;
 	return this;
 }
 
 //----------------------------------------------------------------------------------------
 GenericAccessDataInfo* GenericAccessDataInfo::SetIntMaxValue(int state)
 {
-	intMaxValue = state;
+	_intMaxValue = state;
 	return this;
 }
 
 //----------------------------------------------------------------------------------------
 GenericAccessDataInfo* GenericAccessDataInfo::SetUIntMinValue(unsigned int state)
 {
-	uintMinValue = state;
+	_uintMinValue = state;
 	return this;
 }
 
 //----------------------------------------------------------------------------------------
 GenericAccessDataInfo* GenericAccessDataInfo::SetUIntMaxValue(unsigned int state)
 {
-	uintMaxValue = state;
+	_uintMaxValue = state;
 	return this;
 }
 
 //----------------------------------------------------------------------------------------
 GenericAccessDataInfo* GenericAccessDataInfo::SetFloatMinValue(float state)
 {
-	floatMinValue = state;
+	_floatMinValue = state;
 	return this;
 }
 
 //----------------------------------------------------------------------------------------
 GenericAccessDataInfo* GenericAccessDataInfo::SetFloatMaxValue(float state)
 {
-	floatMaxValue = state;
+	_floatMaxValue = state;
 	return this;
 }
 
 //----------------------------------------------------------------------------------------
 GenericAccessDataInfo* GenericAccessDataInfo::SetDoubleMinValue(double state)
 {
-	doubleMinValue = state;
+	_doubleMinValue = state;
 	return this;
 }
 
 //----------------------------------------------------------------------------------------
 GenericAccessDataInfo* GenericAccessDataInfo::SetDoubleMaxValue(double state)
 {
-	doubleMaxValue = state;
+	_doubleMaxValue = state;
 	return this;
 }
 
 //----------------------------------------------------------------------------------------
 GenericAccessDataInfo* GenericAccessDataInfo::SetStringMaxLength(unsigned int state)
 {
-	maxStringLength = state;
+	_maxStringLength = state;
 	return this;
 }
 
@@ -172,27 +172,27 @@ GenericAccessDataInfo* GenericAccessDataInfo::SetStringMaxLength(unsigned int st
 //----------------------------------------------------------------------------------------
 GenericAccessDataInfo* GenericAccessDataInfo::SetFilePathCreatingTarget(bool state)
 {
-	filePathCreatingTarget = state;
+	_filePathCreatingTarget = state;
 	return this;
 }
 
 //----------------------------------------------------------------------------------------
 GenericAccessDataInfo* GenericAccessDataInfo::SetFilePathAllowScanningIntoArchives(bool state)
 {
-	filePathAllowScanningIntoArchives = state;
+	_filePathAllowScanningIntoArchives = state;
 }
 
 //----------------------------------------------------------------------------------------
-GenericAccessDataInfo* GenericAccessDataInfo::SetFilePathExtensionFilter(const std::wstring& afilePathExtensionFilter)
+GenericAccessDataInfo* GenericAccessDataInfo::SetFilePathExtensionFilter(const std::wstring& filePathExtensionFilter)
 {
-	filePathExtensionFilter = afilePathExtensionFilter;
+	_filePathExtensionFilter = filePathExtensionFilter;
 	return this;
 }
 
 //----------------------------------------------------------------------------------------
-GenericAccessDataInfo* GenericAccessDataInfo::SetFilePathDefaultExtension(const std::wstring& afilePathDefaultExtension)
+GenericAccessDataInfo* GenericAccessDataInfo::SetFilePathDefaultExtension(const std::wstring& filePathDefaultExtension)
 {
-	filePathDefaultExtension = afilePathDefaultExtension;
+	_filePathDefaultExtension = filePathDefaultExtension;
 	return this;
 }
 
@@ -201,5 +201,5 @@ GenericAccessDataInfo* GenericAccessDataInfo::SetFilePathDefaultExtension(const 
 //----------------------------------------------------------------------------------------
 GenericAccessDataInfo* GenericAccessDataInfo::SetFolderPathCreatingTarget(bool state)
 {
-	folderPathCreatingTarget = state;
+	_folderPathCreatingTarget = state;
 }

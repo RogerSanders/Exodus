@@ -10,12 +10,12 @@ public:
 	//Constructors
 	inline explicit Buffer(SizeType size = 0);
 	inline Buffer(SizeType size, SizeType sizeIncrement);
-	inline Buffer(TextEncoding atextEncoding, SizeType size);
-	inline Buffer(TextEncoding atextEncoding, SizeType size, SizeType sizeIncrement);
-	inline Buffer(TextEncoding atextEncoding, NewLineEncoding anewLineEncoding, SizeType size);
-	inline Buffer(TextEncoding atextEncoding, NewLineEncoding anewLineEncoding, SizeType size, SizeType sizeIncrement);
-	inline Buffer(TextEncoding atextEncoding, NewLineEncoding anewLineEncoding, ByteOrder abyteOrder, SizeType size);
-	inline Buffer(TextEncoding atextEncoding, NewLineEncoding anewLineEncoding, ByteOrder abyteOrder, SizeType size, SizeType sizeIncrement);
+	inline Buffer(TextEncoding textEncoding, SizeType size);
+	inline Buffer(TextEncoding textEncoding, SizeType size, SizeType sizeIncrement);
+	inline Buffer(TextEncoding textEncoding, NewLineEncoding newLineEncoding, SizeType size);
+	inline Buffer(TextEncoding textEncoding, NewLineEncoding newLineEncoding, SizeType size, SizeType sizeIncrement);
+	inline Buffer(TextEncoding textEncoding, NewLineEncoding newLineEncoding, ByteOrder byteOrder, SizeType size);
+	inline Buffer(TextEncoding textEncoding, NewLineEncoding newLineEncoding, ByteOrder byteOrder, SizeType size, SizeType sizeIncrement);
 
 	//Buffer position
 	virtual bool IsAtEnd() const;
@@ -113,10 +113,10 @@ private:
 	inline bool WriteBinary(const unsigned char* rawData, SizeType bytesToWrite);
 
 private:
-	std::vector<unsigned char> buffer;
-	SizeType bufferSize;
-	SizeType bufferSizeIncrement;
-	SizeType streamPos;
+	std::vector<unsigned char> _buffer;
+	SizeType _bufferSize;
+	SizeType _bufferSizeIncrement;
+	SizeType _streamPos;
 };
 
 } //Close namespace Stream

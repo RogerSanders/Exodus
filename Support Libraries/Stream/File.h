@@ -18,13 +18,13 @@ public:
 
 	//Constructors
 	inline File();
-	inline File(TextEncoding atextEncoding);
-	inline File(TextEncoding atextEncoding, NewLineEncoding anewLineEncoding);
-	inline File(TextEncoding atextEncoding, NewLineEncoding anewLineEncoding, ByteOrder abyteOrder);
+	inline File(TextEncoding textEncoding);
+	inline File(TextEncoding textEncoding, NewLineEncoding newLineEncoding);
+	inline File(TextEncoding textEncoding, NewLineEncoding newLineEncoding, ByteOrder byteOrder);
 	virtual ~File();
 
 	//File binding
-	inline bool Open(const std::wstring& filename, OpenMode openMode, CreateMode createMode, SizeType abufferSize = 8192);
+	inline bool Open(const std::wstring& filename, OpenMode openMode, CreateMode createMode, SizeType bufferSize = 8192);
 	inline void Close();
 	inline bool IsOpen() const;
 
@@ -121,15 +121,15 @@ private:
 
 private:
 	//File handling
-	bool fileOpen;
-	HANDLE fileHandle;
+	bool _fileOpen;
+	HANDLE _fileHandle;
 
 	//Data buffering
-	unsigned char* fileBuffer;
-	SizeType bufferSize;
-	SizeType bufferPosOffset;
-	SizeType bytesRemainingInBuffer;
-	bool bufferInWriteMode;
+	unsigned char* _fileBuffer;
+	SizeType _bufferSize;
+	SizeType _bufferPosOffset;
+	SizeType _bytesRemainingInBuffer;
+	bool _bufferInWriteMode;
 };
 
 } //Close namespace Stream

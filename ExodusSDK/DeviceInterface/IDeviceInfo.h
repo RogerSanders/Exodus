@@ -30,13 +30,13 @@ public:
 	virtual Marshal::Ret<std::wstring> GetDeviceComments() const = 0;
 
 	//Setters
-	virtual void SetDeviceSettings(AllocatorPointer aAllocator, DestructorPointer aDestructor, const Marshal::In<std::wstring>& adeviceClassName, const Marshal::In<std::wstring>& adeviceImplementationName, unsigned int adeviceVersionNo, const Marshal::In<std::wstring>& adeviceCopyright, const Marshal::In<std::wstring>& adeviceComments) = 0;
-	virtual void SetDeviceAllocators(AllocatorPointer aAllocator, DestructorPointer aDestructor) = 0;
-	virtual void SetDeviceClassName(const Marshal::In<std::wstring>& adeviceClassName) = 0;
-	virtual void SetDeviceImplementationName(const Marshal::In<std::wstring>& adeviceImplementationName) = 0;
-	virtual void SetDeviceVersionNo(unsigned int adeviceVersionNo) = 0;
-	virtual void SetDeviceCopyright(const Marshal::In<std::wstring>& adeviceCopyright) = 0;
-	virtual void SetDeviceComments(const Marshal::In<std::wstring>& adeviceComments) = 0;
+	virtual void SetDeviceSettings(AllocatorPointer allocator, DestructorPointer destructor, const Marshal::In<std::wstring>& deviceClassName, const Marshal::In<std::wstring>& deviceImplementationName, unsigned int deviceVersionNo, const Marshal::In<std::wstring>& deviceCopyright, const Marshal::In<std::wstring>& deviceComments) = 0;
+	virtual void SetDeviceAllocators(AllocatorPointer allocator, DestructorPointer destructor) = 0;
+	virtual void SetDeviceClassName(const Marshal::In<std::wstring>& deviceClassName) = 0;
+	virtual void SetDeviceImplementationName(const Marshal::In<std::wstring>& deviceImplementationName) = 0;
+	virtual void SetDeviceVersionNo(unsigned int deviceVersionNo) = 0;
+	virtual void SetDeviceCopyright(const Marshal::In<std::wstring>& deviceCopyright) = 0;
+	virtual void SetDeviceComments(const Marshal::In<std::wstring>& deviceComments) = 0;
 };
 
 #endif

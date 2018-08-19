@@ -5,28 +5,28 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-ImageView::ImageView(IUIManager& auiManager, ImageViewPresenter& apresenter, IS315_5313& amodel)
-:ViewBase(auiManager, apresenter), presenter(apresenter), model(amodel)
+ImageView::ImageView(IUIManager& uiManager, ImageViewPresenter& presenter, IS315_5313& model)
+:ViewBase(uiManager, presenter), _presenter(presenter), _model(model)
 {
-	glrc = NULL;
-	hwndChildGroup = NULL;
-	hwndOpenGL = NULL;
-	hwndStatusBar = NULL;
-	savedParent = NULL;
-	SetWindowSettings(apresenter.GetUnqualifiedViewTitle(), 0, 0, 420, 313);
+	_glrc = NULL;
+	_hwndChildGroup = NULL;
+	_hwndOpenGL = NULL;
+	_hwndStatusBar = NULL;
+	_savedParent = NULL;
+	SetWindowSettings(presenter.GetUnqualifiedViewTitle(), 0, 0, 420, 313);
 	SetDockableViewType(true, DockPos::Center);
-	videoFixedAspectRatioCached = model.GetVideoFixedAspectRatio();
-	imageAspectRatio = 4.0 / 3.0;
-	QueryPerformanceFrequency(&counterFrequency);
-	QueryPerformanceCounter(&lastFPSCounterUpdateTickCount);
-	framesRenderedSinceLastFPSCounterUpdate = 0;
-	windowPendingClearCount = 0;
-	fullScreenMode = false;
-	renderPosHighlightColorIndex = 0;
-	lastRenderedFrameTokenCached = 0;
+	_videoFixedAspectRatioCached = _model.GetVideoFixedAspectRatio();
+	_imageAspectRatio = 4.0 / 3.0;
+	QueryPerformanceFrequency(&_counterFrequency);
+	QueryPerformanceCounter(&_lastFPSCounterUpdateTickCount);
+	_framesRenderedSinceLastFPSCounterUpdate = 0;
+	_windowPendingClearCount = 0;
+	_fullScreenMode = false;
+	_renderPosHighlightColorIndex = 0;
+	_lastRenderedFrameTokenCached = 0;
 
-	hwndPixelInfo = NULL;
-	pixelInfoVisible = false;
+	_hwndPixelInfo = NULL;
+	_pixelInfoVisible = false;
 }
 
 //----------------------------------------------------------------------------------------
@@ -63,16 +63,16 @@ LRESULT ImageView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	InitCommonControlsEx(&iccex);
 
 	//Save a copy of the main window handle
-	hwndMain = hwnd;
+	_hwndMain = hwnd;
 
 	//Create the render window
-	hwndChildGroup = CreateChildWindow(WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, 0, hwnd, std::bind(&ImageView::WndProcChildGroup, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
+	_hwndChildGroup = CreateChildWindow(WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, 0, hwnd, std::bind(&ImageView::WndProcChildGroup, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
 
 	//Create the status bar window
-	hwndStatusBar = CreateWindowEx(0, STATUSCLASSNAME, NULL, WS_CHILD | WS_VISIBLE | SBARS_SIZEGRIP, 0, 0, 0, 0, hwndChildGroup, NULL, GetAssemblyHandle(), NULL);
+	_hwndStatusBar = CreateWindowEx(0, STATUSCLASSNAME, NULL, WS_CHILD | WS_VISIBLE | SBARS_SIZEGRIP, 0, 0, 0, 0, _hwndChildGroup, NULL, GetAssemblyHandle(), NULL);
 
 	//Create the render window
-	hwndOpenGL = CreateChildWindow(WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, 0, hwndChildGroup, std::bind(&ImageView::WndProcRender, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
+	_hwndOpenGL = CreateChildWindow(WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, 0, _hwndChildGroup, std::bind(&ImageView::WndProcRender, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
 
 	//Start a timer to respond to image window settings changes
 	SetTimer(hwnd, 1, 250, NULL);
@@ -90,8 +90,8 @@ LRESULT ImageView::msgWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam)
 	//explicitly destroy the child window here. The child window is fully destroyed before
 	//the DestroyWindow() function returns, and our state is still valid until we return
 	//from handling this WM_DESTROY message.
-	DestroyWindow(hwndOpenGL);
-	hwndOpenGL = NULL;
+	DestroyWindow(_hwndOpenGL);
+	_hwndOpenGL = NULL;
 
 	return DefWindowProc(hwnd, WM_DESTROY, wParam, lParam);
 }
@@ -106,7 +106,7 @@ LRESULT ImageView::msgWM_SIZE(HWND hwnd, WPARAM wParam, LPARAM lParam)
 	int windowHeight = clientRect.bottom - clientRect.top;
 
 	//Set the new window position and size for the child window group
-	SetWindowPos(hwndChildGroup, NULL, 0, 0, windowWidth, windowHeight, SWP_NOZORDER | SWP_NOACTIVATE);
+	SetWindowPos(_hwndChildGroup, NULL, 0, 0, windowWidth, windowHeight, SWP_NOZORDER | SWP_NOACTIVATE);
 
 	//Update the size of the render window
 	UpdateRenderWindowSize();
@@ -125,9 +125,9 @@ LRESULT ImageView::msgWM_NCHITTEST(HWND hwnd, WPARAM wParam, LPARAM lParam)
 LRESULT ImageView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	//Refresh the status bar visibility setting
-	if(videoShowStatusBarCached != model.GetVideoShowStatusBar())
+	if(_videoShowStatusBarCached != _model.GetVideoShowStatusBar())
 	{
-		videoShowStatusBarCached = model.GetVideoShowStatusBar();
+		_videoShowStatusBarCached = _model.GetVideoShowStatusBar();
 		UpdateRenderWindowSize();
 	}
 	return 0;
@@ -156,9 +156,9 @@ LRESULT ImageView::WndProcChildGroup(HWND hwnd, UINT msg, WPARAM wparam, LPARAM 
 LRESULT ImageView::msgChildWM_KEYUP(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	ISystemDeviceInterface::KeyCode keyCode;
-	if(presenter.GetSystemInterface().TranslateKeyCode((unsigned int)wparam, keyCode))
+	if(_presenter.GetSystemInterface().TranslateKeyCode((unsigned int)wparam, keyCode))
 	{
-		presenter.GetSystemInterface().HandleInputKeyUp(keyCode);
+		_presenter.GetSystemInterface().HandleInputKeyUp(keyCode);
 	}
 	return 0;
 }
@@ -166,16 +166,16 @@ LRESULT ImageView::msgChildWM_KEYUP(HWND hwnd, WPARAM wparam, LPARAM lparam)
 //----------------------------------------------------------------------------------------
 LRESULT ImageView::msgChildWM_KEYDOWN(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	if(fullScreenMode && (wparam == VK_ESCAPE))
+	if(_fullScreenMode && (wparam == VK_ESCAPE))
 	{
 		SetFullScreen(false);
 	}
 	else
 	{
 		ISystemDeviceInterface::KeyCode keyCode;
-		if(presenter.GetSystemInterface().TranslateKeyCode((unsigned int)wparam, keyCode))
+		if(_presenter.GetSystemInterface().TranslateKeyCode((unsigned int)wparam, keyCode))
 		{
-			presenter.GetSystemInterface().HandleInputKeyDown(keyCode);
+			_presenter.GetSystemInterface().HandleInputKeyDown(keyCode);
 		}
 	}
 	return 0;
@@ -186,7 +186,7 @@ LRESULT ImageView::msgChildWM_SYSKEYDOWN(HWND hwnd, WPARAM wparam, LPARAM lparam
 {
 	if(wparam == VK_RETURN)
 	{
-		SetFullScreen(!fullScreenMode);
+		SetFullScreen(!_fullScreenMode);
 	}
 	return 0;
 }
@@ -220,17 +220,17 @@ LRESULT ImageView::WndProcRender(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lpar
 LRESULT ImageView::msgRenderWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	//Create the popup pixel info viewer window
-	hwndPixelInfo = CreateChildDialog(hwnd, GetAssemblyHandle(), MAKEINTRESOURCE(IDD_VDP_IMAGE_PIXELINFO), std::bind(&ImageView::WndProcPixelInfo, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
+	_hwndPixelInfo = CreateChildDialog(hwnd, GetAssemblyHandle(), MAKEINTRESOURCE(IDD_VDP_IMAGE_PIXELINFO), std::bind(&ImageView::WndProcPixelInfo, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
 
 	//OpenGL Initialization code
-	glrc = CreateOpenGLWindow(hwnd);
-	if(glrc != NULL)
+	_glrc = CreateOpenGLWindow(hwnd);
+	if(_glrc != NULL)
 	{
 		//Create a texture coordinate matrix which maps texture coordinates to pixel
 		//numbers within the texture
 		glMatrixMode(GL_TEXTURE);
 		glLoadIdentity();
-		glScaled(1.0 / (double)model.imageBufferWidth, 1.0 / (double)model.imageBufferHeight, 1.0);
+		glScaled(1.0 / (double)_model.ImageBufferWidth, 1.0 / (double)_model.ImageBufferHeight, 1.0);
 
 		//Set our basic render properties
 		glEnable(GL_TEXTURE_2D);
@@ -255,9 +255,9 @@ LRESULT ImageView::msgRenderWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		//texture data to the contents of that buffer. This seems wasteful, but it's the
 		//most sensible way I've found. We can pass in a null pointer, but then the
 		//texture contents are undefined until real data is provided.
-		unsigned char* nullBuffer = new unsigned char[model.imageBufferWidth * model.imageBufferHeight * 4];
-		memset(nullBuffer, 0, model.imageBufferWidth * model.imageBufferHeight * 4);
-		glTexImage2D(GL_TEXTURE_2D, 0, 4, model.imageBufferWidth, model.imageBufferHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullBuffer);
+		unsigned char* nullBuffer = new unsigned char[_model.ImageBufferWidth * _model.ImageBufferHeight * 4];
+		memset(nullBuffer, 0, _model.ImageBufferWidth * _model.ImageBufferHeight * 4);
+		glTexImage2D(GL_TEXTURE_2D, 0, 4, _model.ImageBufferWidth, _model.ImageBufferHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullBuffer);
 		delete[] nullBuffer;
 
 		//Release the rendering context
@@ -276,13 +276,13 @@ LRESULT ImageView::msgRenderWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 //----------------------------------------------------------------------------------------
 LRESULT ImageView::msgRenderWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	DestroyWindow(hwndPixelInfo);
-	hwndPixelInfo = NULL;
+	DestroyWindow(_hwndPixelInfo);
+	_hwndPixelInfo = NULL;
 	KillTimer(hwnd, 1);
 
-	if(glrc != NULL)
+	if(_glrc != NULL)
 	{
-		wglDeleteContext(glrc);
+		wglDeleteContext(_glrc);
 	}
 	return DefWindowProc(hwnd, WM_DESTROY, wparam, lparam);
 }
@@ -293,19 +293,19 @@ LRESULT ImageView::msgRenderWM_SIZE(HWND hwnd, WPARAM wParam, LPARAM lParam)
 	//Obtain the current window size. If the window size is invalid, force a minimum
 	//window size of 1x1, so that we can always assume the window has a valid size from
 	//this point on.
-	renderWindowWidth = (int)LOWORD(lParam);
-	renderWindowHeight = (int)HIWORD(lParam);
-	if((renderWindowWidth <= 0) || (renderWindowHeight <= 0))
+	_renderWindowWidth = (int)LOWORD(lParam);
+	_renderWindowHeight = (int)HIWORD(lParam);
+	if((_renderWindowWidth <= 0) || (_renderWindowHeight <= 0))
 	{
-		renderWindowWidth = 1;
-		renderWindowHeight = 1;
+		_renderWindowWidth = 1;
+		_renderWindowHeight = 1;
 	}
 
 	//Now that the window size has changed, update the OpenGL viewport.
 	HDC hdc = GetDC(hwnd);
 	if(hdc != NULL)
 	{
-		if((glrc != NULL) && (wglMakeCurrent(hdc, glrc) != FALSE))
+		if((_glrc != NULL) && (wglMakeCurrent(hdc, _glrc) != FALSE))
 		{
 			//Flag two pending clear operations of the OpenGL colour buffer. We need to do
 			//this when resizing the viewport, since if we make an adjustment to a smaller
@@ -313,7 +313,7 @@ LRESULT ImageView::msgRenderWM_SIZE(HWND hwnd, WPARAM wParam, LPARAM lParam)
 			//contents will be retained in those areas. Since we have double buffering of
 			//the image output, we need to perform the clear operation twice to clear both
 			//buffers.
-			windowPendingClearCount = 2;
+			_windowPendingClearCount = 2;
 
 			//Update the OpenGL viewport
 			UpdateOpenGLViewport();
@@ -332,11 +332,11 @@ LRESULT ImageView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		HDC hdc = GetDC(hwnd);
 		if(hdc != NULL)
 		{
-			if((glrc != NULL) && (wglMakeCurrent(hdc, glrc) != FALSE))
+			if((_glrc != NULL) && (wglMakeCurrent(hdc, _glrc) != FALSE))
 			{
 				//If the fixed aspect ratio setting has changed, update the OpenGL
 				//viewport.
-				if(videoFixedAspectRatioCached != model.GetVideoFixedAspectRatio())
+				if(_videoFixedAspectRatioCached != _model.GetVideoFixedAspectRatio())
 				{
 					//Flag two pending clear operations of the OpenGL colour buffer. We
 					//need to do this when resizing the viewport, since if we make an
@@ -344,10 +344,10 @@ LRESULT ImageView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 					//regions, the previous buffer contents will be retained in those
 					//areas. Since we have double buffering of the image output, we need
 					//to perform the clear operation twice to clear both buffers.
-					windowPendingClearCount = 2;
+					_windowPendingClearCount = 2;
 
 					//Cache the new fixed aspect ratio setting
-					videoFixedAspectRatioCached = model.GetVideoFixedAspectRatio();
+					_videoFixedAspectRatioCached = _model.GetVideoFixedAspectRatio();
 
 					//Update the OpenGL viewport
 					UpdateOpenGLViewport();
@@ -366,7 +366,7 @@ LRESULT ImageView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		}
 		break;}
 	case 2:
-		++renderPosHighlightColorIndex;
+		++_renderPosHighlightColorIndex;
 		break;
 	}
 	return 0;
@@ -377,9 +377,9 @@ LRESULT ImageView::msgRenderWM_MOUSEMOVE(HWND hwnd, WPARAM wparam, LPARAM lparam
 {
 	//If full image buffer info isn't being generated by the VDP core, hide the pixel info
 	//window if it is currently visible, and abort any further processing.
-	if(!model.GetVideoEnableFullImageBufferInfo())
+	if(!_model.GetVideoEnableFullImageBufferInfo())
 	{
-		if(pixelInfoVisible)
+		if(_pixelInfoVisible)
 		{
 			HidePixelInfoWindow();
 		}
@@ -392,17 +392,17 @@ LRESULT ImageView::msgRenderWM_MOUSEMOVE(HWND hwnd, WPARAM wparam, LPARAM lparam
 
 	//If the new mouse position is outside the region of the render window which contains
 	//image content, hide the details popup.
-	if((xpos < imageRegionPosX) || (xpos >= (imageRegionPosX + imageRegionWidth)) || (ypos < imageRegionPosY) || (ypos >= (imageRegionPosY + imageRegionHeight)))
+	if((xpos < _imageRegionPosX) || (xpos >= (_imageRegionPosX + _imageRegionWidth)) || (ypos < _imageRegionPosY) || (ypos >= (_imageRegionPosY + _imageRegionHeight)))
 	{
 		HidePixelInfoWindow();
 		return 0;
 	}
 
 	//Determine the index of the current image plane that is being used for display
-	unsigned int displayingImageBufferPlane = model.GetImageCompletedBufferPlaneNo();
+	unsigned int displayingImageBufferPlane = _model.GetImageCompletedBufferPlaneNo();
 
 	//Obtain the number of rows in this frame
-	unsigned int rowCount = model.GetImageBufferLineCount(displayingImageBufferPlane);
+	unsigned int rowCount = _model.GetImageBufferLineCount(displayingImageBufferPlane);
 	if(rowCount <= 0)
 	{
 		HidePixelInfoWindow();
@@ -410,11 +410,11 @@ LRESULT ImageView::msgRenderWM_MOUSEMOVE(HWND hwnd, WPARAM wparam, LPARAM lparam
 	}
 
 	//Calculate the vertical image buffer position of the target pixel
-	pixelInfoTargetBufferPosY = (int)((float)(ypos - imageRegionPosY) * ((float)rowCount / imageRegionHeight));
+	_pixelInfoTargetBufferPosY = (int)((float)(ypos - _imageRegionPosY) * ((float)rowCount / _imageRegionHeight));
 
 	//Calculate the horizontal image buffer position of the target pixel
-	unsigned int lineWidth = model.GetImageBufferLineWidth(displayingImageBufferPlane, pixelInfoTargetBufferPosY);
-	pixelInfoTargetBufferPosX = (int)((float)(xpos - imageRegionPosX) * ((float)lineWidth / imageRegionWidth));
+	unsigned int lineWidth = _model.GetImageBufferLineWidth(displayingImageBufferPlane, _pixelInfoTargetBufferPosY);
+	_pixelInfoTargetBufferPosX = (int)((float)(xpos - _imageRegionPosX) * ((float)lineWidth / _imageRegionWidth));
 
 	//Retrieve the rectangle representing the work area of the target monitor
 	POINT cursorPoint;
@@ -429,7 +429,7 @@ LRESULT ImageView::msgRenderWM_MOUSEMOVE(HWND hwnd, WPARAM wparam, LPARAM lparam
 
 	//Calculate the size of the details popup
 	RECT detailsRect;
-	GetWindowRect(hwndPixelInfo, &detailsRect);
+	GetWindowRect(_hwndPixelInfo, &detailsRect);
 	int detailsWidth = detailsRect.right - detailsRect.left;
 	int detailsHeight = detailsRect.bottom - detailsRect.top;
 
@@ -474,7 +474,7 @@ LRESULT ImageView::msgRenderWM_MOUSEMOVE(HWND hwnd, WPARAM wparam, LPARAM lparam
 	}
 
 	//Enable the WM_MOUSELEAVE notification if the details popup isn't currently visible
-	if(!pixelInfoVisible)
+	if(!_pixelInfoVisible)
 	{
 		TRACKMOUSEEVENT mouseEvent;
 		mouseEvent.cbSize = sizeof(mouseEvent);
@@ -485,11 +485,11 @@ LRESULT ImageView::msgRenderWM_MOUSEMOVE(HWND hwnd, WPARAM wparam, LPARAM lparam
 	}
 
 	//Position the details popup, and show it if necessary.
-	SetWindowPos(hwndPixelInfo, NULL, xposDetails, yposDetails, 0, 0, SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER);
-	if(!pixelInfoVisible)
+	SetWindowPos(_hwndPixelInfo, NULL, xposDetails, yposDetails, 0, 0, SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER);
+	if(!_pixelInfoVisible)
 	{
-		pixelInfoVisible = true;
-		ShowWindow(hwndPixelInfo, SW_SHOWNA);
+		_pixelInfoVisible = true;
+		ShowWindow(_hwndPixelInfo, SW_SHOWNA);
 	}
 
 	return 0;
@@ -506,8 +506,8 @@ LRESULT ImageView::msgRenderWM_MOUSELEAVE(HWND hwnd, WPARAM wparam, LPARAM lpara
 void ImageView::HidePixelInfoWindow()
 {
 	//Hide the pixel info popup
-	pixelInfoVisible = false;
-	ShowWindow(hwndPixelInfo, SW_HIDE);
+	_pixelInfoVisible = false;
+	ShowWindow(_hwndPixelInfo, SW_HIDE);
 }
 
 //----------------------------------------------------------------------------------------
@@ -517,17 +517,17 @@ void ImageView::UpdateImage()
 {
 	//If at least one pending window clear operation is flagged, clear the OpenGL colour
 	//buffer, and decrement the number of pending clear operations.
-	if(windowPendingClearCount > 0)
+	if(_windowPendingClearCount > 0)
 	{
 		glClear(GL_COLOR_BUFFER_BIT);
-		--windowPendingClearCount;
+		--_windowPendingClearCount;
 	}
 
 	//Determine the index of the current image plane that is being used for display
-	unsigned int displayingImageBufferPlane = model.GetImageCompletedBufferPlaneNo();
+	unsigned int displayingImageBufferPlane = _model.GetImageCompletedBufferPlaneNo();
 
 	//Obtain the number of rows in this frame
-	unsigned int rowCount = model.GetImageBufferLineCount(displayingImageBufferPlane);
+	unsigned int rowCount = _model.GetImageBufferLineCount(displayingImageBufferPlane);
 	if(rowCount <= 0)
 	{
 		return;
@@ -541,17 +541,17 @@ void ImageView::UpdateImage()
 
 	//If a new frame is ready to be displayed, update our image texture with the new
 	//rendered image data.
-	unsigned int latestLastRenderedFrameToken = model.GetImageLastRenderedFrameToken();
-	if(model.GetVideoSingleBuffering() || (lastRenderedFrameTokenCached != latestLastRenderedFrameToken))
+	unsigned int latestLastRenderedFrameToken = _model.GetImageLastRenderedFrameToken();
+	if(_model.GetVideoSingleBuffering() || (_lastRenderedFrameTokenCached != latestLastRenderedFrameToken))
 	{
 		//Copy the contents of the image buffer into our image texture for rendering
-		model.LockImageBufferData(displayingImageBufferPlane);
-		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, model.imageBufferWidth, rowCount, GL_RGBA, GL_UNSIGNED_BYTE, model.GetImageBufferData(displayingImageBufferPlane));
-		model.UnlockImageBufferData(displayingImageBufferPlane);
+		_model.LockImageBufferData(displayingImageBufferPlane);
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, _model.ImageBufferWidth, rowCount, GL_RGBA, GL_UNSIGNED_BYTE, _model.GetImageBufferData(displayingImageBufferPlane));
+		_model.UnlockImageBufferData(displayingImageBufferPlane);
 
 		//Update our cached last rendered frame token
-		unsigned int framesCompletedDrawing = latestLastRenderedFrameToken - lastRenderedFrameTokenCached;
-		lastRenderedFrameTokenCached = latestLastRenderedFrameToken;
+		unsigned int framesCompletedDrawing = latestLastRenderedFrameToken - _lastRenderedFrameTokenCached;
+		_lastRenderedFrameTokenCached = latestLastRenderedFrameToken;
 
 		//Update the FPS counter if a new frame has been completed
 		if(framesCompletedDrawing > 0)
@@ -562,25 +562,25 @@ void ImageView::UpdateImage()
 
 			//Update the count of frames that have been rendered since the last FPS
 			//counter update
-			framesRenderedSinceLastFPSCounterUpdate += framesCompletedDrawing;
+			_framesRenderedSinceLastFPSCounterUpdate += framesCompletedDrawing;
 
 			//If a second or more has passed since we last updated the FPS counter, update
 			//it now.
-			if((newFrameTickCount.QuadPart - lastFPSCounterUpdateTickCount.QuadPart) >= counterFrequency.QuadPart)
+			if((newFrameTickCount.QuadPart - _lastFPSCounterUpdateTickCount.QuadPart) >= _counterFrequency.QuadPart)
 			{
 				//Calculate the current FPS
-				LONGLONG ticksSinceLastFPSCounterUpdate = newFrameTickCount.QuadPart - lastFPSCounterUpdateTickCount.QuadPart;
-				double framesPerSecond = (double)framesRenderedSinceLastFPSCounterUpdate / ((double)counterFrequency.QuadPart / (double)ticksSinceLastFPSCounterUpdate);
+				LONGLONG ticksSinceLastFPSCounterUpdate = newFrameTickCount.QuadPart - _lastFPSCounterUpdateTickCount.QuadPart;
+				double framesPerSecond = (double)_framesRenderedSinceLastFPSCounterUpdate / ((double)_counterFrequency.QuadPart / (double)ticksSinceLastFPSCounterUpdate);
 
 				//Display a string value representing the current FPS on the status bar
 				std::wstringstream framesPerSecondStringStream;
 				framesPerSecondStringStream << L"FPS: " << std::fixed << std::setprecision(2) << framesPerSecond;
-				SendMessage(hwndStatusBar, SB_SETTEXT, 1, (LPARAM)framesPerSecondStringStream.str().c_str());
+				SendMessage(_hwndStatusBar, SB_SETTEXT, 1, (LPARAM)framesPerSecondStringStream.str().c_str());
 
 				//Record this frame time as the last time we updated the FPS counter, and
 				//reset the rendered frame counter.
-				lastFPSCounterUpdateTickCount.QuadPart = newFrameTickCount.QuadPart;
-				framesRenderedSinceLastFPSCounterUpdate = 0;
+				_lastFPSCounterUpdateTickCount.QuadPart = newFrameTickCount.QuadPart;
+				_framesRenderedSinceLastFPSCounterUpdate = 0;
 			}
 		}
 	}
@@ -591,11 +591,11 @@ void ImageView::UpdateImage()
 
 	//If this frame was the odd field in an interlaced display, offset the row number by
 	//0.5.
-	double rowScreenOffset = model.GetImageBufferOddInterlaceFrame(displayingImageBufferPlane)? 0.5: 0.0;
+	double rowScreenOffset = _model.GetImageBufferOddInterlaceFrame(displayingImageBufferPlane)? 0.5: 0.0;
 
 	//Set the current filter mode for our pixels based on whether smoothing is enabled or
 	//not
-	int textureFilterMode = (model.GetVideoEnableLineSmoothing())? GL_LINEAR: GL_NEAREST;
+	int textureFilterMode = (_model.GetVideoEnableLineSmoothing())? GL_LINEAR: GL_NEAREST;
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, textureFilterMode);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, textureFilterMode);
 
@@ -604,7 +604,7 @@ void ImageView::UpdateImage()
 	for(unsigned int rowNo = 0; rowNo < rowCount; ++rowNo)
 	{
 		//Render this line
-		unsigned int lineWidth = model.GetImageBufferLineWidth(displayingImageBufferPlane, rowNo);
+		unsigned int lineWidth = _model.GetImageBufferLineWidth(displayingImageBufferPlane, rowNo);
 		glEnable(GL_TEXTURE_2D);
 		glBegin(GL_QUADS);
 			//Top-Left
@@ -626,15 +626,15 @@ void ImageView::UpdateImage()
 		glDisable(GL_TEXTURE_2D);
 
 		//Draw the active image start and end positions on this line if requested
-		if(model.GetVideoShowBoundaryActiveImage())
+		if(_model.GetVideoShowBoundaryActiveImage())
 		{
 			glColor3d(0.0, 1.0, 0.0);
 			unsigned int activeScanStartPosX;
 			unsigned int activeScanStartPosY;
 			unsigned int activeScanEndPosX;
 			unsigned int activeScanEndPosY;
-			model.GetImageBufferActiveScanPosX(displayingImageBufferPlane, rowNo, activeScanStartPosX, activeScanEndPosX);
-			model.GetImageBufferActiveScanPosY(displayingImageBufferPlane, activeScanStartPosY, activeScanEndPosY);
+			_model.GetImageBufferActiveScanPosX(displayingImageBufferPlane, rowNo, activeScanStartPosX, activeScanEndPosX);
+			_model.GetImageBufferActiveScanPosY(displayingImageBufferPlane, activeScanStartPosY, activeScanEndPosY);
 			if(rowNo == activeScanStartPosY)
 			{
 				glBegin(GL_LINES);
@@ -667,19 +667,19 @@ void ImageView::UpdateImage()
 	}
 
 	//If the user has requested the current render position to be highlighted, display it.
-	if(model.GetVideoHighlightRenderPos() && model.GetCurrentRenderPosOnScreen())
+	if(_model.GetVideoHighlightRenderPos() && _model.GetCurrentRenderPosOnScreen())
 	{
 		//Calculate the position of the render position within the OpenGL render space
-		unsigned int currentRenderPosScreenXCache = model.GetCurrentRenderPosScreenX();
-		unsigned int currentRenderPosScreenYCache = model.GetCurrentRenderPosScreenY();
-		unsigned int currentRenderPosScreenWidth = model.GetImageBufferLineWidth(model.GetImageDrawingBufferPlaneNo(), currentRenderPosScreenYCache);
+		unsigned int currentRenderPosScreenXCache = _model.GetCurrentRenderPosScreenX();
+		unsigned int currentRenderPosScreenYCache = _model.GetCurrentRenderPosScreenY();
+		unsigned int currentRenderPosScreenWidth = _model.GetImageBufferLineWidth(_model.GetImageDrawingBufferPlaneNo(), currentRenderPosScreenYCache);
 		double currentRenderPosScreenXStart = (double)currentRenderPosScreenXCache / (double)currentRenderPosScreenWidth;
 		double currentRenderPosScreenXEnd = (double)(currentRenderPosScreenXCache + 1) / (double)currentRenderPosScreenWidth;
 		double currentRenderPosScreenYStart = (double)currentRenderPosScreenYCache;
 		double currentRenderPosScreenYEnd = (double)(currentRenderPosScreenYCache + 1);
 
 		//Set the current colour for the render position marker
-		switch(renderPosHighlightColorIndex % 3)
+		switch(_renderPosHighlightColorIndex % 3)
 		{
 		case 0:
 			glColor3d(1.0, 0.0, 0.0);
@@ -700,7 +700,7 @@ void ImageView::UpdateImage()
 	}
 
 	//Display the title safe image boundary if requested
-	if(model.GetVideoShowBoundaryTitleSafe())
+	if(_model.GetVideoShowBoundaryTitleSafe())
 	{
 		double screenRegionPercentage = 0.9;
 		double screenRegionXStart = (1.0 - screenRegionPercentage);
@@ -718,7 +718,7 @@ void ImageView::UpdateImage()
 	}
 
 	//Display the action safe image boundary if requested
-	if(model.GetVideoShowBoundaryActionSafe())
+	if(_model.GetVideoShowBoundaryActionSafe())
 	{
 		double screenRegionPercentage = 0.95;
 		double screenRegionXStart = (1.0 - screenRegionPercentage);
@@ -736,13 +736,13 @@ void ImageView::UpdateImage()
 	}
 
 	//Display sprite boundary information if requested
-	if(model.GetVideoEnableSpriteBoxing())
+	if(_model.GetVideoEnableSpriteBoxing())
 	{
-		std::list<IS315_5313::SpriteBoundaryLineEntry> spriteBoundaryLines = model.GetSpriteBoundaryLines(displayingImageBufferPlane);
+		std::list<IS315_5313::SpriteBoundaryLineEntry> spriteBoundaryLines = _model.GetSpriteBoundaryLines(displayingImageBufferPlane);
 		for(std::list<IS315_5313::SpriteBoundaryLineEntry>::const_iterator i = spriteBoundaryLines.begin(); i != spriteBoundaryLines.end(); ++i)
 		{
 			const IS315_5313::SpriteBoundaryLineEntry& spriteBoundaryLineEntry = *i;
-			unsigned int displayLineWidth = model.GetImageBufferLineWidth(displayingImageBufferPlane, spriteBoundaryLineEntry.linePosYStart);
+			unsigned int displayLineWidth = _model.GetImageBufferLineWidth(displayingImageBufferPlane, spriteBoundaryLineEntry.linePosYStart);
 			if(displayLineWidth <= 0)
 			{
 				continue;
@@ -775,33 +775,33 @@ void ImageView::UpdateOpenGLViewport()
 	//a different aspect ratio to the one used by the original system.
 	int newImageRegionPosX = 0;
 	int newImageRegionPosY = 0;
-	int newImageRegionWidth = renderWindowWidth;
-	int newImageRegionHeight = renderWindowHeight;
-	double windowAspectRatio = (double)renderWindowWidth / (double)renderWindowHeight;
-	if(videoFixedAspectRatioCached && (windowAspectRatio < imageAspectRatio))
+	int newImageRegionWidth = _renderWindowWidth;
+	int newImageRegionHeight = _renderWindowHeight;
+	double windowAspectRatio = (double)_renderWindowWidth / (double)_renderWindowHeight;
+	if(_videoFixedAspectRatioCached && (windowAspectRatio < _imageAspectRatio))
 	{
 		//If the window aspect ratio is less than the image aspect ratio, the image is too
 		//wide to fit perfectly in the window. In this case, we need to calculate a window
 		//height that will use the full width of the window and preserve the aspect ratio.
-		newImageRegionHeight = (int)(((double)renderWindowWidth * (1.0 / imageAspectRatio)) + 0.5);
-		newImageRegionPosY = (renderWindowHeight - newImageRegionHeight) / 2;
+		newImageRegionHeight = (int)(((double)_renderWindowWidth * (1.0 / _imageAspectRatio)) + 0.5);
+		newImageRegionPosY = (_renderWindowHeight - newImageRegionHeight) / 2;
 	}
-	else if(videoFixedAspectRatioCached && (windowAspectRatio > imageAspectRatio))
+	else if(_videoFixedAspectRatioCached && (windowAspectRatio > _imageAspectRatio))
 	{
 		//If the window aspect ratio is greater than the image aspect ratio, the image is
 		//too high to fit perfectly in the window. In this case, we need to calculate a
 		//window width that will use the full height of the window and preserve the aspect
 		//ratio.
-		newImageRegionWidth = (int)(((double)renderWindowHeight * imageAspectRatio) + 0.5);
-		newImageRegionPosX = (renderWindowWidth - newImageRegionWidth) / 2;
+		newImageRegionWidth = (int)(((double)_renderWindowHeight * _imageAspectRatio) + 0.5);
+		newImageRegionPosX = (_renderWindowWidth - newImageRegionWidth) / 2;
 	}
 
 	//Set the viewport dimensions based on the current window size
-	imageRegionPosX = newImageRegionPosX;
-	imageRegionPosY = newImageRegionPosY;
-	imageRegionWidth = newImageRegionWidth;
-	imageRegionHeight = newImageRegionHeight;
-	glViewport(imageRegionPosX, imageRegionPosY, imageRegionWidth, imageRegionHeight);
+	_imageRegionPosX = newImageRegionPosX;
+	_imageRegionPosY = newImageRegionPosY;
+	_imageRegionWidth = newImageRegionWidth;
+	_imageRegionHeight = newImageRegionHeight;
+	glViewport(_imageRegionPosX, _imageRegionPosY, _imageRegionWidth, _imageRegionHeight);
 }
 
 //----------------------------------------------------------------------------------------
@@ -809,26 +809,26 @@ void ImageView::UpdateRenderWindowSize()
 {
 	//Obtain the current size of the client area of the window
 	RECT clientRect;
-	GetClientRect(hwndChildGroup, &clientRect);
+	GetClientRect(_hwndChildGroup, &clientRect);
 	int windowWidth = clientRect.right - clientRect.left;
 	int windowHeight = clientRect.bottom - clientRect.top;
 
 	//Set the visibility state of the status bar
-	ShowWindow(hwndStatusBar, (videoShowStatusBarCached? SW_SHOWNOACTIVATE: SW_HIDE));
+	ShowWindow(_hwndStatusBar, (_videoShowStatusBarCached? SW_SHOWNOACTIVATE: SW_HIDE));
 
 	//If the status bar is currently visible, position and size it correctly within the
 	//window.
 	int statusBarHeight = 0;
-	if(videoShowStatusBarCached)
+	if(_videoShowStatusBarCached)
 	{
 		//Send a size message to the status bar. Note that the status bar auto-sizes and
 		//positions itself based on the size of its parent window. Simply sending a
 		//WM_SIZE message will cause the status bar to recalculate its size and position.
-		SendMessage(hwndStatusBar, WM_SIZE, 0, 0);
+		SendMessage(_hwndStatusBar, WM_SIZE, 0, 0);
 
 		//Retrieve the height of the status bar
 		RECT statusBarRect;
-		GetWindowRect(hwndStatusBar, &statusBarRect);
+		GetWindowRect(_hwndStatusBar, &statusBarRect);
 		int statusBarWidth = statusBarRect.right - statusBarRect.left;
 		statusBarHeight = statusBarRect.bottom - statusBarRect.top;
 
@@ -837,7 +837,7 @@ void ImageView::UpdateRenderWindowSize()
 		int framesPerSecondSegmentWidth = (framesPerSecondSegmentPreferredWidth <= statusBarWidth)? framesPerSecondSegmentPreferredWidth: statusBarWidth;
 		int notificationSegmentWidth = statusBarWidth - framesPerSecondSegmentWidth;
 		int statusBarSegmentWidths[] = {notificationSegmentWidth, -1};
-		SendMessage(hwndStatusBar, SB_SETPARTS, 2, (LPARAM)statusBarSegmentWidths);
+		SendMessage(_hwndStatusBar, SB_SETPARTS, 2, (LPARAM)statusBarSegmentWidths);
 	}
 
 	//Calculate the position and size of the OpenGL window
@@ -847,14 +847,14 @@ void ImageView::UpdateRenderWindowSize()
 	int openGLWindowPosY = 0;
 
 	//Set the new window position and size for the OpenGL window
-	SetWindowPos(hwndOpenGL, NULL, openGLWindowPosX, openGLWindowPosY, openGLWindowSizeX, openGLWindowSizeY, SWP_NOZORDER | SWP_NOACTIVATE);
+	SetWindowPos(_hwndOpenGL, NULL, openGLWindowPosX, openGLWindowPosY, openGLWindowSizeX, openGLWindowSizeY, SWP_NOZORDER | SWP_NOACTIVATE);
 }
 
 //----------------------------------------------------------------------------------------
 void ImageView::SetFullScreen(bool fullScreenModeNew)
 {
 	//If we're already in the target mode, abort any further processing.
-	if(fullScreenMode == fullScreenModeNew)
+	if(_fullScreenMode == fullScreenModeNew)
 	{
 		return;
 	}
@@ -865,36 +865,36 @@ void ImageView::SetFullScreen(bool fullScreenModeNew)
 		//Obtain the position and dimensions of the monitor closest to the image window
 		MONITORINFO monitorInfo;
 		monitorInfo.cbSize = sizeof(monitorInfo);
-		GetMonitorInfo(MonitorFromWindow(hwndMain, MONITOR_DEFAULTTONEAREST), &monitorInfo);
+		GetMonitorInfo(MonitorFromWindow(_hwndMain, MONITOR_DEFAULTTONEAREST), &monitorInfo);
 
 		//Save the position and size of our image window before entering fullscreen mode
 		RECT rect;
-		GetWindowRect(hwndMain, &rect);
-		savedWindowPosX = rect.left;
-		savedWindowPosY = rect.top;
-		savedWindowWidth = rect.right - rect.left;
-		savedWindowHeight = rect.bottom - rect.top;
+		GetWindowRect(_hwndMain, &rect);
+		_savedWindowPosX = rect.left;
+		_savedWindowPosY = rect.top;
+		_savedWindowWidth = rect.right - rect.left;
+		_savedWindowHeight = rect.bottom - rect.top;
 
 		//Make our image window into a top-level window, and save the previous parent
 		//window.
-		savedParent = SetWindowParent(hwndMain, NULL);
+		_savedParent = SetWindowParent(_hwndMain, NULL);
 
 		//If we had a parent window previously, convert the saved window position into
 		//coordinates relative to the parent window.
-		if(savedParent != NULL)
+		if(_savedParent != NULL)
 		{
 			POINT windowPos;
-			windowPos.x = savedWindowPosX;
-			windowPos.y = savedWindowPosY;
-			ScreenToClient(savedParent, &windowPos);
-			savedWindowPosX = (int)windowPos.x;
-			savedWindowPosY = (int)windowPos.y;
+			windowPos.x = _savedWindowPosX;
+			windowPos.y = _savedWindowPosY;
+			ScreenToClient(_savedParent, &windowPos);
+			_savedWindowPosX = (int)windowPos.x;
+			_savedWindowPosY = (int)windowPos.y;
 		}
 
 		//Ensure our detached image window is set as the foreground window, and that the
 		//input window has focus.
-		SetForegroundWindow(hwndMain);
-		SetFocus(hwndChildGroup);
+		SetForegroundWindow(_hwndMain);
+		SetFocus(_hwndChildGroup);
 
 		//Set the position and dimensions of the image window based on the position and
 		//dimensions of the monitor
@@ -902,27 +902,27 @@ void ImageView::SetFullScreen(bool fullScreenModeNew)
 		int newWindowPosY = monitorInfo.rcMonitor.top;
 		int newWindowSizeX = monitorInfo.rcMonitor.right - monitorInfo.rcMonitor.left;
 		int newWindowSizeY = monitorInfo.rcMonitor.bottom - monitorInfo.rcMonitor.top;
-		SetWindowPos(hwndMain, NULL, newWindowPosX, newWindowPosY, newWindowSizeX, newWindowSizeY, SWP_NOZORDER);
+		SetWindowPos(_hwndMain, NULL, newWindowPosX, newWindowPosY, newWindowSizeX, newWindowSizeY, SWP_NOZORDER);
 	}
 	else
 	{
 		//Restore the image window size
-		SetWindowPos(hwndMain, NULL, 0, 0, savedWindowWidth, savedWindowHeight, SWP_NOZORDER | SWP_NOMOVE);
+		SetWindowPos(_hwndMain, NULL, 0, 0, _savedWindowWidth, _savedWindowHeight, SWP_NOZORDER | SWP_NOMOVE);
 
 		//Restore the saved parent window of the image window
-		SetWindowParent(hwndMain, savedParent);
+		SetWindowParent(_hwndMain, _savedParent);
 
 		//Restore the image window position
-		SetWindowPos(hwndMain, NULL, savedWindowPosX, savedWindowPosY, 0, 0, SWP_NOZORDER | SWP_NOSIZE);
+		SetWindowPos(_hwndMain, NULL, _savedWindowPosX, _savedWindowPosY, 0, 0, SWP_NOZORDER | SWP_NOSIZE);
 
 		//Ensure that the parent window is correctly set as the foreground window, and
 		//that our input window retains focus.
-		SetForegroundWindow(GetAncestor(savedParent, GA_ROOT));
-		SetFocus(hwndChildGroup);
+		SetForegroundWindow(GetAncestor(_savedParent, GA_ROOT));
+		SetFocus(_hwndChildGroup);
 	}
 
 	//Record the new full screen mode state
-	fullScreenMode = fullScreenModeNew;
+	_fullScreenMode = fullScreenModeNew;
 }
 
 //----------------------------------------------------------------------------------------
@@ -953,24 +953,24 @@ INT_PTR ImageView::msgPixelInfoWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lp
 INT_PTR ImageView::msgPixelInfoWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	//If the pixel info window isn't currently visible, abort any further processing.
-	if(!pixelInfoVisible)
+	if(!_pixelInfoVisible)
 	{
 		return TRUE;
 	}
 
 	//If full image buffer info has been disabled on the VDP core, hide the pixel info
 	//window, and abort any further processing.
-	if(!model.GetVideoEnableFullImageBufferInfo())
+	if(!_model.GetVideoEnableFullImageBufferInfo())
 	{
 		HidePixelInfoWindow();
 		return TRUE;
 	}
 
 	//Determine the index of the current image plane that is being used for display
-	unsigned int displayingImageBufferPlane = model.GetImageCompletedBufferPlaneNo();
+	unsigned int displayingImageBufferPlane = _model.GetImageCompletedBufferPlaneNo();
 
 	//Retrieve info for the target pixel
-	const IS315_5313::ImageBufferInfo* pixelInfo = model.GetImageBufferInfo(displayingImageBufferPlane, pixelInfoTargetBufferPosY, pixelInfoTargetBufferPosX);
+	const IS315_5313::ImageBufferInfo* pixelInfo = _model.GetImageBufferInfo(displayingImageBufferPlane, _pixelInfoTargetBufferPosY, _pixelInfoTargetBufferPosX);
 	if(pixelInfo == 0)
 	{
 		return TRUE;
@@ -1031,9 +1031,9 @@ INT_PTR ImageView::msgPixelInfoWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		HDC dc = GetDC(hwndColor);
 		if(dc != NULL)
 		{
-			unsigned char r = model.ColorValueTo8BitValue(pixelInfo->colorComponentR, pixelInfo->pixelIsShadowed, pixelInfo->pixelIsHighlighted);
-			unsigned char g = model.ColorValueTo8BitValue(pixelInfo->colorComponentG, pixelInfo->pixelIsShadowed, pixelInfo->pixelIsHighlighted);
-			unsigned char b = model.ColorValueTo8BitValue(pixelInfo->colorComponentB, pixelInfo->pixelIsShadowed, pixelInfo->pixelIsHighlighted);
+			unsigned char r = _model.ColorValueTo8BitValue(pixelInfo->colorComponentR, pixelInfo->pixelIsShadowed, pixelInfo->pixelIsHighlighted);
+			unsigned char g = _model.ColorValueTo8BitValue(pixelInfo->colorComponentG, pixelInfo->pixelIsShadowed, pixelInfo->pixelIsHighlighted);
+			unsigned char b = _model.ColorValueTo8BitValue(pixelInfo->colorComponentB, pixelInfo->pixelIsShadowed, pixelInfo->pixelIsHighlighted);
 			HBRUSH brush = CreateSolidBrush(RGB(r, g, b));
 			if(brush != NULL)
 			{

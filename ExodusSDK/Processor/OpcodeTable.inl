@@ -3,10 +3,10 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-template<class T> OpcodeTable<T>::OpcodeTable(unsigned int aopcodeDecodeBits)
+template<class T> OpcodeTable<T>::OpcodeTable(unsigned int opcodeDecodeBits)
 {
-	opcodeDecodeBits = aopcodeDecodeBits;
-	opcodeDecodeMask = (1 << opcodeDecodeBits) - 1;
+	_opcodeDecodeBits = opcodeDecodeBits;
+	_opcodeDecodeMask = (1 << _opcodeDecodeBits) - 1;
 }
 
 //----------------------------------------------------------------------------------------
@@ -14,7 +14,7 @@ template<class T> OpcodeTable<T>::OpcodeTable(unsigned int aopcodeDecodeBits)
 //----------------------------------------------------------------------------------------
 template<class T> void OpcodeTable<T>::InitializeOpcodeTable()
 {
-	opcodeArray.assign(1 << opcodeDecodeBits, (T*)0);
+	_opcodeArray.assign(1 << _opcodeDecodeBits, (T*)0);
 }
 
 //----------------------------------------------------------------------------------------
@@ -109,11 +109,11 @@ template<class T> bool OpcodeTable<T>::AllocateRegionToOpcode(const T* opcode, c
 			{
 				unsigned int opcodeIndex;
 				StringToIntBase2(newDefinition, opcodeIndex);
-				if(opcodeArray[opcodeIndex] != 0)
+				if(_opcodeArray[opcodeIndex] != 0)
 				{
 					return false;
 				}
-				opcodeArray[opcodeIndex] = opcode;
+				_opcodeArray[opcodeIndex] = opcode;
 			}
 			else
 			{
@@ -129,11 +129,11 @@ template<class T> bool OpcodeTable<T>::AllocateRegionToOpcode(const T* opcode, c
 		//If there are no remaining substitution characters, add resolved entry
 		unsigned int opcodeIndex;
 		StringToIntBase2(definition, opcodeIndex);
-		if(opcodeArray[opcodeIndex] != 0)
+		if(_opcodeArray[opcodeIndex] != 0)
 		{
 			return false;
 		}
-		opcodeArray[opcodeIndex] = opcode;
+		_opcodeArray[opcodeIndex] = opcode;
 	}
 
 	return true;
@@ -142,5 +142,5 @@ template<class T> bool OpcodeTable<T>::AllocateRegionToOpcode(const T* opcode, c
 //----------------------------------------------------------------------------------------
 template<class T> const T* OpcodeTable<T>::GetInstruction(unsigned int opcode) const
 {
-	return opcodeArray[opcode & opcodeDecodeMask];
+	return _opcodeArray[opcode & _opcodeDecodeMask];
 }

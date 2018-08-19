@@ -22,7 +22,7 @@ public:
 
 	virtual Disassembly M68000Disassemble(const M68000::LabelSubstitutionSettings& labelSettings) const
 	{
-		return Disassembly(GetOpcodeName(), source.Disassemble(labelSettings));
+		return Disassembly(GetOpcodeName(), _source.Disassemble(labelSettings));
 	}
 
 	virtual void M68000Decode(const M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)
@@ -32,9 +32,9 @@ public:
 //	|---|---|---|---|---|---|---|---|---|---|---|---|---|-----------|
 //	| 0 | 1 | 0 | 0 | 1 | 1 | 1 | 0 | 0 | 1 | 0 | 1 | 1 | REGISTER  |
 //	-----------------------------------------------------------------
-		source.BuildAddressDirect(BITCOUNT_LONG, location + GetInstructionSize(), data.GetDataSegment(0, 3));
-		stackPointer.BuildAddressDirect(BITCOUNT_LONG, location + GetInstructionSize(), M68000::SP);
-		target.BuildAddressPostinc(BITCOUNT_LONG, location + GetInstructionSize(), M68000::SP);
+		_source.BuildAddressDirect(BITCOUNT_LONG, location + GetInstructionSize(), data.GetDataSegment(0, 3));
+		_stackPointer.BuildAddressDirect(BITCOUNT_LONG, location + GetInstructionSize(), M68000::SP);
+		_target.BuildAddressPostinc(BITCOUNT_LONG, location + GetInstructionSize(), M68000::SP);
 		AddExecuteCycleCount(ExecuteTime(12, 3, 0));
 	}
 
@@ -44,13 +44,13 @@ public:
 		M68000Long originalSP;
 		M68000Long originalData;
 
-		//Read source register, and write it into SP
-		additionalTime += source.Read(cpu, originalSP, GetInstructionRegister());
-		additionalTime += stackPointer.Write(cpu, originalSP, GetInstructionRegister());
+		//Read _source register, and write it into SP
+		additionalTime += _source.Read(cpu, originalSP, GetInstructionRegister());
+		additionalTime += _stackPointer.Write(cpu, originalSP, GetInstructionRegister());
 
 		//Load original register contents
-		additionalTime += target.Read(cpu, originalData, GetInstructionRegister());
-		additionalTime += source.Write(cpu, originalData, GetInstructionRegister());
+		additionalTime += _target.Read(cpu, originalData, GetInstructionRegister());
+		additionalTime += _source.Write(cpu, originalData, GetInstructionRegister());
 
 		//Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
@@ -61,9 +61,9 @@ public:
 	{ }
 
 private:
-	EffectiveAddress source;
-	EffectiveAddress target;
-	EffectiveAddress stackPointer;
+	EffectiveAddress _source;
+	EffectiveAddress _target;
+	EffectiveAddress _stackPointer;
 };
 
 } //Close namespace M68000

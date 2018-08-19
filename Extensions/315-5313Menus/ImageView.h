@@ -9,7 +9,7 @@ class ImageView :public ViewBase
 {
 public:
 	//Constructors
-	ImageView(IUIManager& auiManager, ImageViewPresenter& apresenter, IS315_5313& amodel);
+	ImageView(IUIManager& uiManager, ImageViewPresenter& presenter, IS315_5313& model);
 
 protected:
 	//Member window procedure
@@ -59,42 +59,42 @@ private:
 	INT_PTR msgPixelInfoWM_TIMER(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
 private:
-	ImageViewPresenter& presenter;
-	IS315_5313& model;
-	HWND hwndMain;
-	HWND hwndChildGroup;
-	HWND hwndOpenGL;
-	HWND hwndStatusBar;
-	HWND savedParent;
-	int savedWindowPosX;
-	int savedWindowPosY;
-	int savedWindowWidth;
-	int savedWindowHeight;
+	ImageViewPresenter& _presenter;
+	IS315_5313& _model;
+	HWND _hwndMain;
+	HWND _hwndChildGroup;
+	HWND _hwndOpenGL;
+	HWND _hwndStatusBar;
+	HWND _savedParent;
+	int _savedWindowPosX;
+	int _savedWindowPosY;
+	int _savedWindowWidth;
+	int _savedWindowHeight;
 
-	HGLRC glrc;
-	bool fullScreenMode;
-	LONG fullScreenSavedWindowStyle;
-	LONG fullScreenSavedWindowStyleEx;
-	double imageAspectRatio;
-	int renderWindowWidth;
-	int renderWindowHeight;
-	bool videoFixedAspectRatioCached;
-	bool videoShowStatusBarCached;
-	unsigned int windowPendingClearCount;
-	unsigned int renderPosHighlightColorIndex;
-	LARGE_INTEGER lastFPSCounterUpdateTickCount;
-	LARGE_INTEGER counterFrequency;
-	unsigned int framesRenderedSinceLastFPSCounterUpdate;
-	unsigned int lastRenderedFrameTokenCached;
+	HGLRC _glrc;
+	bool _fullScreenMode;
+	LONG _fullScreenSavedWindowStyle;
+	LONG _fullScreenSavedWindowStyleEx;
+	double _imageAspectRatio;
+	int _renderWindowWidth;
+	int _renderWindowHeight;
+	bool _videoFixedAspectRatioCached;
+	bool _videoShowStatusBarCached;
+	unsigned int _windowPendingClearCount;
+	unsigned int _renderPosHighlightColorIndex;
+	LARGE_INTEGER _lastFPSCounterUpdateTickCount;
+	LARGE_INTEGER _counterFrequency;
+	unsigned int _framesRenderedSinceLastFPSCounterUpdate;
+	unsigned int _lastRenderedFrameTokenCached;
 
-	int imageRegionPosX;
-	int imageRegionPosY;
-	int imageRegionWidth;
-	int imageRegionHeight;
-	HWND hwndPixelInfo;
-	bool pixelInfoVisible;
-	int pixelInfoTargetBufferPosX;
-	int pixelInfoTargetBufferPosY;
+	int _imageRegionPosX;
+	int _imageRegionPosY;
+	int _imageRegionWidth;
+	int _imageRegionHeight;
+	HWND _hwndPixelInfo;
+	bool _pixelInfoVisible;
+	int _pixelInfoTargetBufferPosX;
+	int _pixelInfoTargetBufferPosY;
 };
 
 #endif

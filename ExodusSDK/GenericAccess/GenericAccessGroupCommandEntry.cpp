@@ -34,13 +34,13 @@ bool GenericAccessGroupCommandEntry::IsGroup() const
 //----------------------------------------------------------------------------------------
 IGenericAccessGroup* GenericAccessGroupCommandEntry::GetParent() const
 {
-	return parent;
+	return _parent;
 }
 
 //----------------------------------------------------------------------------------------
-void GenericAccessGroupCommandEntry::SetParent(IGenericAccessGroup* aparent)
+void GenericAccessGroupCommandEntry::SetParent(IGenericAccessGroup* parent)
 {
-	parent = aparent;
+	_parent = parent;
 }
 
 //----------------------------------------------------------------------------------------
@@ -48,13 +48,13 @@ void GenericAccessGroupCommandEntry::SetParent(IGenericAccessGroup* aparent)
 //----------------------------------------------------------------------------------------
 const IGenericAccess::DataContext* GenericAccessGroupCommandEntry::GetDataContext() const
 {
-	if(dataContext != 0)
+	if(_dataContext != 0)
 	{
-		return dataContext;
+		return _dataContext;
 	}
-	else if(parent != 0)
+	else if(_parent != 0)
 	{
-		return parent->GetDataContext();
+		return _parent->GetDataContext();
 	}
 	return 0;
 }
@@ -64,23 +64,23 @@ const IGenericAccess::DataContext* GenericAccessGroupCommandEntry::GetDataContex
 //----------------------------------------------------------------------------------------
 unsigned int GenericAccessGroupCommandEntry::GetCommandID() const
 {
-	return commandID;
+	return _commandID;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> GenericAccessGroupCommandEntry::GetName() const
 {
-	return name;
+	return _name;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> GenericAccessGroupCommandEntry::GetDescription() const
 {
-	return description;
+	return _description;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> GenericAccessGroupCommandEntry::GetHelpFileLink() const
 {
-	return helpFileLink;
+	return _helpFileLink;
 }

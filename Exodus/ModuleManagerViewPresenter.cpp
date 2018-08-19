@@ -4,8 +4,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-ModuleManagerViewPresenter::ModuleManagerViewPresenter(const std::wstring& aviewGroupName, const std::wstring& aviewName, int aviewID, ExodusInterface& aowner, ExodusInterface& amodel)
-:ViewPresenterBase(aowner.GetAssemblyHandle(), aviewGroupName, aviewName, aviewID), owner(aowner), model(amodel)
+ModuleManagerViewPresenter::ModuleManagerViewPresenter(const std::wstring& viewGroupName, const std::wstring& viewName, int viewID, ExodusInterface& owner, ExodusInterface& model)
+:ViewPresenterBase(owner.GetAssemblyHandle(), viewGroupName, viewName, viewID), _owner(owner), _model(model)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -21,11 +21,11 @@ std::wstring ModuleManagerViewPresenter::GetUnqualifiedViewTitle()
 //----------------------------------------------------------------------------------------
 IView* ModuleManagerViewPresenter::CreateView(IUIManager& uiManager)
 {
-	return new ModuleManagerView(uiManager, *this, model);
+	return new ModuleManagerView(uiManager, *this, _model);
 }
 
 //----------------------------------------------------------------------------------------
-void ModuleManagerViewPresenter::DeleteView(IView* aview)
+void ModuleManagerViewPresenter::DeleteView(IView* view)
 {
-	delete aview;
+	delete view;
 }

@@ -4,7 +4,7 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 LoadedModuleInfo::LoadedModuleInfo()
-:moduleID(0), programModule(false)
+:_moduleID(0), _programModule(false)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -20,13 +20,13 @@ unsigned int LoadedModuleInfo::GetILoadedModuleInfoVersion() const
 //----------------------------------------------------------------------------------------
 unsigned int LoadedModuleInfo::GetModuleID() const
 {
-	return moduleID;
+	return _moduleID;
 }
 
 //----------------------------------------------------------------------------------------
-void LoadedModuleInfo::SetModuleID(unsigned int amoduleID)
+void LoadedModuleInfo::SetModuleID(unsigned int moduleID)
 {
-	moduleID = amoduleID;
+	_moduleID = moduleID;
 }
 
 //----------------------------------------------------------------------------------------
@@ -34,13 +34,13 @@ void LoadedModuleInfo::SetModuleID(unsigned int amoduleID)
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> LoadedModuleInfo::GetModuleFilePath() const
 {
-	return filePath;
+	return _filePath;
 }
 
 //----------------------------------------------------------------------------------------
-void LoadedModuleInfo::SetModuleFilePath(const Marshal::In<std::wstring>& amoduleFilePath)
+void LoadedModuleInfo::SetModuleFilePath(const Marshal::In<std::wstring>& moduleFilePath)
 {
-	filePath = amoduleFilePath;
+	_filePath = moduleFilePath;
 }
 
 //----------------------------------------------------------------------------------------
@@ -48,61 +48,61 @@ void LoadedModuleInfo::SetModuleFilePath(const Marshal::In<std::wstring>& amodul
 //----------------------------------------------------------------------------------------
 bool LoadedModuleInfo::GetIsProgramModule() const
 {
-	return programModule;
+	return _programModule;
 }
 
 //----------------------------------------------------------------------------------------
-void LoadedModuleInfo::SetIsProgramModule(bool aprogramModule)
+void LoadedModuleInfo::SetIsProgramModule(bool programModule)
 {
-	programModule = aprogramModule;
+	_programModule = programModule;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> LoadedModuleInfo::GetSystemClassName() const
 {
-	return systemClassName;
+	return _systemClassName;
 }
 
 //----------------------------------------------------------------------------------------
-void LoadedModuleInfo::SetSystemClassName(const Marshal::In<std::wstring>& asystemClassName)
+void LoadedModuleInfo::SetSystemClassName(const Marshal::In<std::wstring>& systemClassName)
 {
-	systemClassName = asystemClassName;
+	_systemClassName = systemClassName;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> LoadedModuleInfo::GetModuleClassName() const
 {
-	return className;
+	return _className;
 }
 
 //----------------------------------------------------------------------------------------
-void LoadedModuleInfo::SetModuleClassName(const Marshal::In<std::wstring>& aclassName)
+void LoadedModuleInfo::SetModuleClassName(const Marshal::In<std::wstring>& className)
 {
-	className = aclassName;
+	_className = className;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> LoadedModuleInfo::GetModuleInstanceName() const
 {
-	return instanceName;
+	return _instanceName;
 }
 
 //----------------------------------------------------------------------------------------
-void LoadedModuleInfo::SetModuleInstanceName(const Marshal::In<std::wstring>& ainstanceName)
+void LoadedModuleInfo::SetModuleInstanceName(const Marshal::In<std::wstring>& instanceName)
 {
-	instanceName = ainstanceName;
+	_instanceName = instanceName;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> LoadedModuleInfo::GetModuleDisplayName() const
 {
-	return displayName;
+	return _displayName;
 }
 
 //----------------------------------------------------------------------------------------
-void LoadedModuleInfo::SetModuleDisplayName(const Marshal::In<std::wstring>& adisplayName)
+void LoadedModuleInfo::SetModuleDisplayName(const Marshal::In<std::wstring>& displayName)
 {
-	displayName = adisplayName;
+	_displayName = displayName;
 }
 
 //----------------------------------------------------------------------------------------
@@ -110,35 +110,35 @@ void LoadedModuleInfo::SetModuleDisplayName(const Marshal::In<std::wstring>& adi
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> LoadedModuleInfo::GetProductionYear() const
 {
-	return productionYear;
+	return _productionYear;
 }
 
 //----------------------------------------------------------------------------------------
-void LoadedModuleInfo::SetProductionYear(const Marshal::In<std::wstring>& aproductionYear)
+void LoadedModuleInfo::SetProductionYear(const Marshal::In<std::wstring>& productionYear)
 {
-	productionYear = aproductionYear;
+	_productionYear = productionYear;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> LoadedModuleInfo::GetManufacturerCode() const
 {
-	return manufacturerCode;
+	return _manufacturerCode;
 }
 
 //----------------------------------------------------------------------------------------
-void LoadedModuleInfo::SetManufacturerCode(const Marshal::In<std::wstring>& amanufacturerCode)
+void LoadedModuleInfo::SetManufacturerCode(const Marshal::In<std::wstring>& manufacturerCode)
 {
-	manufacturerCode = amanufacturerCode;
+	_manufacturerCode = manufacturerCode;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> LoadedModuleInfo::GetManufacturerDisplayName() const
 {
-	return manufacturerDisplayName;
+	return _manufacturerDisplayName;
 }
 
 //----------------------------------------------------------------------------------------
-void LoadedModuleInfo::SetManufacturerDisplayName(const Marshal::In<std::wstring>& amanufacturerDisplayName)
+void LoadedModuleInfo::SetManufacturerDisplayName(const Marshal::In<std::wstring>& manufacturerDisplayName)
 {
-	manufacturerDisplayName = amanufacturerDisplayName;
+	_manufacturerDisplayName = manufacturerDisplayName;
 }

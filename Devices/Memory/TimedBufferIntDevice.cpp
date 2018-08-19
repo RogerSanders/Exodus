@@ -3,8 +3,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-TimedBufferIntDevice::TimedBufferIntDevice(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
-:MemoryWrite(aimplementationName, ainstanceName, amoduleID), initialMemoryDataSpecified(false), repeatInitialMemoryData(false)
+TimedBufferIntDevice::TimedBufferIntDevice(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
+:MemoryWrite(implementationName, instanceName, moduleID), _initialMemoryDataSpecified(false), _repeatInitialMemoryData(false)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -31,13 +31,13 @@ bool TimedBufferIntDevice::Construct(IHierarchicalStorageNode& node)
 	}
 
 	//Resize the internal memory array based on the specified interface size
-	bufferShell.Resize(GetMemoryEntryCount(), keepLatestBufferCopy);
+	_bufferShell.Resize(GetMemoryEntryCount(), keepLatestBufferCopy);
 
 	//If initial RAM state data has been specified, attempt to load it now.
 	if(node.GetBinaryDataPresent())
 	{
 		//Flag that initial memory data has been specified
-		initialMemoryDataSpecified = true;
+		_initialMemoryDataSpecified = true;
 
 		//Obtain the stream for our binary data
 		Stream::IStream& dataStream = node.GetBinaryDataBufferStream();
@@ -47,15 +47,15 @@ bool TimedBufferIntDevice::Construct(IHierarchicalStorageNode& node)
 		IHierarchicalStorageAttribute* repeatDataAttribute = node.GetAttribute(L"RepeatData");
 		if(repeatDataAttribute != 0)
 		{
-			repeatInitialMemoryData = repeatDataAttribute->ExtractValue<bool>();
+			_repeatInitialMemoryData = repeatDataAttribute->ExtractValue<bool>();
 		}
 
 		//Read in the initial memory data
 		unsigned int bytesInDataStream = (unsigned int)dataStream.Size();
 		unsigned int memoryArraySize = GetMemoryEntryCount();
 		unsigned int bytesToRead = (memoryArraySize < bytesInDataStream)? memoryArraySize: bytesInDataStream;
-		initialMemoryData.resize(bytesInDataStream);
-		if(!dataStream.ReadData(&initialMemoryData[0], bytesToRead))
+		_initialMemoryData.resize(bytesInDataStream);
+		if(!dataStream.ReadData(&_initialMemoryData[0], bytesToRead))
 		{
 			return false;
 		}
@@ -78,18 +78,18 @@ unsigned int TimedBufferIntDevice::GetMemoryEntrySizeInBytes() const
 void TimedBufferIntDevice::Initialize()
 {
 	//Initialize the memory buffer
-	bufferShell.Initialize();
+	_bufferShell.Initialize();
 	for(unsigned int i = 0; i < GetMemoryEntryCount(); ++i)
 	{
 		if(!IsAddressLocked(i))
 		{
 			unsigned char initialValue = 0;
-			if(initialMemoryDataSpecified && (repeatInitialMemoryData || (i < (unsigned int)initialMemoryData.size())))
+			if(_initialMemoryDataSpecified && (_repeatInitialMemoryData || (i < (unsigned int)_initialMemoryData.size())))
 			{
-				unsigned int initialMemoryDataIndex = (i % (unsigned int)initialMemoryData.size());
-				initialValue = initialMemoryData[initialMemoryDataIndex];
+				unsigned int initialMemoryDataIndex = (i % (unsigned int)_initialMemoryData.size());
+				initialValue = _initialMemoryData[initialMemoryDataIndex];
 			}
-			bufferShell.WriteLatest(i, initialValue);
+			_bufferShell.WriteLatest(i, initialValue);
 		}
 	}
 }
@@ -103,7 +103,7 @@ void TimedBufferIntDevice::TransparentReadInterface(unsigned int interfaceNumber
 	unsigned int dataByteSize = data.GetByteSize();
 	for(unsigned int i = 0; i < dataByteSize; ++i)
 	{
-		data.SetByteFromTopDown(i, bufferShell.ReadLatest((location + i) % memorySize));
+		data.SetByteFromTopDown(i, _bufferShell.ReadLatest((location + i) % memorySize));
 	}
 }
 
@@ -114,7 +114,7 @@ void TimedBufferIntDevice::TransparentWriteInterface(unsigned int interfaceNumbe
 	unsigned int dataByteSize = data.GetByteSize();
 	for(unsigned int i = 0; i < dataByteSize; ++i)
 	{
-		bufferShell.WriteLatest((location + i) % memorySize, data.GetByteFromTopDown(i));
+		_bufferShell.WriteLatest((location + i) % memorySize, data.GetByteFromTopDown(i));
 	}
 }
 
@@ -124,14 +124,14 @@ void TimedBufferIntDevice::TransparentWriteInterface(unsigned int interfaceNumbe
 unsigned int TimedBufferIntDevice::ReadMemoryEntry(unsigned int location) const
 {
 	unsigned int memorySize = GetMemoryEntryCount();
-	return bufferShell.ReadLatest(location % memorySize);
+	return _bufferShell.ReadLatest(location % memorySize);
 }
 
 //----------------------------------------------------------------------------------------
 void TimedBufferIntDevice::WriteMemoryEntry(unsigned int location, unsigned int data)
 {
 	unsigned int memorySize = GetMemoryEntryCount();
-	bufferShell.WriteLatest(location % memorySize, (unsigned char)data);
+	_bufferShell.WriteLatest(location % memorySize, (unsigned char)data);
 }
 
 //----------------------------------------------------------------------------------------
@@ -139,7 +139,7 @@ void TimedBufferIntDevice::WriteMemoryEntry(unsigned int location, unsigned int 
 //----------------------------------------------------------------------------------------
 void TimedBufferIntDevice::LoadState(IHierarchicalStorageNode& node)
 {
-	bufferShell.LoadState(node);
+	_bufferShell.LoadState(node);
 
 	MemoryWrite::LoadState(node);
 }
@@ -147,7 +147,7 @@ void TimedBufferIntDevice::LoadState(IHierarchicalStorageNode& node)
 //----------------------------------------------------------------------------------------
 void TimedBufferIntDevice::SaveState(IHierarchicalStorageNode& node) const
 {
-	bufferShell.SaveState(node, GetFullyQualifiedDeviceInstanceName());
+	_bufferShell.SaveState(node, GetFullyQualifiedDeviceInstanceName());
 
 	MemoryWrite::SaveState(node);
 }
@@ -155,7 +155,7 @@ void TimedBufferIntDevice::SaveState(IHierarchicalStorageNode& node) const
 //----------------------------------------------------------------------------------------
 void TimedBufferIntDevice::LoadDebuggerState(IHierarchicalStorageNode& node)
 {
-	bufferShell.LoadDebuggerState(node);
+	_bufferShell.LoadDebuggerState(node);
 
 	MemoryWrite::LoadDebuggerState(node);
 }
@@ -163,7 +163,7 @@ void TimedBufferIntDevice::LoadDebuggerState(IHierarchicalStorageNode& node)
 //----------------------------------------------------------------------------------------
 void TimedBufferIntDevice::SaveDebuggerState(IHierarchicalStorageNode& node) const
 {
-	bufferShell.SaveDebuggerState(node, GetFullyQualifiedDeviceInstanceName());
+	_bufferShell.SaveDebuggerState(node, GetFullyQualifiedDeviceInstanceName());
 
 	MemoryWrite::SaveDebuggerState(node);
 }
@@ -178,13 +178,13 @@ bool TimedBufferIntDevice::IsMemoryLockingSupported() const
 //----------------------------------------------------------------------------------------
 void TimedBufferIntDevice::LockMemoryBlock(unsigned int location, unsigned int size, bool state)
 {
-	bufferShell.LockMemoryBlock(location, size, state);
+	_bufferShell.LockMemoryBlock(location, size, state);
 }
 
 //----------------------------------------------------------------------------------------
 bool TimedBufferIntDevice::IsAddressLocked(unsigned int location) const
 {
-	return bufferShell.IsByteLocked(location);
+	return _bufferShell.IsByteLocked(location);
 }
 
 //----------------------------------------------------------------------------------------
@@ -192,5 +192,5 @@ bool TimedBufferIntDevice::IsAddressLocked(unsigned int location) const
 //----------------------------------------------------------------------------------------
 ITimedBufferInt* TimedBufferIntDevice::GetTimedBuffer()
 {
-	return &bufferShell;
+	return &_bufferShell;
 }

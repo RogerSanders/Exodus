@@ -1,27 +1,27 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-Breakpoint::Breakpoint(unsigned int aaddressBusWidth, unsigned int adataBusWidth, unsigned int aaddressBusCharWidth)
+Breakpoint::Breakpoint(unsigned int addressBusWidth, unsigned int dataBusWidth, unsigned int addressBusCharWidth)
 {
-	addressBusWidth = aaddressBusWidth;
-	dataBusWidth = adataBusWidth;
-	addressBusCharWidth = aaddressBusCharWidth;
+	_addressBusWidth = addressBusWidth;
+	_dataBusWidth = dataBusWidth;
+	_addressBusCharWidth = addressBusCharWidth;
 
-	name.clear();
-	enabled = true;
-	logEvent = true;
-	breakEvent = true;
+	_name.clear();
+	_enabled = true;
+	_logEvent = true;
+	_breakEvent = true;
 
-	locationConditionNot = false;
-	locationCondition = Condition::Equal;
-	locationConditionData1 = 0;
-	locationConditionData2 = 0;
-	locationMask = ((1 << addressBusWidth) - 1);
+	_locationConditionNot = false;
+	_locationCondition = Condition::Equal;
+	_locationConditionData1 = 0;
+	_locationConditionData2 = 0;
+	_locationMask = ((1 << _addressBusWidth) - 1);
 
-	hitCounter = 0;
-	hitCounterIncrement = 0;
-	breakOnCounter = false;
-	breakCounter = 0;
+	_hitCounter = 0;
+	_hitCounterIncrement = 0;
+	_breakOnCounter = false;
+	_breakCounter = 0;
 }
 
 //----------------------------------------------------------------------------------------
@@ -29,14 +29,14 @@ Breakpoint::Breakpoint(unsigned int aaddressBusWidth, unsigned int adataBusWidth
 //----------------------------------------------------------------------------------------
 void Breakpoint::Commit()
 {
-	hitCounter += hitCounterIncrement;
-	hitCounterIncrement = 0;
+	_hitCounter += _hitCounterIncrement;
+	_hitCounterIncrement = 0;
 }
 
 //----------------------------------------------------------------------------------------
 void Breakpoint::Rollback()
 {
-	hitCounterIncrement = 0;
+	_hitCounterIncrement = 0;
 }
 
 //----------------------------------------------------------------------------------------
@@ -44,22 +44,22 @@ void Breakpoint::Rollback()
 //----------------------------------------------------------------------------------------
 unsigned int Breakpoint::GetLiveHitCounter() const
 {
-	return hitCounter + hitCounterIncrement;
+	return _hitCounter + _hitCounterIncrement;
 }
 
 //----------------------------------------------------------------------------------------
 void Breakpoint::IncrementHitCounter()
 {
-	if(!preIncrementCounter)
+	if(!_preIncrementCounter)
 	{
-		++hitCounterIncrement;
+		++_hitCounterIncrement;
 	}
-	preIncrementCounter = false;
+	_preIncrementCounter = false;
 }
 
 //----------------------------------------------------------------------------------------
 void Breakpoint::PreIncrementHitCounter()
 {
-	preIncrementCounter = true;
-	++hitCounterIncrement;
+	_preIncrementCounter = true;
+	++_hitCounterIncrement;
 }

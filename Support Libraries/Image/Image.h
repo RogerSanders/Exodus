@@ -62,7 +62,7 @@ class Image :public IImage
 {
 public:
 	//Constructors
-	inline Image(unsigned int aimageWidth = 0, unsigned int aimageHeight = 0, PixelFormat apixelFormat = PIXELFORMAT_RGB, DataFormat adataFormat = DATAFORMAT_8BIT);
+	inline Image(unsigned int imageWidth = 0, unsigned int imageHeight = 0, PixelFormat pixelFormat = PIXELFORMAT_RGB, DataFormat dataFormat = DATAFORMAT_8BIT);
 
 	//Image format functions
 	virtual unsigned int GetImageWidth() const;
@@ -70,7 +70,7 @@ public:
 	virtual PixelFormat GetPixelFormat() const;
 	virtual DataFormat GetDataFormat() const;
 	virtual unsigned int GetDataPlaneCount() const;
-	virtual void SetImageFormat(unsigned int aimageWidth, unsigned int aimageHeight, PixelFormat apixelFormat = PIXELFORMAT_RGB, DataFormat adataFormat = DATAFORMAT_8BIT);
+	virtual void SetImageFormat(unsigned int imageWidth, unsigned int imageHeight, PixelFormat pixelFormat = PIXELFORMAT_RGB, DataFormat dataFormat = DATAFORMAT_8BIT);
 
 	//Pixel data manipulation
 	virtual void GetRawPixelData(unsigned int posX, unsigned int posY, unsigned int planeNo, PixelData& data) const;
@@ -176,11 +176,11 @@ private:
 	bool ImageValid() const;
 
 private:
-	PixelFormat pixelFormat;
-	DataFormat dataFormat;
-	unsigned int imageWidth;
-	unsigned int imageHeight;
-	unsigned int dataPlaneCount;
+	PixelFormat _pixelFormat;
+	DataFormat _dataFormat;
+	unsigned int _imageWidth;
+	unsigned int _imageHeight;
+	unsigned int _dataPlaneCount;
 	//##TODO## Use a raw array rather than a vector here
 	//##TODO## Don't use the PixelData structure internally, only use it for passing pixel
 	//data externally in a generic way.
@@ -188,7 +188,7 @@ private:
 	//modifying regions of an image.
 	//##TODO## When we make this a raw array, add a copy constructor which uses memcpy to
 	//duplicate the elements of the array.
-	std::vector<PixelData> imageData;
+	std::vector<PixelData> _imageData;
 };
 
 #include "Image.inl"

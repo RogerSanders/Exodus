@@ -4,8 +4,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-WatchpointViewPresenter::WatchpointViewPresenter(const std::wstring& aviewGroupName, const std::wstring& aviewName, int aviewID, ProcessorMenus& aowner, const IDevice& amodelInstanceKey, IProcessor& amodel)
-:ViewPresenterBase(aowner.GetAssemblyHandle(), aviewGroupName, aviewName, aviewID, amodelInstanceKey.GetDeviceInstanceName(), amodelInstanceKey.GetDeviceModuleID(), amodelInstanceKey.GetModuleDisplayName()), owner(aowner), modelInstanceKey(amodelInstanceKey), model(amodel)
+WatchpointViewPresenter::WatchpointViewPresenter(const std::wstring& viewGroupName, const std::wstring& viewName, int viewID, ProcessorMenus& owner, const IDevice& modelInstanceKey, IProcessor& model)
+:ViewPresenterBase(owner.GetAssemblyHandle(), viewGroupName, viewName, viewID, modelInstanceKey.GetDeviceInstanceName(), modelInstanceKey.GetDeviceModuleID(), modelInstanceKey.GetModuleDisplayName()), _owner(owner), _modelInstanceKey(modelInstanceKey), _model(model)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -21,11 +21,11 @@ std::wstring WatchpointViewPresenter::GetUnqualifiedViewTitle()
 //----------------------------------------------------------------------------------------
 IView* WatchpointViewPresenter::CreateView(IUIManager& uiManager)
 {
-	return new WatchpointView(uiManager, *this, model);
+	return new WatchpointView(uiManager, *this, _model);
 }
 
 //----------------------------------------------------------------------------------------
-void WatchpointViewPresenter::DeleteView(IView* aview)
+void WatchpointViewPresenter::DeleteView(IView* view)
 {
-	delete aview;
+	delete view;
 }

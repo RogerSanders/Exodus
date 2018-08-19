@@ -126,61 +126,61 @@ struct M68000::CalculateCELineStateContext
 //----------------------------------------------------------------------------------------
 bool M68000::GetX() const
 {
-	return sr.GetBit(4);
+	return _sr.GetBit(4);
 }
 
 //----------------------------------------------------------------------------------------
 void M68000::SetX(bool flag)
 {
-	sr.SetBit(4, flag);
+	_sr.SetBit(4, flag);
 }
 
 //----------------------------------------------------------------------------------------
 bool M68000::GetN() const
 {
-	return sr.GetBit(3);
+	return _sr.GetBit(3);
 }
 
 //----------------------------------------------------------------------------------------
 void M68000::SetN(bool flag)
 {
-	sr.SetBit(3, flag);
+	_sr.SetBit(3, flag);
 }
 
 //----------------------------------------------------------------------------------------
 bool M68000::GetZ() const
 {
-	return sr.GetBit(2);
+	return _sr.GetBit(2);
 }
 
 //----------------------------------------------------------------------------------------
 void M68000::SetZ(bool flag)
 {
-	sr.SetBit(2, flag);
+	_sr.SetBit(2, flag);
 }
 
 //----------------------------------------------------------------------------------------
 bool M68000::GetV() const
 {
-	return sr.GetBit(1);
+	return _sr.GetBit(1);
 }
 
 //----------------------------------------------------------------------------------------
 void M68000::SetV(bool flag)
 {
-	sr.SetBit(1, flag);
+	_sr.SetBit(1, flag);
 }
 
 //----------------------------------------------------------------------------------------
 bool M68000::GetC() const
 {
-	return sr.GetBit(0);
+	return _sr.GetBit(0);
 }
 
 //----------------------------------------------------------------------------------------
 void M68000::SetC(bool flag)
 {
-	sr.SetBit(0, flag);
+	_sr.SetBit(0, flag);
 }
 
 //----------------------------------------------------------------------------------------
@@ -193,37 +193,37 @@ void M68000::SetC(bool flag)
 //----------------------------------------------------------------------------------------
 bool M68000::GetSR_T() const
 {
-	return sr.GetBit(15);
+	return _sr.GetBit(15);
 }
 
 //----------------------------------------------------------------------------------------
 void M68000::SetSR_T(bool flag)
 {
-	sr.SetBit(15, flag);
+	_sr.SetBit(15, flag);
 }
 
 //----------------------------------------------------------------------------------------
 bool M68000::GetSR_S() const
 {
-	return sr.GetBit(13);
+	return _sr.GetBit(13);
 }
 
 //----------------------------------------------------------------------------------------
 void M68000::SetSR_S(bool flag)
 {
-	sr.SetBit(13, flag);
+	_sr.SetBit(13, flag);
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int M68000::GetSR_IPM() const
 {
-	return sr.GetDataSegment(8, 3);
+	return _sr.GetDataSegment(8, 3);
 }
 
 //----------------------------------------------------------------------------------------
-void M68000::SetSR_IPM(unsigned int aIPM)
+void M68000::SetSR_IPM(unsigned int ipm)
 {
-	sr.SetDataSegment(8, 3, aIPM);
+	_sr.SetDataSegment(8, 3, ipm);
 }
 
 //----------------------------------------------------------------------------------------
@@ -231,31 +231,31 @@ void M68000::SetSR_IPM(unsigned int aIPM)
 //----------------------------------------------------------------------------------------
 M68000Long M68000::GetPC() const
 {
-	return pc;
+	return _pc;
 }
 
 //----------------------------------------------------------------------------------------
 void M68000::GetPC(Data& data) const
 {
-	data = pc;
+	data = _pc;
 }
 
 //----------------------------------------------------------------------------------------
 void M68000::SetPC(const M68000Long& data)
 {
-	pc = data;
+	_pc = data;
 }
 
 //----------------------------------------------------------------------------------------
 M68000Word M68000::GetSR() const
 {
-	return sr;
+	return _sr;
 }
 
 //----------------------------------------------------------------------------------------
 void M68000::GetSR(Data& data) const
 {
-	data = sr;
+	data = _sr;
 }
 
 //----------------------------------------------------------------------------------------
@@ -268,25 +268,25 @@ void M68000::GetSR(Data& data) const
 void M68000::SetSR(const M68000Word& data)
 {
 	const unsigned int srMask = 0xA71F;
-	sr = (data & srMask);
+	_sr = (data & srMask);
 }
 
 //----------------------------------------------------------------------------------------
 M68000Byte M68000::GetCCR() const
 {
-	return M68000Byte(sr);
+	return M68000Byte(_sr);
 }
 
 //----------------------------------------------------------------------------------------
 void M68000::GetCCR(Data& data) const
 {
-	data = M68000Byte(sr);
+	data = M68000Byte(_sr);
 }
 
 //----------------------------------------------------------------------------------------
 void M68000::SetCCR(const M68000Byte& data)
 {
-	sr.SetLowerBits(5, data.GetData());
+	_sr.SetLowerBits(5, data.GetData());
 }
 
 //----------------------------------------------------------------------------------------
@@ -331,37 +331,37 @@ void M68000::SetSP(const M68000Long& data)
 //----------------------------------------------------------------------------------------
 M68000Long M68000::GetSSP() const
 {
-	return ssp;
+	return _ssp;
 }
 
 //----------------------------------------------------------------------------------------
 void M68000::GetSSP(Data& data) const
 {
-	data = ssp;
+	data = _ssp;
 }
 
 //----------------------------------------------------------------------------------------
 void M68000::SetSSP(const M68000Long& data)
 {
-	ssp = data;
+	_ssp = data;
 }
 
 //----------------------------------------------------------------------------------------
 M68000Long M68000::GetUSP() const
 {
-	return usp;
+	return _usp;
 }
 
 //----------------------------------------------------------------------------------------
 void M68000::GetUSP(Data& data) const
 {
-	data = usp;
+	data = _usp;
 }
 
 //----------------------------------------------------------------------------------------
 void M68000::SetUSP(const M68000Long& data)
 {
-	usp = data;
+	_usp = data;
 }
 
 //----------------------------------------------------------------------------------------
@@ -373,7 +373,7 @@ M68000Long M68000::GetA(unsigned int index) const
 	}
 	else
 	{
-		return a[index];
+		return _a[index];
 	}
 }
 
@@ -386,7 +386,7 @@ void M68000::GetA(unsigned int index, Data& data) const
 	}
 	else
 	{
-		data = a[index];
+		data = _a[index];
 	}
 }
 
@@ -399,33 +399,33 @@ void M68000::SetA(unsigned int index, const M68000Long& data)
 	}
 	else
 	{
-		aDisassemblyInfo[index].addressRegisterLastUsedInPostIncMode = false;
-		a[index] = data;
+		_aDisassemblyInfo[index].addressRegisterLastUsedInPostIncMode = false;
+		_a[index] = data;
 	}
 }
 
 //----------------------------------------------------------------------------------------
 M68000Long M68000::GetD(unsigned int index) const
 {
-	return d[index];
+	return _d[index];
 }
 
 //----------------------------------------------------------------------------------------
 void M68000::GetD(unsigned int index, Data& data) const
 {
-	data = d[index];
+	data = _d[index];
 }
 
 //----------------------------------------------------------------------------------------
 void M68000::SetD(unsigned int index, const M68000Long& data)
 {
-	d[index] = data;
+	_d[index] = data;
 }
 
 //----------------------------------------------------------------------------------------
 void M68000::SetProcessorState(State executeState)
 {
-	processorState = executeState;
+	_processorState = executeState;
 }
 
 } //Close namespace M68000

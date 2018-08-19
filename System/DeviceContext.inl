@@ -39,29 +39,29 @@ struct DeviceContext::DeviceDependency
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-DeviceContext::DeviceContext(IDevice& adevice, ISystemGUIInterface& asystemObject)
-:device(adevice), systemObject(asystemObject), deviceDependencies(0), suspendedThreadCountPointer(0), remainingThreadCountPointer(0), commandMutexPointer(0), suspendManager(0), otherSharedExecuteThreadDevice(0), currentSharedExecuteThreadOwner(0)
+DeviceContext::DeviceContext(IDevice& device, ISystemGUIInterface& systemObject)
+:_device(device), _systemObject(systemObject), _deviceDependencies(0), _suspendedThreadCountPointer(0), _remainingThreadCountPointer(0), _commandMutexPointer(0), _suspendManager(0), _otherSharedExecuteThreadDevice(0), _currentSharedExecuteThreadOwner(0)
 {
-	deviceIndexNo = 0;
-	deviceEnabled = true;
-	commandWorkerThreadActive = false;
-	executeWorkerThreadActive = false;
-	executeThreadRunningState = false;
-	executingWaitForCompletionCommand = false;
+	_deviceIndexNo = 0;
+	_deviceEnabled = true;
+	_commandWorkerThreadActive = false;
+	_executeWorkerThreadActive = false;
+	_executeThreadRunningState = false;
+	_executingWaitForCompletionCommand = false;
 
-	timesliceCompleted = false;
-	timesliceSuspended = false;
-	timesliceSuspensionDisable = false;
-	transientExecutionActive = false;
+	_timesliceCompleted = false;
+	_timesliceSuspended = false;
+	_timesliceSuspensionDisable = false;
+	_transientExecutionActive = false;
 
-	sharingExecuteThread = false;
-	primarySharedExecuteThreadDevice = false;
-	sharedExecuteThreadSpinoffActive = false;
-	sharedExecuteThreadSpinoffRejoinRequested = false;
-	sharedExecuteThreadSpinoffPaused = false;
-	sharedExecuteThreadSpinoffStopRequested = false;
-	sharedExecuteThreadSpinoffRunning = false;
-	sharedExecuteThreadSpinoffTimesliceAvailable = false;
+	_sharingExecuteThread = false;
+	_primarySharedExecuteThreadDevice = false;
+	_sharedExecuteThreadSpinoffActive = false;
+	_sharedExecuteThreadSpinoffRejoinRequested = false;
+	_sharedExecuteThreadSpinoffPaused = false;
+	_sharedExecuteThreadSpinoffStopRequested = false;
+	_sharedExecuteThreadSpinoffRunning = false;
+	_sharedExecuteThreadSpinoffTimesliceAvailable = false;
 }
 
 //----------------------------------------------------------------------------------------
@@ -78,39 +78,39 @@ void DeviceContext::NotifyUpcomingTimeslice(double nanoseconds)
 	//timeslice, in order to avoid race conditions in the execute threads. This is a
 	//convenient place to do it, as it gives us the synchronization we need between all
 	//our devices, and it can be performed here with very little overhead.
-	currentTimesliceProgress = remainingTime;
+	_currentTimesliceProgress = _remainingTime;
 
-	if(device.SendNotifyUpcomingTimeslice())
+	if(_device.SendNotifyUpcomingTimeslice())
 	{
-		device.NotifyUpcomingTimeslice(nanoseconds);
+		_device.NotifyUpcomingTimeslice(nanoseconds);
 	}
 }
 
 //----------------------------------------------------------------------------------------
 void DeviceContext::NotifyBeforeExecuteCalled()
 {
-	if(device.SendNotifyBeforeExecuteCalled())
+	if(_device.SendNotifyBeforeExecuteCalled())
 	{
-		device.NotifyBeforeExecuteCalled();
+		_device.NotifyBeforeExecuteCalled();
 	}
 }
 
 //----------------------------------------------------------------------------------------
 void DeviceContext::NotifyAfterExecuteCalled()
 {
-	if(device.SendNotifyAfterExecuteCalled())
+	if(_device.SendNotifyAfterExecuteCalled())
 	{
-		device.NotifyAfterExecuteCalled();
+		_device.NotifyAfterExecuteCalled();
 	}
 }
 
 //----------------------------------------------------------------------------------------
 void DeviceContext::ExecuteTimeslice(double nanoseconds)
 {
-	std::unique_lock<std::mutex> lock(executeThreadMutex);
-	timeslice = nanoseconds;
-	timesliceCompleted = false;
-	executeTaskSent.notify_all();
+	std::unique_lock<std::mutex> lock(_executeThreadMutex);
+	_timeslice = nanoseconds;
+	_timesliceCompleted = false;
+	_executeTaskSent.notify_all();
 }
 
 //----------------------------------------------------------------------------------------
@@ -118,10 +118,10 @@ double DeviceContext::ExecuteStep()
 {
 	double additionalTime = 0;
 
-	if(device.GetUpdateMethod() == IDevice::UpdateMethod::Step)
+	if(_device.GetUpdateMethod() == IDevice::UpdateMethod::Step)
 	{
-		remainingTime += device.ExecuteStep();
-		additionalTime = remainingTime;
+		_remainingTime += _device.ExecuteStep();
+		additionalTime = _remainingTime;
 	}
 
 	return additionalTime;
@@ -132,14 +132,14 @@ double DeviceContext::ExecuteStep(unsigned int accessContext)
 {
 	double additionalTime = 0;
 
-	if(device.GetUpdateMethod() == IDevice::UpdateMethod::Step)
+	if(_device.GetUpdateMethod() == IDevice::UpdateMethod::Step)
 	{
-		remainingTime += device.ExecuteStep();
-		additionalTime = remainingTime;
+		_remainingTime += _device.ExecuteStep();
+		additionalTime = _remainingTime;
 	}
-	else if(device.GetUpdateMethod() == IDevice::UpdateMethod::Timeslice)
+	else if(_device.GetUpdateMethod() == IDevice::UpdateMethod::Timeslice)
 	{
-		device.ExecuteTimesliceTimingPointStep(accessContext);
+		_device.ExecuteTimesliceTimingPointStep(accessContext);
 	}
 
 	return additionalTime;
@@ -148,24 +148,24 @@ double DeviceContext::ExecuteStep(unsigned int accessContext)
 //----------------------------------------------------------------------------------------
 void DeviceContext::WaitForCompletion()
 {
-	std::unique_lock<std::mutex> executeLock(executeThreadMutex);
-	while(!timesliceCompleted)
+	std::unique_lock<std::mutex> executeLock(_executeThreadMutex);
+	while(!_timesliceCompleted)
 	{
-		executeCompletionStateChanged.wait(executeLock);
+		_executeCompletionStateChanged.wait(executeLock);
 	}
 }
 
 //----------------------------------------------------------------------------------------
-void DeviceContext::WaitForCompletionAndDetectSuspendLock(volatile ReferenceCounterType& suspendedThreadCount, volatile ReferenceCounterType& remainingThreadCount, std::mutex& commandMutex, IExecutionSuspendManager* asuspendManager)
+void DeviceContext::WaitForCompletionAndDetectSuspendLock(volatile ReferenceCounterType& suspendedThreadCount, volatile ReferenceCounterType& remainingThreadCount, std::mutex& commandMutex, IExecutionSuspendManager* suspendManager)
 {
-	std::unique_lock<std::mutex> executeLock(executeThreadMutex);
-	while(!timesliceCompleted)
+	std::unique_lock<std::mutex> executeLock(_executeThreadMutex);
+	while(!_timesliceCompleted)
 	{
-		if(!timesliceSuspended || timesliceSuspensionDisable)
+		if(!_timesliceSuspended || _timesliceSuspensionDisable)
 		{
 			//If this execution thread isn't suspended, we need to wait for it to either
 			//finish the current timeslice, or enter a suspended state.
-			executeCompletionStateChanged.wait(executeLock);
+			_executeCompletionStateChanged.wait(executeLock);
 		}
 		else
 		{
@@ -187,13 +187,13 @@ void DeviceContext::WaitForCompletionAndDetectSuspendLock(volatile ReferenceCoun
 			//Evaluate whether all remaining threads are suspended. If they are, release
 			//all suspended threads. If not, wait for the completion state of this execute
 			//thread to change.
-			if(asuspendManager->AllDevicesSuspended(suspendedThreadCount, remainingThreadCount))
+			if(suspendManager->AllDevicesSuspended(suspendedThreadCount, remainingThreadCount))
 			{
 				//Note that we need to not hold a lock on executeThreadMutex here, since
 				//the suspend manager will call back into this DeviceContext object and
 				//call the DisableTimesliceExecutionSuspend() function in response to the
 				//function call below.
-				asuspendManager->DisableTimesliceExecutionSuspend();
+				suspendManager->DisableTimesliceExecutionSuspend();
 			}
 			else
 			{
@@ -210,9 +210,9 @@ void DeviceContext::WaitForCompletionAndDetectSuspendLock(volatile ReferenceCoun
 				//state here.
 				executeLock.lock();
 				commandLock.unlock();
-				if(!timesliceCompleted)
+				if(!_timesliceCompleted)
 				{
-					executeCompletionStateChanged.wait(executeLock);
+					_executeCompletionStateChanged.wait(executeLock);
 				}
 				//Note that we release the execute mutex here before obtaining the command
 				//mutex again, then re-acquire the execute mutex below. This is essential
@@ -231,23 +231,23 @@ void DeviceContext::WaitForCompletionAndDetectSuspendLock(volatile ReferenceCoun
 //----------------------------------------------------------------------------------------
 void DeviceContext::Commit()
 {
-	remainingTimeBackup = remainingTime;
-	device.ExecuteCommit();
+	_remainingTimeBackup = _remainingTime;
+	_device.ExecuteCommit();
 }
 
 //----------------------------------------------------------------------------------------
 void DeviceContext::Rollback()
 {
-	remainingTime = remainingTimeBackup;
-	device.ExecuteRollback();
+	_remainingTime = _remainingTimeBackup;
+	_device.ExecuteRollback();
 }
 
 //----------------------------------------------------------------------------------------
 void DeviceContext::Initialize()
 {
-	device.Initialize();
-	remainingTime = 0;
-	currentTimesliceProgress = 0;
+	_device.Initialize();
+	_remainingTime = 0;
+	_currentTimesliceProgress = 0;
 }
 
 //----------------------------------------------------------------------------------------
@@ -257,17 +257,17 @@ double DeviceContext::GetNextTimingPoint(unsigned int& accessContext) const
 {
 	double result = -1;
 
-	if(device.GetUpdateMethod() == IDevice::UpdateMethod::Step)
+	if(_device.GetUpdateMethod() == IDevice::UpdateMethod::Step)
 	{
-		result = device.GetNextTimingPointInDeviceTime(accessContext);
+		result = _device.GetNextTimingPointInDeviceTime(accessContext);
 		if(result >= 0)
 		{
-			result += remainingTime;
+			result += _remainingTime;
 		}
 	}
-	else if(device.GetUpdateMethod() == IDevice::UpdateMethod::Timeslice)
+	else if(_device.GetUpdateMethod() == IDevice::UpdateMethod::Timeslice)
 	{
-		result = device.GetNextTimingPointInDeviceTime(accessContext);
+		result = _device.GetNextTimingPointInDeviceTime(accessContext);
 	}
 
 	return result;
@@ -276,27 +276,27 @@ double DeviceContext::GetNextTimingPoint(unsigned int& accessContext) const
 //----------------------------------------------------------------------------------------
 double DeviceContext::GetCurrentRemainingTime() const
 {
-	return remainingTime;
+	return _remainingTime;
 }
 
 //----------------------------------------------------------------------------------------
 double DeviceContext::GetInitialRemainingTime() const
 {
-	return remainingTimeBackup;
+	return _remainingTimeBackup;
 }
 
 //----------------------------------------------------------------------------------------
 void DeviceContext::ClearRemainingTime()
 {
-	remainingTime = 0;
+	_remainingTime = 0;
 }
 
 //----------------------------------------------------------------------------------------
 //Device interface
 //----------------------------------------------------------------------------------------
-void DeviceContext::SetDeviceIndexNo(unsigned int adeviceIndexNo)
+void DeviceContext::SetDeviceIndexNo(unsigned int deviceIndexNo)
 {
-	deviceIndexNo = adeviceIndexNo;
+	_deviceIndexNo = deviceIndexNo;
 }
 
 //----------------------------------------------------------------------------------------
@@ -318,7 +318,7 @@ void DeviceContext::AddDeviceDependency(DeviceContext* targetDevice)
 	DeviceDependency deviceDependency;
 	deviceDependency.device = targetDevice;
 	deviceDependency.dependencyEnabled = true;
-	deviceDependencies.push_back(deviceDependency);
+	_deviceDependencies.push_back(deviceDependency);
 
 	//Notify the target device that this device has added it as a dependency
 	targetDevice->AddDependentDevice(this);
@@ -328,8 +328,8 @@ void DeviceContext::AddDeviceDependency(DeviceContext* targetDevice)
 void DeviceContext::RemoveDeviceDependency(DeviceContext* targetDevice)
 {
 	bool done = false;
-	std::vector<DeviceDependency>::iterator i = deviceDependencies.begin();
-	while(!done && (i != deviceDependencies.end()))
+	std::vector<DeviceDependency>::iterator i = _deviceDependencies.begin();
+	while(!done && (i != _deviceDependencies.end()))
 	{
 		if(i->device == targetDevice)
 		{
@@ -337,7 +337,7 @@ void DeviceContext::RemoveDeviceDependency(DeviceContext* targetDevice)
 			targetDevice->RemoveDependentDevice(this);
 
 			//Remove the device from the device dependency list
-			deviceDependencies.erase(i);
+			_deviceDependencies.erase(i);
 			done = true;
 			continue;
 		}
@@ -350,19 +350,19 @@ void DeviceContext::AddDependentDevice(DeviceContext* targetDevice)
 {
 	RemoveDependentDevice(targetDevice);
 
-	dependentDevices.push_back(targetDevice);
+	_dependentDevices.push_back(targetDevice);
 }
 
 //----------------------------------------------------------------------------------------
 void DeviceContext::RemoveDependentDevice(DeviceContext* targetDevice)
 {
 	bool done = false;
-	std::vector<DeviceContext*>::iterator i = dependentDevices.begin();
-	while(!done && (i != dependentDevices.end()))
+	std::vector<DeviceContext*>::iterator i = _dependentDevices.begin();
+	while(!done && (i != _dependentDevices.end()))
 	{
 		if(*i == targetDevice)
 		{
-			dependentDevices.erase(i);
+			_dependentDevices.erase(i);
 			done = true;
 			continue;
 		}
@@ -373,11 +373,11 @@ void DeviceContext::RemoveDependentDevice(DeviceContext* targetDevice)
 //----------------------------------------------------------------------------------------
 const std::vector<DeviceContext::DeviceDependency>& DeviceContext::GetDeviceDependencyArray() const
 {
-	return deviceDependencies;
+	return _deviceDependencies;
 }
 
 //----------------------------------------------------------------------------------------
 const std::vector<DeviceContext*>& DeviceContext::GetDependentDeviceArray() const
 {
-	return dependentDevices;
+	return _dependentDevices;
 }

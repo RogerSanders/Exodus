@@ -41,8 +41,8 @@ public:
 
 	//Control functions
 	virtual double GetClockSpeed() const = 0;
-	virtual void SetClockSpeed(double aclockSpeed) = 0;
-	virtual void OverrideClockSpeed(double aclockSpeed) = 0;
+	virtual void SetClockSpeed(double clockSpeed) = 0;
+	virtual void OverrideClockSpeed(double clockSpeed) = 0;
 	virtual void RestoreClockSpeed() = 0;
 
 	//Instruction functions

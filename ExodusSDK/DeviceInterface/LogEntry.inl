@@ -1,22 +1,22 @@
 //----------------------------------------------------------------------------------------
 //Setters
 //----------------------------------------------------------------------------------------
-void LogEntry::SetText(const std::wstring& atext)
+void LogEntry::SetText(const std::wstring& text)
 {
-	text.str() = L"";
-	text << atext;
+	_text.str() = L"";
+	_text << text;
 }
 
 //----------------------------------------------------------------------------------------
-void LogEntry::SetSource(const std::wstring& asource)
+void LogEntry::SetSource(const std::wstring& source)
 {
-	source = asource;
+	_source = source;
 }
 
 //----------------------------------------------------------------------------------------
-void LogEntry::SetEventLevel(EventLevel alevel)
+void LogEntry::SetEventLevel(EventLevel level)
 {
-	eventLevel = alevel;
+	_eventLevel = level;
 }
 
 //----------------------------------------------------------------------------------------
@@ -24,13 +24,13 @@ void LogEntry::SetEventLevel(EventLevel alevel)
 //----------------------------------------------------------------------------------------
 template<class T> LogEntry& LogEntry::operator>>(T& data)
 {
-	text << data;
+	_text << data;
 	return *this;
 }
 
 //----------------------------------------------------------------------------------------
 template<class T> LogEntry& LogEntry::operator<<(const T& data)
 {
-	text << data;
+	_text << data;
 	return *this;
 }

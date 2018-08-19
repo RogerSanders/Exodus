@@ -27,7 +27,7 @@ public:
 
 	virtual Disassembly M68000Disassemble(const M68000::LabelSubstitutionSettings& labelSettings) const
 	{
-		return Disassembly(GetOpcodeName(), source.Disassemble(labelSettings));
+		return Disassembly(GetOpcodeName(), _source.Disassemble(labelSettings));
 	}
 
 	virtual void M68000Decode(const M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)
@@ -39,8 +39,8 @@ public:
 //	|---------------------------------------------------------------|
 //	|                    16 BITS IMMEDIATE DATA                     |
 //	-----------------------------------------------------------------
-		source.BuildImmediateData(BITCOUNT_WORD, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
-		AddInstructionSize(source.ExtensionSize());
+		_source.BuildImmediateData(BITCOUNT_WORD, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
+		AddInstructionSize(_source.ExtensionSize());
 		AddExecuteCycleCount(ExecuteTime(4, 0, 0));
 	}
 
@@ -50,7 +50,7 @@ public:
 		M68000Word newSR;
 
 		//Perform the operation
-		additionalTime += source.Read(cpu, newSR, GetInstructionRegister());
+		additionalTime += _source.Read(cpu, newSR, GetInstructionRegister());
 		cpu->SetSR(newSR);
 		//##TODO## We had some code here to generate a privilege violation if the new
 		//value for SR didn't have the supervisor bit set. Do some more research, and see
@@ -64,11 +64,11 @@ public:
 
 	virtual void GetLabelTargetLocations(std::set<unsigned int>& labelTargetLocations) const
 	{
-		source.AddLabelTargetsToSet(labelTargetLocations);
+		_source.AddLabelTargetsToSet(labelTargetLocations);
 	}
 
 private:
-	EffectiveAddress source;
+	EffectiveAddress _source;
 };
 
 } //Close namespace M68000

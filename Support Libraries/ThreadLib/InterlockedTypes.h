@@ -45,13 +45,8 @@
 #pragma intrinsic(_ReadWriteBarrier)
 #endif
 
-//Note that we need to use the align directive here to guarantee that our interlocked
-//types will be correctly aligned to a memory boundary. All the interlocked memory
-//functions require this alignment, otherwise the result is undefined.
 typedef long InterlockedVar32;
 typedef __int64 InterlockedVar64;
-typedef __declspec(align(32)) InterlockedVar32 InterlockedVarAligned32;
-typedef __declspec(align(64)) InterlockedVar64 InterlockedVarAligned64;
 
 inline unsigned char PerformanceInterlockedBitTestAndSet(InterlockedVar32 volatile *a, InterlockedVar32 b)
 {

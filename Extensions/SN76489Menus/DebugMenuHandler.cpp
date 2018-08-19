@@ -3,8 +3,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-DebugMenuHandler::DebugMenuHandler(SN76489Menus& aowner, const IDevice& amodelInstanceKey, ISN76489& amodel)
-:MenuHandlerBase(L"SN76489DebugMenu", aowner.GetViewManager()), owner(aowner), modelInstanceKey(amodelInstanceKey), model(amodel)
+DebugMenuHandler::DebugMenuHandler(SN76489Menus& owner, const IDevice& modelInstanceKey, ISN76489& model)
+:MenuHandlerBase(L"SN76489DebugMenu", owner.GetViewManager()), _owner(owner), _modelInstanceKey(modelInstanceKey), _model(model)
 {}
 
 //----------------------------------------------------------------------------------------

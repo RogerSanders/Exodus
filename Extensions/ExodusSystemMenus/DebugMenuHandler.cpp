@@ -4,8 +4,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-DebugMenuHandler::DebugMenuHandler(ExodusSystemMenus& aowner, ISystemGUIInterface& amodel)
-:MenuHandlerBase(L"SystemDebugMenu", aowner.GetViewManager()), owner(aowner), model(amodel)
+DebugMenuHandler::DebugMenuHandler(ExodusSystemMenus& owner, ISystemGUIInterface& model)
+:MenuHandlerBase(L"SystemDebugMenu", owner.GetViewManager()), _owner(owner), _model(model)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -22,7 +22,7 @@ IViewPresenter* DebugMenuHandler::CreateViewForItem(int menuItemID, const std::w
 	switch(menuItemID)
 	{
 	case MENUITEM_DEVICECONTROL:
-		return new DeviceControlViewPresenter(GetMenuHandlerName(), viewName, MENUITEM_DEVICECONTROL, owner, model);
+		return new DeviceControlViewPresenter(GetMenuHandlerName(), viewName, MENUITEM_DEVICECONTROL, _owner, _model);
 	}
 	return 0;
 }

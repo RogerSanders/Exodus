@@ -13,31 +13,31 @@ unsigned int GenericAccessDataInfo::GetIGenericAccessDataInfoVersion() const
 //----------------------------------------------------------------------------------------
 unsigned int GenericAccessDataInfo::GetID() const
 {
-	return id;
+	return _id;
 }
 
 //----------------------------------------------------------------------------------------
 IGenericAccessDataValue::DataType GenericAccessDataInfo::GetType() const
 {
-	return dataType;
+	return _dataType;
 }
 
 //----------------------------------------------------------------------------------------
 bool GenericAccessDataInfo::GetReadOnly() const
 {
-	return readOnly;
+	return _readOnly;
 }
 
 //----------------------------------------------------------------------------------------
 bool GenericAccessDataInfo::GetLockingSupported() const
 {
-	return lockingSupported;
+	return _lockingSupported;
 }
 
 //----------------------------------------------------------------------------------------
 bool GenericAccessDataInfo::GetHighlightUsed() const
 {
-	return highlightUsed;
+	return _highlightUsed;
 }
 
 //----------------------------------------------------------------------------------------
@@ -45,25 +45,25 @@ bool GenericAccessDataInfo::GetHighlightUsed() const
 //----------------------------------------------------------------------------------------
 IGenericAccessDataValue::IntDisplayMode GenericAccessDataInfo::GetIntDisplayMode() const
 {
-	return intDisplayMode;
+	return _intDisplayMode;
 }
 
 //----------------------------------------------------------------------------------------
 IGenericAccessDataValue::FloatDisplayMode GenericAccessDataInfo::GetFloatDisplayMode() const
 {
-	return floatDisplayMode;
+	return _floatDisplayMode;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int GenericAccessDataInfo::GetMinWholeNumberChars() const
 {
-	return minWholeNumberChars;
+	return _minWholeNumberChars;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int GenericAccessDataInfo::GetMinFractionalNumberChars() const
 {
-	return minFractionalNumberChars;
+	return _minFractionalNumberChars;
 }
 
 //----------------------------------------------------------------------------------------
@@ -71,55 +71,55 @@ unsigned int GenericAccessDataInfo::GetMinFractionalNumberChars() const
 //----------------------------------------------------------------------------------------
 int GenericAccessDataInfo::GetIntMinValue() const
 {
-	return intMinValue;
+	return _intMinValue;
 }
 
 //----------------------------------------------------------------------------------------
 int GenericAccessDataInfo::GetIntMaxValue() const
 {
-	return intMaxValue;
+	return _intMaxValue;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int GenericAccessDataInfo::GetUIntMinValue() const
 {
-	return uintMinValue;
+	return _uintMinValue;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int GenericAccessDataInfo::GetUIntMaxValue() const
 {
-	return uintMaxValue;
+	return _uintMaxValue;
 }
 
 //----------------------------------------------------------------------------------------
 float GenericAccessDataInfo::GetFloatMinValue() const
 {
-	return floatMinValue;
+	return _floatMinValue;
 }
 
 //----------------------------------------------------------------------------------------
 float GenericAccessDataInfo::GetFloatMaxValue() const
 {
-	return floatMaxValue;
+	return _floatMaxValue;
 }
 
 //----------------------------------------------------------------------------------------
 double GenericAccessDataInfo::GetDoubleMinValue() const
 {
-	return doubleMinValue;
+	return _doubleMinValue;
 }
 
 //----------------------------------------------------------------------------------------
 double GenericAccessDataInfo::GetDoubleMaxValue() const
 {
-	return doubleMaxValue;
+	return _doubleMaxValue;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int GenericAccessDataInfo::GetStringMaxLength() const
 {
-	return maxStringLength;
+	return _maxStringLength;
 }
 
 //----------------------------------------------------------------------------------------
@@ -127,25 +127,25 @@ unsigned int GenericAccessDataInfo::GetStringMaxLength() const
 //----------------------------------------------------------------------------------------
 bool GenericAccessDataInfo::GetFilePathCreatingTarget() const
 {
-	return filePathCreatingTarget;
+	return _filePathCreatingTarget;
 }
 
 //----------------------------------------------------------------------------------------
 bool GenericAccessDataInfo::GetFilePathAllowScanningIntoArchives() const
 {
-	return filePathAllowScanningIntoArchives;
+	return _filePathAllowScanningIntoArchives;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> GenericAccessDataInfo::GetFilePathExtensionFilter() const
 {
-	return filePathExtensionFilter;
+	return _filePathExtensionFilter;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> GenericAccessDataInfo::GetFilePathDefaultExtension() const
 {
-	return filePathDefaultExtension;
+	return _filePathDefaultExtension;
 }
 
 //----------------------------------------------------------------------------------------
@@ -153,5 +153,5 @@ Marshal::Ret<std::wstring> GenericAccessDataInfo::GetFilePathDefaultExtension() 
 //----------------------------------------------------------------------------------------
 bool GenericAccessDataInfo::GetFolderPathCreatingTarget() const
 {
-	return folderPathCreatingTarget;
+	return _folderPathCreatingTarget;
 }

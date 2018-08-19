@@ -4,8 +4,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-DebuggerViewPresenter::DebuggerViewPresenter(const std::wstring& aviewGroupName, const std::wstring& aviewName, int aviewID, YM2612Menus& aowner, const IDevice& amodelInstanceKey, IYM2612& amodel)
-:ViewPresenterBase(aowner.GetAssemblyHandle(), aviewGroupName, aviewName, aviewID, amodelInstanceKey.GetDeviceInstanceName(), amodelInstanceKey.GetDeviceModuleID(), amodelInstanceKey.GetModuleDisplayName()), owner(aowner), modelInstanceKey(amodelInstanceKey), model(amodel)
+DebuggerViewPresenter::DebuggerViewPresenter(const std::wstring& viewGroupName, const std::wstring& viewName, int viewID, YM2612Menus& owner, const IDevice& modelInstanceKey, IYM2612& model)
+:ViewPresenterBase(owner.GetAssemblyHandle(), viewGroupName, viewName, viewID, modelInstanceKey.GetDeviceInstanceName(), modelInstanceKey.GetDeviceModuleID(), modelInstanceKey.GetModuleDisplayName()), _owner(owner), _modelInstanceKey(modelInstanceKey), _model(model)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -21,19 +21,19 @@ std::wstring DebuggerViewPresenter::GetUnqualifiedViewTitle()
 //----------------------------------------------------------------------------------------
 IView* DebuggerViewPresenter::CreateView(IUIManager& uiManager)
 {
-	return new DebuggerView(uiManager, *this, model);
+	return new DebuggerView(uiManager, *this, _model);
 }
 
 //----------------------------------------------------------------------------------------
-void DebuggerViewPresenter::DeleteView(IView* aview)
+void DebuggerViewPresenter::DeleteView(IView* view)
 {
-	delete aview;
+	delete view;
 }
 
 //----------------------------------------------------------------------------------------
 //Window functions
 //----------------------------------------------------------------------------------------
-void DebuggerViewPresenter::OpenOperatorView(unsigned int achannelNo, unsigned int aoperatorNo)
+void DebuggerViewPresenter::OpenOperatorView(unsigned int channelNo, unsigned int operatorNo)
 {
-	owner.OpenOperatorView(&modelInstanceKey, achannelNo, aoperatorNo);
+	_owner.OpenOperatorView(&_modelInstanceKey, channelNo, operatorNo);
 }

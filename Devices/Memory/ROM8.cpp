@@ -3,8 +3,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-ROM8::ROM8(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
-:ROMBase(aimplementationName, ainstanceName, amoduleID)
+ROM8::ROM8(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
+:ROMBase(implementationName, instanceName, moduleID)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -12,7 +12,7 @@ ROM8::ROM8(const std::wstring& aimplementationName, const std::wstring& ainstanc
 //----------------------------------------------------------------------------------------
 IBusInterface::AccessResult ROM8::ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
-	data = memoryArray[location % memoryArraySize];
+	data = _memoryArray[location % _memoryArraySize];
 	return true;
 }
 
@@ -25,13 +25,13 @@ IBusInterface::AccessResult ROM8::WriteInterface(unsigned int interfaceNumber, u
 //----------------------------------------------------------------------------------------
 void ROM8::TransparentReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, unsigned int accessContext)
 {
-	data = memoryArray[location % memoryArraySize];
+	data = _memoryArray[location % _memoryArraySize];
 }
 
 //----------------------------------------------------------------------------------------
 void ROM8::TransparentWriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, unsigned int accessContext)
 {
-	memoryArray[location % memoryArraySize] = (unsigned char)data.GetData();
+	_memoryArray[location % _memoryArraySize] = (unsigned char)data.GetData();
 }
 
 //----------------------------------------------------------------------------------------
@@ -39,11 +39,11 @@ void ROM8::TransparentWriteInterface(unsigned int interfaceNumber, unsigned int 
 //----------------------------------------------------------------------------------------
 unsigned int ROM8::ReadMemoryEntry(unsigned int location) const
 {
-	return memoryArray[location % memoryArraySize];
+	return _memoryArray[location % _memoryArraySize];
 }
 
 //----------------------------------------------------------------------------------------
 void ROM8::WriteMemoryEntry(unsigned int location, unsigned int data)
 {
-	memoryArray[location % memoryArraySize] = (unsigned char)data;
+	_memoryArray[location % _memoryArraySize] = (unsigned char)data;
 }

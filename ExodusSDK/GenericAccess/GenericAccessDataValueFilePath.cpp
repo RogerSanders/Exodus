@@ -5,9 +5,9 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 GenericAccessDataValueFilePath::GenericAccessDataValueFilePath(const std::wstring& value)
-:dataValue(value)
+:_dataValue(value)
 {
-	maxLength = 0;
+	_maxLength = 0;
 }
 
 //----------------------------------------------------------------------------------------
@@ -31,7 +31,7 @@ GenericAccessDataValueFilePath::DataType GenericAccessDataValueFilePath::GetType
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> GenericAccessDataValueFilePath::GetValue() const
 {
-	return dataValue;
+	return _dataValue;
 }
 
 //----------------------------------------------------------------------------------------
@@ -51,7 +51,7 @@ bool GenericAccessDataValueFilePath::SetValueString(const Marshal::In<std::wstri
 //----------------------------------------------------------------------------------------
 bool GenericAccessDataValueFilePath::SetValueFilePath(const Marshal::In<std::wstring>& value)
 {
-	dataValue = value;
+	_dataValue = value;
 	ApplyLimitSettingsToCurrentValue();
 	return true;
 }
@@ -61,13 +61,13 @@ bool GenericAccessDataValueFilePath::SetValueFilePath(const Marshal::In<std::wst
 //----------------------------------------------------------------------------------------
 unsigned int GenericAccessDataValueFilePath::GetMaxLength() const
 {
-	return maxLength;
+	return _maxLength;
 }
 
 //----------------------------------------------------------------------------------------
 void GenericAccessDataValueFilePath::SetMaxLength(unsigned int state)
 {
-	maxLength = state;
+	_maxLength = state;
 }
 
 //----------------------------------------------------------------------------------------
@@ -75,8 +75,8 @@ void GenericAccessDataValueFilePath::SetMaxLength(unsigned int state)
 //----------------------------------------------------------------------------------------
 void GenericAccessDataValueFilePath::ApplyLimitSettingsToCurrentValue()
 {
-	if((maxLength > 0) && (dataValue.length() > (size_t)maxLength))
+	if((_maxLength > 0) && (_dataValue.length() > (size_t)_maxLength))
 	{
-		dataValue.resize((size_t)maxLength);
+		_dataValue.resize((size_t)_maxLength);
 	}
 }

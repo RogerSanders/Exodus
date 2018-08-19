@@ -39,46 +39,46 @@ enum class ISN76489::ISN76489DataSource
 //----------------------------------------------------------------------------------------
 unsigned int ISN76489::GetVolumeRegisterExternal(unsigned int channelNo) const
 {
-	GenericAccessDataValueUInt data;
-	ReadGenericData((unsigned int)ISN76489DataSource::Channel1VolumeRegister + channelNo, 0, data);
-	return data.GetValue();
+	GenericAccessDataValueUInt genericData;
+	ReadGenericData((unsigned int)ISN76489DataSource::Channel1VolumeRegister + channelNo, 0, genericData);
+	return genericData.GetValue();
 }
 
 //----------------------------------------------------------------------------------------
-void ISN76489::SetVolumeRegisterExternal(unsigned int channelNo, unsigned int adata)
+void ISN76489::SetVolumeRegisterExternal(unsigned int channelNo, unsigned int data)
 {
-	GenericAccessDataValueUInt data(adata);
-	WriteGenericData((unsigned int)ISN76489DataSource::Channel1VolumeRegister + channelNo, 0, data);
+	GenericAccessDataValueUInt genericData(data);
+	WriteGenericData((unsigned int)ISN76489DataSource::Channel1VolumeRegister + channelNo, 0, genericData);
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int ISN76489::GetToneRegisterExternal(unsigned int channelNo) const
 {
-	GenericAccessDataValueUInt data;
-	ReadGenericData((unsigned int)ISN76489DataSource::Channel1ToneRegister + channelNo, 0, data);
-	return data.GetValue();
+	GenericAccessDataValueUInt genericData;
+	ReadGenericData((unsigned int)ISN76489DataSource::Channel1ToneRegister + channelNo, 0, genericData);
+	return genericData.GetValue();
 }
 
 //----------------------------------------------------------------------------------------
-void ISN76489::SetToneRegisterExternal(unsigned int channelNo, unsigned int adata)
+void ISN76489::SetToneRegisterExternal(unsigned int channelNo, unsigned int data)
 {
-	GenericAccessDataValueUInt data(adata);
-	WriteGenericData((unsigned int)ISN76489DataSource::Channel1ToneRegister + channelNo, 0, data);
+	GenericAccessDataValueUInt genericData(data);
+	WriteGenericData((unsigned int)ISN76489DataSource::Channel1ToneRegister + channelNo, 0, genericData);
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int ISN76489::GetNoiseShiftRegisterExternal() const
 {
-	GenericAccessDataValueUInt data;
-	ReadGenericData((unsigned int)ISN76489DataSource::NoiseShiftRegister, 0, data);
-	return data.GetValue();
+	GenericAccessDataValueUInt genericData;
+	ReadGenericData((unsigned int)ISN76489DataSource::NoiseShiftRegister, 0, genericData);
+	return genericData.GetValue();
 }
 
 //----------------------------------------------------------------------------------------
-void ISN76489::SetNoiseShiftRegisterExternal(unsigned int adata)
+void ISN76489::SetNoiseShiftRegisterExternal(unsigned int data)
 {
-	GenericAccessDataValueUInt data(adata);
-	WriteGenericData((unsigned int)ISN76489DataSource::NoiseShiftRegister, 0, data);
+	GenericAccessDataValueUInt genericData(data);
+	WriteGenericData((unsigned int)ISN76489DataSource::NoiseShiftRegister, 0, genericData);
 }
 
 //----------------------------------------------------------------------------------------
@@ -86,31 +86,31 @@ void ISN76489::SetNoiseShiftRegisterExternal(unsigned int adata)
 //----------------------------------------------------------------------------------------
 unsigned int ISN76489::GetLatchedChannelNoExternal() const
 {
-	GenericAccessDataValueUInt data;
-	ReadGenericData((unsigned int)ISN76489DataSource::LatchedChannelNo, 0, data);
-	return data.GetValue();
+	GenericAccessDataValueUInt genericData;
+	ReadGenericData((unsigned int)ISN76489DataSource::LatchedChannelNo, 0, genericData);
+	return genericData.GetValue();
 }
 
 //----------------------------------------------------------------------------------------
-void ISN76489::SetLatchedChannelNoExternal(unsigned int adata)
+void ISN76489::SetLatchedChannelNoExternal(unsigned int data)
 {
-	GenericAccessDataValueUInt data(adata);
-	WriteGenericData((unsigned int)ISN76489DataSource::LatchedChannelNo, 0, data);
+	GenericAccessDataValueUInt genericData(data);
+	WriteGenericData((unsigned int)ISN76489DataSource::LatchedChannelNo, 0, genericData);
 }
 
 //----------------------------------------------------------------------------------------
 bool ISN76489::GetVolumeRegisterLatchedExternal() const
 {
-	GenericAccessDataValueBool data;
-	ReadGenericData((unsigned int)ISN76489DataSource::VolumeRegisterLatched, 0, data);
-	return data.GetValue();
+	GenericAccessDataValueBool genericData;
+	ReadGenericData((unsigned int)ISN76489DataSource::VolumeRegisterLatched, 0, genericData);
+	return genericData.GetValue();
 }
 
 //----------------------------------------------------------------------------------------
-void ISN76489::SetVolumeRegisterLatchedExternal(bool adata)
+void ISN76489::SetVolumeRegisterLatchedExternal(bool data)
 {
-	GenericAccessDataValueBool data(adata);
-	WriteGenericData((unsigned int)ISN76489DataSource::VolumeRegisterLatched, 0, data);
+	GenericAccessDataValueBool genericData(data);
+	WriteGenericData((unsigned int)ISN76489DataSource::VolumeRegisterLatched, 0, genericData);
 }
 
 //----------------------------------------------------------------------------------------
@@ -118,91 +118,91 @@ void ISN76489::SetVolumeRegisterLatchedExternal(bool adata)
 //----------------------------------------------------------------------------------------
 double ISN76489::GetExternalClockRate() const
 {
-	GenericAccessDataValueDouble data;
-	ReadGenericData((unsigned int)ISN76489DataSource::ExternalClockRate, 0, data);
-	return data.GetValue();
+	GenericAccessDataValueDouble genericData;
+	ReadGenericData((unsigned int)ISN76489DataSource::ExternalClockRate, 0, genericData);
+	return genericData.GetValue();
 }
 
 //----------------------------------------------------------------------------------------
-void ISN76489::SetExternalClockRate(double adata)
+void ISN76489::SetExternalClockRate(double data)
 {
-	GenericAccessDataValueDouble data(adata);
-	WriteGenericData((unsigned int)ISN76489DataSource::ExternalClockRate, 0, data);
+	GenericAccessDataValueDouble genericData(data);
+	WriteGenericData((unsigned int)ISN76489DataSource::ExternalClockRate, 0, genericData);
 }
 
 //----------------------------------------------------------------------------------------
 double ISN76489::GetExternalClockDivider() const
 {
-	GenericAccessDataValueDouble data;
-	ReadGenericData((unsigned int)ISN76489DataSource::ExternalClockDivider, 0, data);
-	return data.GetValue();
+	GenericAccessDataValueDouble genericData;
+	ReadGenericData((unsigned int)ISN76489DataSource::ExternalClockDivider, 0, genericData);
+	return genericData.GetValue();
 }
 
 //----------------------------------------------------------------------------------------
-void ISN76489::SetExternalClockDivider(double adata)
+void ISN76489::SetExternalClockDivider(double data)
 {
-	GenericAccessDataValueDouble data(adata);
-	WriteGenericData((unsigned int)ISN76489DataSource::ExternalClockDivider, 0, data);
+	GenericAccessDataValueDouble genericData(data);
+	WriteGenericData((unsigned int)ISN76489DataSource::ExternalClockDivider, 0, genericData);
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int ISN76489::GetShiftRegisterBitCount() const
 {
-	GenericAccessDataValueUInt data;
-	ReadGenericData((unsigned int)ISN76489DataSource::ShiftRegisterBitCount, 0, data);
-	return data.GetValue();
+	GenericAccessDataValueUInt genericData;
+	ReadGenericData((unsigned int)ISN76489DataSource::ShiftRegisterBitCount, 0, genericData);
+	return genericData.GetValue();
 }
 
 //----------------------------------------------------------------------------------------
-void ISN76489::SetShiftRegisterBitCount(unsigned int adata)
+void ISN76489::SetShiftRegisterBitCount(unsigned int data)
 {
-	GenericAccessDataValueUInt data(adata);
-	WriteGenericData((unsigned int)ISN76489DataSource::ShiftRegisterBitCount, 0, data);
+	GenericAccessDataValueUInt genericData(data);
+	WriteGenericData((unsigned int)ISN76489DataSource::ShiftRegisterBitCount, 0, genericData);
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int ISN76489::GetShiftRegisterDefaultValue() const
 {
-	GenericAccessDataValueUInt data;
-	ReadGenericData((unsigned int)ISN76489DataSource::ShiftRegisterDefaultValue, 0, data);
-	return data.GetValue();
+	GenericAccessDataValueUInt genericData;
+	ReadGenericData((unsigned int)ISN76489DataSource::ShiftRegisterDefaultValue, 0, genericData);
+	return genericData.GetValue();
 }
 
 //----------------------------------------------------------------------------------------
-void ISN76489::SetShiftRegisterDefaultValue(unsigned int adata)
+void ISN76489::SetShiftRegisterDefaultValue(unsigned int data)
 {
-	GenericAccessDataValueUInt data(adata);
-	WriteGenericData((unsigned int)ISN76489DataSource::ShiftRegisterDefaultValue, 0, data);
+	GenericAccessDataValueUInt genericData(data);
+	WriteGenericData((unsigned int)ISN76489DataSource::ShiftRegisterDefaultValue, 0, genericData);
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int ISN76489::GetNoiseChannelWhiteNoiseTappedBitMask() const
 {
-	GenericAccessDataValueUInt data;
-	ReadGenericData((unsigned int)ISN76489DataSource::WhiteNoiseTappedBitMask, 0, data);
-	return data.GetValue();
+	GenericAccessDataValueUInt genericData;
+	ReadGenericData((unsigned int)ISN76489DataSource::WhiteNoiseTappedBitMask, 0, genericData);
+	return genericData.GetValue();
 }
 
 //----------------------------------------------------------------------------------------
-void ISN76489::SetNoiseChannelWhiteNoiseTappedBitMask(unsigned int adata)
+void ISN76489::SetNoiseChannelWhiteNoiseTappedBitMask(unsigned int data)
 {
-	GenericAccessDataValueUInt data(adata);
-	WriteGenericData((unsigned int)ISN76489DataSource::WhiteNoiseTappedBitMask, 0, data);
+	GenericAccessDataValueUInt genericData(data);
+	WriteGenericData((unsigned int)ISN76489DataSource::WhiteNoiseTappedBitMask, 0, genericData);
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int ISN76489::GetNoiseChannelPeriodicNoiseTappedBitMask() const
 {
-	GenericAccessDataValueUInt data;
-	ReadGenericData((unsigned int)ISN76489DataSource::PeriodicNoiseTappedBitMask, 0, data);
-	return data.GetValue();
+	GenericAccessDataValueUInt genericData;
+	ReadGenericData((unsigned int)ISN76489DataSource::PeriodicNoiseTappedBitMask, 0, genericData);
+	return genericData.GetValue();
 }
 
 //----------------------------------------------------------------------------------------
-void ISN76489::SetNoiseChannelPeriodicNoiseTappedBitMask(unsigned int adata)
+void ISN76489::SetNoiseChannelPeriodicNoiseTappedBitMask(unsigned int data)
 {
-	GenericAccessDataValueUInt data(adata);
-	WriteGenericData((unsigned int)ISN76489DataSource::PeriodicNoiseTappedBitMask, 0, data);
+	GenericAccessDataValueUInt genericData(data);
+	WriteGenericData((unsigned int)ISN76489DataSource::PeriodicNoiseTappedBitMask, 0, genericData);
 }
 
 //----------------------------------------------------------------------------------------
@@ -210,59 +210,59 @@ void ISN76489::SetNoiseChannelPeriodicNoiseTappedBitMask(unsigned int adata)
 //----------------------------------------------------------------------------------------
 bool ISN76489::IsAudioLoggingEnabled() const
 {
-	GenericAccessDataValueBool data;
-	ReadGenericData((unsigned int)ISN76489DataSource::AudioLoggingEnabled, 0, data);
-	return data.GetValue();
+	GenericAccessDataValueBool genericData;
+	ReadGenericData((unsigned int)ISN76489DataSource::AudioLoggingEnabled, 0, genericData);
+	return genericData.GetValue();
 }
 
 //----------------------------------------------------------------------------------------
-void ISN76489::SetAudioLoggingEnabled(bool adata)
+void ISN76489::SetAudioLoggingEnabled(bool data)
 {
-	GenericAccessDataValueBool data(adata);
-	WriteGenericData((unsigned int)ISN76489DataSource::AudioLoggingEnabled, 0, data);
+	GenericAccessDataValueBool genericData(data);
+	WriteGenericData((unsigned int)ISN76489DataSource::AudioLoggingEnabled, 0, genericData);
 }
 
 //----------------------------------------------------------------------------------------
 bool ISN76489::IsChannelAudioLoggingEnabled(unsigned int channelNo) const
 {
-	GenericAccessDataValueBool data;
-	ReadGenericData((unsigned int)ISN76489DataSource::Channel1AudioLoggingEnabled + channelNo, 0, data);
-	return data.GetValue();
+	GenericAccessDataValueBool genericData;
+	ReadGenericData((unsigned int)ISN76489DataSource::Channel1AudioLoggingEnabled + channelNo, 0, genericData);
+	return genericData.GetValue();
 }
 
 //----------------------------------------------------------------------------------------
-void ISN76489::SetChannelAudioLoggingEnabled(unsigned int channelNo, bool adata)
+void ISN76489::SetChannelAudioLoggingEnabled(unsigned int channelNo, bool data)
 {
-	GenericAccessDataValueBool data(adata);
-	WriteGenericData((unsigned int)ISN76489DataSource::Channel1AudioLoggingEnabled + channelNo, 0, data);
+	GenericAccessDataValueBool genericData(data);
+	WriteGenericData((unsigned int)ISN76489DataSource::Channel1AudioLoggingEnabled + channelNo, 0, genericData);
 }
 
 //----------------------------------------------------------------------------------------
 std::wstring ISN76489::GetAudioLoggingOutputPath() const
 {
-	GenericAccessDataValueFilePath data;
-	ReadGenericData((unsigned int)ISN76489DataSource::AudioLoggingPath, 0, data);
-	return data.GetValue();
+	GenericAccessDataValueFilePath genericData;
+	ReadGenericData((unsigned int)ISN76489DataSource::AudioLoggingPath, 0, genericData);
+	return genericData.GetValue();
 }
 
 //----------------------------------------------------------------------------------------
-void ISN76489::SetAudioLoggingOutputPath(const std::wstring& adata)
+void ISN76489::SetAudioLoggingOutputPath(const std::wstring& data)
 {
-	GenericAccessDataValueFilePath data(adata);
-	WriteGenericData((unsigned int)ISN76489DataSource::AudioLoggingPath, 0, data);
+	GenericAccessDataValueFilePath genericData(data);
+	WriteGenericData((unsigned int)ISN76489DataSource::AudioLoggingPath, 0, genericData);
 }
 
 //----------------------------------------------------------------------------------------
 std::wstring ISN76489::GetChannelAudioLoggingOutputPath(unsigned int channelNo) const
 {
-	GenericAccessDataValueFilePath data;
-	ReadGenericData((unsigned int)ISN76489DataSource::Channel1AudioLoggingPath + channelNo, 0, data);
-	return data.GetValue();
+	GenericAccessDataValueFilePath genericData;
+	ReadGenericData((unsigned int)ISN76489DataSource::Channel1AudioLoggingPath + channelNo, 0, genericData);
+	return genericData.GetValue();
 }
 
 //----------------------------------------------------------------------------------------
-void ISN76489::SetChannelAudioLoggingOutputPath(unsigned int channelNo, const std::wstring& adata)
+void ISN76489::SetChannelAudioLoggingOutputPath(unsigned int channelNo, const std::wstring& data)
 {
-	GenericAccessDataValueFilePath data(adata);
-	WriteGenericData((unsigned int)ISN76489DataSource::Channel1AudioLoggingPath + channelNo, 0, data);
+	GenericAccessDataValueFilePath genericData(data);
+	WriteGenericData((unsigned int)ISN76489DataSource::Channel1AudioLoggingPath + channelNo, 0, genericData);
 }

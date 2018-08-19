@@ -5,10 +5,10 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-CreateDashboardView::CreateDashboardView(IUIManager& auiManager, CreateDashboardViewPresenter& apresenter, ExodusInterface& amodel)
-:ViewBase(auiManager, apresenter), presenter(apresenter), model(amodel)
+CreateDashboardView::CreateDashboardView(IUIManager& uiManager, CreateDashboardViewPresenter& presenter, ExodusInterface& model)
+:ViewBase(uiManager, presenter), _presenter(presenter), _model(model)
 {
-	SetDialogTemplateSettings(apresenter.GetUnqualifiedViewTitle(), GetAssemblyHandle(), MAKEINTRESOURCE(IDD_CREATEDASHBOARD));
+	SetDialogTemplateSettings(presenter.GetUnqualifiedViewTitle(), GetAssemblyHandle(), MAKEINTRESOURCE(IDD_CREATEDASHBOARD));
 	SetDialogViewType(DialogMode::Modeless, false, DialogPos::Center);
 }
 
@@ -51,7 +51,7 @@ INT_PTR CreateDashboardView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lpar
 		{
 		case IDC_CREATEDASHBOARD_OK:{
 			std::wstring dashboardTitle = GetDlgItemString(hwnd, IDC_CREATEDASHBOARD_NAME);
-			model.CreateDashboard(dashboardTitle);
+			_model.CreateDashboard(dashboardTitle);
 			CloseView();
 			break;}
 		case IDC_CREATEDASHBOARD_CANCEL:

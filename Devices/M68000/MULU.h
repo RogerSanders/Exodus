@@ -22,7 +22,7 @@ public:
 
 	virtual Disassembly M68000Disassemble(const M68000::LabelSubstitutionSettings& labelSettings) const
 	{
-		return Disassembly(GetOpcodeName() + L"." + DisassembleSize(BITCOUNT_WORD), source.Disassemble(labelSettings) + L", " + target.Disassemble(labelSettings));
+		return Disassembly(GetOpcodeName() + L"." + DisassembleSize(BITCOUNT_WORD), _source.Disassemble(labelSettings) + L", " + _target.Disassemble(labelSettings));
 	}
 
 	virtual void M68000Decode(const M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)
@@ -35,31 +35,31 @@ public:
 //	                                        |----------<ea>---------|
 
 		//MULU.W	<ea>,Dn		16*16->32
-		size = BITCOUNT_WORD;
-		target.BuildDataDirect(size, location + GetInstructionSize(), data.GetDataSegment(9, 3));
-		source.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), BITCOUNT_WORD, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
-		AddInstructionSize(source.ExtensionSize());
+		_size = BITCOUNT_WORD;
+		_target.BuildDataDirect(_size, location + GetInstructionSize(), data.GetDataSegment(9, 3));
+		_source.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), BITCOUNT_WORD, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
+		AddInstructionSize(_source.ExtensionSize());
 
 		AddExecuteCycleCount(ExecuteTime(38, 1, 0));
-		AddExecuteCycleCount(source.DecodeTime());
+		AddExecuteCycleCount(_source.DecodeTime());
 	}
 
 	virtual ExecuteTime M68000Execute(M68000* cpu, const M68000Long& location) const
 	{
 		double additionalTime = 0;
-		Data temp1(size);
-		Data temp2(size);
+		Data temp1(_size);
+		Data temp2(_size);
 		M68000Long op1;
 		M68000Long op2;
 		M68000Long result;
 
 		//Perform the operation
-		additionalTime += source.Read(cpu, temp1, GetInstructionRegister());
-		additionalTime += target.ReadWithoutAdjustingAddress(cpu, temp2, GetInstructionRegister());
+		additionalTime += _source.Read(cpu, temp1, GetInstructionRegister());
+		additionalTime += _target.ReadWithoutAdjustingAddress(cpu, temp2, GetInstructionRegister());
 		op1 = M68000Long(temp1.Convert(BITCOUNT_LONG));
 		op2 = M68000Long(temp2.Convert(BITCOUNT_LONG));
 		result = op1 * op2;
-		additionalTime += target.Write(cpu, result, GetInstructionRegister());
+		additionalTime += _target.Write(cpu, result, GetInstructionRegister());
 
 		//Set the flag results
 		cpu->SetN(result.Negative());
@@ -72,8 +72,8 @@ public:
 		//MULS, MULU — The multiply algorithm requires 38+2n clocks where n is defined as
 		//	MULU: n = the number of ones in the <ea>
 		//	MULS: n=concatenate the <ea> with a zero as the LSB; n is the resultant
-		//	number of 10 or 01 patterns in the 17-bit source; i.e., worst case happens
-		//	when the source is $5555.
+		//	number of 10 or 01 patterns in the 17-bit _source; i.e., worst case happens
+		//	when the _source is $5555.
 		ExecuteTime additionalCycles;
 		additionalCycles.cycles = 2 * op1.GetSetBitCount();
 
@@ -84,14 +84,14 @@ public:
 
 	virtual void GetLabelTargetLocations(std::set<unsigned int>& labelTargetLocations) const
 	{
-		source.AddLabelTargetsToSet(labelTargetLocations);
-		target.AddLabelTargetsToSet(labelTargetLocations);
+		_source.AddLabelTargetsToSet(labelTargetLocations);
+		_target.AddLabelTargetsToSet(labelTargetLocations);
 	}
 
 private:
-	Bitcount size;
-	EffectiveAddress source;
-	EffectiveAddress target;
+	Bitcount _size;
+	EffectiveAddress _source;
+	EffectiveAddress _target;
 };
 
 } //Close namespace M68000

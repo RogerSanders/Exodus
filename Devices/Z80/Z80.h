@@ -48,7 +48,7 @@ class Z80 :public Processor, public IZ80
 {
 public:
 	//Constructors
-	Z80(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
+	Z80(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 	~Z80();
 
 	//Interface version functions
@@ -222,14 +222,14 @@ public:
 
 	//Interrupt register functions
 	inline unsigned int GetInterruptMode() const;
-	inline void SetInterruptMode(unsigned int ainterruptMode);
+	inline void SetInterruptMode(unsigned int interruptMode);
 	inline bool GetIFF1() const;
 	inline void SetIFF1(bool state);
 	inline bool GetIFF2() const;
 	inline void SetIFF2(bool state);
 	inline bool GetMaskInterruptsNextOpcode() const;
 	inline void SetMaskInterruptsNextOpcode(bool state);
-	inline void SetProcessorStoppedState(bool astate);
+	inline void SetProcessorStoppedState(bool state);
 
 	//Flag functions
 	inline bool GetFlagS() const;
@@ -289,131 +289,131 @@ private:
 
 private:
 	//Bus interface
-	mutable ReadWriteLock externalReferenceLock;
-	IBusInterface* memoryBus;
+	mutable ReadWriteLock _externalReferenceLock;
+	IBusInterface* _memoryBus;
 
 	//Opcode decode tables
-	std::list<Z80Instruction*> opcodeList;
-	std::list<Z80Instruction*> opcodeListCB;
-	std::list<Z80Instruction*> opcodeListED;
-	OpcodeTable<Z80Instruction> opcodeTable;
-	OpcodeTable<Z80Instruction> opcodeTableCB;
-	OpcodeTable<Z80Instruction> opcodeTableED;
+	std::list<Z80Instruction*> _opcodeList;
+	std::list<Z80Instruction*> _opcodeListCB;
+	std::list<Z80Instruction*> _opcodeListED;
+	OpcodeTable<Z80Instruction> _opcodeTable;
+	OpcodeTable<Z80Instruction> _opcodeTableCB;
+	OpcodeTable<Z80Instruction> _opcodeTableED;
 
 	//Opcode allocation buffer for placement new
-	void* opcodeBuffer;
+	void* _opcodeBuffer;
 
-	//Main registers   Alternate registers
-	Z80Word afreg;        Z80Word af2reg;
-	Z80Word bcreg;        Z80Word bc2reg;
-	Z80Word dereg;        Z80Word de2reg;
-	Z80Word hlreg;        Z80Word hl2reg;
-	Z80Word bafreg;       Z80Word baf2reg;
-	Z80Word bbcreg;       Z80Word bbc2reg;
-	Z80Word bdereg;       Z80Word bde2reg;
-	Z80Word bhlreg;       Z80Word bhl2reg;
+	//Main registers       Alternate registers
+	Z80Word _afreg;        Z80Word _af2reg;
+	Z80Word _bcreg;        Z80Word _bc2reg;
+	Z80Word _dereg;        Z80Word _de2reg;
+	Z80Word _hlreg;        Z80Word _hl2reg;
+	Z80Word _bafreg;       Z80Word _baf2reg;
+	Z80Word _bbcreg;       Z80Word _bbc2reg;
+	Z80Word _bdereg;       Z80Word _bde2reg;
+	Z80Word _bhlreg;       Z80Word _bhl2reg;
 
 	//Special purpose registers
-	Z80Byte ireg;
-	Z80Byte rreg;
-	Z80Word ixreg;
-	Z80Word iyreg;
-	Z80Word spreg;
-	Z80Word pcreg;
-	Z80Byte bireg;
-	Z80Byte brreg;
-	Z80Word bixreg;
-	Z80Word biyreg;
-	Z80Word bspreg;
-	Z80Word bpcreg;
+	Z80Byte _ireg;
+	Z80Byte _rreg;
+	Z80Word _ixreg;
+	Z80Word _iyreg;
+	Z80Word _spreg;
+	Z80Word _pcreg;
+	Z80Byte _bireg;
+	Z80Byte _brreg;
+	Z80Word _bixreg;
+	Z80Word _biyreg;
+	Z80Word _bspreg;
+	Z80Word _bpcreg;
 
 	//Interrupt registers
-	unsigned int interruptMode;
-	bool iff1;
-	bool iff2;
-	bool maskInterruptsNextOpcode;
-	unsigned int binterruptMode;
-	bool biff1;
-	bool biff2;
-	bool bmaskInterruptsNextOpcode;
+	unsigned int _interruptMode;
+	bool _iff1;
+	bool _iff2;
+	bool _maskInterruptsNextOpcode;
+	unsigned int _binterruptMode;
+	bool _biff1;
+	bool _biff2;
+	bool _bmaskInterruptsNextOpcode;
 
 	//External signals
-	bool processorStopped;
-	bool bprocessorStopped;
+	bool _processorStopped;
+	bool _bprocessorStopped;
 
 	//CE line masks
-	unsigned int ceLineMaskRD;
-	unsigned int ceLineMaskWR;
+	unsigned int _ceLineMaskRD;
+	unsigned int _ceLineMaskWR;
 
 	//Changed register state
-	volatile unsigned int regChangedAF;
-	volatile unsigned int regChangedBC;
-	volatile unsigned int regChangedDE;
-	volatile unsigned int regChangedHL;
-	volatile unsigned int regChangedAF2;
-	volatile unsigned int regChangedBC2;
-	volatile unsigned int regChangedDE2;
-	volatile unsigned int regChangedHL2;
-	volatile unsigned int regChangedA;
-	volatile unsigned int regChangedF;
-	volatile unsigned int regChangedB;
-	volatile unsigned int regChangedC;
-	volatile unsigned int regChangedD;
-	volatile unsigned int regChangedE;
-	volatile unsigned int regChangedH;
-	volatile unsigned int regChangedL;
-	volatile unsigned int regChangedA2;
-	volatile unsigned int regChangedF2;
-	volatile unsigned int regChangedB2;
-	volatile unsigned int regChangedC2;
-	volatile unsigned int regChangedD2;
-	volatile unsigned int regChangedE2;
-	volatile unsigned int regChangedH2;
-	volatile unsigned int regChangedL2;
-	volatile unsigned int regChangedI;
-	volatile unsigned int regChangedR;
-	volatile unsigned int regChangedIX;
-	volatile unsigned int regChangedIY;
-	volatile unsigned int regChangedIXHigh;
-	volatile unsigned int regChangedIXLow;
-	volatile unsigned int regChangedIYHigh;
-	volatile unsigned int regChangedIYLow;
-	volatile unsigned int regChangedSP;
-	volatile unsigned int regChangedPC;
-	volatile unsigned int regChangedIM;
-	volatile bool regChangedIFF1;
-	volatile bool regChangedIFF2;
-	volatile bool regChangedFlagS;
-	volatile bool regChangedFlagZ;
-	volatile bool regChangedFlagY;
-	volatile bool regChangedFlagH;
-	volatile bool regChangedFlagX;
-	volatile bool regChangedFlagPV;
-	volatile bool regChangedFlagN;
-	volatile bool regChangedFlagC;
+	volatile unsigned int _regChangedAF;
+	volatile unsigned int _regChangedBC;
+	volatile unsigned int _regChangedDE;
+	volatile unsigned int _regChangedHL;
+	volatile unsigned int _regChangedAF2;
+	volatile unsigned int _regChangedBC2;
+	volatile unsigned int _regChangedDE2;
+	volatile unsigned int _regChangedHL2;
+	volatile unsigned int _regChangedA;
+	volatile unsigned int _regChangedF;
+	volatile unsigned int _regChangedB;
+	volatile unsigned int _regChangedC;
+	volatile unsigned int _regChangedD;
+	volatile unsigned int _regChangedE;
+	volatile unsigned int _regChangedH;
+	volatile unsigned int _regChangedL;
+	volatile unsigned int _regChangedA2;
+	volatile unsigned int _regChangedF2;
+	volatile unsigned int _regChangedB2;
+	volatile unsigned int _regChangedC2;
+	volatile unsigned int _regChangedD2;
+	volatile unsigned int _regChangedE2;
+	volatile unsigned int _regChangedH2;
+	volatile unsigned int _regChangedL2;
+	volatile unsigned int _regChangedI;
+	volatile unsigned int _regChangedR;
+	volatile unsigned int _regChangedIX;
+	volatile unsigned int _regChangedIY;
+	volatile unsigned int _regChangedIXHigh;
+	volatile unsigned int _regChangedIXLow;
+	volatile unsigned int _regChangedIYHigh;
+	volatile unsigned int _regChangedIYLow;
+	volatile unsigned int _regChangedSP;
+	volatile unsigned int _regChangedPC;
+	volatile unsigned int _regChangedIM;
+	volatile bool _regChangedIFF1;
+	volatile bool _regChangedIFF2;
+	volatile bool _regChangedFlagS;
+	volatile bool _regChangedFlagZ;
+	volatile bool _regChangedFlagY;
+	volatile bool _regChangedFlagH;
+	volatile bool _regChangedFlagX;
+	volatile bool _regChangedFlagPV;
+	volatile bool _regChangedFlagN;
+	volatile bool _regChangedFlagC;
 
 	//Line access
-	std::mutex lineMutex;
-	mutable double lastLineCheckTime;
-	volatile bool lineAccessPending;
-	double lastTimesliceLength;
-	double blastTimesliceLength;
-	std::list<LineAccess> lineAccessBuffer;
-	std::list<LineAccess> blineAccessBuffer;
-	bool suspendWhenBusReleased;
-	volatile bool suspendUntilLineStateChangeReceived;
-	bool bsuspendUntilLineStateChangeReceived;
-	bool resetLineState;
-	bool resetLastStep;
-	bool busreqLineState;
-	bool busackLineState;
-	bool intLineState;
-	bool nmiLineState;
-	bool bresetLineState;
-	bool bbusreqLineState;
-	bool bbusackLineState;
-	bool bintLineState;
-	bool bnmiLineState;
+	std::mutex _lineMutex;
+	mutable double _lastLineCheckTime;
+	volatile bool _lineAccessPending;
+	double _lastTimesliceLength;
+	double _blastTimesliceLength;
+	std::list<LineAccess> _lineAccessBuffer;
+	std::list<LineAccess> _blineAccessBuffer;
+	bool _suspendWhenBusReleased;
+	volatile bool _suspendUntilLineStateChangeReceived;
+	bool _bsuspendUntilLineStateChangeReceived;
+	bool _resetLineState;
+	bool _resetLastStep;
+	bool _busreqLineState;
+	bool _busackLineState;
+	bool _intLineState;
+	bool _nmiLineState;
+	bool _bresetLineState;
+	bool _bbusreqLineState;
+	bool _bbusackLineState;
+	bool _bintLineState;
+	bool _bnmiLineState;
 };
 
 } //Close namespace Z80

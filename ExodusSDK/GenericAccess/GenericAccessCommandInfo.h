@@ -7,20 +7,20 @@ class GenericAccessCommandInfo :public IGenericAccessCommandInfo
 {
 public:
 	//Constructors
-	template<class T> inline GenericAccessCommandInfo(T aid);
+	template<class T> inline GenericAccessCommandInfo(T id);
 
 	//Interface version functions
 	virtual unsigned int GetIGenericAccessCommandInfoVersion() const;
 
 	//Command info functions
 	virtual unsigned int GetID() const;
-	inline GenericAccessCommandInfo* SetID(unsigned int aid);
+	inline GenericAccessCommandInfo* SetID(unsigned int id);
 	virtual bool GetCanExecute() const;
-	inline GenericAccessCommandInfo* SetCanExecute(bool acanExecute);
+	inline GenericAccessCommandInfo* SetCanExecute(bool canExecute);
 
 private:
-	unsigned int id;
-	bool canExecute;
+	unsigned int _id;
+	bool _canExecute;
 };
 
 #include "GenericAccessCommandInfo.inl"

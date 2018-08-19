@@ -16,7 +16,7 @@ public:
 	};
 
 	//Constructors
-	MenuHandler(ExodusInterface& aowner, ExodusInterface& amodel);
+	MenuHandler(ExodusInterface& owner, ExodusInterface& model);
 
 protected:
 	//Management functions
@@ -25,8 +25,8 @@ protected:
 	virtual void DeleteViewForItem(int menuItemID, IViewPresenter* viewPresenter);
 
 private:
-	ExodusInterface& owner;
-	ExodusInterface& model;
+	ExodusInterface& _owner;
+	ExodusInterface& _model;
 };
 
 #endif

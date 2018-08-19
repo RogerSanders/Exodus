@@ -22,7 +22,7 @@ public:
 
 	virtual Disassembly M68000Disassemble(const M68000::LabelSubstitutionSettings& labelSettings) const
 	{
-		return Disassembly(GetOpcodeName() + L"." + DisassembleSize(size), source.Disassemble(labelSettings) + L", " + target.Disassemble(labelSettings));
+		return Disassembly(GetOpcodeName() + L"." + DisassembleSize(_size), _source.Disassemble(labelSettings) + L", " + _target.Disassemble(labelSettings));
 	}
 
 	virtual void M68000Decode(const M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)
@@ -36,20 +36,20 @@ public:
 		switch(data.GetDataSegment(7, 2))
 		{
 		case 1:	//01
-			size = BITCOUNT_WORD;
+			_size = BITCOUNT_WORD;
 			break;
 		case 3:	//11
-			size = BITCOUNT_LONG;
+			_size = BITCOUNT_LONG;
 			break;
 		}
 
 		//CMPA	<ea>,An
-		target.BuildAddressDirect(size, location + GetInstructionSize(), data.GetDataSegment(9, 3));
-		source.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), size, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
-		AddInstructionSize(source.ExtensionSize());
+		_target.BuildAddressDirect(_size, location + GetInstructionSize(), data.GetDataSegment(9, 3));
+		_source.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), _size, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
+		AddInstructionSize(_source.ExtensionSize());
 
 		AddExecuteCycleCount(ExecuteTime(6, 1, 0));
-		AddExecuteCycleCount(source.DecodeTime());
+		AddExecuteCycleCount(_source.DecodeTime());
 	}
 
 	virtual ExecuteTime M68000Execute(M68000* cpu, const M68000Long& location) const
@@ -58,11 +58,11 @@ public:
 		M68000Long op1;
 		M68000Long op2;
 		M68000Long result;
-		Data temp(size);
+		Data temp(_size);
 
 		//Perform the operation
-		additionalTime += source.Read(cpu, temp, GetInstructionRegister());
-		additionalTime += target.Read(cpu, op2, GetInstructionRegister());
+		additionalTime += _source.Read(cpu, temp, GetInstructionRegister());
+		additionalTime += _target.Read(cpu, op2, GetInstructionRegister());
 		op1 = M68000Long(temp.SignExtend(BITCOUNT_LONG));
 		result = op2 - op1;
 
@@ -81,14 +81,14 @@ public:
 
 	virtual void GetLabelTargetLocations(std::set<unsigned int>& labelTargetLocations) const
 	{
-		source.AddLabelTargetsToSet(labelTargetLocations);
-		target.AddLabelTargetsToSet(labelTargetLocations);
+		_source.AddLabelTargetsToSet(labelTargetLocations);
+		_target.AddLabelTargetsToSet(labelTargetLocations);
 	}
 
 private:
-	EffectiveAddress source;
-	EffectiveAddress target;
-	Bitcount size;
+	EffectiveAddress _source;
+	EffectiveAddress _target;
+	Bitcount _size;
 };
 
 } //Close namespace M68000

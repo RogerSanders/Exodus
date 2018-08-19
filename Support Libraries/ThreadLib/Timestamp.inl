@@ -5,11 +5,11 @@ Timestamp::Timestamp(const SYSTEMTIME& systemTime)
 {
 	std::wstringstream dateStream;
 	dateStream << systemTime.wYear << L'-' << systemTime.wMonth << L'-' << systemTime.wDay;
-	date = dateStream.str();
+	_date = dateStream.str();
 
 	std::wstringstream timeStream;
 	timeStream << systemTime.wHour << L':' << std::setw(2) << std::setfill(L'0') << systemTime.wMinute << L':' << std::setw(2) << systemTime.wSecond;
-	time = timeStream.str();
+	_time = timeStream.str();
 }
 
 //----------------------------------------------------------------------------------------
@@ -17,25 +17,25 @@ Timestamp::Timestamp(const SYSTEMTIME& systemTime)
 //----------------------------------------------------------------------------------------
 std::wstring Timestamp::GetDate() const
 {
-	return date;
+	return _date;
 }
 
 //----------------------------------------------------------------------------------------
 std::wstring Timestamp::GetFilenameDate() const
 {
-	return date;
+	return _date;
 }
 
 //----------------------------------------------------------------------------------------
 std::wstring Timestamp::GetTime() const
 {
-	return time;
+	return _time;
 }
 
 //----------------------------------------------------------------------------------------
 std::wstring Timestamp::GetFilenameTime() const
 {
-	std::wstring filenameTime = time;
+	std::wstring filenameTime = _time;
 	std::wstring::size_type pos = filenameTime.find_first_of(L':');
 	while(pos != std::wstring::npos)
 	{

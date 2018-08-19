@@ -25,13 +25,13 @@ public:
 
 	virtual Disassembly M68000Disassemble(const M68000::LabelSubstitutionSettings& labelSettings) const
 	{
-		if(target.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect)
+		if(_target.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect)
 		{
-			return Disassembly(GetOpcodeName() + L"." + DisassembleSize(size), source.Disassemble(labelSettings) + L", " + target.Disassemble(labelSettings));
+			return Disassembly(GetOpcodeName() + L"." + DisassembleSize(_size), _source.Disassemble(labelSettings) + L", " + _target.Disassemble(labelSettings));
 		}
 		else
 		{
-			return Disassembly(GetOpcodeName(), target.Disassemble(labelSettings));
+			return Disassembly(GetOpcodeName(), _target.Disassemble(labelSettings));
 		}
 	}
 
@@ -50,27 +50,27 @@ public:
 			switch(data.GetDataSegment(6, 2))
 			{
 			case 0:	//00
-				size = BITCOUNT_BYTE;
+				_size = BITCOUNT_BYTE;
 				break;
 			case 1:	//01
-				size = BITCOUNT_WORD;
+				_size = BITCOUNT_WORD;
 				break;
 			case 2:	//10
-				size = BITCOUNT_LONG;
+				_size = BITCOUNT_LONG;
 				break;
 			}
 
-			target.BuildDataDirect(size, location + GetInstructionSize(), data.GetDataSegment(0, 3));
+			_target.BuildDataDirect(_size, location + GetInstructionSize(), data.GetDataSegment(0, 3));
 			if(!data.GetBit(5))
 			{
-				source.BuildQuickData(location + GetInstructionSize(), data.GetDataSegment(9, 3));
+				_source.BuildQuickData(location + GetInstructionSize(), data.GetDataSegment(9, 3));
 			}
 			else
 			{
-				source.BuildDataDirect(size, location + GetInstructionSize(), data.GetDataSegment(9, 3));
+				_source.BuildDataDirect(_size, location + GetInstructionSize(), data.GetDataSegment(9, 3));
 			}
 
-			if(size == BITCOUNT_LONG)
+			if(_size == BITCOUNT_LONG)
 			{
 				AddExecuteCycleCount(ExecuteTime(8, 1, 0));
 			}
@@ -89,37 +89,37 @@ public:
 //	----------------------------------------=========================
 //	                                                  <ea>
 		{
-			size = BITCOUNT_WORD;
-			target.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), size, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
-			AddInstructionSize(target.ExtensionSize());
-			source.BuildImmediateData(location + GetInstructionSize(), M68000Word(1));
+			_size = BITCOUNT_WORD;
+			_target.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), _size, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
+			AddInstructionSize(_target.ExtensionSize());
+			_source.BuildImmediateData(location + GetInstructionSize(), M68000Word(1));
 
 			AddExecuteCycleCount(ExecuteTime(8, 1, 1));
-			AddExecuteCycleCount(target.DecodeTime());
+			AddExecuteCycleCount(_target.DecodeTime());
 		}
 	}
 
 	virtual ExecuteTime M68000Execute(M68000* cpu, const M68000Long& location) const
 	{
 		double additionalTime = 0;
-		Data op1(size);
-		Data op2(size);
-		Data result(size);
+		Data op1(_size);
+		Data op2(_size);
+		Data result(_size);
 
 		//Perform the operation
-		additionalTime += source.Read(cpu, op1, GetInstructionRegister());
-		additionalTime += target.ReadWithoutAdjustingAddress(cpu, op2, GetInstructionRegister());
+		additionalTime += _source.Read(cpu, op1, GetInstructionRegister());
+		additionalTime += _target.ReadWithoutAdjustingAddress(cpu, op2, GetInstructionRegister());
 		op1 %= 64;
 		//##NOTE## Doing a shift on an x86 platform effectively does a modulus by 32 to
 		//the shift count before performing the operation. Since the M68000 platform
-		//works up to 64, we zero the target operand to simulate a shift greater than
+		//works up to 64, we zero the _target operand to simulate a shift greater than
 		//31 places.
 		if(op1.GetData() >= 32)
 		{
 			op2 = 0;
 		}
 		result = op2 << op1;
-		additionalTime += target.Write(cpu, result, GetInstructionRegister());
+		additionalTime += _target.Write(cpu, result, GetInstructionRegister());
 
 		//Set the flag results
 		cpu->SetN(result.Negative());
@@ -152,7 +152,7 @@ public:
 
 		//Calculate the additional execution time
 		ExecuteTime additionalCycles;
-		if(target.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect)
+		if(_target.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect)
 		{
 			additionalCycles.Set(2 * op1.GetData(), 0, 0);
 		}
@@ -164,14 +164,14 @@ public:
 
 	virtual void GetLabelTargetLocations(std::set<unsigned int>& labelTargetLocations) const
 	{
-		source.AddLabelTargetsToSet(labelTargetLocations);
-		target.AddLabelTargetsToSet(labelTargetLocations);
+		_source.AddLabelTargetsToSet(labelTargetLocations);
+		_target.AddLabelTargetsToSet(labelTargetLocations);
 	}
 
 private:
-	EffectiveAddress source;
-	EffectiveAddress target;
-	Bitcount size;
+	EffectiveAddress _source;
+	EffectiveAddress _target;
+	Bitcount _size;
 };
 
 } //Close namespace M68000

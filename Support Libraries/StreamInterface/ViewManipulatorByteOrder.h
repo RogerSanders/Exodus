@@ -9,11 +9,11 @@ struct ByteOrder
 {
 public:
 	//Constructors
-	inline ByteOrder(IStream::ByteOrder abyteOrder = IStream::ByteOrder::Platform);
+	inline ByteOrder(IStream::ByteOrder byteOrder = IStream::ByteOrder::Platform);
 
 	//Byte order functions
 	inline IStream::ByteOrder GetByteOrder() const;
-	inline void SetByteOrder(IStream::ByteOrder abyteOrder);
+	inline void SetByteOrder(IStream::ByteOrder byteOrder);
 
 	//Stream operators
 	friend inline ViewBinary& operator>>(ViewBinary& stream, const ByteOrder& object);
@@ -22,7 +22,7 @@ public:
 	friend inline ViewText& operator<<(ViewText& stream, const ByteOrder& object);
 
 private:
-	IStream::ByteOrder byteOrder;
+	IStream::ByteOrder _byteOrder;
 };
 
 } //Close namespace Stream

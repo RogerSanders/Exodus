@@ -33,13 +33,13 @@ bool GenericAccessGroup::IsGroup() const
 //----------------------------------------------------------------------------------------
 IGenericAccessGroup* GenericAccessGroup::GetParent() const
 {
-	return parent;
+	return _parent;
 }
 
 //----------------------------------------------------------------------------------------
-void GenericAccessGroup::SetParent(IGenericAccessGroup* aparent)
+void GenericAccessGroup::SetParent(IGenericAccessGroup* parent)
 {
-	parent = aparent;
+	_parent = parent;
 }
 
 //----------------------------------------------------------------------------------------
@@ -47,13 +47,13 @@ void GenericAccessGroup::SetParent(IGenericAccessGroup* aparent)
 //----------------------------------------------------------------------------------------
 const IGenericAccess::DataContext* GenericAccessGroup::GetDataContext() const
 {
-	if(dataContext != 0)
+	if(_dataContext != 0)
 	{
-		return dataContext;
+		return _dataContext;
 	}
-	else if(parent != 0)
+	else if(_parent != 0)
 	{
-		return parent->GetDataContext();
+		return _parent->GetDataContext();
 	}
 	return 0;
 }
@@ -63,13 +63,13 @@ const IGenericAccess::DataContext* GenericAccessGroup::GetDataContext() const
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> GenericAccessGroup::GetName() const
 {
-	return name;
+	return _name;
 }
 
 //----------------------------------------------------------------------------------------
 bool GenericAccessGroup::GetOpenByDefault() const
 {
-	return openByDefault;
+	return _openByDefault;
 }
 
 //----------------------------------------------------------------------------------------
@@ -77,11 +77,11 @@ bool GenericAccessGroup::GetOpenByDefault() const
 //----------------------------------------------------------------------------------------
 unsigned int GenericAccessGroup::GetEntryCount() const
 {
-	return (unsigned int)childEntries.size();
+	return (unsigned int)_childEntries.size();
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::list<IGenericAccessGroupEntry*>> GenericAccessGroup::GetEntries() const
 {
-	return childEntries;
+	return _childEntries;
 }

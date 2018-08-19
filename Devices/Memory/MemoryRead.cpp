@@ -3,8 +3,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-MemoryRead::MemoryRead(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
-:Device(aimplementationName, ainstanceName, amoduleID), memoryEntryCount(0)
+MemoryRead::MemoryRead(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
+:Device(implementationName, instanceName, moduleID), _memoryEntryCount(0)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -34,13 +34,13 @@ bool MemoryRead::Construct(IHierarchicalStorageNode& node)
 //----------------------------------------------------------------------------------------
 unsigned int MemoryRead::GetMemoryEntryCount() const
 {
-	return memoryEntryCount;
+	return _memoryEntryCount;
 }
 
 //----------------------------------------------------------------------------------------
-void MemoryRead::SetMemoryEntryCount(unsigned int amemoryEntryCount)
+void MemoryRead::SetMemoryEntryCount(unsigned int memoryEntryCount)
 {
-	memoryEntryCount = amemoryEntryCount;
+	_memoryEntryCount = memoryEntryCount;
 }
 
 //----------------------------------------------------------------------------------------

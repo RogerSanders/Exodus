@@ -22,41 +22,41 @@ public:
 
 	virtual Disassembly Z80Disassemble(const Z80::LabelSubstitutionSettings& labelSettings) const
 	{
-		return Disassembly(L"LD", target.Disassemble() + L", " + source.Disassemble());
+		return Disassembly(L"LD", _target.Disassemble() + L", " + _source.Disassemble());
 	}
 
 	virtual void Z80Decode(const Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)
 	{
-		source.SetIndexState(GetIndexState(), GetIndexOffset());
-		target.SetIndexState(GetIndexState(), GetIndexOffset());
+		_source.SetIndexState(GetIndexState(), GetIndexOffset());
+		_target.SetIndexState(GetIndexState(), GetIndexOffset());
 
 		switch(data.GetDataSegment(3, 2))
 		{
 		case 0:
 			//LD I,A		11101101 01000111
-			source.SetMode(EffectiveAddress::Mode::A);
-			target.SetMode(EffectiveAddress::Mode::I);
+			_source.SetMode(EffectiveAddress::Mode::A);
+			_target.SetMode(EffectiveAddress::Mode::I);
 			break;
 		case 1:
 			//LD R,A		11101101 01001111
-			source.SetMode(EffectiveAddress::Mode::A);
-			target.SetMode(EffectiveAddress::Mode::R);
+			_source.SetMode(EffectiveAddress::Mode::A);
+			_target.SetMode(EffectiveAddress::Mode::R);
 			break;
 		case 2:
 			//LD A,I		11101101 01010111
-			source.SetMode(EffectiveAddress::Mode::I);
-			target.SetMode(EffectiveAddress::Mode::A);
+			_source.SetMode(EffectiveAddress::Mode::I);
+			_target.SetMode(EffectiveAddress::Mode::A);
 			break;
 		case 3:
 			//LD A,R		11101101 01011111
-			source.SetMode(EffectiveAddress::Mode::R);
-			target.SetMode(EffectiveAddress::Mode::A);
+			_source.SetMode(EffectiveAddress::Mode::R);
+			_target.SetMode(EffectiveAddress::Mode::A);
 			break;
 		}
 		AddExecuteCycleCount(5);
 
-		AddInstructionSize(source.ExtensionSize());
-		AddInstructionSize(target.ExtensionSize());
+		AddInstructionSize(_source.ExtensionSize());
+		AddInstructionSize(_target.ExtensionSize());
 	}
 
 	virtual ExecuteTime Z80Execute(Z80* cpu, const Z80Word& location) const
@@ -65,11 +65,11 @@ public:
 		Z80Byte result;
 
 		//Perform the operation
-		additionalTime += source.Read(cpu, location, result);
-		additionalTime += target.Write(cpu, location, result);
+		additionalTime += _source.Read(cpu, location, result);
+		additionalTime += _target.Write(cpu, location, result);
 
 		//Set the flag results
-		if(target.GetMode() == EffectiveAddress::Mode::A)
+		if(_target.GetMode() == EffectiveAddress::Mode::A)
 		{
 			cpu->SetFlagS(result.MSB());
 			cpu->SetFlagZ(result.Zero());
@@ -86,8 +86,8 @@ public:
 	}
 
 private:
-	EffectiveAddress source;
-	EffectiveAddress target;
+	EffectiveAddress _source;
+	EffectiveAddress _target;
 };
 
 } //Close namespace Z80

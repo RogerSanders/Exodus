@@ -19,7 +19,7 @@ class MenuHandlerBase :public IMenuHandler
 {
 public:
 	//Constructors
-	MenuHandlerBase(const std::wstring& amenuHandlerName, IViewManager& aviewManager);
+	MenuHandlerBase(const std::wstring& menuHandlerName, IViewManager& viewManager);
 	virtual ~MenuHandlerBase();
 	void LoadMenuItems();
 	void ClearMenuItems();
@@ -48,7 +48,7 @@ protected:
 	virtual void GetMenuItems(std::list<MenuItemDefinition>& menuItems) const = 0;
 	virtual IViewPresenter* CreateViewForItem(int menuItemID, const std::wstring& viewName) = 0;
 	virtual void DeleteViewForItem(int menuItemID, IViewPresenter* viewPresenter) = 0;
-	virtual void HandleMenuItemSelectNonView(int menuItemID, IViewManager& aviewManager);
+	virtual void HandleMenuItemSelectNonView(int menuItemID, IViewManager& viewManager);
 
 private:
 	//Structures
@@ -65,13 +65,13 @@ private:
 private:
 	typedef std::map<int, MenuItemInternal> MenuItems;
 	typedef std::pair<int, MenuItemInternal> MenuItemsEntry;
-	std::wstring menuHandlerName;
-	MenuItems menuItems;
-	std::list<int> menuItemOrder;
-	IViewManager& viewManager;
-	mutable std::mutex deleteThreadMutex;
-	std::condition_variable allDeleteThreadsTerminated;
-	unsigned int deleteThreadCount;
+	std::wstring _menuHandlerName;
+	MenuItems _menuItems;
+	std::list<int> _menuItemOrder;
+	IViewManager& _viewManager;
+	mutable std::mutex _deleteThreadMutex;
+	std::condition_variable _allDeleteThreadsTerminated;
+	unsigned int _deleteThreadCount;
 };
 
 #include "MenuHandlerBase.inl"

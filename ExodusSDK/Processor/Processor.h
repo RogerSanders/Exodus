@@ -127,7 +127,7 @@ public:
 
 public:
 	//Constructors
-	Processor(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
+	Processor(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 	~Processor();
 
 	//Interface version functions
@@ -151,8 +151,8 @@ public:
 
 	//Control functions
 	virtual double GetClockSpeed() const;
-	virtual void SetClockSpeed(double aclockSpeed);
-	virtual void OverrideClockSpeed(double aclockSpeed);
+	virtual void SetClockSpeed(double clockSpeed);
+	virtual void OverrideClockSpeed(double clockSpeed);
 	virtual void RestoreClockSpeed();
 	inline double CalculateExecutionTime(unsigned int cycles) const;
 
@@ -335,14 +335,14 @@ private:
 	//Breakpoint functions
 	void CheckExecutionInternal(unsigned int location) const;
 	void TriggerBreakpoint(Breakpoint* breakpoint) const;
-	static void BreakpointCallbackRaw(void* aparams);
+	static void BreakpointCallbackRaw(void* params);
 	void BreakpointCallback(Breakpoint* breakpoint) const;
 
 	//Watchpoint functions
 	void CheckMemoryReadInternal(unsigned int location, unsigned int data) const;
 	void CheckMemoryWriteInternal(unsigned int location, unsigned int data) const;
 	void TriggerWatchpoint(Watchpoint* watchpoint) const;
-	static void WatchpointCallbackRaw(void* aparams);
+	static void WatchpointCallbackRaw(void* params);
 	void WatchpointCallback(Watchpoint* watchpoint) const;
 
 	//Trace functions
@@ -376,81 +376,81 @@ private:
 
 private:
 	//Clock speed
-	double clockSpeed;
-	double bclockSpeed;
-	bool clockSpeedOverridden;
-	double reportedClockSpeed;
+	double _clockSpeed;
+	double _bclockSpeed;
+	bool _clockSpeedOverridden;
+	double _reportedClockSpeed;
 
 	//Breakpoints
 	//##FIX## Make these non-mutable once we fix our const issues
-	mutable std::vector<Breakpoint*> breakpoints;
-	mutable std::vector<Watchpoint*> watchpoints;
-	mutable std::set<IBreakpoint*> lockedBreakpoints;
-	mutable std::set<IWatchpoint*> lockedWatchpoints;
-	mutable std::condition_variable breakpointLockReleased;
-	mutable std::condition_variable watchpointLockReleased;
-	volatile bool breakpointExists;
-	volatile bool watchpointExists;
+	mutable std::vector<Breakpoint*> _breakpoints;
+	mutable std::vector<Watchpoint*> _watchpoints;
+	mutable std::set<IBreakpoint*> _lockedBreakpoints;
+	mutable std::set<IWatchpoint*> _lockedWatchpoints;
+	mutable std::condition_variable _breakpointLockReleased;
+	mutable std::condition_variable _watchpointLockReleased;
+	volatile bool _breakpointExists;
+	volatile bool _watchpointExists;
 
 	//Call stack
-	volatile mutable bool breakOnNextOpcode;
-	bool bbreakOnNextOpcode;
-	std::list<CallStackEntry> callStack;
-	std::list<CallStackEntry> bcallStack;
-	mutable bool stepOver;
-	mutable bool bstepOver;
-	bool stepOut;
-	bool bstepOut;
-	int stackLevel;
-	int bstackLevel;
-	bool stackDisassemble;
-	unsigned int callStackLastModifiedToken;
+	volatile mutable bool _breakOnNextOpcode;
+	bool _bbreakOnNextOpcode;
+	std::list<CallStackEntry> _callStack;
+	std::list<CallStackEntry> _bcallStack;
+	mutable bool _stepOver;
+	mutable bool _bstepOver;
+	bool _stepOut;
+	bool _bstepOut;
+	int _stackLevel;
+	int _bstackLevel;
+	bool _stackDisassemble;
+	unsigned int _callStackLastModifiedToken;
 
 	//Trace
-	std::list<TraceLogEntry> traceLog;
-	std::list<TraceLogEntry> btraceLog;
-	volatile bool traceLogEnabled;
-	bool traceLogDisassemble;
-	unsigned int traceLogLength;
-	unsigned int traceLogLastModifiedToken;
+	std::list<TraceLogEntry> _traceLog;
+	std::list<TraceLogEntry> _btraceLog;
+	volatile bool _traceLogEnabled;
+	bool _traceLogDisassemble;
+	unsigned int _traceLogLength;
+	unsigned int _traceLogLastModifiedToken;
 
 	//Active disassembly
-	bool activeDisassemblyEnabled;
-	unsigned int activeDisassemblyArrayNextFreeID;
-	unsigned int activeDisassemblyStartLocation;
-	unsigned int activeDisassemblyEndLocation;
-	unsigned int activeDisassemblyUncommittedStartLocation;
-	unsigned int activeDisassemblyUncommittedEndLocation;
-	std::vector<std::list<DisassemblyAddressInfo*>> activeDisassemblyAddressInfo;
-	std::set<DisassemblyAddressInfo*> activeDisassemblyAddressInfoSet;
-	DisassemblyArrayInfoMap activeDisassemblyArrayInfo;
-	DisassemblyJumpTableInfoMap activeDisassemblyJumpTableInfo;
-	unsigned int activeDisassemblyAnalysisStartLocation;
-	unsigned int activeDisassemblyAnalysisEndLocation;
-	bool activeDisassemblyAnalyzeCode;
-	bool activeDisassemblyAnalyzeData;
-	bool activeDisassemblyAnalyzeCodeOffsets;
-	bool activeDisassemblyAnalyzeDataOffsets;
-	bool activeDisassemblyAnalyzePredictedArrays;
-	bool activeDisassemblyAnalyzePredictedJumpTables;
-	bool activeDisassemblyExploreCodePaths;
-	bool activeDisassemblyPerformLabelSubstitution;
-	bool activeDisassemblyDetectOffsets;
-	bool activeDisassemblyDetectJumpTables;
-	bool activeDisassemblyDetectData;
-	bool activeDisassemblyDetectDataArrays;
-	bool activeDisassemblyDetectTextData;
-	double activeDisassemblyOffsetArrayIncreaseTolerance;
-	unsigned int activeDisassemblyMinimumArrayEntryCount;
-	unsigned int activeDisassemblyOffsetArrayDistanceTolerance;
-	unsigned int activeDisassemblyJumpTableDistanceTolerance;
-	ActiveDisassemblyAnalysisData* activeDisassemblyAnalysis;
+	bool _activeDisassemblyEnabled;
+	unsigned int _activeDisassemblyArrayNextFreeID;
+	unsigned int _activeDisassemblyStartLocation;
+	unsigned int _activeDisassemblyEndLocation;
+	unsigned int _activeDisassemblyUncommittedStartLocation;
+	unsigned int _activeDisassemblyUncommittedEndLocation;
+	std::vector<std::list<DisassemblyAddressInfo*>> _activeDisassemblyAddressInfo;
+	std::set<DisassemblyAddressInfo*> _activeDisassemblyAddressInfoSet;
+	DisassemblyArrayInfoMap _activeDisassemblyArrayInfo;
+	DisassemblyJumpTableInfoMap _activeDisassemblyJumpTableInfo;
+	unsigned int _activeDisassemblyAnalysisStartLocation;
+	unsigned int _activeDisassemblyAnalysisEndLocation;
+	bool _activeDisassemblyAnalyzeCode;
+	bool _activeDisassemblyAnalyzeData;
+	bool _activeDisassemblyAnalyzeCodeOffsets;
+	bool _activeDisassemblyAnalyzeDataOffsets;
+	bool _activeDisassemblyAnalyzePredictedArrays;
+	bool _activeDisassemblyAnalyzePredictedJumpTables;
+	bool _activeDisassemblyExploreCodePaths;
+	bool _activeDisassemblyPerformLabelSubstitution;
+	bool _activeDisassemblyDetectOffsets;
+	bool _activeDisassemblyDetectJumpTables;
+	bool _activeDisassemblyDetectData;
+	bool _activeDisassemblyDetectDataArrays;
+	bool _activeDisassemblyDetectTextData;
+	double _activeDisassemblyOffsetArrayIncreaseTolerance;
+	unsigned int _activeDisassemblyMinimumArrayEntryCount;
+	unsigned int _activeDisassemblyOffsetArrayDistanceTolerance;
+	unsigned int _activeDisassemblyJumpTableDistanceTolerance;
+	ActiveDisassemblyAnalysisData* _activeDisassemblyAnalysis;
 
 	//Generic access page groups
-	GenericAccessGroupCollectionEntry* breakpointCollection;
+	GenericAccessGroupCollectionEntry* _breakpointCollection;
 
 	//Debug
-	mutable std::mutex debugMutex;
+	mutable std::mutex _debugMutex;
 };
 
 #include "Processor.inl"

@@ -22,20 +22,20 @@ public:
 
 	virtual Disassembly Z80Disassemble(const Z80::LabelSubstitutionSettings& labelSettings) const
 	{
-		return Disassembly(GetOpcodeName(), source.Disassemble());
+		return Disassembly(GetOpcodeName(), _source.Disassemble());
 	}
 
 	virtual void Z80Decode(const Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)
 	{
-		target.SetIndexState(GetIndexState(), GetIndexOffset());
+		_target.SetIndexState(GetIndexState(), GetIndexOffset());
 
 		//RST p		11ttt111
-		target.SetMode(EffectiveAddress::Mode::SPPreDec);
-		source.BuildImmediateData(Z80Word(data.GetDataSegment(3, 3) << 3));
+		_target.SetMode(EffectiveAddress::Mode::SPPreDec);
+		_source.BuildImmediateData(Z80Word(data.GetDataSegment(3, 3) << 3));
 		AddExecuteCycleCount(11);
 
-		AddInstructionSize(GetIndexOffsetSize(target.UsesIndexOffset()));
-		AddInstructionSize(target.ExtensionSize());
+		AddInstructionSize(GetIndexOffsetSize(_target.UsesIndexOffset()));
+		AddInstructionSize(_target.ExtensionSize());
 	}
 
 	virtual ExecuteTime Z80Execute(Z80* cpu, const Z80Word& location) const
@@ -44,8 +44,8 @@ public:
 		Z80Word newPC;
 
 		//Perform the operation
-		additionalTime += source.Read(cpu, location + GetInstructionSize(), newPC);
-		additionalTime += target.Write(cpu, location + GetInstructionSize(), location + GetInstructionSize());
+		additionalTime += _source.Read(cpu, location + GetInstructionSize(), newPC);
+		additionalTime += _target.Write(cpu, location + GetInstructionSize(), location + GetInstructionSize());
 		cpu->PushCallStack(cpu->GetPC().GetData(), newPC.GetData(), (location + GetInstructionSize()).GetData(), L"RST");
 		cpu->SetPC(newPC);
 
@@ -54,8 +54,8 @@ public:
 	}
 
 private:
-	EffectiveAddress source;
-	EffectiveAddress target;
+	EffectiveAddress _source;
+	EffectiveAddress _target;
 };
 
 } //Close namespace Z80

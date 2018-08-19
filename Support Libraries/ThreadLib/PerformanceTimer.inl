@@ -7,7 +7,7 @@
 //----------------------------------------------------------------------------------------
 PerformanceTimer::PerformanceTimer()
 {
-	QueryPerformanceFrequency(&counterFrequency);
+	QueryPerformanceFrequency(&_counterFrequency);
 	Reset();
 }
 
@@ -16,8 +16,8 @@ PerformanceTimer::PerformanceTimer()
 //----------------------------------------------------------------------------------------
 void PerformanceTimer::Reset()
 {
-	executionTimeAhead = 0;
-	QueryPerformanceCounter(&executionTimeStart);
+	_executionTimeAhead = 0;
+	QueryPerformanceCounter(&_executionTimeStart);
 }
 
 //----------------------------------------------------------------------------------------
@@ -33,9 +33,9 @@ void PerformanceTimer::Sync(double targetExecutionTime, bool enableSync, bool ou
 	//assurance from the documentation as to the wrap point.
 	LARGE_INTEGER executionTimeEnd;
 	QueryPerformanceCounter(&executionTimeEnd);
-	if(executionTimeEnd.QuadPart < executionTimeStart.QuadPart)
+	if(executionTimeEnd.QuadPart < _executionTimeStart.QuadPart)
 	{
-		executionTimeStart.QuadPart = 0;
+		_executionTimeStart.QuadPart = 0;
 	}
 
 	//Record the captured current time as the real end time for this execution block. We
@@ -43,7 +43,7 @@ void PerformanceTimer::Sync(double targetExecutionTime, bool enableSync, bool ou
 	LARGE_INTEGER executionTimeRealEnd = executionTimeEnd;
 
 	//Calculate how long we would have expected the target execution time to take in ticks
-	LONGLONG executionTimeInTicks = (LONGLONG)((targetExecutionTime * ((double)counterFrequency.QuadPart/1000000000.0)) + 0.5);
+	LONGLONG executionTimeInTicks = (LONGLONG)((targetExecutionTime * ((double)_counterFrequency.QuadPart/1000000000.0)) + 0.5);
 
 	//If synchronization is enabled, block until we reach the correct time.
 	if(enableSync)
@@ -57,7 +57,7 @@ void PerformanceTimer::Sync(double targetExecutionTime, bool enableSync, bool ou
 		//before or after, which will over time average out to the correct execution time.
 		LONGLONG executeAheadToleranceInTicks = (LONGLONG)((double)executionTimeInTicks * executeAheadTolerance);
 		LONGLONG targetExecutionSpanInTicks = executionTimeInTicks - executeAheadToleranceInTicks;
-		targetExecutionSpanInTicks += executionTimeAhead;
+		targetExecutionSpanInTicks += _executionTimeAhead;
 
 		//If we're significantly ahead of the target time, yield this thread until we get
 		//closer to the target time. Note that according to research, it appears that all
@@ -67,7 +67,7 @@ void PerformanceTimer::Sync(double targetExecutionTime, bool enableSync, bool ou
 		//free time, and we subtract 15 milliseconds from the sleep time, to ensure we
 		//don't delay too long.
 		static const double sleepErrorAdjustmentInNanoseconds = 15000000.0;
-		double executionTimeInNanoseconds = (double)(executionTimeEnd.QuadPart - executionTimeStart.QuadPart) * (1000000000.0/(double)counterFrequency.QuadPart);
+		double executionTimeInNanoseconds = (double)(executionTimeEnd.QuadPart - _executionTimeStart.QuadPart) * (1000000000.0/(double)_counterFrequency.QuadPart);
 		double remainingTimeInNanoseconds = targetExecutionTime - executionTimeInNanoseconds;
 		if(remainingTimeInNanoseconds >= sleepErrorAdjustmentInNanoseconds)
 		{
@@ -80,26 +80,26 @@ void PerformanceTimer::Sync(double targetExecutionTime, bool enableSync, bool ou
 		do
 		{
 			QueryPerformanceCounter(&executionTimeEnd);
-			if(executionTimeEnd.QuadPart < executionTimeStart.QuadPart)
+			if(executionTimeEnd.QuadPart < _executionTimeStart.QuadPart)
 			{
-				executionTimeStart.QuadPart = 0;
+				_executionTimeStart.QuadPart = 0;
 			}
 		}
-		while((executionTimeEnd.QuadPart - executionTimeStart.QuadPart) < targetExecutionSpanInTicks);
+		while((executionTimeEnd.QuadPart - _executionTimeStart.QuadPart) < targetExecutionSpanInTicks);
 
 		//If we stopped slightly before the target time, record the number of ticks which
 		//we are ahead of where we should be.
-		LONGLONG actualExecutionSpanInTicks = executionTimeEnd.QuadPart - executionTimeStart.QuadPart;
-		executionTimeAhead = (actualExecutionSpanInTicks >= executionTimeInTicks)? 0: executionTimeInTicks - actualExecutionSpanInTicks;
+		LONGLONG actualExecutionSpanInTicks = executionTimeEnd.QuadPart - _executionTimeStart.QuadPart;
+		_executionTimeAhead = (actualExecutionSpanInTicks >= executionTimeInTicks)? 0: executionTimeInTicks - actualExecutionSpanInTicks;
 	}
 
 	//##DEBUG##
 	if(outputTimerDebug)
 	{
-		std::wcout << std::setprecision(16) << targetExecutionTime << '\t' << executionTimeInTicks << '\t' << executionTimeEnd.QuadPart - executionTimeStart.QuadPart << '\t' << executionTimeRealEnd.QuadPart - executionTimeStart.QuadPart << '\t' << std::setprecision(4) << ((double)executionTimeInTicks / (double)(executionTimeEnd.QuadPart - executionTimeStart.QuadPart)) * 100.0 << '\t' << std::setprecision(4) << ((double)executionTimeInTicks / (double)(executionTimeRealEnd.QuadPart - executionTimeStart.QuadPart)) * 100.0 << '\t' << executionTimeAhead << '\n';
+		std::wcout << std::setprecision(16) << targetExecutionTime << '\t' << executionTimeInTicks << '\t' << executionTimeEnd.QuadPart - _executionTimeStart.QuadPart << '\t' << executionTimeRealEnd.QuadPart - _executionTimeStart.QuadPart << '\t' << std::setprecision(4) << ((double)executionTimeInTicks / (double)(executionTimeEnd.QuadPart - _executionTimeStart.QuadPart)) * 100.0 << '\t' << std::setprecision(4) << ((double)executionTimeInTicks / (double)(executionTimeRealEnd.QuadPart - _executionTimeStart.QuadPart)) * 100.0 << '\t' << _executionTimeAhead << '\n';
 	}
 
 	//Save the end time for this synchronization point as the start time for the next
 	//synchronization point
-	executionTimeStart = executionTimeEnd;
+	_executionTimeStart = executionTimeEnd;
 }

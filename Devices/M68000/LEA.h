@@ -6,48 +6,44 @@ namespace M68000 {
 class LEA :public M68000Instruction
 {
 public:
-	ExecuteTime GetExecuteTime(EffectiveAddress::Mode targetMode)
+	ExecuteTime GetExecuteTime(EffectiveAddress::Mode _targetMode)
 	{
-		//##FIX## Note that while C++11 makes this thread safe, Visual Studio 2013 still
-		//doesn't implement this feature. It's down on the conformance roadmap as
-		//"Thread-safe function local static init", to be implemented in the near future
-		//after VS2013.
 		static const ExecuteTime executeTimeArray[9] = {
 			//(An)                (An)+                -(An)                  d(An)                 d(An,ix)+              xxx.W                 xxx.L                  d(PC)                 d(PC,ix)
 			ExecuteTime(4, 1, 0), ExecuteTime(0, 0, 0), ExecuteTime(0, 0, 0), ExecuteTime(8, 2, 0), ExecuteTime(12, 2, 0), ExecuteTime(8, 2, 0), ExecuteTime(12, 3, 0), ExecuteTime(8, 2, 0), ExecuteTime(12, 2, 0)};
 
-		unsigned int targetIndex = 0;
-		switch(targetMode)
+		unsigned int _targetIndex = 0;
+		switch(_targetMode)
 		{
 		case EffectiveAddress::Mode::AddRegIndirect:
-			targetIndex = 0;
+			_targetIndex = 0;
 			break;
 		case EffectiveAddress::Mode::AddRegIndirectPostInc:
-			targetIndex = 1;
+			_targetIndex = 1;
 			break;
 		case EffectiveAddress::Mode::AddRegIndirectPreDec:
-			targetIndex = 2;
+			_targetIndex = 2;
 			break;
 		case EffectiveAddress::Mode::AddRegIndirectDisplace:
-			targetIndex = 3;
+			_targetIndex = 3;
 			break;
 		case EffectiveAddress::Mode::AddRegIndirectIndex8Bit:
-			targetIndex = 4;
+			_targetIndex = 4;
 			break;
 		case EffectiveAddress::Mode::ABSWord:
-			targetIndex = 5;
+			_targetIndex = 5;
 			break;
 		case EffectiveAddress::Mode::ABSLong:
-			targetIndex = 6;
+			_targetIndex = 6;
 			break;
 		case EffectiveAddress::Mode::PCIndirectDisplace:
-			targetIndex = 7;
+			_targetIndex = 7;
 			break;
 		case EffectiveAddress::Mode::PCIndirectIndex8Bit:
-			targetIndex = 8;
+			_targetIndex = 8;
 			break;
 		}
-		return executeTimeArray[targetIndex];
+		return executeTimeArray[_targetIndex];
 	}
 
 	virtual LEA* Clone() const {return new LEA();}
@@ -66,7 +62,7 @@ public:
 
 	virtual Disassembly M68000Disassemble(const M68000::LabelSubstitutionSettings& labelSettings) const
 	{
-		return Disassembly(GetOpcodeName(), source.Disassemble(labelSettings) + L", " + target.Disassemble(labelSettings));
+		return Disassembly(GetOpcodeName(), _source.Disassemble(labelSettings) + L", " + _target.Disassemble(labelSettings));
 	}
 
 	virtual void M68000Decode(const M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)
@@ -77,10 +73,10 @@ public:
 //	| 0 | 1 | 0 | 0 | REGISTER  | 1 | 1 | 1 |    MODE   | REGISTER  |
 //	----------------------------------------=========================
 //	                                        |----------<ea>---------|
-		source.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), BITCOUNT_LONG, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
-		AddInstructionSize(source.ExtensionSize());
-		target.BuildAddressDirect(BITCOUNT_LONG, location + GetInstructionSize(), data.GetDataSegment(9, 3));
-		AddExecuteCycleCount(GetExecuteTime(source.GetAddressMode()));
+		_source.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), BITCOUNT_LONG, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
+		AddInstructionSize(_source.ExtensionSize());
+		_target.BuildAddressDirect(BITCOUNT_LONG, location + GetInstructionSize(), data.GetDataSegment(9, 3));
+		AddExecuteCycleCount(GetExecuteTime(_source.GetAddressMode()));
 	}
 
 	virtual ExecuteTime M68000Execute(M68000* cpu, const M68000Long& location) const
@@ -88,20 +84,20 @@ public:
 		double additionalTime = 0;
 		M68000Long result;
 
-		//If the target location was read from a memory address, and the read value hasn't
-		//been modified up to this point, record the source memory address as a pointer to
+		//If the _target location was read from a memory address, and the read value hasn't
+		//been modified up to this point, record the _source memory address as a pointer to
 		//code for disassembly purposes.
-		unsigned int targetReadFromAddress;
+		unsigned int _targetReadFromAddress;
 		bool dataIsOffset;
 		unsigned int offsetBaseAddress;
 		unsigned int dataSize;
-		bool dataUnmodified = target.IsTargetUnmodifiedFromMemoryReadV2(cpu, targetReadFromAddress, dataIsOffset, offsetBaseAddress, dataSize);
+		bool dataUnmodified = _target.IsTargetUnmodifiedFromMemoryReadV2(cpu, _targetReadFromAddress, dataIsOffset, offsetBaseAddress, dataSize);
 		//##FIX## Clean all this junk up
 		dataUnmodified &= !dataIsOffset;
 
 		//Perform the operation
-		source.GetAddress(cpu, result);
-		additionalTime += target.Write(cpu, result, GetInstructionRegister(), false, false, dataUnmodified, targetReadFromAddress, dataSize);
+		_source.GetAddress(cpu, result);
+		additionalTime += _target.Write(cpu, result, GetInstructionRegister(), false, false, dataUnmodified, _targetReadFromAddress, dataSize);
 
 		//Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
@@ -110,13 +106,13 @@ public:
 
 	virtual void GetLabelTargetLocations(std::set<unsigned int>& labelTargetLocations) const
 	{
-		source.AddLabelTargetsToSet(labelTargetLocations);
-		target.AddLabelTargetsToSet(labelTargetLocations);
+		_source.AddLabelTargetsToSet(labelTargetLocations);
+		_target.AddLabelTargetsToSet(labelTargetLocations);
 	}
 
 private:
-	EffectiveAddress source;
-	EffectiveAddress target;
+	EffectiveAddress _source;
+	EffectiveAddress _target;
 };
 
 } //Close namespace M68000

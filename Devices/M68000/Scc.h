@@ -22,7 +22,7 @@ public:
 
 	virtual Disassembly M68000Disassemble(const M68000::LabelSubstitutionSettings& labelSettings) const
 	{
-		return Disassembly(L"S" + DisassembleConditionCode(conditionCode), target.Disassemble(labelSettings));
+		return Disassembly(L"S" + DisassembleConditionCode(conditionCode), _target.Disassemble(labelSettings));
 	}
 
 	virtual void M68000Decode(const M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)
@@ -36,17 +36,17 @@ public:
 		conditionCode = (ConditionCode)data.GetDataSegment(8, 4);
 
 		//Scc	<ea>
-		target.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), BITCOUNT_BYTE, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
-		AddInstructionSize(target.ExtensionSize());
+		_target.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), BITCOUNT_BYTE, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
+		AddInstructionSize(_target.ExtensionSize());
 
-		if((target.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect) || (target.GetAddressMode() == EffectiveAddress::Mode::AddRegDirect))
+		if((_target.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect) || (_target.GetAddressMode() == EffectiveAddress::Mode::AddRegDirect))
 		{
 			AddExecuteCycleCount(ExecuteTime(4, 1, 0));
 		}
 		else
 		{
 			AddExecuteCycleCount(ExecuteTime(8, 1, 1));
-			AddExecuteCycleCount(target.DecodeTime());
+			AddExecuteCycleCount(_target.DecodeTime());
 		}
 	}
 
@@ -58,11 +58,11 @@ public:
 		//Perform the operation
 		M68000Byte temp;
 		temp = (result)? 0xFF: 0x00;
-		additionalTime += target.Write(cpu, temp, GetInstructionRegister());
+		additionalTime += _target.Write(cpu, temp, GetInstructionRegister());
 
 		//Calculate the additional execution time
 		ExecuteTime additionalCycles;
-		if(result && ((target.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect) || (target.GetAddressMode() == EffectiveAddress::Mode::AddRegDirect)))
+		if(result && ((_target.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect) || (_target.GetAddressMode() == EffectiveAddress::Mode::AddRegDirect)))
 		{
 			additionalCycles.Set(2, 0, 0);
 		}
@@ -74,12 +74,12 @@ public:
 
 	virtual void GetLabelTargetLocations(std::set<unsigned int>& labelTargetLocations) const
 	{
-		target.AddLabelTargetsToSet(labelTargetLocations);
+		_target.AddLabelTargetsToSet(labelTargetLocations);
 	}
 
 private:
 	ConditionCode conditionCode;
-	EffectiveAddress target;
+	EffectiveAddress _target;
 };
 
 } //Close namespace M68000

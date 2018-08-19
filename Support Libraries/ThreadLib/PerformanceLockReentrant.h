@@ -5,24 +5,24 @@
 struct PerformanceLockReentrant
 {
 public:
-	inline PerformanceLockReentrant(PerformanceMutexReentrant& amutex)
-	:mutex(amutex)
+	inline PerformanceLockReentrant(PerformanceMutexReentrant& mutex)
+	:_mutex(mutex)
 	{
-		mutex.Lock();
+		_mutex.Lock();
 	}
 	inline ~PerformanceLockReentrant()
 	{
-		mutex.Unlock();
+		_mutex.Unlock();
 	}
 
 private:
 	//Don't allow the lock to be copied
 	PerformanceLockReentrant(const PerformanceLockReentrant& object)
-	:mutex(object.mutex)
+	:_mutex(object._mutex)
 	{}
 
 private:
-	PerformanceMutexReentrant& mutex;
+	PerformanceMutexReentrant& _mutex;
 };
 
 #endif

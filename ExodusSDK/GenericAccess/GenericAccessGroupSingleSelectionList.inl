@@ -1,18 +1,18 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-template<class T> GenericAccessGroupSingleSelectionList::GenericAccessGroupSingleSelectionList(T adataID, const std::wstring& aname)
-:parent(0), dataContext(0), dataID((unsigned int)adataID), allowNewItemEntry(false), name(aname)
+template<class T> GenericAccessGroupSingleSelectionList::GenericAccessGroupSingleSelectionList(T dataID, const std::wstring& name)
+:_parent(0), _dataContext(0), _dataID((unsigned int)dataID), _allowNewItemEntry(false), _name(name)
 {}
 
 //----------------------------------------------------------------------------------------
 GenericAccessGroupSingleSelectionList::~GenericAccessGroupSingleSelectionList()
 {
 	//Delete the data context object we've been assigned
-	delete dataContext;
+	delete _dataContext;
 
 	//Delete any key/value pairs we've been given ownership of
-	for(std::list<std::pair<const IGenericAccessDataValue*, const IGenericAccessDataValue*>>::const_iterator i = selectionList.begin(); i != selectionList.end(); ++i)
+	for(std::list<std::pair<const IGenericAccessDataValue*, const IGenericAccessDataValue*>>::const_iterator i = _selectionList.begin(); i != _selectionList.end(); ++i)
 	{
 		delete i->first;
 		delete i->second;
@@ -22,18 +22,18 @@ GenericAccessGroupSingleSelectionList::~GenericAccessGroupSingleSelectionList()
 //----------------------------------------------------------------------------------------
 //Data context functions
 //----------------------------------------------------------------------------------------
-GenericAccessGroupSingleSelectionList* GenericAccessGroupSingleSelectionList::SetDataContext(const IGenericAccess::DataContext* adataContext)
+GenericAccessGroupSingleSelectionList* GenericAccessGroupSingleSelectionList::SetDataContext(const IGenericAccess::DataContext* dataContext)
 {
-	dataContext = adataContext;
+	_dataContext = dataContext;
 	return this;
 }
 
 //----------------------------------------------------------------------------------------
 //List info functions
 //----------------------------------------------------------------------------------------
-GenericAccessGroupSingleSelectionList* GenericAccessGroupSingleSelectionList::SetSelectionList(const std::list<std::pair<const IGenericAccessDataValue*, const IGenericAccessDataValue*>>& aselectionList)
+GenericAccessGroupSingleSelectionList* GenericAccessGroupSingleSelectionList::SetSelectionList(const std::list<std::pair<const IGenericAccessDataValue*, const IGenericAccessDataValue*>>& selectionList)
 {
-	selectionList = aselectionList;
+	_selectionList = selectionList;
 	return this;
 }
 
@@ -44,34 +44,34 @@ GenericAccessGroupSingleSelectionList* GenericAccessGroupSingleSelectionList::Ad
 	value = (value == 0)? key: value;
 
 	//Add the specified key/value pair to the selection list
-	selectionList.push_back(std::pair<const IGenericAccessDataValue*, const IGenericAccessDataValue*>(key, value));
+	_selectionList.push_back(std::pair<const IGenericAccessDataValue*, const IGenericAccessDataValue*>(key, value));
 	return this;
 }
 
 //----------------------------------------------------------------------------------------
 GenericAccessGroupSingleSelectionList* GenericAccessGroupSingleSelectionList::SetAllowNewItemEntry(bool state)
 {
-	allowNewItemEntry = state;
+	_allowNewItemEntry = state;
 	return this;
 }
 
 //----------------------------------------------------------------------------------------
-GenericAccessGroupSingleSelectionList* GenericAccessGroupSingleSelectionList::SetName(const std::wstring& aname)
+GenericAccessGroupSingleSelectionList* GenericAccessGroupSingleSelectionList::SetName(const std::wstring& name)
 {
-	name = aname;
+	_name = name;
 	return this;
 }
 
 //----------------------------------------------------------------------------------------
-GenericAccessGroupSingleSelectionList* GenericAccessGroupSingleSelectionList::SetDescription(const std::wstring& adescription)
+GenericAccessGroupSingleSelectionList* GenericAccessGroupSingleSelectionList::SetDescription(const std::wstring& description)
 {
-	description = adescription;
+	_description = description;
 	return this;
 }
 
 //----------------------------------------------------------------------------------------
-GenericAccessGroupSingleSelectionList* GenericAccessGroupSingleSelectionList::SetHelpFileLink(const std::wstring& ahelpFileLink)
+GenericAccessGroupSingleSelectionList* GenericAccessGroupSingleSelectionList::SetHelpFileLink(const std::wstring& helpFileLink)
 {
-	helpFileLink = ahelpFileLink;
+	_helpFileLink = helpFileLink;
 	return this;
 }

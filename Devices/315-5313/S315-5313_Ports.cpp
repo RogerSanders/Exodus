@@ -85,7 +85,7 @@ unsigned int S315_5313::GetLineWidth(unsigned int lineID) const
 //----------------------------------------------------------------------------------------
 void S315_5313::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
-	std::unique_lock<std::mutex> lock(lineMutex);
+	std::unique_lock<std::mutex> lock(_lineMutex);
 
 	//Process the line state change
 	switch((LineID)targetLine)
@@ -103,11 +103,11 @@ void S315_5313::SetLineState(unsigned int targetLine, const Data& lineData, IDev
 		//Note that we take a lock on accessMutex here, to synchronize INTAK
 		//acknowledgments with the memory interface for the VDP. These interfaces need to
 		//be synchronized in order to correctly predict changes to the IPL line state.
-		std::unique_lock<std::mutex> lock(accessMutex);
+		std::unique_lock<std::mutex> lock(_accessMutex);
 
 		//Convert the access time into a cycle count relative to MCLK, rounding up the
 		//result to the nearest MCLK cycle.
-		unsigned int accessMclkCycle = ConvertAccessTimeToMclkCount(accessTime + lastTimesliceMclkCyclesRemainingTime);
+		unsigned int accessMclkCycle = ConvertAccessTimeToMclkCount(accessTime + _lastTimesliceMclkCyclesRemainingTime);
 		double accessMclkCycleInAccessTime = ConvertMclkCountToAccessTime(accessMclkCycle);
 		if(accessMclkCycleInAccessTime < accessTime)
 		{
@@ -115,40 +115,40 @@ void S315_5313::SetLineState(unsigned int targetLine, const Data& lineData, IDev
 		}
 
 		//Trigger a system rollback if the device has been accessed out of order
-		if(lastAccessTime > accessTime)
+		if(_lastAccessTime > accessTime)
 		{
 			GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 		}
-		lastAccessTime = accessTime;
+		_lastAccessTime = accessTime;
 
 		//Update the current VDP state
 		UpdateInternalState(accessMclkCycle, false, false, false, false, false, false, false);
 
 		//Determine which pending interrupt was just acknowledged
-		if(vintEnabled && vintPending)
+		if(_vintEnabled && _vintPending)
 		{
-			vintPending = false;
+			_vintPending = false;
 			//Since the interrupt has been acknowledged, clear the VINT occurrence flag.
 			SetStatusFlagF(false);
 		}
-		else if(hintEnabled && hintPending)
+		else if(_hintEnabled && _hintPending)
 		{
-			hintPending = false;
+			_hintPending = false;
 		}
-		else if(exintEnabled && exintPending)
+		else if(_exintEnabled && _exintPending)
 		{
-			exintPending = false;
+			_exintPending = false;
 		}
 
 		//##DEBUG##
-		unsigned int originalLineStateIPL = lineStateIPL;
+		unsigned int originalLineStateIPL = _lineStateIPL;
 
 		//Calculate the new IPL line state
 		unsigned int newLineStateIPL = GetNewIPLLineState();
 		bool assertIPLLine = false;
-		if(lineStateIPL != newLineStateIPL)
+		if(_lineStateIPL != newLineStateIPL)
 		{
-			lineStateIPL = newLineStateIPL;
+			_lineStateIPL = newLineStateIPL;
 			assertIPLLine = true;
 		}
 
@@ -156,12 +156,12 @@ void S315_5313::SetLineState(unsigned int targetLine, const Data& lineData, IDev
 		if(assertIPLLine)
 		{
 			//##DEBUG##
-			if(outputInterruptDebugMessages)
+			if(_outputInterruptDebugMessages)
 			{
-				std::wcout << "VDP - INTAK IPL line state change: " << hcounter.GetData() << '\t' << vcounter.GetData() << '\t' << originalLineStateIPL << '\t' << newLineStateIPL << '\n';
+				std::wcout << "VDP - INTAK IPL line state change: " << _hcounter.GetData() << '\t' << _vcounter.GetData() << '\t' << originalLineStateIPL << '\t' << newLineStateIPL << '\n';
 			}
 
-			memoryBus->SetLineState((unsigned int)LineID::IPL, Data(GetLineWidth((unsigned int)LineID::IPL), newLineStateIPL), GetDeviceContext(), caller, accessTime, accessContext);
+			_memoryBus->SetLineState((unsigned int)LineID::IPL, Data(GetLineWidth((unsigned int)LineID::IPL), newLineStateIPL), GetDeviceContext(), caller, accessTime, accessContext);
 		}
 
 		//Predict the time at which the next IPL line state change will occur, and
@@ -175,7 +175,7 @@ void S315_5313::SetLineState(unsigned int targetLine, const Data& lineData, IDev
 
 		//Convert the access time into a cycle count relative to MCLK, rounding up the
 		//result to the nearest MCLK cycle.
-		unsigned int accessMclkCycle = ConvertAccessTimeToMclkCount(accessTime + lastTimesliceMclkCyclesRemainingTime);
+		unsigned int accessMclkCycle = ConvertAccessTimeToMclkCount(accessTime + _lastTimesliceMclkCyclesRemainingTime);
 		double accessMclkCycleInAccessTime = ConvertMclkCountToAccessTime(accessMclkCycle);
 		if(accessMclkCycleInAccessTime < accessTime)
 		{
@@ -185,10 +185,10 @@ void S315_5313::SetLineState(unsigned int targetLine, const Data& lineData, IDev
 		//Obtain a lock on workerThreadMutex so we can safely work with DMA state data,
 		//and notify the DMA worker thread of the BG line state change, if this line state
 		//change is of interest to us.
-		std::unique_lock<std::mutex> workerThreadLock(workerThreadMutex);
-		if(dmaTransferActive || busGranted)
+		std::unique_lock<std::mutex> workerThreadLock(_workerThreadMutex);
+		if(_dmaTransferActive || _busGranted)
 		{
-			busGranted = lineData.LSB();
+			_busGranted = lineData.LSB();
 			//##FIX## The DMA bitmap demos have revealed that the DMA worker thread cannot
 			//access the bus freely on any clock cycle. In fact, the DMA worker thread can
 			//only access the external bus once every 4 SC cycles, and those clock cycles
@@ -202,34 +202,34 @@ void S315_5313::SetLineState(unsigned int targetLine, const Data& lineData, IDev
 			//when the display is disabled, to determine if the same access slots and
 			//execution times apply for DMA fill and copy operations as for DMA transfer
 			//operations.
-			dmaTransferNextReadMclk = accessMclkCycle;
-			dmaTransferLastTimesliceUsedReadDelay = 0;
+			_dmaTransferNextReadMclk = accessMclkCycle;
+			_dmaTransferLastTimesliceUsedReadDelay = 0;
 
 			//If the bus has just been granted in response to a DMA transfer operation
 			//initiating a bus request, set the current timeslice progress for the VDP
 			//core to match the time at which the bus was granted. This allows us to set
 			//the device which controls bus ownership as a dependent device on the VDP
 			//core, as the timeslice progress will be valid during a DMA transfer.
-			if(busGranted)
+			if(_busGranted)
 			{
 				GetDeviceContext()->SetCurrentTimesliceProgress(accessTime);
 			}
 
-			GetDeviceContext()->SetTransientExecutionActive(busGranted);
-			workerThreadUpdate.notify_all();
+			GetDeviceContext()->SetTransientExecutionActive(_busGranted);
+			_workerThreadUpdate.notify_all();
 		}
 		break;}
 	case LineID::PAL:{
 		//##DEBUG##
 		//std::wcout << "SetLineState - VDP_LINE_PAL:\t" << lineData.LSB() << '\n';
 
-		palModeLineState = lineData.LSB();
+		_palModeLineState = lineData.LSB();
 		break;}
 	case LineID::Reset:{
 		bool resetLineStateNew = lineData.LSB();
-		if(resetLineStateNew != resetLineState)
+		if(resetLineStateNew != _resetLineState)
 		{
-			resetLineState = resetLineStateNew;
+			_resetLineState = resetLineStateNew;
 			Reset(accessTime);
 		}
 		break;}
@@ -239,7 +239,7 @@ void S315_5313::SetLineState(unsigned int targetLine, const Data& lineData, IDev
 //----------------------------------------------------------------------------------------
 void S315_5313::TransparentSetLineState(unsigned int targetLine, const Data& lineData)
 {
-	SetLineState(targetLine, lineData, 0, currentTimesliceLength, 0);
+	SetLineState(targetLine, lineData, 0, _currentTimesliceLength, 0);
 }
 
 //----------------------------------------------------------------------------------------
@@ -248,24 +248,24 @@ bool S315_5313::AdvanceToLineState(unsigned int targetLine, const Data& lineData
 	switch((LineID)targetLine)
 	{
 	case LineID::BR:{
-		std::unique_lock<std::mutex> workerLock(workerThreadMutex);
+		std::unique_lock<std::mutex> workerLock(_workerThreadMutex);
 		bool targetLineState = lineData.GetBit(0);
-		bool busRequested = dmaTransferActive;
+		bool busRequested = _dmaTransferActive;
 		if(busRequested == targetLineState)
 		{
 			//If the current state of the target line matches the target state, we have
 			//nothing to do.
 			return true;
 		}
-		else if(!busGranted && busRequested && !targetLineState)
+		else if(!_busGranted && busRequested && !targetLineState)
 		{
 			//If we've requested the bus, but the M68000 hasn't granted it yet, request
 			//the M68000 to advance until the bus is granted.
 			workerLock.unlock();
-			if(!memoryBus->AdvanceToLineState((unsigned int)LineID::BG, Data(1, 1), GetDeviceContext(), caller, accessTime, accessContext))
+			if(!_memoryBus->AdvanceToLineState((unsigned int)LineID::BG, Data(1, 1), GetDeviceContext(), caller, accessTime, accessContext))
 			{
 				//##DEBUG##
-				std::wcout << "VDP failed to advance M68000 to BG line state 1 for target BR line state! " << targetLineState << '\t' << busGranted << '\t' << busRequested << '\n';
+				std::wcout << "VDP failed to advance M68000 to BG line state 1 for target BR line state! " << targetLineState << '\t' << _busGranted << '\t' << busRequested << '\n';
 				return false;
 			}
 			workerLock.lock();
@@ -274,14 +274,14 @@ bool S315_5313::AdvanceToLineState(unsigned int targetLine, const Data& lineData
 			//state.
 		}
 
-		if(busGranted && busRequested && !targetLineState)
+		if(_busGranted && busRequested && !targetLineState)
 		{
 			//If the worker thread isn't currently paused, wait for it to go idle. We know
 			//it can't be stopped here, since we have a lock on workerThreadMutex, and the
 			//busGranted flag is set.
-			if(!workerThreadPaused)
+			if(!_workerThreadPaused)
 			{
-				workerThreadIdle.wait(workerLock);
+				_workerThreadIdle.wait(workerLock);
 			}
 
 			//If we currently have the bus, but we've reached the end of the current
@@ -289,37 +289,37 @@ bool S315_5313::AdvanceToLineState(unsigned int targetLine, const Data& lineData
 			//requesting that we advance until the bus request line is negated, we can
 			//accurately perform that operation. In this case, we instruct the DMA worker
 			//thread to run the DMA operation to completion.
-			if(workerThreadPaused && busGranted)
+			if(_workerThreadPaused && _busGranted)
 			{
-				dmaAdvanceUntilDMAComplete = true;
-				workerThreadUpdate.notify_all();
-				workerThreadIdle.wait(workerLock);
-				dmaAdvanceUntilDMAComplete = false;
+				_dmaAdvanceUntilDMAComplete = true;
+				_workerThreadUpdate.notify_all();
+				_workerThreadIdle.wait(workerLock);
+				_dmaAdvanceUntilDMAComplete = false;
 			}
 
 			//If we've released our request on the bus, request the M68000 to advance
 			//until the bus is reclaimed.
 			workerLock.unlock();
-			if(!memoryBus->AdvanceToLineState((unsigned int)LineID::BG, Data(1, 0), GetDeviceContext(), caller, accessTime, accessContext))
+			if(!_memoryBus->AdvanceToLineState((unsigned int)LineID::BG, Data(1, 0), GetDeviceContext(), caller, accessTime, accessContext))
 			{
 				//##DEBUG##
-				std::wcout << "VDP failed to advance M68000 to BG line state 0 for target BR line state! " << targetLineState << '\t' << busGranted << '\t' << busRequested << '\n';
+				std::wcout << "VDP failed to advance M68000 to BG line state 0 for target BR line state! " << targetLineState << '\t' << _busGranted << '\t' << busRequested << '\n';
 				return false;
 			}
 			workerLock.lock();
 
-			bool advanceSucceeded = (busGranted == targetLineState);
+			bool advanceSucceeded = (_busGranted == targetLineState);
 			//##DEBUG##
 			if(!advanceSucceeded)
 			{
-				std::wcout << "VDP failed to advance DMA worker thread to end of operation for target BR line state! " << targetLineState << '\t' << busGranted << '\t' << busRequested << '\n';
+				std::wcout << "VDP failed to advance DMA worker thread to end of operation for target BR line state! " << targetLineState << '\t' << _busGranted << '\t' << busRequested << '\n';
 			}
 			return advanceSucceeded;
 		}
 		//##DEBUG##
 		else
 		{
-			std::wcout << "VDP couldn't advance to target BR line state! " << targetLineState << '\t' << busGranted << '\t' << busRequested << '\n';
+			std::wcout << "VDP couldn't advance to target BR line state! " << targetLineState << '\t' << _busGranted << '\t' << busRequested << '\n';
 		}
 		break;}
 	case LineID::INT:
@@ -332,89 +332,89 @@ bool S315_5313::AdvanceToLineState(unsigned int targetLine, const Data& lineData
 //----------------------------------------------------------------------------------------
 void S315_5313::AssertCurrentOutputLineState() const
 {
-	if(memoryBus == 0)
+	if(_memoryBus == 0)
 	{
 		return;
 	}
 
 	//Assert the current line output state for the output lines
-	if(busRequestLineState) memoryBus->SetLineState((unsigned int)LineID::BR, Data(GetLineWidth((unsigned int)LineID::BR), 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::BRAssert);
-	if(lineStateIPL != 0)   memoryBus->SetLineState((unsigned int)LineID::IPL, Data(GetLineWidth((unsigned int)LineID::IPL), lineStateIPL), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
+	if(_busRequestLineState) _memoryBus->SetLineState((unsigned int)LineID::BR, Data(GetLineWidth((unsigned int)LineID::BR), 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::BRAssert);
+	if(_lineStateIPL != 0)   _memoryBus->SetLineState((unsigned int)LineID::IPL, Data(GetLineWidth((unsigned int)LineID::IPL), _lineStateIPL), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
 
 	//Re-assert any pending IPL line state changes
-	if(lineStateChangePendingVINT)
+	if(_lineStateChangePendingVINT)
 	{
-		memoryBus->RevokeSetLineState((unsigned int)LineID::IPL, Data(GetLineWidth((unsigned int)LineID::IPL), vintIPLLineState), lineStateChangeVINTTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
-		memoryBus->SetLineState((unsigned int)LineID::IPL, Data(GetLineWidth((unsigned int)LineID::IPL), vintIPLLineState), GetDeviceContext(), GetDeviceContext(), lineStateChangeVINTTime, (unsigned int)AccessContext::INTLineChange);
+		_memoryBus->RevokeSetLineState((unsigned int)LineID::IPL, Data(GetLineWidth((unsigned int)LineID::IPL), VintIPLLineState), _lineStateChangeVINTTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
+		_memoryBus->SetLineState((unsigned int)LineID::IPL, Data(GetLineWidth((unsigned int)LineID::IPL), VintIPLLineState), GetDeviceContext(), GetDeviceContext(), _lineStateChangeVINTTime, (unsigned int)AccessContext::INTLineChange);
 	}
-	if(lineStateChangePendingHINT)
+	if(_lineStateChangePendingHINT)
 	{
-		memoryBus->RevokeSetLineState((unsigned int)LineID::IPL, Data(GetLineWidth((unsigned int)LineID::IPL), hintIPLLineState), lineStateChangeHINTTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
-		memoryBus->SetLineState((unsigned int)LineID::IPL, Data(GetLineWidth((unsigned int)LineID::IPL), hintIPLLineState), GetDeviceContext(), GetDeviceContext(), lineStateChangeHINTTime, (unsigned int)AccessContext::INTLineChange);
+		_memoryBus->RevokeSetLineState((unsigned int)LineID::IPL, Data(GetLineWidth((unsigned int)LineID::IPL), HintIPLLineState), _lineStateChangeHINTTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
+		_memoryBus->SetLineState((unsigned int)LineID::IPL, Data(GetLineWidth((unsigned int)LineID::IPL), HintIPLLineState), GetDeviceContext(), GetDeviceContext(), _lineStateChangeHINTTime, (unsigned int)AccessContext::INTLineChange);
 	}
-	if(lineStateChangePendingEXINT)
+	if(_lineStateChangePendingEXINT)
 	{
-		memoryBus->RevokeSetLineState((unsigned int)LineID::IPL, Data(GetLineWidth((unsigned int)LineID::IPL), exintIPLLineState), lineStateChangeEXINTTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
-		memoryBus->SetLineState((unsigned int)LineID::IPL, Data(GetLineWidth((unsigned int)LineID::IPL), exintIPLLineState), GetDeviceContext(), GetDeviceContext(), lineStateChangeEXINTTime, (unsigned int)AccessContext::INTLineChange);
+		_memoryBus->RevokeSetLineState((unsigned int)LineID::IPL, Data(GetLineWidth((unsigned int)LineID::IPL), ExintIPLLineState), _lineStateChangeEXINTTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
+		_memoryBus->SetLineState((unsigned int)LineID::IPL, Data(GetLineWidth((unsigned int)LineID::IPL), ExintIPLLineState), GetDeviceContext(), GetDeviceContext(), _lineStateChangeEXINTTime, (unsigned int)AccessContext::INTLineChange);
 	}
 
 	//Re-assert any pending INT line state changes, and re-assert the INT line if it's
 	//currently asserted.
-	if(lineStateChangePendingINTAsserted)
+	if(_lineStateChangePendingINTAsserted)
 	{
-		memoryBus->RevokeSetLineState((unsigned int)LineID::INT, Data(GetLineWidth((unsigned int)LineID::INT), 1), lineStateChangeINTAssertedTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
-		memoryBus->SetLineState((unsigned int)LineID::INT, Data(GetLineWidth((unsigned int)LineID::INT), 1), GetDeviceContext(), GetDeviceContext(), lineStateChangeINTAssertedTime, (unsigned int)AccessContext::INTLineChange);
+		_memoryBus->RevokeSetLineState((unsigned int)LineID::INT, Data(GetLineWidth((unsigned int)LineID::INT), 1), _lineStateChangeINTAssertedTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
+		_memoryBus->SetLineState((unsigned int)LineID::INT, Data(GetLineWidth((unsigned int)LineID::INT), 1), GetDeviceContext(), GetDeviceContext(), _lineStateChangeINTAssertedTime, (unsigned int)AccessContext::INTLineChange);
 	}
-	else if(lineStateChangePendingINTNegated)
+	else if(_lineStateChangePendingINTNegated)
 	{
-		memoryBus->SetLineState((unsigned int)LineID::INT, Data(GetLineWidth((unsigned int)LineID::INT), 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
+		_memoryBus->SetLineState((unsigned int)LineID::INT, Data(GetLineWidth((unsigned int)LineID::INT), 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
 	}
-	if(lineStateChangePendingINTNegated)
+	if(_lineStateChangePendingINTNegated)
 	{
-		memoryBus->RevokeSetLineState((unsigned int)LineID::INT, Data(GetLineWidth((unsigned int)LineID::INT), 0), lineStateChangeINTNegatedTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
-		memoryBus->SetLineState((unsigned int)LineID::INT, Data(GetLineWidth((unsigned int)LineID::INT), 0), GetDeviceContext(), GetDeviceContext(), lineStateChangeINTNegatedTime, (unsigned int)AccessContext::INTLineChange);
+		_memoryBus->RevokeSetLineState((unsigned int)LineID::INT, Data(GetLineWidth((unsigned int)LineID::INT), 0), _lineStateChangeINTNegatedTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
+		_memoryBus->SetLineState((unsigned int)LineID::INT, Data(GetLineWidth((unsigned int)LineID::INT), 0), GetDeviceContext(), GetDeviceContext(), _lineStateChangeINTNegatedTime, (unsigned int)AccessContext::INTLineChange);
 	}
 }
 
 //----------------------------------------------------------------------------------------
 void S315_5313::NegateCurrentOutputLineState() const
 {
-	if(memoryBus == 0)
+	if(_memoryBus == 0)
 	{
 		return;
 	}
 
 	//Negate the current line output state for the output lines
-	if(busRequestLineState) memoryBus->SetLineState((unsigned int)LineID::BR, Data(GetLineWidth((unsigned int)LineID::BR), 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::BRRelease);
-	if(lineStateIPL != 0)   memoryBus->SetLineState((unsigned int)LineID::IPL, Data(GetLineWidth((unsigned int)LineID::IPL), 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
+	if(_busRequestLineState) _memoryBus->SetLineState((unsigned int)LineID::BR, Data(GetLineWidth((unsigned int)LineID::BR), 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::BRRelease);
+	if(_lineStateIPL != 0)   _memoryBus->SetLineState((unsigned int)LineID::IPL, Data(GetLineWidth((unsigned int)LineID::IPL), 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
 
 	//Revoke any pending IPL line state changes
-	if(lineStateChangePendingVINT)
+	if(_lineStateChangePendingVINT)
 	{
-		memoryBus->RevokeSetLineState((unsigned int)LineID::IPL, Data(GetLineWidth((unsigned int)LineID::IPL), vintIPLLineState), lineStateChangeVINTTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
+		_memoryBus->RevokeSetLineState((unsigned int)LineID::IPL, Data(GetLineWidth((unsigned int)LineID::IPL), VintIPLLineState), _lineStateChangeVINTTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
 	}
-	if(lineStateChangePendingHINT)
+	if(_lineStateChangePendingHINT)
 	{
-		memoryBus->RevokeSetLineState((unsigned int)LineID::IPL, Data(GetLineWidth((unsigned int)LineID::IPL), hintIPLLineState), lineStateChangeHINTTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
+		_memoryBus->RevokeSetLineState((unsigned int)LineID::IPL, Data(GetLineWidth((unsigned int)LineID::IPL), HintIPLLineState), _lineStateChangeHINTTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
 	}
-	if(lineStateChangePendingEXINT)
+	if(_lineStateChangePendingEXINT)
 	{
-		memoryBus->RevokeSetLineState((unsigned int)LineID::IPL, Data(GetLineWidth((unsigned int)LineID::IPL), exintIPLLineState), lineStateChangeEXINTTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
+		_memoryBus->RevokeSetLineState((unsigned int)LineID::IPL, Data(GetLineWidth((unsigned int)LineID::IPL), ExintIPLLineState), _lineStateChangeEXINTTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
 	}
 
 	//Revoke any pending INT line state changes, and negate the INT line if it's currently
 	//asserted.
-	if(lineStateChangePendingINTAsserted)
+	if(_lineStateChangePendingINTAsserted)
 	{
-		memoryBus->RevokeSetLineState((unsigned int)LineID::INT, Data(GetLineWidth((unsigned int)LineID::INT), 1), lineStateChangeINTAssertedTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
+		_memoryBus->RevokeSetLineState((unsigned int)LineID::INT, Data(GetLineWidth((unsigned int)LineID::INT), 1), _lineStateChangeINTAssertedTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
 	}
-	else if(lineStateChangePendingINTNegated)
+	else if(_lineStateChangePendingINTNegated)
 	{
-		memoryBus->SetLineState((unsigned int)LineID::INT, Data(GetLineWidth((unsigned int)LineID::INT), 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
+		_memoryBus->SetLineState((unsigned int)LineID::INT, Data(GetLineWidth((unsigned int)LineID::INT), 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
 	}
-	if(lineStateChangePendingINTNegated)
+	if(_lineStateChangePendingINTNegated)
 	{
-		memoryBus->RevokeSetLineState((unsigned int)LineID::INT, Data(GetLineWidth((unsigned int)LineID::INT), 0), lineStateChangeINTNegatedTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
+		_memoryBus->RevokeSetLineState((unsigned int)LineID::INT, Data(GetLineWidth((unsigned int)LineID::INT), 0), _lineStateChangeINTNegatedTime, GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), (unsigned int)AccessContext::INTLineChange);
 	}
 }
 
@@ -430,17 +430,17 @@ unsigned int S315_5313::GetNewIPLLineState()
 	//##TODO## Confirm that a pending external interrupt and a pending horizontal
 	//interrupt doesn't end up asserting an effective IPL state of a VINT.
 	unsigned int newLineStateIPL = 0;
-	if(vintEnabled && vintPending)
+	if(_vintEnabled && _vintPending)
 	{
-		newLineStateIPL = vintIPLLineState;
+		newLineStateIPL = VintIPLLineState;
 	}
-	else if(hintEnabled && hintPending)
+	else if(_hintEnabled && _hintPending)
 	{
-		newLineStateIPL = hintIPLLineState;
+		newLineStateIPL = HintIPLLineState;
 	}
-	else if(exintEnabled && exintPending)
+	else if(_exintEnabled && _exintPending)
 	{
-		newLineStateIPL = exintIPLLineState;
+		newLineStateIPL = ExintIPLLineState;
 	}
 	return newLineStateIPL;
 }
@@ -474,13 +474,13 @@ void S315_5313::UpdatePredictedLineStateChanges(IDeviceContext* callingDevice, d
 	unsigned int mclkTicksBeforeTriggerTimeINTNegated = advanceSessionINTNegated.mclkTicksAdvanced;
 
 	//Conditionally assert and negate the INT line
-	UpdateLineStateChangePrediction((unsigned int)LineID::INT, 1, lineStateChangePendingINTAsserted, lineStateChangeINTAssertedMClkCountFromCurrent, lineStateChangeINTAssertedTime, true, mclkTicksBeforeTriggerTimeINTAsserted, callingDevice, accessTime, accessContext);
-	UpdateLineStateChangePrediction((unsigned int)LineID::INT, 0, lineStateChangePendingINTNegated, lineStateChangeINTNegatedMClkCountFromCurrent, lineStateChangeINTNegatedTime, true, mclkTicksBeforeTriggerTimeINTNegated, callingDevice, accessTime, accessContext);
+	UpdateLineStateChangePrediction((unsigned int)LineID::INT, 1, _lineStateChangePendingINTAsserted, _lineStateChangeINTAssertedMClkCountFromCurrent, _lineStateChangeINTAssertedTime, true, mclkTicksBeforeTriggerTimeINTAsserted, callingDevice, accessTime, accessContext);
+	UpdateLineStateChangePrediction((unsigned int)LineID::INT, 0, _lineStateChangePendingINTNegated, _lineStateChangeINTNegatedMClkCountFromCurrent, _lineStateChangeINTNegatedTime, true, mclkTicksBeforeTriggerTimeINTNegated, callingDevice, accessTime, accessContext);
 
 	//Predict when the next vertical interrupt is going to occur
 	bool foundTriggerTimeVInt = false;
 	unsigned int mclkTicksBeforeTriggerTimeVInt = 0;
-	if(vintEnabled && (lineStateIPL < vintIPLLineState))
+	if(_vintEnabled && (_lineStateIPL < VintIPLLineState))
 	{
 		//Note that according to hardware tests performed by Eke, an internal interrupt
 		//pending flag is set when a condition arises under which an interrupt could be
@@ -494,7 +494,7 @@ void S315_5313::UpdatePredictedLineStateChanges(IDeviceContext* callingDevice, d
 		//changed in the VDP, that interrupt will stop being asserted over the IPL lines,
 		//and any masked lower level interrupt will then be asserted instead.
 		foundTriggerTimeVInt = true;
-		if(vintPending)
+		if(_vintPending)
 		{
 			mclkTicksBeforeTriggerTimeVInt = 0;
 		}
@@ -510,9 +510,9 @@ void S315_5313::UpdatePredictedLineStateChanges(IDeviceContext* callingDevice, d
 	//Predict when the next horizontal interrupt is going to occur
 	bool foundTriggerTimeHInt = false;
 	unsigned int mclkTicksBeforeTriggerTimeHInt = 0;
-	if(hintEnabled && (lineStateIPL < hintIPLLineState))
+	if(_hintEnabled && (_lineStateIPL < HintIPLLineState))
 	{
-		if(hintPending)
+		if(_hintPending)
 		{
 			foundTriggerTimeHInt = true;
 			mclkTicksBeforeTriggerTimeHInt = 0;
@@ -531,7 +531,7 @@ void S315_5313::UpdatePredictedLineStateChanges(IDeviceContext* callingDevice, d
 				//frame, calculate the number of pixel clock cycles before we reach that
 				//point from the current render position, and set that as the hint trigger
 				//time.
-				unsigned int vcounterPlusHIntCounter = AddStepsToVCounter(*advanceSessionHInt.hscanSettings, advanceSessionHInt.hcounterCurrent, *advanceSessionHInt.vscanSettings, advanceSessionHInt.interlaceEnabledCurrent, advanceSessionHInt.oddFlagCurrent, advanceSessionHInt.vcounterCurrent, 1 + hintCounter);
+				unsigned int vcounterPlusHIntCounter = AddStepsToVCounter(*advanceSessionHInt.hscanSettings, advanceSessionHInt.hcounterCurrent, *advanceSessionHInt.vscanSettings, advanceSessionHInt.interlaceEnabledCurrent, advanceSessionHInt.oddFlagCurrent, advanceSessionHInt.vcounterCurrent, 1 + _hintCounter);
 				if((vcounterPlusHIntCounter <= advanceSessionHInt.vscanSettings->vblankSetPoint) && (vcounterPlusHIntCounter > advanceSessionHInt.vcounterCurrent))
 				{
 					foundTriggerTimeHInt = true;
@@ -550,7 +550,7 @@ void S315_5313::UpdatePredictedLineStateChanges(IDeviceContext* callingDevice, d
 				//frame, calculate the number of MCLK cycles until we reach that point
 				//from the current render position, and set that as the hint trigger time.
 				while(!AdvanceHVCounterSession(advanceSessionHInt, advanceSessionHInt.hscanSettings->vcounterIncrementPoint, 0, true)) {}
-				unsigned int hintCounterExpireVCounterPosFromStartOfFrame = AddStepsToVCounter(*advanceSessionHInt.hscanSettings, advanceSessionHInt.hcounterCurrent, *advanceSessionHInt.vscanSettings, advanceSessionHInt.interlaceEnabledCurrent, advanceSessionHInt.oddFlagCurrent, advanceSessionHInt.vcounterCurrent, hintCounterReloadValue);
+				unsigned int hintCounterExpireVCounterPosFromStartOfFrame = AddStepsToVCounter(*advanceSessionHInt.hscanSettings, advanceSessionHInt.hcounterCurrent, *advanceSessionHInt.vscanSettings, advanceSessionHInt.interlaceEnabledCurrent, advanceSessionHInt.oddFlagCurrent, advanceSessionHInt.vcounterCurrent, _hintCounterReloadValue);
 				while(!AdvanceHVCounterSession(advanceSessionHInt, advanceSessionHInt.hscanSettings->vcounterIncrementPoint, hintCounterExpireVCounterPosFromStartOfFrame, false)) {}
 				if(hintCounterExpireVCounterPosFromStartOfFrame <= advanceSessionHInt.vscanSettings->vblankSetPoint)
 				{
@@ -564,19 +564,19 @@ void S315_5313::UpdatePredictedLineStateChanges(IDeviceContext* callingDevice, d
 	//Predict when the next external interrupt is going to occur
 	bool foundTriggerTimeEXInt = false;
 	unsigned int mclkTicksBeforeTriggerTimeEXInt = 0;
-	if(exintEnabled && (lineStateIPL < exintIPLLineState))
+	if(_exintEnabled && (_lineStateIPL < ExintIPLLineState))
 	{
-		if(exintPending)
+		if(_exintPending)
 		{
 			foundTriggerTimeEXInt = true;
 			mclkTicksBeforeTriggerTimeEXInt = 0;
 		}
-		else if(externalInterruptVideoTriggerPointPending)
+		else if(_externalInterruptVideoTriggerPointPending)
 		{
 			foundTriggerTimeEXInt = true;
 			HVCounterAdvanceSession advanceSessionEXInt;
 			BeginHVCounterAdvanceSessionFromCurrentState(advanceSessionEXInt);
-			while(!AdvanceHVCounterSession(advanceSessionEXInt, externalInterruptVideoTriggerPointHCounter, externalInterruptVideoTriggerPointVCounter, true)) {}
+			while(!AdvanceHVCounterSession(advanceSessionEXInt, _externalInterruptVideoTriggerPointHCounter, _externalInterruptVideoTriggerPointVCounter, true)) {}
 			mclkTicksBeforeTriggerTimeEXInt = advanceSessionEXInt.mclkTicksAdvanced;
 		}
 	}
@@ -591,9 +591,9 @@ void S315_5313::UpdatePredictedLineStateChanges(IDeviceContext* callingDevice, d
 	//acknowledged. In this case, a higher priority interrupt may need to override that
 	//interrupt later on, so we may need to assert more than one pending line state change
 	//for the IPL lines.
-	UpdateLineStateChangePrediction((unsigned int)LineID::IPL, vintIPLLineState, lineStateChangePendingVINT, lineStateChangeVINTMClkCountFromCurrent, lineStateChangeVINTTime, foundTriggerTimeVInt, mclkTicksBeforeTriggerTimeVInt, callingDevice, accessTime, accessContext);
-	UpdateLineStateChangePrediction((unsigned int)LineID::IPL, hintIPLLineState, lineStateChangePendingHINT, lineStateChangeHINTMClkCountFromCurrent, lineStateChangeHINTTime, foundTriggerTimeHInt, mclkTicksBeforeTriggerTimeHInt, callingDevice, accessTime, accessContext);
-	UpdateLineStateChangePrediction((unsigned int)LineID::IPL, exintIPLLineState, lineStateChangePendingEXINT, lineStateChangeEXINTMClkCountFromCurrent, lineStateChangeEXINTTime, foundTriggerTimeEXInt, mclkTicksBeforeTriggerTimeEXInt, callingDevice, accessTime, accessContext);
+	UpdateLineStateChangePrediction((unsigned int)LineID::IPL, VintIPLLineState, _lineStateChangePendingVINT, _lineStateChangeVINTMClkCountFromCurrent, _lineStateChangeVINTTime, foundTriggerTimeVInt, mclkTicksBeforeTriggerTimeVInt, callingDevice, accessTime, accessContext);
+	UpdateLineStateChangePrediction((unsigned int)LineID::IPL, HintIPLLineState, _lineStateChangePendingHINT, _lineStateChangeHINTMClkCountFromCurrent, _lineStateChangeHINTTime, foundTriggerTimeHInt, mclkTicksBeforeTriggerTimeHInt, callingDevice, accessTime, accessContext);
+	UpdateLineStateChangePrediction((unsigned int)LineID::IPL, ExintIPLLineState, _lineStateChangePendingEXINT, _lineStateChangeEXINTMClkCountFromCurrent, _lineStateChangeEXINTTime, foundTriggerTimeEXInt, mclkTicksBeforeTriggerTimeEXInt, callingDevice, accessTime, accessContext);
 }
 
 //----------------------------------------------------------------------------------------
@@ -601,9 +601,9 @@ void S315_5313::UpdateLineStateChangePrediction(unsigned int lineNo, unsigned in
 {
 	//Adjust the calculated number of MCLK steps to the target to take into account unused
 	//MCLK cycles from the last update step.
-	if(lineStateChangeMCLKCountdownNew >= stateLastUpdateMclkUnused)
+	if(lineStateChangeMCLKCountdownNew >= _stateLastUpdateMclkUnused)
 	{
-		lineStateChangeMCLKCountdownNew -= stateLastUpdateMclkUnused;
+		lineStateChangeMCLKCountdownNew -= _stateLastUpdateMclkUnused;
 	}
 	else
 	{
@@ -615,12 +615,12 @@ void S315_5313::UpdateLineStateChangePrediction(unsigned int lineNo, unsigned in
 	if(lineStateChangePending && (!lineStateChangePendingNew || (lineStateChangeMCLKCountdown != lineStateChangeMCLKCountdownNew)))
 	{
 		//##DEBUG##
-		if(outputInterruptDebugMessages)
+		if(_outputInterruptDebugMessages)
 		{
-			std::wcout << "VDP - Revoked line state change: " << hcounter.GetData() << '\t' << vcounter.GetData() << '\t' << lineNo << '\t' << lineStateChangeData << '\t' << lineStateChangeMCLKCountdown << '\n';
+			std::wcout << "VDP - Revoked line state change: " << _hcounter.GetData() << '\t' << _vcounter.GetData() << '\t' << lineNo << '\t' << lineStateChangeData << '\t' << lineStateChangeMCLKCountdown << '\n';
 		}
 
-		memoryBus->RevokeSetLineState(lineNo, Data(GetLineWidth(lineNo), lineStateChangeData), lineStateChangeTime, GetDeviceContext(), callingDevice, accessTime, accessContext);
+		_memoryBus->RevokeSetLineState(lineNo, Data(GetLineWidth(lineNo), lineStateChangeData), lineStateChangeTime, GetDeviceContext(), callingDevice, accessTime, accessContext);
 		lineStateChangePending = false;
 	}
 
@@ -633,12 +633,12 @@ void S315_5313::UpdateLineStateChangePrediction(unsigned int lineNo, unsigned in
 		lineStateChangeMCLKCountdown = lineStateChangeMCLKCountdownNew;
 		unsigned int lineStateChangeInMclkCycleTime = GetProcessorStateMclkCurrent() + lineStateChangeMCLKCountdownNew;
 		lineStateChangeTime = ConvertMclkCountToAccessTime(lineStateChangeInMclkCycleTime);
-		memoryBus->SetLineState(lineNo, Data(GetLineWidth(lineNo), lineStateChangeData), GetDeviceContext(), GetDeviceContext(), lineStateChangeTime, (unsigned int)AccessContext::INTLineChange);
+		_memoryBus->SetLineState(lineNo, Data(GetLineWidth(lineNo), lineStateChangeData), GetDeviceContext(), GetDeviceContext(), lineStateChangeTime, (unsigned int)AccessContext::INTLineChange);
 
 		//##DEBUG##
-		if(outputInterruptDebugMessages)
+		if(_outputInterruptDebugMessages)
 		{
-			std::wcout << "VDP - Asserted conditional line state change: " << hcounter.GetData() << '\t' << vcounter.GetData() << '\t' << lineNo << '\t' << lineStateChangeData << '\t' << lineStateChangeMCLKCountdown << '\n';
+			std::wcout << "VDP - Asserted conditional line state change: " << _hcounter.GetData() << '\t' << _vcounter.GetData() << '\t' << lineNo << '\t' << lineStateChangeData << '\t' << lineStateChangeMCLKCountdown << '\n';
 		}
 	}
 }
@@ -672,7 +672,7 @@ void S315_5313::SetClockSourceRate(unsigned int clockInput, double clockRate, ID
 	//Apply the input clock rate change
 	if((ClockID)clockInput == ClockID::MCLK)
 	{
-		clockMclkCurrent = clockRate;
+		_clockMclkCurrent = clockRate;
 	}
 
 	//Since a clock rate change will affect our timing point calculations, trigger a
@@ -686,7 +686,7 @@ void S315_5313::TransparentSetClockSourceRate(unsigned int clockInput, double cl
 	//Apply the input clock rate change
 	if((ClockID)clockInput == ClockID::MCLK)
 	{
-		clockMclkCurrent = clockRate;
+		_clockMclkCurrent = clockRate;
 	}
 }
 
@@ -748,22 +748,22 @@ void S315_5313::SetCELineInput(unsigned int lineID, bool lineMapped, unsigned in
 	switch((CELineID)lineID)
 	{
 	case CELineID::LDS:
-		ceLineMaskLowerDataStrobeInput = !lineMapped? 0: 1 << lineStartBitNumber;
+		_ceLineMaskLowerDataStrobeInput = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
 	case CELineID::UDS:
-		ceLineMaskUpperDataStrobeInput = !lineMapped? 0: 1 << lineStartBitNumber;
+		_ceLineMaskUpperDataStrobeInput = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
 	case CELineID::RW:
-		ceLineMaskReadHighWriteLowInput = !lineMapped? 0: 1 << lineStartBitNumber;
+		_ceLineMaskReadHighWriteLowInput = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
 	case CELineID::AS:
-		ceLineMaskAddressStrobeInput = !lineMapped? 0: 1 << lineStartBitNumber;
+		_ceLineMaskAddressStrobeInput = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
 	case CELineID::RMWCycleInProgress:
-		ceLineMaskRMWCycleInProgress = !lineMapped? 0: 1 << lineStartBitNumber;
+		_ceLineMaskRMWCycleInProgress = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
 	case CELineID::RMWCycleFirstOperation:
-		ceLineMaskRMWCycleFirstOperation = !lineMapped? 0: 1 << lineStartBitNumber;
+		_ceLineMaskRMWCycleFirstOperation = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
 	}
 }
@@ -774,31 +774,31 @@ void S315_5313::SetCELineOutput(unsigned int lineID, bool lineMapped, unsigned i
 	switch((CELineID)lineID)
 	{
 	case CELineID::LDS:
-		ceLineMaskLowerDataStrobeOutput = !lineMapped? 0: 1 << lineStartBitNumber;
+		_ceLineMaskLowerDataStrobeOutput = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
 	case CELineID::UDS:
-		ceLineMaskUpperDataStrobeOutput = !lineMapped? 0: 1 << lineStartBitNumber;
+		_ceLineMaskUpperDataStrobeOutput = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
 	case CELineID::RW:
-		ceLineMaskReadHighWriteLowOutput = !lineMapped? 0: 1 << lineStartBitNumber;
+		_ceLineMaskReadHighWriteLowOutput = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
 	case CELineID::AS:
-		ceLineMaskAddressStrobeOutput = !lineMapped? 0: 1 << lineStartBitNumber;
+		_ceLineMaskAddressStrobeOutput = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
 	case CELineID::LWR:
-		ceLineMaskLWR = !lineMapped? 0: 1 << lineStartBitNumber;
+		_ceLineMaskLWR = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
 	case CELineID::UWR:
-		ceLineMaskUWR = !lineMapped? 0: 1 << lineStartBitNumber;
+		_ceLineMaskUWR = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
 	case CELineID::CAS0:
-		ceLineMaskCAS0 = !lineMapped? 0: 1 << lineStartBitNumber;
+		_ceLineMaskCAS0 = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
 	case CELineID::RAS0:
-		ceLineMaskRAS0 = !lineMapped? 0: 1 << lineStartBitNumber;
+		_ceLineMaskRAS0 = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
 	case CELineID::OE0:
-		ceLineMaskOE0 = !lineMapped? 0: 1 << lineStartBitNumber;
+		_ceLineMaskOE0 = !lineMapped? 0: 1 << lineStartBitNumber;
 		break;
 	}
 }
@@ -807,11 +807,11 @@ void S315_5313::SetCELineOutput(unsigned int lineID, bool lineMapped, unsigned i
 unsigned int S315_5313::CalculateCELineStateMemory(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext, double accessTime) const
 {
 	bool vdpIsSource = (caller == GetDeviceContext());
-	bool currentLowerDataStrobe = (currentCELineState & ceLineMaskLowerDataStrobeInput) != 0;
-	bool currentUpperDataStrobe = (currentCELineState & ceLineMaskUpperDataStrobeInput) != 0;
-	bool operationIsWrite = (currentCELineState & ceLineMaskReadHighWriteLowInput) == 0;
-	bool rmwCycleInProgress = (currentCELineState & ceLineMaskRMWCycleInProgress) != 0;
-	bool rmwCycleFirstOperation = (currentCELineState & ceLineMaskRMWCycleFirstOperation) != 0;
+	bool currentLowerDataStrobe = (currentCELineState & _ceLineMaskLowerDataStrobeInput) != 0;
+	bool currentUpperDataStrobe = (currentCELineState & _ceLineMaskUpperDataStrobeInput) != 0;
+	bool operationIsWrite = (currentCELineState & _ceLineMaskReadHighWriteLowInput) == 0;
+	bool rmwCycleInProgress = (currentCELineState & _ceLineMaskRMWCycleInProgress) != 0;
+	bool rmwCycleFirstOperation = (currentCELineState & _ceLineMaskRMWCycleFirstOperation) != 0;
 	if(vdpIsSource)
 	{
 		currentLowerDataStrobe = true;
@@ -827,11 +827,11 @@ unsigned int S315_5313::CalculateCELineStateMemory(unsigned int location, const 
 unsigned int S315_5313::CalculateCELineStateMemoryTransparent(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext) const
 {
 	bool vdpIsSource = (caller == GetDeviceContext());
-	bool currentLowerDataStrobe = (currentCELineState & ceLineMaskLowerDataStrobeInput) != 0;
-	bool currentUpperDataStrobe = (currentCELineState & ceLineMaskUpperDataStrobeInput) != 0;
-	bool operationIsWrite = (currentCELineState & ceLineMaskReadHighWriteLowInput) == 0;
-	bool rmwCycleInProgress = (currentCELineState & ceLineMaskRMWCycleInProgress) != 0;
-	bool rmwCycleFirstOperation = (currentCELineState & ceLineMaskRMWCycleFirstOperation) != 0;
+	bool currentLowerDataStrobe = (currentCELineState & _ceLineMaskLowerDataStrobeInput) != 0;
+	bool currentUpperDataStrobe = (currentCELineState & _ceLineMaskUpperDataStrobeInput) != 0;
+	bool operationIsWrite = (currentCELineState & _ceLineMaskReadHighWriteLowInput) == 0;
+	bool rmwCycleInProgress = (currentCELineState & _ceLineMaskRMWCycleInProgress) != 0;
+	bool rmwCycleFirstOperation = (currentCELineState & _ceLineMaskRMWCycleFirstOperation) != 0;
 	if(vdpIsSource)
 	{
 		currentLowerDataStrobe = true;
@@ -881,36 +881,36 @@ unsigned int S315_5313::BuildCELine(unsigned int targetAddress, bool vdpIsSource
 	{
 		if(rmwCycleFirstOperation)
 		{
-			lineLWRSavedStateRMW = lineLWR;
-			lineUWRSavedStateRMW = lineUWR;
-			lineCAS0SavedStateRMW = lineCAS0;
-			lineRAS0SavedStateRMW = lineRAS0;
-			lineOE0SavedStateRMW = lineOE0;
+			_lineLWRSavedStateRMW = lineLWR;
+			_lineUWRSavedStateRMW = lineUWR;
+			_lineCAS0SavedStateRMW = lineCAS0;
+			_lineRAS0SavedStateRMW = lineRAS0;
+			_lineOE0SavedStateRMW = lineOE0;
 		}
 		else
 		{
-			lineLWR = lineLWRSavedStateRMW;
-			lineUWR = lineUWRSavedStateRMW;
-			lineCAS0 = lineCAS0SavedStateRMW;
-			lineRAS0 = lineRAS0SavedStateRMW;
-			lineOE0 = lineOE0SavedStateRMW;
+			lineLWR = _lineLWRSavedStateRMW;
+			lineUWR = _lineUWRSavedStateRMW;
+			lineCAS0 = _lineCAS0SavedStateRMW;
+			lineRAS0 = _lineRAS0SavedStateRMW;
+			lineOE0 = _lineOE0SavedStateRMW;
 		}
 	}
 
 	//Build the actual CE line state based on the asserted CE lines
 	unsigned int ceLineState = 0;
-	ceLineState |= lineLWR? ceLineMaskLWR: 0x0;
-	ceLineState |= lineUWR? ceLineMaskUWR: 0x0;
-	ceLineState |= lineCAS0? ceLineMaskCAS0: 0x0;
-	ceLineState |= lineRAS0? ceLineMaskRAS0: 0x0;
-	ceLineState |= lineOE0? ceLineMaskOE0: 0x0;
+	ceLineState |= lineLWR? _ceLineMaskLWR: 0x0;
+	ceLineState |= lineUWR? _ceLineMaskUWR: 0x0;
+	ceLineState |= lineCAS0? _ceLineMaskCAS0: 0x0;
+	ceLineState |= lineRAS0? _ceLineMaskRAS0: 0x0;
+	ceLineState |= lineOE0? _ceLineMaskOE0: 0x0;
 	if(vdpIsSource)
 	{
 		//If the VDP has the bus, we need to drive the M68K CE lines ourselves.
-		ceLineState |= ceLineMaskLowerDataStrobeOutput;
-		ceLineState |= ceLineMaskUpperDataStrobeOutput;
-		ceLineState |= ceLineMaskReadHighWriteLowOutput;
-		ceLineState |= ceLineMaskAddressStrobeOutput;
+		ceLineState |= _ceLineMaskLowerDataStrobeOutput;
+		ceLineState |= _ceLineMaskUpperDataStrobeOutput;
+		ceLineState |= _ceLineMaskReadHighWriteLowOutput;
+		ceLineState |= _ceLineMaskAddressStrobeOutput;
 	}
 
 	//Return the generated CE line state
@@ -942,11 +942,11 @@ unsigned int S315_5313::BuildCELine(unsigned int targetAddress, bool vdpIsSource
 IBusInterface::AccessResult S315_5313::ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	IBusInterface::AccessResult accessResult(true);
-	std::unique_lock<std::mutex> lock(accessMutex);
+	std::unique_lock<std::mutex> lock(_accessMutex);
 
 	//Convert the access time into a cycle count relative to MCLK, rounding up the result
 	//to the nearest MCLK cycle.
-	unsigned int accessMclkCycle = ConvertAccessTimeToMclkCount(accessTime + lastTimesliceMclkCyclesRemainingTime);
+	unsigned int accessMclkCycle = ConvertAccessTimeToMclkCount(accessTime + _lastTimesliceMclkCyclesRemainingTime);
 	double accessMclkCycleInAccessTime = ConvertMclkCountToAccessTime(accessMclkCycle);
 	if(accessMclkCycleInAccessTime < accessTime)
 	{
@@ -957,35 +957,35 @@ IBusInterface::AccessResult S315_5313::ReadInterface(unsigned int interfaceNumbe
 	if((location & 0xC) != 0x8)
 	{
 		//##DEBUG##
-		if(outputPortAccessDebugMessages)
+		if(_outputPortAccessDebugMessages)
 		{
-			std::wcout << "VDPReadInterface:\t" << std::hex << std::uppercase << location << '\t' << accessMclkCycle << '\t' << GetProcessorStateMclkCurrent() << '\t' << accessTime << '\t' << lastTimesliceMclkCyclesRemainingTime << '\n';
+			std::wcout << "VDPReadInterface:\t" << std::hex << std::uppercase << location << '\t' << accessMclkCycle << '\t' << GetProcessorStateMclkCurrent() << '\t' << accessTime << '\t' << _lastTimesliceMclkCyclesRemainingTime << '\n';
 		}
 
 		//##DEBUG##
-		if(commandCode.GetBit(5) && !dmd1)
+		if(_commandCode.GetBit(5) && !_dmd1)
 		{
 			std::wcout << "######################################################\n";
 			std::wcout << "VDP ReadInterface called when a DMA transfer was in progress!\n";
 			std::wcout << "location:\t" << location << "\n";
 			std::wcout << "accessTime:\t" << accessTime << "\n";
 			std::wcout << "accessMclkCycle:\t" << accessMclkCycle << "\n";
-			std::wcout << "stateLastUpdateMclk:\t" << stateLastUpdateMclk << "\n";
-			std::wcout << "stateLastUpdateMclkUnused:\t" << stateLastUpdateMclkUnused << "\n";
-			std::wcout << "stateLastUpdateMclkUnusedFromLastTimeslice:\t" << stateLastUpdateMclkUnusedFromLastTimeslice << "\n";
-			std::wcout << "busGranted:\t" << busGranted << "\n";
-			std::wcout << "dmaEnabled:\t" << dmaEnabled << "\n";
-			std::wcout << "commandCode:\t" << std::hex << commandCode.GetData() << "\t" << commandCode.GetBitCount() << "\t" << commandCode.GetBitMask() << "\n";
-			std::wcout << "status:\t" << status.GetData() << "\n";
+			std::wcout << "stateLastUpdateMclk:\t" << _stateLastUpdateMclk << "\n";
+			std::wcout << "stateLastUpdateMclkUnused:\t" << _stateLastUpdateMclkUnused << "\n";
+			std::wcout << "stateLastUpdateMclkUnusedFromLastTimeslice:\t" << _stateLastUpdateMclkUnusedFromLastTimeslice << "\n";
+			std::wcout << "busGranted:\t" << _busGranted << "\n";
+			std::wcout << "dmaEnabled:\t" << _dmaEnabled << "\n";
+			std::wcout << "commandCode:\t" << std::hex << _commandCode.GetData() << "\t" << _commandCode.GetBitCount() << "\t" << _commandCode.GetBitMask() << "\n";
+			std::wcout << "status:\t" << _status.GetData() << "\n";
 			std::wcout << "GetStatusFlagDMA:\t" << GetStatusFlagDMA() << "\n";
-			std::wcout << "dmd1:\t" << dmd1 << "\n";
-			std::wcout << "dmd0:\t" << dmd1 << "\n";
-			std::wcout << "dmaFillOperationRunning:\t" << dmaFillOperationRunning << "\n";
+			std::wcout << "dmd1:\t" << _dmd1 << "\n";
+			std::wcout << "dmd0:\t" << _dmd1 << "\n";
+			std::wcout << "dmaFillOperationRunning:\t" << _dmaFillOperationRunning << "\n";
 			std::wcout << "######################################################\n";
 		}
 
 		//##DEBUG##
-		if(busGranted)
+		if(_busGranted)
 		{
 			//outputPortAccessDebugMessages = true;
 			std::wcout << "######################################################\n";
@@ -993,26 +993,26 @@ IBusInterface::AccessResult S315_5313::ReadInterface(unsigned int interfaceNumbe
 			std::wcout << "location:\t" << location << "\n";
 			std::wcout << "accessTime:\t" << accessTime << "\n";
 			std::wcout << "accessMclkCycle:\t" << accessMclkCycle << "\n";
-			std::wcout << "stateLastUpdateMclk:\t" << stateLastUpdateMclk << "\n";
-			std::wcout << "stateLastUpdateMclkUnused:\t" << stateLastUpdateMclkUnused << "\n";
-			std::wcout << "stateLastUpdateMclkUnusedFromLastTimeslice:\t" << stateLastUpdateMclkUnusedFromLastTimeslice << "\n";
-			std::wcout << "busGranted:\t" << busGranted << "\n";
-			std::wcout << "dmaEnabled:\t" << dmaEnabled << "\n";
-			std::wcout << "commandCode:\t" << std::hex << commandCode.GetData() << "\t" << commandCode.GetBitCount() << "\t" << commandCode.GetBitMask() << "\n";
-			std::wcout << "status:\t" << status.GetData() << "\n";
+			std::wcout << "stateLastUpdateMclk:\t" << _stateLastUpdateMclk << "\n";
+			std::wcout << "stateLastUpdateMclkUnused:\t" << _stateLastUpdateMclkUnused << "\n";
+			std::wcout << "stateLastUpdateMclkUnusedFromLastTimeslice:\t" << _stateLastUpdateMclkUnusedFromLastTimeslice << "\n";
+			std::wcout << "busGranted:\t" << _busGranted << "\n";
+			std::wcout << "dmaEnabled:\t" << _dmaEnabled << "\n";
+			std::wcout << "commandCode:\t" << std::hex << _commandCode.GetData() << "\t" << _commandCode.GetBitCount() << "\t" << _commandCode.GetBitMask() << "\n";
+			std::wcout << "status:\t" << _status.GetData() << "\n";
 			std::wcout << "GetStatusFlagDMA:\t" << GetStatusFlagDMA() << "\n";
-			std::wcout << "dmd1:\t" << dmd1 << "\n";
-			std::wcout << "dmd0:\t" << dmd1 << "\n";
-			std::wcout << "dmaFillOperationRunning:\t" << dmaFillOperationRunning << "\n";
+			std::wcout << "dmd1:\t" << _dmd1 << "\n";
+			std::wcout << "dmd0:\t" << _dmd1 << "\n";
+			std::wcout << "dmaFillOperationRunning:\t" << _dmaFillOperationRunning << "\n";
 			std::wcout << "######################################################\n";
 		}
 
 		//Trigger a system rollback if the device has been accessed out of order
-		if(lastAccessTime > accessTime)
+		if(_lastAccessTime > accessTime)
 		{
 			GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 		}
-		lastAccessTime = accessTime;
+		_lastAccessTime = accessTime;
 
 		//Update the current VDP state
 		UpdateInternalState(accessMclkCycle, false, false, false, false, false, false, false);
@@ -1025,7 +1025,7 @@ IBusInterface::AccessResult S315_5313::ReadInterface(unsigned int interfaceNumbe
 		//If the VDP was prepared to latch the next write to the control port as the
 		//second half of a command data block, that state is cancelled when the data port
 		//is read from or written to, or the control port is read.
-		commandWritePending = false;
+		_commandWritePending = false;
 
 		//Ensure we have a valid read target loaded
 		if(!ValidReadTargetInCommandCode())
@@ -1043,49 +1043,49 @@ IBusInterface::AccessResult S315_5313::ReadInterface(unsigned int interfaceNumbe
 
 			//Calculate any delay which occurred in processing this operation, and return
 			//the delay time to the caller.
-			accessResult.executionTime += ((lastTimesliceMclkCyclesRemainingTime + GetProcessorStateTime()) - accessTime);
+			accessResult.executionTime += ((_lastTimesliceMclkCyclesRemainingTime + GetProcessorStateTime()) - accessTime);
 			if(accessResult.executionTime < 0.0)
 			{
 				//##DEBUG##
-				std::wcout << "VDP negative executionTime: " << accessResult.executionTime << '\t' << GetProcessorStateTime() << '\t' << lastTimesliceMclkCyclesRemainingTime << '\t' << accessTime << '\n';
+				std::wcout << "VDP negative executionTime: " << accessResult.executionTime << '\t' << GetProcessorStateTime() << '\t' << _lastTimesliceMclkCyclesRemainingTime << '\t' << accessTime << '\n';
 			}
 		}
 
 		//##DEBUG##
 		//##TODO## Keep this check in at runtime, but log a hard error or assertion
 		//failure.
-		if(!readDataAvailable)
+		if(!_readDataAvailable)
 		{
 			std::wcout << "VDP Error! Reached M5ReadFIFO when no valid data had been cached!\n";
-			std::wcout << "\tCommandCode=0x" << std::hex << std::uppercase << fifoBuffer[fifoNextWriteEntry].codeRegData.GetData() << "\tAddress=0x" << std::hex << std::uppercase << fifoBuffer[fifoNextWriteEntry].addressRegData.GetData() << '\n';
+			std::wcout << "\tCommandCode=0x" << std::hex << std::uppercase << _fifoBuffer[_fifoNextWriteEntry].codeRegData.GetData() << "\tAddress=0x" << std::hex << std::uppercase << _fifoBuffer[_fifoNextWriteEntry].addressRegData.GetData() << '\n';
 		}
 
 		//Now that we have a data value loaded into the read buffer, return it to the
 		//caller.
-		data = readBuffer;
+		data = _readBuffer;
 
 		//Now that the cached data has been read from the buffer, the readDataAvailable
 		//flag is cleared. This will cause the VDP to read the next word of data from the
 		//read target on the next available access slot.
-		readDataAvailable = false;
-		readDataHalfCached = false;
+		_readDataAvailable = false;
+		_readDataHalfCached = false;
 
 		//Port monitor logging
-		if(logDataPortRead)
+		if(_logDataPortRead)
 		{
-			RecordPortMonitorEntry(PortMonitorEntry(L"DP Read", caller->GetTargetDevice().GetDeviceInstanceName(), data.GetData(), accessTime, hcounter.GetData(), vcounter.GetData()));
+			RecordPortMonitorEntry(PortMonitorEntry(L"DP Read", caller->GetTargetDevice().GetDeviceInstanceName(), data.GetData(), accessTime, _hcounter.GetData(), _vcounter.GetData()));
 		}
 		break;
 	case 1: //001 - Control Port
 		//If the VDP was prepared to latch the next write to the control port as the
 		//second half of a command data block, that state is cancelled when the data port
 		//is read from or written to, or the control port is read.
-		commandWritePending = false;
+		_commandWritePending = false;
 
 		//Read the current value of the status register. Note that the status register is
 		//a 10-bit register, so the call below will only affect the lower 10 bits of the
 		//data value.
-		data.SetLowerBits(status);
+		data.SetLowerBits(_status);
 
 		//##DEBUG##
 //		std::wcout << "VDP - ReadSR: 0x" << std::hex << std::uppercase << status.GetData() << '\n';
@@ -1097,7 +1097,7 @@ IBusInterface::AccessResult S315_5313::ReadInterface(unsigned int interfaceNumbe
 		//lines retaining their previous values from the last bus read operation. We
 		//emulate that behaviour here by using data line masking for the result.
 		accessResult.accessMaskUsed = true;
-		accessResult.accessMask = statusRegisterMask;
+		accessResult.accessMask = StatusRegisterMask;
 
 		//Since the status register has now been read, clear the sprite overflow and
 		//collision flags.
@@ -1105,9 +1105,9 @@ IBusInterface::AccessResult S315_5313::ReadInterface(unsigned int interfaceNumbe
 		SetStatusFlagSpriteCollision(false);
 
 		//Port monitor logging
-		if(logStatusRegisterRead)
+		if(_logStatusRegisterRead)
 		{
-			RecordPortMonitorEntry(PortMonitorEntry(L"SR Read", caller->GetTargetDevice().GetDeviceInstanceName(), data.GetData(), accessTime, hcounter.GetData(), vcounter.GetData()));
+			RecordPortMonitorEntry(PortMonitorEntry(L"SR Read", caller->GetTargetDevice().GetDeviceInstanceName(), data.GetData(), accessTime, _hcounter.GetData(), _vcounter.GetData()));
 		}
 		break;
 	case 2: //01* - HV Counter
@@ -1115,16 +1115,16 @@ IBusInterface::AccessResult S315_5313::ReadInterface(unsigned int interfaceNumbe
 		data = GetHVCounter();
 
 		//Port monitor logging
-		if(logHVCounterRead)
+		if(_logHVCounterRead)
 		{
-			RecordPortMonitorEntry(PortMonitorEntry(L"HV Read", caller->GetTargetDevice().GetDeviceInstanceName(), data.GetData(), accessTime, hcounter.GetData(), vcounter.GetData()));
+			RecordPortMonitorEntry(PortMonitorEntry(L"HV Read", caller->GetTargetDevice().GetDeviceInstanceName(), data.GetData(), accessTime, _hcounter.GetData(), _vcounter.GetData()));
 		}
 		break;
 	case 4: //10* - SN76489 PSG
 	case 5:
-		if(psg != 0)
+		if(_psg != 0)
 		{
-			return psg->ReadInterface(0, (location >> 1) & 0x1, data, caller, accessTime, accessContext);
+			return _psg->ReadInterface(0, (location >> 1) & 0x1, data, caller, accessTime, accessContext);
 		}
 		break;
 	case 6: //110 - Unused
@@ -1151,11 +1151,11 @@ IBusInterface::AccessResult S315_5313::ReadInterface(unsigned int interfaceNumbe
 IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
 	IBusInterface::AccessResult accessResult(true);
-	std::unique_lock<std::mutex> lock(accessMutex);
+	std::unique_lock<std::mutex> lock(_accessMutex);
 
 	//Convert the access time into a cycle count relative to MCLK, rounding up the result
 	//to the nearest MCLK cycle.
-	unsigned int accessMclkCycle = ConvertAccessTimeToMclkCount(accessTime + lastTimesliceMclkCyclesRemainingTime);
+	unsigned int accessMclkCycle = ConvertAccessTimeToMclkCount(accessTime + _lastTimesliceMclkCyclesRemainingTime);
 	double accessMclkCycleInAccessTime = ConvertMclkCountToAccessTime(accessMclkCycle);
 	if(accessMclkCycleInAccessTime < accessTime)
 	{
@@ -1167,9 +1167,9 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 	if((location & 0xC) != 0x8)
 	{
 		//##DEBUG##
-		if(outputPortAccessDebugMessages)
+		if(_outputPortAccessDebugMessages)
 		{
-			std::wcout << "VDPWriteInterface: " << std::hex << std::uppercase << location << '\t' << data.GetData() << '\t' << accessMclkCycle << '\t' << GetProcessorStateMclkCurrent() << '\t' << accessTime << '\t' << lastTimesliceMclkCyclesRemainingTime << '\n';
+			std::wcout << "VDPWriteInterface: " << std::hex << std::uppercase << location << '\t' << data.GetData() << '\t' << accessMclkCycle << '\t' << GetProcessorStateMclkCurrent() << '\t' << accessTime << '\t' << _lastTimesliceMclkCyclesRemainingTime << '\n';
 		}
 
 		//This is a hack to handle VDP port access while a DMA transfer operation is
@@ -1179,45 +1179,45 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 		//the bus between two halves of a long-word operation. Until we have a microcode
 		//level M68000 core online, we cache these invalid reads, and process them when
 		//the DMA operation is complete.
-		if(commandCode.GetBit(5) && !dmd1 && !busGranted)
+		if(_commandCode.GetBit(5) && !_dmd1 && !_busGranted)
 		{
 			//##DEBUG##
-			if(outputPortAccessDebugMessages)
+			if(_outputPortAccessDebugMessages)
 			{
 				std::wcout << "VDP WriteInterface called while a bus request was pending! Caching the write.\n";
 			}
 
 			if(((location & 0xE) == 0) || ((location & 0xE) == 2))
 			{
-				dmaTransferInvalidPortWriteCached = true;
-				dmaTransferInvalidPortWriteAddressCache = location;
-				dmaTransferInvalidPortWriteDataCache = data;
+				_dmaTransferInvalidPortWriteCached = true;
+				_dmaTransferInvalidPortWriteAddressCache = location;
+				_dmaTransferInvalidPortWriteDataCache = data;
 			}
 			return accessResult;
 		}
 
 		//##DEBUG##
-		if(commandCode.GetBit(5) != GetStatusFlagDMA())
+		if(_commandCode.GetBit(5) != GetStatusFlagDMA())
 		{
 			std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
 			std::wcout << "VDP commandCode.GetBit(5) != GetStatusFlagDMA()\n";
 			std::wcout << "__LINE__:\t" << __LINE__ << "\n";
-			std::wcout << "stateLastUpdateMclk:\t" << stateLastUpdateMclk << "\n";
-			std::wcout << "stateLastUpdateMclkUnused:\t" << stateLastUpdateMclkUnused << "\n";
-			std::wcout << "stateLastUpdateMclkUnusedFromLastTimeslice:\t" << stateLastUpdateMclkUnusedFromLastTimeslice << "\n";
-			std::wcout << "busGranted:\t" << busGranted << "\n";
-			std::wcout << "dmaEnabled:\t" << dmaEnabled << "\n";
-			std::wcout << "commandCode:\t" << std::hex << commandCode.GetData() << "\t" << commandCode.GetBitCount() << "\t" << commandCode.GetBitMask() << "\n";
-			std::wcout << "status:\t" << status.GetData() << "\n";
+			std::wcout << "stateLastUpdateMclk:\t" << _stateLastUpdateMclk << "\n";
+			std::wcout << "stateLastUpdateMclkUnused:\t" << _stateLastUpdateMclkUnused << "\n";
+			std::wcout << "stateLastUpdateMclkUnusedFromLastTimeslice:\t" << _stateLastUpdateMclkUnusedFromLastTimeslice << "\n";
+			std::wcout << "busGranted:\t" << _busGranted << "\n";
+			std::wcout << "dmaEnabled:\t" << _dmaEnabled << "\n";
+			std::wcout << "commandCode:\t" << std::hex << _commandCode.GetData() << "\t" << _commandCode.GetBitCount() << "\t" << _commandCode.GetBitMask() << "\n";
+			std::wcout << "status:\t" << _status.GetData() << "\n";
 			std::wcout << "GetStatusFlagDMA:\t" << GetStatusFlagDMA() << "\n";
-			std::wcout << "dmd1:\t" << dmd1 << "\n";
-			std::wcout << "dmd0:\t" << dmd1 << "\n";
-			std::wcout << "dmaFillOperationRunning:\t" << dmaFillOperationRunning << "\n";
+			std::wcout << "dmd1:\t" << _dmd1 << "\n";
+			std::wcout << "dmd0:\t" << _dmd1 << "\n";
+			std::wcout << "dmaFillOperationRunning:\t" << _dmaFillOperationRunning << "\n";
 			std::wcout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
 		}
 
 		//##DEBUG##
-		if(commandCode.GetBit(5) && !dmd1)
+		if(_commandCode.GetBit(5) && !_dmd1)
 		{
 			std::wcout << "######################################################\n";
 			std::wcout << "VDP WriteInterface called when a DMA transfer was in progress!\n";
@@ -1225,22 +1225,22 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 			std::wcout << "data:\t" << data.GetData() << "\n";
 			std::wcout << "accessTime:\t" << accessTime << "\n";
 			std::wcout << "accessMclkCycle:\t" << accessMclkCycle << "\n";
-			std::wcout << "stateLastUpdateMclk:\t" << stateLastUpdateMclk << "\n";
-			std::wcout << "stateLastUpdateMclkUnused:\t" << stateLastUpdateMclkUnused << "\n";
-			std::wcout << "stateLastUpdateMclkUnusedFromLastTimeslice:\t" << stateLastUpdateMclkUnusedFromLastTimeslice << "\n";
-			std::wcout << "busGranted:\t" << busGranted << "\n";
-			std::wcout << "dmaEnabled:\t" << dmaEnabled << "\n";
-			std::wcout << "commandCode:\t" << std::hex << commandCode.GetData() << "\t" << commandCode.GetBitCount() << "\t" << commandCode.GetBitMask() << "\n";
-			std::wcout << "status:\t" << status.GetData() << "\n";
+			std::wcout << "stateLastUpdateMclk:\t" << _stateLastUpdateMclk << "\n";
+			std::wcout << "stateLastUpdateMclkUnused:\t" << _stateLastUpdateMclkUnused << "\n";
+			std::wcout << "stateLastUpdateMclkUnusedFromLastTimeslice:\t" << _stateLastUpdateMclkUnusedFromLastTimeslice << "\n";
+			std::wcout << "busGranted:\t" << _busGranted << "\n";
+			std::wcout << "dmaEnabled:\t" << _dmaEnabled << "\n";
+			std::wcout << "commandCode:\t" << std::hex << _commandCode.GetData() << "\t" << _commandCode.GetBitCount() << "\t" << _commandCode.GetBitMask() << "\n";
+			std::wcout << "status:\t" << _status.GetData() << "\n";
 			std::wcout << "GetStatusFlagDMA:\t" << GetStatusFlagDMA() << "\n";
-			std::wcout << "dmd1:\t" << dmd1 << "\n";
-			std::wcout << "dmd0:\t" << dmd1 << "\n";
-			std::wcout << "dmaFillOperationRunning:\t" << dmaFillOperationRunning << "\n";
+			std::wcout << "dmd1:\t" << _dmd1 << "\n";
+			std::wcout << "dmd0:\t" << _dmd1 << "\n";
+			std::wcout << "dmaFillOperationRunning:\t" << _dmaFillOperationRunning << "\n";
 			std::wcout << "######################################################\n";
 		}
 
 		//##DEBUG##
-		if(busGranted && (caller != GetDeviceContext()))
+		if(_busGranted && (caller != GetDeviceContext()))
 		{
 			//outputPortAccessDebugMessages = true;
 			std::wcout << "######################################################\n";
@@ -1249,26 +1249,26 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 			std::wcout << "data:\t" << data.GetData() << "\n";
 			std::wcout << "accessTime:\t" << accessTime << "\n";
 			std::wcout << "accessMclkCycle:\t" << accessMclkCycle << "\n";
-			std::wcout << "stateLastUpdateMclk:\t" << stateLastUpdateMclk << "\n";
-			std::wcout << "stateLastUpdateMclkUnused:\t" << stateLastUpdateMclkUnused << "\n";
-			std::wcout << "stateLastUpdateMclkUnusedFromLastTimeslice:\t" << stateLastUpdateMclkUnusedFromLastTimeslice << "\n";
-			std::wcout << "busGranted:\t" << busGranted << "\n";
-			std::wcout << "dmaEnabled:\t" << dmaEnabled << "\n";
-			std::wcout << "commandCode:\t" << std::hex << commandCode.GetData() << "\t" << commandCode.GetBitCount() << "\t" << commandCode.GetBitMask() << "\n";
-			std::wcout << "status:\t" << status.GetData() << "\n";
+			std::wcout << "stateLastUpdateMclk:\t" << _stateLastUpdateMclk << "\n";
+			std::wcout << "stateLastUpdateMclkUnused:\t" << _stateLastUpdateMclkUnused << "\n";
+			std::wcout << "stateLastUpdateMclkUnusedFromLastTimeslice:\t" << _stateLastUpdateMclkUnusedFromLastTimeslice << "\n";
+			std::wcout << "busGranted:\t" << _busGranted << "\n";
+			std::wcout << "dmaEnabled:\t" << _dmaEnabled << "\n";
+			std::wcout << "commandCode:\t" << std::hex << _commandCode.GetData() << "\t" << _commandCode.GetBitCount() << "\t" << _commandCode.GetBitMask() << "\n";
+			std::wcout << "status:\t" << _status.GetData() << "\n";
 			std::wcout << "GetStatusFlagDMA:\t" << GetStatusFlagDMA() << "\n";
-			std::wcout << "dmd1:\t" << dmd1 << "\n";
-			std::wcout << "dmd0:\t" << dmd1 << "\n";
-			std::wcout << "dmaFillOperationRunning:\t" << dmaFillOperationRunning << "\n";
+			std::wcout << "dmd1:\t" << _dmd1 << "\n";
+			std::wcout << "dmd0:\t" << _dmd1 << "\n";
+			std::wcout << "dmaFillOperationRunning:\t" << _dmaFillOperationRunning << "\n";
 			std::wcout << "######################################################\n";
 		}
 
 		//Trigger a system rollback if the device has been accessed out of order
-		if(lastAccessTime > accessTime)
+		if(_lastAccessTime > accessTime)
 		{
 			GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 		}
-		lastAccessTime = accessTime;
+		_lastAccessTime = accessTime;
 
 		//Update the current VDP state to the target access time
 		UpdateInternalState(accessMclkCycle, false, false, false, false, false, false, false);
@@ -1279,15 +1279,15 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 	{
 	case 0:{ //000 - Data Port
 		//Port monitor logging
-		if(logDataPortWrite)
+		if(_logDataPortWrite)
 		{
-			RecordPortMonitorEntry(PortMonitorEntry(L"DP Write", caller->GetTargetDevice().GetDeviceInstanceName(), data.GetData(), accessTime, hcounter.GetData(), vcounter.GetData()));
+			RecordPortMonitorEntry(PortMonitorEntry(L"DP Write", caller->GetTargetDevice().GetDeviceInstanceName(), data.GetData(), accessTime, _hcounter.GetData(), _vcounter.GetData()));
 		}
 
 		//If the VDP was prepared to latch the next write to the control port as the
 		//second half of a command data block, that state is cancelled when the data port
 		//is read from or written to, or the control port is read.
-		commandWritePending = false;
+		_commandWritePending = false;
 
 		//If the 4-word FIFO is full at the time a data port write is attempted, we
 		//advance the device state forward one slot, until there's one space free in the
@@ -1296,25 +1296,25 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 
 		//Calculate any delay which occurred in processing this operation, and return the
 		//delay time to the caller.
-		accessResult.executionTime += ((lastTimesliceMclkCyclesRemainingTime + GetProcessorStateTime()) - accessTime);
+		accessResult.executionTime += ((_lastTimesliceMclkCyclesRemainingTime + GetProcessorStateTime()) - accessTime);
 		if(accessResult.executionTime < 0.0)
 		{
 			//##DEBUG##
-			std::wcout << "VDP negative executionTime: " << accessResult.executionTime << '\t' << GetProcessorStateTime() << '\t' << lastTimesliceMclkCyclesRemainingTime << '\t' << accessTime << '\n';
+			std::wcout << "VDP negative executionTime: " << accessResult.executionTime << '\t' << GetProcessorStateTime() << '\t' << _lastTimesliceMclkCyclesRemainingTime << '\t' << accessTime << '\n';
 		}
 
 		//Save the code and address register data for this data port write
-		if(codeAndAddressRegistersModifiedSinceLastWrite)
+		if(_codeAndAddressRegistersModifiedSinceLastWrite)
 		{
-			fifoBuffer[fifoNextWriteEntry].codeRegData = commandCode;
-			fifoBuffer[fifoNextWriteEntry].addressRegData = commandAddress;
-			codeAndAddressRegistersModifiedSinceLastWrite = false;
+			_fifoBuffer[_fifoNextWriteEntry].codeRegData = _commandCode;
+			_fifoBuffer[_fifoNextWriteEntry].addressRegData = _commandAddress;
+			_codeAndAddressRegistersModifiedSinceLastWrite = false;
 		}
 		else
 		{
-			unsigned int fifoLastWriteEntry = (fifoNextWriteEntry+(fifoBufferSize-1)) % fifoBufferSize;
-			fifoBuffer[fifoNextWriteEntry].codeRegData = fifoBuffer[fifoLastWriteEntry].codeRegData;
-			fifoBuffer[fifoNextWriteEntry].addressRegData = fifoBuffer[fifoLastWriteEntry].addressRegData + autoIncrementData;
+			unsigned int fifoLastWriteEntry = (_fifoNextWriteEntry+(FifoBufferSize-1)) % FifoBufferSize;
+			_fifoBuffer[_fifoNextWriteEntry].codeRegData = _fifoBuffer[fifoLastWriteEntry].codeRegData;
+			_fifoBuffer[_fifoNextWriteEntry].addressRegData = _fifoBuffer[fifoLastWriteEntry].addressRegData + _autoIncrementData;
 		}
 
 		//Write the new data value to the FIFO
@@ -1323,12 +1323,12 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 		//slot is consumed, or if they are discarded straight away and the next pending
 		//write processed. Most likely, a write to an invalid target consumes an access
 		//slot, but we should test by examining the FIFO full/empty flags to be sure.
-		fifoBuffer[fifoNextWriteEntry].dataPortWriteData = data;
-		fifoBuffer[fifoNextWriteEntry].dataWriteHalfWritten = false;
-		fifoBuffer[fifoNextWriteEntry].pendingDataWrite = true;
+		_fifoBuffer[_fifoNextWriteEntry].dataPortWriteData = data;
+		_fifoBuffer[_fifoNextWriteEntry].dataWriteHalfWritten = false;
+		_fifoBuffer[_fifoNextWriteEntry].pendingDataWrite = true;
 
 		//Advance the FIFO to the next slot
-		fifoNextWriteEntry = (fifoNextWriteEntry+1) % fifoBufferSize;
+		_fifoNextWriteEntry = (_fifoNextWriteEntry+1) % FifoBufferSize;
 
 		//Update the FIFO full and empty flags in the status register
 		bool fifoEmpty = IsWriteFIFOEmpty();
@@ -1344,19 +1344,19 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 		//should be able to gather more information. If at any point two successive read
 		//operations can be made to work after an invalid port write, CD4 cannot be set by
 		//a data port write.
-		commandCode.SetBit(4, true);
+		_commandCode.SetBit(4, true);
 
 		//##FIX## This comment is incorrect. We didn't just write over it.
 		//Now that we've added a new write to the FIFO, we invalidate any cached read data
 		//that may have been buffered, since if it existed, we just wrote over it.
-		readDataAvailable = false;
-		readDataHalfCached = false;
+		_readDataAvailable = false;
+		_readDataHalfCached = false;
 		break;}
 	case 1:{ //001 - Control Port
 		//Port monitor logging
-		if(logControlPortWrite)
+		if(_logControlPortWrite)
 		{
-			RecordPortMonitorEntry(PortMonitorEntry(L"CP Write", caller->GetTargetDevice().GetDeviceInstanceName(), data.GetData(), accessTime, hcounter.GetData(), vcounter.GetData()));
+			RecordPortMonitorEntry(PortMonitorEntry(L"CP Write", caller->GetTargetDevice().GetDeviceInstanceName(), data.GetData(), accessTime, _hcounter.GetData(), _vcounter.GetData()));
 		}
 
 		//It is almost certain that control port writes are not processed until the FIFO
@@ -1383,11 +1383,11 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 
 		//Calculate any delay which occurred in processing this operation, and return the
 		//delay time to the caller.
-		accessResult.executionTime += ((lastTimesliceMclkCyclesRemainingTime + GetProcessorStateTime()) - accessTime);
+		accessResult.executionTime += ((_lastTimesliceMclkCyclesRemainingTime + GetProcessorStateTime()) - accessTime);
 		if(accessResult.executionTime < 0.0)
 		{
 			//##DEBUG##
-			std::wcout << "VDP negative executionTime: " << accessResult.executionTime << '\t' << GetProcessorStateTime() << '\t' << lastTimesliceMclkCyclesRemainingTime << '\t' << accessTime << '\n';
+			std::wcout << "VDP negative executionTime: " << accessResult.executionTime << '\t' << GetProcessorStateTime() << '\t' << _lastTimesliceMclkCyclesRemainingTime << '\t' << accessTime << '\n';
 		}
 
 		//Calculate the number of mclk cycles that this operation was delayed
@@ -1407,7 +1407,7 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 		//it does not, it would appear that CD5 is cleared when a partial control port
 		//write is made.
 		bool assertBRLine = false;
-		if(!commandWritePending)
+		if(!_commandWritePending)
 		{
 			ProcessCommandDataWriteFirstHalf(data);
 
@@ -1419,7 +1419,7 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 			//could begin between the two halves of a full control port write, which would
 			//be a bad thing if the indicated read target after the first control port
 			//write was not actually what the caller wanted to access.
-			commandCode.SetBit(4, true);
+			_commandCode.SetBit(4, true);
 
 			//Contrary to other documentation, and the behaviour of other emulators,
 			//register writes go directly to the code and address registers first as a
@@ -1428,7 +1428,7 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 			//MacDonald. The register write is then processed from the new address
 			//register data. Hardware tests have shown the upper bits of the command and
 			//address registers remain unaffected.
-			if(commandCode.GetBit(1) && !commandCode.GetBit(0))
+			if(_commandCode.GetBit(1) && !_commandCode.GetBit(0))
 			{
 				//Register Write
 				//-----------------------------------------------------------------
@@ -1440,23 +1440,23 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 				//-----------------------------------------------------------------
 
 				//Decode the target register number and data from the command address data
-				unsigned int registerNo = originalCommandAddress.GetDataSegment(8, 5);
-				Data registerData(8, originalCommandAddress.GetDataSegment(0, 8));
+				unsigned int registerNo = _originalCommandAddress.GetDataSegment(8, 5);
+				Data registerData(8, _originalCommandAddress.GetDataSegment(0, 8));
 
 				//Calculate the highest accessible register number available based on the
 				//current screen mode. Documentation and hardware tests show that when
 				//mode 4 is active, VDP registers above the register block defined under
 				//mode 4 are inaccessible. See "Genesis Software Manual", "Addendum 4" for
 				//further information.
-				unsigned int accessibleRegisterCount = registerCount;
-				if(!screenModeM5Cached)
+				unsigned int accessibleRegisterCount = RegisterCount;
+				if(!_screenModeM5Cached)
 				{
-					accessibleRegisterCount = registerCountM4;
+					accessibleRegisterCount = RegisterCountM4;
 				}
 
 				//If the target register is accessible in this video mode and isn't
 				//currently locked, perform the register write.
-				if((registerNo < accessibleRegisterCount) && !rawRegisterLocking[registerNo])
+				if((registerNo < accessibleRegisterCount) && !_rawRegisterLocking[registerNo])
 				{
 					RegisterSpecialUpdateFunction(accessMclkCycle + accessMclkCycleDelay, accessTime, accessResult.executionTime, caller, accessContext, registerNo, registerData);
 					AccessTarget accessTarget;
@@ -1464,8 +1464,8 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 					SetRegisterData(registerNo, accessTarget, registerData);
 
 					//Fix any locked registers at their set value
-					std::unique_lock<std::mutex> lock2(registerLockMutex);
-					for(std::map<unsigned int, std::wstring>::const_iterator i = lockedRegisterState.begin(); i != lockedRegisterState.end(); ++i)
+					std::unique_lock<std::mutex> lock2(_registerLockMutex);
+					for(std::map<unsigned int, std::wstring>::const_iterator i = _lockedRegisterState.begin(); i != _lockedRegisterState.end(); ++i)
 					{
 						WriteGenericData(i->first, 0, i->second);
 					}
@@ -1473,7 +1473,7 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 
 				//Since the command word has just been latched as a register write, the
 				//VDP is no longer expecting a second command word to be written.
-				commandWritePending = false;
+				_commandWritePending = false;
 			}
 		}
 		else
@@ -1481,8 +1481,8 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 			ProcessCommandDataWriteSecondHalf(data);
 
 			//Check if we need to obtain the bus due to an external DMA transfer operation
-			if(commandCode.GetBit(5) //The command code has a DMA operation flagged
-			&& !dmd1)                //DMA is set to perform an external copy operation
+			if(_commandCode.GetBit(5) //The command code has a DMA operation flagged
+			&& !_dmd1)                //DMA is set to perform an external copy operation
 			{
 				//Note that a DMA operation will be triggered regardless of the state of
 				//CD4, as this bit isn't tested when deciding whether to trigger DMA, and
@@ -1490,15 +1490,15 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 				assertBRLine = true;
 
 				//Set the initial DMA transfer register settings
-				std::unique_lock<std::mutex> lock(workerThreadMutex);
-				dmaTransferActive = true;
-				dmaTransferReadDataCached = false;
+				std::unique_lock<std::mutex> lock(_workerThreadMutex);
+				_dmaTransferActive = true;
+				_dmaTransferReadDataCached = false;
 				//Note that we technically don't need to set these here, as they are only
 				//correctly initialized once the bus request is granted, but we set them
 				//here anyway as it can be useful for debugging purposes to know when the
 				//DMA operation was triggered relative to when the bus was granted.
-				dmaTransferNextReadMclk = accessMclkCycle;
-				dmaTransferLastTimesliceUsedReadDelay = 0;
+				_dmaTransferNextReadMclk = accessMclkCycle;
+				_dmaTransferLastTimesliceUsedReadDelay = 0;
 
 				//##DEBUG##
 //				if(outputPortAccessDebugMessages)
@@ -1520,19 +1520,19 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 		//address in its original, unmodified state.
 		//##TODO## Recent hardware tests dispute these findings. Do more testing to
 		//determine what the correct behaviour is.
-		commandAddress = originalCommandAddress;
+		_commandAddress = _originalCommandAddress;
 
 		//Flag that the command and address registers have been modified since the last
 		//write. This is important in order to ensure that subsequent data port writes
 		//latch the new data, rather than incrementing the write address from the previous
 		//write target.
-		codeAndAddressRegistersModifiedSinceLastWrite = true;
+		_codeAndAddressRegistersModifiedSinceLastWrite = true;
 
 		//Now that the command code has changed, any cached read data is invalidated. We
 		//clear this flag here now so that new data will be retrieved for the target on
 		//the next available access slot, if it is a valid read target.
-		readDataAvailable = false;
-		readDataHalfCached = false;
+		_readDataAvailable = false;
+		_readDataHalfCached = false;
 
 		//If a request has been made to assert the BR line, release any critical locks
 		//we're currently holding, and assert the line here.
@@ -1547,8 +1547,8 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 			//is granted? We can test this by physically preventing the VDP from asserting
 			//the BR line, so that the M68000 never grants the bus, and see how the VDP
 			//responds if we continue to access it.
-			busRequestLineState = true;
-			memoryBus->SetLineState((unsigned int)LineID::BR, Data(GetLineWidth((unsigned int)LineID::BR), (unsigned int)busRequestLineState), GetDeviceContext(), GetDeviceContext(), accessTime + accessResult.executionTime, (unsigned int)AccessContext::BRAssert);
+			_busRequestLineState = true;
+			_memoryBus->SetLineState((unsigned int)LineID::BR, Data(GetLineWidth((unsigned int)LineID::BR), (unsigned int)_busRequestLineState), GetDeviceContext(), GetDeviceContext(), accessTime + accessResult.executionTime, (unsigned int)AccessContext::BRAssert);
 		}
 		break;}
 	case 2: //01* - HV Counter
@@ -1556,9 +1556,9 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 		break;
 	case 4: //10* - SN76489 PSG
 	case 5:
-		if(psg != 0)
+		if(_psg != 0)
 		{
-			return psg->WriteInterface(0, (location >> 1) & 0x1, data, caller, accessTime, accessContext);
+			return _psg->WriteInterface(0, (location >> 1) & 0x1, data, caller, accessTime, accessContext);
 		}
 		break;
 	case 6: //110 - Unused
@@ -1591,7 +1591,7 @@ Data S315_5313::GetHVCounter() const
 	//Internal counter: 876543210
 	//External counter: 87654321
 	Data currentHCounter(9);
-	currentHCounter = (hvCounterLatchEnabled)? hcounterLatchedData: hcounter;
+	currentHCounter = (_hvCounterLatchEnabled)? _hcounterLatchedData: _hcounter;
 	Data externalHCounter(8);
 	externalHCounter = currentHCounter.GetUpperBits(8);
 
@@ -1605,14 +1605,14 @@ Data S315_5313::GetHVCounter() const
 	//External, interlace normal:  76543218
 	//External, interlace double:  65432107
 	Data currentVCounter(9);
-	currentVCounter = (hvCounterLatchEnabled)? vcounterLatchedData: vcounter;
+	currentVCounter = (_hvCounterLatchEnabled)? _vcounterLatchedData: _vcounter;
 	Data externalVCounter(8);
-	if(interlaceEnabled && interlaceDouble)
+	if(_interlaceEnabled && _interlaceDouble)
 	{
 		currentVCounter <<= 1;
 	}
 	externalVCounter = currentVCounter.GetLowerBits(8);
-	if(interlaceEnabled)
+	if(_interlaceEnabled)
 	{
 		externalVCounter.SetBit(0, currentVCounter.GetBit(8));
 	}
@@ -1648,9 +1648,9 @@ void S315_5313::ProcessCommandDataWriteFirstHalf(const Data& data)
 	//|-------|-------------------------------------------------------|
 	//|CD1|CD0|A13|A12|A11|A10|A9 |A8 |A7 |A6 |A5 |A4 |A3 |A2 |A1 |A0 |
 	//-----------------------------------------------------------------
-	commandWritePending = true;
-	commandCode.SetDataSegment(0, 2, data.GetDataSegment(14, 2));
-	originalCommandAddress.SetDataSegment(0, 14, data.GetDataSegment(0, 14));
+	_commandWritePending = true;
+	_commandCode.SetDataSegment(0, 2, data.GetDataSegment(14, 2));
+	_originalCommandAddress.SetDataSegment(0, 14, data.GetDataSegment(0, 14));
 }
 
 //----------------------------------------------------------------------------------------
@@ -1682,11 +1682,11 @@ void S315_5313::ProcessCommandDataWriteSecondHalf(const Data& data)
 	//shows that all the DMA enable bit does is prevent CD5 from being modified, it does
 	//not actually disable DMA operations or affect the way a currently executing DMA
 	//operation advances.
-	unsigned int commandCodeBitsToSet = (dmaEnabled)? 4: 3;
+	unsigned int commandCodeBitsToSet = (_dmaEnabled)? 4: 3;
 
-	commandWritePending = false;
-	commandCode.SetDataSegment(2, commandCodeBitsToSet, data.GetDataSegment(4, commandCodeBitsToSet));
-	originalCommandAddress.SetDataSegment(14, 2, data.GetDataSegment(0, 2));
+	_commandWritePending = false;
+	_commandCode.SetDataSegment(2, commandCodeBitsToSet, data.GetDataSegment(4, commandCodeBitsToSet));
+	_originalCommandAddress.SetDataSegment(14, 2, data.GetDataSegment(0, 2));
 
 	//Keep the state of CD5 and the DMA flag in the status register in sync. On the real
 	//hardware, the DMA flag in the status register is the literal realtime state of the
@@ -1697,7 +1697,7 @@ void S315_5313::ProcessCommandDataWriteSecondHalf(const Data& data)
 	//Although the status register returns the realtime state of CD5 for the DMA busy
 	//flag, we keep the two separated in our core for maximum efficiency on status
 	//register reads, and keep them manually in sync whenever the CD5 bit is modified.
-	SetStatusFlagDMA(commandCode.GetBit(5));
+	SetStatusFlagDMA(_commandCode.GetBit(5));
 }
 
 //----------------------------------------------------------------------------------------
@@ -1708,51 +1708,51 @@ void S315_5313::TransparentRegisterSpecialUpdateFunction(unsigned int registerNo
 	switch(registerNo)
 	{
 	case 0:
-		hvCounterLatchEnabled = data.GetBit(1);
-		hintEnabled = data.GetBit(4);
+		_hvCounterLatchEnabled = data.GetBit(1);
+		_hintEnabled = data.GetBit(4);
 		break;
 	case 1:
-		screenModeM5Cached = data.GetBit(2);
-		screenModeV30Cached = data.GetBit(3);
-		dmaEnabled = data.GetBit(4);
-		displayEnabledCached = data.GetBit(6);
-		vintEnabled = data.GetBit(5);
+		_screenModeM5Cached = data.GetBit(2);
+		_screenModeV30Cached = data.GetBit(3);
+		_dmaEnabled = data.GetBit(4);
+		_displayEnabledCached = data.GetBit(6);
+		_vintEnabled = data.GetBit(5);
 		break;
 	case 5:
-		spriteAttributeTableBaseAddressDecoded = (data.GetDataSegment(0, 7) << 9);
+		_spriteAttributeTableBaseAddressDecoded = (data.GetDataSegment(0, 7) << 9);
 		break;
 	case 10:
-		hintCounterReloadValue = data.GetData();
+		_hintCounterReloadValue = data.GetData();
 		break;
 	case 11:
-		verticalScrollModeCached = data.GetBit(2);
-		exintEnabled = data.GetBit(3);
+		_verticalScrollModeCached = data.GetBit(2);
+		_exintEnabled = data.GetBit(3);
 		break;
 	case 12:
-		screenModeRS0Cached = data.GetBit(7);
-		screenModeRS1Cached = data.GetBit(0);
-		interlaceDoubleCached = data.GetBit(2);
-		interlaceEnabledCached = data.GetBit(1);
+		_screenModeRS0Cached = data.GetBit(7);
+		_screenModeRS1Cached = data.GetBit(0);
+		_interlaceDoubleCached = data.GetBit(2);
+		_interlaceEnabledCached = data.GetBit(1);
 		break;
 	case 15:
-		autoIncrementData = data.GetData();
+		_autoIncrementData = data.GetData();
 		break;
 	case 19:
-		dmaLengthCounter = (dmaLengthCounter & 0xFF00) | data.GetData();
+		_dmaLengthCounter = (_dmaLengthCounter & 0xFF00) | data.GetData();
 		break;
 	case 20:
-		dmaLengthCounter = (dmaLengthCounter & 0x00FF) | (data.GetData() << 8);
+		_dmaLengthCounter = (_dmaLengthCounter & 0x00FF) | (data.GetData() << 8);
 		break;
 	case 21:
-		dmaSourceAddressByte1 = data.GetData();
+		_dmaSourceAddressByte1 = data.GetData();
 		break;
 	case 22:
-		dmaSourceAddressByte2 = data.GetData();
+		_dmaSourceAddressByte2 = data.GetData();
 		break;
 	case 23:
-		dmaSourceAddressByte3 = data.GetDataSegment(0, 7);
-		dmd0 = data.GetBit(6);
-		dmd1 = data.GetBit(7);
+		_dmaSourceAddressByte3 = data.GetDataSegment(0, 7);
+		_dmd0 = data.GetBit(6);
+		_dmd1 = data.GetBit(7);
 		break;
 	}
 }
@@ -1765,7 +1765,7 @@ void S315_5313::RegisterSpecialUpdateFunction(unsigned int mclkCycle, double acc
 	switch(registerNo)
 	{
 	case 0:
-		if(hvCounterLatchEnabled != data.GetBit(1))
+		if(_hvCounterLatchEnabled != data.GetBit(1))
 		{
 			//If the HV counter latch enable bit has changed from 0 to 1, latch the
 			//current value of the HV counter as the latched HV counter data. Note that
@@ -1776,37 +1776,37 @@ void S315_5313::RegisterSpecialUpdateFunction(unsigned int mclkCycle, double acc
 			//an internal HV counter and an external HV counter, and the external HV
 			//counter is only updated with the internal contents when this register bit is
 			//set to 1, or the HL line is toggled.
-			hvCounterLatchEnabled = data.GetBit(1);
-			hcounterLatchedData = hcounter;
-			vcounterLatchedData = vcounter;
+			_hvCounterLatchEnabled = data.GetBit(1);
+			_hcounterLatchedData = _hcounter;
+			_vcounterLatchedData = _vcounter;
 		}
-		if(hintEnabled != data.GetBit(4))
+		if(_hintEnabled != data.GetBit(4))
 		{
 			//##DEBUG##
-			if(outputInterruptDebugMessages)
+			if(_outputInterruptDebugMessages)
 			{
-				std::wcout << "VDP - HINT enable state changed: " << hcounter.GetData() << '\t' << vcounter.GetData() << '\t' << hintEnabled << '\t' << data.GetBit(4) << '\n';
+				std::wcout << "VDP - HINT enable state changed: " << _hcounter.GetData() << '\t' << _vcounter.GetData() << '\t' << _hintEnabled << '\t' << data.GetBit(4) << '\n';
 			}
 
-			hintEnabled = data.GetBit(4);
+			_hintEnabled = data.GetBit(4);
 			UpdatePredictedLineStateChanges(caller, accessTime + accessDelay, accessContext);
 		}
 		break;
 	case 1:
-		screenModeM5Cached = data.GetBit(2);
-		screenModeV30Cached = data.GetBit(3);
-		dmaEnabled = data.GetBit(4);
-		displayEnabledCached = data.GetBit(6);
+		_screenModeM5Cached = data.GetBit(2);
+		_screenModeV30Cached = data.GetBit(3);
+		_dmaEnabled = data.GetBit(4);
+		_displayEnabledCached = data.GetBit(6);
 
-		if(vintEnabled != data.GetBit(5))
+		if(_vintEnabled != data.GetBit(5))
 		{
 			//##DEBUG##
-			if(outputInterruptDebugMessages)
+			if(_outputInterruptDebugMessages)
 			{
-				std::wcout << "VDP - VINT enable state changed: " << hcounter.GetData() << '\t' << vcounter.GetData() << '\t' << vintEnabled << '\t' << data.GetBit(5) << '\n';
+				std::wcout << "VDP - VINT enable state changed: " << _hcounter.GetData() << '\t' << _vcounter.GetData() << '\t' << _vintEnabled << '\t' << data.GetBit(5) << '\n';
 			}
 
-			vintEnabled = data.GetBit(5);
+			_vintEnabled = data.GetBit(5);
 			UpdatePredictedLineStateChanges(caller, accessTime + accessDelay, accessContext);
 		}
 		break;
@@ -1832,68 +1832,68 @@ void S315_5313::RegisterSpecialUpdateFunction(unsigned int mclkCycle, double acc
 		//back to H40 mode, result in the upper bytes of the sprite cache being cleared,
 		//or do they retain their previous values? Hardware tests are definitely required
 		//here.
-		spriteAttributeTableBaseAddressDecoded = (data.GetDataSegment(0, 7) << 9);
+		_spriteAttributeTableBaseAddressDecoded = (data.GetDataSegment(0, 7) << 9);
 		break;
 	case 10:
-		if(hintCounterReloadValue != data.GetData())
+		if(_hintCounterReloadValue != data.GetData())
 		{
 			//##DEBUG##
-			if(outputInterruptDebugMessages)
+			if(_outputInterruptDebugMessages)
 			{
-				std::wcout << "VDP - HCounter data changed: " << hcounter.GetData() << '\t' << vcounter.GetData() << '\t' << hintCounterReloadValue << '\t' << data.GetData() << '\n';
+				std::wcout << "VDP - HCounter data changed: " << _hcounter.GetData() << '\t' << _vcounter.GetData() << '\t' << _hintCounterReloadValue << '\t' << data.GetData() << '\n';
 			}
 
-			hintCounterReloadValue = data.GetData();
+			_hintCounterReloadValue = data.GetData();
 			UpdatePredictedLineStateChanges(caller, accessTime + accessDelay, accessContext);
 		}
 		break;
 	case 11:
-		verticalScrollModeCached = data.GetBit(2);
-		if(exintEnabled != data.GetBit(3))
+		_verticalScrollModeCached = data.GetBit(2);
+		if(_exintEnabled != data.GetBit(3))
 		{
-			exintEnabled = data.GetBit(3);
+			_exintEnabled = data.GetBit(3);
 			UpdatePredictedLineStateChanges(caller, accessTime + accessDelay, accessContext);
 		}
 		break;
 	case 12:
-		if(screenModeRS0Cached != data.GetBit(7))
+		if(_screenModeRS0Cached != data.GetBit(7))
 		{
-			screenModeRS0Cached = data.GetBit(7);
+			_screenModeRS0Cached = data.GetBit(7);
 			//If the RS0 bit has changed, we need to trigger a rollback, since any change
 			//to this register will almost certainly affect when the next VDP timing point
 			//event occurs.
 			UpdatePredictedLineStateChanges(caller, accessTime + accessDelay, accessContext);
 		}
-		if(screenModeRS1Cached != data.GetBit(0))
+		if(_screenModeRS1Cached != data.GetBit(0))
 		{
-			screenModeRS1Cached = data.GetBit(0);
+			_screenModeRS1Cached = data.GetBit(0);
 			//If the RS1 bit has changed, we need to trigger a rollback, since any change
 			//to this register will almost certainly affect when the next VDP timing point
 			//event occurs.
 			UpdatePredictedLineStateChanges(caller, accessTime + accessDelay, accessContext);
 		}
-		interlaceDoubleCached = data.GetBit(2);
-		interlaceEnabledCached = data.GetBit(1);
+		_interlaceDoubleCached = data.GetBit(2);
+		_interlaceEnabledCached = data.GetBit(1);
 		break;
 	case 15:
-		autoIncrementData = data.GetData();
+		_autoIncrementData = data.GetData();
 		break;
 	case 19:
-		dmaLengthCounter = (dmaLengthCounter & 0xFF00) | data.GetData();
+		_dmaLengthCounter = (_dmaLengthCounter & 0xFF00) | data.GetData();
 		break;
 	case 20:
-		dmaLengthCounter = (dmaLengthCounter & 0x00FF) | (data.GetData() << 8);
+		_dmaLengthCounter = (_dmaLengthCounter & 0x00FF) | (data.GetData() << 8);
 		break;
 	case 21:
-		dmaSourceAddressByte1 = data.GetData();
+		_dmaSourceAddressByte1 = data.GetData();
 		break;
 	case 22:
-		dmaSourceAddressByte2 = data.GetData();
+		_dmaSourceAddressByte2 = data.GetData();
 		break;
 	case 23:
-		dmaSourceAddressByte3 = data.GetDataSegment(0, 7);
-		dmd0 = data.GetBit(6);
-		dmd1 = data.GetBit(7);
+		_dmaSourceAddressByte3 = data.GetDataSegment(0, 7);
+		_dmd0 = data.GetBit(6);
+		_dmd1 = data.GetBit(7);
 		break;
 	}
 }
@@ -1903,104 +1903,104 @@ void S315_5313::RegisterSpecialUpdateFunction(unsigned int mclkCycle, double acc
 //----------------------------------------------------------------------------------------
 bool S315_5313::GetPortMonitorStatusReadEnabled() const
 {
-	return logStatusRegisterRead;
+	return _logStatusRegisterRead;
 }
 
 //----------------------------------------------------------------------------------------
 void S315_5313::SetPortMonitorStatusReadEnabled(bool state)
 {
-	logStatusRegisterRead = state;
+	_logStatusRegisterRead = state;
 }
 
 //----------------------------------------------------------------------------------------
 bool S315_5313::GetPortMonitorDataReadEnabled() const
 {
-	return logDataPortRead;
+	return _logDataPortRead;
 }
 
 //----------------------------------------------------------------------------------------
 void S315_5313::SetPortMonitorDataReadEnabled(bool state)
 {
-	logDataPortRead = state;
+	_logDataPortRead = state;
 }
 
 //----------------------------------------------------------------------------------------
 bool S315_5313::GetPortMonitorHVReadEnabled() const
 {
-	return logHVCounterRead;
+	return _logHVCounterRead;
 }
 
 //----------------------------------------------------------------------------------------
 void S315_5313::SetPortMonitorHVReadEnabled(bool state)
 {
-	logHVCounterRead = state;
+	_logHVCounterRead = state;
 }
 
 //----------------------------------------------------------------------------------------
 bool S315_5313::GetPortMonitorControlWriteEnabled() const
 {
-	return logControlPortWrite;
+	return _logControlPortWrite;
 }
 
 //----------------------------------------------------------------------------------------
 void S315_5313::SetPortMonitorControlWriteEnabled(bool state)
 {
-	logControlPortWrite = state;
+	_logControlPortWrite = state;
 }
 
 //----------------------------------------------------------------------------------------
 bool S315_5313::GetPortMonitorDataWriteEnabled() const
 {
-	return logDataPortWrite;
+	return _logDataPortWrite;
 }
 
 //----------------------------------------------------------------------------------------
 void S315_5313::SetPortMonitorDataWriteEnabled(bool state)
 {
-	logDataPortWrite = state;
+	_logDataPortWrite = state;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int S315_5313::GetPortMonitorLength() const
 {
-	return portMonitorListSize;
+	return _portMonitorListSize;
 }
 
 //----------------------------------------------------------------------------------------
 void S315_5313::SetPortMonitorLength(unsigned int state)
 {
-	portMonitorListSize = state;
+	_portMonitorListSize = state;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::list<S315_5313::PortMonitorEntry>> S315_5313::GetPortMonitorLog() const
 {
-	std::unique_lock<std::mutex> lock(portMonitorMutex);
-	return portMonitorList;
+	std::unique_lock<std::mutex> lock(_portMonitorMutex);
+	return _portMonitorList;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int S315_5313::GetPortMonitorLogLastModifiedToken() const
 {
-	return portMonitorLastModifiedToken;
+	return _portMonitorLastModifiedToken;
 }
 
 //----------------------------------------------------------------------------------------
 void S315_5313::ClearPortMonitorLog()
 {
-	std::unique_lock<std::mutex> lock(portMonitorMutex);
-	portMonitorList.clear();
-	++portMonitorLastModifiedToken;
+	std::unique_lock<std::mutex> lock(_portMonitorMutex);
+	_portMonitorList.clear();
+	++_portMonitorLastModifiedToken;
 }
 
 //----------------------------------------------------------------------------------------
 void S315_5313::RecordPortMonitorEntry(const PortMonitorEntry& entry)
 {
-	std::unique_lock<std::mutex> lock(portMonitorMutex);
-	portMonitorList.push_front(entry);
-	while(portMonitorList.size() > portMonitorListSize)
+	std::unique_lock<std::mutex> lock(_portMonitorMutex);
+	_portMonitorList.push_front(entry);
+	while(_portMonitorList.size() > _portMonitorListSize)
 	{
-		portMonitorList.pop_back();
+		_portMonitorList.pop_back();
 	}
-	++portMonitorLastModifiedToken;
+	++_portMonitorLastModifiedToken;
 }

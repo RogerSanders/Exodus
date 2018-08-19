@@ -21,7 +21,7 @@ class MDControl3 :public Device
 {
 public:
 	//Constructors
-	MDControl3(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
+	MDControl3(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 
 	//Initialization functions
 	virtual void Initialize();
@@ -57,9 +57,6 @@ public:
 	virtual void SaveState(IHierarchicalStorageNode& node) const;
 
 private:
-	//Constants
-	static const unsigned int buttonCount = 8;
-
 	//Enumerations
 	enum LineID
 	{
@@ -83,6 +80,9 @@ private:
 		BUTTONINDEX_START  = 7
 	};
 
+	//Constants
+	static const unsigned int buttonCount = 8;
+
 private:
 	//Line functions
 	void UpdateLineState(IDeviceContext* caller, double accessTime, unsigned int accessContext);
@@ -90,37 +90,37 @@ private:
 
 private:
 	//Bus interface
-	IBusInterface* memoryBus;
+	IBusInterface* _memoryBus;
 
 	//Button state
-	std::vector<bool> buttonPressed;
-	std::vector<bool> bbuttonPressed;
+	std::vector<bool> _buttonPressed;
+	std::vector<bool> _bbuttonPressed;
 
 	//Device state
-	bool lineInputStateTH;
-	bool blineInputStateTH;
+	bool _lineInputStateTH;
+	bool _blineInputStateTH;
 
 	//Line state
-	bool lineAssertedD0;
-	bool blineAssertedD0;
-	bool lineAssertedD1;
-	bool blineAssertedD1;
-	bool lineAssertedD2;
-	bool blineAssertedD2;
-	bool lineAssertedD3;
-	bool blineAssertedD3;
-	bool lineAssertedTL;
-	bool blineAssertedTL;
-	bool lineAssertedTR;
-	bool blineAssertedTR;
-	bool lineAssertedTH;
-	bool blineAssertedTH;
+	bool _lineAssertedD0;
+	bool _blineAssertedD0;
+	bool _lineAssertedD1;
+	bool _blineAssertedD1;
+	bool _lineAssertedD2;
+	bool _blineAssertedD2;
+	bool _lineAssertedD3;
+	bool _blineAssertedD3;
+	bool _lineAssertedTL;
+	bool _blineAssertedTL;
+	bool _lineAssertedTR;
+	bool _blineAssertedTR;
+	bool _lineAssertedTH;
+	bool _blineAssertedTH;
 
 	//Line access
-	std::mutex lineMutex;
-	double lastLineAccessTime;
-	double currentTimesliceLength;
-	double bcurrentTimesliceLength;
+	std::mutex _lineMutex;
+	double _lastLineAccessTime;
+	double _currentTimesliceLength;
+	double _bcurrentTimesliceLength;
 };
 
 #endif

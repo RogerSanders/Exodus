@@ -12,7 +12,7 @@ class ExodusSystemMenus :public Extension
 {
 public:
 	//Constructors
-	ExodusSystemMenus(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
+	ExodusSystemMenus(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 	~ExodusSystemMenus();
 
 	//Window functions
@@ -29,11 +29,11 @@ public:
 	void CloseInputMappingDetailsView();
 
 private:
-	ISystemGUIInterface* model;
-	DebugMenuHandler* debugMenuHandler;
-	SettingsMenuHandler* settingsMenuHandler;
-	SystemMenuHandler* systemMenuHandler;
-	std::map<unsigned int, ModuleOptionMenuHandler*> moduleOptionMenuHandlers;
+	ISystemGUIInterface* _model;
+	DebugMenuHandler* _debugMenuHandler;
+	SettingsMenuHandler* _settingsMenuHandler;
+	SystemMenuHandler* _systemMenuHandler;
+	std::map<unsigned int, ModuleOptionMenuHandler*> _moduleOptionMenuHandlers;
 };
 
 #endif

@@ -5,8 +5,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-EventLogViewPresenter::EventLogViewPresenter(const std::wstring& aviewGroupName, const std::wstring& aviewName, int aviewID, ExodusSystemMenus& aowner, ISystemGUIInterface& amodel)
-:ViewPresenterBase(aowner.GetAssemblyHandle(), aviewGroupName, aviewName, aviewID), owner(aowner), model(amodel)
+EventLogViewPresenter::EventLogViewPresenter(const std::wstring& viewGroupName, const std::wstring& viewName, int viewID, ExodusSystemMenus& owner, ISystemGUIInterface& model)
+:ViewPresenterBase(owner.GetAssemblyHandle(), viewGroupName, viewName, viewID), _owner(owner), _model(model)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -22,13 +22,13 @@ std::wstring EventLogViewPresenter::GetUnqualifiedViewTitle()
 //----------------------------------------------------------------------------------------
 IView* EventLogViewPresenter::CreateView(IUIManager& uiManager)
 {
-	return new EventLogView(uiManager, *this, model);
+	return new EventLogView(uiManager, *this, _model);
 }
 
 //----------------------------------------------------------------------------------------
-void EventLogViewPresenter::DeleteView(IView* aview)
+void EventLogViewPresenter::DeleteView(IView* view)
 {
-	delete aview;
+	delete view;
 }
 
 //----------------------------------------------------------------------------------------

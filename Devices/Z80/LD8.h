@@ -30,13 +30,13 @@ public:
 
 	virtual Disassembly Z80Disassemble(const Z80::LabelSubstitutionSettings& labelSettings) const
 	{
-		return Disassembly(GetOpcodeName(), target.Disassemble() + L", " + source.Disassemble());
+		return Disassembly(GetOpcodeName(), _target.Disassemble() + L", " + _source.Disassemble());
 	}
 
 	virtual void Z80Decode(const Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)
 	{
-		source.SetIndexState(GetIndexState(), GetIndexOffset());
-		target.SetIndexState(GetIndexState(), GetIndexOffset());
+		_source.SetIndexState(GetIndexState(), GetIndexOffset());
+		_target.SetIndexState(GetIndexState(), GetIndexOffset());
 
 		if(data.GetBit(6))
 		{
@@ -45,14 +45,14 @@ public:
 				//LD r,(HL)		01rrr110
 				//LD r,(IX+d)	11011101 01rrr110 dddddddd
 				//LD r,(IY+d)	11111101 01rrr110 dddddddd
-				source.SetMode(EffectiveAddress::Mode::HLIndirect);
-				//##NOTE## We override the index state for the target in this form of the
+				_source.SetMode(EffectiveAddress::Mode::HLIndirect);
+				//##NOTE## We override the index state for the _target in this form of the
 				//opcode. Just to be difficult, this form doesn't apply the index mode to
-				//the target field, but it does apply it to the source field. The same is
+				//the _target field, but it does apply it to the _source field. The same is
 				//true of the reverse form below. The only other opcode where there are
 				//exceptions to the indexing rule is EX.
-				target.SetIndexState(EffectiveAddress::IndexState::None, 0);
-				target.Decode8BitRegister(data.GetDataSegment(3, 3));
+				_target.SetIndexState(EffectiveAddress::IndexState::None, 0);
+				_target.Decode8BitRegister(data.GetDataSegment(3, 3));
 				if(GetIndexState() == EffectiveAddress::IndexState::None)
 				{
 					AddExecuteCycleCount(7);
@@ -68,9 +68,9 @@ public:
 				//LD (IX+d),r	11011101 01110rrr dddddddd
 				//LD (IY+d),r	11111101 01110rrr dddddddd
 				//##NOTE## See notes on reverse form above.
-				source.SetIndexState(EffectiveAddress::IndexState::None, 0);
-				source.Decode8BitRegister(data.GetDataSegment(0, 3));
-				target.SetMode(EffectiveAddress::Mode::HLIndirect);
+				_source.SetIndexState(EffectiveAddress::IndexState::None, 0);
+				_source.Decode8BitRegister(data.GetDataSegment(0, 3));
+				_target.SetMode(EffectiveAddress::Mode::HLIndirect);
 				if(GetIndexState() == EffectiveAddress::IndexState::None)
 				{
 					AddExecuteCycleCount(7);
@@ -85,8 +85,8 @@ public:
 				//##NOTE## The notation r' doesn't refer to a shadow register, just a
 				//second normal register
 				//LD r,r'		01rrrddd
-				source.Decode8BitRegister(data.GetDataSegment(0, 3));
-				target.Decode8BitRegister(data.GetDataSegment(3, 3));
+				_source.Decode8BitRegister(data.GetDataSegment(0, 3));
+				_target.Decode8BitRegister(data.GetDataSegment(3, 3));
 				AddExecuteCycleCount(4);
 			}
 		}
@@ -95,43 +95,43 @@ public:
 			if(data == 0x0A)
 			{
 				//LD A,(BC)		00001010
-				source.SetMode(EffectiveAddress::Mode::BCIndirect);
-				target.SetMode(EffectiveAddress::Mode::A);
+				_source.SetMode(EffectiveAddress::Mode::BCIndirect);
+				_target.SetMode(EffectiveAddress::Mode::A);
 				AddExecuteCycleCount(7);
 			}
 			else if(data == 0x1A)
 			{
 				//LD A,(DE)		00011010
-				source.SetMode(EffectiveAddress::Mode::DEIndirect);
-				target.SetMode(EffectiveAddress::Mode::A);
+				_source.SetMode(EffectiveAddress::Mode::DEIndirect);
+				_target.SetMode(EffectiveAddress::Mode::A);
 				AddExecuteCycleCount(7);
 			}
 			else if(data == 0x3A)
 			{
 				//LD A,(nn)		00111010 nnnnnnnn nnnnnnnn
-				source.BuildAbsoluteAddress(location + GetInstructionSize(), cpu, transparent);
-				target.SetMode(EffectiveAddress::Mode::A);
+				_source.BuildAbsoluteAddress(location + GetInstructionSize(), cpu, transparent);
+				_target.SetMode(EffectiveAddress::Mode::A);
 				AddExecuteCycleCount(13);
 			}
 			else if(data == 0x02)
 			{
 				//LD (BC),A		00000010
-				source.SetMode(EffectiveAddress::Mode::A);
-				target.SetMode(EffectiveAddress::Mode::BCIndirect);
+				_source.SetMode(EffectiveAddress::Mode::A);
+				_target.SetMode(EffectiveAddress::Mode::BCIndirect);
 				AddExecuteCycleCount(7);
 			}
 			else if(data == 0x12)
 			{
 				//LD (DE),A		00010010
-				source.SetMode(EffectiveAddress::Mode::A);
-				target.SetMode(EffectiveAddress::Mode::DEIndirect);
+				_source.SetMode(EffectiveAddress::Mode::A);
+				_target.SetMode(EffectiveAddress::Mode::DEIndirect);
 				AddExecuteCycleCount(7);
 			}
 			else if(data == 0x32)
 			{
 				//LD (nn),A		00110010 nnnnnnnn nnnnnnnn
-				source.SetMode(EffectiveAddress::Mode::A);
-				target.BuildAbsoluteAddress(location + GetInstructionSize(), cpu, transparent);
+				_source.SetMode(EffectiveAddress::Mode::A);
+				_target.BuildAbsoluteAddress(location + GetInstructionSize(), cpu, transparent);
 				AddExecuteCycleCount(13);
 			}
 			else if(data == 0x36)
@@ -139,8 +139,8 @@ public:
 				//LD (HL),n		00110110 nnnnnnnn
 				//LD (IX+d),n	11011101 00110110 nnnnnnnn
 				//LD (IY+d),n	11111101 00110110 nnnnnnnn
-				target.SetMode(EffectiveAddress::Mode::HLIndirect);
-				source.BuildImmediateData(BITCOUNT_BYTE, location + GetInstructionSize() + GetIndexOffsetSize(target.UsesIndexOffset()), cpu, transparent);
+				_target.SetMode(EffectiveAddress::Mode::HLIndirect);
+				_source.BuildImmediateData(BITCOUNT_BYTE, location + GetInstructionSize() + GetIndexOffsetSize(_target.UsesIndexOffset()), cpu, transparent);
 				if(GetIndexState() == EffectiveAddress::IndexState::None)
 				{
 					AddExecuteCycleCount(10);
@@ -153,15 +153,15 @@ public:
 			else
 			{
 				//LD r,n		00rrr110 nnnnnnnn
-				source.BuildImmediateData(BITCOUNT_BYTE, location + GetInstructionSize(), cpu, transparent);
-				target.Decode8BitRegister(data.GetDataSegment(3, 3));
+				_source.BuildImmediateData(BITCOUNT_BYTE, location + GetInstructionSize(), cpu, transparent);
+				_target.Decode8BitRegister(data.GetDataSegment(3, 3));
 				AddExecuteCycleCount(7);
 			}
 		}
 
-		AddInstructionSize(GetIndexOffsetSize(source.UsesIndexOffset() || target.UsesIndexOffset()));
-		AddInstructionSize(source.ExtensionSize());
-		AddInstructionSize(target.ExtensionSize());
+		AddInstructionSize(GetIndexOffsetSize(_source.UsesIndexOffset() || _target.UsesIndexOffset()));
+		AddInstructionSize(_source.ExtensionSize());
+		AddInstructionSize(_target.ExtensionSize());
 	}
 
 	virtual ExecuteTime Z80Execute(Z80* cpu, const Z80Word& location) const
@@ -170,8 +170,8 @@ public:
 		Z80Byte result;
 
 		//Perform the operation
-		additionalTime += source.Read(cpu, location, result);
-		additionalTime += target.Write(cpu, location, result);
+		additionalTime += _source.Read(cpu, location, result);
+		additionalTime += _target.Write(cpu, location, result);
 
 		//Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
@@ -179,8 +179,8 @@ public:
 	}
 
 private:
-	EffectiveAddress source;
-	EffectiveAddress target;
+	EffectiveAddress _source;
+	EffectiveAddress _target;
 };
 
 } //Close namespace Z80

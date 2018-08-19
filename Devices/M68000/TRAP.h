@@ -23,9 +23,9 @@ public:
 	virtual Disassembly M68000Disassemble(const M68000::LabelSubstitutionSettings& labelSettings) const
 	{
 		//##TODO## Clean this up
-		EffectiveAddress source;
-		source.BuildImmediateData(0, M68000Byte(trapNo));
-		return Disassembly(GetOpcodeName(), source.Disassemble(labelSettings));
+		EffectiveAddress _source;
+		_source.BuildImmediateData(0, M68000Byte(_trapNo));
+		return Disassembly(GetOpcodeName(), _source.Disassemble(labelSettings));
 	}
 
 	virtual void M68000Decode(const M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)
@@ -36,7 +36,7 @@ public:
 //	| 0 | 1 | 0 | 0 | 1 | 1 | 1 | 0 | 0 | 1 | 0 | 0 |  N° of TRAP   |
 //	-----------------------------------------------------------------
 
-		trapNo = data.GetDataSegment(0, 4);
+		_trapNo = data.GetDataSegment(0, 4);
 		AddExecuteCycleCount(ExecuteTime(4, 0, 0));
 	}
 
@@ -45,7 +45,7 @@ public:
 		ExecuteTime exceptionTime;
 
 		//Perform the operation
-		M68000::Exceptions exceptionNo = (M68000::Exceptions)((unsigned int)M68000::Exceptions::InterruptTrap0 + trapNo);
+		M68000::Exceptions exceptionNo = (M68000::Exceptions)((unsigned int)M68000::Exceptions::InterruptTrap0 + _trapNo);
 		if(!cpu->ExceptionDisabled(exceptionNo))
 		{
 			cpu->SetPC(location + GetInstructionSize());
@@ -61,7 +61,7 @@ public:
 	{ }
 
 private:
-	unsigned int trapNo;
+	unsigned int _trapNo;
 };
 
 } //Close namespace M68000

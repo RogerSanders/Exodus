@@ -27,7 +27,7 @@ public:
 
 	virtual void Z80Decode(const Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)
 	{
-		source.SetMode(EffectiveAddress::Mode::SPPostInc);
+		_source.SetMode(EffectiveAddress::Mode::SPPostInc);
 		AddExecuteCycleCount(10);
 	}
 
@@ -40,7 +40,7 @@ public:
 		//0.91, RETI also copies IFF2 into IFF1, like the RETN opcode.
 		cpu->SetIFF1(cpu->GetIFF2());
 		Z80Word oldPC;
-		additionalTime += source.Read(cpu, location + GetInstructionSize(), oldPC);
+		additionalTime += _source.Read(cpu, location + GetInstructionSize(), oldPC);
 		cpu->PopCallStack(oldPC.GetData());
 		cpu->SetPC(oldPC);
 
@@ -49,7 +49,7 @@ public:
 	}
 
 private:
-	EffectiveAddress source;
+	EffectiveAddress _source;
 };
 
 } //Close namespace Z80

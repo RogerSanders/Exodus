@@ -8,19 +8,19 @@ class ExceptionsViewPresenter :public ViewPresenterBase
 {
 public:
 	//Constructors
-	ExceptionsViewPresenter(const std::wstring& aviewGroupName, const std::wstring& aviewName, int aviewID, M68000Menus& aowner, const IDevice& amodelInstanceKey, IM68000& amodel);
+	ExceptionsViewPresenter(const std::wstring& viewGroupName, const std::wstring& viewName, int viewID, M68000Menus& owner, const IDevice& modelInstanceKey, IM68000& model);
 
 	//View title functions
 	static std::wstring GetUnqualifiedViewTitle();
 
 	//View creation and deletion
 	virtual IView* CreateView(IUIManager& uiManager);
-	virtual void DeleteView(IView* aview);
+	virtual void DeleteView(IView* view);
 
 private:
-	M68000Menus& owner;
-	const IDevice& modelInstanceKey;
-	IM68000& model;
+	M68000Menus& _owner;
+	const IDevice& _modelInstanceKey;
+	IM68000& _model;
 };
 
 #endif

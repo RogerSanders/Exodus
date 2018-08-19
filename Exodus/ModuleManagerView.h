@@ -10,7 +10,7 @@ class ModuleManagerView :public ViewBase
 {
 public:
 	//Constructors
-	ModuleManagerView(IUIManager& auiManager, ModuleManagerViewPresenter& apresenter, ExodusInterface& amodel);
+	ModuleManagerView(IUIManager& uiManager, ModuleManagerViewPresenter& presenter, ExodusInterface& model);
 
 protected:
 	//Member window procedure
@@ -26,10 +26,10 @@ private:
 	INT_PTR msgWM_COMMAND(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
 private:
-	HWND windowHandle;
-	ModuleManagerViewPresenter& presenter;
-	ExodusInterface& model;
-	ObserverSubscription loadedModulesChangeSubscription;
+	HWND _windowHandle;
+	ModuleManagerViewPresenter& _presenter;
+	ExodusInterface& _model;
+	ObserverSubscription _loadedModulesChangeSubscription;
 };
 
 #endif

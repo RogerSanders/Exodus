@@ -11,11 +11,11 @@ class ObserverSubscription :public IObserverSubscription
 public:
 	//Constructors
 	inline ObserverSubscription();
-	inline ObserverSubscription(const std::function<void()>& acallback);
+	inline ObserverSubscription(const std::function<void()>& callback);
 	inline virtual ~ObserverSubscription();
 
 	//Callback binding functions
-	inline void SetBoundCallback(const std::function<void()>& acallback);
+	inline void SetBoundCallback(const std::function<void()>& callback);
 	inline void RemoveBoundCallback();
 
 	//Subscription functions
@@ -35,9 +35,9 @@ private:
 	inline ObserverSubscription& operator=(const ObserverSubscription& source) {}
 
 private:
-	mutable std::mutex accessMutex;
-	std::set<IObserverCollection*> linkedCollections;
-	std::function<void()>* callback;
+	mutable std::mutex _accessMutex;
+	std::set<IObserverCollection*> _linkedCollections;
+	std::function<void()>* _callback;
 };
 
 #include "ObserverSubscription.inl"

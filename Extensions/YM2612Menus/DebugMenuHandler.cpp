@@ -6,8 +6,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-DebugMenuHandler::DebugMenuHandler(YM2612Menus& aowner, const IDevice& amodelInstanceKey, IYM2612& amodel)
-:MenuHandlerBase(L"YM2612DebugMenu", aowner.GetViewManager()), owner(aowner), modelInstanceKey(amodelInstanceKey), model(amodel)
+DebugMenuHandler::DebugMenuHandler(YM2612Menus& owner, const IDevice& modelInstanceKey, IYM2612& model)
+:MenuHandlerBase(L"YM2612DebugMenu", owner.GetViewManager()), _owner(owner), _modelInstanceKey(modelInstanceKey), _model(model)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -26,11 +26,11 @@ IViewPresenter* DebugMenuHandler::CreateViewForItem(int menuItemID, const std::w
 	switch(menuItemID)
 	{
 	case MENUITEM_DEBUGGER:
-		return new DebuggerViewPresenter(GetMenuHandlerName(), viewName, menuItemID, owner, modelInstanceKey, model);
+		return new DebuggerViewPresenter(GetMenuHandlerName(), viewName, menuItemID, _owner, _modelInstanceKey, _model);
 	case MENUITEM_OPERATOR:
-		return new OperatorViewPresenter(GetMenuHandlerName(), viewName, menuItemID, owner, modelInstanceKey, model);
+		return new OperatorViewPresenter(GetMenuHandlerName(), viewName, menuItemID, _owner, _modelInstanceKey, _model);
 	case MENUITEM_REGISTERS:
-		return new RegistersViewPresenter(GetMenuHandlerName(), viewName, menuItemID, owner, modelInstanceKey, model);
+		return new RegistersViewPresenter(GetMenuHandlerName(), viewName, menuItemID, _owner, _modelInstanceKey, _model);
 	}
 	return 0;
 }
@@ -44,7 +44,7 @@ void DebugMenuHandler::DeleteViewForItem(int menuItemID, IViewPresenter* viewPre
 //----------------------------------------------------------------------------------------
 //Window functions
 //----------------------------------------------------------------------------------------
-void DebugMenuHandler::OpenOperatorView(unsigned int achannelNo, unsigned int aoperatorNo)
+void DebugMenuHandler::OpenOperatorView(unsigned int channelNo, unsigned int operatorNo)
 {
 	std::set<IViewPresenter*> viewPresenters = GetOpenViewPresenters(MENUITEM_OPERATOR);
 	if(!viewPresenters.empty())
@@ -53,12 +53,12 @@ void DebugMenuHandler::OpenOperatorView(unsigned int achannelNo, unsigned int ao
 		OperatorViewPresenter* operatorViewPresenter = dynamic_cast<OperatorViewPresenter*>(viewPresenter);
 		if(operatorViewPresenter != 0)
 		{
-			operatorViewPresenter->SetTargetOperator(achannelNo, aoperatorNo);
+			operatorViewPresenter->SetTargetOperator(channelNo, operatorNo);
 		}
 	}
 	else
 	{
-		IViewPresenter* viewPresenter = new OperatorViewPresenter(GetMenuHandlerName(), GetMenuItemName(MENUITEM_OPERATOR), MENUITEM_OPERATOR, owner, modelInstanceKey, model, achannelNo, aoperatorNo);
+		IViewPresenter* viewPresenter = new OperatorViewPresenter(GetMenuHandlerName(), GetMenuItemName(MENUITEM_OPERATOR), MENUITEM_OPERATOR, _owner, _modelInstanceKey, _model, channelNo, operatorNo);
 		if(!AddCreatedView(MENUITEM_OPERATOR, viewPresenter))
 		{
 			delete viewPresenter;

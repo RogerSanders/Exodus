@@ -15,7 +15,7 @@ class ViewManager :public IUIManager, public IViewManagerNotifierInterface
 {
 public:
 	//Constructors
-	ViewManager(HINSTANCE aviewManagerAssemblyHandle, HWND amainWindow, HWND amainDockingWindow, ISystemGUIInterface& asystem);
+	ViewManager(HINSTANCE viewManagerAssemblyHandle, HWND mainWindow, HWND mainDockingWindow, ISystemGUIInterface& system);
 	virtual ~ViewManager();
 
 	//Interface version functions
@@ -29,15 +29,15 @@ public:
 	void WaitForAllPendingEventsToFinish() const;
 
 	//View management functions
-	virtual bool OpenView(IViewPresenter& aviewPresenter, bool waitToClose = true);
-	virtual bool OpenView(IViewPresenter& aviewPresenter, IHierarchicalStorageNode& viewState, bool waitToClose = true);
-	virtual void CloseView(IViewPresenter& aviewPresenter, bool waitToClose = true);
-	virtual void ShowView(IViewPresenter& aviewPresenter);
-	virtual void HideView(IViewPresenter& aviewPresenter);
-	virtual void ActivateView(IViewPresenter& aviewPresenter);
-	virtual bool WaitUntilViewOpened(IViewPresenter& aviewPresenter);
-	virtual void WaitUntilViewClosed(IViewPresenter& aviewPresenter);
-	virtual void NotifyViewClosed(IViewPresenter& aviewPresenter);
+	virtual bool OpenView(IViewPresenter& viewPresenter, bool waitToClose = true);
+	virtual bool OpenView(IViewPresenter& viewPresenter, IHierarchicalStorageNode& viewState, bool waitToClose = true);
+	virtual void CloseView(IViewPresenter& viewPresenter, bool waitToClose = true);
+	virtual void ShowView(IViewPresenter& viewPresenter);
+	virtual void HideView(IViewPresenter& viewPresenter);
+	virtual void ActivateView(IViewPresenter& viewPresenter);
+	virtual bool WaitUntilViewOpened(IViewPresenter& viewPresenter);
+	virtual void WaitUntilViewClosed(IViewPresenter& viewPresenter);
+	virtual void NotifyViewClosed(IViewPresenter& viewPresenter);
 
 	//Main window functions
 	virtual HWND GetMainWindow() const;
@@ -87,10 +87,6 @@ public:
 	std::list<HWND> GetOpenFloatingWindows() const;
 
 private:
-	//Constants
-	static const int defaultWindowPosStackDepth = 10;
-	static const wchar_t* dialogFrameWindowClassName;
-
 	//Enumerations
 	enum class ViewOperationType;
 
@@ -103,23 +99,27 @@ private:
 	struct Region2D;
 	struct DialogWindowFrameState;
 
+	//Constants
+	static const int DefaultWindowPosStackDepth = 10;
+	static const wchar_t* DialogFrameWindowClassName;
+
 private:
 	//Class registration
-	static bool RegisterDialogFrameWindowClass(HINSTANCE amoduleHandle);
-	static bool UnregisterDialogFrameWindowClass(HINSTANCE amoduleHandle);
+	static bool RegisterDialogFrameWindowClass(HINSTANCE moduleHandle);
+	static bool UnregisterDialogFrameWindowClass(HINSTANCE moduleHandle);
 
 	//Worker thread functions
 	void WorkerThread();
 
 	//View management functions
-	bool OpenViewInternal(IViewPresenter& aviewPresenter, IHierarchicalStorageNode* viewState, bool waitToClose);
+	bool OpenViewInternal(IViewPresenter& viewPresenter, IHierarchicalStorageNode* viewState, bool waitToClose);
 	void ProcessPendingEvents();
-	void ProcessOpenView(IViewPresenter& aviewPresenter, ViewInfo* viewInfo, IHierarchicalStorageNode* viewState);
-	void ProcessCloseView(IViewPresenter& aviewPresenter, ViewInfo* viewInfo);
-	void ProcessDeleteView(IViewPresenter& aviewPresenter, ViewInfo* viewInfo, std::unique_lock<std::recursive_mutex>& lock);
-	void ProcessActivateView(IViewPresenter& aviewPresenter, ViewInfo* viewInfo);
-	void ProcessShowView(IViewPresenter& aviewPresenter, ViewInfo* viewInfo);
-	void ProcessHideView(IViewPresenter& aviewPresenter, ViewInfo* viewInfo);
+	void ProcessOpenView(IViewPresenter& viewPresenter, ViewInfo* viewInfo, IHierarchicalStorageNode* viewState);
+	void ProcessCloseView(IViewPresenter& viewPresenter, ViewInfo* viewInfo);
+	void ProcessDeleteView(IViewPresenter& viewPresenter, ViewInfo* viewInfo, std::unique_lock<std::recursive_mutex>& lock);
+	void ProcessActivateView(IViewPresenter& viewPresenter, ViewInfo* viewInfo);
+	void ProcessShowView(IViewPresenter& viewPresenter, ViewInfo* viewInfo);
+	void ProcessHideView(IViewPresenter& viewPresenter, ViewInfo* viewInfo);
 
 	//Window management functions
 	bool ShowDialogWindowFirstTime(IView& view, IViewPresenter& viewPresenter, HWND windowHandle, const std::wstring& windowTitle);
@@ -180,35 +180,35 @@ private:
 
 private:
 	//Object interfaces
-	ISystemGUIInterface& system;
+	ISystemGUIInterface& _system;
 
 	//Window handles
-	HINSTANCE viewManagerAssemblyHandle;
-	HWND mainWindow;
-	HWND mainDockingWindow;
-	HWND messageWindow;
-	HWND activeDialogWindow;
+	HINSTANCE _viewManagerAssemblyHandle;
+	HWND _mainWindow;
+	HWND _mainDockingWindow;
+	HWND _messageWindow;
+	HWND _activeDialogWindow;
 
 	//UI thread invocation
-	mutable std::mutex invokeMutex;
-	unsigned long uithreadID;
-	volatile bool pendingUIThreadInvoke;
-	std::list<InvokeUIParams> pendingInvokeUIRequests;
+	mutable std::mutex _invokeMutex;
+	unsigned long _uithreadID;
+	volatile bool _pendingUIThreadInvoke;
+	std::list<InvokeUIParams> _pendingInvokeUIRequests;
 
 	//View info
-	mutable std::recursive_mutex viewMutex;
-	bool eventProcessingPaused;
-	std::list<ViewOperation> viewOperationQueue;
-	std::map<IViewPresenter*, ViewInfo*> viewInfoSet;
-	mutable std::condition_variable_any viewOperationQueueEmptied;
+	mutable std::recursive_mutex _viewMutex;
+	bool _eventProcessingPaused;
+	std::list<ViewOperation> _viewOperationQueue;
+	std::map<IViewPresenter*, ViewInfo*> _viewInfoSet;
+	mutable std::condition_variable_any _viewOperationQueueEmptied;
 
 	//Window info
-	int defaultWindowPosX;
-	int defaultWindowPosY;
-	int defaultWindowPosIncrement;
-	std::map<unsigned int, PlaceholderWindowInfo> placeholderWindowsForViewLayout;
-	mutable std::map<HWND, unsigned int> windowHandleToIDForViewLayout;
-	std::map<HWND, OpenWindowInfo> windowInfoSet;
+	int _defaultWindowPosX;
+	int _defaultWindowPosY;
+	int _defaultWindowPosIncrement;
+	std::map<unsigned int, PlaceholderWindowInfo> _placeholderWindowsForViewLayout;
+	mutable std::map<HWND, unsigned int> _windowHandleToIDForViewLayout;
+	std::map<HWND, OpenWindowInfo> _windowInfoSet;
 };
 
 #include "ViewManager.inl"

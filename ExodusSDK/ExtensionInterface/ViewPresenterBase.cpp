@@ -3,23 +3,23 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-ViewPresenterBase::ViewPresenterBase(AssemblyHandle aassemblyHandle, const std::wstring& aviewGroupName, const std::wstring& aviewName, int aviewID)
-:assemblyHandle(aassemblyHandle), viewGroupName(aviewGroupName), viewName(aviewName), viewID(aviewID), view(0), notifier(0), viewOpen(false), viewTarget(ViewTarget::System), viewTargetGlobalExtension(false)
+ViewPresenterBase::ViewPresenterBase(AssemblyHandle assemblyHandle, const std::wstring& viewGroupName, const std::wstring& viewName, int viewID)
+:_assemblyHandle(assemblyHandle), _viewGroupName(viewGroupName), _viewName(viewName), _viewID(viewID), _view(0), _notifier(0), _viewOpen(false), _viewTarget(ViewTarget::System), _viewTargetGlobalExtension(false)
 {}
 
 //----------------------------------------------------------------------------------------
-ViewPresenterBase::ViewPresenterBase(AssemblyHandle aassemblyHandle, const std::wstring& aviewGroupName, const std::wstring& aviewName, int aviewID, unsigned int amoduleID, const std::wstring& amoduleDisplayName)
-:assemblyHandle(aassemblyHandle), viewGroupName(aviewGroupName), viewName(aviewName), viewID(aviewID), view(0), notifier(0), viewOpen(false), viewTarget(ViewTarget::Module), viewTargetModuleID(amoduleID), viewTargetModuleDisplayName(amoduleDisplayName), viewTargetGlobalExtension(false)
+ViewPresenterBase::ViewPresenterBase(AssemblyHandle assemblyHandle, const std::wstring& viewGroupName, const std::wstring& viewName, int viewID, unsigned int moduleID, const std::wstring& moduleDisplayName)
+:_assemblyHandle(assemblyHandle), _viewGroupName(viewGroupName), _viewName(viewName), _viewID(viewID), _view(0), _notifier(0), _viewOpen(false), _viewTarget(ViewTarget::Module), _viewTargetModuleID(moduleID), _viewTargetModuleDisplayName(moduleDisplayName), _viewTargetGlobalExtension(false)
 {}
 
 //----------------------------------------------------------------------------------------
-ViewPresenterBase::ViewPresenterBase(AssemblyHandle aassemblyHandle, const std::wstring& aviewGroupName, const std::wstring& aviewName, int aviewID, const std::wstring& adeviceInstanceName, unsigned int amoduleID, const std::wstring& amoduleDisplayName)
-:assemblyHandle(aassemblyHandle), viewGroupName(aviewGroupName), viewName(aviewName), viewID(aviewID), view(0), notifier(0), viewOpen(false), viewTarget(ViewTarget::Device), viewTargetDeviceInstanceName(adeviceInstanceName), viewTargetModuleID(amoduleID), viewTargetModuleDisplayName(amoduleDisplayName), viewTargetGlobalExtension(false)
+ViewPresenterBase::ViewPresenterBase(AssemblyHandle assemblyHandle, const std::wstring& viewGroupName, const std::wstring& viewName, int viewID, const std::wstring& deviceInstanceName, unsigned int moduleID, const std::wstring& moduleDisplayName)
+:_assemblyHandle(assemblyHandle), _viewGroupName(viewGroupName), _viewName(viewName), _viewID(viewID), _view(0), _notifier(0), _viewOpen(false), _viewTarget(ViewTarget::Device), _viewTargetDeviceInstanceName(deviceInstanceName), _viewTargetModuleID(moduleID), _viewTargetModuleDisplayName(moduleDisplayName), _viewTargetGlobalExtension(false)
 {}
 
 //----------------------------------------------------------------------------------------
-ViewPresenterBase::ViewPresenterBase(AssemblyHandle aassemblyHandle, const std::wstring& aviewGroupName, const std::wstring& aviewName, int aviewID, const std::wstring& aextensionInstanceName, bool aglobalExtension, unsigned int amoduleID, const std::wstring& amoduleDisplayName)
-:assemblyHandle(aassemblyHandle), viewGroupName(aviewGroupName), viewName(aviewName), viewID(aviewID), view(0), notifier(0), viewOpen(false), viewTarget(ViewTarget::Device), viewTargetExtensionInstanceName(aextensionInstanceName), viewTargetModuleID(amoduleID), viewTargetModuleDisplayName(amoduleDisplayName), viewTargetGlobalExtension(aglobalExtension)
+ViewPresenterBase::ViewPresenterBase(AssemblyHandle assemblyHandle, const std::wstring& viewGroupName, const std::wstring& viewName, int viewID, const std::wstring& extensionInstanceName, bool globalExtension, unsigned int moduleID, const std::wstring& moduleDisplayName)
+:_assemblyHandle(assemblyHandle), _viewGroupName(viewGroupName), _viewName(viewName), _viewID(viewID), _view(0), _notifier(0), _viewOpen(false), _viewTarget(ViewTarget::Device), _viewTargetExtensionInstanceName(extensionInstanceName), _viewTargetModuleID(moduleID), _viewTargetModuleDisplayName(moduleDisplayName), _viewTargetGlobalExtension(globalExtension)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -35,43 +35,43 @@ unsigned int ViewPresenterBase::GetIViewPresenterVersion() const
 //----------------------------------------------------------------------------------------
 AssemblyHandle ViewPresenterBase::GetAssemblyHandle() const
 {
-	return assemblyHandle;
+	return _assemblyHandle;
 }
 
 //----------------------------------------------------------------------------------------
 //View management functions
 //----------------------------------------------------------------------------------------
-bool ViewPresenterBase::OpenView(IUIManager& uiManager, IViewStateChangeNotifier* anotifier, IHierarchicalStorageNode* viewState)
+bool ViewPresenterBase::OpenView(IUIManager& uiManager, IViewStateChangeNotifier* notifier, IHierarchicalStorageNode* viewState)
 {
 	//Ensure the view isn't already open
-	if(viewOpen)
+	if(_viewOpen)
 	{
 		return false;
 	}
 
 	//Create the view
-	view = CreateView(uiManager);
-	if(view == 0)
+	_view = CreateView(uiManager);
+	if(_view == 0)
 	{
 		return false;
 	}
 
 	//Save a reference to the notifier
-	notifier = anotifier;
+	_notifier = notifier;
 
 	//Open the view
-	viewOpen = true;
+	_viewOpen = true;
 	IHierarchicalStorageNode* containedViewState = 0;
 	if(viewState != 0)
 	{
 		containedViewState = viewState->GetChild(L"ViewState");
 	}
-	if(!view->OpenView(containedViewState))
+	if(!_view->OpenView(containedViewState))
 	{
-		DeleteView(view);
-		view = 0;
-		notifier = 0;
-		viewOpen = false;
+		DeleteView(_view);
+		_view = 0;
+		_notifier = 0;
+		_viewOpen = false;
 		return false;
 	}
 
@@ -84,64 +84,64 @@ bool ViewPresenterBase::OpenView(IUIManager& uiManager, IViewStateChangeNotifier
 //----------------------------------------------------------------------------------------
 void ViewPresenterBase::CloseView()
 {
-	if(viewOpen)
+	if(_viewOpen)
 	{
-		view->CloseView();
+		_view->CloseView();
 	}
 }
 
 //----------------------------------------------------------------------------------------
 void ViewPresenterBase::ShowView()
 {
-	if(viewOpen)
+	if(_viewOpen)
 	{
-		view->ShowView();
+		_view->ShowView();
 	}
 }
 
 //----------------------------------------------------------------------------------------
 void ViewPresenterBase::HideView()
 {
-	if(viewOpen)
+	if(_viewOpen)
 	{
-		view->HideView();
+		_view->HideView();
 	}
 }
 
 //----------------------------------------------------------------------------------------
 void ViewPresenterBase::ActivateView()
 {
-	if(viewOpen)
+	if(_viewOpen)
 	{
-		view->ActivateView();
+		_view->ActivateView();
 	}
 }
 
 //----------------------------------------------------------------------------------------
-void ViewPresenterBase::NotifyViewClosed(IView* aview)
+void ViewPresenterBase::NotifyViewClosed(IView* view)
 {
-	if(view == aview)
+	if(_view == view)
 	{
 		//##TODO## Comment this
 		NotifyViewClosed();
-		notifier->NotifyViewClosed();
-		DeleteView(view);
-		view = 0;
-		notifier = 0;
-		viewOpen = false;
+		_notifier->NotifyViewClosed();
+		DeleteView(_view);
+		_view = 0;
+		_notifier = 0;
+		_viewOpen = false;
 	}
 }
 
 //----------------------------------------------------------------------------------------
 bool ViewPresenterBase::IsViewOpen() const
 {
-	return viewOpen;
+	return _viewOpen;
 }
 
 //----------------------------------------------------------------------------------------
 IView* ViewPresenterBase::GetOpenView() const
 {
-	return view;
+	return _view;
 }
 
 //----------------------------------------------------------------------------------------
@@ -149,31 +149,31 @@ IView* ViewPresenterBase::GetOpenView() const
 //----------------------------------------------------------------------------------------
 ViewPresenterBase::ViewTarget ViewPresenterBase::GetViewTarget() const
 {
-	return viewTarget;
+	return _viewTarget;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> ViewPresenterBase::GetViewTargetDeviceInstanceName() const
 {
-	return viewTargetDeviceInstanceName;
+	return _viewTargetDeviceInstanceName;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> ViewPresenterBase::GetViewTargetExtensionInstanceName() const
 {
-	return viewTargetExtensionInstanceName;
+	return _viewTargetExtensionInstanceName;
 }
 
 //----------------------------------------------------------------------------------------
 bool ViewPresenterBase::GetViewTargetGlobalExtension() const
 {
-	return viewTargetGlobalExtension;
+	return _viewTargetGlobalExtension;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int ViewPresenterBase::GetViewTargetModuleID() const
 {
-	return viewTargetModuleID;
+	return _viewTargetModuleID;
 }
 
 //----------------------------------------------------------------------------------------
@@ -191,26 +191,26 @@ void ViewPresenterBase::NotifyViewClosed()
 //----------------------------------------------------------------------------------------
 int ViewPresenterBase::GetViewID() const
 {
-	return viewID;
+	return _viewID;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> ViewPresenterBase::GetViewGroupName() const
 {
-	return viewGroupName;
+	return _viewGroupName;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> ViewPresenterBase::GetViewName() const
 {
-	return viewName;
+	return _viewName;
 }
 
 //----------------------------------------------------------------------------------------
 bool ViewPresenterBase::LoadViewState(IHierarchicalStorageNode& viewState)
 {
 	//Ensure this view is currently open
-	if(!viewOpen)
+	if(!_viewOpen)
 	{
 		return false;
 	}
@@ -219,7 +219,7 @@ bool ViewPresenterBase::LoadViewState(IHierarchicalStorageNode& viewState)
 	IHierarchicalStorageNode* containedViewState = viewState.GetChild(L"ViewState");
 	if(containedViewState != 0)
 	{
-		if(!view->LoadViewState(*containedViewState))
+		if(!_view->LoadViewState(*containedViewState))
 		{
 			return false;
 		}
@@ -233,11 +233,11 @@ bool ViewPresenterBase::LoadViewState(IHierarchicalStorageNode& viewState)
 bool ViewPresenterBase::SaveViewState(IHierarchicalStorageNode& viewState) const
 {
 	//Ensure this view is currently open
-	if(!viewOpen)
+	if(!_viewOpen)
 	{
 		return false;
 	}
 
 	//Save the state for the view
-	return view->SaveViewState(viewState.CreateChild(L"ViewState"));
+	return _view->SaveViewState(viewState.CreateChild(L"ViewState"));
 }

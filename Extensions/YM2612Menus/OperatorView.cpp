@@ -4,20 +4,20 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-OperatorView::OperatorView(IUIManager& auiManager, OperatorViewPresenter& apresenter, IYM2612& amodel, unsigned int achannelNo, unsigned int aoperatorNo)
-:ViewBase(auiManager, apresenter), presenter(apresenter), model(amodel), initializedDialog(false), currentControlFocus(0), channelNo(achannelNo), operatorNo(aoperatorNo)
+OperatorView::OperatorView(IUIManager& uiManager, OperatorViewPresenter& presenter, IYM2612& model, unsigned int channelNo, unsigned int operatorNo)
+:ViewBase(uiManager, presenter), _presenter(presenter), _model(model), _initializedDialog(false), _currentControlFocus(0), _channelNo(channelNo), _operatorNo(operatorNo)
 {
-	SetDialogTemplateSettings(apresenter.GetUnqualifiedViewTitle(), GetAssemblyHandle(), MAKEINTRESOURCE(IDD_YM2612_OPERATOR));
+	SetDialogTemplateSettings(presenter.GetUnqualifiedViewTitle(), GetAssemblyHandle(), MAKEINTRESOURCE(IDD_YM2612_OPERATOR));
 	SetDialogViewType();
 }
 
 //----------------------------------------------------------------------------------------
 //Operator functions
 //----------------------------------------------------------------------------------------
-void OperatorView::SetTargetOperator(unsigned int achannelNo, unsigned int aoperatorNo)
+void OperatorView::SetTargetOperator(unsigned int channelNo, unsigned int operatorNo)
 {
-	channelNo = achannelNo;
-	operatorNo = aoperatorNo;
+	_channelNo = channelNo;
+	_operatorNo = operatorNo;
 }
 
 //----------------------------------------------------------------------------------------
@@ -61,7 +61,7 @@ INT_PTR OperatorView::msgWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 //----------------------------------------------------------------------------------------
 INT_PTR OperatorView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	initializedDialog = true;
+	_initializedDialog = true;
 
 	//##TODO## Ensure if the operator and channel have changed since the last time, that
 	//we update them.

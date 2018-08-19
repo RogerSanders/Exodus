@@ -6,7 +6,7 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 ZIPFileEntry::ZIPFileEntry()
-:compressedDataWritten(false), data(0)
+:_compressedDataWritten(false), _data(0)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -19,15 +19,15 @@ ZIPFileEntry::ZIPFileEntry()
 bool ZIPFileEntry::LoadFromStream(Stream::IStream& source)
 {
 	//Load the local file header and compressed file data from the stream
-	localFileHeader.LoadFromStream(source);
-	data.Resize(localFileHeader.compressedSize);
-	if(!source.ReadData(data.GetRawBuffer(), localFileHeader.compressedSize))
+	_localFileHeader.LoadFromStream(source);
+	_data.Resize(_localFileHeader.compressedSize);
+	if(!source.ReadData(_data.GetRawBuffer(), _localFileHeader.compressedSize))
 	{
 		return false;
 	}
 
 	//Flag that the object has been populated with a compressed data stream
-	compressedDataWritten = true;
+	_compressedDataWritten = true;
 
 	return true;
 }
@@ -36,14 +36,14 @@ bool ZIPFileEntry::LoadFromStream(Stream::IStream& source)
 bool ZIPFileEntry::SaveToStream(Stream::IStream& target) const
 {
 	//Only allow the data to be saved if it's been successfully compressed
-	if(!compressedDataWritten)
+	if(!_compressedDataWritten)
 	{
 		return false;
 	}
 
 	//Save the local file header and compressed file data to the stream
-	localFileHeader.SaveToStream(target);
-	return target.WriteData(data.GetRawBuffer(), data.Size());
+	_localFileHeader.SaveToStream(target);
+	return target.WriteData(_data.GetRawBuffer(), _data.Size());
 }
 
 //----------------------------------------------------------------------------------------
@@ -61,11 +61,11 @@ bool ZIPFileEntry::Compress(Stream::IStream& source, unsigned int inputCacheSize
 
 	//Clean our data buffer. The buffer will automatically grow to a size large enough to
 	//hold the compressed data.
-	data.Resize(0);
+	_data.Resize(0);
 
 	//Attempt to compress the file to our buffer using deflate compression
 	unsigned int calculatedCRC;
-	if(!Deflate::DeflateCompress(source, data, calculatedCRC, inputCacheSize, (unsigned int)data.Size()))
+	if(!Deflate::DeflateCompress(source, _data, calculatedCRC, inputCacheSize, (unsigned int)_data.Size()))
 	{
 		return false;
 	}
@@ -78,19 +78,19 @@ bool ZIPFileEntry::Compress(Stream::IStream& source, unsigned int inputCacheSize
 	GetLocalTime(&systemTime);
 	SystemTimeToFileTime(&systemTime, &fileTime);
 	FileTimeToDosDateTime(&fileTime, &dosDate, &dosTime);
-	localFileHeader.modFileDate = dosDate;
-	localFileHeader.modFileTime = dosTime;
+	_localFileHeader.modFileDate = dosDate;
+	_localFileHeader.modFileTime = dosTime;
 
 	//Write header information for the data we just compressed
 	//##TODO## Fix up the version to extract and compression method settings here
-	localFileHeader.versionToExtract = 20;
-	localFileHeader.compressionMethod = 8;	//Deflate compression
-	localFileHeader.compressedSize = (unsigned int)data.Size();
-	localFileHeader.uncompressedSize = (unsigned int)uncompressedDataSize;
-	localFileHeader.crc32 = calculatedCRC;
+	_localFileHeader.versionToExtract = 20;
+	_localFileHeader.compressionMethod = 8;	//Deflate compression
+	_localFileHeader.compressedSize = (unsigned int)_data.Size();
+	_localFileHeader.uncompressedSize = (unsigned int)uncompressedDataSize;
+	_localFileHeader.crc32 = calculatedCRC;
 
 	//Flag that the object has been populated with a compressed data stream
-	compressedDataWritten = true;
+	_compressedDataWritten = true;
 
 	return true;
 }
@@ -100,21 +100,21 @@ bool ZIPFileEntry::Decompress(Stream::IStream& target, unsigned int outputCacheS
 {
 	//If the object hasn't been populated with a compressed data stream, abort with an
 	//error.
-	if(!compressedDataWritten)
+	if(!_compressedDataWritten)
 	{
 		return false;
 	}
 
 	//Attempt to decompress the file from our buffer using deflate compression
 	unsigned int calculatedCRC;
-	if(!Deflate::DeflateDecompress(data, target, calculatedCRC, (unsigned int)data.Size(), outputCacheSize))
+	if(!Deflate::DeflateDecompress(_data, target, calculatedCRC, (unsigned int)_data.Size(), outputCacheSize))
 	{
 		return false;
 	}
 
 	//If the CRC of the decompressed data doesn't match the CRC reported in the header,
 	//return an error.
-	if(calculatedCRC != localFileHeader.crc32)
+	if(calculatedCRC != _localFileHeader.crc32)
 	{
 		return false;
 	}
@@ -127,19 +127,19 @@ bool ZIPFileEntry::Decompress(Stream::IStream& target, unsigned int outputCacheS
 //----------------------------------------------------------------------------------------
 std::wstring ZIPFileEntry::GetFileName() const
 {
-	return localFileHeader.fileName;
+	return _localFileHeader.fileName;
 }
 
 //----------------------------------------------------------------------------------------
-void ZIPFileEntry::SetFileName(const std::wstring& aname)
+void ZIPFileEntry::SetFileName(const std::wstring& name)
 {
-	localFileHeader.fileName = aname;
+	_localFileHeader.fileName = name;
 }
 
 //----------------------------------------------------------------------------------------
 //File header functions
 //----------------------------------------------------------------------------------------
-ZIPChunk_CentralFileHeader ZIPFileEntry::GetCentralDirectoryFileHeader() const
+ZIPChunkCentralFileHeader ZIPFileEntry::GetCentralDirectoryFileHeader() const
 {
-	return ZIPChunk_CentralFileHeader(localFileHeader);
+	return ZIPChunkCentralFileHeader(_localFileHeader);
 }

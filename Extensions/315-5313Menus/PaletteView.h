@@ -10,7 +10,7 @@ class PaletteView :public ViewBase
 {
 public:
 	//Constructors
-	PaletteView(IUIManager& auiManager, PaletteViewPresenter& apresenter, IS315_5313& amodel);
+	PaletteView(IUIManager& uiManager, PaletteViewPresenter& presenter, IS315_5313& model);
 
 protected:
 	//Member window procedure
@@ -23,9 +23,9 @@ private:
 	LRESULT msgWM_TIMER(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
 private:
-	PaletteViewPresenter& presenter;
-	IS315_5313& model;
-	Image paletteImage;
+	PaletteViewPresenter& _presenter;
+	IS315_5313& _model;
+	Image _paletteImage;
 };
 
 #endif

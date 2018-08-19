@@ -1,25 +1,25 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-template<class T> GenericAccessCommandInfo::GenericAccessCommandInfo(T aid)
-:id((unsigned int)aid)
+template<class T> GenericAccessCommandInfo::GenericAccessCommandInfo(T id)
+:_id((unsigned int)id)
 {
 	//Initialize the general command info to defaults
-	canExecute = true;
+	_canExecute = true;
 }
 
 //----------------------------------------------------------------------------------------
 //Command info functions
 //----------------------------------------------------------------------------------------
-GenericAccessCommandInfo* GenericAccessCommandInfo::SetID(unsigned int aid)
+GenericAccessCommandInfo* GenericAccessCommandInfo::SetID(unsigned int id)
 {
-	id = aid;
+	_id = id;
 	return this;
 }
 
 //----------------------------------------------------------------------------------------
-GenericAccessCommandInfo* GenericAccessCommandInfo::SetCanExecute(bool acanExecute)
+GenericAccessCommandInfo* GenericAccessCommandInfo::SetCanExecute(bool canExecute)
 {
-	canExecute = acanExecute;
+	_canExecute = canExecute;
 	return this;
 }

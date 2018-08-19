@@ -34,13 +34,13 @@ bool GenericAccessGroupDataEntry::IsGroup() const
 //----------------------------------------------------------------------------------------
 IGenericAccessGroup* GenericAccessGroupDataEntry::GetParent() const
 {
-	return parent;
+	return _parent;
 }
 
 //----------------------------------------------------------------------------------------
-void GenericAccessGroupDataEntry::SetParent(IGenericAccessGroup* aparent)
+void GenericAccessGroupDataEntry::SetParent(IGenericAccessGroup* parent)
 {
-	parent = aparent;
+	_parent = parent;
 }
 
 //----------------------------------------------------------------------------------------
@@ -48,13 +48,13 @@ void GenericAccessGroupDataEntry::SetParent(IGenericAccessGroup* aparent)
 //----------------------------------------------------------------------------------------
 const IGenericAccess::DataContext* GenericAccessGroupDataEntry::GetDataContext() const
 {
-	if(dataContext != 0)
+	if(_dataContext != 0)
 	{
-		return dataContext;
+		return _dataContext;
 	}
-	else if(parent != 0)
+	else if(_parent != 0)
 	{
-		return parent->GetDataContext();
+		return _parent->GetDataContext();
 	}
 	return 0;
 }
@@ -64,23 +64,23 @@ const IGenericAccess::DataContext* GenericAccessGroupDataEntry::GetDataContext()
 //----------------------------------------------------------------------------------------
 unsigned int GenericAccessGroupDataEntry::GetDataID() const
 {
-	return dataID;
+	return _dataID;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> GenericAccessGroupDataEntry::GetName() const
 {
-	return name;
+	return _name;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> GenericAccessGroupDataEntry::GetDescription() const
 {
-	return description;
+	return _description;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> GenericAccessGroupDataEntry::GetHelpFileLink() const
 {
-	return helpFileLink;
+	return _helpFileLink;
 }

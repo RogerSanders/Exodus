@@ -6,7 +6,7 @@ class MenuSelectableOption :public IMenuSelectableOption
 {
 public:
 	//Constructors
-	MenuSelectableOption(IMenuHandler& amenuHandler, int amenuItemID, const std::wstring& atitle);
+	MenuSelectableOption(IMenuHandler& menuHandler, int menuItemID, const std::wstring& title);
 
 	//Interface version functions
 	virtual unsigned int GetIMenuItemVersion() const;
@@ -24,21 +24,21 @@ public:
 
 	//Physical menu functions
 	HMENU GetPhysicalMenuHandle() const;
-	void SetPhysicalMenuHandle(HMENU aphysicalMenuHandle);
+	void SetPhysicalMenuHandle(HMENU physicalMenuHandle);
 	unsigned int GetPhysicalMenuItemID() const;
-	void SetPhysicalMenuItemID(unsigned int aphysicalMenuItemID);
+	void SetPhysicalMenuItemID(unsigned int physicalMenuItemID);
 
 	//Checked state functions
 	virtual bool GetCheckedState() const;
-	virtual void SetCheckedState(bool acheckedState);
+	virtual void SetCheckedState(bool checkedState);
 
 private:
-	std::wstring title;
-	IMenuHandler& menuHandler;
-	int menuItemID;
-	HMENU physicalMenuHandle;
-	unsigned int physicalMenuItemID;
-	bool checkedState;
+	std::wstring _title;
+	IMenuHandler& _menuHandler;
+	int _menuItemID;
+	HMENU _physicalMenuHandle;
+	unsigned int _physicalMenuItemID;
+	bool _checkedState;
 };
 
 #endif

@@ -27,7 +27,7 @@ public:
 
 	virtual Disassembly M68000Disassemble(const M68000::LabelSubstitutionSettings& labelSettings) const
 	{
-		return Disassembly(L"MOVE", source.Disassemble(labelSettings) + L", SR");
+		return Disassembly(L"MOVE", _source.Disassemble(labelSettings) + L", SR");
 	}
 
 	virtual void M68000Decode(const M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)
@@ -40,10 +40,10 @@ public:
 //	                                        |----------<ea>---------|
 
 		//MOVE	<ea>,SR
-		source.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), BITCOUNT_WORD, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
-		AddInstructionSize(source.ExtensionSize());
+		_source.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), BITCOUNT_WORD, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
+		AddInstructionSize(_source.ExtensionSize());
 		AddExecuteCycleCount(ExecuteTime(12, 1, 0));
-		AddExecuteCycleCount(source.DecodeTime());
+		AddExecuteCycleCount(_source.DecodeTime());
 	}
 
 	virtual ExecuteTime M68000Execute(M68000* cpu, const M68000Long& location) const
@@ -52,7 +52,7 @@ public:
 		M68000Word result;
 
 		//Perform the operation
-		additionalTime += source.Read(cpu, result, GetInstructionRegister());
+		additionalTime += _source.Read(cpu, result, GetInstructionRegister());
 		cpu->SetSR(result);
 
 		//Adjust the PC and return the execution time
@@ -62,11 +62,11 @@ public:
 
 	virtual void GetLabelTargetLocations(std::set<unsigned int>& labelTargetLocations) const
 	{
-		source.AddLabelTargetsToSet(labelTargetLocations);
+		_source.AddLabelTargetsToSet(labelTargetLocations);
 	}
 
 private:
-	EffectiveAddress source;
+	EffectiveAddress _source;
 };
 
 } //Close namespace M68000

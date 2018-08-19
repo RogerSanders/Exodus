@@ -25,34 +25,34 @@ public:
 
 	virtual Disassembly Z80Disassemble(const Z80::LabelSubstitutionSettings& labelSettings) const
 	{
-		if(conditionCode == ConditionCode::None)
+		if(_conditionCode == ConditionCode::None)
 		{
-			return Disassembly(GetOpcodeName(), source.Disassemble());
+			return Disassembly(GetOpcodeName(), _source.Disassemble());
 		}
 		else
 		{
-			return Disassembly(GetOpcodeName(), DisassembleConditionCode(conditionCode) + L", " + source.Disassemble());
+			return Disassembly(GetOpcodeName(), DisassembleConditionCode(_conditionCode) + L", " + _source.Disassemble());
 		}
 	}
 
 	virtual void Z80Decode(const Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)
 	{
-		source.SetIndexState(GetIndexState(), GetIndexOffset());
-		target.SetIndexState(GetIndexState(), GetIndexOffset());
-		conditionCode = ConditionCode::None;
+		_source.SetIndexState(GetIndexState(), GetIndexOffset());
+		_target.SetIndexState(GetIndexState(), GetIndexOffset());
+		_conditionCode = ConditionCode::None;
 
 		//CALL nn		//11001101 nnnnnnnn nnnnnnnn
-		source.BuildImmediateData(BITCOUNT_WORD, location + GetInstructionSize(), cpu, transparent);
+		_source.BuildImmediateData(BITCOUNT_WORD, location + GetInstructionSize(), cpu, transparent);
 		if(!data.GetBit(0))
 		{
 			//CALL cc,nn		//11ccc100 nnnnnnnn nnnnnnnn
-			conditionCode = (ConditionCode)data.GetDataSegment(3, 3);
+			_conditionCode = (ConditionCode)data.GetDataSegment(3, 3);
 		}
-		target.SetMode(EffectiveAddress::Mode::SPPreDec);
+		_target.SetMode(EffectiveAddress::Mode::SPPreDec);
 
-		AddInstructionSize(GetIndexOffsetSize(source.UsesIndexOffset() || target.UsesIndexOffset()));
-		AddInstructionSize(source.ExtensionSize());
-		AddInstructionSize(target.ExtensionSize());
+		AddInstructionSize(GetIndexOffsetSize(_source.UsesIndexOffset() || _target.UsesIndexOffset()));
+		AddInstructionSize(_source.ExtensionSize());
+		AddInstructionSize(_target.ExtensionSize());
 	}
 
 	virtual ExecuteTime Z80Execute(Z80* cpu, const Z80Word& location) const
@@ -61,12 +61,12 @@ public:
 		ExecuteTime additionalCycles;
 
 		//Test the condition code
-		if(ConditionCodeTrue(cpu, conditionCode))
+		if(ConditionCodeTrue(cpu, _conditionCode))
 		{
-			//If the condition is true, jump to the target location.
-			additionalTime += target.Write(cpu, location + GetInstructionSize(), location + GetInstructionSize());
+			//If the condition is true, jump to the _target location.
+			additionalTime += _target.Write(cpu, location + GetInstructionSize(), location + GetInstructionSize());
 			Z80Word newPC;
-			additionalTime += source.Read(cpu, location + GetInstructionSize(), newPC);
+			additionalTime += _source.Read(cpu, location + GetInstructionSize(), newPC);
 			cpu->PushCallStack(cpu->GetPC().GetData(), newPC.GetData(), (location + GetInstructionSize()).GetData(), L"CALL");
 			cpu->SetPC(newPC);
 			additionalCycles.cycles = 17;
@@ -84,9 +84,9 @@ public:
 	}
 
 private:
-	EffectiveAddress source;
-	EffectiveAddress target;
-	ConditionCode conditionCode;
+	EffectiveAddress _source;
+	EffectiveAddress _target;
+	ConditionCode _conditionCode;
 };
 
 } //Close namespace Z80

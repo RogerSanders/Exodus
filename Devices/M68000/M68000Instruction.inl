@@ -30,14 +30,14 @@ struct M68000Instruction::Disassembly
 {
 	Disassembly()
 	{}
-	Disassembly(const std::wstring& aopcode)
-		:disassemblyOpcode(aopcode)
+	Disassembly(const std::wstring& opcode)
+		:disassemblyOpcode(opcode)
 	{}
-	Disassembly(const std::wstring& aopcode, const std::wstring& aarguments)
-		:disassemblyOpcode(aopcode), disassemblyArguments(aarguments)
+	Disassembly(const std::wstring& opcode, const std::wstring& arguments)
+		:disassemblyOpcode(opcode), disassemblyArguments(arguments)
 	{}
-	Disassembly(const std::wstring& aopcode, const std::wstring& aarguments, const std::wstring& acomment)
-		:disassemblyOpcode(aopcode), disassemblyArguments(aarguments), disassemblyComment(acomment)
+	Disassembly(const std::wstring& opcode, const std::wstring& arguments, const std::wstring& comment)
+		:disassemblyOpcode(opcode), disassemblyArguments(arguments), disassemblyComment(comment)
 	{}
 
 	std::wstring disassemblyOpcode;
@@ -49,12 +49,12 @@ struct M68000Instruction::Disassembly
 //Constructors
 //----------------------------------------------------------------------------------------
 M68000Instruction::M68000Instruction()
-:instructionSize(0), transparentOpcode(false)
+:_instructionSize(0), _transparentOpcode(false)
 {}
 
 //----------------------------------------------------------------------------------------
 M68000Instruction::M68000Instruction(const M68000Instruction& object)
-:instructionSize(object.instructionSize), executeCycleCount(object.executeCycleCount), instructionRegister(object.instructionRegister), instructionLocation(object.instructionLocation), transparentOpcode(object.transparentOpcode)
+:_instructionSize(object._instructionSize), _executeCycleCount(object._executeCycleCount), _instructionRegister(object._instructionRegister), _instructionLocation(object._instructionLocation), _transparentOpcode(object._transparentOpcode)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -62,19 +62,19 @@ M68000Instruction::M68000Instruction(const M68000Instruction& object)
 //----------------------------------------------------------------------------------------
 unsigned int M68000Instruction::GetInstructionSize() const
 {
-	return instructionSize;
+	return _instructionSize;
 }
 
 //----------------------------------------------------------------------------------------
-void M68000Instruction::SetInstructionSize(unsigned int ainstructionSize)
+void M68000Instruction::SetInstructionSize(unsigned int instructionSize)
 {
-	instructionSize = ainstructionSize;
+	_instructionSize = instructionSize;
 }
 
 //----------------------------------------------------------------------------------------
-void M68000Instruction::AddInstructionSize(unsigned int ainstructionSize)
+void M68000Instruction::AddInstructionSize(unsigned int instructionSize)
 {
-	instructionSize += ainstructionSize;
+	_instructionSize += instructionSize;
 }
 
 //----------------------------------------------------------------------------------------
@@ -82,21 +82,21 @@ void M68000Instruction::AddInstructionSize(unsigned int ainstructionSize)
 //----------------------------------------------------------------------------------------
 ExecuteTime M68000Instruction::GetExecuteCycleCount() const
 {
-	return executeCycleCount;
+	return _executeCycleCount;
 }
 
 //----------------------------------------------------------------------------------------
 ExecuteTime M68000Instruction::GetExecuteCycleCount(double additionalTime) const
 {
-	ExecuteTime executeTime = executeCycleCount;
+	ExecuteTime executeTime = _executeCycleCount;
 	executeTime.additionalTime += additionalTime;
 	return executeTime;
 }
 
 //----------------------------------------------------------------------------------------
-void M68000Instruction::AddExecuteCycleCount(const ExecuteTime& aexecuteCycleCount)
+void M68000Instruction::AddExecuteCycleCount(const ExecuteTime& executeCycleCount)
 {
-	executeCycleCount = executeCycleCount + aexecuteCycleCount;
+	_executeCycleCount = _executeCycleCount + executeCycleCount;
 }
 
 //----------------------------------------------------------------------------------------
@@ -104,25 +104,25 @@ void M68000Instruction::AddExecuteCycleCount(const ExecuteTime& aexecuteCycleCou
 //----------------------------------------------------------------------------------------
 const M68000Word& M68000Instruction::GetInstructionRegister() const
 {
-	return instructionRegister;
+	return _instructionRegister;
 }
 
 //----------------------------------------------------------------------------------------
-void M68000Instruction::SetInstructionRegister(const M68000Word& ainstructionData)
+void M68000Instruction::SetInstructionRegister(const M68000Word& instructionData)
 {
-	instructionRegister = ainstructionData;
+	_instructionRegister = instructionData;
 }
 
 //----------------------------------------------------------------------------------------
 const M68000Long& M68000Instruction::GetInstructionLocation() const
 {
-	return instructionLocation;
+	return _instructionLocation;
 }
 
 //----------------------------------------------------------------------------------------
-void M68000Instruction::SetInstructionLocation(const M68000Long& ainstructionLocation)
+void M68000Instruction::SetInstructionLocation(const M68000Long& instructionLocation)
 {
-	instructionLocation = ainstructionLocation;
+	_instructionLocation = instructionLocation;
 }
 
 //----------------------------------------------------------------------------------------
@@ -130,13 +130,13 @@ void M68000Instruction::SetInstructionLocation(const M68000Long& ainstructionLoc
 //----------------------------------------------------------------------------------------
 bool M68000Instruction::GetTransparentFlag() const
 {
-	return transparentOpcode;
+	return _transparentOpcode;
 }
 
 //----------------------------------------------------------------------------------------
-void M68000Instruction::SetTransparentFlag(bool astate)
+void M68000Instruction::SetTransparentFlag(bool state)
 {
-	transparentOpcode = astate;
+	_transparentOpcode = state;
 }
 
 } //Close namespace M68000

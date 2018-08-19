@@ -30,14 +30,14 @@ public:
 	virtual void SetHasUndeterminedResultantPCLocation(bool state);
 
 private:
-	bool valid;
-	unsigned int opcodeSize;
-	std::wstring disassemblyOpcode;
-	std::wstring disassemblyArguments;
-	std::wstring disassemblyComment;
-	std::set<unsigned int> labelTargetLocations;
-	std::set<unsigned int> resultantPCLocations;
-	bool undeterminedResultantPCLocation;
+	bool _valid;
+	unsigned int _opcodeSize;
+	std::wstring _disassemblyOpcode;
+	std::wstring _disassemblyArguments;
+	std::wstring _disassemblyComment;
+	std::set<unsigned int> _labelTargetLocations;
+	std::set<unsigned int> _resultantPCLocations;
+	bool _undeterminedResultantPCLocation;
 };
 
 #endif

@@ -13,91 +13,91 @@ unsigned int DeviceInfo::GetIDeviceInfoVersion() const
 //----------------------------------------------------------------------------------------
 DeviceInfo::AllocatorPointer DeviceInfo::GetAllocator() const
 {
-	return Allocator;
+	return _allocator;
 }
 
 //----------------------------------------------------------------------------------------
 DeviceInfo::DestructorPointer DeviceInfo::GetDestructor() const
 {
-	return Destructor;
+	return _destructor;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> DeviceInfo::GetDeviceClassName() const
 {
-	return className;
+	return _className;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> DeviceInfo::GetDeviceImplementationName() const
 {
-	return implementationName;
+	return _implementationName;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int DeviceInfo::GetDeviceVersionNo() const
 {
-	return versionNo;
+	return _versionNo;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> DeviceInfo::GetDeviceCopyright() const
 {
-	return copyright;
+	return _copyright;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> DeviceInfo::GetDeviceComments() const
 {
-	return comments;
+	return _comments;
 }
 
 //----------------------------------------------------------------------------------------
 //Setters
 //----------------------------------------------------------------------------------------
-void DeviceInfo::SetDeviceSettings(AllocatorPointer aAllocator, DestructorPointer aDestructor, const Marshal::In<std::wstring>& adeviceClassName, const Marshal::In<std::wstring>& adeviceImplementationName, unsigned int adeviceVersionNo, const Marshal::In<std::wstring>& adeviceCopyright, const Marshal::In<std::wstring>& adeviceComments)
+void DeviceInfo::SetDeviceSettings(AllocatorPointer allocator, DestructorPointer destructor, const Marshal::In<std::wstring>& deviceClassName, const Marshal::In<std::wstring>& deviceImplementationName, unsigned int deviceVersionNo, const Marshal::In<std::wstring>& deviceCopyright, const Marshal::In<std::wstring>& deviceComments)
 {
-	SetDeviceAllocators(aAllocator, aDestructor);
-	SetDeviceClassName(adeviceClassName);
-	SetDeviceImplementationName(adeviceImplementationName);
-	SetDeviceVersionNo(adeviceVersionNo);
-	SetDeviceCopyright(adeviceCopyright);
-	SetDeviceComments(adeviceComments);
+	SetDeviceAllocators(allocator, destructor);
+	SetDeviceClassName(deviceClassName);
+	SetDeviceImplementationName(deviceImplementationName);
+	SetDeviceVersionNo(deviceVersionNo);
+	SetDeviceCopyright(deviceCopyright);
+	SetDeviceComments(deviceComments);
 }
 
 //----------------------------------------------------------------------------------------
-void DeviceInfo::SetDeviceAllocators(AllocatorPointer aAllocator, DestructorPointer aDestructor)
+void DeviceInfo::SetDeviceAllocators(AllocatorPointer allocator, DestructorPointer destructor)
 {
-	Allocator = aAllocator;
-	Destructor = aDestructor;
+	_allocator = allocator;
+	_destructor = destructor;
 }
 
 //----------------------------------------------------------------------------------------
-void DeviceInfo::SetDeviceClassName(const Marshal::In<std::wstring>& adeviceClassName)
+void DeviceInfo::SetDeviceClassName(const Marshal::In<std::wstring>& deviceClassName)
 {
-	className = adeviceClassName;
+	_className = deviceClassName;
 }
 
 //----------------------------------------------------------------------------------------
-void DeviceInfo::SetDeviceImplementationName(const Marshal::In<std::wstring>& adeviceImplementationName)
+void DeviceInfo::SetDeviceImplementationName(const Marshal::In<std::wstring>& deviceImplementationName)
 {
-	implementationName = adeviceImplementationName;
+	_implementationName = deviceImplementationName;
 }
 
 //----------------------------------------------------------------------------------------
-void DeviceInfo::SetDeviceVersionNo(unsigned int adeviceVersionNo)
+void DeviceInfo::SetDeviceVersionNo(unsigned int deviceVersionNo)
 {
-	versionNo = adeviceVersionNo;
+	_versionNo = deviceVersionNo;
 }
 
 //----------------------------------------------------------------------------------------
-void DeviceInfo::SetDeviceCopyright(const Marshal::In<std::wstring>& adeviceCopyright)
+void DeviceInfo::SetDeviceCopyright(const Marshal::In<std::wstring>& deviceCopyright)
 {
-	copyright = adeviceCopyright;
+	_copyright = deviceCopyright;
 }
 
 //----------------------------------------------------------------------------------------
-void DeviceInfo::SetDeviceComments(const Marshal::In<std::wstring>& adeviceComments)
+void DeviceInfo::SetDeviceComments(const Marshal::In<std::wstring>& deviceComments)
 {
-	comments = adeviceComments;
+	_comments = deviceComments;
 }

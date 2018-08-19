@@ -6,29 +6,29 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 DataRemapTable::DataRemapTable()
-:conversionTableStateSetManually(false)
+:_conversionTableStateSetManually(false)
 {
 	//Set the default maximum bit counts for our conversion tables to 20 bits, which gives
 	//us a maximum table size of 1 MegaByte.
-	conversionTableToMaxBitCount = 20;
-	conversionTableFromMaxBitCount = 20;
+	_conversionTableToMaxBitCount = 20;
+	_conversionTableFromMaxBitCount = 20;
 }
 
 //----------------------------------------------------------------------------------------
 //Data conversion settings
 //----------------------------------------------------------------------------------------
-void DataRemapTable::SetConversionTableState(bool auseConversionTableTo, bool auseConversionTableFrom)
+void DataRemapTable::SetConversionTableState(bool useConversionTableTo, bool useConversionTableFrom)
 {
-	useMethodConversionTableTo = auseConversionTableTo;
-	useMethodConversionTableFrom = auseConversionTableFrom;
-	conversionTableStateSetManually = true;
+	_useMethodConversionTableTo = useConversionTableTo;
+	_useMethodConversionTableFrom = useConversionTableFrom;
+	_conversionTableStateSetManually = true;
 }
 
 //----------------------------------------------------------------------------------------
-void DataRemapTable::SetConversionTableMaxBitCount(unsigned int aconversionTableToMaxBitCount, unsigned int aconversionTableFromMaxBitCount)
+void DataRemapTable::SetConversionTableMaxBitCount(unsigned int conversionTableToMaxBitCount, unsigned int conversionTableFromMaxBitCount)
 {
-	conversionTableToMaxBitCount = aconversionTableToMaxBitCount;
-	conversionTableFromMaxBitCount = aconversionTableFromMaxBitCount;
+	_conversionTableToMaxBitCount = conversionTableToMaxBitCount;
+	_conversionTableFromMaxBitCount = conversionTableFromMaxBitCount;
 }
 
 //----------------------------------------------------------------------------------------
@@ -136,15 +136,15 @@ bool DataRemapTable::SetDataMapping(const std::wstring& mappingString, unsigned 
 	}
 
 	//Initialize our mapping settings
-	bitMaskOriginal = 0;
-	bitMaskConverted = 0;
-	bitCountOriginal = sourceBitCount;
-	bitCountConverted = 0;
-	insertBottomBitCount = 0;
-	insertTopBitCount = 0;
-	discardBottomBitCount = 0;
-	discardTopBitCount = 0;
-	forcedSetBitMaskInConverted = 0;
+	_bitMaskOriginal = 0;
+	_bitMaskConverted = 0;
+	_bitCountOriginal = sourceBitCount;
+	_bitCountConverted = 0;
+	_insertBottomBitCount = 0;
+	_insertTopBitCount = 0;
+	_discardBottomBitCount = 0;
+	_discardTopBitCount = 0;
+	_forcedSetBitMaskInConverted = 0;
 
 	//Process our mapping elements, and build our mapping settings.
 	unsigned int highestSourceBitNumberUsed = 0;
@@ -159,29 +159,29 @@ bool DataRemapTable::SetDataMapping(const std::wstring& mappingString, unsigned 
 		if(i->forcedBitElement)
 		{
 			//Set the value in the forced bit mask
-			forcedSetBitMaskInConverted |= i->forcedBitValue? (1 << bitCountConverted): 0;
+			_forcedSetBitMaskInConverted |= i->forcedBitValue? (1 << _bitCountConverted): 0;
 
 			//If we haven't encountered a source bit mapping yet, record this as an
 			//inserted bit at the bottom of the converted data, otherwise record it as an
 			//inserted bit at the top of the converted data.
 			if(!foundFirstSourceMapping)
 			{
-				++insertBottomBitCount;
+				++_insertBottomBitCount;
 			}
 			else
 			{
-				++insertTopBitCount;
+				++_insertTopBitCount;
 			}
 		}
 		else
 		{
 			//Calculate the relative displacement between the source and target bit
 			//numbers used for this mapping.
-			int sourceMappingDisplacement = (int)i->sourceDataBitNumber - (int)bitCountConverted;
+			int sourceMappingDisplacement = (int)i->sourceDataBitNumber - (int)_bitCountConverted;
 
 			//Since we've encountered a source mapping for the highest bit we've processed
 			//so far, reset the insertTopBitCount value to 0.
-			insertTopBitCount = 0;
+			_insertTopBitCount = 0;
 
 			//If this is the first source bit mapping we've encountered, record the
 			//displacement, otherwise compare it with the previously recorded value.
@@ -205,13 +205,13 @@ bool DataRemapTable::SetDataMapping(const std::wstring& mappingString, unsigned 
 			//Build our bit mapping entry
 			BitMapping bitMappingEntry;
 			bitMappingEntry.bitMaskOriginal = 1 << i->sourceDataBitNumber;
-			bitMappingEntry.bitMaskConverted = 1 << bitCountConverted;
-			dataBitMappings.push_back(bitMappingEntry);
-			dataBitMappingsSize = (unsigned int)dataBitMappings.size();
+			bitMappingEntry.bitMaskConverted = 1 << _bitCountConverted;
+			_dataBitMappings.push_back(bitMappingEntry);
+			_dataBitMappingsSize = (unsigned int)_dataBitMappings.size();
 
 			//Add the mapped bit to the source and target bit masks
-			bitMaskOriginal |= 1 << i->sourceDataBitNumber;
-			bitMaskConverted |= 1 << bitCountConverted;
+			_bitMaskOriginal |= 1 << i->sourceDataBitNumber;
+			_bitMaskConverted |= 1 << _bitCountConverted;
 
 			//Update the highest and lowest used source bit numbers
 			if(i->sourceDataBitNumber > highestSourceBitNumberUsed)
@@ -225,63 +225,63 @@ bool DataRemapTable::SetDataMapping(const std::wstring& mappingString, unsigned 
 		}
 
 		//Update the bitcount for the number of bits in our converted value
-		++bitCountConverted;
+		++_bitCountConverted;
 	}
 
 	//Calculate the number of bits discarded at each end of the original data during a
 	//conversion.
-	discardBottomBitCount = lowestSourceBitNumberUsed;
-	discardTopBitCount = (sourceBitCount - 1) - highestSourceBitNumberUsed;
+	_discardBottomBitCount = lowestSourceBitNumberUsed;
+	_discardTopBitCount = (sourceBitCount - 1) - highestSourceBitNumberUsed;
 
 	//If the relative order of all used source bits is maintained by the mapping, flag
 	//that we can use the shift and mask method to perform the conversion.
-	useMethodShiftAndMask = allSourceBitsInRelativeOrder;
+	_useMethodShiftAndMask = allSourceBitsInRelativeOrder;
 
 	//Determine whether to use physical conversion tables
-	if(!conversionTableStateSetManually)
+	if(!_conversionTableStateSetManually)
 	{
 		//Only build conversion tables if we can't use the shift and mask method. The
 		//shift and mask method is so efficient, the table method is almost certainly
 		//going to be slower due to the latency involved in memory access, and the high
 		//likelihood of a cache miss with a conversion table.
-		if(!useMethodShiftAndMask)
+		if(!_useMethodShiftAndMask)
 		{
-			useMethodConversionTableTo = ((bitCountOriginal - (discardBottomBitCount + discardTopBitCount)) <= conversionTableToMaxBitCount);
-			useMethodConversionTableFrom = ((bitCountConverted - (insertBottomBitCount + insertTopBitCount)) <= conversionTableFromMaxBitCount);
+			_useMethodConversionTableTo = ((_bitCountOriginal - (_discardBottomBitCount + _discardTopBitCount)) <= _conversionTableToMaxBitCount);
+			_useMethodConversionTableFrom = ((_bitCountConverted - (_insertBottomBitCount + _insertTopBitCount)) <= _conversionTableFromMaxBitCount);
 		}
 		else
 		{
-			useMethodConversionTableTo = false;
-			useMethodConversionTableFrom = false;
+			_useMethodConversionTableTo = false;
+			_useMethodConversionTableFrom = false;
 		}
 	}
 
 	//Build the physical conversion tables
-	if(useMethodConversionTableTo)
+	if(_useMethodConversionTableTo)
 	{
-		useMethodConversionTableTo = false;
-		unsigned int conversionTableToSize = (1 << (bitCountOriginal - (discardBottomBitCount + discardTopBitCount)));
-		conversionTableTo.resize(conversionTableToSize, 0);
+		_useMethodConversionTableTo = false;
+		unsigned int conversionTableToSize = (1 << (_bitCountOriginal - (_discardBottomBitCount + _discardTopBitCount)));
+		_conversionTableTo.resize(conversionTableToSize, 0);
 		unsigned int nextNumber = 0;
 		for(unsigned int i = 0; i < conversionTableToSize; ++i)
 		{
-			conversionTableTo[i] = ConvertTo(nextNumber);
-			nextNumber += (1 << discardBottomBitCount);
+			_conversionTableTo[i] = ConvertTo(nextNumber);
+			nextNumber += (1 << _discardBottomBitCount);
 		}
-		useMethodConversionTableTo = true;
+		_useMethodConversionTableTo = true;
 	}
-	if(useMethodConversionTableFrom)
+	if(_useMethodConversionTableFrom)
 	{
-		useMethodConversionTableFrom = false;
-		unsigned int conversionTableFromSize = (1 << (bitCountConverted - (insertBottomBitCount + insertTopBitCount)));
-		conversionTableFrom.resize(conversionTableFromSize, 0);
+		_useMethodConversionTableFrom = false;
+		unsigned int conversionTableFromSize = (1 << (_bitCountConverted - (_insertBottomBitCount + _insertTopBitCount)));
+		_conversionTableFrom.resize(conversionTableFromSize, 0);
 		unsigned int nextNumber = 0;
 		for(unsigned int i = 0; i < conversionTableFromSize; ++i)
 		{
-			conversionTableFrom[i] = ConvertFrom(nextNumber);
-			nextNumber += (1 << insertBottomBitCount);
+			_conversionTableFrom[i] = ConvertFrom(nextNumber);
+			nextNumber += (1 << _insertBottomBitCount);
 		}
-		useMethodConversionTableFrom = true;
+		_useMethodConversionTableFrom = true;
 	}
 
 	return true;
@@ -294,22 +294,22 @@ unsigned int DataRemapTable::ConvertTo(unsigned int sourceData) const
 {
 	unsigned int result = 0;
 
-	if(useMethodConversionTableTo)
+	if(_useMethodConversionTableTo)
 	{
-		result = conversionTableTo[(sourceData & bitMaskOriginal) >> discardBottomBitCount];
+		result = _conversionTableTo[(sourceData & _bitMaskOriginal) >> _discardBottomBitCount];
 	}
-	else if(useMethodShiftAndMask)
+	else if(_useMethodShiftAndMask)
 	{
-		result = ((sourceData & bitMaskOriginal) >> discardBottomBitCount) << insertBottomBitCount;
-		result |= forcedSetBitMaskInConverted;
+		result = ((sourceData & _bitMaskOriginal) >> _discardBottomBitCount) << _insertBottomBitCount;
+		result |= _forcedSetBitMaskInConverted;
 	}
 	else
 	{
-		for(unsigned int i = 0; i < dataBitMappingsSize; ++i)
+		for(unsigned int i = 0; i < _dataBitMappingsSize; ++i)
 		{
-			result |= ((sourceData & dataBitMappings[i].bitMaskOriginal) != 0)? dataBitMappings[i].bitMaskConverted: 0;
+			result |= ((sourceData & _dataBitMappings[i].bitMaskOriginal) != 0)? _dataBitMappings[i].bitMaskConverted: 0;
 		}
-		result |= forcedSetBitMaskInConverted;
+		result |= _forcedSetBitMaskInConverted;
 	}
 
 	return result;
@@ -320,19 +320,19 @@ unsigned int DataRemapTable::ConvertFrom(unsigned int sourceData) const
 {
 	unsigned int result = 0;
 
-	if(useMethodConversionTableFrom)
+	if(_useMethodConversionTableFrom)
 	{
-		result = conversionTableFrom[(sourceData & bitMaskConverted) >> insertBottomBitCount];
+		result = _conversionTableFrom[(sourceData & _bitMaskConverted) >> _insertBottomBitCount];
 	}
-	else if(useMethodShiftAndMask)
+	else if(_useMethodShiftAndMask)
 	{
-		result = ((sourceData >> insertBottomBitCount) << discardBottomBitCount) & bitMaskOriginal;
+		result = ((sourceData >> _insertBottomBitCount) << _discardBottomBitCount) & _bitMaskOriginal;
 	}
 	else
 	{
-		for(unsigned int i = 0; i < dataBitMappingsSize; ++i)
+		for(unsigned int i = 0; i < _dataBitMappingsSize; ++i)
 		{
-			result |= ((sourceData & dataBitMappings[i].bitMaskConverted) != 0)? dataBitMappings[i].bitMaskOriginal: 0;
+			result |= ((sourceData & _dataBitMappings[i].bitMaskConverted) != 0)? _dataBitMappings[i].bitMaskOriginal: 0;
 		}
 	}
 

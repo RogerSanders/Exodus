@@ -19,22 +19,22 @@ public:
 	virtual Marshal::Ret<std::wstring> GetDeviceComments() const;
 
 	//Setters
-	virtual void SetDeviceSettings(AllocatorPointer aAllocator, DestructorPointer aDestructor, const Marshal::In<std::wstring>& adeviceClassName, const Marshal::In<std::wstring>& adeviceImplementationName, unsigned int adeviceVersionNo, const Marshal::In<std::wstring>& adeviceCopyright, const Marshal::In<std::wstring>& adeviceComments);
-	virtual void SetDeviceAllocators(AllocatorPointer aAllocator, DestructorPointer aDestructor);
-	virtual void SetDeviceClassName(const Marshal::In<std::wstring>& adeviceClassName);
-	virtual void SetDeviceImplementationName(const Marshal::In<std::wstring>& adeviceImplementationName);
-	virtual void SetDeviceVersionNo(unsigned int adeviceVersionNo);
-	virtual void SetDeviceCopyright(const Marshal::In<std::wstring>& adeviceCopyright);
-	virtual void SetDeviceComments(const Marshal::In<std::wstring>& adeviceComments);
+	virtual void SetDeviceSettings(AllocatorPointer allocator, DestructorPointer destructor, const Marshal::In<std::wstring>& deviceClassName, const Marshal::In<std::wstring>& deviceImplementationName, unsigned int deviceVersionNo, const Marshal::In<std::wstring>& deviceCopyright, const Marshal::In<std::wstring>& deviceComments);
+	virtual void SetDeviceAllocators(AllocatorPointer allocator, DestructorPointer destructor);
+	virtual void SetDeviceClassName(const Marshal::In<std::wstring>& deviceClassName);
+	virtual void SetDeviceImplementationName(const Marshal::In<std::wstring>& deviceImplementationName);
+	virtual void SetDeviceVersionNo(unsigned int deviceVersionNo);
+	virtual void SetDeviceCopyright(const Marshal::In<std::wstring>& deviceCopyright);
+	virtual void SetDeviceComments(const Marshal::In<std::wstring>& deviceComments);
 
 private:
-	AllocatorPointer Allocator;
-	DestructorPointer Destructor;
-	std::wstring className;
-	std::wstring implementationName;
-	unsigned int versionNo;
-	std::wstring copyright;
-	std::wstring comments;
+	AllocatorPointer _allocator;
+	DestructorPointer _destructor;
+	std::wstring _className;
+	std::wstring _implementationName;
+	unsigned int _versionNo;
+	std::wstring _copyright;
+	std::wstring _comments;
 };
 
 #endif

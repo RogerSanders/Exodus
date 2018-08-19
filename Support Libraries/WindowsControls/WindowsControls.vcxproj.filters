@@ -77,18 +77,6 @@
     <ClInclude Include="DashboardWindow.h">
       <Filter>DashboardWindow</Filter>
     </ClInclude>
-    <ClInclude Include="Resources\AutoHideCursor_Down.cur.h">
-      <Filter>Resources</Filter>
-    </ClInclude>
-    <ClInclude Include="Resources\AutoHideCursor_Left.cur.h">
-      <Filter>Resources</Filter>
-    </ClInclude>
-    <ClInclude Include="Resources\AutoHideCursor_Right.cur.h">
-      <Filter>Resources</Filter>
-    </ClInclude>
-    <ClInclude Include="Resources\AutoHideCursor_Up.cur.h">
-      <Filter>Resources</Filter>
-    </ClInclude>
     <ClInclude Include="WC_LayoutGrid.h">
       <Filter>WC_LayoutGrid</Filter>
     </ClInclude>
@@ -103,6 +91,30 @@
     </ClInclude>
     <ClInclude Include="IDockingWindowDropTargetInfo.h">
       <Filter>IDockingWindow</Filter>
+    </ClInclude>
+    <ClInclude Include="Resources\AutoHideCursorUpResourceData.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Resources\AutoHideCursorRightResourceData.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Resources\AutoHideCursorLeftResourceData.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Resources\AutoHideCursorDownResourceData.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Resources\AutoHideCursorDownExpandResourceData.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Resources\AutoHideCursorLeftExpandResourceData.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Resources\AutoHideCursorRightExpandResourceData.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Resources\AutoHideCursorUpExpandResourceData.h">
+      <Filter>Resources</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -9,7 +9,7 @@ class SettingsView :public ViewBase
 {
 public:
 	//Constructors
-	SettingsView(IUIManager& auiManager, SettingsViewPresenter& apresenter, ExodusInterface& amodel);
+	SettingsView(IUIManager& uiManager, SettingsViewPresenter& presenter, ExodusInterface& model);
 
 protected:
 	//Member window procedure
@@ -22,8 +22,8 @@ private:
 	INT_PTR msgWM_COMMAND(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
 private:
-	SettingsViewPresenter& presenter;
-	ExodusInterface& model;
+	SettingsViewPresenter& _presenter;
+	ExodusInterface& _model;
 };
 
 #endif

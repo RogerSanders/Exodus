@@ -3,8 +3,8 @@ namespace Stream {
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-ViewBinary::ViewBinary(IStreamNonSeekable& astream)
-:stream(astream), byteOrder(IStream::ByteOrder::Platform), noErrorState(true)
+ViewBinary::ViewBinary(IStreamNonSeekable& stream)
+:_stream(stream), _byteOrder(IStream::ByteOrder::Platform), _noErrorState(true)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -12,31 +12,31 @@ ViewBinary::ViewBinary(IStreamNonSeekable& astream)
 //----------------------------------------------------------------------------------------
 bool ViewBinary::NoErrorsOccurred() const
 {
-	return noErrorState;
+	return _noErrorState;
 }
 
 //----------------------------------------------------------------------------------------
 void ViewBinary::ClearErrorState()
 {
-	noErrorState = true;
+	_noErrorState = true;
 }
 
 //----------------------------------------------------------------------------------------
 bool ViewBinary::IsAtEnd() const
 {
-	return stream.IsAtEnd();
+	return _stream.IsAtEnd();
 }
 
 //----------------------------------------------------------------------------------------
 IStream::ByteOrder ViewBinary::GetViewByteOrder() const
 {
-	return byteOrder;
+	return _byteOrder;
 }
 
 //----------------------------------------------------------------------------------------
-void ViewBinary::SetViewByteOrder(IStream::ByteOrder abyteOrder)
+void ViewBinary::SetViewByteOrder(IStream::ByteOrder byteOrder)
 {
-	byteOrder = abyteOrder;
+	_byteOrder = byteOrder;
 }
 
 //----------------------------------------------------------------------------------------
@@ -44,14 +44,14 @@ void ViewBinary::SetViewByteOrder(IStream::ByteOrder abyteOrder)
 //----------------------------------------------------------------------------------------
 template<class T> ViewBinary& ViewBinary::operator>>(T& data)
 {
-	noErrorState &= stream.ReadData(byteOrder, data);
+	_noErrorState &= _stream.ReadData(_byteOrder, data);
 	return *this;
 }
 
 //----------------------------------------------------------------------------------------
 template<class T> ViewBinary& ViewBinary::operator<<(const T& data)
 {
-	noErrorState &= stream.WriteData(byteOrder, data);
+	_noErrorState &= _stream.WriteData(_byteOrder, data);
 	return *this;
 }
 
@@ -69,112 +69,112 @@ template<class T> ViewBinary& ViewBinary::operator>>(std::vector<T>& data)
 //----------------------------------------------------------------------------------------
 ViewBinary& ViewBinary::operator>>(std::vector<bool>& data)
 {
-	noErrorState &= stream.ReadData(byteOrder, data, data.size());
+	_noErrorState &= _stream.ReadData(_byteOrder, data, data.size());
 	return *this;
 }
 
 //----------------------------------------------------------------------------------------
 ViewBinary& ViewBinary::operator>>(std::vector<char>& data)
 {
-	noErrorState &= stream.ReadData(byteOrder, data, data.size());
+	_noErrorState &= _stream.ReadData(_byteOrder, data, data.size());
 	return *this;
 }
 
 //----------------------------------------------------------------------------------------
 ViewBinary& ViewBinary::operator>>(std::vector<signed char>& data)
 {
-	noErrorState &= stream.ReadData(byteOrder, data, data.size());
+	_noErrorState &= _stream.ReadData(_byteOrder, data, data.size());
 	return *this;
 }
 
 //----------------------------------------------------------------------------------------
 ViewBinary& ViewBinary::operator>>(std::vector<unsigned char>& data)
 {
-	noErrorState &= stream.ReadData(byteOrder, data, data.size());
+	_noErrorState &= _stream.ReadData(_byteOrder, data, data.size());
 	return *this;
 }
 
 //----------------------------------------------------------------------------------------
 ViewBinary& ViewBinary::operator>>(std::vector<wchar_t>& data)
 {
-	noErrorState &= stream.ReadData(byteOrder, data, data.size());
+	_noErrorState &= _stream.ReadData(_byteOrder, data, data.size());
 	return *this;
 }
 
 //----------------------------------------------------------------------------------------
 ViewBinary& ViewBinary::operator>>(std::vector<short>& data)
 {
-	noErrorState &= stream.ReadData(byteOrder, data, data.size());
+	_noErrorState &= _stream.ReadData(_byteOrder, data, data.size());
 	return *this;
 }
 
 //----------------------------------------------------------------------------------------
 ViewBinary& ViewBinary::operator>>(std::vector<unsigned short>& data)
 {
-	noErrorState &= stream.ReadData(byteOrder, data, data.size());
+	_noErrorState &= _stream.ReadData(_byteOrder, data, data.size());
 	return *this;
 }
 
 //----------------------------------------------------------------------------------------
 ViewBinary& ViewBinary::operator>>(std::vector<int>& data)
 {
-	noErrorState &= stream.ReadData(byteOrder, data, data.size());
+	_noErrorState &= _stream.ReadData(_byteOrder, data, data.size());
 	return *this;
 }
 
 //----------------------------------------------------------------------------------------
 ViewBinary& ViewBinary::operator>>(std::vector<unsigned int>& data)
 {
-	noErrorState &= stream.ReadData(byteOrder, data, data.size());
+	_noErrorState &= _stream.ReadData(_byteOrder, data, data.size());
 	return *this;
 }
 
 //----------------------------------------------------------------------------------------
 ViewBinary& ViewBinary::operator>>(std::vector<long>& data)
 {
-	noErrorState &= stream.ReadData(byteOrder, data, data.size());
+	_noErrorState &= _stream.ReadData(_byteOrder, data, data.size());
 	return *this;
 }
 
 //----------------------------------------------------------------------------------------
 ViewBinary& ViewBinary::operator>>(std::vector<unsigned long>& data)
 {
-	noErrorState &= stream.ReadData(byteOrder, data, data.size());
+	_noErrorState &= _stream.ReadData(_byteOrder, data, data.size());
 	return *this;
 }
 
 //----------------------------------------------------------------------------------------
 ViewBinary& ViewBinary::operator>>(std::vector<long long>& data)
 {
-	noErrorState &= stream.ReadData(byteOrder, data, data.size());
+	_noErrorState &= _stream.ReadData(_byteOrder, data, data.size());
 	return *this;
 }
 
 //----------------------------------------------------------------------------------------
 ViewBinary& ViewBinary::operator>>(std::vector<unsigned long long>& data)
 {
-	noErrorState &= stream.ReadData(byteOrder, data, data.size());
+	_noErrorState &= _stream.ReadData(_byteOrder, data, data.size());
 	return *this;
 }
 
 //----------------------------------------------------------------------------------------
 ViewBinary& ViewBinary::operator>>(std::vector<float>& data)
 {
-	noErrorState &= stream.ReadData(byteOrder, data, data.size());
+	_noErrorState &= _stream.ReadData(_byteOrder, data, data.size());
 	return *this;
 }
 
 //----------------------------------------------------------------------------------------
 ViewBinary& ViewBinary::operator>>(std::vector<double>& data)
 {
-	noErrorState &= stream.ReadData(byteOrder, data, data.size());
+	_noErrorState &= _stream.ReadData(_byteOrder, data, data.size());
 	return *this;
 }
 
 //----------------------------------------------------------------------------------------
 ViewBinary& ViewBinary::operator>>(std::vector<long double>& data)
 {
-	noErrorState &= stream.ReadData(byteOrder, data, data.size());
+	_noErrorState &= _stream.ReadData(_byteOrder, data, data.size());
 	return *this;
 }
 
@@ -192,112 +192,112 @@ template<class T> ViewBinary& ViewBinary::operator<<(const std::vector<T>& data)
 //----------------------------------------------------------------------------------------
 ViewBinary& ViewBinary::operator<<(const std::vector<bool>& data)
 {
-	noErrorState &= stream.WriteData(byteOrder, data);
+	_noErrorState &= _stream.WriteData(_byteOrder, data);
 	return *this;
 }
 
 //----------------------------------------------------------------------------------------
 ViewBinary& ViewBinary::operator<<(const std::vector<char>& data)
 {
-	noErrorState &= stream.WriteData(byteOrder, data);
+	_noErrorState &= _stream.WriteData(_byteOrder, data);
 	return *this;
 }
 
 //----------------------------------------------------------------------------------------
 ViewBinary& ViewBinary::operator<<(const std::vector<signed char>& data)
 {
-	noErrorState &= stream.WriteData(byteOrder, data);
+	_noErrorState &= _stream.WriteData(_byteOrder, data);
 	return *this;
 }
 
 //----------------------------------------------------------------------------------------
 ViewBinary& ViewBinary::operator<<(const std::vector<unsigned char>& data)
 {
-	noErrorState &= stream.WriteData(byteOrder, data);
+	_noErrorState &= _stream.WriteData(_byteOrder, data);
 	return *this;
 }
 
 //----------------------------------------------------------------------------------------
 ViewBinary& ViewBinary::operator<<(const std::vector<wchar_t>& data)
 {
-	noErrorState &= stream.WriteData(byteOrder, data);
+	_noErrorState &= _stream.WriteData(_byteOrder, data);
 	return *this;
 }
 
 //----------------------------------------------------------------------------------------
 ViewBinary& ViewBinary::operator<<(const std::vector<short>& data)
 {
-	noErrorState &= stream.WriteData(byteOrder, data);
+	_noErrorState &= _stream.WriteData(_byteOrder, data);
 	return *this;
 }
 
 //----------------------------------------------------------------------------------------
 ViewBinary& ViewBinary::operator<<(const std::vector<unsigned short>& data)
 {
-	noErrorState &= stream.WriteData(byteOrder, data);
+	_noErrorState &= _stream.WriteData(_byteOrder, data);
 	return *this;
 }
 
 //----------------------------------------------------------------------------------------
 ViewBinary& ViewBinary::operator<<(const std::vector<int>& data)
 {
-	noErrorState &= stream.WriteData(byteOrder, data);
+	_noErrorState &= _stream.WriteData(_byteOrder, data);
 	return *this;
 }
 
 //----------------------------------------------------------------------------------------
 ViewBinary& ViewBinary::operator<<(const std::vector<unsigned int>& data)
 {
-	noErrorState &= stream.WriteData(byteOrder, data);
+	_noErrorState &= _stream.WriteData(_byteOrder, data);
 	return *this;
 }
 
 //----------------------------------------------------------------------------------------
 ViewBinary& ViewBinary::operator<<(const std::vector<long>& data)
 {
-	noErrorState &= stream.WriteData(byteOrder, data);
+	_noErrorState &= _stream.WriteData(_byteOrder, data);
 	return *this;
 }
 
 //----------------------------------------------------------------------------------------
 ViewBinary& ViewBinary::operator<<(const std::vector<unsigned long>& data)
 {
-	noErrorState &= stream.WriteData(byteOrder, data);
+	_noErrorState &= _stream.WriteData(_byteOrder, data);
 	return *this;
 }
 
 //----------------------------------------------------------------------------------------
 ViewBinary& ViewBinary::operator<<(const std::vector<long long>& data)
 {
-	noErrorState &= stream.WriteData(byteOrder, data);
+	_noErrorState &= _stream.WriteData(_byteOrder, data);
 	return *this;
 }
 
 //----------------------------------------------------------------------------------------
 ViewBinary& ViewBinary::operator<<(const std::vector<unsigned long long>& data)
 {
-	noErrorState &= stream.WriteData(byteOrder, data);
+	_noErrorState &= _stream.WriteData(_byteOrder, data);
 	return *this;
 }
 
 //----------------------------------------------------------------------------------------
 ViewBinary& ViewBinary::operator<<(const std::vector<float>& data)
 {
-	noErrorState &= stream.WriteData(byteOrder, data);
+	_noErrorState &= _stream.WriteData(_byteOrder, data);
 	return *this;
 }
 
 //----------------------------------------------------------------------------------------
 ViewBinary& ViewBinary::operator<<(const std::vector<double>& data)
 {
-	noErrorState &= stream.WriteData(byteOrder, data);
+	_noErrorState &= _stream.WriteData(_byteOrder, data);
 	return *this;
 }
 
 //----------------------------------------------------------------------------------------
 ViewBinary& ViewBinary::operator<<(const std::vector<long double>& data)
 {
-	noErrorState &= stream.WriteData(byteOrder, data);
+	_noErrorState &= _stream.WriteData(_byteOrder, data);
 	return *this;
 }
 

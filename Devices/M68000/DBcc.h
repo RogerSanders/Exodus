@@ -22,7 +22,7 @@ public:
 
 	virtual Disassembly M68000Disassemble(const M68000::LabelSubstitutionSettings& labelSettings) const
 	{
-		return Disassembly(L"DB" + DisassembleConditionCode(conditionCode), source.Disassemble(labelSettings) + L", " + target.DisassembleImmediateAsPCDisplacement(labelSettings), target.DisassembleImmediateAsPCDisplacementTargetAddressString());
+		return Disassembly(L"DB" + DisassembleConditionCode(_conditionCode), _source.Disassemble(labelSettings) + L", " + _target.DisassembleImmediateAsPCDisplacement(labelSettings), _target.DisassembleImmediateAsPCDisplacementTargetAddressString());
 	}
 
 	virtual void M68000Decode(const M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)
@@ -34,12 +34,12 @@ public:
 //	|---------------------------------------------------------------|
 //	|                      16 BITS OFFSET (d16)                     |
 //	-----------------------------------------------------------------
-		conditionCode = (ConditionCode)data.GetDataSegment(8, 4);
+		_conditionCode = (ConditionCode)data.GetDataSegment(8, 4);
 
 		//DBcc	Dn,<label>
-		source.BuildDataDirect(BITCOUNT_WORD, location + GetInstructionSize(), data.GetDataSegment(0, 3));
-		target.BuildImmediateData(BITCOUNT_WORD, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
-		AddInstructionSize(target.ExtensionSize());
+		_source.BuildDataDirect(BITCOUNT_WORD, location + GetInstructionSize(), data.GetDataSegment(0, 3));
+		_target.BuildImmediateData(BITCOUNT_WORD, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
+		AddInstructionSize(_target.ExtensionSize());
 	}
 
 	virtual ExecuteTime M68000Execute(M68000* cpu, const M68000Long& location) const
@@ -48,23 +48,23 @@ public:
 		M68000Long newPC;
 
 		//Test the condition code
-		bool result = ConditionCodeTrue(cpu, conditionCode);
+		bool result = ConditionCodeTrue(cpu, _conditionCode);
 
 		ExecuteTime additionalCycles;
 		if(!result)
 		{
 			//If the condition is false, prepare for another loop
 			M68000Word counter;
-			additionalTime += source.Read(cpu, counter, GetInstructionRegister());
+			additionalTime += _source.Read(cpu, counter, GetInstructionRegister());
 			--counter;
-			additionalTime += source.Write(cpu, counter, GetInstructionRegister());
+			additionalTime += _source.Write(cpu, counter, GetInstructionRegister());
 			if(counter != counter.GetMaxValue())
 			{
 				//The counter has been decremented and no overflow has occurred. Branch
-				//to the target location and run the loop again.
+				//to the _target location and run the loop again.
 				M68000Word offset;
-				additionalTime += target.Read(cpu, offset, GetInstructionRegister());
-				newPC = target.GetSavedPC() + M68000Long(offset.SignExtend(BITCOUNT_LONG));
+				additionalTime += _target.Read(cpu, offset, GetInstructionRegister());
+				newPC = _target.GetSavedPC() + M68000Long(offset.SignExtend(BITCOUNT_LONG));
 				additionalCycles.Set(10, 2, 0);
 			}
 			else
@@ -94,21 +94,21 @@ public:
 		//executing this opcode.
 		undeterminedResultantPCLocation = false;
 		unsigned int nextOpcodeAddress = GetInstructionLocation().GetData() + GetInstructionSize();
-		unsigned int branchOpcodeAddress = (target.GetSavedPC() + target.ExtractProcessedImmediateData()).GetData();
+		unsigned int branchOpcodeAddress = (_target.GetSavedPC() + _target.ExtractProcessedImmediateData()).GetData();
 		resultantPCLocations.insert(nextOpcodeAddress);
 		resultantPCLocations.insert(branchOpcodeAddress);
 	}
 
 	virtual void GetLabelTargetLocations(std::set<unsigned int>& labelTargetLocations) const
 	{
-		unsigned int branchOpcodeAddress = (target.GetSavedPC() + target.ExtractProcessedImmediateData()).GetData();
+		unsigned int branchOpcodeAddress = (_target.GetSavedPC() + _target.ExtractProcessedImmediateData()).GetData();
 		labelTargetLocations.insert(branchOpcodeAddress);
 	}
 
 private:
-	ConditionCode conditionCode;
-	EffectiveAddress source;
-	EffectiveAddress target;
+	ConditionCode _conditionCode;
+	EffectiveAddress _source;
+	EffectiveAddress _target;
 };
 
 } //Close namespace M68000

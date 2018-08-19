@@ -357,9 +357,9 @@ struct Image::BITMAPV3INFOHEADER
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-Image::Image(unsigned int aimageWidth, unsigned int aimageHeight, PixelFormat apixelFormat, DataFormat adataFormat)
+Image::Image(unsigned int imageWidth, unsigned int imageHeight, PixelFormat pixelFormat, DataFormat dataFormat)
 {
-	SetImageFormat(aimageWidth, aimageHeight, apixelFormat, adataFormat);
+	SetImageFormat(imageWidth, imageHeight, pixelFormat, dataFormat);
 }
 
 //----------------------------------------------------------------------------------------
@@ -367,17 +367,17 @@ Image::Image(unsigned int aimageWidth, unsigned int aimageHeight, PixelFormat ap
 //----------------------------------------------------------------------------------------
 void Image::GetRawPixelDataInternal(unsigned int posX, unsigned int posY, unsigned int planeNo, PixelData& data) const
 {
-	unsigned int dataPos = ((posX + (posY * imageWidth)) * dataPlaneCount) + planeNo;
-	DebugAssert(dataPos < imageData.size());
-	data = imageData[dataPos];
+	unsigned int dataPos = ((posX + (posY * _imageWidth)) * _dataPlaneCount) + planeNo;
+	DebugAssert(dataPos < _imageData.size());
+	data = _imageData[dataPos];
 }
 
 //----------------------------------------------------------------------------------------
 void Image::SetRawPixelDataInternal(unsigned int posX, unsigned int posY, unsigned int planeNo, PixelData data)
 {
-	unsigned int dataPos = ((posX + (posY * imageWidth)) * dataPlaneCount) + planeNo;
-	DebugAssert(dataPos < imageData.size());
-	imageData[dataPos] = data;
+	unsigned int dataPos = ((posX + (posY * _imageWidth)) * _dataPlaneCount) + planeNo;
+	DebugAssert(dataPos < _imageData.size());
+	_imageData[dataPos] = data;
 }
 
 //----------------------------------------------------------------------------------------
@@ -385,7 +385,7 @@ void Image::ReadPixelDataInternal(unsigned int posX, unsigned int posY, unsigned
 {
 	PixelData pixelData;
 	GetRawPixelDataInternal(posX, posY, planeNo, pixelData);
-	switch(dataFormat)
+	switch(_dataFormat)
 	{
 	case DATAFORMAT_FLOAT:
 		data = pixelData.dataFloat;
@@ -404,7 +404,7 @@ void Image::ReadPixelDataInternal(unsigned int posX, unsigned int posY, unsigned
 {
 	PixelData pixelData;
 	GetRawPixelDataInternal(posX, posY, planeNo, pixelData);
-	switch(dataFormat)
+	switch(_dataFormat)
 	{
 	case DATAFORMAT_FLOAT:
 		data = (unsigned char)((pixelData.dataFloat * 255.0f) + 0.5f);
@@ -424,7 +424,7 @@ void Image::ReadPixelDataInternal(unsigned int posX, unsigned int posY, unsigned
 	unsigned int maxValue = (((1 << (bitCount - 1)) - 1) << 1) | 0x01;
 	PixelData pixelData;
 	GetRawPixelDataInternal(posX, posY, planeNo, pixelData);
-	switch(dataFormat)
+	switch(_dataFormat)
 	{
 	case DATAFORMAT_FLOAT:
 		data = (unsigned int)(((double)pixelData.dataFloat * ((double)maxValue / 1.0)) + 0.5f);
@@ -442,7 +442,7 @@ void Image::ReadPixelDataInternal(unsigned int posX, unsigned int posY, unsigned
 void Image::WritePixelDataInternal(unsigned int posX, unsigned int posY, unsigned int planeNo, float data)
 {
 	PixelData pixelData;
-	switch(dataFormat)
+	switch(_dataFormat)
 	{
 	case DATAFORMAT_FLOAT:
 		pixelData.dataFloat = data;
@@ -461,7 +461,7 @@ void Image::WritePixelDataInternal(unsigned int posX, unsigned int posY, unsigne
 void Image::WritePixelDataInternal(unsigned int posX, unsigned int posY, unsigned int planeNo, unsigned char data)
 {
 	PixelData pixelData;
-	switch(dataFormat)
+	switch(_dataFormat)
 	{
 	case DATAFORMAT_FLOAT:
 		pixelData.dataFloat = ((float)data / 255.0f);
@@ -481,7 +481,7 @@ void Image::WritePixelDataInternal(unsigned int posX, unsigned int posY, unsigne
 {
 	unsigned int maxValue = (((1 << (bitCount - 1)) - 1) << 1) | 0x01;
 	PixelData pixelData;
-	switch(dataFormat)
+	switch(_dataFormat)
 	{
 	case DATAFORMAT_FLOAT:
 		pixelData.dataFloat = (float)((double)data * (1.0 / (double)maxValue));

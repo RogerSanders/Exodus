@@ -25,7 +25,7 @@ public:
 	inline SizeType GetSavedSampleCount() const;
 
 	//File binding
-	inline bool Open(const std::wstring& filename, OpenMode openMode, CreateMode createMode, SizeType abufferSize = 8192);
+	inline bool Open(const std::wstring& filename, OpenMode openMode, CreateMode createMode, SizeType bufferSize = 8192);
 	inline void Close();
 	inline bool IsOpen() const;
 
@@ -116,20 +116,20 @@ private:
 
 private:
 	//File handling
-	bool fileOpen;
-	HMMIO mmioHandle;
-	MMCKINFO riffChunk;
-	MMCKINFO fmtChunk;
-	MMCKINFO dataChunk;
-	WAVEFORMATEX waveHeader;
-	bool waveHeaderLoaded;
-	SizeType savedSampleCount;
+	bool _fileOpen;
+	HMMIO _mmioHandle;
+	MMCKINFO _riffChunk;
+	MMCKINFO _fmtChunk;
+	MMCKINFO _dataChunk;
+	WAVEFORMATEX _waveHeader;
+	bool _waveHeaderLoaded;
+	SizeType _savedSampleCount;
 
 	//Data buffering
-	unsigned char* fileBuffer;
-	SizeType bufferSize;
-	SizeType bufferPosOffset;
-	SizeType bytesRemainingInBuffer;
+	unsigned char* _fileBuffer;
+	SizeType _bufferSize;
+	SizeType _bufferPosOffset;
+	SizeType __bytesRemainingInBuffer;
 };
 
 } //Close namespace Stream

@@ -6,13 +6,13 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 GenericAccessDataValueFloat::GenericAccessDataValueFloat(float value)
-:dataValue(value)
+:_dataValue(value)
 {
-	displayMode = FloatDisplayMode::Fixed;
-	minWholeNumberChars = 0;
-	minFractionalNumberChars = 0;
-	minValue = std::numeric_limits<float>::min();
-	maxValue = std::numeric_limits<float>::max();
+	_displayMode = FloatDisplayMode::Fixed;
+	_minWholeNumberChars = 0;
+	_minFractionalNumberChars = 0;
+	_minValue = std::numeric_limits<float>::min();
+	_maxValue = std::numeric_limits<float>::max();
 }
 
 //----------------------------------------------------------------------------------------
@@ -36,15 +36,15 @@ GenericAccessDataValueFloat::DataType GenericAccessDataValueFloat::GetType() con
 //----------------------------------------------------------------------------------------
 float GenericAccessDataValueFloat::GetValue() const
 {
-	return dataValue;
+	return _dataValue;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> GenericAccessDataValueFloat::GetValueString() const
 {
 	std::wstring result;
-	bool useScientificNotation = (displayMode == FloatDisplayMode::Scientific);
-	FloatToString(dataValue, result, useScientificNotation, minFractionalNumberChars, minWholeNumberChars);
+	bool useScientificNotation = (_displayMode == FloatDisplayMode::Scientific);
+	FloatToString(_dataValue, result, useScientificNotation, _minFractionalNumberChars, _minWholeNumberChars);
 	return result;
 }
 
@@ -53,7 +53,7 @@ Marshal::Ret<std::wstring> GenericAccessDataValueFloat::GetValueString() const
 //----------------------------------------------------------------------------------------
 bool GenericAccessDataValueFloat::SetValueFloat(float value)
 {
-	dataValue = value;
+	_dataValue = value;
 	ApplyLimitSettingsToCurrentValue();
 	return true;
 }
@@ -80,37 +80,37 @@ bool GenericAccessDataValueFloat::SetValueString(const Marshal::In<std::wstring>
 //----------------------------------------------------------------------------------------
 GenericAccessDataValueFloat::FloatDisplayMode GenericAccessDataValueFloat::GetDisplayMode() const
 {
-	return displayMode;
+	return _displayMode;
 }
 
 //----------------------------------------------------------------------------------------
 void GenericAccessDataValueFloat::SetDisplayMode(FloatDisplayMode state)
 {
-	displayMode = state;
+	_displayMode = state;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int GenericAccessDataValueFloat::GetMinWholeNumberChars() const
 {
-	return minWholeNumberChars;
+	return _minWholeNumberChars;
 }
 
 //----------------------------------------------------------------------------------------
 void GenericAccessDataValueFloat::SetMinWholeNumberChars(unsigned int state)
 {
-	minWholeNumberChars = state;
+	_minWholeNumberChars = state;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int GenericAccessDataValueFloat::GetMinFractionalNumberChars() const
 {
-	return minFractionalNumberChars;
+	return _minFractionalNumberChars;
 }
 
 //----------------------------------------------------------------------------------------
 void GenericAccessDataValueFloat::SetMinFractionalNumberChars(unsigned int state)
 {
-	minFractionalNumberChars = state;
+	_minFractionalNumberChars = state;
 }
 
 //----------------------------------------------------------------------------------------
@@ -118,25 +118,25 @@ void GenericAccessDataValueFloat::SetMinFractionalNumberChars(unsigned int state
 //----------------------------------------------------------------------------------------
 float GenericAccessDataValueFloat::GetMinValue() const
 {
-	return minValue;
+	return _minValue;
 }
 
 //----------------------------------------------------------------------------------------
 void GenericAccessDataValueFloat::SetMinValue(float state)
 {
-	minValue = state;
+	_minValue = state;
 }
 
 //----------------------------------------------------------------------------------------
 float GenericAccessDataValueFloat::GetMaxValue() const
 {
-	return maxValue;
+	return _maxValue;
 }
 
 //----------------------------------------------------------------------------------------
 void GenericAccessDataValueFloat::SetMaxValue(float state)
 {
-	maxValue = state;
+	_maxValue = state;
 }
 
 //----------------------------------------------------------------------------------------
@@ -144,6 +144,6 @@ void GenericAccessDataValueFloat::SetMaxValue(float state)
 //----------------------------------------------------------------------------------------
 void GenericAccessDataValueFloat::ApplyLimitSettingsToCurrentValue()
 {
-	dataValue = (dataValue < minValue)? minValue: dataValue;
-	dataValue = (dataValue > maxValue)? maxValue: dataValue;
+	_dataValue = (_dataValue < _minValue)? _minValue: _dataValue;
+	_dataValue = (_dataValue > _maxValue)? _maxValue: _dataValue;
 }

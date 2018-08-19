@@ -8,18 +8,18 @@ struct Hex
 {
 public:
 	//Constructors
-	inline Hex(unsigned int alength = 0);
+	inline Hex(unsigned int length = 0);
 
 	//Character length functions
 	inline unsigned int GetLength() const;
-	inline void SetLength(unsigned int alength);
+	inline void SetLength(unsigned int length);
 
 	//Stream operators
 	friend inline ViewText& operator>>(ViewText& stream, const Hex& object);
 	friend inline ViewText& operator<<(ViewText& stream, const Hex& object);
 
 private:
-	unsigned int length;
+	unsigned int _length;
 };
 
 } //Close namespace Stream

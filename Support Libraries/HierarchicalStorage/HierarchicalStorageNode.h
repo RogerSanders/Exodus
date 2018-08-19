@@ -12,13 +12,13 @@ class HierarchicalStorageNode :public IHierarchicalStorageNode
 public:
 	//Constructors
 	HierarchicalStorageNode();
-	explicit HierarchicalStorageNode(const std::wstring& aname);
+	explicit HierarchicalStorageNode(const std::wstring& name);
 	~HierarchicalStorageNode();
 	void Initialize();
 
 	//Name functions
 	virtual Marshal::Ret<std::wstring> GetName() const;
-	virtual void SetName(const Marshal::In<std::wstring>& aname);
+	virtual void SetName(const Marshal::In<std::wstring>& name);
 
 	//Parent functions
 	virtual IHierarchicalStorageNode& GetParent() const;
@@ -28,7 +28,7 @@ public:
 
 	//Child functions
 	virtual IHierarchicalStorageNode& CreateChild();
-	virtual IHierarchicalStorageNode& CreateChild(const Marshal::In<std::wstring>& aname);
+	virtual IHierarchicalStorageNode& CreateChild(const Marshal::In<std::wstring>& name);
 	virtual void DeleteChild(IHierarchicalStorageNode& node);
 	virtual Marshal::Ret<std::list<IHierarchicalStorageNode*>> GetChildList() const;
 	virtual bool IsChildPresent(const Marshal::In<std::wstring>& name) const;
@@ -46,7 +46,7 @@ public:
 	virtual bool GetBinaryDataPresent() const;
 	virtual void SetBinaryDataPresent(bool state);
 	virtual Marshal::Ret<std::wstring> GetBinaryDataBufferName() const;
-	virtual void SetBinaryDataBufferName(const Marshal::In<std::wstring>& aname);
+	virtual void SetBinaryDataBufferName(const Marshal::In<std::wstring>& name);
 	virtual Stream::IStream& GetBinaryDataBufferStream();
 	virtual bool GetInlineBinaryDataEnabled() const;
 	virtual void SetInlineBinaryDataEnabled(bool state);
@@ -62,7 +62,7 @@ protected:
 
 private:
 	//Parent functions
-	void SetParent(HierarchicalStorageNode* aparent);
+	void SetParent(HierarchicalStorageNode* parent);
 
 private:
 	//Typedefs
@@ -73,14 +73,14 @@ private:
 	typedef std::vector<AttributeListEntry> AttributeList;
 
 private:
-	std::wstring name;
-	HierarchicalStorageNode* parent;
-	ChildList children;
-	AttributeList attributes;
-	bool binaryDataPresent;
-	bool inlineBinaryData;
-	std::wstring binaryDataName;
-	mutable Stream::Buffer dataStream;
+	std::wstring _name;
+	HierarchicalStorageNode* _parent;
+	ChildList _children;
+	AttributeList _attributes;
+	bool _binaryDataPresent;
+	bool _inlineBinaryData;
+	std::wstring _binaryDataName;
+	mutable Stream::Buffer _dataStream;
 };
 
 #endif

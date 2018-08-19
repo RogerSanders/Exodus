@@ -60,619 +60,619 @@ struct Z80::CalculateCELineStateContext
 //----------------------------------------------------------------------------------------
 Z80Byte Z80::GetA() const
 {
-	return Z80Byte(afreg.GetUpperHalf());
+	return Z80Byte(_afreg.GetUpperHalf());
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::GetA(Data& data) const
 {
-	afreg.GetUpperHalf(data);
+	_afreg.GetUpperHalf(data);
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetA(const Z80Byte& data)
 {
-	afreg.SetUpperHalf(data);
+	_afreg.SetUpperHalf(data);
 }
 
 //----------------------------------------------------------------------------------------
 Z80Byte Z80::GetF() const
 {
-	return Z80Byte(afreg.GetLowerHalf());
+	return Z80Byte(_afreg.GetLowerHalf());
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::GetF(Data& data) const
 {
-	afreg.GetLowerHalf(data);
+	_afreg.GetLowerHalf(data);
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetF(const Z80Byte& data)
 {
-	afreg.SetLowerHalf(data);
+	_afreg.SetLowerHalf(data);
 }
 
 //----------------------------------------------------------------------------------------
 Z80Byte Z80::GetB() const
 {
-	return Z80Byte(bcreg.GetUpperHalf());
+	return Z80Byte(_bcreg.GetUpperHalf());
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::GetB(Data& data) const
 {
-	bcreg.GetUpperHalf(data);
+	_bcreg.GetUpperHalf(data);
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetB(const Z80Byte& data)
 {
-	bcreg.SetUpperHalf(data);
+	_bcreg.SetUpperHalf(data);
 }
 
 //----------------------------------------------------------------------------------------
 Z80Byte Z80::GetC() const
 {
-	return Z80Byte(bcreg.GetLowerHalf());
+	return Z80Byte(_bcreg.GetLowerHalf());
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::GetC(Data& data) const
 {
-	bcreg.GetLowerHalf(data);
+	_bcreg.GetLowerHalf(data);
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetC(const Z80Byte& data)
 {
-	bcreg.SetLowerHalf(data);
+	_bcreg.SetLowerHalf(data);
 }
 
 //----------------------------------------------------------------------------------------
 Z80Byte Z80::GetD() const
 {
-	return Z80Byte(dereg.GetUpperHalf());
+	return Z80Byte(_dereg.GetUpperHalf());
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::GetD(Data& data) const
 {
-	dereg.GetUpperHalf(data);
+	_dereg.GetUpperHalf(data);
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetD(const Z80Byte& data)
 {
-	dereg.SetUpperHalf(data);
+	_dereg.SetUpperHalf(data);
 }
 
 //----------------------------------------------------------------------------------------
 Z80Byte Z80::GetE() const
 {
-	return Z80Byte(dereg.GetLowerHalf());
+	return Z80Byte(_dereg.GetLowerHalf());
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::GetE(Data& data) const
 {
-	dereg.GetLowerHalf(data);
+	_dereg.GetLowerHalf(data);
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetE(const Z80Byte& data)
 {
-	dereg.SetLowerHalf(data);
+	_dereg.SetLowerHalf(data);
 }
 
 //----------------------------------------------------------------------------------------
 Z80Byte Z80::GetH() const
 {
-	return Z80Byte(hlreg.GetUpperHalf());
+	return Z80Byte(_hlreg.GetUpperHalf());
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::GetH(Data& data) const
 {
-	hlreg.GetUpperHalf(data);
+	_hlreg.GetUpperHalf(data);
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetH(const Z80Byte& data)
 {
-	hlreg.SetUpperHalf(data);
+	_hlreg.SetUpperHalf(data);
 }
 
 //----------------------------------------------------------------------------------------
 Z80Byte Z80::GetL() const
 {
-	return Z80Byte(hlreg.GetLowerHalf());
+	return Z80Byte(_hlreg.GetLowerHalf());
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::GetL(Data& data) const
 {
-	hlreg.GetLowerHalf(data);
+	_hlreg.GetLowerHalf(data);
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetL(const Z80Byte& data)
 {
-	hlreg.SetLowerHalf(data);
+	_hlreg.SetLowerHalf(data);
 }
 
 //----------------------------------------------------------------------------------------
 Z80Word Z80::GetAF() const
 {
-	return afreg;
+	return _afreg;
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::GetAF(Data& data) const
 {
-	data = afreg;
+	data = _afreg;
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetAF(const Z80Word& data)
 {
-	afreg = data;
+	_afreg = data;
 }
 
 //----------------------------------------------------------------------------------------
 Z80Word Z80::GetBC() const
 {
-	return bcreg;
+	return _bcreg;
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::GetBC(Data& data) const
 {
-	data = bcreg;
+	data = _bcreg;
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetBC(const Z80Word& data)
 {
-	bcreg = data;
+	_bcreg = data;
 }
 
 //----------------------------------------------------------------------------------------
 Z80Word Z80::GetDE() const
 {
-	return dereg;
+	return _dereg;
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::GetDE(Data& data) const
 {
-	data = dereg;
+	data = _dereg;
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetDE(const Z80Word& data)
 {
-	dereg = data;
+	_dereg = data;
 }
 
 //----------------------------------------------------------------------------------------
 Z80Word Z80::GetHL() const
 {
-	return hlreg;
+	return _hlreg;
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::GetHL(Data& data) const
 {
-	data = hlreg;
+	data = _hlreg;
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetHL(const Z80Word& data)
 {
-	hlreg = data;
+	_hlreg = data;
 }
 
 //----------------------------------------------------------------------------------------
 Z80Byte Z80::GetA2() const
 {
-	return Z80Byte(af2reg.GetUpperHalf());
+	return Z80Byte(_af2reg.GetUpperHalf());
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::GetA2(Data& data) const
 {
-	af2reg.GetUpperHalf(data);
+	_af2reg.GetUpperHalf(data);
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetA2(const Z80Byte& data)
 {
-	af2reg.SetUpperHalf(data);
+	_af2reg.SetUpperHalf(data);
 }
 
 //----------------------------------------------------------------------------------------
 Z80Byte Z80::GetF2() const
 {
-	return Z80Byte(af2reg.GetLowerHalf());
+	return Z80Byte(_af2reg.GetLowerHalf());
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::GetF2(Data& data) const
 {
-	af2reg.GetLowerHalf(data);
+	_af2reg.GetLowerHalf(data);
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetF2(const Z80Byte& data)
 {
-	af2reg.SetLowerHalf(data);
+	_af2reg.SetLowerHalf(data);
 }
 
 //----------------------------------------------------------------------------------------
 Z80Byte Z80::GetB2() const
 {
-	return Z80Byte(bc2reg.GetUpperHalf());
+	return Z80Byte(_bc2reg.GetUpperHalf());
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::GetB2(Data& data) const
 {
-	bc2reg.GetUpperHalf(data);
+	_bc2reg.GetUpperHalf(data);
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetB2(const Z80Byte& data)
 {
-	bc2reg.SetUpperHalf(data);
+	_bc2reg.SetUpperHalf(data);
 }
 
 //----------------------------------------------------------------------------------------
 Z80Byte Z80::GetC2() const
 {
-	return Z80Byte(bc2reg.GetLowerHalf());
+	return Z80Byte(_bc2reg.GetLowerHalf());
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::GetC2(Data& data) const
 {
-	bc2reg.GetLowerHalf(data);
+	_bc2reg.GetLowerHalf(data);
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetC2(const Z80Byte& data)
 {
-	bc2reg.SetLowerHalf(data);
+	_bc2reg.SetLowerHalf(data);
 }
 
 //----------------------------------------------------------------------------------------
 Z80Byte Z80::GetD2() const
 {
-	return Z80Byte(de2reg.GetUpperHalf());
+	return Z80Byte(_de2reg.GetUpperHalf());
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::GetD2(Data& data) const
 {
-	de2reg.GetUpperHalf(data);
+	_de2reg.GetUpperHalf(data);
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetD2(const Z80Byte& data)
 {
-	de2reg.SetUpperHalf(data);
+	_de2reg.SetUpperHalf(data);
 }
 
 //----------------------------------------------------------------------------------------
 Z80Byte Z80::GetE2() const
 {
-	return Z80Byte(de2reg.GetLowerHalf());
+	return Z80Byte(_de2reg.GetLowerHalf());
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::GetE2(Data& data) const
 {
-	de2reg.GetLowerHalf(data);
+	_de2reg.GetLowerHalf(data);
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetE2(const Z80Byte& data)
 {
-	de2reg.SetLowerHalf(data);
+	_de2reg.SetLowerHalf(data);
 }
 
 //----------------------------------------------------------------------------------------
 Z80Byte Z80::GetH2() const
 {
-	return Z80Byte(hl2reg.GetUpperHalf());
+	return Z80Byte(_hl2reg.GetUpperHalf());
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::GetH2(Data& data) const
 {
-	hl2reg.GetUpperBits(data);
+	_hl2reg.GetUpperBits(data);
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetH2(const Z80Byte& data)
 {
-	hl2reg.SetUpperBits(data);
+	_hl2reg.SetUpperBits(data);
 }
 
 //----------------------------------------------------------------------------------------
 Z80Byte Z80::GetL2() const
 {
-	return Z80Byte(hl2reg.GetLowerHalf());
+	return Z80Byte(_hl2reg.GetLowerHalf());
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::GetL2(Data& data) const
 {
-	hl2reg.GetLowerHalf(data);
+	_hl2reg.GetLowerHalf(data);
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetL2(const Z80Byte& data)
 {
-	hl2reg.SetLowerHalf(data);
+	_hl2reg.SetLowerHalf(data);
 }
 
 //----------------------------------------------------------------------------------------
 Z80Word Z80::GetAF2() const
 {
-	return af2reg;
+	return _af2reg;
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::GetAF2(Data& data) const
 {
-	data = af2reg;
+	data = _af2reg;
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetAF2(const Z80Word& data)
 {
-	af2reg = data;
+	_af2reg = data;
 }
 
 //----------------------------------------------------------------------------------------
 Z80Word Z80::GetBC2() const
 {
-	return bc2reg;
+	return _bc2reg;
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::GetBC2(Data& data) const
 {
-	data = bc2reg;
+	data = _bc2reg;
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetBC2(const Z80Word& data)
 {
-	bc2reg = data;
+	_bc2reg = data;
 }
 
 //----------------------------------------------------------------------------------------
 Z80Word Z80::GetDE2() const
 {
-	return de2reg;
+	return _de2reg;
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::GetDE2(Data& data) const
 {
-	data = de2reg;
+	data = _de2reg;
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetDE2(const Z80Word& data)
 {
-	de2reg = data;
+	_de2reg = data;
 }
 
 //----------------------------------------------------------------------------------------
 Z80Word Z80::GetHL2() const
 {
-	return hl2reg;
+	return _hl2reg;
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::GetHL2(Data& data) const
 {
-	data = hl2reg;
+	data = _hl2reg;
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetHL2(const Z80Word& data)
 {
-	hl2reg = data;
+	_hl2reg = data;
 }
 
 //----------------------------------------------------------------------------------------
 Z80Byte Z80::GetIXHigh() const
 {
-	return Z80Byte(ixreg.GetUpperHalf());
+	return Z80Byte(_ixreg.GetUpperHalf());
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::GetIXHigh(Data& data) const
 {
-	ixreg.GetUpperHalf(data);
+	_ixreg.GetUpperHalf(data);
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetIXHigh(const Z80Byte& data)
 {
-	ixreg.SetUpperHalf(data);
+	_ixreg.SetUpperHalf(data);
 }
 
 //----------------------------------------------------------------------------------------
 Z80Byte Z80::GetIXLow() const
 {
-	return Z80Byte(ixreg.GetLowerHalf());
+	return Z80Byte(_ixreg.GetLowerHalf());
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::GetIXLow(Data& data) const
 {
-	ixreg.GetLowerHalf(data);
+	_ixreg.GetLowerHalf(data);
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetIXLow(const Z80Byte& data)
 {
-	ixreg.SetLowerHalf(data);
+	_ixreg.SetLowerHalf(data);
 }
 
 //----------------------------------------------------------------------------------------
 Z80Byte Z80::GetIYHigh() const
 {
-	return Z80Byte(iyreg.GetUpperHalf());
+	return Z80Byte(_iyreg.GetUpperHalf());
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::GetIYHigh(Data& data) const
 {
-	iyreg.GetUpperHalf(data);
+	_iyreg.GetUpperHalf(data);
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetIYHigh(const Z80Byte& data)
 {
-	iyreg.SetUpperHalf(data);
+	_iyreg.SetUpperHalf(data);
 }
 
 //----------------------------------------------------------------------------------------
 Z80Byte Z80::GetIYLow() const
 {
-	return Z80Byte(iyreg.GetLowerHalf());
+	return Z80Byte(_iyreg.GetLowerHalf());
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::GetIYLow(Data& data) const
 {
-	iyreg.GetLowerHalf(data);
+	_iyreg.GetLowerHalf(data);
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetIYLow(const Z80Byte& data)
 {
-	iyreg.SetLowerHalf(data);
+	_iyreg.SetLowerHalf(data);
 }
 
 //----------------------------------------------------------------------------------------
 Z80Byte Z80::GetI() const
 {
-	return ireg;
+	return _ireg;
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::GetI(Data& data) const
 {
-	data = ireg;
+	data = _ireg;
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetI(const Z80Byte& data)
 {
-	ireg = data;
+	_ireg = data;
 }
 
 //----------------------------------------------------------------------------------------
 Z80Byte Z80::GetR() const
 {
-	return rreg;
+	return _rreg;
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::GetR(Data& data) const
 {
-	data = rreg;
+	data = _rreg;
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetR(const Z80Byte& data)
 {
-	rreg = data;
+	_rreg = data;
 }
 
 //----------------------------------------------------------------------------------------
 Z80Word Z80::GetIX() const
 {
-	return ixreg;
+	return _ixreg;
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::GetIX(Data& data) const
 {
-	data = ixreg;
+	data = _ixreg;
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetIX(const Z80Word& data)
 {
-	ixreg = data;
+	_ixreg = data;
 }
 
 //----------------------------------------------------------------------------------------
 Z80Word Z80::GetIY() const
 {
-	return iyreg;
+	return _iyreg;
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::GetIY(Data& data) const
 {
-	data = iyreg;
+	data = _iyreg;
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetIY(const Z80Word& data)
 {
-	iyreg = data;
+	_iyreg = data;
 }
 
 //----------------------------------------------------------------------------------------
 Z80Word Z80::GetSP() const
 {
-	return spreg;
+	return _spreg;
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::GetSP(Data& data) const
 {
-	data = spreg;
+	data = _spreg;
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetSP(const Z80Word& data)
 {
-	spreg = data;
+	_spreg = data;
 }
 
 //----------------------------------------------------------------------------------------
 Z80Word Z80::GetPC() const
 {
-	return pcreg;
+	return _pcreg;
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::GetPC(Data& data) const
 {
-	data = pcreg;
+	data = _pcreg;
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetPC(const Z80Word& data)
 {
-	pcreg = data;
+	_pcreg = data;
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::AddRefresh(unsigned int increase)
 {
-	rreg.SetDataSegment(0, 7, rreg.GetData() + increase);
+	_rreg.SetDataSegment(0, 7, _rreg.GetData() + increase);
 }
 
 //----------------------------------------------------------------------------------------
@@ -680,55 +680,55 @@ void Z80::AddRefresh(unsigned int increase)
 //----------------------------------------------------------------------------------------
 unsigned int Z80::GetInterruptMode() const
 {
-	return interruptMode;
+	return _interruptMode;
 }
 
 //----------------------------------------------------------------------------------------
-void Z80::SetInterruptMode(unsigned int ainterruptMode)
+void Z80::SetInterruptMode(unsigned int interruptMode)
 {
-	interruptMode = ainterruptMode % 4;
+	_interruptMode = interruptMode % 4;
 }
 
 //----------------------------------------------------------------------------------------
 bool Z80::GetIFF1() const
 {
-	return iff1;
+	return _iff1;
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetIFF1(bool state)
 {
-	iff1 = state;
+	_iff1 = state;
 }
 
 //----------------------------------------------------------------------------------------
 bool Z80::GetIFF2() const
 {
-	return iff2;
+	return _iff2;
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetIFF2(bool state)
 {
-	iff2 = state;
+	_iff2 = state;
 }
 
 //----------------------------------------------------------------------------------------
 bool Z80::GetMaskInterruptsNextOpcode() const
 {
-	return maskInterruptsNextOpcode;
+	return _maskInterruptsNextOpcode;
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetMaskInterruptsNextOpcode(bool state)
 {
-	maskInterruptsNextOpcode = state;
+	_maskInterruptsNextOpcode = state;
 }
 
 //----------------------------------------------------------------------------------------
-void Z80::SetProcessorStoppedState(bool astate)
+void Z80::SetProcessorStoppedState(bool state)
 {
-	processorStopped = astate;
+	_processorStopped = state;
 }
 
 //----------------------------------------------------------------------------------------
@@ -742,97 +742,97 @@ void Z80::SetProcessorStoppedState(bool astate)
 //----------------------------------------------------------------------------------------
 bool Z80::GetFlagS() const
 {
-	return afreg.GetBit(7);
+	return _afreg.GetBit(7);
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetFlagS(bool flag)
 {
-	afreg.SetBit(7, flag);
+	_afreg.SetBit(7, flag);
 }
 
 //----------------------------------------------------------------------------------------
 bool Z80::GetFlagZ() const
 {
-	return afreg.GetBit(6);
+	return _afreg.GetBit(6);
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetFlagZ(bool flag)
 {
-	afreg.SetBit(6, flag);
+	_afreg.SetBit(6, flag);
 }
 
 //----------------------------------------------------------------------------------------
 bool Z80::GetFlagY() const
 {
-	return afreg.GetBit(5);
+	return _afreg.GetBit(5);
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetFlagY(bool flag)
 {
-	afreg.SetBit(5, flag);
+	_afreg.SetBit(5, flag);
 }
 
 //----------------------------------------------------------------------------------------
 bool Z80::GetFlagH() const
 {
-	return afreg.GetBit(4);
+	return _afreg.GetBit(4);
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetFlagH(bool flag)
 {
-	afreg.SetBit(4, flag);
+	_afreg.SetBit(4, flag);
 }
 
 //----------------------------------------------------------------------------------------
 bool Z80::GetFlagX() const
 {
-	return afreg.GetBit(3);
+	return _afreg.GetBit(3);
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetFlagX(bool flag)
 {
-	afreg.SetBit(3, flag);
+	_afreg.SetBit(3, flag);
 }
 
 //----------------------------------------------------------------------------------------
 bool Z80::GetFlagPV() const
 {
-	return afreg.GetBit(2);
+	return _afreg.GetBit(2);
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetFlagPV(bool flag)
 {
-	afreg.SetBit(2, flag);
+	_afreg.SetBit(2, flag);
 }
 
 //----------------------------------------------------------------------------------------
 bool Z80::GetFlagN() const
 {
-	return afreg.GetBit(1);
+	return _afreg.GetBit(1);
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetFlagN(bool flag)
 {
-	afreg.SetBit(1, flag);
+	_afreg.SetBit(1, flag);
 }
 
 //----------------------------------------------------------------------------------------
 bool Z80::GetFlagC() const
 {
-	return afreg.GetBit(0);
+	return _afreg.GetBit(0);
 }
 
 //----------------------------------------------------------------------------------------
 void Z80::SetFlagC(bool flag)
 {
-	afreg.SetBit(0, flag);
+	_afreg.SetBit(0, flag);
 }
 
 } //Close namespace Z80

@@ -6,7 +6,7 @@ class MegaDriveROMLoader :public Extension
 {
 public:
 	//Constructors
-	MegaDriveROMLoader(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
+	MegaDriveROMLoader(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 	~MegaDriveROMLoader();
 
 	//ROM loading functions
@@ -41,11 +41,11 @@ private:
 
 private:
 	//Menu handling
-	FileOpenMenuHandler* menuHandler;
+	FileOpenMenuHandler* _menuHandler;
 
 	//Loaded ROM info
-	bool selectionMadeThisSession;
-	std::list<std::wstring> currentlyLoadedROMModuleFilePaths;
+	bool _selectionMadeThisSession;
+	std::list<std::wstring> _currentlyLoadedROMModuleFilePaths;
 };
 
 #include "MegaDriveROMLoader.inl"

@@ -7,8 +7,8 @@ HierarchicalStorageAttribute::HierarchicalStorageAttribute()
 {}
 
 //----------------------------------------------------------------------------------------
-HierarchicalStorageAttribute::HierarchicalStorageAttribute(const std::wstring& aname)
-:name(aname)
+HierarchicalStorageAttribute::HierarchicalStorageAttribute(const std::wstring& name)
+:_name(name)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -16,13 +16,13 @@ HierarchicalStorageAttribute::HierarchicalStorageAttribute(const std::wstring& a
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> HierarchicalStorageAttribute::GetName() const
 {
-	return name;
+	return _name;
 }
 
 //----------------------------------------------------------------------------------------
-void HierarchicalStorageAttribute::SetName(const Marshal::In<std::wstring>& aname)
+void HierarchicalStorageAttribute::SetName(const Marshal::In<std::wstring>& name)
 {
-	name = aname;
+	_name = name;
 }
 
 //----------------------------------------------------------------------------------------
@@ -30,17 +30,17 @@ void HierarchicalStorageAttribute::SetName(const Marshal::In<std::wstring>& anam
 //----------------------------------------------------------------------------------------
 void HierarchicalStorageAttribute::ResetInternalStreamPosition() const
 {
-	buffer.SetStreamPos(0);
+	_buffer.SetStreamPos(0);
 }
 
 //----------------------------------------------------------------------------------------
 void HierarchicalStorageAttribute::EmptyInternalStream()
 {
-	buffer.Resize(0);
+	_buffer.Resize(0);
 }
 
 //----------------------------------------------------------------------------------------
 Stream::IStream& HierarchicalStorageAttribute::GetInternalStream() const
 {
-	return buffer;
+	return _buffer;
 }

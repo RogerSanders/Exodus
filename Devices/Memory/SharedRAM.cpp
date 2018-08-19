@@ -3,8 +3,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-SharedRAM::SharedRAM(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
-:MemoryWrite(aimplementationName, ainstanceName, amoduleID)
+SharedRAM::SharedRAM(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
+:MemoryWrite(implementationName, instanceName, moduleID)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -15,8 +15,8 @@ bool SharedRAM::Construct(IHierarchicalStorageNode& node)
 	{
 		return false;
 	}
-	memory.resize(GetMemoryEntryCount());
-	memoryLocked.resize(GetMemoryEntryCount());
+	_memory.resize(GetMemoryEntryCount());
+	_memoryLocked.resize(GetMemoryEntryCount());
 	return result;
 }
 
@@ -34,10 +34,10 @@ unsigned int SharedRAM::GetMemoryEntrySizeInBytes() const
 void SharedRAM::Initialize()
 {
 	//Initialize the memory buffer
-	memory.assign(GetMemoryEntryCount(), 0);
+	_memory.assign(GetMemoryEntryCount(), 0);
 
 	//Initialize rollback state
-	buffer.clear();
+	_buffer.clear();
 }
 
 //----------------------------------------------------------------------------------------
@@ -45,19 +45,19 @@ void SharedRAM::Initialize()
 //----------------------------------------------------------------------------------------
 void SharedRAM::ExecuteRollback()
 {
-	std::unique_lock<std::mutex> lock(accessLock);
-	for(MemoryAccessBuffer::const_iterator i = buffer.begin(); i != buffer.end(); ++i)
+	std::unique_lock<std::mutex> lock(_accessLock);
+	for(MemoryAccessBuffer::const_iterator i = _buffer.begin(); i != _buffer.end(); ++i)
 	{
-		memory[i->first] = i->second.data;
+		_memory[i->first] = i->second.data;
 	}
-	buffer.clear();
+	_buffer.clear();
 }
 
 //----------------------------------------------------------------------------------------
 void SharedRAM::ExecuteCommit()
 {
-	std::unique_lock<std::mutex> lock(accessLock);
-	buffer.clear();
+	std::unique_lock<std::mutex> lock(_accessLock);
+	_buffer.clear();
 }
 
 //----------------------------------------------------------------------------------------
@@ -65,16 +65,16 @@ void SharedRAM::ExecuteCommit()
 //----------------------------------------------------------------------------------------
 IBusInterface::AccessResult SharedRAM::ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
-	std::unique_lock<std::mutex> lock(accessLock);
+	std::unique_lock<std::mutex> lock(_accessLock);
 
 	unsigned int dataByteSize = data.GetByteSize();
 	for(unsigned int i = 0; i < dataByteSize; ++i)
 	{
-		MemoryAccessBuffer::iterator bufferEntryIterator = buffer.find(location + i);
-		if(bufferEntryIterator == buffer.end())
+		MemoryAccessBuffer::iterator bufferEntryIterator = _buffer.find(location + i);
+		if(bufferEntryIterator == _buffer.end())
 		{
 			//If the location hasn't been tagged, mark it
-			buffer.insert(MemoryAccessBufferEntry(location + i, MemoryWriteStatus(false, memory[(location + i) % memory.size()], caller, accessTime, accessContext)));
+			_buffer.insert(MemoryAccessBufferEntry(location + i, MemoryWriteStatus(false, _memory[(location + i) % _memory.size()], caller, accessTime, accessContext)));
 		}
 		else
 		{
@@ -92,7 +92,7 @@ IBusInterface::AccessResult SharedRAM::ReadInterface(unsigned int interfaceNumbe
 				GetSystemInterface().SetSystemRollback(GetDeviceContext(), bufferEntry->author, bufferEntry->timeslice, bufferEntry->accessContext);
 			}
 		}
-		data.SetByteFromTopDown(i, memory[(location + i) % memory.size()]);
+		data.SetByteFromTopDown(i, _memory[(location + i) % _memory.size()]);
 	}
 
 	return true;
@@ -101,19 +101,19 @@ IBusInterface::AccessResult SharedRAM::ReadInterface(unsigned int interfaceNumbe
 //----------------------------------------------------------------------------------------
 IBusInterface::AccessResult SharedRAM::WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
-	std::unique_lock<std::mutex> lock(accessLock);
+	std::unique_lock<std::mutex> lock(_accessLock);
 
 	unsigned int dataByteSize = data.GetByteSize();
 	for(unsigned int i = 0; i < dataByteSize; ++i)
 	{
-		unsigned int bytePos = (location + i) % (unsigned int)memory.size();
+		unsigned int bytePos = (location + i) % (unsigned int)_memory.size();
 		if(!IsAddressLocked(bytePos))
 		{
-			MemoryAccessBuffer::iterator bufferEntryIterator = buffer.find(location + i);
-			if(bufferEntryIterator == buffer.end())
+			MemoryAccessBuffer::iterator bufferEntryIterator = _buffer.find(location + i);
+			if(bufferEntryIterator == _buffer.end())
 			{
 				//If the location hasn't been tagged, mark it
-				buffer.insert(MemoryAccessBufferEntry(bytePos, MemoryWriteStatus(true, memory[bytePos], caller, accessTime, accessContext)));
+				_buffer.insert(MemoryAccessBufferEntry(bytePos, MemoryWriteStatus(true, _memory[bytePos], caller, accessTime, accessContext)));
 			}
 			else
 			{
@@ -132,7 +132,7 @@ IBusInterface::AccessResult SharedRAM::WriteInterface(unsigned int interfaceNumb
 					GetSystemInterface().SetSystemRollback(GetDeviceContext(), bufferEntry->author, bufferEntry->timeslice, bufferEntry->accessContext);
 				}
 			}
-			memory[bytePos] = data.GetByteFromTopDown(i);
+			_memory[bytePos] = data.GetByteFromTopDown(i);
 		}
 	}
 
@@ -145,7 +145,7 @@ void SharedRAM::TransparentReadInterface(unsigned int interfaceNumber, unsigned 
 	unsigned int dataByteSize = data.GetByteSize();
 	for(unsigned int i = 0; i < dataByteSize; ++i)
 	{
-		data.SetByteFromTopDown(i, memory[(location + i) % memory.size()]);
+		data.SetByteFromTopDown(i, _memory[(location + i) % _memory.size()]);
 	}
 }
 
@@ -155,7 +155,7 @@ void SharedRAM::TransparentWriteInterface(unsigned int interfaceNumber, unsigned
 	unsigned int dataByteSize = data.GetByteSize();
 	for(unsigned int i = 0; i < dataByteSize; ++i)
 	{
-		memory[(location + i) % memory.size()] = data.GetByteFromTopDown(i);
+		_memory[(location + i) % _memory.size()] = data.GetByteFromTopDown(i);
 	}
 }
 
@@ -164,13 +164,13 @@ void SharedRAM::TransparentWriteInterface(unsigned int interfaceNumber, unsigned
 //----------------------------------------------------------------------------------------
 unsigned int SharedRAM::ReadMemoryEntry(unsigned int location) const
 {
-	return memory[location % memory.size()];
+	return _memory[location % _memory.size()];
 }
 
 //----------------------------------------------------------------------------------------
 void SharedRAM::WriteMemoryEntry(unsigned int location, unsigned int data)
 {
-	memory[location % memory.size()] = (unsigned char)data;
+	_memory[location % _memory.size()] = (unsigned char)data;
 }
 
 //----------------------------------------------------------------------------------------
@@ -186,14 +186,14 @@ void SharedRAM::LockMemoryBlock(unsigned int location, unsigned int size, bool s
 {
 	for(unsigned int i = 0; i < size; ++i)
 	{
-		memoryLocked[location + i] = state;
+		_memoryLocked[location + i] = state;
 	}
 }
 
 //----------------------------------------------------------------------------------------
 bool SharedRAM::IsAddressLocked(unsigned int location) const
 {
-	return memoryLocked[location];
+	return _memoryLocked[location];
 }
 
 //----------------------------------------------------------------------------------------
@@ -201,17 +201,17 @@ bool SharedRAM::IsAddressLocked(unsigned int location) const
 //----------------------------------------------------------------------------------------
 void SharedRAM::LoadState(IHierarchicalStorageNode& node)
 {
-	size_t memorySize = memory.size();
+	size_t memorySize = _memory.size();
 	Stream::IStream::SizeType readCount = (node.GetBinaryDataBufferStream().Size() / (Stream::IStream::SizeType)sizeof(unsigned char));
-	node.ExtractBinaryData(memory);
+	node.ExtractBinaryData(_memory);
 	for(size_t i = readCount; i < memorySize; ++i)
 	{
-		memory[i] = 0;
+		_memory[i] = 0;
 	}
 }
 
 //----------------------------------------------------------------------------------------
 void SharedRAM::SaveState(IHierarchicalStorageNode& node) const
 {
-	node.InsertBinaryData(memory, GetFullyQualifiedDeviceInstanceName(), false);
+	node.InsertBinaryData(_memory, GetFullyQualifiedDeviceInstanceName(), false);
 }

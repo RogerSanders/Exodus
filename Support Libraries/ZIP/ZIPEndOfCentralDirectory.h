@@ -3,11 +3,11 @@
 #include "StreamInterface/StreamInterface.pkg"
 #include <string>
 
-struct ZIPChunk_EndOfCentralDirectory
+struct ZIPChunkEndOfCentralDirectory
 {
 public:
 	//Constructors
-	inline ZIPChunk_EndOfCentralDirectory();
+	inline ZIPChunkEndOfCentralDirectory();
 	inline void Initialize();
 
 	//Serialization functions
@@ -15,7 +15,10 @@ public:
 	inline bool SaveToStream(Stream::IStream& stream) const;
 
 public:
-	static const unsigned int validSignature = 0x06054B50;
+	//Constants
+	static const unsigned int ValidSignature = 0x06054B50;
+
+public:
 	unsigned int signature;
 	unsigned short diskNumber;
 	unsigned short diskNumberCentralDirectory;

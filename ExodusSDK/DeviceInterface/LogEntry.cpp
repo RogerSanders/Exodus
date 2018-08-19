@@ -4,46 +4,46 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-LogEntry::LogEntry(EventLevel alevel)
-:eventLevel(alevel)
+LogEntry::LogEntry(EventLevel level)
+:_eventLevel(level)
 {
 	SYSTEMTIME time;
 	GetLocalTime(&time);
-	hour = (int)time.wHour;
-	minute = (int)time.wMinute;
-	second = (int)time.wSecond;
-	millisecond = (int)time.wMilliseconds;
+	_hour = (int)time.wHour;
+	_minute = (int)time.wMinute;
+	_second = (int)time.wSecond;
+	_millisecond = (int)time.wMilliseconds;
 }
 
 //----------------------------------------------------------------------------------------
-LogEntry::LogEntry(EventLevel alevel, const std::wstring& atext)
-:eventLevel(alevel)
+LogEntry::LogEntry(EventLevel level, const std::wstring& text)
+:_eventLevel(level)
 {
 	SYSTEMTIME time;
 	GetLocalTime(&time);
-	hour = (int)time.wHour;
-	minute = (int)time.wMinute;
-	second = (int)time.wSecond;
-	millisecond = (int)time.wMilliseconds;
-	SetText(atext);
+	_hour = (int)time.wHour;
+	_minute = (int)time.wMinute;
+	_second = (int)time.wSecond;
+	_millisecond = (int)time.wMilliseconds;
+	SetText(text);
 }
 
 //----------------------------------------------------------------------------------------
-LogEntry::LogEntry(EventLevel alevel, const std::wstring& asource, const std::wstring& atext)
-:eventLevel(alevel), source(asource)
+LogEntry::LogEntry(EventLevel level, const std::wstring& source, const std::wstring& text)
+:_eventLevel(level), _source(source)
 {
 	SYSTEMTIME time;
 	GetLocalTime(&time);
-	hour = (int)time.wHour;
-	minute = (int)time.wMinute;
-	second = (int)time.wSecond;
-	millisecond = (int)time.wMilliseconds;
-	SetText(atext);
+	_hour = (int)time.wHour;
+	_minute = (int)time.wMinute;
+	_second = (int)time.wSecond;
+	_millisecond = (int)time.wMilliseconds;
+	SetText(text);
 }
 
 //----------------------------------------------------------------------------------------
 LogEntry::LogEntry(const LogEntry& object)
-:eventLevel(object.eventLevel), hour(object.hour), minute(object.minute), second(object.second), millisecond(object.millisecond), source(object.source)
+:_eventLevel(object._eventLevel), _hour(object._hour), _minute(object._minute), _second(object._second), _millisecond(object._millisecond), _source(object._source)
 {
 	SetText(object.GetText());
 }
@@ -61,25 +61,25 @@ unsigned int LogEntry::GetILogEntryVersion() const
 //----------------------------------------------------------------------------------------
 LogEntry::EventLevel LogEntry::GetEventLevel() const
 {
-	return eventLevel;
+	return _eventLevel;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> LogEntry::GetText() const
 {
-	return text.str();
+	return _text.str();
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> LogEntry::GetSource() const
 {
-	return source;
+	return _source;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> LogEntry::GetEventLevelString() const
 {
-	switch(eventLevel)
+	switch(_eventLevel)
 	{
 	case EventLevel::Info:
 		return L"1 - Information";
@@ -100,7 +100,7 @@ Marshal::Ret<std::wstring> LogEntry::GetEventLevelString() const
 Marshal::Ret<std::wstring> LogEntry::GetTimeString() const
 {
 	std::wstringstream stream;
-	stream << std::setw(2) << std::setfill(L'0') << hour << L':' << minute << L':' << second << L'.' << millisecond;
+	stream << std::setw(2) << std::setfill(L'0') << _hour << L':' << _minute << L':' << _second << L'.' << _millisecond;
 	return stream.str();
 }
 
@@ -109,7 +109,7 @@ Marshal::Ret<std::wstring> LogEntry::GetTimeString() const
 //----------------------------------------------------------------------------------------
 void LogEntry::OverrideSourceText(const Marshal::In<std::wstring>& asource) const
 {
-	source = asource;
+	_source = asource;
 }
 
 //----------------------------------------------------------------------------------------

@@ -22,7 +22,7 @@ public:
 
 	virtual Disassembly M68000Disassemble(const M68000::LabelSubstitutionSettings& labelSettings) const
 	{
-		return Disassembly(GetOpcodeName(), target.Disassemble(labelSettings));
+		return Disassembly(GetOpcodeName(), _target.Disassemble(labelSettings));
 	}
 
 	virtual void M68000Decode(const M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)
@@ -33,17 +33,17 @@ public:
 //	| 0 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |    MODE   | REGISTER  |
 //	----------------------------------------=========================
 //	                                        |----------<ea>---------|
-		target.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), BITCOUNT_BYTE, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
-		AddInstructionSize(target.ExtensionSize());
+		_target.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), BITCOUNT_BYTE, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
+		AddInstructionSize(_target.ExtensionSize());
 
-		if((target.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect) || (target.GetAddressMode() == EffectiveAddress::Mode::AddRegDirect))
+		if((_target.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect) || (_target.GetAddressMode() == EffectiveAddress::Mode::AddRegDirect))
 		{
 			AddExecuteCycleCount(ExecuteTime(6, 1, 0));
 		}
 		else
 		{
 			AddExecuteCycleCount(ExecuteTime(8, 1, 1));
-			AddExecuteCycleCount(target.DecodeTime());
+			AddExecuteCycleCount(_target.DecodeTime());
 		}
 	}
 
@@ -55,7 +55,7 @@ public:
 		M68000Byte result;
 
 		//Perform the operation
-		additionalTime += target.ReadWithoutAdjustingAddress(cpu, op1Base10, GetInstructionRegister());
+		additionalTime += _target.ReadWithoutAdjustingAddress(cpu, op1Base10, GetInstructionRegister());
 		op1 = op1Base10.GetData() & 0x0F;
 		op1 += ((op1Base10.GetData() & 0xF0) - (6 * (op1Base10.GetData() >> 4)));
 
@@ -71,7 +71,7 @@ public:
 		M68000Byte resultBase10;
 		resultBase10 = resultBase10Temp.GetData() % 10;
 		resultBase10 |= ((resultBase10Temp.GetData() / 10) % 10) << 4;
-		additionalTime += target.Write(cpu, resultBase10, GetInstructionRegister());
+		additionalTime += _target.Write(cpu, resultBase10, GetInstructionRegister());
 
 		//Set the flag results
 		cpu->SetX(carry);
@@ -90,11 +90,11 @@ public:
 
 	virtual void GetLabelTargetLocations(std::set<unsigned int>& labelTargetLocations) const
 	{
-		target.AddLabelTargetsToSet(labelTargetLocations);
+		_target.AddLabelTargetsToSet(labelTargetLocations);
 	}
 
 private:
-	EffectiveAddress target;
+	EffectiveAddress _target;
 };
 
 } //Close namespace M68000

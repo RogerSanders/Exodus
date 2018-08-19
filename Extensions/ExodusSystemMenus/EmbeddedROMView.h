@@ -8,7 +8,7 @@ class EmbeddedROMView :public ViewBase
 {
 public:
 	//Constructors
-	EmbeddedROMView(IUIManager& auiManager, EmbeddedROMViewPresenter& apresenter, ISystemGUIInterface& amodel);
+	EmbeddedROMView(IUIManager& uiManager, EmbeddedROMViewPresenter& presenter, ISystemGUIInterface& model);
 
 protected:
 	//Member window procedure
@@ -22,10 +22,10 @@ private:
 	INT_PTR msgWM_COMMAND(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
 private:
-	EmbeddedROMViewPresenter& presenter;
-	ISystemGUIInterface& model;
-	unsigned int embeddedROMIDLastModifiedToken;
-	unsigned int selectedROMID;
+	EmbeddedROMViewPresenter& _presenter;
+	ISystemGUIInterface& _model;
+	unsigned int _embeddedROMIDLastModifiedToken;
+	unsigned int _selectedROMID;
 };
 
 #endif

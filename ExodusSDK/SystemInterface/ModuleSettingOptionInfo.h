@@ -16,12 +16,12 @@ public:
 	virtual Marshal::Ret<std::wstring> GetDisplayName() const;
 
 	//Setters
-	virtual void SetName(const Marshal::In<std::wstring>& aname);
-	virtual void SetDisplayName(const Marshal::In<std::wstring>& adisplayName);
+	virtual void SetName(const Marshal::In<std::wstring>& name);
+	virtual void SetDisplayName(const Marshal::In<std::wstring>& displayName);
 
 private:
-	std::wstring name;
-	std::wstring displayName;
+	std::wstring _name;
+	std::wstring _displayName;
 };
 
 #endif

@@ -8,7 +8,7 @@ class GenericAccessGroup :public IGenericAccessGroup
 {
 public:
 	//Constructors
-	inline GenericAccessGroup(const std::wstring& aname);
+	inline GenericAccessGroup(const std::wstring& name);
 	inline ~GenericAccessGroup();
 
 	//Interface version functions
@@ -24,11 +24,11 @@ public:
 
 	//Data context functions
 	virtual const IGenericAccess::DataContext* GetDataContext() const;
-	inline GenericAccessGroup* SetDataContext(const IGenericAccess::DataContext* adataContext);
+	inline GenericAccessGroup* SetDataContext(const IGenericAccess::DataContext* dataContext);
 
 	//Group info methods
 	virtual Marshal::Ret<std::wstring> GetName() const;
-	inline GenericAccessGroup* SetName(const std::wstring& aname);
+	inline GenericAccessGroup* SetName(const std::wstring& name);
 	virtual bool GetOpenByDefault() const;
 	inline GenericAccessGroup* SetOpenByDefault(bool state);
 
@@ -40,14 +40,14 @@ public:
 
 protected:
 	//Parent functions
-	virtual void SetParent(IGenericAccessGroup* aparent);
+	virtual void SetParent(IGenericAccessGroup* parent);
 
 private:
-	IGenericAccessGroup* parent;
-	const IGenericAccess::DataContext* dataContext;
-	std::wstring name;
-	bool openByDefault;
-	std::list<IGenericAccessGroupEntry*> childEntries;
+	IGenericAccessGroup* _parent;
+	const IGenericAccess::DataContext* _dataContext;
+	std::wstring _name;
+	bool _openByDefault;
+	std::list<IGenericAccessGroupEntry*> _childEntries;
 };
 
 #include "GenericAccessGroup.inl"

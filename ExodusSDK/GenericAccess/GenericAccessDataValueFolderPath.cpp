@@ -5,9 +5,9 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 GenericAccessDataValueFolderPath::GenericAccessDataValueFolderPath(const std::wstring& value)
-:dataValue(value)
+:_dataValue(value)
 {
-	maxLength = 0;
+	_maxLength = 0;
 }
 
 //----------------------------------------------------------------------------------------
@@ -31,7 +31,7 @@ GenericAccessDataValueFolderPath::DataType GenericAccessDataValueFolderPath::Get
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> GenericAccessDataValueFolderPath::GetValue() const
 {
-	return dataValue;
+	return _dataValue;
 }
 
 //----------------------------------------------------------------------------------------
@@ -51,7 +51,7 @@ bool GenericAccessDataValueFolderPath::SetValueString(const Marshal::In<std::wst
 //----------------------------------------------------------------------------------------
 bool GenericAccessDataValueFolderPath::SetValueFolderPath(const Marshal::In<std::wstring>& value)
 {
-	dataValue = value;
+	_dataValue = value;
 	ApplyLimitSettingsToCurrentValue();
 	return true;
 }
@@ -61,13 +61,13 @@ bool GenericAccessDataValueFolderPath::SetValueFolderPath(const Marshal::In<std:
 //----------------------------------------------------------------------------------------
 unsigned int GenericAccessDataValueFolderPath::GetMaxLength() const
 {
-	return maxLength;
+	return _maxLength;
 }
 
 //----------------------------------------------------------------------------------------
 void GenericAccessDataValueFolderPath::SetMaxLength(unsigned int state)
 {
-	maxLength = state;
+	_maxLength = state;
 }
 
 //----------------------------------------------------------------------------------------
@@ -75,8 +75,8 @@ void GenericAccessDataValueFolderPath::SetMaxLength(unsigned int state)
 //----------------------------------------------------------------------------------------
 void GenericAccessDataValueFolderPath::ApplyLimitSettingsToCurrentValue()
 {
-	if((maxLength > 0) && (dataValue.length() > (size_t)maxLength))
+	if((_maxLength > 0) && (_dataValue.length() > (size_t)_maxLength))
 	{
-		dataValue.resize((size_t)maxLength);
+		_dataValue.resize((size_t)_maxLength);
 	}
 }

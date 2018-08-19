@@ -29,17 +29,17 @@ public:
 
 	//Size functions
 	inline unsigned int GetInstructionSize() const;
-	inline void SetInstructionSize(unsigned int ainstructionSize);
-	inline void AddInstructionSize(unsigned int ainstructionSize);
+	inline void SetInstructionSize(unsigned int instructionSize);
+	inline void AddInstructionSize(unsigned int instructionSize);
 
 	//Condition code functions
 	static bool ConditionCodeTrue(Z80* cpu, ConditionCode conditionCode);
 
 	//Index functions
 	inline EffectiveAddress::IndexState GetIndexState() const;
-	inline void SetIndexState(EffectiveAddress::IndexState aindexState);
+	inline void SetIndexState(EffectiveAddress::IndexState indexState);
 	inline Z80Byte GetIndexOffset() const;
-	inline void SetIndexOffset(const Z80Byte& aindexOffset, bool amandatoryIndexOffset);
+	inline void SetIndexOffset(const Z80Byte& indexOffset, bool mandatoryIndexOffset);
 	inline unsigned int GetIndexOffsetSize(bool add) const;
 
 	//Execute functions
@@ -49,17 +49,17 @@ public:
 	//Execute time functions
 	inline ExecuteTime GetExecuteCycleCount() const;
 	inline ExecuteTime GetExecuteCycleCount(double additionalTime) const;
-	inline void AddExecuteCycleCount(const ExecuteTime& aexecuteCycleCount);
+	inline void AddExecuteCycleCount(const ExecuteTime& executeCycleCount);
 
 	//Instruction info functions
 	inline const Z80Byte& GetInstructionRegister() const;
-	inline void SetInstructionRegister(const Z80Byte& ainstructionData);
+	inline void SetInstructionRegister(const Z80Byte& instructionData);
 	inline const Z80Word& GetInstructionLocation() const;
-	inline void SetInstructionLocation(const Z80Word& ainstructionLocation);
+	inline void SetInstructionLocation(const Z80Word& instructionLocation);
 
 	//Transparent decode functions
 	inline bool GetTransparentFlag() const;
-	inline void SetTransparentFlag(bool astate);
+	inline void SetTransparentFlag(bool state);
 
 	//Disassembly functions
 	virtual std::wstring GetOpcodeName() const;
@@ -67,14 +67,14 @@ public:
 	static std::wstring DisassembleConditionCode(ConditionCode conditionCode);
 
 private:
-	unsigned int instructionSize;
-	ExecuteTime executeCycleCount;
-	EffectiveAddress::IndexState indexState;
-	Z80Word instructionLocation;
-	Z80Byte instructionRegister;
-	Z80Byte indexOffset;
-	bool transparentOpcode;
-	bool mandatoryIndexOffset;
+	unsigned int _instructionSize;
+	ExecuteTime _executeCycleCount;
+	EffectiveAddress::IndexState _indexState;
+	Z80Word _instructionLocation;
+	Z80Byte _instructionRegister;
+	Z80Byte _indexOffset;
+	bool _transparentOpcode;
+	bool _mandatoryIndexOffset;
 };
 
 } //Close namespace Z80

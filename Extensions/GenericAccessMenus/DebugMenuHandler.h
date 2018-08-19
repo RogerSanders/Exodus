@@ -8,7 +8,7 @@ class DebugMenuHandler :public MenuHandlerBase
 {
 public:
 	//Constructors
-	DebugMenuHandler(GenericAccessMenus& aowner, const IDevice& amodelInstanceKey, IGenericAccess& amodel);
+	DebugMenuHandler(GenericAccessMenus& owner, const IDevice& modelInstanceKey, IGenericAccess& model);
 
 protected:
 	//Management functions
@@ -17,9 +17,9 @@ protected:
 	virtual void DeleteViewForItem(int menuItemID, IViewPresenter* viewPresenter);
 
 private:
-	GenericAccessMenus& owner;
-	const IDevice& modelInstanceKey;
-	IGenericAccess& model;
+	GenericAccessMenus& _owner;
+	const IDevice& _modelInstanceKey;
+	IGenericAccess& _model;
 };
 
 #endif

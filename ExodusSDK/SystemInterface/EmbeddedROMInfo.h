@@ -22,24 +22,24 @@ public:
 	virtual Marshal::Ret<std::wstring> GetFilePath() const;
 
 	//Setters
-	virtual void SetName(const Marshal::In<std::wstring>& aname);
-	virtual void SetDisplayName(const Marshal::In<std::wstring>& adisplayName);
-	virtual void SetModuleID(unsigned int amoduleID);
-	virtual void SetTargetDevice(IDevice* atargetDevice);
-	virtual void SetTargetInterfaceNo(unsigned int atargetInterfaceNo);
-	virtual void SetROMRegionSize(unsigned int aromRegionSize);
-	virtual void SetROMEntryBitCount(unsigned int aromEntryBitCount);
-	virtual void SetFilePath(const Marshal::In<std::wstring>& afilePath);
+	virtual void SetName(const Marshal::In<std::wstring>& name);
+	virtual void SetDisplayName(const Marshal::In<std::wstring>& displayName);
+	virtual void SetModuleID(unsigned int moduleID);
+	virtual void SetTargetDevice(IDevice* targetDevice);
+	virtual void SetTargetInterfaceNo(unsigned int targetInterfaceNo);
+	virtual void SetROMRegionSize(unsigned int romRegionSize);
+	virtual void SetROMEntryBitCount(unsigned int romEntryBitCount);
+	virtual void SetFilePath(const Marshal::In<std::wstring>& filePath);
 
 private:
-	std::wstring name;
-	std::wstring displayName;
-	unsigned int moduleID;
-	IDevice* targetDevice;
-	unsigned int targetInterfaceNo;
-	unsigned int romRegionSize;
-	unsigned int romEntryBitCount;
-	std::wstring filePath;
+	std::wstring _name;
+	std::wstring _displayName;
+	unsigned int _moduleID;
+	IDevice* _targetDevice;
+	unsigned int _targetInterfaceNo;
+	unsigned int _romRegionSize;
+	unsigned int _romEntryBitCount;
+	std::wstring _filePath;
 };
 
 #endif

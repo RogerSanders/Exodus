@@ -5,14 +5,14 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-MenuSubmenu::MenuSubmenu(const std::wstring& atitle)
-:title(atitle)
+MenuSubmenu::MenuSubmenu(const std::wstring& title)
+:_title(title)
 {}
 
 //----------------------------------------------------------------------------------------
 MenuSubmenu::~MenuSubmenu()
 {
-	for(std::list<IMenuItem*>::const_iterator i = menuItems.begin(); i != menuItems.end(); ++i)
+	for(std::list<IMenuItem*>::const_iterator i = _menuItems.begin(); i != _menuItems.end(); ++i)
 	{
 		delete *i;
 	}
@@ -45,7 +45,7 @@ MenuSubmenu::Type MenuSubmenu::GetType() const
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> MenuSubmenu::GetMenuTitle() const
 {
-	return title;
+	return _title;
 }
 
 //----------------------------------------------------------------------------------------
@@ -53,7 +53,7 @@ Marshal::Ret<std::wstring> MenuSubmenu::GetMenuTitle() const
 //----------------------------------------------------------------------------------------
 bool MenuSubmenu::NoMenuItemsExist() const
 {
-	for(std::list<IMenuItem*>::const_iterator i = menuItems.begin(); i != menuItems.end(); ++i)
+	for(std::list<IMenuItem*>::const_iterator i = _menuItems.begin(); i != _menuItems.end(); ++i)
 	{
 		const IMenuItem* menuItem = *i;
 		IMenuItem::Type menuItemType = menuItem->GetType();
@@ -84,16 +84,16 @@ bool MenuSubmenu::NoMenuItemsExist() const
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::list<IMenuItem*>> MenuSubmenu::GetMenuItems() const
 {
-	return menuItems;
+	return _menuItems;
 }
 
 //----------------------------------------------------------------------------------------
 //Menu item creation functions
 //----------------------------------------------------------------------------------------
-IMenuSegment& MenuSubmenu::AddMenuItemSegment(bool asurroundWithSeparators, IMenuSegment::SortMode sortMode)
+IMenuSegment& MenuSubmenu::AddMenuItemSegment(bool surroundWithSeparators, IMenuSegment::SortMode sortMode)
 {
-	IMenuSegment* newMenuItem = new MenuSegment(asurroundWithSeparators, sortMode);
-	menuItems.push_back(newMenuItem);
+	IMenuSegment* newMenuItem = new MenuSegment(surroundWithSeparators, sortMode);
+	_menuItems.push_back(newMenuItem);
 	return *newMenuItem;
 }
 
@@ -101,7 +101,7 @@ IMenuSegment& MenuSubmenu::AddMenuItemSegment(bool asurroundWithSeparators, IMen
 IMenuSubmenu& MenuSubmenu::AddMenuItemSubmenu(const Marshal::In<std::wstring>& title)
 {
 	IMenuSubmenu* newMenuItem = new MenuSubmenu(title);
-	menuItems.push_back(newMenuItem);
+	_menuItems.push_back(newMenuItem);
 	return *newMenuItem;
 }
 
@@ -109,7 +109,7 @@ IMenuSubmenu& MenuSubmenu::AddMenuItemSubmenu(const Marshal::In<std::wstring>& t
 IMenuSelectableOption& MenuSubmenu::AddMenuItemSelectableOption(IMenuHandler& menuHandler, int menuItemID, const Marshal::In<std::wstring>& title)
 {
 	IMenuSelectableOption* newMenuItem = new MenuSelectableOption(menuHandler, menuItemID, title);
-	menuItems.push_back(newMenuItem);
+	_menuItems.push_back(newMenuItem);
 	return *newMenuItem;
 }
 
@@ -118,12 +118,12 @@ void MenuSubmenu::DeleteMenuItem(IMenuItem& menuItem)
 {
 	IMenuItem* menuItemPointer = &menuItem;
 	bool done = false;
-	std::list<IMenuItem*>::iterator i = menuItems.begin();
-	while(!done && (i != menuItems.end()))
+	std::list<IMenuItem*>::iterator i = _menuItems.begin();
+	while(!done && (i != _menuItems.end()))
 	{
 		if(*i == menuItemPointer)
 		{
-			menuItems.erase(i);
+			_menuItems.erase(i);
 			delete menuItemPointer;
 			done = true;
 			continue;
@@ -135,9 +135,9 @@ void MenuSubmenu::DeleteMenuItem(IMenuItem& menuItem)
 //----------------------------------------------------------------------------------------
 void MenuSubmenu::DeleteAllMenuItems()
 {
-	for(std::list<IMenuItem*>::iterator i = menuItems.begin(); i != menuItems.end(); ++i)
+	for(std::list<IMenuItem*>::iterator i = _menuItems.begin(); i != _menuItems.end(); ++i)
 	{
 		delete *i;
 	}
-	menuItems.clear();
+	_menuItems.clear();
 }

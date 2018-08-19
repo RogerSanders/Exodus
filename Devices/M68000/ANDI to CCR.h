@@ -22,7 +22,7 @@ public:
 
 	virtual Disassembly M68000Disassemble(const M68000::LabelSubstitutionSettings& labelSettings) const
 	{
-		return Disassembly(L"ANDI", source.Disassemble(labelSettings) + L", CCR");
+		return Disassembly(L"ANDI", _source.Disassemble(labelSettings) + L", CCR");
 	}
 
 	virtual void M68000Decode(const M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)
@@ -36,8 +36,8 @@ public:
 //	-----------------------------------------------------------------
 
 		//ANDI	#<data>,CCR
-		source.BuildImmediateData(BITCOUNT_BYTE, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
-		AddInstructionSize(source.ExtensionSize());
+		_source.BuildImmediateData(BITCOUNT_BYTE, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
+		AddInstructionSize(_source.ExtensionSize());
 		AddExecuteCycleCount(ExecuteTime(20, 3, 0));
 	}
 
@@ -49,7 +49,7 @@ public:
 		M68000Byte result;
 
 		//Perform the operation
-		additionalTime += source.Read(cpu, op1, GetInstructionRegister());
+		additionalTime += _source.Read(cpu, op1, GetInstructionRegister());
 		op2 = cpu->GetCCR();
 		result = op1 & op2;
 		cpu->SetCCR(result);
@@ -61,11 +61,11 @@ public:
 
 	virtual void GetLabelTargetLocations(std::set<unsigned int>& labelTargetLocations) const
 	{
-		source.AddLabelTargetsToSet(labelTargetLocations);
+		_source.AddLabelTargetsToSet(labelTargetLocations);
 	}
 
 private:
-	EffectiveAddress source;
+	EffectiveAddress _source;
 };
 
 } //Close namespace M68000

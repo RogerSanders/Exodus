@@ -8,7 +8,7 @@ class MenuSubmenu :public IMenuSubmenu
 {
 public:
 	//Constructors
-	MenuSubmenu(const std::wstring& atitle);
+	MenuSubmenu(const std::wstring& title);
 	~MenuSubmenu();
 
 	//Interface version functions
@@ -26,15 +26,15 @@ public:
 	Marshal::Ret<std::list<IMenuItem*>> GetMenuItems() const;
 
 	//Menu item creation and deletion
-	virtual IMenuSegment& AddMenuItemSegment(bool asurroundWithSeparators = true, IMenuSegment::SortMode sortMode = IMenuSegment::SORTMODE_ADDITIONORDER);
+	virtual IMenuSegment& AddMenuItemSegment(bool surroundWithSeparators = true, IMenuSegment::SortMode sortMode = IMenuSegment::SORTMODE_ADDITIONORDER);
 	virtual IMenuSubmenu& AddMenuItemSubmenu(const Marshal::In<std::wstring>& title);
 	virtual IMenuSelectableOption& AddMenuItemSelectableOption(IMenuHandler& menuHandler, int menuItemID, const Marshal::In<std::wstring>& title);
 	virtual void DeleteMenuItem(IMenuItem& menuItem);
 	virtual void DeleteAllMenuItems();
 
 private:
-	std::wstring title;
-	std::list<IMenuItem*> menuItems;
+	std::wstring _title;
+	std::list<IMenuItem*> _menuItems;
 };
 
 #endif

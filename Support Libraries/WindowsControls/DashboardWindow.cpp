@@ -4,63 +4,63 @@
 //----------------------------------------------------------------------------------------
 //Constants
 //----------------------------------------------------------------------------------------
-const wchar_t* DashboardWindow::windowClassName = L"EX_DockWin_DashboardWindow";
-const wchar_t* DashboardWindow::placementTargetWindowClassName = L"EX_DashboardWindow_PlacementTarget";
-const wchar_t* DashboardWindow::placementShadowWindowClassName = L"EX_DashboardWindow_PlacementShadow";
-const wchar_t* DashboardWindow::dividerHighlightWindowClassName = L"EX_DashboardWindow_DividerHighlight";
+const wchar_t* DashboardWindow::WindowClassName = L"EX_DockWin_DashboardWindow";
+const wchar_t* DashboardWindow::PlacementTargetWindowClassName = L"EX_DashboardWindow_PlacementTarget";
+const wchar_t* DashboardWindow::PlacementShadowWindowClassName = L"EX_DashboardWindow_PlacementShadow";
+const wchar_t* DashboardWindow::DividerHighlightWindowClassName = L"EX_DashboardWindow_DividerHighlight";
 
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-DashboardWindow::DashboardWindow(HINSTANCE amoduleHandle, HWND ahwnd)
-:moduleHandle(amoduleHandle), hwnd(ahwnd)
+DashboardWindow::DashboardWindow(HINSTANCE moduleHandle, HWND ahwnd)
+:_moduleHandle(moduleHandle), _hwnd(ahwnd)
 {
 	//Font info
-	controlFont = NULL;
-	controlFontHeight = 1;
+	_controlFont = NULL;
+	_controlFontHeight = 1;
 
 	//Window metrics
-	dividerSizeX = DPIScaleWidth(8);
-	dividerSizeY = DPIScaleHeight(8);
-	controlWidth = 0;
-	controlHeight = 0;
+	_dividerSizeX = DPIScaleWidth(8);
+	_dividerSizeY = DPIScaleHeight(8);
+	_controlWidth = 0;
+	_controlHeight = 0;
 
 	//Parent docking window info
-	parentDockingWindow = 0;
+	_parentDockingWindow = 0;
 
 	//Divider drag info
-	dividerDragActive = false;
-	dragLastPosX = 0;
-	dragLastPosY = 0;
-	dragPosOverLimitX = 0;
-	dragPosOverLimitY = 0;
-	dragPosSnapDisplacementX = 0;
-	dragPosSnapDisplacementY = 0;
+	_dividerDragActive = false;
+	_dragLastPosX = 0;
+	_dragLastPosY = 0;
+	_dragPosOverLimitX = 0;
+	_dragPosOverLimitY = 0;
+	_dragPosSnapDisplacementX = 0;
+	_dragPosSnapDisplacementY = 0;
 
 	//Drag-info
-	windowDragInProgress = false;
-	dockingWindowUnderDragPos = 0;
-	leftMouseButtonDown = false;
-	ignoreNextSizeAndMove = false;
+	_windowDragInProgress = false;
+	_dockingWindowUnderDragPos = 0;
+	_leftMouseButtonDown = false;
+	_ignoreNextSizeAndMove = false;
 
 	//Create the default region
 	ContentRegion* contentRegion = new ContentRegion();
-	regions.push_back(contentRegion);
-	topLevelDividersFromTop.push_back(DividerContentEntry(contentRegion, 0));
-	topLevelDividersFromLeft.push_back(DividerContentEntry(contentRegion, 0));
+	_regions.push_back(contentRegion);
+	_topLevelDividersFromTop.push_back(DividerContentEntry(contentRegion, 0));
+	_topLevelDividersFromLeft.push_back(DividerContentEntry(contentRegion, 0));
 
 	//Drop target info
-	dropTargetsChildDockingWindow = 0;
-	dropTargetsVisible = false;
-	currentRegionDropTarget = 0;
-	dropShadowVisible = false;
-	dropShadow = NULL;
+	_dropTargetsChildDockingWindow = 0;
+	_dropTargetsVisible = false;
+	_currentRegionDropTarget = 0;
+	_dropShadowVisible = false;
+	_dropShadow = NULL;
 
 	//Divider highlight info
-	dividerHighlightVisibleWindowCount = 0;
-	for(unsigned int i = 0; i < dividerHighlightWindowCount; ++i)
+	_dividerHighlightVisibleWindowCount = 0;
+	for(unsigned int i = 0; i < DividerHighlightWindowCount; ++i)
 	{
-		dividerHighlightWindows[i] = NULL;
+		_dividerHighlightWindows[i] = NULL;
 	}
 }
 
@@ -68,24 +68,24 @@ DashboardWindow::DashboardWindow(HINSTANCE amoduleHandle, HWND ahwnd)
 DashboardWindow::~DashboardWindow()
 {
 	//Destroy the placement target windows for this docking window
-	for(std::map<DockTargetPos, HWND>::const_iterator i = dropTargets.begin(); i != dropTargets.end(); ++i)
+	for(std::map<DockTargetPos, HWND>::const_iterator i = _dropTargets.begin(); i != _dropTargets.end(); ++i)
 	{
 		DestroyWindow(i->second);
 	}
-	DestroyWindow(dropShadow);
+	DestroyWindow(_dropShadow);
 
 	//Destroy the divider highlight windows
-	for(unsigned int i = 0; i < dividerHighlightWindowCount; ++i)
+	for(unsigned int i = 0; i < DividerHighlightWindowCount; ++i)
 	{
-		DestroyWindow(dividerHighlightWindows[i]);
+		DestroyWindow(_dividerHighlightWindows[i]);
 	}
 
 	//Destroy each allocated region and divider
-	for(std::list<ContentRegion*>::const_iterator i = regions.begin(); i != regions.end(); ++i)
+	for(std::list<ContentRegion*>::const_iterator i = _regions.begin(); i != _regions.end(); ++i)
 	{
 		delete *i;
 	}
-	for(std::list<Divider*>::const_iterator i = dividers.begin(); i != dividers.end(); ++i)
+	for(std::list<Divider*>::const_iterator i = _dividers.begin(); i != _dividers.end(); ++i)
 	{
 		delete *i;
 	}
@@ -94,7 +94,7 @@ DashboardWindow::~DashboardWindow()
 //----------------------------------------------------------------------------------------
 //Class registration
 //----------------------------------------------------------------------------------------
-bool DashboardWindow::RegisterWindowClass(HINSTANCE amoduleHandle)
+bool DashboardWindow::RegisterWindowClass(HINSTANCE moduleHandle)
 {
 	//Register the window class for this control
 	bool result = true;
@@ -105,12 +105,12 @@ bool DashboardWindow::RegisterWindowClass(HINSTANCE amoduleHandle)
 	wc.lpfnWndProc   = WndProc;
 	wc.cbClsExtra    = 0;
 	wc.cbWndExtra    = 0;
-	wc.hInstance     = amoduleHandle;
+	wc.hInstance     = moduleHandle;
 	wc.hIcon         = NULL;
 	wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
 	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
 	wc.lpszMenuName  = NULL;
-	wc.lpszClassName = windowClassName;
+	wc.lpszClassName = WindowClassName;
 	wc.hIconSm       = NULL;
 	registerClassExReturn = RegisterClassEx(&wc);
 	result &= (registerClassExReturn != 0);
@@ -121,12 +121,12 @@ bool DashboardWindow::RegisterWindowClass(HINSTANCE amoduleHandle)
 	wc.lpfnWndProc   = PlacementTargetWndProc;
 	wc.cbClsExtra    = 0;
 	wc.cbWndExtra    = 0;
-	wc.hInstance     = amoduleHandle;
+	wc.hInstance     = moduleHandle;
 	wc.hIcon         = NULL;
 	wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
 	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
 	wc.lpszMenuName  = NULL;
-	wc.lpszClassName = placementTargetWindowClassName;
+	wc.lpszClassName = PlacementTargetWindowClassName;
 	wc.hIconSm       = NULL;
 	registerClassExReturn = RegisterClassEx(&wc);
 	result &= (registerClassExReturn != 0);
@@ -137,12 +137,12 @@ bool DashboardWindow::RegisterWindowClass(HINSTANCE amoduleHandle)
 	wc.lpfnWndProc   = PlacementShadowWndProc;
 	wc.cbClsExtra    = 0;
 	wc.cbWndExtra    = 0;
-	wc.hInstance     = amoduleHandle;
+	wc.hInstance     = moduleHandle;
 	wc.hIcon         = NULL;
 	wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
 	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
 	wc.lpszMenuName  = NULL;
-	wc.lpszClassName = placementShadowWindowClassName;
+	wc.lpszClassName = PlacementShadowWindowClassName;
 	wc.hIconSm       = NULL;
 	registerClassExReturn = RegisterClassEx(&wc);
 	result &= (registerClassExReturn != 0);
@@ -153,12 +153,12 @@ bool DashboardWindow::RegisterWindowClass(HINSTANCE amoduleHandle)
 	wc.lpfnWndProc   = DividerHighlightWndProc;
 	wc.cbClsExtra    = 0;
 	wc.cbWndExtra    = 0;
-	wc.hInstance     = amoduleHandle;
+	wc.hInstance     = moduleHandle;
 	wc.hIcon         = NULL;
 	wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
 	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
 	wc.lpszMenuName  = NULL;
-	wc.lpszClassName = dividerHighlightWindowClassName;
+	wc.lpszClassName = DividerHighlightWindowClassName;
 	wc.hIconSm       = NULL;
 	registerClassExReturn = RegisterClassEx(&wc);
 	result &= (registerClassExReturn != 0);
@@ -168,14 +168,14 @@ bool DashboardWindow::RegisterWindowClass(HINSTANCE amoduleHandle)
 }
 
 //----------------------------------------------------------------------------------------
-bool DashboardWindow::UnregisterWindowClass(HINSTANCE amoduleHandle)
+bool DashboardWindow::UnregisterWindowClass(HINSTANCE moduleHandle)
 {
 	//Unregister each window class registered by this control
 	bool result = true;
-	result &= (UnregisterClass(windowClassName, amoduleHandle) != 0);
-	result &= (UnregisterClass(placementTargetWindowClassName, amoduleHandle) != 0);
-	result &= (UnregisterClass(placementShadowWindowClassName, amoduleHandle) != 0);
-	result &= (UnregisterClass(dividerHighlightWindowClassName, amoduleHandle) != 0);
+	result &= (UnregisterClass(WindowClassName, moduleHandle) != 0);
+	result &= (UnregisterClass(PlacementTargetWindowClassName, moduleHandle) != 0);
+	result &= (UnregisterClass(PlacementShadowWindowClassName, moduleHandle) != 0);
+	result &= (UnregisterClass(DividerHighlightWindowClassName, moduleHandle) != 0);
 
 	//Return the result to the caller
 	return result;
@@ -277,47 +277,47 @@ LRESULT DashboardWindow::WndProcPrivate(UINT message, WPARAM wParam, LPARAM lPar
 	case (unsigned int)WindowMessages::LoadLayoutFromDividerList:
 		return msgDASHWIN_LOADLAYOUTFROMDIVIDERLIST(wParam, lParam);
 	}
-	return DefWindowProc(hwnd, message, wParam, lParam);
+	return DefWindowProc(_hwnd, message, wParam, lParam);
 }
 
 //----------------------------------------------------------------------------------------
 LRESULT DashboardWindow::msgWM_CREATE(WPARAM wParam, LPARAM lParam)
 {
 	//Read the font metrics for our default font
-	HDC hdc = GetDC(hwnd);
-	HFONT hfontOld = (HFONT)SelectObject(hdc, controlFont);
+	HDC hdc = GetDC(_hwnd);
+	HFONT hfontOld = (HFONT)SelectObject(hdc, _controlFont);
 	TEXTMETRIC textMetric;
 	GetTextMetrics(hdc, &textMetric);
-	controlFontHeight = textMetric.tmHeight;
+	_controlFontHeight = textMetric.tmHeight;
 	SelectObject(hdc, hfontOld);
-	ReleaseDC(hwnd, hdc);
+	ReleaseDC(_hwnd, hdc);
 
 	//Cursor info
-	cursorSizeHorizontal = LoadCursor(NULL, IDC_SIZEWE);
-	cursorSizeVertical = LoadCursor(NULL, IDC_SIZENS);
-	cursorSizeAll = LoadCursor(NULL, IDC_SIZEALL);
+	_cursorSizeHorizontal = LoadCursor(NULL, IDC_SIZEWE);
+	_cursorSizeVertical = LoadCursor(NULL, IDC_SIZENS);
+	_cursorSizeAll = LoadCursor(NULL, IDC_SIZEALL);
 
 	//Create the placement target windows to indicate the drag and drop docking target for
 	//this window
-	dropTargets[DockTargetPos::Left] = CreateWindowEx(WS_EX_TOPMOST, placementTargetWindowClassName, L"", WS_POPUP, 0, 0, 0, 0, hwnd, NULL, moduleHandle, (LPVOID)this);
-	dropTargets[DockTargetPos::Right] = CreateWindowEx(WS_EX_TOPMOST, placementTargetWindowClassName, L"", WS_POPUP, 0, 0, 0, 0, hwnd, NULL, moduleHandle, (LPVOID)this);
-	dropTargets[DockTargetPos::Top] = CreateWindowEx(WS_EX_TOPMOST, placementTargetWindowClassName, L"", WS_POPUP, 0, 0, 0, 0, hwnd, NULL, moduleHandle, (LPVOID)this);
-	dropTargets[DockTargetPos::Bottom] = CreateWindowEx(WS_EX_TOPMOST, placementTargetWindowClassName, L"", WS_POPUP, 0, 0, 0, 0, hwnd, NULL, moduleHandle, (LPVOID)this);
-	dropTargets[DockTargetPos::Center] = CreateWindowEx(WS_EX_TOPMOST, placementTargetWindowClassName, L"", WS_POPUP, 0, 0, 0, 0, hwnd, NULL, moduleHandle, (LPVOID)this);
+	_dropTargets[DockTargetPos::Left] = CreateWindowEx(WS_EX_TOPMOST, PlacementTargetWindowClassName, L"", WS_POPUP, 0, 0, 0, 0, _hwnd, NULL, _moduleHandle, (LPVOID)this);
+	_dropTargets[DockTargetPos::Right] = CreateWindowEx(WS_EX_TOPMOST, PlacementTargetWindowClassName, L"", WS_POPUP, 0, 0, 0, 0, _hwnd, NULL, _moduleHandle, (LPVOID)this);
+	_dropTargets[DockTargetPos::Top] = CreateWindowEx(WS_EX_TOPMOST, PlacementTargetWindowClassName, L"", WS_POPUP, 0, 0, 0, 0, _hwnd, NULL, _moduleHandle, (LPVOID)this);
+	_dropTargets[DockTargetPos::Bottom] = CreateWindowEx(WS_EX_TOPMOST, PlacementTargetWindowClassName, L"", WS_POPUP, 0, 0, 0, 0, _hwnd, NULL, _moduleHandle, (LPVOID)this);
+	_dropTargets[DockTargetPos::Center] = CreateWindowEx(WS_EX_TOPMOST, PlacementTargetWindowClassName, L"", WS_POPUP, 0, 0, 0, 0, _hwnd, NULL, _moduleHandle, (LPVOID)this);
 
 	//Create the placement shadow window
-	dropShadow = CreateWindowEx(WS_EX_TOPMOST | WS_EX_LAYERED | WS_EX_TRANSPARENT, placementShadowWindowClassName, L"", WS_POPUP, 0, 0, 0, 0, hwnd, NULL, moduleHandle, (LPVOID)this);
-	SetLayeredWindowAttributes(dropShadow, 0, 128, LWA_ALPHA);
+	_dropShadow = CreateWindowEx(WS_EX_TOPMOST | WS_EX_LAYERED | WS_EX_TRANSPARENT, PlacementShadowWindowClassName, L"", WS_POPUP, 0, 0, 0, 0, _hwnd, NULL, _moduleHandle, (LPVOID)this);
+	SetLayeredWindowAttributes(_dropShadow, 0, 128, LWA_ALPHA);
 
 	//Create the divider highlight windows
-	for(unsigned int i = 0; i < dividerHighlightWindowCount; ++i)
+	for(unsigned int i = 0; i < DividerHighlightWindowCount; ++i)
 	{
-		dividerHighlightWindows[i] = CreateWindowEx(WS_EX_TOPMOST | WS_EX_LAYERED | WS_EX_TRANSPARENT, dividerHighlightWindowClassName, L"", WS_POPUP, 0, 0, 0, 0, hwnd, NULL, moduleHandle, (LPVOID)this);
-		SetLayeredWindowAttributes(dividerHighlightWindows[i], 0, 128, LWA_ALPHA);
+		_dividerHighlightWindows[i] = CreateWindowEx(WS_EX_TOPMOST | WS_EX_LAYERED | WS_EX_TRANSPARENT, DividerHighlightWindowClassName, L"", WS_POPUP, 0, 0, 0, 0, _hwnd, NULL, _moduleHandle, (LPVOID)this);
+		SetLayeredWindowAttributes(_dividerHighlightWindows[i], 0, 128, LWA_ALPHA);
 	}
 
 	//Set the background colour of the dividers
-	dividerBackgroundColor = WinColor(120, 120, 150);
+	_dividerBackgroundColor = WinColor(120, 120, 150);
 
 	//Define pen objects to draw the marked and shadow components of the icons on our
 	//dividers. Note that we're building images here for use with the AlphaBlend win32 GDI
@@ -341,45 +341,45 @@ LRESULT DashboardWindow::msgWM_CREATE(WPARAM wParam, LPARAM lParam)
 	shadowPenColorComponents[3] = shadowAlphaComponent;
 
 	//Draw the image used for our grabbers on the dividers
-	unsigned int grabberImageWidth = (unsigned int)dividerSizeX / 2;
-	unsigned int grabberImageHeight = (unsigned int)dividerSizeY / 2;
+	unsigned int grabberImageWidth = (unsigned int)_dividerSizeX / 2;
+	unsigned int grabberImageHeight = (unsigned int)_dividerSizeY / 2;
 	unsigned int grabberImageSquareWidth = grabberImageWidth / 2;
 	unsigned int grabberImageSquareHeight = grabberImageHeight / 2;
-	grabberImage.SetImageFormat(grabberImageWidth, grabberImageHeight, IImage::PIXELFORMAT_RGBA);
-	DrawImageSquare(grabberImage, grabberImageSquareWidth, grabberImageSquareHeight, grabberImageSquareWidth, grabberImageSquareHeight, shadowPenColorComponents);
-	DrawImageSquare(grabberImage, grabberImageSquareWidth / 2, grabberImageSquareHeight / 2, grabberImageSquareWidth, grabberImageSquareHeight, markerPenColorComponents);
+	_grabberImage.SetImageFormat(grabberImageWidth, grabberImageHeight, IImage::PIXELFORMAT_RGBA);
+	DrawImageSquare(_grabberImage, grabberImageSquareWidth, grabberImageSquareHeight, grabberImageSquareWidth, grabberImageSquareHeight, shadowPenColorComponents);
+	DrawImageSquare(_grabberImage, grabberImageSquareWidth / 2, grabberImageSquareHeight / 2, grabberImageSquareWidth, grabberImageSquareHeight, markerPenColorComponents);
 
 	//Draw the images used for the extend buttons on our dividers
 	unsigned int arrowImageWidth = 8;
 	unsigned int arrowImageHeight = 8;
-	arrowImageTopLeft.SetImageFormat(arrowImageWidth, arrowImageHeight, IImage::PIXELFORMAT_RGBA);
-	DrawImageLine(arrowImageTopLeft, 2, 2, 7, 2, shadowPenColorComponents);
-	DrawImageLine(arrowImageTopLeft, 2, 2, 2, 7, shadowPenColorComponents);
-	DrawImageLine(arrowImageTopLeft, 2, 2, 7, 7, shadowPenColorComponents);
-	DrawImageLine(arrowImageTopLeft, 1, 1, 6, 1, markerPenColorComponents);
-	DrawImageLine(arrowImageTopLeft, 1, 1, 1, 6, markerPenColorComponents);
-	DrawImageLine(arrowImageTopLeft, 1, 1, 6, 6, markerPenColorComponents);
-	arrowImageTopRight.SetImageFormat(arrowImageWidth, arrowImageHeight, IImage::PIXELFORMAT_RGBA);
-	DrawImageLine(arrowImageTopRight, 2, 2, 7, 2, shadowPenColorComponents);
-	DrawImageLine(arrowImageTopRight, 7, 2, 7, 7, shadowPenColorComponents);
-	DrawImageLine(arrowImageTopRight, 2, 7, 7, 2, shadowPenColorComponents);
-	DrawImageLine(arrowImageTopRight, 1, 1, 6, 1, markerPenColorComponents);
-	DrawImageLine(arrowImageTopRight, 6, 1, 6, 6, markerPenColorComponents);
-	DrawImageLine(arrowImageTopRight, 1, 6, 6, 1, markerPenColorComponents);
-	arrowImageBottomLeft.SetImageFormat(arrowImageWidth, arrowImageHeight, IImage::PIXELFORMAT_RGBA);
-	DrawImageLine(arrowImageBottomLeft, 2, 2, 2, 7, shadowPenColorComponents);
-	DrawImageLine(arrowImageBottomLeft, 2, 7, 7, 7, shadowPenColorComponents);
-	DrawImageLine(arrowImageBottomLeft, 7, 2, 2, 7, shadowPenColorComponents);
-	DrawImageLine(arrowImageBottomLeft, 1, 1, 1, 6, markerPenColorComponents);
-	DrawImageLine(arrowImageBottomLeft, 1, 6, 6, 6, markerPenColorComponents);
-	DrawImageLine(arrowImageBottomLeft, 6, 1, 1, 6, markerPenColorComponents);
-	arrowImageBottomRight.SetImageFormat(arrowImageWidth, arrowImageHeight, IImage::PIXELFORMAT_RGBA);
-	DrawImageLine(arrowImageBottomRight, 7, 2, 7, 7, shadowPenColorComponents);
-	DrawImageLine(arrowImageBottomRight, 2, 7, 7, 7, shadowPenColorComponents);
-	DrawImageLine(arrowImageBottomRight, 2, 2, 7, 7, shadowPenColorComponents);
-	DrawImageLine(arrowImageBottomRight, 6, 1, 6, 6, markerPenColorComponents);
-	DrawImageLine(arrowImageBottomRight, 1, 6, 6, 6, markerPenColorComponents);
-	DrawImageLine(arrowImageBottomRight, 1, 1, 6, 6, markerPenColorComponents);
+	_arrowImageTopLeft.SetImageFormat(arrowImageWidth, arrowImageHeight, IImage::PIXELFORMAT_RGBA);
+	DrawImageLine(_arrowImageTopLeft, 2, 2, 7, 2, shadowPenColorComponents);
+	DrawImageLine(_arrowImageTopLeft, 2, 2, 2, 7, shadowPenColorComponents);
+	DrawImageLine(_arrowImageTopLeft, 2, 2, 7, 7, shadowPenColorComponents);
+	DrawImageLine(_arrowImageTopLeft, 1, 1, 6, 1, markerPenColorComponents);
+	DrawImageLine(_arrowImageTopLeft, 1, 1, 1, 6, markerPenColorComponents);
+	DrawImageLine(_arrowImageTopLeft, 1, 1, 6, 6, markerPenColorComponents);
+	_arrowImageTopRight.SetImageFormat(arrowImageWidth, arrowImageHeight, IImage::PIXELFORMAT_RGBA);
+	DrawImageLine(_arrowImageTopRight, 2, 2, 7, 2, shadowPenColorComponents);
+	DrawImageLine(_arrowImageTopRight, 7, 2, 7, 7, shadowPenColorComponents);
+	DrawImageLine(_arrowImageTopRight, 2, 7, 7, 2, shadowPenColorComponents);
+	DrawImageLine(_arrowImageTopRight, 1, 1, 6, 1, markerPenColorComponents);
+	DrawImageLine(_arrowImageTopRight, 6, 1, 6, 6, markerPenColorComponents);
+	DrawImageLine(_arrowImageTopRight, 1, 6, 6, 1, markerPenColorComponents);
+	_arrowImageBottomLeft.SetImageFormat(arrowImageWidth, arrowImageHeight, IImage::PIXELFORMAT_RGBA);
+	DrawImageLine(_arrowImageBottomLeft, 2, 2, 2, 7, shadowPenColorComponents);
+	DrawImageLine(_arrowImageBottomLeft, 2, 7, 7, 7, shadowPenColorComponents);
+	DrawImageLine(_arrowImageBottomLeft, 7, 2, 2, 7, shadowPenColorComponents);
+	DrawImageLine(_arrowImageBottomLeft, 1, 1, 1, 6, markerPenColorComponents);
+	DrawImageLine(_arrowImageBottomLeft, 1, 6, 6, 6, markerPenColorComponents);
+	DrawImageLine(_arrowImageBottomLeft, 6, 1, 1, 6, markerPenColorComponents);
+	_arrowImageBottomRight.SetImageFormat(arrowImageWidth, arrowImageHeight, IImage::PIXELFORMAT_RGBA);
+	DrawImageLine(_arrowImageBottomRight, 7, 2, 7, 7, shadowPenColorComponents);
+	DrawImageLine(_arrowImageBottomRight, 2, 7, 7, 7, shadowPenColorComponents);
+	DrawImageLine(_arrowImageBottomRight, 2, 2, 7, 7, shadowPenColorComponents);
+	DrawImageLine(_arrowImageBottomRight, 6, 1, 6, 6, markerPenColorComponents);
+	DrawImageLine(_arrowImageBottomRight, 1, 6, 6, 6, markerPenColorComponents);
+	DrawImageLine(_arrowImageBottomRight, 1, 1, 6, 6, markerPenColorComponents);
 
 	//Resize the extend button images if the divider is a different size. This can happen
 	//when a high DPI setting is being used.
@@ -391,17 +391,17 @@ LRESULT DashboardWindow::msgWM_CREATE(WPARAM wParam, LPARAM lParam)
 	//antialiasing support for line drawing, where we can then just make the image at the
 	//correct size for the current DPI and draw larger lines natively with good image
 	//quality.
-	if((arrowImageWidth != (unsigned int)dividerSizeX) || (arrowImageHeight != (unsigned int)dividerSizeY))
+	if((arrowImageWidth != (unsigned int)_dividerSizeX) || (arrowImageHeight != (unsigned int)_dividerSizeY))
 	{
-		arrowImageTopLeft.ResampleBilinear((unsigned int)dividerSizeX, (unsigned int)dividerSizeY);
-		arrowImageTopRight.ResampleBilinear((unsigned int)dividerSizeX, (unsigned int)dividerSizeY);
-		arrowImageBottomLeft.ResampleBilinear((unsigned int)dividerSizeX, (unsigned int)dividerSizeY);
-		arrowImageBottomRight.ResampleBilinear((unsigned int)dividerSizeX, (unsigned int)dividerSizeY);
+		_arrowImageTopLeft.ResampleBilinear((unsigned int)_dividerSizeX, (unsigned int)_dividerSizeY);
+		_arrowImageTopRight.ResampleBilinear((unsigned int)_dividerSizeX, (unsigned int)_dividerSizeY);
+		_arrowImageBottomLeft.ResampleBilinear((unsigned int)_dividerSizeX, (unsigned int)_dividerSizeY);
+		_arrowImageBottomRight.ResampleBilinear((unsigned int)_dividerSizeX, (unsigned int)_dividerSizeY);
 	}
 
 	//Calculate the dimensions of the client region of this control
 	RECT rect;
-	GetClientRect(hwnd, &rect);
+	GetClientRect(_hwnd, &rect);
 	int newClientWidth = rect.right;
 	int newClientHeight = rect.bottom;
 
@@ -414,7 +414,7 @@ LRESULT DashboardWindow::msgWM_CREATE(WPARAM wParam, LPARAM lParam)
 //----------------------------------------------------------------------------------------
 LRESULT DashboardWindow::msgWM_DESTROY(WPARAM wParam, LPARAM lParam)
 {
-	for(std::list<ContentRegion*>::const_iterator i = regions.begin(); i != regions.end(); ++i)
+	for(std::list<ContentRegion*>::const_iterator i = _regions.begin(); i != _regions.end(); ++i)
 	{
 		ContentRegion& contentRegion = *(*i);
 		if(contentRegion.windowAsDockingWindow != 0)
@@ -423,9 +423,9 @@ LRESULT DashboardWindow::msgWM_DESTROY(WPARAM wParam, LPARAM lParam)
 			contentRegion.windowAsDockingWindow = 0;
 		}
 	}
-	if(parentDockingWindow != 0)
+	if(_parentDockingWindow != 0)
 	{
-		parentDockingWindow->RemoveChildContainer(this);
+		_parentDockingWindow->RemoveChildContainer(this);
 	}
 	return 0;
 }
@@ -436,34 +436,34 @@ LRESULT DashboardWindow::msgWM_SIZING(WPARAM wParam, LPARAM lParam)
 	//If a window size operation isn't currently being tracked, or if this docking window
 	//isn't docked to a parent, perform the default processing for this window message.
 	RECT& rect = *((RECT*)lParam);
-	if(!windowDragInProgress || (parentDockingWindow == 0))
+	if(!_windowDragInProgress || (_parentDockingWindow == 0))
 	{
-		return DefWindowProc(hwnd, WM_SIZING, wParam, lParam);
+		return DefWindowProc(_hwnd, WM_SIZING, wParam, lParam);
 	}
 
 	//Ensure that we only allow the edges of this window to be resized that the parent
 	//docking window allows to be resized.
-	if(!parentDockingWindow->CanResizeChildContainerWindowEdge(this, WindowEdge::Left))
+	if(!_parentDockingWindow->CanResizeChildContainerWindowEdge(this, WindowEdge::Left))
 	{
-		rect.left = windowSizeMoveInitialPos.left;
+		rect.left = _windowSizeMoveInitialPos.left;
 	}
-	if(!parentDockingWindow->CanResizeChildContainerWindowEdge(this, WindowEdge::Right))
+	if(!_parentDockingWindow->CanResizeChildContainerWindowEdge(this, WindowEdge::Right))
 	{
-		rect.right = windowSizeMoveInitialPos.right;
+		rect.right = _windowSizeMoveInitialPos.right;
 	}
-	if(!parentDockingWindow->CanResizeChildContainerWindowEdge(this, WindowEdge::Top))
+	if(!_parentDockingWindow->CanResizeChildContainerWindowEdge(this, WindowEdge::Top))
 	{
-		rect.top = windowSizeMoveInitialPos.top;
+		rect.top = _windowSizeMoveInitialPos.top;
 	}
-	if(!parentDockingWindow->CanResizeChildContainerWindowEdge(this, WindowEdge::Bottom))
+	if(!_parentDockingWindow->CanResizeChildContainerWindowEdge(this, WindowEdge::Bottom))
 	{
-		rect.bottom = windowSizeMoveInitialPos.bottom;
+		rect.bottom = _windowSizeMoveInitialPos.bottom;
 	}
 
 	//Notify the parent docking window of our new desired with and height
 	int newDesiredWidth = rect.right - rect.left;
 	int newDesiredHeight = rect.bottom - rect.top;
-	parentDockingWindow->UpdateDesiredChildContainerSize(this, newDesiredWidth, newDesiredHeight);
+	_parentDockingWindow->UpdateDesiredChildContainerSize(this, newDesiredWidth, newDesiredHeight);
 
 	//Return TRUE to inform windows that we processed this message
 	return TRUE;
@@ -474,12 +474,12 @@ LRESULT DashboardWindow::msgWM_SIZE(WPARAM wParam, LPARAM lParam)
 {
 	//Calculate the dimensions of the client region of this control
 	RECT rect;
-	GetClientRect(hwnd, &rect);
+	GetClientRect(_hwnd, &rect);
 	int newClientWidth = rect.right;
 	int newClientHeight = rect.bottom;
 
 	//If this control has changed in size, process the size change event.
-	if((controlWidth != newClientWidth) || (controlHeight != newClientHeight))
+	if((_controlWidth != newClientWidth) || (_controlHeight != newClientHeight))
 	{
 		HandleSizeChanged(newClientWidth, newClientHeight);
 	}
@@ -491,15 +491,15 @@ LRESULT DashboardWindow::msgWM_SIZE(WPARAM wParam, LPARAM lParam)
 LRESULT DashboardWindow::msgWM_LBUTTONUP(WPARAM wParam, LPARAM lParam)
 {
 	//Terminate a drag operation if one is in progress
-	if(dividerDragActive)
+	if(_dividerDragActive)
 	{
-		dividerDragActive = false;
-		verticalDividersBeingDragged.clear();
-		horizontalDividersBeingDragged.clear();
+		_dividerDragActive = false;
+		_verticalDividersBeingDragged.clear();
+		_horizontalDividersBeingDragged.clear();
 		ReleaseCapture();
 		return 0;
 	}
-	return DefWindowProc(hwnd, WM_LBUTTONUP, wParam, lParam);;
+	return DefWindowProc(_hwnd, WM_LBUTTONUP, wParam, lParam);;
 }
 
 //----------------------------------------------------------------------------------------
@@ -515,17 +515,17 @@ LRESULT DashboardWindow::msgWM_LBUTTONDOWN(WPARAM wParam, LPARAM lParam)
 	//If no dividers are under the current cursor position, abort any further processing.
 	if(dividersUnderCursor.empty())
 	{
-		return DefWindowProc(hwnd, WM_LBUTTONDOWN, wParam, lParam);
+		return DefWindowProc(_hwnd, WM_LBUTTONDOWN, wParam, lParam);
 	}
 
 	//If there are currently any visible divider highlight windows, hide them now.
-	if(dividerHighlightVisibleWindowCount > 0)
+	if(_dividerHighlightVisibleWindowCount > 0)
 	{
-		dividerHighlightVisibleWindowCount = 0;
-		HDWP deferWindowPosSession = BeginDeferWindowPos(dividerHighlightWindowCount);
-		for(unsigned int i = 0; i < dividerHighlightWindowCount; ++i)
+		_dividerHighlightVisibleWindowCount = 0;
+		HDWP deferWindowPosSession = BeginDeferWindowPos(DividerHighlightWindowCount);
+		for(unsigned int i = 0; i < DividerHighlightWindowCount; ++i)
 		{
-			DeferWindowPos(deferWindowPosSession, dividerHighlightWindows[i], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | ((i < dividerHighlightVisibleWindowCount)? SWP_SHOWWINDOW: SWP_HIDEWINDOW));
+			DeferWindowPos(deferWindowPosSession, _dividerHighlightWindows[i], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | ((i < _dividerHighlightVisibleWindowCount)? SWP_SHOWWINDOW: SWP_HIDEWINDOW));
 		}
 		EndDeferWindowPos(deferWindowPosSession);
 	}
@@ -549,13 +549,13 @@ LRESULT DashboardWindow::msgWM_LBUTTONDOWN(WPARAM wParam, LPARAM lParam)
 	}
 
 	//Record information on this drag operation
-	dividerDragActive = true;
-	dragLastPosX = cursorPosX;
-	dragLastPosY = cursorPosY;
-	dragPosOverLimitX = 0;
-	dragPosOverLimitY = 0;
-	dragPosSnapDisplacementX = 0;
-	dragPosSnapDisplacementY = 0;
+	_dividerDragActive = true;
+	_dragLastPosX = cursorPosX;
+	_dragLastPosY = cursorPosY;
+	_dragPosOverLimitX = 0;
+	_dragPosOverLimitY = 0;
+	_dragPosSnapDisplacementX = 0;
+	_dragPosSnapDisplacementY = 0;
 
 	//Determine if a split grabber is being dragged, and prepare the dividers to make them
 	//draggable if one is.
@@ -605,13 +605,13 @@ LRESULT DashboardWindow::msgWM_LBUTTONDOWN(WPARAM wParam, LPARAM lParam)
 	}
 
 	//Populate the lists of vertical and horizontal dividers being dragged
-	verticalDividersBeingDragged.clear();
-	horizontalDividersBeingDragged.clear();
+	_verticalDividersBeingDragged.clear();
+	_horizontalDividersBeingDragged.clear();
 	for(std::list<Divider*>::const_iterator i = dividersUnderCursor.begin(); i != dividersUnderCursor.end(); ++i)
 	{
 		//Add the target divider to the list of dividers being dragged
 		Divider* divider = *i;
-		std::set<Divider*>& targetDividerList = (divider->vertical)? verticalDividersBeingDragged: horizontalDividersBeingDragged;
+		std::set<Divider*>& targetDividerList = (divider->vertical)? _verticalDividersBeingDragged: _horizontalDividersBeingDragged;
 		targetDividerList.insert(divider);
 
 		//If we're not dragging a split grabber, add all merge candidates of the target
@@ -625,7 +625,7 @@ LRESULT DashboardWindow::msgWM_LBUTTONDOWN(WPARAM wParam, LPARAM lParam)
 
 	//Capture the mouse to ensure we continue to get mouse notifications if the cursor
 	//moves outside the window
-	SetCapture(hwnd);
+	SetCapture(_hwnd);
 
 	return 0;
 }
@@ -639,11 +639,11 @@ LRESULT DashboardWindow::msgWM_MOUSEMOVE(WPARAM wParam, LPARAM lParam)
 
 	//If a drag operation isn't currently in progress for a divider, update the divider
 	//highlight windows as required, and abort any further processing.
-	if(!dividerDragActive)
+	if(!_dividerDragActive)
 	{
 		bool dropShadowRequired = false;
-		unsigned int previousDividerHighlightVisibleWindowCount = dividerHighlightVisibleWindowCount;
-		dividerHighlightVisibleWindowCount = 0;
+		unsigned int previousDividerHighlightVisibleWindowCount = _dividerHighlightVisibleWindowCount;
+		_dividerHighlightVisibleWindowCount = 0;
 		std::list<Divider*> dividersUnderCursor = GetDividersAtPosition(cursorPosX, cursorPosY);
 		if(dividersUnderCursor.size() == 1)
 		{
@@ -694,16 +694,16 @@ LRESULT DashboardWindow::msgWM_MOUSEMOVE(WPARAM wParam, LPARAM lParam)
 				POINT point;
 				point.x = dividerHighlightPosX;
 				point.y = dividerHighlightPosY;
-				ClientToScreen(hwnd, &point);
+				ClientToScreen(_hwnd, &point);
 				int dividerHighlightScreenPosX = point.x;
 				int dividerHighlightScreenPosY = point.y;
 
 				//Position and size the divider highlight window
-				SetWindowPos(dividerHighlightWindows[0], NULL, dividerHighlightScreenPosX, dividerHighlightScreenPosY, dividerHighlightWidth, dividerHighlightHeight, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
+				SetWindowPos(_dividerHighlightWindows[0], NULL, dividerHighlightScreenPosX, dividerHighlightScreenPosY, dividerHighlightWidth, dividerHighlightHeight, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
 
 				//Flag that one divider highlight window is visible, and stop looking
 				//through the list of split positions.
-				dividerHighlightVisibleWindowCount = 1;
+				_dividerHighlightVisibleWindowCount = 1;
 				break;
 			}
 
@@ -747,24 +747,24 @@ LRESULT DashboardWindow::msgWM_MOUSEMOVE(WPARAM wParam, LPARAM lParam)
 				}
 
 				//Record the edge to anchor the drop shadow against
-				dropShadowCurrentPos = dropShadowDividerEdge;
+				_dropShadowCurrentPos = dropShadowDividerEdge;
 
 				//Calculate the position of the drop shadow window in screen coordinates
 				POINT point;
 				point.x = dropShadowPosX;
 				point.y = dropShadowPosY;
-				ClientToScreen(hwnd, &point);
+				ClientToScreen(_hwnd, &point);
 				int dropShadowScreenPosX = point.x;
 				int dropShadowScreenPosY = point.y;
 
 				//Update the drop shadow position and size
-				SetWindowPos(dropShadow, NULL, dropShadowScreenPosX, dropShadowScreenPosY, dropShadowWidth, dropShadowHeight, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
+				SetWindowPos(_dropShadow, NULL, dropShadowScreenPosX, dropShadowScreenPosY, dropShadowWidth, dropShadowHeight, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
 
 				//Show the drop shadow window
-				if(!dropShadowVisible)
+				if(!_dropShadowVisible)
 				{
-					SetWindowPos(dropShadow, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_SHOWWINDOW);
-					dropShadowVisible = true;
+					SetWindowPos(_dropShadow, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+					_dropShadowVisible = true;
 				}
 
 				//Flag that a drop shadow window is required, and stop looking through the
@@ -775,66 +775,66 @@ LRESULT DashboardWindow::msgWM_MOUSEMOVE(WPARAM wParam, LPARAM lParam)
 		}
 
 		//Hide the drop shadow window if it is currently visible and no longer required
-		if(!dropShadowRequired && dropShadowVisible)
+		if(!dropShadowRequired && _dropShadowVisible)
 		{
-			SetWindowPos(dropShadow, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_HIDEWINDOW);
-			dropShadowVisible = false;
+			SetWindowPos(_dropShadow, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_HIDEWINDOW);
+			_dropShadowVisible = false;
 		}
 
 		//If the number of visible divider highlight windows has changed, update the
 		//window visibility now.
-		if(dividerHighlightVisibleWindowCount != previousDividerHighlightVisibleWindowCount)
+		if(_dividerHighlightVisibleWindowCount != previousDividerHighlightVisibleWindowCount)
 		{
-			HDWP deferWindowPosSession = BeginDeferWindowPos(dividerHighlightWindowCount);
-			for(unsigned int i = 0; i < dividerHighlightWindowCount; ++i)
+			HDWP deferWindowPosSession = BeginDeferWindowPos(DividerHighlightWindowCount);
+			for(unsigned int i = 0; i < DividerHighlightWindowCount; ++i)
 			{
-				DeferWindowPos(deferWindowPosSession, dividerHighlightWindows[i], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | ((i < dividerHighlightVisibleWindowCount)? SWP_SHOWWINDOW: SWP_HIDEWINDOW));
+				DeferWindowPos(deferWindowPosSession, _dividerHighlightWindows[i], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | ((i < _dividerHighlightVisibleWindowCount)? SWP_SHOWWINDOW: SWP_HIDEWINDOW));
 			}
 			EndDeferWindowPos(deferWindowPosSession);
 		}
 
 		//Request WM_MOUSELEAVE messages to be generated if we're currently showing
 		//divider highlight or drop shadow windows
-		if(dropShadowVisible || (dividerHighlightVisibleWindowCount > 0))
+		if(_dropShadowVisible || (_dividerHighlightVisibleWindowCount > 0))
 		{
 			TRACKMOUSEEVENT trackMouseEvent;
 			trackMouseEvent.cbSize = sizeof(trackMouseEvent);
 			trackMouseEvent.dwFlags = TME_LEAVE;
-			trackMouseEvent.hwndTrack = hwnd;
+			trackMouseEvent.hwndTrack = _hwnd;
 			TrackMouseEvent(&trackMouseEvent);
 		}
 
 		//Since a divider isn't currently being dragged, abort any further processing.
-		return DefWindowProc(hwnd, WM_MOUSEMOVE, wParam, lParam);
+		return DefWindowProc(_hwnd, WM_MOUSEMOVE, wParam, lParam);
 	}
 
 	//Calculate the displacement from the previous processed cursor location to the new
 	//cursor location
-	int cursorDisplacementX = cursorPosX - dragLastPosX;
-	int cursorDisplacementY = cursorPosY - dragLastPosY;
+	int cursorDisplacementX = cursorPosX - _dragLastPosX;
+	int cursorDisplacementY = cursorPosY - _dragLastPosY;
 
 	//Combine displacement from the last drag operation which was outside the maximum
 	//bounds of movement
-	cursorDisplacementX += dragPosOverLimitX;
-	cursorDisplacementY += dragPosOverLimitY;
-	dragPosOverLimitX = 0;
-	dragPosOverLimitY = 0;
+	cursorDisplacementX += _dragPosOverLimitX;
+	cursorDisplacementY += _dragPosOverLimitY;
+	_dragPosOverLimitX = 0;
+	_dragPosOverLimitY = 0;
 
 	//Subtract displacement from the last drag operation that was added due to a snapping
 	//operation
-	cursorDisplacementX -= dragPosSnapDisplacementX;
-	cursorDisplacementY -= dragPosSnapDisplacementY;
-	dragPosSnapDisplacementX = 0;
-	dragPosSnapDisplacementY = 0;
+	cursorDisplacementX -= _dragPosSnapDisplacementX;
+	cursorDisplacementY -= _dragPosSnapDisplacementY;
+	_dragPosSnapDisplacementX = 0;
+	_dragPosSnapDisplacementY = 0;
 
 	//If a vertical divider is being dragged, adjust any content regions affected by this
 	//divider drag.
 	int maxNegativeDisplacementX = std::numeric_limits<int>::max();
 	int maxPositiveDisplacementX = std::numeric_limits<int>::max();
-	if(!verticalDividersBeingDragged.empty())
+	if(!_verticalDividersBeingDragged.empty())
 	{
 		//Calculate the maximum and minimum horizontal displacement value
-		for(std::set<Divider*>::const_iterator dragDividerIterator = verticalDividersBeingDragged.begin(); dragDividerIterator != verticalDividersBeingDragged.end(); ++dragDividerIterator)
+		for(std::set<Divider*>::const_iterator dragDividerIterator = _verticalDividersBeingDragged.begin(); dragDividerIterator != _verticalDividersBeingDragged.end(); ++dragDividerIterator)
 		{
 			Divider* divider = *dragDividerIterator;
 			for(std::list<DividerContentEntry>::const_iterator i = divider->precedingContent.begin(); i != divider->precedingContent.end(); ++i)
@@ -851,17 +851,17 @@ LRESULT DashboardWindow::msgWM_MOUSEMOVE(WPARAM wParam, LPARAM lParam)
 		//any excess displacement to factor into the next drag operation.
 		if(cursorDisplacementX > maxPositiveDisplacementX)
 		{
-			dragPosOverLimitX = (cursorDisplacementX - maxPositiveDisplacementX);
+			_dragPosOverLimitX = (cursorDisplacementX - maxPositiveDisplacementX);
 			cursorDisplacementX = maxPositiveDisplacementX;
 		}
 		else if(cursorDisplacementX < -maxNegativeDisplacementX)
 		{
-			dragPosOverLimitX = (cursorDisplacementX + maxNegativeDisplacementX);
+			_dragPosOverLimitX = (cursorDisplacementX + maxNegativeDisplacementX);
 			cursorDisplacementX = -maxNegativeDisplacementX;
 		}
 
 		//Update the width of each affected content region
-		for(std::set<Divider*>::const_iterator dragDividerIterator = verticalDividersBeingDragged.begin(); dragDividerIterator != verticalDividersBeingDragged.end(); ++dragDividerIterator)
+		for(std::set<Divider*>::const_iterator dragDividerIterator = _verticalDividersBeingDragged.begin(); dragDividerIterator != _verticalDividersBeingDragged.end(); ++dragDividerIterator)
 		{
 			Divider* divider = *dragDividerIterator;
 			for(std::list<DividerContentEntry>::const_iterator i = divider->precedingContent.begin(); i != divider->precedingContent.end(); ++i)
@@ -879,10 +879,10 @@ LRESULT DashboardWindow::msgWM_MOUSEMOVE(WPARAM wParam, LPARAM lParam)
 	//this divider drag.
 	int maxNegativeDisplacementY = std::numeric_limits<int>::max();
 	int maxPositiveDisplacementY = std::numeric_limits<int>::max();
-	if(!horizontalDividersBeingDragged.empty())
+	if(!_horizontalDividersBeingDragged.empty())
 	{
 		//Calculate the maximum and minimum vertical displacement value
-		for(std::set<Divider*>::const_iterator dragDividerIterator = horizontalDividersBeingDragged.begin(); dragDividerIterator != horizontalDividersBeingDragged.end(); ++dragDividerIterator)
+		for(std::set<Divider*>::const_iterator dragDividerIterator = _horizontalDividersBeingDragged.begin(); dragDividerIterator != _horizontalDividersBeingDragged.end(); ++dragDividerIterator)
 		{
 			Divider* divider = *dragDividerIterator;
 			for(std::list<DividerContentEntry>::const_iterator i = divider->precedingContent.begin(); i != divider->precedingContent.end(); ++i)
@@ -899,17 +899,17 @@ LRESULT DashboardWindow::msgWM_MOUSEMOVE(WPARAM wParam, LPARAM lParam)
 		//excess displacement to factor into the next drag operation.
 		if(cursorDisplacementY > maxPositiveDisplacementY)
 		{
-			dragPosOverLimitY = (cursorDisplacementY - maxPositiveDisplacementY);
+			_dragPosOverLimitY = (cursorDisplacementY - maxPositiveDisplacementY);
 			cursorDisplacementY = maxPositiveDisplacementY;
 		}
 		else if(cursorDisplacementY < -maxNegativeDisplacementY)
 		{
-			dragPosOverLimitY = (cursorDisplacementY + maxNegativeDisplacementY);
+			_dragPosOverLimitY = (cursorDisplacementY + maxNegativeDisplacementY);
 			cursorDisplacementY = -maxNegativeDisplacementY;
 		}
 
 		//Update the height of each affected content region
-		for(std::set<Divider*>::const_iterator dragDividerIterator = horizontalDividersBeingDragged.begin(); dragDividerIterator != horizontalDividersBeingDragged.end(); ++dragDividerIterator)
+		for(std::set<Divider*>::const_iterator dragDividerIterator = _horizontalDividersBeingDragged.begin(); dragDividerIterator != _horizontalDividersBeingDragged.end(); ++dragDividerIterator)
 		{
 			Divider* divider = *dragDividerIterator;
 			for(std::list<DividerContentEntry>::const_iterator i = divider->precedingContent.begin(); i != divider->precedingContent.end(); ++i)
@@ -924,8 +924,8 @@ LRESULT DashboardWindow::msgWM_MOUSEMOVE(WPARAM wParam, LPARAM lParam)
 	}
 
 	//Update the last drag positions
-	dragLastPosX = cursorPosX;
-	dragLastPosY = cursorPosY;
+	_dragLastPosX = cursorPosX;
+	_dragLastPosY = cursorPosY;
 	
 	//Update our cached divider locations using the new region sizes. Note that we need to
 	//do this before performing snapping, since we need to test against the new divider
@@ -935,13 +935,13 @@ LRESULT DashboardWindow::msgWM_MOUSEMOVE(WPARAM wParam, LPARAM lParam)
 
 	//Apply vertical snapping for this drag operation
 	std::set<Divider*> verticalDragDividersSnapped;
-	if(!verticalDividersBeingDragged.empty())
+	if(!_verticalDividersBeingDragged.empty())
 	{
 		//Build sorted sets of dividers based on their distances from any dividers being
 		//dragged
 		std::map<int, std::set<Divider*>> dividerSnapPositionsNegativeSorted;
 		std::map<int, std::set<Divider*>> dividerSnapPositionsPositiveSorted;
-		for(std::set<Divider*>::const_iterator dragDividerIterator = verticalDividersBeingDragged.begin(); dragDividerIterator != verticalDividersBeingDragged.end(); ++dragDividerIterator)
+		for(std::set<Divider*>::const_iterator dragDividerIterator = _verticalDividersBeingDragged.begin(); dragDividerIterator != _verticalDividersBeingDragged.end(); ++dragDividerIterator)
 		{
 			Divider* divider = *dragDividerIterator;
 			std::set<Divider*> mergeCandidatesForDivider = GetMergeCandidates(divider, true);
@@ -949,7 +949,7 @@ LRESULT DashboardWindow::msgWM_MOUSEMOVE(WPARAM wParam, LPARAM lParam)
 			{
 				//If this divider merge candidate is being dragged, skip it.
 				Divider* mergeCandidate = *i;
-				if(verticalDividersBeingDragged.find(mergeCandidate) != verticalDividersBeingDragged.end())
+				if(_verticalDividersBeingDragged.find(mergeCandidate) != _verticalDividersBeingDragged.end())
 				{
 					continue;
 				}
@@ -985,7 +985,7 @@ LRESULT DashboardWindow::msgWM_MOUSEMOVE(WPARAM wParam, LPARAM lParam)
 		}
 
 		//Update the width of each affected content region
-		for(std::set<Divider*>::const_iterator dragDividerIterator = verticalDividersBeingDragged.begin(); dragDividerIterator != verticalDividersBeingDragged.end(); ++dragDividerIterator)
+		for(std::set<Divider*>::const_iterator dragDividerIterator = _verticalDividersBeingDragged.begin(); dragDividerIterator != _verticalDividersBeingDragged.end(); ++dragDividerIterator)
 		{
 			Divider* divider = *dragDividerIterator;
 			for(std::list<DividerContentEntry>::const_iterator i = divider->precedingContent.begin(); i != divider->precedingContent.end(); ++i)
@@ -1000,16 +1000,16 @@ LRESULT DashboardWindow::msgWM_MOUSEMOVE(WPARAM wParam, LPARAM lParam)
 
 		//Record the applied snap displacement value, so that it can be removed in the
 		//next drag operation.
-		dragPosSnapDisplacementX = snapPosDisplacement;
+		_dragPosSnapDisplacementX = snapPosDisplacement;
 	}
 
 	//Apply horizontal snapping for this drag operation
 	std::set<Divider*> horizontalDragDividersSnapped;
-	if(!horizontalDividersBeingDragged.empty())
+	if(!_horizontalDividersBeingDragged.empty())
 	{
 		//Build a set of all snap targets for the set of horizontal dividers being dragged
 		std::set<Divider*> dividerSnapPositions;
-		for(std::set<Divider*>::const_iterator dragDividerIterator = horizontalDividersBeingDragged.begin(); dragDividerIterator != horizontalDividersBeingDragged.end(); ++dragDividerIterator)
+		for(std::set<Divider*>::const_iterator dragDividerIterator = _horizontalDividersBeingDragged.begin(); dragDividerIterator != _horizontalDividersBeingDragged.end(); ++dragDividerIterator)
 		{
 			std::set<Divider*> mergeCandidatesForDivider = GetMergeCandidates(*dragDividerIterator, true);
 			dividerSnapPositions.insert(mergeCandidatesForDivider.begin(), mergeCandidatesForDivider.end());
@@ -1019,14 +1019,14 @@ LRESULT DashboardWindow::msgWM_MOUSEMOVE(WPARAM wParam, LPARAM lParam)
 		//dragged
 		std::map<int, std::set<Divider*>> dividerSnapPositionsNegativeSorted;
 		std::map<int, std::set<Divider*>> dividerSnapPositionsPositiveSorted;
-		for(std::set<Divider*>::const_iterator dragDividerIterator = horizontalDividersBeingDragged.begin(); dragDividerIterator != horizontalDividersBeingDragged.end(); ++dragDividerIterator)
+		for(std::set<Divider*>::const_iterator dragDividerIterator = _horizontalDividersBeingDragged.begin(); dragDividerIterator != _horizontalDividersBeingDragged.end(); ++dragDividerIterator)
 		{
 			Divider* divider = *dragDividerIterator;
 			for(std::set<Divider*>::const_iterator i = dividerSnapPositions.begin(); i != dividerSnapPositions.end(); ++i)
 			{
 				//If this divider merge candidate is being dragged, skip it.
 				Divider* mergeCandidate = *i;
-				if(horizontalDividersBeingDragged.find(mergeCandidate) != horizontalDividersBeingDragged.end())
+				if(_horizontalDividersBeingDragged.find(mergeCandidate) != _horizontalDividersBeingDragged.end())
 				{
 					continue;
 				}
@@ -1062,7 +1062,7 @@ LRESULT DashboardWindow::msgWM_MOUSEMOVE(WPARAM wParam, LPARAM lParam)
 		}
 
 		//Update the height of each affected content region
-		for(std::set<Divider*>::const_iterator dragDividerIterator = horizontalDividersBeingDragged.begin(); dragDividerIterator != horizontalDividersBeingDragged.end(); ++dragDividerIterator)
+		for(std::set<Divider*>::const_iterator dragDividerIterator = _horizontalDividersBeingDragged.begin(); dragDividerIterator != _horizontalDividersBeingDragged.end(); ++dragDividerIterator)
 		{
 			Divider* divider = *dragDividerIterator;
 			for(std::list<DividerContentEntry>::const_iterator i = divider->precedingContent.begin(); i != divider->precedingContent.end(); ++i)
@@ -1077,18 +1077,18 @@ LRESULT DashboardWindow::msgWM_MOUSEMOVE(WPARAM wParam, LPARAM lParam)
 
 		//Record the applied snap displacement value, so that it can be removed in the
 		//next drag operation.
-		dragPosSnapDisplacementY = snapPosDisplacement;
+		_dragPosSnapDisplacementY = snapPosDisplacement;
 	}
 
 	//Retrieve the number of divider highlight windows that are currently visible, and
 	//reset the count to 0.
-	unsigned int previousDividerHighlightVisibleWindowCount = dividerHighlightVisibleWindowCount;
-	dividerHighlightVisibleWindowCount = 0;
+	unsigned int previousDividerHighlightVisibleWindowCount = _dividerHighlightVisibleWindowCount;
+	_dividerHighlightVisibleWindowCount = 0;
 
 	//If we applied divider snapping, update our cached divider locations again, since the
 	//region sizes have changed again, and position the divider highlight windows as
 	//required.
-	if((dragPosSnapDisplacementX != 0) || (dragPosSnapDisplacementY != 0))
+	if((_dragPosSnapDisplacementX != 0) || (_dragPosSnapDisplacementY != 0))
 	{
 		//Update the cached locations of all regions and dividers, but defer the actual
 		//window position changes at this time.
@@ -1134,7 +1134,7 @@ LRESULT DashboardWindow::msgWM_MOUSEMOVE(WPARAM wParam, LPARAM lParam)
 				POINT point;
 				point.x = highlightWindowStartPosX;
 				point.y = highlightWindowStartPosY;
-				ClientToScreen(hwnd, &point);
+				ClientToScreen(_hwnd, &point);
 				int highlightWindowScreenPosX = point.x;
 				int highlightWindowScreenPosY = point.y;
 
@@ -1143,7 +1143,7 @@ LRESULT DashboardWindow::msgWM_MOUSEMOVE(WPARAM wParam, LPARAM lParam)
 				int highlightWindowHeight = highlightWindowEndPosY - highlightWindowStartPosY;
 
 				//Position and size the highlight window
-				SetWindowPos(dividerHighlightWindows[dividerHighlightVisibleWindowCount++], NULL, highlightWindowScreenPosX, highlightWindowScreenPosY, highlightWindowWidth, highlightWindowHeight, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
+				SetWindowPos(_dividerHighlightWindows[_dividerHighlightVisibleWindowCount++], NULL, highlightWindowScreenPosX, highlightWindowScreenPosY, highlightWindowWidth, highlightWindowHeight, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
 			}
 
 			//Add all the dividers in this snap group to the list of processed snap
@@ -1154,24 +1154,24 @@ LRESULT DashboardWindow::msgWM_MOUSEMOVE(WPARAM wParam, LPARAM lParam)
 
 	//If the number of visible divider highlight windows has changed, update the
 	//window visibility now.
-	if(dividerHighlightVisibleWindowCount != previousDividerHighlightVisibleWindowCount)
+	if(_dividerHighlightVisibleWindowCount != previousDividerHighlightVisibleWindowCount)
 	{
 		//Update the visibility state of each divider highlight window
-		HDWP deferWindowPosSession = BeginDeferWindowPos(dividerHighlightWindowCount);
-		for(unsigned int i = 0; i < dividerHighlightWindowCount; ++i)
+		HDWP deferWindowPosSession = BeginDeferWindowPos(DividerHighlightWindowCount);
+		for(unsigned int i = 0; i < DividerHighlightWindowCount; ++i)
 		{
-			DeferWindowPos(deferWindowPosSession, dividerHighlightWindows[i], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | ((i < dividerHighlightVisibleWindowCount)? SWP_SHOWWINDOW: SWP_HIDEWINDOW));
+			DeferWindowPos(deferWindowPosSession, _dividerHighlightWindows[i], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | ((i < _dividerHighlightVisibleWindowCount)? SWP_SHOWWINDOW: SWP_HIDEWINDOW));
 		}
 		EndDeferWindowPos(deferWindowPosSession);
 
 		//Request WM_MOUSELEAVE messages to be generated if we're currently showing
 		//divider highlight windows
-		if(dividerHighlightVisibleWindowCount > 0)
+		if(_dividerHighlightVisibleWindowCount > 0)
 		{
 			TRACKMOUSEEVENT trackMouseEvent;
 			trackMouseEvent.cbSize = sizeof(trackMouseEvent);
 			trackMouseEvent.dwFlags = TME_LEAVE;
-			trackMouseEvent.hwndTrack = hwnd;
+			trackMouseEvent.hwndTrack = _hwnd;
 			TrackMouseEvent(&trackMouseEvent);
 		}
 	}
@@ -1181,11 +1181,11 @@ LRESULT DashboardWindow::msgWM_MOUSEMOVE(WPARAM wParam, LPARAM lParam)
 	ApplyCachedLocations();
 
 	//Force the control to redraw
-	InvalidateRect(hwnd, NULL, FALSE);
+	InvalidateRect(_hwnd, NULL, FALSE);
 
 	//Redraw our window immediately. This minimizes tearing and improves the appearance of
 	//the window during a divider drag operation.
-	UpdateWindow(hwnd);
+	UpdateWindow(_hwnd);
 
 	return 0;
 }
@@ -1194,20 +1194,20 @@ LRESULT DashboardWindow::msgWM_MOUSEMOVE(WPARAM wParam, LPARAM lParam)
 LRESULT DashboardWindow::msgWM_MOUSELEAVE(WPARAM wParam, LPARAM lParam)
 {
 	//Hide the drop shadow window if it is currently visible
-	if(dropShadowVisible)
+	if(_dropShadowVisible)
 	{
-		SetWindowPos(dropShadow, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_HIDEWINDOW);
-		dropShadowVisible = false;
+		SetWindowPos(_dropShadow, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_HIDEWINDOW);
+		_dropShadowVisible = false;
 	}
 
 	//Hide all the divider highlight windows
-	if(dividerHighlightVisibleWindowCount > 0)
+	if(_dividerHighlightVisibleWindowCount > 0)
 	{
-		dividerHighlightVisibleWindowCount = 0;
-		HDWP deferWindowPosSession = BeginDeferWindowPos(dividerHighlightWindowCount);
-		for(unsigned int i = 0; i < dividerHighlightWindowCount; ++i)
+		_dividerHighlightVisibleWindowCount = 0;
+		HDWP deferWindowPosSession = BeginDeferWindowPos(DividerHighlightWindowCount);
+		for(unsigned int i = 0; i < DividerHighlightWindowCount; ++i)
 		{
-			DeferWindowPos(deferWindowPosSession, dividerHighlightWindows[i], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
+			DeferWindowPos(deferWindowPosSession, _dividerHighlightWindows[i], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
 		}
 		EndDeferWindowPos(deferWindowPosSession);
 	}
@@ -1219,7 +1219,7 @@ LRESULT DashboardWindow::msgWM_MOUSELEAVE(WPARAM wParam, LPARAM lParam)
 LRESULT DashboardWindow::msgWM_MOVING(WPARAM wParam, LPARAM lParam)
 {
 	//Ensure we're currently tracking a window move operation
-	if(!windowDragInProgress)
+	if(!_windowDragInProgress)
 	{
 		return 0;
 	}
@@ -1227,40 +1227,40 @@ LRESULT DashboardWindow::msgWM_MOVING(WPARAM wParam, LPARAM lParam)
 	//Obtain the current cursor position
 	POINT cursorPos;
 	GetCursorPos(&cursorPos);
-	lastDragCursorPosX = cursorPos.x;
-	lastDragCursorPosY = cursorPos.y;
+	_lastDragCursorPosX = cursorPos.x;
+	_lastDragCursorPosY = cursorPos.y;
 
 	//If we're currently attached to a docking parent, detach now that a move operation is
 	//in progress.
-	if(parentDockingWindow != 0)
+	if(_parentDockingWindow != 0)
 	{
 		//Cancel the current move operation. We need to do this so that we can change the
 		//window parent, otherwise the move operation doesn't let the mouse leave the old
 		//parent window boundaries.
-		SendMessage(hwnd, WM_CANCELMODE, 0, 0);
+		SendMessage(_hwnd, WM_CANCELMODE, 0, 0);
 
 		//Hide this window until we finish adjusting its position and size
-		ShowWindow(hwnd, SW_HIDE);
+		ShowWindow(_hwnd, SW_HIDE);
 
 		//Retrieve the first owner window at the top of the chain of parent windows for
 		//our old parent docking window
-		HWND newOwnerWindow = GetFirstOwnerWindow(parentDockingWindow->GetWindowHandle());
+		HWND newOwnerWindow = GetFirstOwnerWindow(_parentDockingWindow->GetWindowHandle());
 
 		//If our old parent docking window had no owner window at the top of the parent
 		//chain, set the owner window to be the top-level parent window of the old parent
 		//docking window.
 		if(newOwnerWindow == NULL)
 		{
-			newOwnerWindow = GetAncestor(parentDockingWindow->GetWindowHandle(), GA_ROOT);
+			newOwnerWindow = GetAncestor(_parentDockingWindow->GetWindowHandle(), GA_ROOT);
 		}
 
 		//Detach from the parent docking window
-		parentDockingWindow->RemoveChildContainer(this);
-		parentDockingWindow = 0;
+		_parentDockingWindow->RemoveChildContainer(this);
+		_parentDockingWindow = 0;
 
 		//Set the owner window for our detached window now that we no longer have a parent
 		//docking window
-		SetOwnerWindow(hwnd, newOwnerWindow);
+		SetOwnerWindow(_hwnd, newOwnerWindow);
 
 		//Now that we've undocked from our parent container, the window size may have
 		//changed as a result. We now reposition our window so that the current mouse
@@ -1268,14 +1268,14 @@ LRESULT DashboardWindow::msgWM_MOVING(WPARAM wParam, LPARAM lParam)
 		//window would be moved to when we re-initiate the move operation below, so this
 		//ensures the window doesn't jump on the screen.
 		RECT rect;
-		GetWindowRect(hwnd, &rect);
+		GetWindowRect(_hwnd, &rect);
 		int newWindowWidth = rect.right - rect.left;
 		int newWindowPosX = cursorPos.x - (newWindowWidth / 2);
 		int newWindowPosY = cursorPos.y - (GetSystemMetrics(SM_CYSMCAPTION) / 2);
-		SetWindowPos(hwnd, NULL, newWindowPosX, newWindowPosY, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOSIZE | SWP_NOACTIVATE);
+		SetWindowPos(_hwnd, NULL, newWindowPosX, newWindowPosY, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOSIZE | SWP_NOACTIVATE);
 
 		//Show and activate our window
-		ShowWindow(hwnd, SW_SHOW);
+		ShowWindow(_hwnd, SW_SHOW);
 
 		//Since we've just undocked from our parent docking window, and we're aborting
 		//this current move operation, ignore the next size and position change event. We
@@ -1288,10 +1288,10 @@ LRESULT DashboardWindow::msgWM_MOVING(WPARAM wParam, LPARAM lParam)
 		//began, which would override our new correct window position and size. We set
 		//this flag here so that we know to filter out the next size and position change
 		//events, so that the current window size and position are retained.
-		ignoreNextSizeAndMove = true;
+		_ignoreNextSizeAndMove = true;
 
 		//Begin the move operation again now that we've detached from our parent
-		PostMessage(hwnd, WM_SYSCOMMAND, SC_MOVE, 0);
+		PostMessage(_hwnd, WM_SYSCOMMAND, SC_MOVE, 0);
 		return 0;
 	}
 
@@ -1306,11 +1306,11 @@ LRESULT DashboardWindow::msgWM_MOVING(WPARAM wParam, LPARAM lParam)
 	while(!foundTargetWindow && (dockingWindowListIterator != dockingWindowList.end()))
 	{
 		targetDockingWindow = *dockingWindowListIterator;
-		if((targetDockingWindow != this) && (IsChild(hwnd, targetDockingWindow->GetWindowHandle()) == 0))
+		if((targetDockingWindow != this) && (IsChild(_hwnd, targetDockingWindow->GetWindowHandle()) == 0))
 		{
 			RECT targetDockingWindowRect;
 			GetWindowRect(targetDockingWindow->GetWindowHandle(), &targetDockingWindowRect);
-			if((targetDockingWindowRect.left <= lastDragCursorPosX) && (targetDockingWindowRect.right > lastDragCursorPosX) && (targetDockingWindowRect.top <= lastDragCursorPosY) && (targetDockingWindowRect.bottom > lastDragCursorPosY))
+			if((targetDockingWindowRect.left <= _lastDragCursorPosX) && (targetDockingWindowRect.right > _lastDragCursorPosX) && (targetDockingWindowRect.top <= _lastDragCursorPosY) && (targetDockingWindowRect.bottom > _lastDragCursorPosY))
 			{
 				foundTargetWindow = true;
 				continue;
@@ -1332,34 +1332,34 @@ LRESULT DashboardWindow::msgWM_MOVING(WPARAM wParam, LPARAM lParam)
 	}
 
 	//Remove the placement target from the previous target window if required
-	if((dockingWindowUnderDragPos != 0) && (!foundTargetWindow || (dockingWindowUnderDragPos != targetDockingWindow)))
+	if((_dockingWindowUnderDragPos != 0) && (!foundTargetWindow || (_dockingWindowUnderDragPos != targetDockingWindow)))
 	{
-		dockingWindowUnderDragPos->HideDropTargets(this);
+		_dockingWindowUnderDragPos->HideDropTargets(this);
 	}
 
 	//Record the new window that's under the current drag position
-	dockingWindowUnderDragPos = (foundTargetWindow)? targetDockingWindow: 0;
+	_dockingWindowUnderDragPos = (foundTargetWindow)? targetDockingWindow: 0;
 
 	//If a docking window is currently under the cursor, update the display of any drop
 	//targets for the target docking window.
-	if(dockingWindowUnderDragPos != 0)
+	if(_dockingWindowUnderDragPos != 0)
 	{
 		//Calculate the current window width and height
 		RECT rect;
-		GetWindowRect(hwnd, &rect);
+		GetWindowRect(_hwnd, &rect);
 		int windowWidth = rect.right - rect.left;
 		int windowHeight = rect.bottom - rect.top;
 
 		//Update the drop targets for the target window
-		dockingWindowUnderDragPos->ShowDropTargets(this, windowWidth, windowHeight, lastDragCursorPosX, lastDragCursorPosY);
+		_dockingWindowUnderDragPos->ShowDropTargets(this, windowWidth, windowHeight, _lastDragCursorPosX, _lastDragCursorPosY);
 	}
 
 	//Restart the timer to bring the window under the current cursor position up in the
 	//Z-order
-	KillTimer(hwnd, 1);
-	if(dockingWindowUnderDragPos != 0)
+	KillTimer(_hwnd, 1);
+	if(_dockingWindowUnderDragPos != 0)
 	{
-		SetTimer(hwnd, 1, 500, NULL);
+		SetTimer(_hwnd, 1, 500, NULL);
 	}
 
 	return 0;
@@ -1370,13 +1370,13 @@ LRESULT DashboardWindow::msgWM_TIMER(WPARAM wParam, LPARAM lParam)
 {
 	//If this timer has expired, bring the docking window under the current drag position
 	//up in the Z-order just below this window being dragged.
-	if(dockingWindowUnderDragPos != 0)
+	if(_dockingWindowUnderDragPos != 0)
 	{
 		//Locate the top-level parent of the docking window under the current drag
 		//position
 		HWND topLevelParentWindow = NULL;
 		HWND desktopWindow = GetDesktopWindow();
-		HWND searchWindow = dockingWindowUnderDragPos->GetWindowHandle();
+		HWND searchWindow = _dockingWindowUnderDragPos->GetWindowHandle();
 		while((searchWindow != NULL) && (searchWindow != desktopWindow))
 		{
 			topLevelParentWindow = searchWindow;
@@ -1392,7 +1392,7 @@ LRESULT DashboardWindow::msgWM_TIMER(WPARAM wParam, LPARAM lParam)
 		//meant to.
 		if(topLevelParentWindow != NULL)
 		{
-			SetWindowPos(topLevelParentWindow, hwnd, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+			SetWindowPos(topLevelParentWindow, _hwnd, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
 		}
 	}
 	return 0;
@@ -1402,11 +1402,11 @@ LRESULT DashboardWindow::msgWM_TIMER(WPARAM wParam, LPARAM lParam)
 LRESULT DashboardWindow::msgWM_ENTERSIZEMOVE(WPARAM wParam, LPARAM lParam)
 {
 	//Flag that a window drag operation is in progress
-	windowDragInProgress = true;
-	dockingWindowUnderDragPos = 0;
+	_windowDragInProgress = true;
+	_dockingWindowUnderDragPos = 0;
 
 	//Capture the initial window size and position
-	GetWindowRect(hwnd, &windowSizeMoveInitialPos);
+	GetWindowRect(_hwnd, &_windowSizeMoveInitialPos);
 	return 0;
 }
 
@@ -1415,22 +1415,22 @@ LRESULT DashboardWindow::msgWM_EXITSIZEMOVE(WPARAM wParam, LPARAM lParam)
 {
 	//If a window drag operation isn't currently in progress, abort any further
 	//processing.
-	if(!windowDragInProgress)
+	if(!_windowDragInProgress)
 	{
 		return 0;
 	}
 
 	//Kill the timer to bring the window under the current cursor position up in the
 	//Z-order
-	KillTimer(hwnd, 1);
+	KillTimer(_hwnd, 1);
 
 	//If another docking window is under the current cursor position, dock this window
 	//into the target docking window if required.
-	if(dockingWindowUnderDragPos != 0)
+	if(_dockingWindowUnderDragPos != 0)
 	{
 		//Calculate a docking location within the target window
 		IDockingWindowDropTargetInfo* dropTargetInfo;
-		bool foundDockLocation = dockingWindowUnderDragPos->HitTestDropTargets(this, lastDragCursorPosX, lastDragCursorPosY, dropTargetInfo);
+		bool foundDockLocation = _dockingWindowUnderDragPos->HitTestDropTargets(this, _lastDragCursorPosX, _lastDragCursorPosY, dropTargetInfo);
 
 		//If we found a target dock location, dock to the new parent docking window.
 		if(foundDockLocation)
@@ -1457,13 +1457,13 @@ LRESULT DashboardWindow::msgWM_EXITSIZEMOVE(WPARAM wParam, LPARAM lParam)
 	}
 
 	//Remove the placement target from the previous target window if required
-	if(dockingWindowUnderDragPos != 0)
+	if(_dockingWindowUnderDragPos != 0)
 	{
-		dockingWindowUnderDragPos->HideDropTargets(this);
+		_dockingWindowUnderDragPos->HideDropTargets(this);
 	}
 
 	//Now that this move event is complete, flag that a move is no longer in progress.
-	windowDragInProgress = false;
+	_windowDragInProgress = false;
 
 	return 0;
 }
@@ -1473,11 +1473,11 @@ LRESULT DashboardWindow::msgWM_WINDOWPOSCHANGING(WPARAM wParam, LPARAM lParam)
 {
 	//If we need to ignore the next size and move event due to an undocking operation,
 	//drop any size and position information from this change event.
-	if(ignoreNextSizeAndMove)
+	if(_ignoreNextSizeAndMove)
 	{
 		WINDOWPOS& windowPos = *((WINDOWPOS*)lParam);
 		windowPos.flags |= SWP_NOMOVE | SWP_NOSIZE;
-		ignoreNextSizeAndMove = false;
+		_ignoreNextSizeAndMove = false;
 	}
 	return 0;
 }
@@ -1487,31 +1487,31 @@ LRESULT DashboardWindow::msgWM_NCHITTEST(WPARAM wParam, LPARAM lParam)
 {
 	//If we're docked in a parent window, ensure we only display resize icons for the
 	//border edges that can actually be resized.
-	LRESULT result = DefWindowProc(hwnd, WM_NCHITTEST, wParam, lParam);
-	if(parentDockingWindow != 0)
+	LRESULT result = DefWindowProc(_hwnd, WM_NCHITTEST, wParam, lParam);
+	if(_parentDockingWindow != 0)
 	{
 		switch(result)
 		{
 		case HTLEFT:
-			result = (!parentDockingWindow->CanResizeChildContainerWindowEdge(this, WindowEdge::Left))? HTBORDER: result;
+			result = (!_parentDockingWindow->CanResizeChildContainerWindowEdge(this, WindowEdge::Left))? HTBORDER: result;
 			break;
 		case HTRIGHT:
-			result = (!parentDockingWindow->CanResizeChildContainerWindowEdge(this, WindowEdge::Right))? HTBORDER: result;
+			result = (!_parentDockingWindow->CanResizeChildContainerWindowEdge(this, WindowEdge::Right))? HTBORDER: result;
 			break;
 		case HTTOP:
-			result = (!parentDockingWindow->CanResizeChildContainerWindowEdge(this, WindowEdge::Top))? HTBORDER: result;
+			result = (!_parentDockingWindow->CanResizeChildContainerWindowEdge(this, WindowEdge::Top))? HTBORDER: result;
 			break;
 		case HTBOTTOM:
-			result = (!parentDockingWindow->CanResizeChildContainerWindowEdge(this, WindowEdge::Bottom))? HTBORDER: result;
+			result = (!_parentDockingWindow->CanResizeChildContainerWindowEdge(this, WindowEdge::Bottom))? HTBORDER: result;
 			break;
 		case HTTOPLEFT:
 		case HTTOPRIGHT:
 		case HTBOTTOMLEFT:
 		case HTBOTTOMRIGHT:{
-			bool resizeLeftBorder = ((result == HTTOPLEFT) || (result == HTBOTTOMLEFT)) && parentDockingWindow->CanResizeChildContainerWindowEdge(this, WindowEdge::Left);
-			bool resizeRightBorder = ((result == HTTOPRIGHT) || (result == HTBOTTOMRIGHT)) && parentDockingWindow->CanResizeChildContainerWindowEdge(this, WindowEdge::Right);
-			bool resizeTopBorder = ((result == HTTOPLEFT) || (result == HTTOPRIGHT)) && parentDockingWindow->CanResizeChildContainerWindowEdge(this, WindowEdge::Top);
-			bool resizeBottomBorder = ((result == HTBOTTOMLEFT) || (result == HTBOTTOMRIGHT)) && parentDockingWindow->CanResizeChildContainerWindowEdge(this, WindowEdge::Bottom);
+			bool resizeLeftBorder = ((result == HTTOPLEFT) || (result == HTBOTTOMLEFT)) && _parentDockingWindow->CanResizeChildContainerWindowEdge(this, WindowEdge::Left);
+			bool resizeRightBorder = ((result == HTTOPRIGHT) || (result == HTBOTTOMRIGHT)) && _parentDockingWindow->CanResizeChildContainerWindowEdge(this, WindowEdge::Right);
+			bool resizeTopBorder = ((result == HTTOPLEFT) || (result == HTTOPRIGHT)) && _parentDockingWindow->CanResizeChildContainerWindowEdge(this, WindowEdge::Top);
+			bool resizeBottomBorder = ((result == HTBOTTOMLEFT) || (result == HTBOTTOMRIGHT)) && _parentDockingWindow->CanResizeChildContainerWindowEdge(this, WindowEdge::Bottom);
 			if(resizeLeftBorder && resizeTopBorder)
 			{
 				result = HTTOPLEFT;
@@ -1558,19 +1558,19 @@ LRESULT DashboardWindow::msgWM_NCHITTEST(WPARAM wParam, LPARAM lParam)
 LRESULT DashboardWindow::msgWM_NCLBUTTONUP(WPARAM wParam, LPARAM lParam)
 {
 	//Ensure we're attached to a parent docking window
-	if(parentDockingWindow == 0)
+	if(_parentDockingWindow == 0)
 	{
-		return DefWindowProc(hwnd, WM_NCLBUTTONUP, wParam, lParam);
+		return DefWindowProc(_hwnd, WM_NCLBUTTONUP, wParam, lParam);
 	}
 
 	//Allow the parent docking window to perform any processing it wants to in response to
 	//this click event
 	int cursorPosX = (int)(short)LOWORD(lParam);
 	int cursorPosY = (int)(short)HIWORD(lParam);
-	parentDockingWindow->ParentBorderClickForChildContainer(this, cursorPosX, cursorPosY);
+	_parentDockingWindow->ParentBorderClickForChildContainer(this, cursorPosX, cursorPosY);
 
 	//Pass this message on to the default window procedure
-	return DefWindowProc(hwnd, WM_NCLBUTTONUP, wParam, lParam);
+	return DefWindowProc(_hwnd, WM_NCLBUTTONUP, wParam, lParam);
 }
 
 //----------------------------------------------------------------------------------------
@@ -1584,9 +1584,9 @@ LRESULT DashboardWindow::msgWM_SETCURSOR(WPARAM wParam, LPARAM lParam)
 
 	//If we're docked to a parent docking window, allow the parent window to override the
 	//cursor for the target mouse position, and apply it if the cursor is overridden.
-	if(parentDockingWindow != 0)
+	if(_parentDockingWindow != 0)
 	{
-		HCURSOR parentOverrideCursor = parentDockingWindow->ParentOverrideCursorForChildContainer(this, cursorPosX, cursorPosY);
+		HCURSOR parentOverrideCursor = _parentDockingWindow->ParentOverrideCursorForChildContainer(this, cursorPosX, cursorPosY);
 		if(parentOverrideCursor != NULL)
 		{
 			SetCursor(parentOverrideCursor);
@@ -1596,14 +1596,14 @@ LRESULT DashboardWindow::msgWM_SETCURSOR(WPARAM wParam, LPARAM lParam)
 
 	//If the current cursor position is outside the client region of our control, pass
 	//this message on to the default window procedure.
-	LRESULT hitTestResult = DefWindowProc(hwnd, WM_NCHITTEST, 0, MAKELPARAM(cursorPosX, cursorPosY));
+	LRESULT hitTestResult = DefWindowProc(_hwnd, WM_NCHITTEST, 0, MAKELPARAM(cursorPosX, cursorPosY));
 	if(hitTestResult != HTCLIENT)
 	{
-		return DefWindowProc(hwnd, WM_SETCURSOR, wParam, lParam);
+		return DefWindowProc(_hwnd, WM_SETCURSOR, wParam, lParam);
 	}
 
 	//Convert the cursor position into client coordinates
-	ScreenToClient(hwnd, &point);
+	ScreenToClient(_hwnd, &point);
 	int cursorClientPosX = point.x;
 	int cursorClientPosY = point.y;
 
@@ -1612,10 +1612,10 @@ LRESULT DashboardWindow::msgWM_SETCURSOR(WPARAM wParam, LPARAM lParam)
 	POINT clientPosPoint;
 	clientPosPoint.x = cursorClientPosX;
 	clientPosPoint.y = cursorClientPosY;
-	HWND childWindowUnderCursor = ChildWindowFromPoint(hwnd, clientPosPoint);
-	if((childWindowUnderCursor != NULL) && (childWindowUnderCursor != hwnd))
+	HWND childWindowUnderCursor = ChildWindowFromPoint(_hwnd, clientPosPoint);
+	if((childWindowUnderCursor != NULL) && (childWindowUnderCursor != _hwnd))
 	{
-		return DefWindowProc(hwnd, WM_SETCURSOR, wParam, lParam);
+		return DefWindowProc(_hwnd, WM_SETCURSOR, wParam, lParam);
 	}
 
 	//Attempt to locate any dividers which are under the cursor
@@ -1625,11 +1625,11 @@ LRESULT DashboardWindow::msgWM_SETCURSOR(WPARAM wParam, LPARAM lParam)
 	//default window procedure.
 	if(dividersUnderCursor.empty())
 	{
-		return DefWindowProc(hwnd, WM_SETCURSOR, wParam, lParam);
+		return DefWindowProc(_hwnd, WM_SETCURSOR, wParam, lParam);
 	}
 
 	//Determine the cursor to show at this location
-	HCURSOR cursor = (dividersUnderCursor.size() > 1)? cursorSizeAll: ((dividersUnderCursor.front()->vertical)? cursorSizeHorizontal: cursorSizeVertical);
+	HCURSOR cursor = (dividersUnderCursor.size() > 1)? _cursorSizeAll: ((dividersUnderCursor.front()->vertical)? _cursorSizeHorizontal: _cursorSizeVertical);
 
 	//Apply the selected cursor at this location
 	SetCursor(cursor);
@@ -1640,25 +1640,25 @@ LRESULT DashboardWindow::msgWM_SETCURSOR(WPARAM wParam, LPARAM lParam)
 LRESULT DashboardWindow::msgWM_GETFONT(WPARAM wParam, LPARAM lParam)
 {
 	//Return the currently selected font to the caller
-	return (LRESULT)controlFont;
+	return (LRESULT)_controlFont;
 }
 
 //----------------------------------------------------------------------------------------
 LRESULT DashboardWindow::msgWM_SETFONT(WPARAM wParam, LPARAM lParam)
 {
 	//Store the font to use for out controls
-	controlFont = (HFONT)wParam;
+	_controlFont = (HFONT)wParam;
 
 	//Read the font metrics for our new font
-	if(controlFont != NULL)
+	if(_controlFont != NULL)
 	{
-		HDC hdc = GetDC(hwnd);
-		HFONT hfontOld = (HFONT)SelectObject(hdc, controlFont);
+		HDC hdc = GetDC(_hwnd);
+		HFONT hfontOld = (HFONT)SelectObject(hdc, _controlFont);
 		TEXTMETRIC textMetric;
 		GetTextMetrics(hdc, &textMetric);
-		controlFontHeight = textMetric.tmHeight;
+		_controlFontHeight = textMetric.tmHeight;
 		SelectObject(hdc, hfontOld);
-		ReleaseDC(hwnd, hdc);
+		ReleaseDC(_hwnd, hdc);
 	}
 
 	return 0;
@@ -1680,28 +1680,28 @@ LRESULT DashboardWindow::msgWM_ERASEBKGND(WPARAM wParam, LPARAM lParam)
 LRESULT DashboardWindow::msgWM_PAINT(WPARAM wParam, LPARAM lParam)
 {
 	PAINTSTRUCT paintInfo;
-	BeginPaint(hwnd, &paintInfo);
+	BeginPaint(_hwnd, &paintInfo);
 	HDC hdc = paintInfo.hdc;
 
 	//Create a bitmap we can render the control onto
 	HDC hdcControl = hdc;
 	HDC hdcBitmap = CreateCompatibleDC(hdcControl);
-	HBITMAP hbitmap = CreateCompatibleBitmap(hdcControl, controlWidth, controlHeight);
+	HBITMAP hbitmap = CreateCompatibleBitmap(hdcControl, _controlWidth, _controlHeight);
 	HBITMAP hbitmapOriginal = (HBITMAP)SelectObject(hdcBitmap, hbitmap);
 
 	//Send a WM_PRINTCLIENT message to the native control and get it to render into
 	//the bitmap.
-	SendMessage(hwnd, WM_PRINTCLIENT, (WPARAM)hdcBitmap, PRF_ERASEBKGND | PRF_CLIENT | PRF_NONCLIENT);
+	SendMessage(_hwnd, WM_PRINTCLIENT, (WPARAM)hdcBitmap, PRF_ERASEBKGND | PRF_CLIENT | PRF_NONCLIENT);
 
 	//Transfer the final bitmap for the control into the screen buffer
-	BitBlt(hdcControl, 0, 0, controlWidth, controlHeight, hdcBitmap, 0, 0, SRCCOPY);
+	BitBlt(hdcControl, 0, 0, _controlWidth, _controlHeight, hdcBitmap, 0, 0, SRCCOPY);
 
 	//Clean up the allocated handles
 	SelectObject(hdcBitmap, hbitmapOriginal);
 	DeleteObject(hbitmap);
 	DeleteDC(hdcBitmap);
 
-	EndPaint(hwnd, &paintInfo);
+	EndPaint(_hwnd, &paintInfo);
 	return 0;
 }
 
@@ -1711,33 +1711,33 @@ LRESULT DashboardWindow::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 	//Fill the window with the background colour
 	HDC hdc = (HDC)wParam;
 	RECT rect;
-	GetClientRect(hwnd, &rect);
+	GetClientRect(_hwnd, &rect);
 	FillRect(hdc, &rect, GetSysColorBrush(COLOR_WINDOW));
 
 	//Create a GDI bitmap from our grabber image
 	HDC hdcGrabberBitmap = CreateCompatibleDC(hdc);
-	HBITMAP grabberBitmap = ImageToLoadedDIB(grabberImage, hdcGrabberBitmap);
+	HBITMAP grabberBitmap = ImageToLoadedDIB(_grabberImage, hdcGrabberBitmap);
 	HBITMAP grabberBitmapOld = (HBITMAP)SelectObject(hdcGrabberBitmap, grabberBitmap);
 
 	//Create GDI bitmaps from our arrow images
 	HDC hdcArrowTopLeftBitmap = CreateCompatibleDC(hdc);
-	HBITMAP arrowTopLeftBitmap = ImageToLoadedDIB(arrowImageTopLeft, hdcArrowTopLeftBitmap);
+	HBITMAP arrowTopLeftBitmap = ImageToLoadedDIB(_arrowImageTopLeft, hdcArrowTopLeftBitmap);
 	HBITMAP arrowTopLeftBitmapOld = (HBITMAP)SelectObject(hdcArrowTopLeftBitmap, arrowTopLeftBitmap);
 	HDC hdcArrowTopRightBitmap = CreateCompatibleDC(hdc);
-	HBITMAP arrowTopRightBitmap = ImageToLoadedDIB(arrowImageTopRight, hdcArrowTopRightBitmap);
+	HBITMAP arrowTopRightBitmap = ImageToLoadedDIB(_arrowImageTopRight, hdcArrowTopRightBitmap);
 	HBITMAP arrowTopRightBitmapOld = (HBITMAP)SelectObject(hdcArrowTopRightBitmap, arrowTopRightBitmap);
 	HDC hdcArrowBottomLeftBitmap = CreateCompatibleDC(hdc);
-	HBITMAP arrowBottomLeftBitmap = ImageToLoadedDIB(arrowImageBottomLeft, hdcArrowBottomLeftBitmap);
+	HBITMAP arrowBottomLeftBitmap = ImageToLoadedDIB(_arrowImageBottomLeft, hdcArrowBottomLeftBitmap);
 	HBITMAP arrowBottomLeftBitmapOld = (HBITMAP)SelectObject(hdcArrowBottomLeftBitmap, arrowBottomLeftBitmap);
 	HDC hdcArrowBottomRightBitmap = CreateCompatibleDC(hdc);
-	HBITMAP arrowBottomRightBitmap = ImageToLoadedDIB(arrowImageBottomRight, hdcArrowBottomRightBitmap);
+	HBITMAP arrowBottomRightBitmap = ImageToLoadedDIB(_arrowImageBottomRight, hdcArrowBottomRightBitmap);
 	HBITMAP arrowBottomRightBitmapOld = (HBITMAP)SelectObject(hdcArrowBottomRightBitmap, arrowBottomRightBitmap);
 
 	//Create a brush for the background of the divider
-	HBRUSH dividerBackgroundBrush = CreateSolidBrush(dividerBackgroundColor.GetColorREF());
+	HBRUSH dividerBackgroundBrush = CreateSolidBrush(_dividerBackgroundColor.GetColorREF());
 
 	//Draw each divider
-	for(std::list<Divider*>::const_iterator i = dividers.begin(); i != dividers.end(); ++i)
+	for(std::list<Divider*>::const_iterator i = _dividers.begin(); i != _dividers.end(); ++i)
 	{
 		//Draw the divider
 		Divider* divider = *i;
@@ -1760,8 +1760,8 @@ LRESULT DashboardWindow::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 
 			//Tile the grabber icon to fill in the region at which the grabber is present
 			const DividerSplitPosition& splitPositionInfo = *i;
-			int grabberImageWidth = (int)grabberImage.GetImageWidth();
-			int grabberImageHeight = (int)grabberImage.GetImageHeight();
+			int grabberImageWidth = (int)_grabberImage.GetImageWidth();
+			int grabberImageHeight = (int)_grabberImage.GetImageHeight();
 			int grabberStartPosX = (divider->vertical)? divider->cachedPosX: (divider->cachedPosX + splitPositionInfo.dividerSplitterStartPos);
 			int grabberStartPosY = (divider->vertical)? (divider->cachedPosY + splitPositionInfo.dividerSplitterStartPos): divider->cachedPosY;
 			int grabberEndPosX = (divider->vertical)? (divider->cachedPosX + divider->cachedWidth): (divider->cachedPosX + splitPositionInfo.dividerSplitterStartPos + splitPositionInfo.dividerSplitterLength);
@@ -1812,8 +1812,8 @@ LRESULT DashboardWindow::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 			int buttonStartPosY = (divider->vertical)? extendButtonInfo.dividerExtendButtonStartPos: 0;
 			int arrowStartPosX = divider->cachedPosX + buttonStartPosX;
 			int arrowStartPosY = divider->cachedPosY + buttonStartPosY;
-			int arrowImageWidth = arrowImageTopLeft.GetImageWidth();
-			int arrowImageHeight = arrowImageTopLeft.GetImageHeight();
+			int arrowImageWidth = _arrowImageTopLeft.GetImageWidth();
+			int arrowImageHeight = _arrowImageTopLeft.GetImageHeight();
 
 			//Draw the extend button
 			BLENDFUNCTION blendFunction;
@@ -1859,8 +1859,8 @@ LRESULT DashboardWindow::msgDASHWIN_ADDCONTENTWINDOW(WPARAM wParam, LPARAM lPara
 	ContentRegion* existingContentRegion = 0;
 	if(params.existingWindow != NULL)
 	{
-		std::list<ContentRegion*>::const_iterator contentRegionIterator = regions.begin();
-		while(contentRegionIterator != regions.end())
+		std::list<ContentRegion*>::const_iterator contentRegionIterator = _regions.begin();
+		while(contentRegionIterator != _regions.end())
 		{
 			if((*contentRegionIterator)->windowHandle == params.existingWindow)
 			{
@@ -1872,7 +1872,7 @@ LRESULT DashboardWindow::msgDASHWIN_ADDCONTENTWINDOW(WPARAM wParam, LPARAM lPara
 	}
 
 	//If no existing content region was identified, default to the first region.
-	existingContentRegion = (existingContentRegion == 0)? regions.back(): existingContentRegion;
+	existingContentRegion = (existingContentRegion == 0)? _regions.back(): existingContentRegion;
 
 	//If the target region has no associated content window, associate it with the
 	//specified window, otherwise insert it next to the target content region.
@@ -1894,8 +1894,8 @@ LRESULT DashboardWindow::msgDASHWIN_REMOVECONTENTWINDOW(WPARAM wParam, LPARAM lP
 	//window handle, if present.
 	HWND windowHandle = (HWND)lParam;
 	ContentRegion* existingContentRegion = 0;
-	std::list<ContentRegion*>::const_iterator contentRegionIterator = regions.begin();
-	while(contentRegionIterator != regions.end())
+	std::list<ContentRegion*>::const_iterator contentRegionIterator = _regions.begin();
+	while(contentRegionIterator != _regions.end())
 	{
 		if((*contentRegionIterator)->windowHandle == windowHandle)
 		{
@@ -1916,7 +1916,7 @@ LRESULT DashboardWindow::msgDASHWIN_REMOVECONTENTWINDOW(WPARAM wParam, LPARAM lP
 //----------------------------------------------------------------------------------------
 LRESULT DashboardWindow::msgDASHWIN_GETREGIONCOUNT(WPARAM wParam, LPARAM lParam)
 {
-	return (LRESULT)(unsigned int)regions.size();
+	return (LRESULT)(unsigned int)_regions.size();
 }
 
 //----------------------------------------------------------------------------------------
@@ -2098,8 +2098,8 @@ LRESULT DashboardWindow::msgPlacementTargetWM_PRINTCLIENT(HWND placementTargetHw
 	//Attempt to determine which location we're targeting
 	DockTargetPos targetLocation;
 	bool foundTargetLocation = false;
-	std::map<DockTargetPos, HWND>::iterator placementTargetIterator = dropTargets.begin();
-	while(!foundTargetLocation && (placementTargetIterator != dropTargets.end()))
+	std::map<DockTargetPos, HWND>::iterator placementTargetIterator = _dropTargets.begin();
+	while(!foundTargetLocation && (placementTargetIterator != _dropTargets.end()))
 	{
 		if(placementTargetIterator->second == placementTargetHwnd)
 		{
@@ -2338,13 +2338,13 @@ LRESULT DashboardWindow::msgPlacementShadowWM_PAINT(HWND placementShadowHwnd, WP
 	SelectObject(hdc, backgroundBrushOld);
 
 	//Draw a rectangle indicating the position at which the new divider will be inserted
-	if(dropShadowCurrentPos != DockTargetPos::Center)
+	if(_dropShadowCurrentPos != DockTargetPos::Center)
 	{
 		RECT dividerRect;
-		dividerRect.left = (dropShadowCurrentPos == DockTargetPos::Left)? (windowWidth - dividerSizeX): 0;
-		dividerRect.right = ((dropShadowCurrentPos == DockTargetPos::Left) || (dropShadowCurrentPos == DockTargetPos::Right))? dividerRect.left + dividerSizeX: windowWidth;
-		dividerRect.top = (dropShadowCurrentPos == DockTargetPos::Top)? (windowHeight - dividerSizeY): 0;
-		dividerRect.bottom = ((dropShadowCurrentPos == DockTargetPos::Top) || (dropShadowCurrentPos == DockTargetPos::Bottom))? dividerRect.top + dividerSizeY: windowHeight;
+		dividerRect.left = (_dropShadowCurrentPos == DockTargetPos::Left)? (windowWidth - _dividerSizeX): 0;
+		dividerRect.right = ((_dropShadowCurrentPos == DockTargetPos::Left) || (_dropShadowCurrentPos == DockTargetPos::Right))? dividerRect.left + _dividerSizeX: windowWidth;
+		dividerRect.top = (_dropShadowCurrentPos == DockTargetPos::Top)? (windowHeight - _dividerSizeY): 0;
+		dividerRect.bottom = ((_dropShadowCurrentPos == DockTargetPos::Top) || (_dropShadowCurrentPos == DockTargetPos::Bottom))? dividerRect.top + _dividerSizeY: windowHeight;
 		FillRect(hdc, &dividerRect, dividerBrush);
 	}
 
@@ -2513,7 +2513,7 @@ void DashboardWindow::AddDockingWindowToWindowList(HWND hwnd, std::list<IDocking
 //----------------------------------------------------------------------------------------
 HWND DashboardWindow::GetWindowHandle() const
 {
-	return hwnd;
+	return _hwnd;
 }
 
 //----------------------------------------------------------------------------------------
@@ -2528,14 +2528,14 @@ void DashboardWindow::HideDropTargets(IDockingWindow* callingDockingWindow)
 void DashboardWindow::HideDropTargets(IDockingWindow* callingDockingWindow, bool hideChildWindowDropTargets)
 {
 	//If drop targets have been shown for a child docking window, hide them now.
-	if(hideChildWindowDropTargets && (dropTargetsChildDockingWindow != 0))
+	if(hideChildWindowDropTargets && (_dropTargetsChildDockingWindow != 0))
 	{
-		dropTargetsChildDockingWindow->HideDropTargets(callingDockingWindow);
-		dropTargetsChildDockingWindow = 0;
+		_dropTargetsChildDockingWindow->HideDropTargets(callingDockingWindow);
+		_dropTargetsChildDockingWindow = 0;
 	}
 
 	//If drop targets aren't currently visible, abort any further processing.
-	if(!dropTargetsVisible)
+	if(!_dropTargetsVisible)
 	{
 		return;
 	}
@@ -2546,22 +2546,22 @@ void DashboardWindow::HideDropTargets(IDockingWindow* callingDockingWindow, bool
 	HDWP deferWindowPosSession = BeginDeferWindowPos(5);
 
 	//Hide the drop shadow window
-	DeferWindowPos(deferWindowPosSession, dropShadow, NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
-	dropShadowVisible = false;
+	DeferWindowPos(deferWindowPosSession, _dropShadow, NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
+	_dropShadowVisible = false;
 
 	//Hide all the drop target windows
-	DeferWindowPos(deferWindowPosSession, dropTargets[DockTargetPos::Left], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
-	DeferWindowPos(deferWindowPosSession, dropTargets[DockTargetPos::Right], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
-	DeferWindowPos(deferWindowPosSession, dropTargets[DockTargetPos::Top], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
-	DeferWindowPos(deferWindowPosSession, dropTargets[DockTargetPos::Bottom], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
-	DeferWindowPos(deferWindowPosSession, dropTargets[DockTargetPos::Center], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
+	DeferWindowPos(deferWindowPosSession, _dropTargets[DockTargetPos::Left], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
+	DeferWindowPos(deferWindowPosSession, _dropTargets[DockTargetPos::Right], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
+	DeferWindowPos(deferWindowPosSession, _dropTargets[DockTargetPos::Top], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
+	DeferWindowPos(deferWindowPosSession, _dropTargets[DockTargetPos::Bottom], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
+	DeferWindowPos(deferWindowPosSession, _dropTargets[DockTargetPos::Center], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
 
 	//Process all the window size and position changes involved in this update
 	EndDeferWindowPos(deferWindowPosSession);
 
 	//Flag that drop targets are no longer visible
-	dropTargetsVisible = false;
-	currentRegionDropTarget = 0;
+	_dropTargetsVisible = false;
+	_currentRegionDropTarget = 0;
 }
 
 //----------------------------------------------------------------------------------------
@@ -2571,7 +2571,7 @@ void DashboardWindow::ShowDropTargets(IDockingWindow* callingDockingWindow, int 
 	POINT cursorPos;
 	cursorPos.x = cursorPosX;
 	cursorPos.y = cursorPosY;
-	ScreenToClient(hwnd, &cursorPos);
+	ScreenToClient(_hwnd, &cursorPos);
 	int cursorClientPosX = cursorPos.x;
 	int cursorClientPosY = cursorPos.y;
 
@@ -2584,8 +2584,8 @@ void DashboardWindow::ShowDropTargets(IDockingWindow* callingDockingWindow, int 
 	POINT clientPosPoint;
 	clientPosPoint.x = cursorClientPosX;
 	clientPosPoint.y = cursorClientPosY;
-	HWND childWindowUnderCursor = ChildWindowFromPointEx(hwnd, clientPosPoint, CWP_SKIPINVISIBLE);
-	childWindowUnderCursor = (childWindowUnderCursor == hwnd)? NULL: childWindowUnderCursor;
+	HWND childWindowUnderCursor = ChildWindowFromPointEx(_hwnd, clientPosPoint, CWP_SKIPINVISIBLE);
+	childWindowUnderCursor = (childWindowUnderCursor == _hwnd)? NULL: childWindowUnderCursor;
 
 	//Calculate the position and size of the child window under the supplied cursor
 	//position
@@ -2600,7 +2600,7 @@ void DashboardWindow::ShowDropTargets(IDockingWindow* callingDockingWindow, int 
 		POINT childWindowUnderCursorScreenPos;
 		childWindowUnderCursorScreenPos.x = childWindowUnderCursorRect.left;
 		childWindowUnderCursorScreenPos.y = childWindowUnderCursorRect.top;
-		ScreenToClient(hwnd, &childWindowUnderCursorScreenPos);
+		ScreenToClient(_hwnd, &childWindowUnderCursorScreenPos);
 		childWindowUnderCursorPosX = childWindowUnderCursorScreenPos.x;
 		childWindowUnderCursorPosY = childWindowUnderCursorScreenPos.y;
 		childWindowUnderCursorWidth = childWindowUnderCursorRect.right - childWindowUnderCursorRect.left;
@@ -2624,15 +2624,15 @@ void DashboardWindow::ShowDropTargets(IDockingWindow* callingDockingWindow, int 
 		{
 			//If a different child docking window had drop targets being shown, hide them
 			//now.
-			if((dropTargetsChildDockingWindow != 0) && (dropTargetsChildDockingWindow != childDockingWindowUnderCursor))
+			if((_dropTargetsChildDockingWindow != 0) && (_dropTargetsChildDockingWindow != childDockingWindowUnderCursor))
 			{
-				dropTargetsChildDockingWindow->HideDropTargets(callingDockingWindow);
+				_dropTargetsChildDockingWindow->HideDropTargets(callingDockingWindow);
 			}
 
 			//Set the target child docking window as the child window we're currently
 			//showing drop targets for, and request it to show drop targets.
-			dropTargetsChildDockingWindow = childDockingWindowUnderCursor;
-			dropTargetsChildDockingWindow->ShowDropTargets(callingDockingWindow, dockWindowWidth, dockWindowHeight, cursorPosX, cursorPosY);
+			_dropTargetsChildDockingWindow = childDockingWindowUnderCursor;
+			_dropTargetsChildDockingWindow->ShowDropTargets(callingDockingWindow, dockWindowWidth, dockWindowHeight, cursorPosX, cursorPosY);
 
 			//Since we're showing drop targets for a child docking window now, flag that
 			//we don't want to hide the child window drop targets when we hide our own
@@ -2647,24 +2647,24 @@ void DashboardWindow::ShowDropTargets(IDockingWindow* callingDockingWindow, int 
 
 	//If the region under the supplied cursor position is different from the last update,
 	//change our placement target windows to target the new region.
-	if(currentRegionDropTarget != targetRegion)
+	if(_currentRegionDropTarget != targetRegion)
 	{
 		//If drop targets have been shown for a child docking window in the previous
 		//target region, hide them now.
-		if(dropTargetsChildDockingWindow != 0)
+		if(_dropTargetsChildDockingWindow != 0)
 		{
-			dropTargetsChildDockingWindow->HideDropTargets(callingDockingWindow);
-			dropTargetsChildDockingWindow = 0;
+			_dropTargetsChildDockingWindow->HideDropTargets(callingDockingWindow);
+			_dropTargetsChildDockingWindow = 0;
 		}
 
 		//Update the current target region for the drop targets
-		currentRegionDropTarget = targetRegion;
+		_currentRegionDropTarget = targetRegion;
 
 		//Calculate the position of the target region in screen coordinates
 		POINT targetRegionPos;
 		targetRegionPos.x = targetRegion->cachedPosX;
 		targetRegionPos.y = targetRegion->cachedPosY;
-		ClientToScreen(hwnd, &targetRegionPos);
+		ClientToScreen(_hwnd, &targetRegionPos);
 		int targetRegionScreenPosX = targetRegionPos.x;
 		int targetRegionScreenPosY = targetRegionPos.y;
 
@@ -2687,17 +2687,17 @@ void DashboardWindow::ShowDropTargets(IDockingWindow* callingDockingWindow, int 
 			HDWP deferWindowPosSession = BeginDeferWindowPos(6);
 
 			//Position and size all the drop target windows
-			DeferWindowPos(deferWindowPosSession, dropTargets[DockTargetPos::Center], NULL, dropTargetIconPosX, dropTargetIconPosY, dropTargetIconWidth, dropTargetIconHeight, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
+			DeferWindowPos(deferWindowPosSession, _dropTargets[DockTargetPos::Center], NULL, dropTargetIconPosX, dropTargetIconPosY, dropTargetIconWidth, dropTargetIconHeight, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
 
 			//Show the drop target windows
-			DeferWindowPos(deferWindowPosSession, dropTargets[DockTargetPos::Left], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
-			DeferWindowPos(deferWindowPosSession, dropTargets[DockTargetPos::Right], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
-			DeferWindowPos(deferWindowPosSession, dropTargets[DockTargetPos::Top], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
-			DeferWindowPos(deferWindowPosSession, dropTargets[DockTargetPos::Bottom], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
-			DeferWindowPos(deferWindowPosSession, dropTargets[DockTargetPos::Center], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
+			DeferWindowPos(deferWindowPosSession, _dropTargets[DockTargetPos::Left], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
+			DeferWindowPos(deferWindowPosSession, _dropTargets[DockTargetPos::Right], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
+			DeferWindowPos(deferWindowPosSession, _dropTargets[DockTargetPos::Top], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
+			DeferWindowPos(deferWindowPosSession, _dropTargets[DockTargetPos::Bottom], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
+			DeferWindowPos(deferWindowPosSession, _dropTargets[DockTargetPos::Center], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
 
 			//Flag that drop targets are now visible
-			dropTargetsVisible = true;
+			_dropTargetsVisible = true;
 
 			//Process all the window size and position changes involved in this update
 			EndDeferWindowPos(deferWindowPosSession);
@@ -2734,20 +2734,20 @@ void DashboardWindow::ShowDropTargets(IDockingWindow* callingDockingWindow, int 
 			HDWP deferWindowPosSession = BeginDeferWindowPos(9);
 
 			//Position and size all the drop target windows
-			DeferWindowPos(deferWindowPosSession, dropTargets[DockTargetPos::Left], NULL, dropTargetIconPosX[DockTargetPos::Left], dropTargetIconPosY[DockTargetPos::Left], dropTargetIconWidth[DockTargetPos::Left], dropTargetIconHeight[DockTargetPos::Left], SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
-			DeferWindowPos(deferWindowPosSession, dropTargets[DockTargetPos::Right], NULL, dropTargetIconPosX[DockTargetPos::Right], dropTargetIconPosY[DockTargetPos::Right], dropTargetIconWidth[DockTargetPos::Right], dropTargetIconHeight[DockTargetPos::Right], SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
-			DeferWindowPos(deferWindowPosSession, dropTargets[DockTargetPos::Top], NULL, dropTargetIconPosX[DockTargetPos::Top], dropTargetIconPosY[DockTargetPos::Top], dropTargetIconWidth[DockTargetPos::Top], dropTargetIconHeight[DockTargetPos::Top], SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
-			DeferWindowPos(deferWindowPosSession, dropTargets[DockTargetPos::Bottom], NULL, dropTargetIconPosX[DockTargetPos::Bottom], dropTargetIconPosY[DockTargetPos::Bottom], dropTargetIconWidth[DockTargetPos::Bottom], dropTargetIconHeight[DockTargetPos::Bottom], SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
+			DeferWindowPos(deferWindowPosSession, _dropTargets[DockTargetPos::Left], NULL, dropTargetIconPosX[DockTargetPos::Left], dropTargetIconPosY[DockTargetPos::Left], dropTargetIconWidth[DockTargetPos::Left], dropTargetIconHeight[DockTargetPos::Left], SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
+			DeferWindowPos(deferWindowPosSession, _dropTargets[DockTargetPos::Right], NULL, dropTargetIconPosX[DockTargetPos::Right], dropTargetIconPosY[DockTargetPos::Right], dropTargetIconWidth[DockTargetPos::Right], dropTargetIconHeight[DockTargetPos::Right], SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
+			DeferWindowPos(deferWindowPosSession, _dropTargets[DockTargetPos::Top], NULL, dropTargetIconPosX[DockTargetPos::Top], dropTargetIconPosY[DockTargetPos::Top], dropTargetIconWidth[DockTargetPos::Top], dropTargetIconHeight[DockTargetPos::Top], SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
+			DeferWindowPos(deferWindowPosSession, _dropTargets[DockTargetPos::Bottom], NULL, dropTargetIconPosX[DockTargetPos::Bottom], dropTargetIconPosY[DockTargetPos::Bottom], dropTargetIconWidth[DockTargetPos::Bottom], dropTargetIconHeight[DockTargetPos::Bottom], SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
 
 			//Show the drop target windows
-			DeferWindowPos(deferWindowPosSession, dropTargets[DockTargetPos::Left], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
-			DeferWindowPos(deferWindowPosSession, dropTargets[DockTargetPos::Right], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
-			DeferWindowPos(deferWindowPosSession, dropTargets[DockTargetPos::Top], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
-			DeferWindowPos(deferWindowPosSession, dropTargets[DockTargetPos::Bottom], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
-			DeferWindowPos(deferWindowPosSession, dropTargets[DockTargetPos::Center], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
+			DeferWindowPos(deferWindowPosSession, _dropTargets[DockTargetPos::Left], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
+			DeferWindowPos(deferWindowPosSession, _dropTargets[DockTargetPos::Right], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
+			DeferWindowPos(deferWindowPosSession, _dropTargets[DockTargetPos::Top], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
+			DeferWindowPos(deferWindowPosSession, _dropTargets[DockTargetPos::Bottom], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
+			DeferWindowPos(deferWindowPosSession, _dropTargets[DockTargetPos::Center], NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
 
 			//Flag that drop targets are now visible
-			dropTargetsVisible = true;
+			_dropTargetsVisible = true;
 
 			//Process all the window size and position changes involved in this update
 			EndDeferWindowPos(deferWindowPosSession);
@@ -2758,8 +2758,8 @@ void DashboardWindow::ShowDropTargets(IDockingWindow* callingDockingWindow, int 
 	//targets too.
 	if(targetRegion->windowAsDockingWindow != 0)
 	{
-		dropTargetsChildDockingWindow = targetRegion->windowAsDockingWindow;
-		dropTargetsChildDockingWindow->ShowDropTargets(callingDockingWindow, dockWindowWidth, dockWindowHeight, cursorPosX, cursorPosY);
+		_dropTargetsChildDockingWindow = targetRegion->windowAsDockingWindow;
+		_dropTargetsChildDockingWindow->ShowDropTargets(callingDockingWindow, dockWindowWidth, dockWindowHeight, cursorPosX, cursorPosY);
 	}
 
 	//Determine the current drop target based on the supplied cursor position
@@ -2768,23 +2768,23 @@ void DashboardWindow::ShowDropTargets(IDockingWindow* callingDockingWindow, int 
 	RECT rect;
 	cursorPos.x = cursorPosX;
 	cursorPos.y = cursorPosY;
-	if((GetWindowRect(dropTargets[DockTargetPos::Left], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
+	if((GetWindowRect(_dropTargets[DockTargetPos::Left], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
 	{
 		newDockLocation = DockTargetPos::Left;
 	}
-	else if((GetWindowRect(dropTargets[DockTargetPos::Right], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
+	else if((GetWindowRect(_dropTargets[DockTargetPos::Right], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
 	{
 		newDockLocation = DockTargetPos::Right;
 	}
-	else if((GetWindowRect(dropTargets[DockTargetPos::Top], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
+	else if((GetWindowRect(_dropTargets[DockTargetPos::Top], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
 	{
 		newDockLocation = DockTargetPos::Top;
 	}
-	else if((GetWindowRect(dropTargets[DockTargetPos::Bottom], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
+	else if((GetWindowRect(_dropTargets[DockTargetPos::Bottom], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
 	{
 		newDockLocation = DockTargetPos::Bottom;
 	}
-	else if((GetWindowRect(dropTargets[DockTargetPos::Center], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
+	else if((GetWindowRect(_dropTargets[DockTargetPos::Center], &rect) != 0) && (PtInRect(&rect, cursorPos) != 0))
 	{
 		newDockLocation = DockTargetPos::Center;
 	}
@@ -2795,37 +2795,37 @@ void DashboardWindow::ShowDropTargets(IDockingWindow* callingDockingWindow, int 
 
 	//If we found a target dock location, update the placement shadow window position and
 	//size.
-	if(foundDockLocation && (!dropShadowVisible || (dropShadowCurrentPos != newDockLocation)))
+	if(foundDockLocation && (!_dropShadowVisible || (_dropShadowCurrentPos != newDockLocation)))
 	{
 		//Record the edge to anchor the placement shadow against
-		dropShadowCurrentPos = newDockLocation;
+		_dropShadowCurrentPos = newDockLocation;
 
 		//Calculate the width and height of the placement shadow window
-		int placementShadowWidth = (newDockLocation == DockTargetPos::Center)? targetRegion->width: (((newDockLocation == DockTargetPos::Left) || (newDockLocation == DockTargetPos::Right))? ((targetRegion->width + dividerSizeX) / 2): targetRegion->width);
-		int placementShadowHeight = (newDockLocation == DockTargetPos::Center)? targetRegion->height: (((newDockLocation == DockTargetPos::Top) || (newDockLocation == DockTargetPos::Bottom))? ((targetRegion->height + dividerSizeY) / 2): targetRegion->height);
+		int placementShadowWidth = (newDockLocation == DockTargetPos::Center)? targetRegion->width: (((newDockLocation == DockTargetPos::Left) || (newDockLocation == DockTargetPos::Right))? ((targetRegion->width + _dividerSizeX) / 2): targetRegion->width);
+		int placementShadowHeight = (newDockLocation == DockTargetPos::Center)? targetRegion->height: (((newDockLocation == DockTargetPos::Top) || (newDockLocation == DockTargetPos::Bottom))? ((targetRegion->height + _dividerSizeY) / 2): targetRegion->height);
 
 		//Calculate the position of the placement shadow window in screen coordinates
 		POINT point;
 		point.x = (newDockLocation == DockTargetPos::Center)? targetRegion->cachedPosX: ((newDockLocation == DockTargetPos::Right)? ((targetRegion->cachedPosX + targetRegion->width) - placementShadowWidth): targetRegion->cachedPosX);
 		point.y = (newDockLocation == DockTargetPos::Center)? targetRegion->cachedPosY: ((newDockLocation == DockTargetPos::Bottom)? ((targetRegion->cachedPosY + targetRegion->height) - placementShadowHeight): targetRegion->cachedPosY);
-		ClientToScreen(hwnd, &point);
+		ClientToScreen(_hwnd, &point);
 		int placementShadowPosX = point.x;
 		int placementShadowPosY = point.y;
 
 		//Update the placement shadow position and size
-		SetWindowPos(dropShadow, NULL, placementShadowPosX, placementShadowPosY, placementShadowWidth, placementShadowHeight, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
+		SetWindowPos(_dropShadow, NULL, placementShadowPosX, placementShadowPosY, placementShadowWidth, placementShadowHeight, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
 	}
 
 	//Show or hide the placement shadow window if required
-	if(foundDockLocation && !dropShadowVisible)
+	if(foundDockLocation && !_dropShadowVisible)
 	{
-		SetWindowPos(dropShadow, dropTargets[DockTargetPos::Left], 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_SHOWWINDOW);
-		dropShadowVisible = true;
+		SetWindowPos(_dropShadow, _dropTargets[DockTargetPos::Left], 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+		_dropShadowVisible = true;
 	}
-	else if(!foundDockLocation && dropShadowVisible)
+	else if(!foundDockLocation && _dropShadowVisible)
 	{
-		SetWindowPos(dropShadow, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_HIDEWINDOW);
-		dropShadowVisible = false;
+		SetWindowPos(_dropShadow, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_HIDEWINDOW);
+		_dropShadowVisible = false;
 	}
 }
 
@@ -2834,11 +2834,11 @@ bool DashboardWindow::HitTestDropTargets(IDockingWindow* callingDockingWindow, i
 {
 	//If no valid placement target is currently selected, pass the call onto the nested
 	//docking window within the current target region if present, otherwise return false.
-	if(!dropShadowVisible && (dropTargetsChildDockingWindow != 0))
+	if(!_dropShadowVisible && (_dropTargetsChildDockingWindow != 0))
 	{
-		return dropTargetsChildDockingWindow->HitTestDropTargets(callingDockingWindow, cursorPosX, cursorPosY, dropTargetInfo);
+		return _dropTargetsChildDockingWindow->HitTestDropTargets(callingDockingWindow, cursorPosX, cursorPosY, dropTargetInfo);
 	}
-	else if(!dropTargetsVisible || !dropShadowVisible)
+	else if(!_dropTargetsVisible || !_dropShadowVisible)
 	{
 		return false;
 	}
@@ -2850,7 +2850,7 @@ bool DashboardWindow::HitTestDropTargets(IDockingWindow* callingDockingWindow, i
 	//has no content window, we process a center dock position with a left insert
 	//direction, because it doesn't matter which one is used.
 	InsertDirection insertDirection = InsertDirection::Left;
-	switch(dropShadowCurrentPos)
+	switch(_dropShadowCurrentPos)
 	{
 	case DockTargetPos::Center:
 	case DockTargetPos::Left:
@@ -2870,7 +2870,7 @@ bool DashboardWindow::HitTestDropTargets(IDockingWindow* callingDockingWindow, i
 	//If the target region has no associated window, calculate the index number for the
 	//region in order to uniquely identify the target.
 	int targetRegionNo = -1;
-	if(currentRegionDropTarget->windowHandle == NULL)
+	if(_currentRegionDropTarget->windowHandle == NULL)
 	{
 		//Obtain a list of the regions sorted in a manner based on their structure rather
 		//than creation order
@@ -2882,7 +2882,7 @@ bool DashboardWindow::HitTestDropTargets(IDockingWindow* callingDockingWindow, i
 		std::list<ContentRegion*>::const_iterator regionIterator = sortedRegionList.begin();
 		while(regionIterator != sortedRegionList.end())
 		{
-			if(*regionIterator == currentRegionDropTarget)
+			if(*regionIterator == _currentRegionDropTarget)
 			{
 				break;
 			}
@@ -2893,11 +2893,11 @@ bool DashboardWindow::HitTestDropTargets(IDockingWindow* callingDockingWindow, i
 
 	//Return the target docking location to the caller
 	DashboardWindowDropTargetInfo* dropTargetInfoResolved = new DashboardWindowDropTargetInfo();
-	dropTargetInfoResolved->existingWindow = currentRegionDropTarget->windowHandle;
+	dropTargetInfoResolved->existingWindow = _currentRegionDropTarget->windowHandle;
 	dropTargetInfoResolved->targetRegionNo = targetRegionNo;
 	dropTargetInfoResolved->insertDirection = insertDirection;
 	dropTargetInfoResolved->regionProportion = 0.5;
-	dropTargetInfoResolved->owningDockingWindow = hwnd;
+	dropTargetInfoResolved->owningDockingWindow = _hwnd;
 	dropTargetInfo = dropTargetInfoResolved;
 	return true;
 }
@@ -2915,8 +2915,8 @@ void DashboardWindow::AddChildContainer(IDockingWindow* childContainer, const ID
 	ContentRegion* existingContentRegion = 0;
 	if(dropTargetInfoResolved.existingWindow != NULL)
 	{
-		std::list<ContentRegion*>::const_iterator contentRegionIterator = regions.begin();
-		while(contentRegionIterator != regions.end())
+		std::list<ContentRegion*>::const_iterator contentRegionIterator = _regions.begin();
+		while(contentRegionIterator != _regions.end())
 		{
 			if((*contentRegionIterator)->windowHandle == dropTargetInfoResolved.existingWindow)
 			{
@@ -2946,7 +2946,7 @@ void DashboardWindow::AddChildContainer(IDockingWindow* childContainer, const ID
 	}
 
 	//If no existing content region was identified, default to the first region.
-	existingContentRegion = (existingContentRegion == 0)? regions.back(): existingContentRegion;
+	existingContentRegion = (existingContentRegion == 0)? _regions.back(): existingContentRegion;
 
 	//If the target region has no associated content window, associate it with the
 	//specified window, otherwise insert it next to the target content region.
@@ -2965,8 +2965,8 @@ void DashboardWindow::RemoveChildContainer(IDockingWindow* childContainer)
 {
 	HWND windowHandle = childContainer->GetWindowHandle();
 	ContentRegion* existingContentRegion = 0;
-	std::list<ContentRegion*>::const_iterator contentRegionIterator = regions.begin();
-	while(contentRegionIterator != regions.end())
+	std::list<ContentRegion*>::const_iterator contentRegionIterator = _regions.begin();
+	while(contentRegionIterator != _regions.end())
 	{
 		if((*contentRegionIterator)->windowHandle == windowHandle)
 		{
@@ -2989,7 +2989,7 @@ void DashboardWindow::NotifyChildContainerContentChanged(IDockingWindow* childCo
 bool DashboardWindow::HasNestedChildDockingWindows() const
 {
 	//Return true if we have at least one hosted docking window
-	for(std::list<ContentRegion*>::const_iterator contentRegionIterator = regions.begin(); contentRegionIterator != regions.end(); ++contentRegionIterator)
+	for(std::list<ContentRegion*>::const_iterator contentRegionIterator = _regions.begin(); contentRegionIterator != _regions.end(); ++contentRegionIterator)
 	{
 		const ContentRegion& contentRegion = *(*contentRegionIterator);
 		if(contentRegion.windowAsDockingWindow != 0)
@@ -3007,7 +3007,7 @@ Marshal::Ret<std::list<IDockingWindow*>> DashboardWindow::GetNestedChildDockingW
 	std::list<IDockingWindow*> dockingWindowList;
 
 	//Build a list of any hosted docking windows
-	for(std::list<ContentRegion*>::const_iterator contentRegionIterator = regions.begin(); contentRegionIterator != regions.end(); ++contentRegionIterator)
+	for(std::list<ContentRegion*>::const_iterator contentRegionIterator = _regions.begin(); contentRegionIterator != _regions.end(); ++contentRegionIterator)
 	{
 		const ContentRegion& contentRegion = *(*contentRegionIterator);
 		if(contentRegion.windowAsDockingWindow != 0)
@@ -3047,19 +3047,19 @@ bool DashboardWindow::ParentBorderClickForChildContainer(IDockingWindow* childCo
 //----------------------------------------------------------------------------------------
 IDockingWindow* DashboardWindow::GetParentDockingWindow() const
 {
-	return parentDockingWindow;
+	return _parentDockingWindow;
 }
 
 //----------------------------------------------------------------------------------------
 void DashboardWindow::NotifyAddedToParent(IDockingWindow* newParentDockingWindow)
 {
-	parentDockingWindow = newParentDockingWindow;
+	_parentDockingWindow = newParentDockingWindow;
 }
 
 //----------------------------------------------------------------------------------------
 void DashboardWindow::NotifyRemovedFromParent()
 {
-	parentDockingWindow = 0;
+	_parentDockingWindow = 0;
 }
 
 //----------------------------------------------------------------------------------------
@@ -3070,7 +3070,7 @@ void DashboardWindow::UpdateCachedLocations(bool deferWindowUpdate)
 	//Update the cached position and size of each vertical divider branching off the top
 	//edge of the control
 	int currentPosX = 0;
-	for(std::list<DividerContentEntry>::iterator topLevelDividerListIterator = topLevelDividersFromTop.begin(); topLevelDividerListIterator != topLevelDividersFromTop.end(); ++topLevelDividerListIterator)
+	for(std::list<DividerContentEntry>::iterator topLevelDividerListIterator = _topLevelDividersFromTop.begin(); topLevelDividerListIterator != _topLevelDividersFromTop.end(); ++topLevelDividerListIterator)
 	{
 		DividerContentEntry& entry = *topLevelDividerListIterator;
 		if(entry.followingContentDivider != 0)
@@ -3083,7 +3083,7 @@ void DashboardWindow::UpdateCachedLocations(bool deferWindowUpdate)
 	//Update the cached position and size of each horizontal divider branching off the
 	//left edge of the control
 	int currentPosY = 0;
-	for(std::list<DividerContentEntry>::iterator topLevelDividerListIterator = topLevelDividersFromLeft.begin(); topLevelDividerListIterator != topLevelDividersFromLeft.end(); ++topLevelDividerListIterator)
+	for(std::list<DividerContentEntry>::iterator topLevelDividerListIterator = _topLevelDividersFromLeft.begin(); topLevelDividerListIterator != _topLevelDividersFromLeft.end(); ++topLevelDividerListIterator)
 	{
 		DividerContentEntry& entry = *topLevelDividerListIterator;
 		if(entry.followingContentDivider != 0)
@@ -3094,11 +3094,11 @@ void DashboardWindow::UpdateCachedLocations(bool deferWindowUpdate)
 	}
 
 	//Update the cached position of each region
-	for(std::list<ContentRegion*>::iterator contentRegionIterator = regions.begin(); contentRegionIterator != regions.end(); ++contentRegionIterator)
+	for(std::list<ContentRegion*>::iterator contentRegionIterator = _regions.begin(); contentRegionIterator != _regions.end(); ++contentRegionIterator)
 	{
 		ContentRegion& contentRegion = *(*contentRegionIterator);
-		contentRegion.cachedPosX = (contentRegion.leftDivider != 0)? contentRegion.leftDivider->cachedPosX + dividerSizeX: 0;
-		contentRegion.cachedPosY = (contentRegion.topDivider != 0)? contentRegion.topDivider->cachedPosY + dividerSizeY: 0;
+		contentRegion.cachedPosX = (contentRegion.leftDivider != 0)? contentRegion.leftDivider->cachedPosX + _dividerSizeX: 0;
+		contentRegion.cachedPosY = (contentRegion.topDivider != 0)? contentRegion.topDivider->cachedPosY + _dividerSizeY: 0;
 	}
 
 	//If window size and position updates have been requested, perform them now.
@@ -3114,10 +3114,10 @@ void DashboardWindow::ApplyCachedLocations()
 	//Begin a session for processing this batch of window size changes. Processing all the
 	//window size and position changes in a single operation in this manner gives the best
 	//performance and appearance.
-	HDWP deferWindowPosSession = BeginDeferWindowPos((int)regions.size());
+	HDWP deferWindowPosSession = BeginDeferWindowPos((int)_regions.size());
 
 	//Resize any hosted content windows which need to be resized
-	for(std::list<ContentRegion*>::iterator contentRegionIterator = regions.begin(); contentRegionIterator != regions.end(); ++contentRegionIterator)
+	for(std::list<ContentRegion*>::iterator contentRegionIterator = _regions.begin(); contentRegionIterator != _regions.end(); ++contentRegionIterator)
 	{
 		ContentRegion& contentRegion = *(*contentRegionIterator);
 		if((contentRegion.windowPosX != contentRegion.cachedPosX) || (contentRegion.windowPosY != contentRegion.cachedPosY) || (contentRegion.windowWidth != contentRegion.width) || (contentRegion.windowHeight != contentRegion.height))
@@ -3145,7 +3145,7 @@ void DashboardWindow::UpdateCachedDividerLocation(int regionPosX, int regionPosY
 		const ContentRegion& contentRegion = *(i->contentRegion);
 		if(!firstContentEntry)
 		{
-			dividerLength += (divider.vertical)? dividerSizeY: dividerSizeX;
+			dividerLength += (divider.vertical)? _dividerSizeY: _dividerSizeX;
 		}
 		dividerLength += (divider.vertical)? contentRegion.height: contentRegion.width;
 		firstContentEntry = false;
@@ -3157,7 +3157,7 @@ void DashboardWindow::UpdateCachedDividerLocation(int regionPosX, int regionPosY
 	{
 		divider.cachedPosX = regionPosX + precedingRegion.width;
 		divider.cachedPosY = regionPosY;
-		divider.cachedWidth = dividerSizeX;
+		divider.cachedWidth = _dividerSizeX;
 		divider.cachedHeight = dividerLength;
 		regionPosX = divider.cachedPosX + divider.cachedWidth;
 	}
@@ -3166,7 +3166,7 @@ void DashboardWindow::UpdateCachedDividerLocation(int regionPosX, int regionPosY
 		divider.cachedPosX = regionPosX;
 		divider.cachedPosY = regionPosY + precedingRegion.height;
 		divider.cachedWidth = dividerLength;
-		divider.cachedHeight = dividerSizeY;
+		divider.cachedHeight = _dividerSizeY;
 		regionPosY = divider.cachedPosY + divider.cachedHeight;
 	}
 
@@ -3199,11 +3199,11 @@ void DashboardWindow::InsertRegion(ContentRegion& existingRegion, InsertDirectio
 	int distanceAlongRegion;
 	if((insertDirection == InsertDirection::Top) || (insertDirection == InsertDirection::Bottom))
 	{
-		distanceAlongRegion = (existingRegion.height > dividerSizeY)? (int)((double)(existingRegion.height - dividerSizeY) * regionProportion): 0;
+		distanceAlongRegion = (existingRegion.height > _dividerSizeY)? (int)((double)(existingRegion.height - _dividerSizeY) * regionProportion): 0;
 	}
 	else
 	{
-		distanceAlongRegion = (existingRegion.width > dividerSizeX)? (int)((double)(existingRegion.width - dividerSizeX) * regionProportion): 0;
+		distanceAlongRegion = (existingRegion.width > _dividerSizeX)? (int)((double)(existingRegion.width - _dividerSizeX) * regionProportion): 0;
 	}
 
 	//Insert the new region at the calculated position within the existing region
@@ -3230,7 +3230,7 @@ DashboardWindow::Divider* DashboardWindow::InsertRegion(ContentRegion& existingR
 
 	//Create a new content region, and add it to the list of content regions.
 	ContentRegion* newRegionPointer = new ContentRegion();
-	regions.push_back(newRegionPointer);
+	_regions.push_back(newRegionPointer);
 	ContentRegion& newRegion = *newRegionPointer;
 
 	//Attach the specified window to the new content region
@@ -3239,7 +3239,7 @@ DashboardWindow::Divider* DashboardWindow::InsertRegion(ContentRegion& existingR
 	//Set this new hosted window as a child window of our control
 	if(hostedWindow!= NULL)
 	{
-		SetWindowParent(hostedWindow, hwnd);
+		SetWindowParent(hostedWindow, _hwnd);
 	}
 
 	//Attempt to retrieve a docking window interface for the hosted window
@@ -3269,7 +3269,7 @@ DashboardWindow::Divider* DashboardWindow::InsertRegion(ContentRegion& existingR
 		newDivider->startAnchorDivider = existingRegion.topDivider;
 		newDivider->endAnchorDivider = existingRegion.bottomDivider;
 	}
-	dividers.push_back(newDivider);
+	_dividers.push_back(newDivider);
 
 	//Populate the following and preceding content lists for our new divider
 	if((insertDirection == InsertDirection::Right) || (insertDirection == InsertDirection::Bottom))
@@ -3289,7 +3289,7 @@ DashboardWindow::Divider* DashboardWindow::InsertRegion(ContentRegion& existingR
 	std::list<std::list<DividerContentEntry>*> listOfDividerListsToInsertRegion;
 	if((insertDirection == InsertDirection::Top) || (insertDirection == InsertDirection::Bottom))
 	{
-		listOfDividerListsToInsertRegion.push_back((existingRegion.leftDivider != 0)? &existingRegion.leftDivider->followingContent: &topLevelDividersFromLeft);
+		listOfDividerListsToInsertRegion.push_back((existingRegion.leftDivider != 0)? &existingRegion.leftDivider->followingContent: &_topLevelDividersFromLeft);
 		if(existingRegion.rightDivider != 0)
 		{
 			listOfDividerListsToInsertRegion.push_back(&existingRegion.rightDivider->precedingContent);
@@ -3297,7 +3297,7 @@ DashboardWindow::Divider* DashboardWindow::InsertRegion(ContentRegion& existingR
 	}
 	else
 	{
-		listOfDividerListsToInsertRegion.push_back((existingRegion.topDivider != 0)? &existingRegion.topDivider->followingContent: &topLevelDividersFromTop);
+		listOfDividerListsToInsertRegion.push_back((existingRegion.topDivider != 0)? &existingRegion.topDivider->followingContent: &_topLevelDividersFromTop);
 		if(existingRegion.bottomDivider != 0)
 		{
 			listOfDividerListsToInsertRegion.push_back(&existingRegion.bottomDivider->precedingContent);
@@ -3346,7 +3346,7 @@ DashboardWindow::Divider* DashboardWindow::InsertRegion(ContentRegion& existingR
 	switch(insertDirection)
 	{
 	case InsertDirection::Top:
-		dividerListsToReplaceRegion = (existingRegion.topDivider != 0)? &existingRegion.topDivider->followingContent: &topLevelDividersFromTop;
+		dividerListsToReplaceRegion = (existingRegion.topDivider != 0)? &existingRegion.topDivider->followingContent: &_topLevelDividersFromTop;
 		break;
 	case InsertDirection::Bottom:
 		if(existingRegion.bottomDivider != 0)
@@ -3355,7 +3355,7 @@ DashboardWindow::Divider* DashboardWindow::InsertRegion(ContentRegion& existingR
 		}
 		break;
 	case InsertDirection::Left:
-		dividerListsToReplaceRegion = (existingRegion.leftDivider != 0)? &existingRegion.leftDivider->followingContent: &topLevelDividersFromLeft;
+		dividerListsToReplaceRegion = (existingRegion.leftDivider != 0)? &existingRegion.leftDivider->followingContent: &_topLevelDividersFromLeft;
 		break;
 	case InsertDirection::Right:
 		if(existingRegion.rightDivider != 0)
@@ -3426,11 +3426,11 @@ DashboardWindow::Divider* DashboardWindow::InsertRegion(ContentRegion& existingR
 	if((insertDirection == InsertDirection::Top) || (insertDirection == InsertDirection::Bottom))
 	{
 		newRegion.width = existingRegion.width;
-		if((distanceAlongRegion + dividerSizeY) <= existingRegion.height)
+		if((distanceAlongRegion + _dividerSizeY) <= existingRegion.height)
 		{
 			//Split the existing region to insert the new region
-			newRegion.height = (existingRegion.height - (distanceAlongRegion + dividerSizeY));
-			existingRegion.height -= (newRegion.height + dividerSizeY);
+			newRegion.height = (existingRegion.height - (distanceAlongRegion + _dividerSizeY));
+			existingRegion.height -= (newRegion.height + _dividerSizeY);
 		}
 		else
 		{
@@ -3439,9 +3439,9 @@ DashboardWindow::Divider* DashboardWindow::InsertRegion(ContentRegion& existingR
 			//handle this case, we need to increase the size of all regions running across
 			//the control, otherwise gaps would be created next to the existing region.
 			newRegion.height = 0;
-			int otherRegionsSizeAdjustment = (distanceAlongRegion + dividerSizeY) - existingRegion.height;
+			int otherRegionsSizeAdjustment = (distanceAlongRegion + _dividerSizeY) - existingRegion.height;
 			int existingRegionSizeAdjustment = distanceAlongRegion - existingRegion.height;
-			for(std::list<ContentRegion*>::const_iterator i = regions.begin(); i != regions.end(); ++i)
+			for(std::list<ContentRegion*>::const_iterator i = _regions.begin(); i != _regions.end(); ++i)
 			{
 				ContentRegion& region = *(*i);
 				if((&region != &existingRegion) && (region.cachedPosY <= (existingRegion.cachedPosY + existingRegion.height)) && ((region.cachedPosY + region.height) >= (existingRegion.cachedPosY + existingRegion.height)))
@@ -3455,11 +3455,11 @@ DashboardWindow::Divider* DashboardWindow::InsertRegion(ContentRegion& existingR
 	else
 	{
 		newRegion.height = existingRegion.height;
-		if((distanceAlongRegion + dividerSizeX) <= existingRegion.width)
+		if((distanceAlongRegion + _dividerSizeX) <= existingRegion.width)
 		{
 			//Split the existing region to insert the new region
-			newRegion.width = (existingRegion.width - (distanceAlongRegion + dividerSizeX));
-			existingRegion.width -= (newRegion.width + dividerSizeX);
+			newRegion.width = (existingRegion.width - (distanceAlongRegion + _dividerSizeX));
+			existingRegion.width -= (newRegion.width + _dividerSizeX);
 		}
 		else
 		{
@@ -3468,9 +3468,9 @@ DashboardWindow::Divider* DashboardWindow::InsertRegion(ContentRegion& existingR
 			//handle this case, we need to increase the size of all regions running across
 			//the control, otherwise gaps would be created next to the existing region.
 			newRegion.width = 0;
-			int otherRegionsSizeAdjustment = (distanceAlongRegion + dividerSizeX) - existingRegion.width;
+			int otherRegionsSizeAdjustment = (distanceAlongRegion + _dividerSizeX) - existingRegion.width;
 			int existingRegionSizeAdjustment = distanceAlongRegion - existingRegion.width;
-			for(std::list<ContentRegion*>::const_iterator i = regions.begin(); i != regions.end(); ++i)
+			for(std::list<ContentRegion*>::const_iterator i = _regions.begin(); i != _regions.end(); ++i)
 			{
 				ContentRegion& region = *(*i);
 				if((&region != &existingRegion) && (region.cachedPosX <= (existingRegion.cachedPosX + existingRegion.width)) && ((region.cachedPosX + region.width) >= (existingRegion.cachedPosX + existingRegion.width)))
@@ -3486,13 +3486,13 @@ DashboardWindow::Divider* DashboardWindow::InsertRegion(ContentRegion& existingR
 	UpdateCachedLocations();
 
 	//Force the control to redraw
-	InvalidateRect(hwnd, NULL, FALSE);
+	InvalidateRect(_hwnd, NULL, FALSE);
 
 	//If we're docked to a parent window, notify the parent docking window that our list
 	//of hosted content windows has changed.
-	if(parentDockingWindow != 0)
+	if(_parentDockingWindow != 0)
 	{
-		parentDockingWindow->NotifyChildContainerContentChanged(this);
+		_parentDockingWindow->NotifyChildContainerContentChanged(this);
 	}
 
 	//Return the newly created divider to the caller
@@ -3542,7 +3542,7 @@ void DashboardWindow::RemoveRegion(ContentRegion& existingRegion)
 	}
 
 	//If the target region has drop targets currently visible, hide the drop targets.
-	if(dropTargetsVisible && (currentRegionDropTarget == &existingRegion))
+	if(_dropTargetsVisible && (_currentRegionDropTarget == &existingRegion))
 	{
 		HideDropTargets(this);
 	}
@@ -3552,7 +3552,7 @@ void DashboardWindow::RemoveRegion(ContentRegion& existingRegion)
 	std::list<std::list<DividerContentEntry>*> listOfDividerListsToRemoveRegion;
 	if((dividerToRemoveLocation == IDockingWindow::WindowEdge::Left) || (dividerToRemoveLocation == IDockingWindow::WindowEdge::Right))
 	{
-		listOfDividerListsToRemoveRegion.push_back((existingRegion.topDivider != 0)? &existingRegion.topDivider->followingContent: &topLevelDividersFromTop);
+		listOfDividerListsToRemoveRegion.push_back((existingRegion.topDivider != 0)? &existingRegion.topDivider->followingContent: &_topLevelDividersFromTop);
 		if(existingRegion.bottomDivider != 0)
 		{
 			listOfDividerListsToRemoveRegion.push_back(&existingRegion.bottomDivider->precedingContent);
@@ -3560,7 +3560,7 @@ void DashboardWindow::RemoveRegion(ContentRegion& existingRegion)
 	}
 	else
 	{
-		listOfDividerListsToRemoveRegion.push_back((existingRegion.leftDivider != 0)? &existingRegion.leftDivider->followingContent: &topLevelDividersFromLeft);
+		listOfDividerListsToRemoveRegion.push_back((existingRegion.leftDivider != 0)? &existingRegion.leftDivider->followingContent: &_topLevelDividersFromLeft);
 		if(existingRegion.rightDivider != 0)
 		{
 			listOfDividerListsToRemoveRegion.push_back(&existingRegion.rightDivider->precedingContent);
@@ -3613,11 +3613,11 @@ void DashboardWindow::RemoveRegion(ContentRegion& existingRegion)
 		}
 		break;
 	case IDockingWindow::WindowEdge::Right:
-		dividerContentListToUpdate = (existingRegion.leftDivider != 0)? &existingRegion.leftDivider->followingContent: &topLevelDividersFromLeft;
+		dividerContentListToUpdate = (existingRegion.leftDivider != 0)? &existingRegion.leftDivider->followingContent: &_topLevelDividersFromLeft;
 		dividerContentListToInsert = &existingRegion.rightDivider->followingContent;
 		break;
 	case IDockingWindow::WindowEdge::Bottom:
-		dividerContentListToUpdate = (existingRegion.topDivider != 0)? &existingRegion.topDivider->followingContent: &topLevelDividersFromTop;
+		dividerContentListToUpdate = (existingRegion.topDivider != 0)? &existingRegion.topDivider->followingContent: &_topLevelDividersFromTop;
 		dividerContentListToInsert = &existingRegion.bottomDivider->followingContent;
 		break;
 	}
@@ -3649,7 +3649,7 @@ void DashboardWindow::RemoveRegion(ContentRegion& existingRegion)
 	switch(dividerToRemoveLocation)
 	{
 	case IDockingWindow::WindowEdge::Left:{
-		int sizeToAdd = dividerSizeX + existingRegion.width;
+		int sizeToAdd = _dividerSizeX + existingRegion.width;
 		for(std::list<DividerContentEntry>::iterator i = existingRegion.leftDivider->precedingContent.begin(); i != existingRegion.leftDivider->precedingContent.end(); ++i)
 		{
 			i->contentRegion->width += sizeToAdd;
@@ -3661,7 +3661,7 @@ void DashboardWindow::RemoveRegion(ContentRegion& existingRegion)
 		}
 		break;}
 	case IDockingWindow::WindowEdge::Top:{
-		int sizeToAdd = dividerSizeY + existingRegion.height;
+		int sizeToAdd = _dividerSizeY + existingRegion.height;
 		for(std::list<DividerContentEntry>::iterator i = existingRegion.topDivider->precedingContent.begin(); i != existingRegion.topDivider->precedingContent.end(); ++i)
 		{
 			i->contentRegion->height += sizeToAdd;
@@ -3673,7 +3673,7 @@ void DashboardWindow::RemoveRegion(ContentRegion& existingRegion)
 		}
 		break;}
 	case IDockingWindow::WindowEdge::Right:{
-		int sizeToAdd = dividerSizeX + existingRegion.width;
+		int sizeToAdd = _dividerSizeX + existingRegion.width;
 		for(std::list<DividerContentEntry>::iterator i = existingRegion.rightDivider->followingContent.begin(); i != existingRegion.rightDivider->followingContent.end(); ++i)
 		{
 			i->contentRegion->width += sizeToAdd;
@@ -3685,7 +3685,7 @@ void DashboardWindow::RemoveRegion(ContentRegion& existingRegion)
 		}
 		break;}
 	case IDockingWindow::WindowEdge::Bottom:{
-		int sizeToAdd = dividerSizeY + existingRegion.height;
+		int sizeToAdd = _dividerSizeY + existingRegion.height;
 		for(std::list<DividerContentEntry>::iterator i = existingRegion.bottomDivider->followingContent.begin(); i != existingRegion.bottomDivider->followingContent.end(); ++i)
 		{
 			i->contentRegion->height += sizeToAdd;
@@ -3713,12 +3713,12 @@ void DashboardWindow::RemoveRegion(ContentRegion& existingRegion)
 
 	//Remove the target divider from the list of dividers
 	bool removedDivider = false;
-	std::list<Divider*>::iterator dividerIterator = dividers.begin();
-	while(!removedDivider && (dividerIterator != dividers.end()))
+	std::list<Divider*>::iterator dividerIterator = _dividers.begin();
+	while(!removedDivider && (dividerIterator != _dividers.end()))
 	{
 		if(*dividerIterator == dividerToRemove)
 		{
-			dividers.erase(dividerIterator);
+			_dividers.erase(dividerIterator);
 			removedDivider = true;
 			continue;
 		}
@@ -3730,12 +3730,12 @@ void DashboardWindow::RemoveRegion(ContentRegion& existingRegion)
 
 	//Remove the target region from the list of regions
 	bool removedRegion = false;
-	std::list<ContentRegion*>::iterator regionIterator = regions.begin();
-	while(!removedRegion && (regionIterator != regions.end()))
+	std::list<ContentRegion*>::iterator regionIterator = _regions.begin();
+	while(!removedRegion && (regionIterator != _regions.end()))
 	{
 		if(*regionIterator == &existingRegion)
 		{
-			regions.erase(regionIterator);
+			_regions.erase(regionIterator);
 			removedRegion = true;
 			continue;
 		}
@@ -3749,13 +3749,13 @@ void DashboardWindow::RemoveRegion(ContentRegion& existingRegion)
 	UpdateCachedLocations();
 
 	//Force the control to redraw
-	InvalidateRect(hwnd, NULL, FALSE);
+	InvalidateRect(_hwnd, NULL, FALSE);
 
 	//If we're docked to a parent window, notify the parent docking window that our list
 	//of hosted content windows has changed.
-	if(parentDockingWindow != 0)
+	if(_parentDockingWindow != 0)
 	{
-		parentDockingWindow->NotifyChildContainerContentChanged(this);
+		_parentDockingWindow->NotifyChildContainerContentChanged(this);
 	}
 }
 
@@ -3763,15 +3763,15 @@ void DashboardWindow::RemoveRegion(ContentRegion& existingRegion)
 void DashboardWindow::RemoveAllRegions()
 {
 	//Cancel any divider drag operation that may be in progress
-	if(dividerDragActive)
+	if(_dividerDragActive)
 	{
-		dividerDragActive = false;
-		verticalDividersBeingDragged.clear();
-		horizontalDividersBeingDragged.clear();
+		_dividerDragActive = false;
+		_verticalDividersBeingDragged.clear();
+		_horizontalDividersBeingDragged.clear();
 	}
 
 	//Delete all regions
-	for(std::list<ContentRegion*>::const_iterator i = regions.begin(); i != regions.end(); ++i)
+	for(std::list<ContentRegion*>::const_iterator i = _regions.begin(); i != _regions.end(); ++i)
 	{
 		//Remove this hosted window as a child window of our control
 		ContentRegion* region = *i;
@@ -3790,35 +3790,35 @@ void DashboardWindow::RemoveAllRegions()
 		//Delete the region object
 		delete region;
 	}
-	regions.clear();
+	_regions.clear();
 
 	//Delete all dividers
-	for(std::list<Divider*>::const_iterator i = dividers.begin(); i != dividers.end(); ++i)
+	for(std::list<Divider*>::const_iterator i = _dividers.begin(); i != _dividers.end(); ++i)
 	{
 		//Delete the divider object
 		delete *i;
 	}
-	dividers.clear();
-	topLevelDividersFromTop.clear();
-	topLevelDividersFromLeft.clear();
+	_dividers.clear();
+	_topLevelDividersFromTop.clear();
+	_topLevelDividersFromLeft.clear();
 
 	//Re-create the default region
 	ContentRegion* contentRegion = new ContentRegion();
-	regions.push_back(contentRegion);
-	topLevelDividersFromTop.push_back(DividerContentEntry(contentRegion, 0));
-	topLevelDividersFromLeft.push_back(DividerContentEntry(contentRegion, 0));
+	_regions.push_back(contentRegion);
+	_topLevelDividersFromTop.push_back(DividerContentEntry(contentRegion, 0));
+	_topLevelDividersFromLeft.push_back(DividerContentEntry(contentRegion, 0));
 
 	//Update our cached divider locations using the new region sizes
 	UpdateCachedLocations();
 
 	//Force the control to redraw
-	InvalidateRect(hwnd, NULL, FALSE);
+	InvalidateRect(_hwnd, NULL, FALSE);
 
 	//If we're docked to a parent window, notify the parent docking window that our list
 	//of hosted content windows has changed.
-	if(parentDockingWindow != 0)
+	if(_parentDockingWindow != 0)
 	{
-		parentDockingWindow->NotifyChildContainerContentChanged(this);
+		_parentDockingWindow->NotifyChildContainerContentChanged(this);
 	}
 }
 
@@ -3860,7 +3860,7 @@ void DashboardWindow::UpdateRegionContent(ContentRegion& existingRegion, HWND ne
 	if(newHostedWindow != NULL)
 	{
 		//Set this new hosted window as a child window of our control
-		SetWindowParent(newHostedWindow, hwnd);
+		SetWindowParent(newHostedWindow, _hwnd);
 
 		//Update the position and size of the new hosted window
 		SetWindowPos(newHostedWindow, NULL, existingRegion.windowPosX, existingRegion.windowPosY, existingRegion.windowWidth, existingRegion.windowHeight, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE);
@@ -3875,9 +3875,9 @@ void DashboardWindow::UpdateRegionContent(ContentRegion& existingRegion, HWND ne
 
 	//If we're docked to a parent window, notify the parent docking window that our list
 	//of hosted content windows has changed.
-	if(parentDockingWindow != 0)
+	if(_parentDockingWindow != 0)
 	{
-		parentDockingWindow->NotifyChildContainerContentChanged(this);
+		_parentDockingWindow->NotifyChildContainerContentChanged(this);
 	}
 }
 
@@ -3886,8 +3886,8 @@ DashboardWindow::ContentRegion* DashboardWindow::GetRegionAtPosition(int posX, i
 {
 	//Return the region which lies under the target position, if any.
 	ContentRegion* locatedRegion = 0;
-	std::list<ContentRegion*>::const_iterator regionIterator = regions.begin();
-	while((locatedRegion == 0) && (regionIterator != regions.end()))
+	std::list<ContentRegion*>::const_iterator regionIterator = _regions.begin();
+	while((locatedRegion == 0) && (regionIterator != _regions.end()))
 	{
 		ContentRegion* region = *regionIterator;
 		if((posX >= region->windowPosX) && (posX < (region->windowPosX + region->width)) && (posY >= region->windowPosY) && (posY < (region->windowPosY + region->height)))
@@ -3904,8 +3904,8 @@ DashboardWindow::ContentRegion* DashboardWindow::GetRegionAtPosition(int posX, i
 void DashboardWindow::BuildSortedRegionList(std::list<ContentRegion*>& sortedRegionList) const
 {
 	std::set<ContentRegion*> processedRegions;
-	BuildSortedRegionList(topLevelDividersFromTop, processedRegions, sortedRegionList);
-	BuildSortedRegionList(topLevelDividersFromLeft, processedRegions, sortedRegionList);
+	BuildSortedRegionList(_topLevelDividersFromTop, processedRegions, sortedRegionList);
+	BuildSortedRegionList(_topLevelDividersFromLeft, processedRegions, sortedRegionList);
 }
 
 //----------------------------------------------------------------------------------------
@@ -4082,7 +4082,7 @@ std::list<DashboardWindow::DividerSplitPosition> DashboardWindow::GetSplitPositi
 
 			//Calculate the start position and length of the split grabber along the
 			//target divider
-			static const int dividerSplitGrabberSize = (targetDivider->vertical)? (dividerSizeY * 3): (dividerSizeX * 3);
+			static const int dividerSplitGrabberSize = (targetDivider->vertical)? (_dividerSizeY * 3): (_dividerSizeX * 3);
 			int splitDividerRegionLength = (precedingRegionCurrentStartPos - synchronizedStartPos) + ((targetDivider->vertical)? precedingContentIterator->contentRegion->height: precedingContentIterator->contentRegion->width);
 			int splitDividerLength = (dividerSplitGrabberSize > splitDividerRegionLength)? splitDividerRegionLength: dividerSplitGrabberSize;
 			int splitDividerStartPos = synchronizedStartPos + (((splitDividerRegionLength / 2) - (splitDividerLength / 2)));
@@ -4107,12 +4107,12 @@ std::list<DashboardWindow::DividerSplitPosition> DashboardWindow::GetSplitPositi
 		int newFollowingRegionCurrentStartPos = followingRegionCurrentStartPos;
 		if((precedingRegionCurrentStartPos + precedingRegionLength) <= (followingRegionCurrentStartPos + followingRegionLength))
 		{
-			newPrecedingRegionCurrentStartPos += precedingRegionLength + ((targetDivider->vertical)? dividerSizeY: dividerSizeX);
+			newPrecedingRegionCurrentStartPos += precedingRegionLength + ((targetDivider->vertical)? _dividerSizeY: _dividerSizeX);
 			++precedingContentIterator;
 		}
 		if((precedingRegionCurrentStartPos + precedingRegionLength) >= (followingRegionCurrentStartPos + followingRegionLength))
 		{
-			newFollowingRegionCurrentStartPos += followingRegionLength + ((targetDivider->vertical)? dividerSizeY: dividerSizeX);
+			newFollowingRegionCurrentStartPos += followingRegionLength + ((targetDivider->vertical)? _dividerSizeY: _dividerSizeX);
 			++followingContentIterator;
 		}
 		precedingRegionCurrentStartPos = newPrecedingRegionCurrentStartPos;
@@ -4141,7 +4141,7 @@ std::list<DashboardWindow::DividerExtendButtonPosition> DashboardWindow::GetExte
 	//Create the list to store information on the extend button positions, and retrieve
 	//info on the target divider.
 	std::list<DividerExtendButtonPosition> extendButtonPositions;
-	const int dividerExtendButtonLength = (targetDivider->vertical)? dividerSizeY: dividerSizeX;
+	const int dividerExtendButtonLength = (targetDivider->vertical)? _dividerSizeY: _dividerSizeX;
 	int dividerLength = (targetDivider->vertical)? targetDivider->cachedHeight: targetDivider->cachedWidth;
 
 	//Add any extend buttons for the start anchor divider to the list of extend buttons
@@ -4283,7 +4283,7 @@ DashboardWindow::Divider* DashboardWindow::SwapContinuingDividerAtJunction(Divid
 	newDivider->vertical = dividerToSplit->vertical;
 	newDivider->startAnchorDivider = firstDividerToMerge;
 	newDivider->endAnchorDivider = dividerToSplit->endAnchorDivider;
-	dividers.push_back(newDivider);
+	_dividers.push_back(newDivider);
 
 	//Set the following content divider for the preceding and following content lists in
 	//the first merge divider, in preparation for merging the content lists from the
@@ -4393,12 +4393,12 @@ DashboardWindow::Divider* DashboardWindow::SwapContinuingDividerAtJunction(Divid
 	dividerToSplit->endAnchorDivider = firstDividerToMerge;
 
 	//Remove the second half of the merged divider from the list of dividers
-	std::list<Divider*>::iterator dividerIterator = dividers.begin();
-	while(dividerIterator != dividers.end())
+	std::list<Divider*>::iterator dividerIterator = _dividers.begin();
+	while(dividerIterator != _dividers.end())
 	{
 		if(*dividerIterator == secondDividerToMerge)
 		{
-			dividers.erase(dividerIterator);
+			_dividers.erase(dividerIterator);
 			break;
 		}
 		++dividerIterator;
@@ -4411,7 +4411,7 @@ DashboardWindow::Divider* DashboardWindow::SwapContinuingDividerAtJunction(Divid
 	UpdateCachedLocations();
 
 	//Force the control to redraw
-	InvalidateRect(hwnd, NULL, FALSE);
+	InvalidateRect(_hwnd, NULL, FALSE);
 
 	//Return the new divider that was created by splitting the existing divider
 	return newDivider;
@@ -4505,11 +4505,11 @@ void DashboardWindow::ExtendDivider(Divider* targetDivider, bool extendFromStart
 			std::list<DividerContentEntry>* contentListToShiftExtendedContentInto;
 			if(targetDivider->vertical)
 			{
-				contentListToShiftExtendedContentInto = (extendFromStart)? ((regionToTruncate->topDivider != 0)? &regionToTruncate->topDivider->followingContent: &topLevelDividersFromTop): &regionToTruncate->bottomDivider->precedingContent;
+				contentListToShiftExtendedContentInto = (extendFromStart)? ((regionToTruncate->topDivider != 0)? &regionToTruncate->topDivider->followingContent: &_topLevelDividersFromTop): &regionToTruncate->bottomDivider->precedingContent;
 			}
 			else
 			{
-				contentListToShiftExtendedContentInto = (extendFromStart)? ((regionToTruncate->leftDivider != 0)? &regionToTruncate->leftDivider->followingContent: &topLevelDividersFromLeft): &regionToTruncate->rightDivider->precedingContent;
+				contentListToShiftExtendedContentInto = (extendFromStart)? ((regionToTruncate->leftDivider != 0)? &regionToTruncate->leftDivider->followingContent: &_topLevelDividersFromLeft): &regionToTruncate->rightDivider->precedingContent;
 			}
 
 			//Find the target position at which to insert the list of extended regions
@@ -4526,7 +4526,7 @@ void DashboardWindow::ExtendDivider(Divider* targetDivider, bool extendFromStart
 
 		//Remove the truncated region from the list of content regions in the divider that
 		//it is no longer bordered with
-		std::list<DividerContentEntry>& contentListToRemoveEntry = (targetDivider->vertical)? ((regionToTruncate->leftDivider != 0)? regionToTruncate->leftDivider->followingContent: topLevelDividersFromLeft): ((regionToTruncate->topDivider != 0)? regionToTruncate->topDivider->followingContent: topLevelDividersFromTop);
+		std::list<DividerContentEntry>& contentListToRemoveEntry = (targetDivider->vertical)? ((regionToTruncate->leftDivider != 0)? regionToTruncate->leftDivider->followingContent: _topLevelDividersFromLeft): ((regionToTruncate->topDivider != 0)? regionToTruncate->topDivider->followingContent: _topLevelDividersFromTop);
 		std::list<DividerContentEntry>::iterator contentListToRemoveEntryIterator = contentListToRemoveEntry.begin();
 		while(contentListToRemoveEntryIterator != contentListToRemoveEntry.end())
 		{
@@ -4632,11 +4632,11 @@ void DashboardWindow::ExtendDivider(Divider* targetDivider, bool extendFromStart
 			std::list<DividerContentEntry>* contentListToShiftExtendedContentInto;
 			if(targetDivider->vertical)
 			{
-				contentListToShiftExtendedContentInto = (extendFromStart)? ((regionToTruncate->topDivider != 0)? &regionToTruncate->topDivider->followingContent: &topLevelDividersFromTop): &regionToTruncate->bottomDivider->precedingContent;
+				contentListToShiftExtendedContentInto = (extendFromStart)? ((regionToTruncate->topDivider != 0)? &regionToTruncate->topDivider->followingContent: &_topLevelDividersFromTop): &regionToTruncate->bottomDivider->precedingContent;
 			}
 			else
 			{
-				contentListToShiftExtendedContentInto = (extendFromStart)? ((regionToTruncate->leftDivider != 0)? &regionToTruncate->leftDivider->followingContent: &topLevelDividersFromLeft): &regionToTruncate->rightDivider->precedingContent;
+				contentListToShiftExtendedContentInto = (extendFromStart)? ((regionToTruncate->leftDivider != 0)? &regionToTruncate->leftDivider->followingContent: &_topLevelDividersFromLeft): &regionToTruncate->rightDivider->precedingContent;
 			}
 
 			//Find the target position at which to insert the list of extended regions,
@@ -4756,7 +4756,7 @@ void DashboardWindow::ExtendDivider(Divider* targetDivider, bool extendFromStart
 	UpdateCachedLocations();
 
 	//Force the control to redraw
-	InvalidateRect(hwnd, NULL, FALSE);
+	InvalidateRect(_hwnd, NULL, FALSE);
 }
 
 //----------------------------------------------------------------------------------------
@@ -4765,16 +4765,16 @@ void DashboardWindow::ExtendDivider(Divider* targetDivider, bool extendFromStart
 void DashboardWindow::HandleSizeChanged(int newWidth, int newHeight)
 {
 	//Update the stored width and height of the control
-	controlWidth = newWidth;
-	controlHeight = newHeight;
+	_controlWidth = newWidth;
+	_controlHeight = newHeight;
 
 	//Begin a session for processing this batch of window size changes. Processing all the
 	//window size and position changes in a single operation in this manner gives the best
 	//performance and appearance.
-	HDWP deferWindowPosSession = BeginDeferWindowPos((int)regions.size());
+	HDWP deferWindowPosSession = BeginDeferWindowPos((int)_regions.size());
 
 	//Resize the regions which are anchored to the bottom or right edges of the window
-	for(std::list<ContentRegion*>::iterator i = regions.begin(); i != regions.end(); ++i)
+	for(std::list<ContentRegion*>::iterator i = _regions.begin(); i != _regions.end(); ++i)
 	{
 		//Ensure this content region is anchored to the right and/or bottom edge of the
 		//window
@@ -4787,11 +4787,11 @@ void DashboardWindow::HandleSizeChanged(int newWidth, int newHeight)
 		//Calculate the new width and height of the content region
 		if(region.rightDivider == 0)
 		{
-			region.width = (controlWidth <= region.cachedPosX)? 0: (controlWidth - region.cachedPosX);
+			region.width = (_controlWidth <= region.cachedPosX)? 0: (_controlWidth - region.cachedPosX);
 		}
 		if(region.bottomDivider == 0)
 		{
-			region.height = (controlHeight <= region.cachedPosY)? 0: (controlHeight - region.cachedPosY);
+			region.height = (_controlHeight <= region.cachedPosY)? 0: (_controlHeight - region.cachedPosY);
 		}
 
 		//Add this region to the window size update session
@@ -4805,7 +4805,7 @@ void DashboardWindow::HandleSizeChanged(int newWidth, int newHeight)
 	UpdateCachedLocations();
 
 	//Force the control to redraw
-	InvalidateRect(hwnd, NULL, FALSE);
+	InvalidateRect(_hwnd, NULL, FALSE);
 }
 
 //----------------------------------------------------------------------------------------
@@ -4813,8 +4813,8 @@ std::list<DashboardWindow::Divider*> DashboardWindow::GetDividersAtPosition(int 
 {
 	std::list<Divider*> dividerList;
 	bool foundDivider = false;
-	std::list<Divider*>::const_iterator dividerIterator = dividers.begin();
-	while(!foundDivider && (dividerIterator != dividers.end()))
+	std::list<Divider*>::const_iterator dividerIterator = _dividers.begin();
+	while(!foundDivider && (dividerIterator != _dividers.end()))
 	{
 		//If the target position is outside the boundaries of this divider, skip it.
 		Divider* divider = *dividerIterator;
@@ -4833,7 +4833,7 @@ std::list<DashboardWindow::Divider*> DashboardWindow::GetDividersAtPosition(int 
 
 		//Calculate the distance along this divider where the target position lies
 		int targetPositionAlongDivider = (divider->vertical)? (posY - divider->cachedPosY): (posX - divider->cachedPosX);
-		int dividerSizeBetweenContent = (divider->vertical)? dividerSizeY: dividerSizeX;
+		int dividerSizeBetweenContent = (divider->vertical)? _dividerSizeY: _dividerSizeX;
 
 		//Add any dividers that intersect this divider at the target position to the list
 		//of dividers
@@ -4894,7 +4894,7 @@ void DashboardWindow::SaveLayoutInfo(std::list<DividerListEntry>& dividerList) c
 		//Iterate over each divider in the divider list, and look for any dividers which
 		//haven't been processed already which can now be added to the saved divider list.
 		foundNewDividerLastPass = false;
-		for(std::list<Divider*>::const_iterator i = dividers.begin(); i != dividers.end(); ++i)
+		for(std::list<Divider*>::const_iterator i = _dividers.begin(); i != _dividers.end(); ++i)
 		{
 			//Ensure we haven't already processed this divider
 			Divider* targetDivider = *i;
@@ -4960,8 +4960,8 @@ void DashboardWindow::LoadLayoutInfo(const std::list<DividerListEntry>& dividerL
 	const int topWindowEdgeDividerID = 1;
 	const int leftWindowEdgeDividerID = 2;
 	std::map<int, std::pair<bool, std::list<DividerContentEntry>*>> dividerIDToFollowingDividerList;
-	dividerIDToFollowingDividerList.insert(std::make_pair(topWindowEdgeDividerID, std::make_pair(false, &topLevelDividersFromTop)));
-	dividerIDToFollowingDividerList.insert(std::make_pair(leftWindowEdgeDividerID, std::make_pair(true, &topLevelDividersFromLeft)));
+	dividerIDToFollowingDividerList.insert(std::make_pair(topWindowEdgeDividerID, std::make_pair(false, &_topLevelDividersFromTop)));
+	dividerIDToFollowingDividerList.insert(std::make_pair(leftWindowEdgeDividerID, std::make_pair(true, &_topLevelDividersFromLeft)));
 
 	//Create each divider in the divider list
 	for(std::list<DividerListEntry>::const_iterator i = dividerList.begin(); i != dividerList.end(); ++i)
@@ -4988,7 +4988,7 @@ void DashboardWindow::LoadLayoutInfo(const std::list<DividerListEntry>& dividerL
 		while(!foundTargetContentRegion && (followingDividerListIterator != followingDividerList.end()))
 		{
 			const DividerContentEntry& dividerContentEntry = *followingDividerListIterator;
-			int nextRegionAndDividerSize = (parentDividerVertical)? (dividerContentEntry.contentRegion->height + dividerSizeY): (dividerContentEntry.contentRegion->width + dividerSizeX);
+			int nextRegionAndDividerSize = (parentDividerVertical)? (dividerContentEntry.contentRegion->height + _dividerSizeY): (dividerContentEntry.contentRegion->width + _dividerSizeX);
 			if((entry.dividerDistanceAlongParent >= currentDistanceAlongParent) && ((dividerContentEntry.followingContentDivider == 0) || (entry.dividerDistanceAlongParent < (currentDistanceAlongParent + nextRegionAndDividerSize))))
 			{
 				targetContentRegion = dividerContentEntry.contentRegion;
@@ -4997,7 +4997,7 @@ void DashboardWindow::LoadLayoutInfo(const std::list<DividerListEntry>& dividerL
 				continue;
 			}
 
-			currentDistanceAlongParent += (parentDividerVertical)? (dividerContentEntry.contentRegion->height + dividerSizeY): (dividerContentEntry.contentRegion->width + dividerSizeX);
+			currentDistanceAlongParent += (parentDividerVertical)? (dividerContentEntry.contentRegion->height + _dividerSizeY): (dividerContentEntry.contentRegion->width + _dividerSizeX);
 			++followingDividerListIterator;
 		}
 		if(!foundTargetContentRegion)

@@ -22,23 +22,23 @@ public:
 
 	virtual Disassembly Z80Disassemble(const Z80::LabelSubstitutionSettings& labelSettings) const
 	{
-		return Disassembly(L"ADD", target.Disassemble() + L", " + source.Disassemble());
+		return Disassembly(L"ADD", _target.Disassemble() + L", " + _source.Disassemble());
 	}
 
 	virtual void Z80Decode(const Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)
 	{
-		source.SetIndexState(GetIndexState(), GetIndexOffset());
-		target.SetIndexState(GetIndexState(), GetIndexOffset());
-		target.SetMode(EffectiveAddress::Mode::HL);
+		_source.SetIndexState(GetIndexState(), GetIndexOffset());
+		_target.SetIndexState(GetIndexState(), GetIndexOffset());
+		_target.SetMode(EffectiveAddress::Mode::HL);
 
 		//ADD HL,ss		00ss1001
 		//ADD IX,ss		11011101 00ss1001
 		//ADD IY,ss		11111101 00ss1001
-		source.Decode16BitRegister(data.GetDataSegment(4, 2));
+		_source.Decode16BitRegister(data.GetDataSegment(4, 2));
 
-		AddInstructionSize(GetIndexOffsetSize(source.UsesIndexOffset() || target.UsesIndexOffset()));
-		AddInstructionSize(source.ExtensionSize());
-		AddInstructionSize(target.ExtensionSize());
+		AddInstructionSize(GetIndexOffsetSize(_source.UsesIndexOffset() || _target.UsesIndexOffset()));
+		AddInstructionSize(_source.ExtensionSize());
+		AddInstructionSize(_target.ExtensionSize());
 		AddExecuteCycleCount(11);
 	}
 
@@ -50,10 +50,10 @@ public:
 		Z80Word result;
 
 		//Perform the operation
-		additionalTime += source.Read(cpu, location, op1);
-		additionalTime += target.Read(cpu, location, op2);
+		additionalTime += _source.Read(cpu, location, op1);
+		additionalTime += _target.Read(cpu, location, op2);
 		result = op2 + op1;
-		additionalTime += target.Write(cpu, location, result);
+		additionalTime += _target.Write(cpu, location, result);
 
 		//Set the flag results
 		cpu->SetFlagY(result.GetBit(8+5));
@@ -68,8 +68,8 @@ public:
 	}
 
 private:
-	EffectiveAddress source;
-	EffectiveAddress target;
+	EffectiveAddress _source;
+	EffectiveAddress _target;
 };
 
 } //Close namespace Z80

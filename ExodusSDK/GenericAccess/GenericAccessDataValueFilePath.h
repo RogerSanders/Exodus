@@ -31,8 +31,8 @@ public:
 	virtual void ApplyLimitSettingsToCurrentValue();
 
 private:
-	std::wstring dataValue;
-	unsigned int maxLength;
+	std::wstring _dataValue;
+	unsigned int _maxLength;
 };
 
 #endif

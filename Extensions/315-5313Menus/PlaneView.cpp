@@ -5,31 +5,31 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-PlaneView::PlaneView(IUIManager& auiManager, PlaneViewPresenter& apresenter, IS315_5313& amodel)
-:ViewBase(auiManager, apresenter), presenter(apresenter), model(amodel), initializedDialog(false), currentControlFocus(0)
+PlaneView::PlaneView(IUIManager& uiManager, PlaneViewPresenter& presenter, IS315_5313& model)
+:ViewBase(uiManager, presenter), _presenter(presenter), _model(model), _initializedDialog(false), _currentControlFocus(0)
 {
-	glrc = 0;
-	buffer = 0;
-	hwndRender = NULL;
-	zoomSettings = { 1.0f, 1.5f, 2.0f, 2.5f, 3.0f, 3.5f, 4.0f, 4.5f, 5.0f, 5.5f, 6.0f, 6.5f, 7.0f, 7.5f, 8.0f, 8.5f, 9.0f, 9.5f, 10.0f };
+	_glrc = 0;
+	_buffer = 0;
+	_hwndRender = NULL;
+	_zoomSettings = { 1.0f, 1.5f, 2.0f, 2.5f, 3.0f, 3.5f, 4.0f, 4.5f, 5.0f, 5.5f, 6.0f, 6.5f, 7.0f, 7.5f, 8.0f, 8.5f, 9.0f, 9.5f, 10.0f };
 
-	selectedLayer = SELECTEDLAYER_LAYERA;
-	displayScreen = true;
-	spriteBoundaries = true;
-	layerAScrollPlaneManual = false;
-	layerBScrollPlaneManual = false;
-	windowScrollPlaneManual = false;
-	spriteScrollPlaneManual = false;
-	layerAMappingBaseManual = false;
-	layerBMappingBaseManual = false;
-	windowMappingBaseManual = false;
-	spriteMappingBaseManual = false;
-	layerAPatternBaseManual = false;
-	layerBPatternBaseManual = false;
-	windowPatternBaseManual = false;
-	spritePatternBaseManual = false;
+	_selectedLayer = SELECTEDLAYER_LAYERA;
+	_displayScreen = true;
+	_spriteBoundaries = true;
+	_layerAScrollPlaneManual = false;
+	_layerBScrollPlaneManual = false;
+	_windowScrollPlaneManual = false;
+	_spriteScrollPlaneManual = false;
+	_layerAMappingBaseManual = false;
+	_layerBMappingBaseManual = false;
+	_windowMappingBaseManual = false;
+	_spriteMappingBaseManual = false;
+	_layerAPatternBaseManual = false;
+	_layerBPatternBaseManual = false;
+	_windowPatternBaseManual = false;
+	_spritePatternBaseManual = false;
 
-	SetDialogTemplateSettings(apresenter.GetUnqualifiedViewTitle(), GetAssemblyHandle(), MAKEINTRESOURCE(IDD_S315_5313_PLANEVIEW));
+	SetDialogTemplateSettings(presenter.GetUnqualifiedViewTitle(), GetAssemblyHandle(), MAKEINTRESOURCE(IDD_S315_5313_PLANEVIEW));
 	SetDockableViewType();
 }
 
@@ -135,55 +135,55 @@ INT_PTR PlaneView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	int renderWindowHeight = markerRect.bottom - markerRect.top;
 
 	//Create the window
-	hwndRender = CreateWindowEx(0, L"Plane Render Child", L"Plane Render Child", WS_CHILD, renderWindowPosX, renderWindowPosY, renderWindowWidth, renderWindowHeight, hwnd, NULL, GetAssemblyHandle(), this);
-	ShowWindow(hwndRender, SW_SHOWNORMAL);
-	UpdateWindow(hwndRender);
+	_hwndRender = CreateWindowEx(0, L"Plane Render Child", L"Plane Render Child", WS_CHILD, renderWindowPosX, renderWindowPosY, renderWindowWidth, renderWindowHeight, hwnd, NULL, GetAssemblyHandle(), this);
+	ShowWindow(_hwndRender, SW_SHOWNORMAL);
+	UpdateWindow(_hwndRender);
 
 	//Update the positions of the render window and scrollbar controls
 	UpdateControlPositions(hwnd);
 
 	//Set the window controls to their default state
-	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_LAYERA, (selectedLayer == SELECTEDLAYER_LAYERA)? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_LAYERB, (selectedLayer == SELECTEDLAYER_LAYERB)? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_LAYERWINDOW, (selectedLayer == SELECTEDLAYER_WINDOW)? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_LAYERSPRITES, (selectedLayer == SELECTEDLAYER_SPRITES)? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_DISPLAYSCREEN, (displayScreen)? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_DISPLAYSPRITEBOUNDARIES, (spriteBoundaries)? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_PLANESIZELAYERAMANUAL, (layerAScrollPlaneManual)? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_PLANESIZELAYERBMANUAL, (layerBScrollPlaneManual)? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_PLANESIZEWINDOWMANUAL, (windowScrollPlaneManual)? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_PLANESIZESPRITESMANUAL, (spriteScrollPlaneManual)? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_MAPPINGLAYERA, (layerAMappingBaseManual)? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_MAPPINGLAYERB, (layerBMappingBaseManual)? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_MAPPINGWINDOW, (windowMappingBaseManual)? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_MAPPINGSPRITES, (spriteMappingBaseManual)? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_PATTERNLAYERA, (layerAPatternBaseManual)? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_PATTERNLAYERB, (layerBPatternBaseManual)? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_PATTERNWINDOW, (windowPatternBaseManual)? BST_CHECKED: BST_UNCHECKED);
-	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_PATTERNSPRITES, (spritePatternBaseManual)? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_LAYERA, (_selectedLayer == SELECTEDLAYER_LAYERA)? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_LAYERB, (_selectedLayer == SELECTEDLAYER_LAYERB)? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_LAYERWINDOW, (_selectedLayer == SELECTEDLAYER_WINDOW)? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_LAYERSPRITES, (_selectedLayer == SELECTEDLAYER_SPRITES)? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_DISPLAYSCREEN, (_displayScreen)? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_DISPLAYSPRITEBOUNDARIES, (_spriteBoundaries)? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_PLANESIZELAYERAMANUAL, (_layerAScrollPlaneManual)? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_PLANESIZELAYERBMANUAL, (_layerBScrollPlaneManual)? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_PLANESIZEWINDOWMANUAL, (_windowScrollPlaneManual)? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_PLANESIZESPRITESMANUAL, (_spriteScrollPlaneManual)? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_MAPPINGLAYERA, (_layerAMappingBaseManual)? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_MAPPINGLAYERB, (_layerBMappingBaseManual)? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_MAPPINGWINDOW, (_windowMappingBaseManual)? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_MAPPINGSPRITES, (_spriteMappingBaseManual)? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_PATTERNLAYERA, (_layerAPatternBaseManual)? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_PATTERNLAYERB, (_layerBPatternBaseManual)? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_PATTERNWINDOW, (_windowPatternBaseManual)? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_S315_5313_PLANEVIEW_PATTERNSPRITES, (_spritePatternBaseManual)? BST_CHECKED: BST_UNCHECKED);
 
 	//Set the initial enable state for controls
-	EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PLANEWIDTHLAYERA), (layerAScrollPlaneManual)? TRUE: FALSE);
-	EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PLANEHEIGHTLAYERA), (layerAScrollPlaneManual)? TRUE: FALSE);
-	EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PLANEWIDTHLAYERB), (layerBScrollPlaneManual)? TRUE: FALSE);
-	EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PLANEHEIGHTLAYERB), (layerBScrollPlaneManual)? TRUE: FALSE);
-	EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PLANEWIDTHWINDOW), (windowScrollPlaneManual)? TRUE: FALSE);
-	EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PLANEHEIGHTWINDOW), (windowScrollPlaneManual)? TRUE: FALSE);
-	EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PLANEWIDTHSPRITES), (spriteScrollPlaneManual)? TRUE: FALSE);
-	EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PLANEHEIGHTSPRITES), (spriteScrollPlaneManual)? TRUE: FALSE);
-	EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_MAPPINGLAYERA), (layerAMappingBaseManual)? TRUE: FALSE);
-	EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_MAPPINGLAYERB), (layerBMappingBaseManual)? TRUE: FALSE);
-	EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_MAPPINGWINDOW), (windowMappingBaseManual)? TRUE: FALSE);
-	EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_MAPPINGSPRITES), (spriteMappingBaseManual)? TRUE: FALSE);
-	EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PATTERNLAYERA), (layerAPatternBaseManual)? TRUE: FALSE);
-	EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PATTERNLAYERB), (layerBPatternBaseManual)? TRUE: FALSE);
-	EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PATTERNWINDOW), (windowPatternBaseManual)? TRUE: FALSE);
-	EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PATTERNSPRITES), (spritePatternBaseManual)? TRUE: FALSE);
+	EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PLANEWIDTHLAYERA), (_layerAScrollPlaneManual)? TRUE: FALSE);
+	EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PLANEHEIGHTLAYERA), (_layerAScrollPlaneManual)? TRUE: FALSE);
+	EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PLANEWIDTHLAYERB), (_layerBScrollPlaneManual)? TRUE: FALSE);
+	EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PLANEHEIGHTLAYERB), (_layerBScrollPlaneManual)? TRUE: FALSE);
+	EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PLANEWIDTHWINDOW), (_windowScrollPlaneManual)? TRUE: FALSE);
+	EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PLANEHEIGHTWINDOW), (_windowScrollPlaneManual)? TRUE: FALSE);
+	EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PLANEWIDTHSPRITES), (_spriteScrollPlaneManual)? TRUE: FALSE);
+	EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PLANEHEIGHTSPRITES), (_spriteScrollPlaneManual)? TRUE: FALSE);
+	EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_MAPPINGLAYERA), (_layerAMappingBaseManual)? TRUE: FALSE);
+	EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_MAPPINGLAYERB), (_layerBMappingBaseManual)? TRUE: FALSE);
+	EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_MAPPINGWINDOW), (_windowMappingBaseManual)? TRUE: FALSE);
+	EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_MAPPINGSPRITES), (_spriteMappingBaseManual)? TRUE: FALSE);
+	EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PATTERNLAYERA), (_layerAPatternBaseManual)? TRUE: FALSE);
+	EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PATTERNLAYERB), (_layerBPatternBaseManual)? TRUE: FALSE);
+	EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PATTERNWINDOW), (_windowPatternBaseManual)? TRUE: FALSE);
+	EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PATTERNSPRITES), (_spritePatternBaseManual)? TRUE: FALSE);
 
 	//Fill the zoom combobox with its list of values
-	for (unsigned int i = 0; i < zoomSettings.size(); ++i)
+	for (unsigned int i = 0; i < _zoomSettings.size(); ++i)
 	{
-		float zoomSetting = zoomSettings[i];
+		float zoomSetting = _zoomSettings[i];
 		std::wstring zoomSettingString;
 		FloatToString(zoomSetting, zoomSettingString, false, 1);
 		LRESULT newItemIndex = SendMessage(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_ZOOM), CB_ADDSTRING, 0, (LPARAM)zoomSettingString.c_str());
@@ -191,7 +191,7 @@ INT_PTR PlaneView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	}
 
 	//Select the first zoom setting by default
-	imageZoomFactor = zoomSettings[0];
+	_imageZoomFactor = _zoomSettings[0];
 	SendMessage(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_ZOOM), CB_SETCURSEL, (WPARAM)0, 0);
 
 	return TRUE;
@@ -207,8 +207,8 @@ INT_PTR PlaneView::msgWM_DESTROY(HWND hwnd, WPARAM wParam, LPARAM lParam)
 	//explicitly destroy the child window here. The child window is fully destroyed before
 	//the DestroyWindow() function returns, and our state is still valid until we return
 	//from handling this WM_DESTROY message.
-	DestroyWindow(hwndRender);
-	hwndRender = NULL;
+	DestroyWindow(_hwndRender);
+	_hwndRender = NULL;
 
 	return FALSE;
 }
@@ -229,196 +229,196 @@ INT_PTR PlaneView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		switch(controlID)
 		{
 		case IDC_S315_5313_PLANEVIEW_LAYERA:
-			selectedLayer = SELECTEDLAYER_LAYERA;
+			_selectedLayer = SELECTEDLAYER_LAYERA;
 			break;
 		case IDC_S315_5313_PLANEVIEW_LAYERB:
-			selectedLayer = SELECTEDLAYER_LAYERB;
+			_selectedLayer = SELECTEDLAYER_LAYERB;
 			break;
 		case IDC_S315_5313_PLANEVIEW_LAYERSPRITES:
-			selectedLayer = SELECTEDLAYER_SPRITES;
+			_selectedLayer = SELECTEDLAYER_SPRITES;
 			break;
 		case IDC_S315_5313_PLANEVIEW_LAYERWINDOW:
-			selectedLayer = SELECTEDLAYER_WINDOW;
+			_selectedLayer = SELECTEDLAYER_WINDOW;
 			break;
 		case IDC_S315_5313_PLANEVIEW_DISPLAYSCREEN:
-			displayScreen = IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED;
+			_displayScreen = IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED;
 			break;
 		case IDC_S315_5313_PLANEVIEW_DISPLAYSPRITEBOUNDARIES:
-			spriteBoundaries = IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED;
+			_spriteBoundaries = IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED;
 			break;
 		case IDC_S315_5313_PLANEVIEW_PLANESIZELAYERAMANUAL:
-			layerAScrollPlaneManual = IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED;
-			EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PLANEWIDTHLAYERA), (layerAScrollPlaneManual)? TRUE: FALSE);
-			EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PLANEHEIGHTLAYERA), (layerAScrollPlaneManual)? TRUE: FALSE);
+			_layerAScrollPlaneManual = IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED;
+			EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PLANEWIDTHLAYERA), (_layerAScrollPlaneManual)? TRUE: FALSE);
+			EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PLANEHEIGHTLAYERA), (_layerAScrollPlaneManual)? TRUE: FALSE);
 			break;
 		case IDC_S315_5313_PLANEVIEW_PLANESIZELAYERBMANUAL:
-			layerBScrollPlaneManual = IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED;
-			EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PLANEWIDTHLAYERB), (layerBScrollPlaneManual)? TRUE: FALSE);
-			EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PLANEHEIGHTLAYERB), (layerBScrollPlaneManual)? TRUE: FALSE);
+			_layerBScrollPlaneManual = IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED;
+			EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PLANEWIDTHLAYERB), (_layerBScrollPlaneManual)? TRUE: FALSE);
+			EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PLANEHEIGHTLAYERB), (_layerBScrollPlaneManual)? TRUE: FALSE);
 			break;
 		case IDC_S315_5313_PLANEVIEW_PLANESIZEWINDOWMANUAL:
-			windowScrollPlaneManual = IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED;
-			EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PLANEWIDTHWINDOW), (windowScrollPlaneManual)? TRUE: FALSE);
-			EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PLANEHEIGHTWINDOW), (windowScrollPlaneManual)? TRUE: FALSE);
+			_windowScrollPlaneManual = IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED;
+			EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PLANEWIDTHWINDOW), (_windowScrollPlaneManual)? TRUE: FALSE);
+			EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PLANEHEIGHTWINDOW), (_windowScrollPlaneManual)? TRUE: FALSE);
 			break;
 		case IDC_S315_5313_PLANEVIEW_PLANESIZESPRITESMANUAL:
-			spriteScrollPlaneManual = IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED;
-			EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PLANEWIDTHSPRITES), (spriteScrollPlaneManual)? TRUE: FALSE);
-			EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PLANEHEIGHTSPRITES), (spriteScrollPlaneManual)? TRUE: FALSE);
+			_spriteScrollPlaneManual = IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED;
+			EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PLANEWIDTHSPRITES), (_spriteScrollPlaneManual)? TRUE: FALSE);
+			EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PLANEHEIGHTSPRITES), (_spriteScrollPlaneManual)? TRUE: FALSE);
 			break;
 		case IDC_S315_5313_PLANEVIEW_MAPPINGLAYERAMANUAL:
-			layerAMappingBaseManual = IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED;
-			EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_MAPPINGLAYERA), (layerAMappingBaseManual)? TRUE: FALSE);
+			_layerAMappingBaseManual = IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED;
+			EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_MAPPINGLAYERA), (_layerAMappingBaseManual)? TRUE: FALSE);
 			break;
 		case IDC_S315_5313_PLANEVIEW_MAPPINGLAYERBMANUAL:
-			layerBMappingBaseManual = IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED;
-			EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_MAPPINGLAYERB), (layerBMappingBaseManual)? TRUE: FALSE);
+			_layerBMappingBaseManual = IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED;
+			EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_MAPPINGLAYERB), (_layerBMappingBaseManual)? TRUE: FALSE);
 			break;
 		case IDC_S315_5313_PLANEVIEW_MAPPINGWINDOWMANUAL:
-			windowMappingBaseManual = IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED;
-			EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_MAPPINGWINDOW), (windowMappingBaseManual)? TRUE: FALSE);
+			_windowMappingBaseManual = IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED;
+			EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_MAPPINGWINDOW), (_windowMappingBaseManual)? TRUE: FALSE);
 			break;
 		case IDC_S315_5313_PLANEVIEW_MAPPINGSPRITESMANUAL:
-			spriteMappingBaseManual = IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED;
-			EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_MAPPINGSPRITES), (spriteMappingBaseManual)? TRUE: FALSE);
+			_spriteMappingBaseManual = IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED;
+			EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_MAPPINGSPRITES), (_spriteMappingBaseManual)? TRUE: FALSE);
 			break;
 		case IDC_S315_5313_PLANEVIEW_PATTERNLAYERAMANUAL:
-			layerAPatternBaseManual = IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED;
-			EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PATTERNLAYERA), (layerAPatternBaseManual)? TRUE: FALSE);
+			_layerAPatternBaseManual = IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED;
+			EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PATTERNLAYERA), (_layerAPatternBaseManual)? TRUE: FALSE);
 			break;
 		case IDC_S315_5313_PLANEVIEW_PATTERNLAYERBMANUAL:
-			layerBPatternBaseManual = IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED;
-			EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PATTERNLAYERB), (layerBPatternBaseManual)? TRUE: FALSE);
+			_layerBPatternBaseManual = IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED;
+			EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PATTERNLAYERB), (_layerBPatternBaseManual)? TRUE: FALSE);
 			break;
 		case IDC_S315_5313_PLANEVIEW_PATTERNWINDOWMANUAL:
-			windowPatternBaseManual = IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED;
-			EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PATTERNWINDOW), (windowPatternBaseManual)? TRUE: FALSE);
+			_windowPatternBaseManual = IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED;
+			EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PATTERNWINDOW), (_windowPatternBaseManual)? TRUE: FALSE);
 			break;
 		case IDC_S315_5313_PLANEVIEW_PATTERNSPRITESMANUAL:
-			spritePatternBaseManual = IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED;
-			EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PATTERNSPRITES), (spritePatternBaseManual)? TRUE: FALSE);
+			_spritePatternBaseManual = IsDlgButtonChecked(hwnd, controlID) == BST_CHECKED;
+			EnableWindow(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_PATTERNSPRITES), (_spritePatternBaseManual)? TRUE: FALSE);
 			break;
 		}
 	}
-	else if((HIWORD(wparam) == EN_SETFOCUS) && initializedDialog)
+	else if((HIWORD(wparam) == EN_SETFOCUS) && _initializedDialog)
 	{
-		previousText = GetDlgItemString(hwnd, LOWORD(wparam));
-		currentControlFocus = LOWORD(wparam);
+		_previousText = GetDlgItemString(hwnd, LOWORD(wparam));
+		_currentControlFocus = LOWORD(wparam);
 	}
-	else if((HIWORD(wparam) == EN_KILLFOCUS) && initializedDialog)
+	else if((HIWORD(wparam) == EN_KILLFOCUS) && _initializedDialog)
 	{
 		std::wstring newText = GetDlgItemString(hwnd, LOWORD(wparam));
-		if(newText != previousText)
+		if(newText != _previousText)
 		{
 			int controlID = (int)LOWORD(wparam);
 			switch(controlID)
 			{
 			case IDC_S315_5313_PLANEVIEW_PLANEWIDTHLAYERA:
-				layerAScrollPlaneWidth = GetDlgItemBin(hwnd, controlID);
-				if(layerAScrollPlaneWidth <= 0)
+				_layerAScrollPlaneWidth = GetDlgItemBin(hwnd, controlID);
+				if(_layerAScrollPlaneWidth <= 0)
 				{
-					layerAScrollPlaneWidth = 1;
+					_layerAScrollPlaneWidth = 1;
 				}
-				UpdateDlgItemBin(hwnd, controlID, layerAScrollPlaneWidth);
+				UpdateDlgItemBin(hwnd, controlID, _layerAScrollPlaneWidth);
 				break;
 			case IDC_S315_5313_PLANEVIEW_PLANEHEIGHTLAYERA:
-				layerAScrollPlaneHeight = GetDlgItemBin(hwnd, controlID);
-				if(layerAScrollPlaneHeight <= 0)
+				_layerAScrollPlaneHeight = GetDlgItemBin(hwnd, controlID);
+				if(_layerAScrollPlaneHeight <= 0)
 				{
-					layerAScrollPlaneHeight = 1;
+					_layerAScrollPlaneHeight = 1;
 				}
-				UpdateDlgItemBin(hwnd, controlID, layerAScrollPlaneHeight);
+				UpdateDlgItemBin(hwnd, controlID, _layerAScrollPlaneHeight);
 				break;
 			case IDC_S315_5313_PLANEVIEW_PLANEWIDTHLAYERB:
-				layerBScrollPlaneWidth = GetDlgItemBin(hwnd, controlID);
-				if(layerBScrollPlaneWidth <= 0)
+				_layerBScrollPlaneWidth = GetDlgItemBin(hwnd, controlID);
+				if(_layerBScrollPlaneWidth <= 0)
 				{
-					layerBScrollPlaneWidth = 1;
+					_layerBScrollPlaneWidth = 1;
 				}
-				UpdateDlgItemBin(hwnd, controlID, layerBScrollPlaneWidth);
+				UpdateDlgItemBin(hwnd, controlID, _layerBScrollPlaneWidth);
 				break;
 			case IDC_S315_5313_PLANEVIEW_PLANEHEIGHTLAYERB:
-				layerBScrollPlaneHeight = GetDlgItemBin(hwnd, controlID);
-				if(layerBScrollPlaneHeight <= 0)
+				_layerBScrollPlaneHeight = GetDlgItemBin(hwnd, controlID);
+				if(_layerBScrollPlaneHeight <= 0)
 				{
-					layerBScrollPlaneHeight = 1;
+					_layerBScrollPlaneHeight = 1;
 				}
-				UpdateDlgItemBin(hwnd, controlID, layerBScrollPlaneHeight);
+				UpdateDlgItemBin(hwnd, controlID, _layerBScrollPlaneHeight);
 				break;
 			case IDC_S315_5313_PLANEVIEW_PLANEWIDTHWINDOW:
-				windowScrollPlaneWidth = GetDlgItemBin(hwnd, controlID);
-				if(windowScrollPlaneWidth <= 0)
+				_windowScrollPlaneWidth = GetDlgItemBin(hwnd, controlID);
+				if(_windowScrollPlaneWidth <= 0)
 				{
-					windowScrollPlaneWidth = 1;
+					_windowScrollPlaneWidth = 1;
 				}
-				UpdateDlgItemBin(hwnd, controlID, windowScrollPlaneWidth);
+				UpdateDlgItemBin(hwnd, controlID, _windowScrollPlaneWidth);
 				break;
 			case IDC_S315_5313_PLANEVIEW_PLANEHEIGHTWINDOW:
-				windowScrollPlaneHeight = GetDlgItemBin(hwnd, controlID);
-				if(windowScrollPlaneHeight <= 0)
+				_windowScrollPlaneHeight = GetDlgItemBin(hwnd, controlID);
+				if(_windowScrollPlaneHeight <= 0)
 				{
-					windowScrollPlaneHeight = 1;
+					_windowScrollPlaneHeight = 1;
 				}
-				UpdateDlgItemBin(hwnd, controlID, windowScrollPlaneHeight);
+				UpdateDlgItemBin(hwnd, controlID, _windowScrollPlaneHeight);
 				break;
 			case IDC_S315_5313_PLANEVIEW_PLANEWIDTHSPRITES:
-				spriteScrollPlaneWidth = GetDlgItemBin(hwnd, controlID);
-				if(spriteScrollPlaneWidth <= 0)
+				_spriteScrollPlaneWidth = GetDlgItemBin(hwnd, controlID);
+				if(_spriteScrollPlaneWidth <= 0)
 				{
-					spriteScrollPlaneWidth = 1;
+					_spriteScrollPlaneWidth = 1;
 				}
-				UpdateDlgItemBin(hwnd, controlID, spriteScrollPlaneWidth);
+				UpdateDlgItemBin(hwnd, controlID, _spriteScrollPlaneWidth);
 				break;
 			case IDC_S315_5313_PLANEVIEW_PLANEHEIGHTSPRITES:
-				spriteScrollPlaneHeight = GetDlgItemBin(hwnd, controlID);
-				if(spriteScrollPlaneHeight <= 0)
+				_spriteScrollPlaneHeight = GetDlgItemBin(hwnd, controlID);
+				if(_spriteScrollPlaneHeight <= 0)
 				{
-					spriteScrollPlaneHeight = 1;
+					_spriteScrollPlaneHeight = 1;
 				}
-				UpdateDlgItemBin(hwnd, controlID, spriteScrollPlaneHeight);
+				UpdateDlgItemBin(hwnd, controlID, _spriteScrollPlaneHeight);
 				break;
 			case IDC_S315_5313_PLANEVIEW_MAPPINGLAYERA:
-				layerAMappingBase = GetDlgItemHex(hwnd, controlID);
-				UpdateDlgItemHex(hwnd, controlID, 5, layerAMappingBase);
+				_layerAMappingBase = GetDlgItemHex(hwnd, controlID);
+				UpdateDlgItemHex(hwnd, controlID, 5, _layerAMappingBase);
 				break;
 			case IDC_S315_5313_PLANEVIEW_MAPPINGLAYERB:
-				layerBMappingBase = GetDlgItemHex(hwnd, controlID);
-				UpdateDlgItemHex(hwnd, controlID, 5, layerBMappingBase);
+				_layerBMappingBase = GetDlgItemHex(hwnd, controlID);
+				UpdateDlgItemHex(hwnd, controlID, 5, _layerBMappingBase);
 				break;
 			case IDC_S315_5313_PLANEVIEW_MAPPINGWINDOW:
-				windowMappingBase = GetDlgItemHex(hwnd, controlID);
-				UpdateDlgItemHex(hwnd, controlID, 5, windowMappingBase);
+				_windowMappingBase = GetDlgItemHex(hwnd, controlID);
+				UpdateDlgItemHex(hwnd, controlID, 5, _windowMappingBase);
 				break;
 			case IDC_S315_5313_PLANEVIEW_MAPPINGSPRITES:
-				spriteMappingBase = GetDlgItemHex(hwnd, controlID);
-				UpdateDlgItemHex(hwnd, controlID, 5, spriteMappingBase);
+				_spriteMappingBase = GetDlgItemHex(hwnd, controlID);
+				UpdateDlgItemHex(hwnd, controlID, 5, _spriteMappingBase);
 				break;
 			case IDC_S315_5313_PLANEVIEW_PATTERNLAYERA:
-				layerAPatternBase = GetDlgItemHex(hwnd, controlID);
-				UpdateDlgItemHex(hwnd, controlID, 5, layerAPatternBase);
+				_layerAPatternBase = GetDlgItemHex(hwnd, controlID);
+				UpdateDlgItemHex(hwnd, controlID, 5, _layerAPatternBase);
 				break;
 			case IDC_S315_5313_PLANEVIEW_PATTERNLAYERB:
-				layerBPatternBase = GetDlgItemHex(hwnd, controlID);
-				UpdateDlgItemHex(hwnd, controlID, 5, layerBPatternBase);
+				_layerBPatternBase = GetDlgItemHex(hwnd, controlID);
+				UpdateDlgItemHex(hwnd, controlID, 5, _layerBPatternBase);
 				break;
 			case IDC_S315_5313_PLANEVIEW_PATTERNWINDOW:
-				windowPatternBase = GetDlgItemHex(hwnd, controlID);
-				UpdateDlgItemHex(hwnd, controlID, 5, windowPatternBase);
+				_windowPatternBase = GetDlgItemHex(hwnd, controlID);
+				UpdateDlgItemHex(hwnd, controlID, 5, _windowPatternBase);
 				break;
 			case IDC_S315_5313_PLANEVIEW_PATTERNSPRITES:
-				spritePatternBase = GetDlgItemHex(hwnd, controlID);
-				UpdateDlgItemHex(hwnd, controlID, 5, spritePatternBase);
+				_spritePatternBase = GetDlgItemHex(hwnd, controlID);
+				UpdateDlgItemHex(hwnd, controlID, 5, _spritePatternBase);
 				break;
 			}
 		}
 	}
-	else if((HIWORD(wparam) == CBN_SELCHANGE) && initializedDialog)
+	else if((HIWORD(wparam) == CBN_SELCHANGE) && _initializedDialog)
 	{
 		switch(LOWORD(wparam))
 		{
 		case IDC_S315_5313_PLANEVIEW_ZOOM:{
 			int itemIndex = (int)SendMessage(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_ZOOM), CB_GETCURSEL, 0, 0);
-			imageZoomFactor = zoomSettings[(unsigned int)SendMessage(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_ZOOM), CB_GETITEMDATA, itemIndex, NULL)];
+			_imageZoomFactor = _zoomSettings[(unsigned int)SendMessage(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_ZOOM), CB_GETITEMDATA, itemIndex, NULL)];
 			break;}
 		}
 	}
@@ -482,11 +482,11 @@ void PlaneView::UpdateControlPositions(HWND hwnd)
 	int scrollBarHNewPosY = windowHeight - scrollBarHOriginalHeight;
 	SetWindowPos(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_HSCROLL), NULL, scrollBarHOriginalPosX, scrollBarHNewPosY, scrollBarHNewWidth, scrollBarHOriginalHeight, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER);
 
-	if (hwndRender != NULL)
+	if (_hwndRender != NULL)
 	{
 		//Retrieve the current position of the render window
 		RECT renderWindowRect;
-		GetWindowRect(hwndRender, &renderWindowRect);
+		GetWindowRect(_hwndRender, &renderWindowRect);
 		POINT renderWindowPos;
 		renderWindowPos.x = renderWindowRect.left;
 		renderWindowPos.y = renderWindowRect.top;
@@ -497,7 +497,7 @@ void PlaneView::UpdateControlPositions(HWND hwnd)
 		//Set the new window size for the render window
 		int renderWindowWidth = scrollBarVNewPosX - renderWindowPosX;
 		int renderWindowHeight = scrollBarHNewPosY - renderWindowPosY;
-		SetWindowPos(hwndRender, NULL, renderWindowPosX, renderWindowPosY, renderWindowWidth, renderWindowHeight, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER);
+		SetWindowPos(_hwndRender, NULL, renderWindowPosX, renderWindowPosY, renderWindowWidth, renderWindowHeight, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER);
 	}
 }
 
@@ -627,16 +627,16 @@ LRESULT PlaneView::msgRenderWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	int windowHeight = clientRect.bottom - clientRect.top;
 
 	//OpenGL Initialization code
-	glrc = CreateOpenGLWindow(hwnd);
-	if(glrc != NULL)
+	_glrc = CreateOpenGLWindow(hwnd);
+	if(_glrc != NULL)
 	{
 		UpdateRenderWindowSize(hwnd, windowWidth, windowHeight);
 	}
 
 	//Allocate a memory buffer for the rendered VRAM data
-	bufferWidth = 128*8;
-	bufferHeight = 128*8;
-	buffer = new unsigned char[bufferWidth * bufferHeight * 4];
+	_bufferWidth = 128*8;
+	_bufferHeight = 128*8;
+	_buffer = new unsigned char[_bufferWidth * _bufferHeight * 4];
 
 	SetTimer(hwnd, 1, 50, NULL);
 	return 0;
@@ -645,15 +645,15 @@ LRESULT PlaneView::msgRenderWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 //----------------------------------------------------------------------------------------
 LRESULT PlaneView::msgRenderWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	if(glrc != NULL)
+	if(_glrc != NULL)
 	{
-		wglDeleteContext(glrc);
-		glrc = NULL;
+		wglDeleteContext(_glrc);
+		_glrc = NULL;
 	}
-	if(buffer != 0)
+	if(_buffer != 0)
 	{
-		delete[] buffer;
-		buffer = 0;
+		delete[] _buffer;
+		_buffer = 0;
 	}
 	KillTimer(hwnd, 1);
 
@@ -677,7 +677,7 @@ LRESULT PlaneView::msgRenderWM_SIZE(HWND hwnd, WPARAM wParam, LPARAM lParam)
 //----------------------------------------------------------------------------------------
 LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	initializedDialog = true;
+	_initializedDialog = true;
 
 	//Obtain the current DPI scale factors
 	float dpiScaleX;
@@ -685,22 +685,22 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	DPIGetScreenScaleFactors(dpiScaleX, dpiScaleY);
 
 	//Calculate the scale factors for the image
-	float imageScaleX = dpiScaleX * imageZoomFactor;
-	float imageScaleY = dpiScaleY * imageZoomFactor;
+	float imageScaleX = dpiScaleX * _imageZoomFactor;
+	float imageScaleY = dpiScaleY * _imageZoomFactor;
 
 	//Read the current state of all required registers
-	bool h40ModeActive = model.RegGetRS1();
-	bool v30ModeActive = model.RegGetM3();
-	bool interlacingActive = model.RegGetLSM0();
-	bool interlaceMode2Active = interlacingActive && model.RegGetLSM1();
-	bool vscrState = model.RegGetVSCR();
-	bool hscrState = model.RegGetHSCR();
-	bool lscrState = model.RegGetLSCR();
-	unsigned int hscrollDataBase = model.RegGetHScrollDataBase();
-	unsigned int hszState = model.RegGetHSZ();
-	unsigned int vszState = model.RegGetVSZ();
-	unsigned int paletteRowBackground = model.RegGetBackgroundPaletteRow();
-	unsigned int paletteIndexBackground = model.RegGetBackgroundPaletteColumn();
+	bool h40ModeActive = _model.RegGetRS1();
+	bool v30ModeActive = _model.RegGetM3();
+	bool interlacingActive = _model.RegGetLSM0();
+	bool interlaceMode2Active = interlacingActive && _model.RegGetLSM1();
+	bool vscrState = _model.RegGetVSCR();
+	bool hscrState = _model.RegGetHSCR();
+	bool lscrState = _model.RegGetLSCR();
+	unsigned int hscrollDataBase = _model.RegGetHScrollDataBase();
+	unsigned int hszState = _model.RegGetHSZ();
+	unsigned int vszState = _model.RegGetVSZ();
+	unsigned int paletteRowBackground = _model.RegGetBackgroundPaletteRow();
+	unsigned int paletteIndexBackground = _model.RegGetBackgroundPaletteColumn();
 
 	//Constants
 	const unsigned int blockPixelSizeX = 8;
@@ -714,84 +714,84 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	//current register settings
 	unsigned int currentRegisterScrollPlaneWidth;
 	unsigned int currentRegisterScrollPlaneHeight;
-	model.CalculateEffectiveCellScrollSize(hszState, vszState, currentRegisterScrollPlaneWidth, currentRegisterScrollPlaneHeight);
+	_model.CalculateEffectiveCellScrollSize(hszState, vszState, currentRegisterScrollPlaneWidth, currentRegisterScrollPlaneHeight);
 
 	//Latch new settings for the layer A plane where required
-	if(!layerAScrollPlaneManual)
+	if(!_layerAScrollPlaneManual)
 	{
-		layerAScrollPlaneWidth = currentRegisterScrollPlaneWidth;
-		layerAScrollPlaneHeight = currentRegisterScrollPlaneHeight;
-		UpdateDlgItemBin(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_PLANEWIDTHLAYERA, layerAScrollPlaneWidth);
-		UpdateDlgItemBin(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_PLANEHEIGHTLAYERA, layerAScrollPlaneHeight);
+		_layerAScrollPlaneWidth = currentRegisterScrollPlaneWidth;
+		_layerAScrollPlaneHeight = currentRegisterScrollPlaneHeight;
+		UpdateDlgItemBin(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_PLANEWIDTHLAYERA, _layerAScrollPlaneWidth);
+		UpdateDlgItemBin(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_PLANEHEIGHTLAYERA, _layerAScrollPlaneHeight);
 	}
-	if(!layerAMappingBaseManual)
+	if(!_layerAMappingBaseManual)
 	{
-		layerAMappingBase = model.RegGetNameTableBaseScrollA();
-		UpdateDlgItemHex(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_MAPPINGLAYERA, 5, layerAMappingBase);
+		_layerAMappingBase = _model.RegGetNameTableBaseScrollA();
+		UpdateDlgItemHex(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_MAPPINGLAYERA, 5, _layerAMappingBase);
 	}
-	if(!layerAPatternBaseManual)
+	if(!_layerAPatternBaseManual)
 	{
-		layerAPatternBase = model.RegGetPatternBaseScrollA();
-		UpdateDlgItemHex(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_PATTERNLAYERA, 5, layerAPatternBase);
+		_layerAPatternBase = _model.RegGetPatternBaseScrollA();
+		UpdateDlgItemHex(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_PATTERNLAYERA, 5, _layerAPatternBase);
 	}
 
 	//Latch new settings for the layer B plane where required
-	if(!layerBScrollPlaneManual)
+	if(!_layerBScrollPlaneManual)
 	{
-		layerBScrollPlaneWidth = currentRegisterScrollPlaneWidth;
-		layerBScrollPlaneHeight = currentRegisterScrollPlaneHeight;
-		UpdateDlgItemBin(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_PLANEWIDTHLAYERB, layerBScrollPlaneWidth);
-		UpdateDlgItemBin(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_PLANEHEIGHTLAYERB, layerBScrollPlaneHeight);
+		_layerBScrollPlaneWidth = currentRegisterScrollPlaneWidth;
+		_layerBScrollPlaneHeight = currentRegisterScrollPlaneHeight;
+		UpdateDlgItemBin(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_PLANEWIDTHLAYERB, _layerBScrollPlaneWidth);
+		UpdateDlgItemBin(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_PLANEHEIGHTLAYERB, _layerBScrollPlaneHeight);
 	}
-	if(!layerBMappingBaseManual)
+	if(!_layerBMappingBaseManual)
 	{
-		layerBMappingBase = model.RegGetNameTableBaseScrollB();
-		UpdateDlgItemHex(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_MAPPINGLAYERB, 5, layerBMappingBase);
+		_layerBMappingBase = _model.RegGetNameTableBaseScrollB();
+		UpdateDlgItemHex(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_MAPPINGLAYERB, 5, _layerBMappingBase);
 	}
-	if(!layerBPatternBaseManual)
+	if(!_layerBPatternBaseManual)
 	{
-		layerBPatternBase = model.RegGetPatternBaseScrollB();
-		UpdateDlgItemHex(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_PATTERNLAYERB, 5, layerBPatternBase);
+		_layerBPatternBase = _model.RegGetPatternBaseScrollB();
+		UpdateDlgItemHex(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_PATTERNLAYERB, 5, _layerBPatternBase);
 	}
 
 	//Latch new settings for the window plane where required
-	if(!windowScrollPlaneManual)
+	if(!_windowScrollPlaneManual)
 	{
-		windowScrollPlaneWidth = h40ModeActive? 64: 32;
-		windowScrollPlaneHeight = 32;
-		UpdateDlgItemBin(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_PLANEWIDTHWINDOW, windowScrollPlaneWidth);
-		UpdateDlgItemBin(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_PLANEHEIGHTWINDOW, windowScrollPlaneHeight);
+		_windowScrollPlaneWidth = h40ModeActive? 64: 32;
+		_windowScrollPlaneHeight = 32;
+		UpdateDlgItemBin(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_PLANEWIDTHWINDOW, _windowScrollPlaneWidth);
+		UpdateDlgItemBin(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_PLANEHEIGHTWINDOW, _windowScrollPlaneHeight);
 	}
-	if(!windowMappingBaseManual)
+	if(!_windowMappingBaseManual)
 	{
-		windowMappingBase = model.RegGetNameTableBaseWindow();
-		UpdateDlgItemHex(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_MAPPINGWINDOW, 5, windowMappingBase);
+		_windowMappingBase = _model.RegGetNameTableBaseWindow();
+		UpdateDlgItemHex(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_MAPPINGWINDOW, 5, _windowMappingBase);
 	}
-	if(!windowPatternBaseManual)
+	if(!_windowPatternBaseManual)
 	{
-		windowPatternBase = model.RegGetPatternBaseScrollA();
-		UpdateDlgItemHex(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_PATTERNWINDOW, 5, windowPatternBase);
+		_windowPatternBase = _model.RegGetPatternBaseScrollA();
+		UpdateDlgItemHex(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_PATTERNWINDOW, 5, _windowPatternBase);
 	}
 
 	//Latch new settings for the sprite plane where required
-	if(!spriteScrollPlaneManual)
+	if(!_spriteScrollPlaneManual)
 	{
 		const unsigned int spritePosBitCountH = 9;
 		const unsigned int spritePosBitCountV = (interlaceMode2Active)? 10: 9;
-		spriteScrollPlaneWidth = (1 << spritePosBitCountH) / blockPixelSizeX;
-		spriteScrollPlaneHeight = (1 << spritePosBitCountV) / blockPixelSizeY;
-		UpdateDlgItemBin(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_PLANEWIDTHSPRITES, spriteScrollPlaneWidth);
-		UpdateDlgItemBin(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_PLANEHEIGHTSPRITES, spriteScrollPlaneHeight);
+		_spriteScrollPlaneWidth = (1 << spritePosBitCountH) / blockPixelSizeX;
+		_spriteScrollPlaneHeight = (1 << spritePosBitCountV) / blockPixelSizeY;
+		UpdateDlgItemBin(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_PLANEWIDTHSPRITES, _spriteScrollPlaneWidth);
+		UpdateDlgItemBin(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_PLANEHEIGHTSPRITES, _spriteScrollPlaneHeight);
 	}
-	if(!spriteMappingBaseManual)
+	if(!_spriteMappingBaseManual)
 	{
-		spriteMappingBase = model.RegGetNameTableBaseSprite();
-		UpdateDlgItemHex(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_MAPPINGSPRITES, 5, spriteMappingBase);
+		_spriteMappingBase = _model.RegGetNameTableBaseSprite();
+		UpdateDlgItemHex(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_MAPPINGSPRITES, 5, _spriteMappingBase);
 	}
-	if(!spritePatternBaseManual)
+	if(!_spritePatternBaseManual)
 	{
-		spritePatternBase = model.RegGetPatternBaseSprite();
-		UpdateDlgItemHex(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_PATTERNSPRITES, 5, spritePatternBase);
+		_spritePatternBase = _model.RegGetPatternBaseSprite();
+		UpdateDlgItemHex(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_PATTERNSPRITES, 5, _spritePatternBase);
 	}
 
 	//Get the current horizontal scrollbar settings
@@ -814,23 +814,23 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	//Retrieve the current layer size for the target layer
 	unsigned int selectedPlaneWidth = 0;
 	unsigned int selectedPlaneHeight = 0;
-	switch(selectedLayer)
+	switch(_selectedLayer)
 	{
 	case SELECTEDLAYER_LAYERA:
-		selectedPlaneWidth = layerAScrollPlaneWidth;
-		selectedPlaneHeight = layerAScrollPlaneHeight;
+		selectedPlaneWidth = _layerAScrollPlaneWidth;
+		selectedPlaneHeight = _layerAScrollPlaneHeight;
 		break;
 	case SELECTEDLAYER_LAYERB:
-		selectedPlaneWidth = layerBScrollPlaneWidth;
-		selectedPlaneHeight = layerBScrollPlaneHeight;
+		selectedPlaneWidth = _layerBScrollPlaneWidth;
+		selectedPlaneHeight = _layerBScrollPlaneHeight;
 		break;
 	case SELECTEDLAYER_WINDOW:
-		selectedPlaneWidth = windowScrollPlaneWidth;
-		selectedPlaneHeight = windowScrollPlaneHeight;
+		selectedPlaneWidth = _windowScrollPlaneWidth;
+		selectedPlaneHeight = _windowScrollPlaneHeight;
 		break;
 	case SELECTEDLAYER_SPRITES:
-		selectedPlaneWidth = spriteScrollPlaneWidth;
-		selectedPlaneHeight = spriteScrollPlaneHeight;
+		selectedPlaneWidth = _spriteScrollPlaneWidth;
+		selectedPlaneHeight = _spriteScrollPlaneHeight;
 		break;
 	}
 
@@ -842,13 +842,13 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		hscrollInfo.nMin = 0;
 		hscrollInfo.nMax = (int)(selectedPlaneWidth > 0)? selectedPlaneWidth - 1: 0;
 		hscrollInfo.nPos = currentScrollPosH;
-		hscrollInfo.nPage = (unsigned int)((float)(currentRenderWindowWidth / blockPixelSizeX) / imageScaleX);
+		hscrollInfo.nPage = (unsigned int)((float)(_currentRenderWindowWidth / blockPixelSizeX) / imageScaleX);
 		hscrollInfo.fMask = SIF_POS | SIF_RANGE | SIF_PAGE;
 		SetScrollInfo(GetDlgItem(GetParent(hwnd), IDC_S315_5313_PLANEVIEW_HSCROLL), SB_CTL, &hscrollInfo, TRUE);
 	}
 
 	//Apply the latest vertical scrollbar settings
-	unsigned int newScrollPageSizeV = currentRenderWindowHeight / blockPixelSizeY;
+	unsigned int newScrollPageSizeV = _currentRenderWindowHeight / blockPixelSizeY;
 	if((currentScrollMaxV != (int)selectedPlaneHeight) || (currentScrollPageSizeV != newScrollPageSizeV))
 	{
 		SCROLLINFO vscrollInfo;
@@ -864,27 +864,27 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	//Calculate the pixel coordinates of the currently visible window region
 	unsigned int renderRegionPixelStartX = currentScrollPosH * blockPixelSizeX;
 	unsigned int renderRegionPixelStartY = currentScrollPosV * blockPixelSizeY;
-	unsigned int renderRegionPixelEndX = renderRegionPixelStartX + currentRenderWindowWidth;
-	unsigned int renderRegionPixelEndY = renderRegionPixelStartY + currentRenderWindowHeight;
-	renderRegionPixelEndX = (renderRegionPixelEndX >= bufferWidth) ? bufferWidth : renderRegionPixelEndX;
-	renderRegionPixelEndY = (renderRegionPixelEndY >= bufferHeight) ? bufferHeight : renderRegionPixelEndY;
+	unsigned int renderRegionPixelEndX = renderRegionPixelStartX + _currentRenderWindowWidth;
+	unsigned int renderRegionPixelEndY = renderRegionPixelStartY + _currentRenderWindowHeight;
+	renderRegionPixelEndX = (renderRegionPixelEndX >= _bufferWidth) ? _bufferWidth : renderRegionPixelEndX;
+	renderRegionPixelEndY = (renderRegionPixelEndY >= _bufferHeight) ? _bufferHeight : renderRegionPixelEndY;
 	renderRegionPixelEndX = (renderRegionPixelEndX >= (selectedPlaneWidth * blockPixelSizeX)) ? (selectedPlaneWidth * blockPixelSizeX) : renderRegionPixelEndX;
 	renderRegionPixelEndY = (renderRegionPixelEndY >= (selectedPlaneHeight * blockPixelSizeY)) ? (selectedPlaneHeight * blockPixelSizeY) : renderRegionPixelEndY;
 
 	//Obtain a copy of the current VRAM data buffer
-	model.LockExternalBuffers();
-	ITimedBufferInt* vramBuffer = model.GetVRAMBuffer();
-	std::vector<unsigned char> vramDataCopy(IS315_5313::vramSize, 0);
+	_model.LockExternalBuffers();
+	ITimedBufferInt* vramBuffer = _model.GetVRAMBuffer();
+	std::vector<unsigned char> vramDataCopy(IS315_5313::VramSize, 0);
 	if(vramBuffer != 0)
 	{
 		vramBuffer->GetLatestBufferCopy(vramDataCopy);
 	}
-	model.UnlockExternalBuffers();
+	_model.UnlockExternalBuffers();
 
 	//Fill the plane render buffer
-	for(unsigned int ypos = 0; ypos < bufferHeight; ++ypos)
+	for(unsigned int ypos = 0; ypos < _bufferHeight; ++ypos)
 	{
-		for(unsigned int xpos = 0; xpos < bufferWidth; ++xpos)
+		for(unsigned int xpos = 0; xpos < _bufferWidth; ++xpos)
 		{
 			//Calculate the position of the current pixel in the currently selected layer
 			unsigned int layerPixelPosX = renderRegionPixelStartX + xpos;
@@ -894,26 +894,26 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			bool outsideSelectedPlane = true;
 			unsigned int paletteRow;
 			unsigned int paletteIndex;
-			switch(selectedLayer)
+			switch(_selectedLayer)
 			{
 			case SELECTEDLAYER_LAYERA:
-				GetScrollPlanePaletteInfo(vramDataCopy, layerAMappingBase, layerAPatternBase, layerAScrollPlaneWidth, layerAScrollPlaneHeight, layerPixelPosX, layerPixelPosY, interlaceMode2Active, paletteRow, paletteIndex);
-				outsideSelectedPlane = (layerPixelPosX >= (layerAScrollPlaneWidth * blockPixelSizeX)) || (layerPixelPosY >= (layerAScrollPlaneHeight * blockPixelSizeY));
+				GetScrollPlanePaletteInfo(vramDataCopy, _layerAMappingBase, _layerAPatternBase, _layerAScrollPlaneWidth, _layerAScrollPlaneHeight, layerPixelPosX, layerPixelPosY, interlaceMode2Active, paletteRow, paletteIndex);
+				outsideSelectedPlane = (layerPixelPosX >= (_layerAScrollPlaneWidth * blockPixelSizeX)) || (layerPixelPosY >= (_layerAScrollPlaneHeight * blockPixelSizeY));
 				break;
 			case SELECTEDLAYER_LAYERB:
-				GetScrollPlanePaletteInfo(vramDataCopy, layerBMappingBase, layerBPatternBase, layerBScrollPlaneWidth, layerBScrollPlaneHeight, layerPixelPosX, layerPixelPosY, interlaceMode2Active, paletteRow, paletteIndex);
-				outsideSelectedPlane = (layerPixelPosX >= (layerBScrollPlaneWidth * blockPixelSizeX)) || (layerPixelPosY >= (layerBScrollPlaneHeight * blockPixelSizeY));
+				GetScrollPlanePaletteInfo(vramDataCopy, _layerBMappingBase, _layerBPatternBase, _layerBScrollPlaneWidth, _layerBScrollPlaneHeight, layerPixelPosX, layerPixelPosY, interlaceMode2Active, paletteRow, paletteIndex);
+				outsideSelectedPlane = (layerPixelPosX >= (_layerBScrollPlaneWidth * blockPixelSizeX)) || (layerPixelPosY >= (_layerBScrollPlaneHeight * blockPixelSizeY));
 				break;
 			case SELECTEDLAYER_WINDOW:
-				GetScrollPlanePaletteInfo(vramDataCopy, windowMappingBase, windowPatternBase, windowScrollPlaneWidth, windowScrollPlaneHeight, layerPixelPosX, layerPixelPosY, interlaceMode2Active, paletteRow, paletteIndex);
-				outsideSelectedPlane = (layerPixelPosX >= (windowScrollPlaneWidth * blockPixelSizeX)) || (layerPixelPosY >= (windowScrollPlaneHeight * blockPixelSizeY));
+				GetScrollPlanePaletteInfo(vramDataCopy, _windowMappingBase, _windowPatternBase, _windowScrollPlaneWidth, _windowScrollPlaneHeight, layerPixelPosX, layerPixelPosY, interlaceMode2Active, paletteRow, paletteIndex);
+				outsideSelectedPlane = (layerPixelPosX >= (_windowScrollPlaneWidth * blockPixelSizeX)) || (layerPixelPosY >= (_windowScrollPlaneHeight * blockPixelSizeY));
 				break;
 			case SELECTEDLAYER_SPRITES:
 				//If the sprite plane is selected, just fill the buffer with the backdrop
 				//colour where appropriate for now. We'll fill in sprite data later.
 				paletteRow = 0;
 				paletteIndex = 0;
-				outsideSelectedPlane = (layerPixelPosX >= (spriteScrollPlaneWidth * blockPixelSizeX)) || (layerPixelPosY >= (spriteScrollPlaneHeight * blockPixelSizeY));
+				outsideSelectedPlane = (layerPixelPosX >= (_spriteScrollPlaneWidth * blockPixelSizeX)) || (layerPixelPosY >= (_spriteScrollPlaneHeight * blockPixelSizeY));
 				break;
 			}
 
@@ -935,23 +935,23 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 				}
 
 				//Decode the colour for the target palette entry
-				IS315_5313::DecodedPaletteColorEntry color = model.ReadDecodedPaletteColor(paletteRow, paletteIndex);
-				colorR = model.ColorValueTo8BitValue(color.r, false, false);
-				colorG = model.ColorValueTo8BitValue(color.g, false, false);
-				colorB = model.ColorValueTo8BitValue(color.b, false, false);
+				IS315_5313::DecodedPaletteColorEntry color = _model.ReadDecodedPaletteColor(paletteRow, paletteIndex);
+				colorR = _model.ColorValueTo8BitValue(color.r, false, false);
+				colorG = _model.ColorValueTo8BitValue(color.g, false, false);
+				colorB = _model.ColorValueTo8BitValue(color.b, false, false);
 			}
 
 			//Write this pixel colour value into the data buffer
-			buffer[((xpos + (ypos * bufferWidth)) * 4) + 0] = colorR;
-			buffer[((xpos + (ypos * bufferWidth)) * 4) + 1] = colorG;
-			buffer[((xpos + (ypos * bufferWidth)) * 4) + 2] = colorB;
-			buffer[((xpos + (ypos * bufferWidth)) * 4) + 3] = 0xFF;
+			_buffer[((xpos + (ypos * _bufferWidth)) * 4) + 0] = colorR;
+			_buffer[((xpos + (ypos * _bufferWidth)) * 4) + 1] = colorG;
+			_buffer[((xpos + (ypos * _bufferWidth)) * 4) + 2] = colorB;
+			_buffer[((xpos + (ypos * _bufferWidth)) * 4) + 3] = 0xFF;
 		}
 	}
 
 	//If the sprite plane is currently selected, render each sprite to the buffer.
 	std::vector<ScreenBoundaryPrimitive> screenBoundaryPrimitives;
-	if(selectedLayer == SELECTEDLAYER_SPRITES)
+	if(_selectedLayer == SELECTEDLAYER_SPRITES)
 	{
 		//Render each sprite to the sprite plane
 		unsigned int maxSpriteCount = (h40ModeActive)? 80: 64;
@@ -960,7 +960,7 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		do
 		{
 			//Read the mapping data for this sprite
-			IS315_5313::SpriteMappingTableEntry spriteMapping = model.GetSpriteMappingTableEntry(spriteMappingBase, currentSpriteNo);
+			IS315_5313::SpriteMappingTableEntry spriteMapping = _model.GetSpriteMappingTableEntry(_spriteMappingBase, currentSpriteNo);
 
 			//Render this sprite to the buffer
 			unsigned int spriteHeightInCells = spriteMapping.height + 1;
@@ -993,7 +993,7 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 					const unsigned int patternDataRowByteSize = 4;
 					const unsigned int blockPatternByteSize = blockPixelSizeY * patternDataRowByteSize;
 					unsigned int patternRowDataAddress = (((spriteMapping.blockNumber + blockOffset) * blockPatternByteSize) + (patternRowNo * patternDataRowByteSize)) % (unsigned int)vramDataCopy.size();
-					patternRowDataAddress = (spritePatternBase + patternRowDataAddress) % (unsigned int)vramDataCopy.size();
+					patternRowDataAddress = (_spritePatternBase + patternRowDataAddress) % (unsigned int)vramDataCopy.size();
 
 					//Read the pattern data byte for the target pixel in the target block
 					const unsigned int pixelsPerPatternByte = 2;
@@ -1012,25 +1012,25 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 					}
 
 					//Decode the colour for the target palette entry
-					IS315_5313::DecodedPaletteColorEntry color = model.ReadDecodedPaletteColor(paletteRow, paletteIndex);
-					unsigned char colorR = model.ColorValueTo8BitValue(color.r, false, false);
-					unsigned char colorG = model.ColorValueTo8BitValue(color.g, false, false);
-					unsigned char colorB = model.ColorValueTo8BitValue(color.b, false, false);
+					IS315_5313::DecodedPaletteColorEntry color = _model.ReadDecodedPaletteColor(paletteRow, paletteIndex);
+					unsigned char colorR = _model.ColorValueTo8BitValue(color.r, false, false);
+					unsigned char colorG = _model.ColorValueTo8BitValue(color.g, false, false);
+					unsigned char colorB = _model.ColorValueTo8BitValue(color.b, false, false);
 
 					//Calculate the location of the target pixel within the data buffer
 					unsigned int spritePixelPosXInBuffer = (spriteMapping.xpos + xpos) - renderRegionPixelStartX;
 					unsigned int spritePixelPosYInBuffer = (spriteMapping.ypos + ypos) - renderRegionPixelStartY;
 
 					//Write this pixel colour value into the data buffer
-					buffer[((spritePixelPosXInBuffer + (spritePixelPosYInBuffer * bufferWidth)) * 4) + 0] = colorR;
-					buffer[((spritePixelPosXInBuffer + (spritePixelPosYInBuffer * bufferWidth)) * 4) + 1] = colorG;
-					buffer[((spritePixelPosXInBuffer + (spritePixelPosYInBuffer * bufferWidth)) * 4) + 2] = colorB;
-					buffer[((spritePixelPosXInBuffer + (spritePixelPosYInBuffer * bufferWidth)) * 4) + 3] = 0xFF;
+					_buffer[((spritePixelPosXInBuffer + (spritePixelPosYInBuffer * _bufferWidth)) * 4) + 0] = colorR;
+					_buffer[((spritePixelPosXInBuffer + (spritePixelPosYInBuffer * _bufferWidth)) * 4) + 1] = colorG;
+					_buffer[((spritePixelPosXInBuffer + (spritePixelPosYInBuffer * _bufferWidth)) * 4) + 2] = colorB;
+					_buffer[((spritePixelPosXInBuffer + (spritePixelPosYInBuffer * _bufferWidth)) * 4) + 3] = 0xFF;
 				}
 			}
 
 			//Calculate the boundaries of this sprite if requested
-			if(spriteBoundaries)
+			if(_spriteBoundaries)
 			{
 				unsigned int spritePosStartX = spriteMapping.xpos;
 				unsigned int spritePosStartY = spriteMapping.ypos;
@@ -1050,26 +1050,26 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	}
 
 	//Calculate the screen boundary region information for the target layer, if requested.
-	if(displayScreen)
+	if(_displayScreen)
 	{
-		if((selectedLayer == SELECTEDLAYER_LAYERA) || (selectedLayer == SELECTEDLAYER_LAYERB))
+		if((_selectedLayer == SELECTEDLAYER_LAYERA) || (_selectedLayer == SELECTEDLAYER_LAYERB))
 		{
 			for(unsigned int screenRow = 0; screenRow < screenHeightInPixels; ++screenRow)
 			{
-				unsigned int pixelsPerColumn = model.cellsPerColumn * blockPixelSizeX;
-				unsigned int screenColumnCount = (screenWidthInCells / model.cellsPerColumn);
+				unsigned int pixelsPerColumn = _model.CellsPerColumn * blockPixelSizeX;
+				unsigned int screenColumnCount = (screenWidthInCells / _model.CellsPerColumn);
 				for(unsigned int screenColumn = 0; screenColumn < screenColumnCount; ++screenColumn)
 				{
 					//Calculate the properties for the selected layer
-					bool inLayerA = (selectedLayer == SELECTEDLAYER_LAYERA);
-					unsigned int layerScrollPlaneWidthInPixels = ((selectedLayer == SELECTEDLAYER_LAYERA)? layerAScrollPlaneWidth: layerBScrollPlaneWidth) * blockPixelSizeX;
-					unsigned int layerScrollPlaneHeightInPixels = ((selectedLayer == SELECTEDLAYER_LAYERA)? layerAScrollPlaneHeight: layerBScrollPlaneHeight) * blockPixelSizeY;
+					bool inLayerA = (_selectedLayer == SELECTEDLAYER_LAYERA);
+					unsigned int layerScrollPlaneWidthInPixels = ((_selectedLayer == SELECTEDLAYER_LAYERA)? _layerAScrollPlaneWidth: _layerBScrollPlaneWidth) * blockPixelSizeX;
+					unsigned int layerScrollPlaneHeightInPixels = ((_selectedLayer == SELECTEDLAYER_LAYERA)? _layerAScrollPlaneHeight: _layerBScrollPlaneHeight) * blockPixelSizeY;
 
 					//Read the vertical scroll data for this column
 					Data vsramDataCache(16);
 					unsigned int layerVScrollPatternDisplacement;
 					unsigned int layerVScrollMappingDisplacement;
-					model.DigitalRenderReadVscrollData(screenColumn, (inLayerA)? 0: 1, vscrState, interlaceMode2Active, layerVScrollPatternDisplacement, layerVScrollMappingDisplacement, vsramDataCache);
+					_model.DigitalRenderReadVscrollData(screenColumn, (inLayerA)? 0: 1, vscrState, interlaceMode2Active, layerVScrollPatternDisplacement, layerVScrollMappingDisplacement, vsramDataCache);
 
 					//Read the horizontal scroll data for this row
 					unsigned int layerHScrollPatternDisplacement;
@@ -1141,7 +1141,7 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 				}
 			}
 		}
-		else if(selectedLayer == SELECTEDLAYER_WINDOW)
+		else if(_selectedLayer == SELECTEDLAYER_WINDOW)
 		{
 			//Calculate the screen boundary region for the window layer
 			unsigned int windowPosScreenStartX = 0;
@@ -1154,7 +1154,7 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			screenBoundaryPrimitives.push_back(ScreenBoundaryPrimitive(windowPosScreenStartX, windowPosScreenEndX, windowPosScreenEndY, windowPosScreenEndY));
 			screenBoundaryPrimitives.push_back(ScreenBoundaryPrimitive(windowPosScreenStartX, windowPosScreenEndX, windowPosScreenStartY, windowPosScreenEndY, true));
 		}
-		else if(selectedLayer == SELECTEDLAYER_SPRITES)
+		else if(_selectedLayer == SELECTEDLAYER_SPRITES)
 		{
 			//Calculate the screen boundary region for the sprite layer
 			unsigned int spritePosScreenStartX = 0x80;
@@ -1214,7 +1214,7 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	HDC hdc = GetDC(hwnd);
 	if(hdc != NULL)
 	{
-		if((glrc != NULL) && (wglMakeCurrent(hdc, glrc) != FALSE))
+		if((_glrc != NULL) && (wglMakeCurrent(hdc, _glrc) != FALSE))
 		{
 			glMatrixMode(GL_MODELVIEW);
 			glLoadIdentity();
@@ -1228,12 +1228,12 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 
 			//Set the raster position and pixel buffer width to account for scrolling
 			glRasterPos2i(0, 0);
-			glPixelStorei(GL_UNPACK_ROW_LENGTH, bufferWidth);
+			glPixelStorei(GL_UNPACK_ROW_LENGTH, _bufferWidth);
 
 			//Draw the pixel buffer to the screen
 			int drawImageWidth = renderRegionPixelEndX - renderRegionPixelStartX;
 			int drawImageHeight = renderRegionPixelEndY - renderRegionPixelStartY;
-			glDrawPixels(drawImageWidth, drawImageHeight, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+			glDrawPixels(drawImageWidth, drawImageHeight, GL_RGBA, GL_UNSIGNED_BYTE, _buffer);
 
 			//Draw our screen boundary lines
 			for(unsigned int i = 0; i < (unsigned int)validScreenBoundaryLines.size(); ++i)
@@ -1293,9 +1293,9 @@ LRESULT PlaneView::msgRenderWM_LBUTTONDOWN(HWND hwnd, WPARAM wparam, LPARAM lpar
 LRESULT PlaneView::msgRenderWM_KEYUP(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	ISystemDeviceInterface::KeyCode keyCode;
-	if(presenter.GetSystemInterface().TranslateKeyCode((unsigned int)wparam, keyCode))
+	if(_presenter.GetSystemInterface().TranslateKeyCode((unsigned int)wparam, keyCode))
 	{
-		presenter.GetSystemInterface().HandleInputKeyUp(keyCode);
+		_presenter.GetSystemInterface().HandleInputKeyUp(keyCode);
 	}
 	return 0;
 }
@@ -1304,9 +1304,9 @@ LRESULT PlaneView::msgRenderWM_KEYUP(HWND hwnd, WPARAM wparam, LPARAM lparam)
 LRESULT PlaneView::msgRenderWM_KEYDOWN(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	ISystemDeviceInterface::KeyCode keyCode;
-	if(presenter.GetSystemInterface().TranslateKeyCode((unsigned int)wparam, keyCode))
+	if(_presenter.GetSystemInterface().TranslateKeyCode((unsigned int)wparam, keyCode))
 	{
-		presenter.GetSystemInterface().HandleInputKeyDown(keyCode);
+		_presenter.GetSystemInterface().HandleInputKeyDown(keyCode);
 	}
 	return 0;
 }
@@ -1314,18 +1314,18 @@ LRESULT PlaneView::msgRenderWM_KEYDOWN(HWND hwnd, WPARAM wparam, LPARAM lparam)
 //----------------------------------------------------------------------------------------
 void PlaneView::UpdateRenderWindowSize(HWND hwnd, int renderWindowWidth, int renderWindowHeight)
 {
-	currentRenderWindowWidth = renderWindowWidth;
-	currentRenderWindowHeight = renderWindowHeight;
+	_currentRenderWindowWidth = renderWindowWidth;
+	_currentRenderWindowHeight = renderWindowHeight;
 
 	HDC hdc = GetDC(hwnd);
 	if(hdc != NULL)
 	{
-		if((glrc != NULL) && (wglMakeCurrent(hdc, glrc) != FALSE))
+		if((_glrc != NULL) && (wglMakeCurrent(hdc, _glrc) != FALSE))
 		{
-			glViewport(0, 0, currentRenderWindowWidth, currentRenderWindowHeight);
+			glViewport(0, 0, _currentRenderWindowWidth, _currentRenderWindowHeight);
 			glMatrixMode(GL_PROJECTION);
 			glLoadIdentity();
-			glOrtho(0.0, (float)currentRenderWindowWidth, (float)currentRenderWindowHeight, 0.0, -1.0, 1.0);
+			glOrtho(0.0, (float)_currentRenderWindowWidth, (float)_currentRenderWindowHeight, 0.0, -1.0, 1.0);
 			glMatrixMode(GL_MODELVIEW);
 			glLoadIdentity();
 
@@ -1357,8 +1357,8 @@ void PlaneView::GetScrollPlanePaletteInfo(const std::vector<unsigned char>& vram
 
 	//Determine the address of the target row in the target block
 	unsigned int patternRowNumberNoFlip = ypos % blockPixelSizeY;
-	unsigned int patternRowNumber = model.CalculatePatternDataRowNumber(patternRowNumberNoFlip, interlaceMode2Active, mappingData);
-	unsigned int patternRowDataAddress = model.CalculatePatternDataRowAddress(patternRowNumber, 0, interlaceMode2Active, mappingData);
+	unsigned int patternRowNumber = _model.CalculatePatternDataRowNumber(patternRowNumberNoFlip, interlaceMode2Active, mappingData);
+	unsigned int patternRowDataAddress = _model.CalculatePatternDataRowAddress(patternRowNumber, 0, interlaceMode2Active, mappingData);
 	patternRowDataAddress = (patternBaseAddress + patternRowDataAddress) % (unsigned int)vramData.size();
 
 	//Read the pattern data byte for the target pixel in the target block

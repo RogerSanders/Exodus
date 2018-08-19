@@ -27,7 +27,7 @@ public:
 	virtual Disassembly Z80Disassemble(const Z80::LabelSubstitutionSettings& labelSettings) const
 	{
 		std::wstringstream argumentDisassembly;
-		argumentDisassembly << newInterruptMode;
+		argumentDisassembly << _newInterruptMode;
 		return Disassembly(GetOpcodeName(), argumentDisassembly.str());
 	}
 
@@ -37,13 +37,13 @@ public:
 		switch(data.GetDataSegment(3, 2))
 		{
 		case 0:
-			newInterruptMode = 0;
+			_newInterruptMode = 0;
 			break;
 		case 2:
-			newInterruptMode = 1;
+			_newInterruptMode = 1;
 			break;
 		case 3:
-			newInterruptMode = 2;
+			_newInterruptMode = 2;
 			break;
 		}
 		AddExecuteCycleCount(4);
@@ -52,7 +52,7 @@ public:
 	virtual ExecuteTime Z80Execute(Z80* cpu, const Z80Word& location) const
 	{
 		//Perform the operation
-		cpu->SetInterruptMode(newInterruptMode);
+		cpu->SetInterruptMode(_newInterruptMode);
 
 		//Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
@@ -60,7 +60,7 @@ public:
 	}
 
 private:
-	unsigned int newInterruptMode;
+	unsigned int _newInterruptMode;
 };
 
 } //Close namespace Z80

@@ -1,34 +1,34 @@
 //----------------------------------------------------------------------------------------
 //Child functions
 //----------------------------------------------------------------------------------------
-template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::CreateChild(const std::wstring& aname, const T& adata)
+template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::CreateChild(const std::wstring& name, const T& data)
 {
-	IHierarchicalStorageNode& child = CreateChild(aname);
-	child.InsertData(adata);
+	IHierarchicalStorageNode& child = CreateChild(name);
+	child.InsertData(data);
 	return child;
 }
 
 //----------------------------------------------------------------------------------------
-template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::CreateChildHex(const std::wstring& aname, const T& adata, unsigned int length)
+template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::CreateChildHex(const std::wstring& name, const T& data, unsigned int length)
 {
-	IHierarchicalStorageNode& child = CreateChild(aname);
-	child.InsertHexData(adata, length);
+	IHierarchicalStorageNode& child = CreateChild(name);
+	child.InsertHexData(data, length);
 	return child;
 }
 
 //----------------------------------------------------------------------------------------
-template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::CreateChildBinary(const std::wstring& aname, const T& adata, const std::wstring& bufferName, bool ainlineBinaryData)
+template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::CreateChildBinary(const std::wstring& name, const T& data, const std::wstring& bufferName, bool inlineBinaryData)
 {
-	IHierarchicalStorageNode& child = CreateChild(aname);
-	child.InsertBinaryData(adata, bufferName, ainlineBinaryData);
+	IHierarchicalStorageNode& child = CreateChild(name);
+	child.InsertBinaryData(data, bufferName, inlineBinaryData);
 	return child;
 }
 
 //----------------------------------------------------------------------------------------
-template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::CreateChildBinary(const std::wstring& aname, const T* buffer, unsigned int entries, const std::wstring& bufferName, bool ainlineBinaryData)
+template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::CreateChildBinary(const std::wstring& name, const T* buffer, unsigned int entries, const std::wstring& bufferName, bool inlineBinaryData)
 {
-	IHierarchicalStorageNode& child = CreateChild(aname);
-	child.InsertBinaryData(buffer, entries, bufferName, ainlineBinaryData);
+	IHierarchicalStorageNode& child = CreateChild(name);
+	child.InsertBinaryData(buffer, entries, bufferName, inlineBinaryData);
 	return child;
 }
 
@@ -137,32 +137,32 @@ template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::ExtractHex
 //----------------------------------------------------------------------------------------
 //Data write functions
 //----------------------------------------------------------------------------------------
-template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::SetData(const T& adata)
+template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::SetData(const T& data)
 {
 	SetBinaryDataPresent(false);
 	Stream::IStream& dataStream = GetInternalStream();
 	Stream::ViewText bufferView(dataStream);
-	bufferView << adata;
+	bufferView << data;
 	return *this;
 }
 
 //----------------------------------------------------------------------------------------
-template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::InsertData(const T& adata)
+template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::InsertData(const T& data)
 {
 	SetBinaryDataPresent(false);
 	Stream::IStream& dataStream = GetInternalStream();
 	Stream::ViewText bufferView(dataStream);
-	bufferView << adata;
+	bufferView << data;
 	return *this;
 }
 
 //----------------------------------------------------------------------------------------
-template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::InsertHexData(const T& adata, unsigned int length)
+template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::InsertHexData(const T& data, unsigned int length)
 {
 	SetBinaryDataPresent(false);
 	Stream::IStream& dataStream = GetInternalStream();
 	Stream::ViewText bufferView(dataStream);
-	bufferView << Stream::Hex(length) << adata;
+	bufferView << Stream::Hex(length) << data;
 	return *this;
 }
 
@@ -194,22 +194,22 @@ template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::ExtractBin
 //----------------------------------------------------------------------------------------
 //Binary data write functions
 //----------------------------------------------------------------------------------------
-template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::InsertBinaryData(const T& adata, const std::wstring& bufferName, bool ainlineBinaryData)
+template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::InsertBinaryData(const T& data, const std::wstring& bufferName, bool inlineBinaryData)
 {
 	SetBinaryDataPresent(true);
-	SetInlineBinaryDataEnabled(ainlineBinaryData);
+	SetInlineBinaryDataEnabled(inlineBinaryData);
 	SetBinaryDataBufferName(bufferName);
 	Stream::IStream& dataStream = GetInternalStream();
 	Stream::ViewBinary bufferView(dataStream);
-	bufferView << adata;
+	bufferView << data;
 	return *this;
 }
 
 //----------------------------------------------------------------------------------------
-template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::InsertBinaryData(const T* buffer, size_t entries, const std::wstring& bufferName, bool ainlineBinaryData)
+template<class T> IHierarchicalStorageNode& IHierarchicalStorageNode::InsertBinaryData(const T* buffer, size_t entries, const std::wstring& bufferName, bool inlineBinaryData)
 {
 	SetBinaryDataPresent(true);
-	SetInlineBinaryDataEnabled(ainlineBinaryData);
+	SetInlineBinaryDataEnabled(inlineBinaryData);
 	SetBinaryDataBufferName(bufferName);
 	Stream::IStream& dataStream = GetInternalStream();
 	Stream::ViewBinary bufferView(dataStream);

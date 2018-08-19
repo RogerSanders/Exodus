@@ -7,8 +7,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-PaletteView::PaletteView(IUIManager& auiManager, PaletteViewPresenter& apresenter, IS315_5313& amodel)
-:ViewBase(auiManager, apresenter), presenter(apresenter), model(amodel)
+PaletteView::PaletteView(IUIManager& uiManager, PaletteViewPresenter& presenter, IS315_5313& model)
+:ViewBase(uiManager, presenter), _presenter(presenter), _model(model)
 {
 	//Set the window settings for this view
 	static const unsigned int paletteRows = 4;
@@ -16,11 +16,11 @@ PaletteView::PaletteView(IUIManager& auiManager, PaletteViewPresenter& apresente
 	static const unsigned int paletteSquareDesiredSize = 15;
 	int width = DPIScaleWidth(paletteSquareDesiredSize) * paletteColumns;
 	int height = DPIScaleHeight(paletteSquareDesiredSize) * paletteRows;
-	SetWindowSettings(apresenter.GetUnqualifiedViewTitle(), 0, 0, width, height);
+	SetWindowSettings(presenter.GetUnqualifiedViewTitle(), 0, 0, width, height);
 	SetDockableViewType(false);
 
 	//Set the format for our palette image
-	paletteImage.SetImageFormat(paletteColumns, paletteRows, IImage::PIXELFORMAT_RGB, IImage::DATAFORMAT_8BIT);
+	_paletteImage.SetImageFormat(paletteColumns, paletteRows, IImage::PIXELFORMAT_RGB, IImage::DATAFORMAT_8BIT);
 }
 
 //----------------------------------------------------------------------------------------
@@ -107,9 +107,9 @@ LRESULT PaletteView::msgWM_PAINT(HWND hwnd, WPARAM wparam, LPARAM lparam)
 
 			//Retrieve the colour of this palette entry
 			unsigned char r, g, b;
-			paletteImage.ReadPixelData(paletteEntry, paletteLine, 0, r);
-			paletteImage.ReadPixelData(paletteEntry, paletteLine, 1, g);
-			paletteImage.ReadPixelData(paletteEntry, paletteLine, 2, b);
+			_paletteImage.ReadPixelData(paletteEntry, paletteLine, 0, r);
+			_paletteImage.ReadPixelData(paletteEntry, paletteLine, 1, g);
+			_paletteImage.ReadPixelData(paletteEntry, paletteLine, 2, b);
 
 			//Populate the rectangle with the coordinates of this palette entry in the
 			//window
@@ -146,10 +146,10 @@ LRESULT PaletteView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	{
 		for(unsigned int paletteEntry = 0; paletteEntry < paletteColumns; ++paletteEntry)
 		{
-			IS315_5313::DecodedPaletteColorEntry color = model.ReadDecodedPaletteColor(paletteLine, paletteEntry);
-			paletteImage.WritePixelData(paletteEntry, paletteLine, 0, model.ColorValueTo8BitValue(color.r, false, false));
-			paletteImage.WritePixelData(paletteEntry, paletteLine, 1, model.ColorValueTo8BitValue(color.g, false, false));
-			paletteImage.WritePixelData(paletteEntry, paletteLine, 2, model.ColorValueTo8BitValue(color.b, false, false));
+			IS315_5313::DecodedPaletteColorEntry color = _model.ReadDecodedPaletteColor(paletteLine, paletteEntry);
+			_paletteImage.WritePixelData(paletteEntry, paletteLine, 0, _model.ColorValueTo8BitValue(color.r, false, false));
+			_paletteImage.WritePixelData(paletteEntry, paletteLine, 1, _model.ColorValueTo8BitValue(color.g, false, false));
+			_paletteImage.WritePixelData(paletteEntry, paletteLine, 2, _model.ColorValueTo8BitValue(color.b, false, false));
 		}
 	}
 

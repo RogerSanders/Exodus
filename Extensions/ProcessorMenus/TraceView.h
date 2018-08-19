@@ -9,7 +9,7 @@ class TraceView :public ViewBase
 {
 public:
 	//Constructors
-	TraceView(IUIManager& auiManager, TraceViewPresenter& apresenter, IProcessor& amodel);
+	TraceView(IUIManager& uiManager, TraceViewPresenter& presenter, IProcessor& model);
 
 protected:
 	//Member window procedure
@@ -44,16 +44,16 @@ private:
 	INT_PTR msgPanelWM_COMMAND(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
 private:
-	TraceViewPresenter& presenter;
-	IProcessor& model;
-	bool initializedDialog;
-	std::wstring previousText;
-	unsigned int currentControlFocus;
-	HWND hwndDataGrid;
-	HWND hwndControlPanel;
-	HFONT hfontHeader;
-	HFONT hfontData;
-	unsigned int logLastModifiedToken;
+	TraceViewPresenter& _presenter;
+	IProcessor& _model;
+	bool _initializedDialog;
+	std::wstring _previousText;
+	unsigned int _currentControlFocus;
+	HWND _hwndDataGrid;
+	HWND _hwndControlPanel;
+	HFONT _hfontHeader;
+	HFONT _hfontData;
+	unsigned int _logLastModifiedToken;
 };
 
 #endif

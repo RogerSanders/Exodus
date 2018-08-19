@@ -32,7 +32,7 @@ public:
 //	|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 //	| 0 | 1 | 0 | 0 | 1 | 1 | 1 | 0 | 0 | 1 | 1 | 1 | 0 | 1 | 0 | 1 |
 //	-----------------------------------------------------------------
-		target.BuildAddressPostinc(BITCOUNT_LONG, location + GetInstructionSize(), M68000::SP);
+		_target.BuildAddressPostinc(BITCOUNT_LONG, location + GetInstructionSize(), M68000::SP);
 		AddExecuteCycleCount(ExecuteTime(16, 4, 0));
 	}	
 
@@ -42,7 +42,7 @@ public:
 		M68000Long address;
 
 		//Perform the operation
-		additionalTime += target.Read(cpu, address, GetInstructionRegister());
+		additionalTime += _target.Read(cpu, address, GetInstructionRegister());
 		cpu->PopCallStack(address.GetData());
 		cpu->SetPC(address);
 
@@ -62,7 +62,7 @@ public:
 	{ }
 
 private:
-	EffectiveAddress target;
+	EffectiveAddress _target;
 };
 
 } //Close namespace M68000

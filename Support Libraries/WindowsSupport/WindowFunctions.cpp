@@ -506,20 +506,20 @@ void ReleaseCreateWindowThreadParams(CreateWindowThreadParams* object)
 }
 
 //----------------------------------------------------------------------------------------
-DWORD WINAPI CreateWindowThreadFunction(LPVOID aparams)
+DWORD WINAPI CreateWindowThreadFunction(LPVOID params)
 {
-	CreateWindowThreadParams* params = (CreateWindowThreadParams*)aparams;
+	CreateWindowThreadParams* paramsResolved = (CreateWindowThreadParams*)params;
 
 	HWND hwnd;
-	hwnd = CreateWindowsWindow(params->hInstance, params->windowName, params->wndproc, params->width, params->height, params->params);
-	*params->hwndPrivate = hwnd;
-	*params->writtenHandle = true;
+	hwnd = CreateWindowsWindow(paramsResolved->hInstance, paramsResolved->windowName, paramsResolved->wndproc, paramsResolved->width, paramsResolved->height, paramsResolved->params);
+	*paramsResolved->hwndPrivate = hwnd;
+	*paramsResolved->writtenHandle = true;
 	if(hwnd != NULL)
 	{
 		WindowsMessageLoop(hwnd);
 	}
 
-	ReleaseCreateWindowThreadParams(params);
+	ReleaseCreateWindowThreadParams(paramsResolved);
 	return 0;
 }
 

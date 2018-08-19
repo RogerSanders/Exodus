@@ -13,65 +13,65 @@ unsigned int SystemInfo::GetISystemInfoVersion() const
 //----------------------------------------------------------------------------------------
 SystemInfo::AllocatorPointer SystemInfo::GetAllocator() const
 {
-	return Allocator;
+	return _allocator;
 }
 
 //----------------------------------------------------------------------------------------
 SystemInfo::DestructorPointer SystemInfo::GetDestructor() const
 {
-	return Destructor;
+	return _destructor;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int SystemInfo::GetSystemVersionNo() const
 {
-	return versionNo;
+	return _versionNo;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> SystemInfo::GetSystemCopyright() const
 {
-	return copyright;
+	return _copyright;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> SystemInfo::GetSystemComments() const
 {
-	return comments;
+	return _comments;
 }
 
 //----------------------------------------------------------------------------------------
 //Setters
 //----------------------------------------------------------------------------------------
-void SystemInfo::SetSystemSettings(AllocatorPointer aAllocator, DestructorPointer aDestructor, unsigned int asystemVersionNo, const Marshal::In<std::wstring>& asystemCopyright, const Marshal::In<std::wstring>& asystemComments)
+void SystemInfo::SetSystemSettings(AllocatorPointer allocator, DestructorPointer destructor, unsigned int systemVersionNo, const Marshal::In<std::wstring>& systemCopyright, const Marshal::In<std::wstring>& systemComments)
 {
-	SetSystemAllocators(aAllocator, aDestructor);
-	SetSystemVersionNo(asystemVersionNo);
-	SetSystemCopyright(asystemCopyright);
-	SetSystemComments(asystemComments);
+	SetSystemAllocators(allocator, destructor);
+	SetSystemVersionNo(systemVersionNo);
+	SetSystemCopyright(systemCopyright);
+	SetSystemComments(systemComments);
 }
 
 //----------------------------------------------------------------------------------------
-void SystemInfo::SetSystemAllocators(AllocatorPointer aAllocator, DestructorPointer aDestructor)
+void SystemInfo::SetSystemAllocators(AllocatorPointer allocator, DestructorPointer destructor)
 {
-	Allocator = aAllocator;
-	Destructor = aDestructor;
+	_allocator = allocator;
+	_destructor = destructor;
 }
 
 //----------------------------------------------------------------------------------------
-void SystemInfo::SetSystemVersionNo(unsigned int asystemVersionNo)
+void SystemInfo::SetSystemVersionNo(unsigned int systemVersionNo)
 {
-	versionNo = asystemVersionNo;
+	_versionNo = systemVersionNo;
 }
 
 //----------------------------------------------------------------------------------------
-void SystemInfo::SetSystemCopyright(const Marshal::In<std::wstring>& asystemCopyright)
+void SystemInfo::SetSystemCopyright(const Marshal::In<std::wstring>& systemCopyright)
 {
-	copyright = asystemCopyright;
+	_copyright = systemCopyright;
 }
 
 //----------------------------------------------------------------------------------------
-void SystemInfo::SetSystemComments(const Marshal::In<std::wstring>& asystemComments)
+void SystemInfo::SetSystemComments(const Marshal::In<std::wstring>& systemComments)
 {
-	comments = asystemComments;
+	_comments = systemComments;
 }

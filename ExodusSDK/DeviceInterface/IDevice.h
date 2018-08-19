@@ -29,8 +29,8 @@ public:
 	virtual unsigned int GetIDeviceVersion() const = 0;
 
 	//Initialization functions
-	virtual bool BindToSystemInterface(ISystemDeviceInterface* asystemInterface) = 0;
-	virtual bool BindToDeviceContext(IDeviceContext* adeviceContext) = 0;
+	virtual bool BindToSystemInterface(ISystemDeviceInterface* systemInterface) = 0;
+	virtual bool BindToDeviceContext(IDeviceContext* deviceContext) = 0;
 	virtual bool Construct(IHierarchicalStorageNode& node) = 0;
 	virtual bool BuildDevice() = 0;
 	virtual bool ValidateDevice() = 0;

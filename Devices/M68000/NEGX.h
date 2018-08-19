@@ -22,7 +22,7 @@ public:
 
 	virtual Disassembly M68000Disassemble(const M68000::LabelSubstitutionSettings& labelSettings) const
 	{
-		return Disassembly(GetOpcodeName() + L"." + DisassembleSize(size), target.Disassemble(labelSettings));
+		return Disassembly(GetOpcodeName() + L"." + DisassembleSize(_size), _target.Disassemble(labelSettings));
 	}
 
 	virtual void M68000Decode(const M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)
@@ -36,23 +36,23 @@ public:
 		switch(data.GetDataSegment(6, 2))
 		{
 		case 0:	//00
-			size = BITCOUNT_BYTE;
+			_size = BITCOUNT_BYTE;
 			break;
 		case 1:	//01
-			size = BITCOUNT_WORD;
+			_size = BITCOUNT_WORD;
 			break;
 		case 2:	//10
-			size = BITCOUNT_LONG;
+			_size = BITCOUNT_LONG;
 			break;
 		}
 
 		//NEGX	<ea>
-		target.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), size, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
-		AddInstructionSize(target.ExtensionSize());
+		_target.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), _size, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
+		AddInstructionSize(_target.ExtensionSize());
 
-		if((target.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect) || (target.GetAddressMode() == EffectiveAddress::Mode::AddRegDirect))
+		if((_target.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect) || (_target.GetAddressMode() == EffectiveAddress::Mode::AddRegDirect))
 		{
-			if(size != BITCOUNT_LONG)
+			if(_size != BITCOUNT_LONG)
 			{
 				AddExecuteCycleCount(ExecuteTime(4, 1, 0));
 			}
@@ -63,7 +63,7 @@ public:
 		}
 		else
 		{
-			if(size != BITCOUNT_LONG)
+			if(_size != BITCOUNT_LONG)
 			{
 				AddExecuteCycleCount(ExecuteTime(8, 1, 1));
 			}
@@ -71,21 +71,21 @@ public:
 			{
 				AddExecuteCycleCount(ExecuteTime(12, 1, 2));
 			}
-			AddExecuteCycleCount(target.DecodeTime());
+			AddExecuteCycleCount(_target.DecodeTime());
 		}
 	}
 
 	virtual ExecuteTime M68000Execute(M68000* cpu, const M68000Long& location) const
 	{
 		double additionalTime = 0;
-		Data op1(size);
-		Data op2(size, 0);
-		Data result(size);
+		Data op1(_size);
+		Data op2(_size, 0);
+		Data result(_size);
 
 		//Perform the operation
-		additionalTime += target.ReadWithoutAdjustingAddress(cpu, op1, GetInstructionRegister());
+		additionalTime += _target.ReadWithoutAdjustingAddress(cpu, op1, GetInstructionRegister());
 		result = op2 - op1 - cpu->GetX();
-		additionalTime += target.Write(cpu, result, GetInstructionRegister());
+		additionalTime += _target.Write(cpu, result, GetInstructionRegister());
 
 		//Set the flag results
 		cpu->SetX(op1.MSB() || result.MSB());
@@ -101,12 +101,12 @@ public:
 
 	virtual void GetLabelTargetLocations(std::set<unsigned int>& labelTargetLocations) const
 	{
-		target.AddLabelTargetsToSet(labelTargetLocations);
+		_target.AddLabelTargetsToSet(labelTargetLocations);
 	}
 
 private:
-	EffectiveAddress target;
-	Bitcount size;
+	EffectiveAddress _target;
+	Bitcount _size;
 };
 
 } //Close namespace M68000

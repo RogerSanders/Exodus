@@ -65,7 +65,6 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
     <ClCompile Include="DeviceInfo.cpp">
       <Filter>DeviceInfo</Filter>
     </ClCompile>
@@ -120,6 +119,7 @@
     <ClCompile Include="CreateDashboardViewPresenter.cpp">
       <Filter>ExodusInterface\CreateDashboardView</Filter>
     </ClCompile>
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ViewStateChangeNotifier.h">

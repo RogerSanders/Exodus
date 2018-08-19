@@ -6,19 +6,19 @@
 class WC_ScrollViewer
 {
 public:
-	//Constants
-	static const wchar_t* windowClassName;
-
 	//Enumerations
 	enum class WindowMessages :unsigned int;
 
+	//Constants
+	static const wchar_t* WindowClassName;
+
 public:
 	//Constructors
-	WC_ScrollViewer(HINSTANCE amoduleHandle, HWND ahwnd);
+	WC_ScrollViewer(HINSTANCE moduleHandle, HWND hwnd);
 
 	//Class registration
-	static bool RegisterWindowClass(HINSTANCE amoduleHandle);
-	static bool UnregisterWindowClass(HINSTANCE amoduleHandle);
+	static bool RegisterWindowClass(HINSTANCE moduleHandle);
+	static bool UnregisterWindowClass(HINSTANCE moduleHandle);
 
 	//Message handlers
 	static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -52,17 +52,17 @@ private:
 	void UpdateVerticalScrollPos(int newScrollPos);
 
 private:
-	HINSTANCE moduleHandle;
-	HWND hwnd;
-	bool scrollBarAutoHorizontal;
-	bool scrollBarAutoVertical;
-	int currentControlWidth;
-	int currentControlHeight;
-	int effectiveScrollWidth;
-	int effectiveScrollHeight;
-	int currentScrollPosX;
-	int currentScrollPosY;
-	std::map<HWND, HostedWindowInfo> hostedWindows;
+	HINSTANCE _moduleHandle;
+	HWND _hwnd;
+	bool _scrollBarAutoHorizontal;
+	bool _scrollBarAutoVertical;
+	int _currentControlWidth;
+	int _currentControlHeight;
+	int _effectiveScrollWidth;
+	int _effectiveScrollHeight;
+	int _currentScrollPosX;
+	int _currentScrollPosY;
+	std::map<HWND, HostedWindowInfo> _hostedWindows;
 };
 
 #include "WC_ScrollViewer.inl"

@@ -3,10 +3,10 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-GenericAccessPage::GenericAccessPage(const std::wstring& aname, const std::wstring& atitle, Type atype)
-:contentRoot(aname), type(atype)
+GenericAccessPage::GenericAccessPage(const std::wstring& name, const std::wstring& title, Type type)
+:_contentRoot(name), _type(type)
 {
-	title = (atitle.empty())? aname: atitle;
+	_title = (title.empty())? name: title;
 }
 
 //----------------------------------------------------------------------------------------
@@ -22,25 +22,25 @@ unsigned int GenericAccessPage::GetIGenericAccessPageVersion() const
 //----------------------------------------------------------------------------------------
 GenericAccessPage::Type GenericAccessPage::GetPageType() const
 {
-	return type;
+	return _type;
 }
 
 //----------------------------------------------------------------------------------------
-void GenericAccessPage::SetPageType(Type atype)
+void GenericAccessPage::SetPageType(Type type)
 {
-	type = atype;
+	_type = type;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> GenericAccessPage::GetName() const
 {
-	return contentRoot.GetName();
+	return _contentRoot.GetName();
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> GenericAccessPage::GetTitle() const
 {
-	return title;
+	return _title;
 }
 
 //----------------------------------------------------------------------------------------
@@ -48,12 +48,12 @@ Marshal::Ret<std::wstring> GenericAccessPage::GetTitle() const
 //----------------------------------------------------------------------------------------
 const IGenericAccessGroup* GenericAccessPage::GetContentRoot() const
 {
-	return &contentRoot;
+	return &_contentRoot;
 }
 
 //----------------------------------------------------------------------------------------
 GenericAccessPage* GenericAccessPage::AddEntry(IGenericAccessGroupEntry* entry)
 {
-	contentRoot.AddEntry(entry);
+	_contentRoot.AddEntry(entry);
 	return this;
 }

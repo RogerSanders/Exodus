@@ -7,15 +7,15 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-MegaDriveROMLoader::MegaDriveROMLoader(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
-:Extension(aimplementationName, ainstanceName, amoduleID), selectionMadeThisSession(false), menuHandler(0)
+MegaDriveROMLoader::MegaDriveROMLoader(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
+:Extension(implementationName, instanceName, moduleID), _selectionMadeThisSession(false), _menuHandler(0)
 {}
 
 //----------------------------------------------------------------------------------------
 MegaDriveROMLoader::~MegaDriveROMLoader()
 {
 	//Delete the menu handler
-	delete menuHandler;
+	delete _menuHandler;
 }
 
 //----------------------------------------------------------------------------------------
@@ -24,8 +24,8 @@ MegaDriveROMLoader::~MegaDriveROMLoader()
 bool MegaDriveROMLoader::RegisterSystemMenuHandler()
 {
 	//Create the menu handler
-	menuHandler = new FileOpenMenuHandler(*this);
-	menuHandler->LoadMenuItems();
+	_menuHandler = new FileOpenMenuHandler(*this);
+	_menuHandler->LoadMenuItems();
 	return true;
 }
 
@@ -35,7 +35,7 @@ void MegaDriveROMLoader::AddSystemMenuItems(SystemMenu systemMenu, IMenuSegment&
 	if(systemMenu == SystemMenu::File)
 	{
 		IMenuSegment& isolatedMenuSegment = menuSegment.AddMenuItemSegment();
-		menuHandler->AddMenuItems(isolatedMenuSegment);
+		_menuHandler->AddMenuItems(isolatedMenuSegment);
 	}
 }
 
@@ -58,7 +58,7 @@ void MegaDriveROMLoader::LoadROMFile()
 	//will alter the initial path we display here on startup, it's the best option we've
 	//found so far without persisting the last used path between sessions ourselves.
 	std::wstring initialSearchFolderPath;
-	if(selectionMadeThisSession)
+	if(_selectionMadeThisSession)
 	{
 		initialSearchFolderPath = PathGetCurrentWorkingDirectory();
 	}
@@ -73,7 +73,7 @@ void MegaDriveROMLoader::LoadROMFile()
 	//Set the current working directory of the process to the directory of the selected
 	//file. We do this so that the selected directory path will be remembered when this
 	//dialog is next opened.
-	selectionMadeThisSession = true;
+	_selectionMadeThisSession = true;
 	std::wstring selectedFileDirectory = PathGetDirectory(selectedFilePath);
 	PathSetCurrentWorkingDirectory(selectedFileDirectory);
 
@@ -106,12 +106,12 @@ void MegaDriveROMLoader::LoadROMFile()
 	//can't currently load the new ROM module, assume we're currently using up all
 	//available connectors, and unload the oldest of the currently loaded ROM modules.
 	IGUIExtensionInterface& gui = GetGUIInterface();
-	if(!currentlyLoadedROMModuleFilePaths.empty() && !gui.CanModuleBeLoaded(moduleFilePath))
+	if(!_currentlyLoadedROMModuleFilePaths.empty() && !gui.CanModuleBeLoaded(moduleFilePath))
 	{
 		//Unload the oldest currently loaded ROM module
-		std::wstring oldestLoadedROMModule = *currentlyLoadedROMModuleFilePaths.begin();
+		std::wstring oldestLoadedROMModule = *_currentlyLoadedROMModuleFilePaths.begin();
 		UnloadROMFileFromModulePath(oldestLoadedROMModule);
-		currentlyLoadedROMModuleFilePaths.pop_front();
+		_currentlyLoadedROMModuleFilePaths.pop_front();
 	}
 
 	//Trigger an initialization of the system now that we're about to load a new ROM
@@ -134,22 +134,22 @@ void MegaDriveROMLoader::LoadROMFile()
 	}
 
 	//Record information on this loaded module
-	currentlyLoadedROMModuleFilePaths.push_back(moduleFilePath);
+	_currentlyLoadedROMModuleFilePaths.push_back(moduleFilePath);
 }
 
 //----------------------------------------------------------------------------------------
 void MegaDriveROMLoader::UnloadROMFile()
 {
 	//If at least one ROM module is currently loaded, unload the oldest module.
-	if(!currentlyLoadedROMModuleFilePaths.empty())
+	if(!_currentlyLoadedROMModuleFilePaths.empty())
 	{
 		//Stop the system if it is currently running
 		GetSystemInterface().StopSystem();
 
 		//Unload the oldest currently loaded ROM module
-		std::wstring oldestLoadedROMModule = *currentlyLoadedROMModuleFilePaths.begin();
+		std::wstring oldestLoadedROMModule = *_currentlyLoadedROMModuleFilePaths.begin();
 		UnloadROMFileFromModulePath(oldestLoadedROMModule);
-		currentlyLoadedROMModuleFilePaths.pop_front();
+		_currentlyLoadedROMModuleFilePaths.pop_front();
 	}
 }
 
@@ -250,7 +250,7 @@ bool MegaDriveROMLoader::BuildROMFileModuleFromFile(const std::wstring& filePath
 	//this. Bytes above the region defined within the specified ROM file will be filled
 	//with zeros.
 	//##TODO## Provide a way to specify the data to be padded out with 0xFFFF.
-	Data romRegionSizePadded(sizeof(romHeader.fileSize) * Data::bitsPerByte, romRegionSize);
+	Data romRegionSizePadded(sizeof(romHeader.fileSize) * Data::BitsPerByte, romRegionSize);
 	unsigned int highestSetBitMask;
 	romRegionSizePadded.GetHighestSetBitMask(highestSetBitMask);
 	if(romRegionSize > highestSetBitMask)
@@ -525,7 +525,7 @@ bool MegaDriveROMLoader::AutoDetectBackupRAMSupport(const MegaDriveROMHeader& ro
 	//Address: 10 = Memory on even addresses only
 	//         11 = Memory on odd addresses only
 	//         00 = Memory on even and odd addresses
-	Data bramSetting1B2(Data::bitsPerByte, romHeader.bramSetting[2]);
+	Data bramSetting1B2(Data::BitsPerByte, romHeader.bramSetting[2]);
 	bool memoryAddressRestricted = bramSetting1B2.GetBit(4);
 	bool memoryAvailableOnOddAddresses = bramSetting1B2.GetBit(3);
 	linkedToEvenAddress = !memoryAddressRestricted || !memoryAvailableOnOddAddresses;

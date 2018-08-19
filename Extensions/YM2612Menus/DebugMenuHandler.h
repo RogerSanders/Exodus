@@ -17,10 +17,10 @@ public:
 
 public:
 	//Constructors
-	DebugMenuHandler(YM2612Menus& aowner, const IDevice& amodelInstanceKey, IYM2612& amodel);
+	DebugMenuHandler(YM2612Menus& owner, const IDevice& modelInstanceKey, IYM2612& model);
 
 	//Window functions
-	void OpenOperatorView(unsigned int achannelNo, unsigned int aoperatorNo);
+	void OpenOperatorView(unsigned int channelNo, unsigned int operatorNo);
 
 protected:
 	//Management functions
@@ -29,9 +29,9 @@ protected:
 	virtual void DeleteViewForItem(int menuItemID, IViewPresenter* viewPresenter);
 
 private:
-	YM2612Menus& owner;
-	const IDevice& modelInstanceKey;
-	IYM2612& model;
+	YM2612Menus& _owner;
+	const IDevice& _modelInstanceKey;
+	IYM2612& _model;
 };
 
 #endif

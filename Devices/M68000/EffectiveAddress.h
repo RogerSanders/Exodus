@@ -40,29 +40,29 @@ public:
 	inline EffectiveAddress();
 
 	//Decode functions
-	void Decode(unsigned int areg, unsigned int amode, Bitcount asize, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister);
-	inline void BuildDataDirect(Bitcount asize, const M68000Long& location, unsigned int areg);
-	inline void BuildAddressDirect(Bitcount asize, const M68000Long& location, unsigned int areg);
-	inline void BuildAddressIndirect(Bitcount asize, const M68000Long& location, unsigned int areg);
-	inline void BuildAddressPostinc(Bitcount asize, const M68000Long& location, unsigned int areg);
-	inline void BuildAddressPredec(Bitcount asize, const M68000Long& location, unsigned int areg);
-	inline void BuildAddressIndirectDisplace(Bitcount asize, const M68000Long& location, unsigned int areg, const M68000* cpu, bool transparent, const M68000Word& instructionRegister);
-	inline void BuildAddressIndirectIndex(Bitcount asize, const M68000Long& location, unsigned int areg, const M68000* cpu, bool transparent, const M68000Word& instructionRegister);
-	inline void BuildAbsoluteAddressWord(Bitcount asize, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister);
-	inline void BuildAbsoluteAddressLong(Bitcount asize, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister);
-	inline void BuildPCIndirectDisplace(Bitcount asize, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister);
-	inline void BuildPCIndirectIndex(Bitcount asize, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister);
-	inline void BuildImmediateData(Bitcount asize, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister);
-	inline void BuildImmediateData(const M68000Long& location, const Data& adata, bool signExtended = false);
-	inline void BuildQuickData(const M68000Long& location, unsigned int adata);
+	void Decode(unsigned int reg, unsigned int mode, Bitcount size, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister);
+	inline void BuildDataDirect(Bitcount size, const M68000Long& location, unsigned int reg);
+	inline void BuildAddressDirect(Bitcount size, const M68000Long& location, unsigned int reg);
+	inline void BuildAddressIndirect(Bitcount size, const M68000Long& location, unsigned int reg);
+	inline void BuildAddressPostinc(Bitcount size, const M68000Long& location, unsigned int reg);
+	inline void BuildAddressPredec(Bitcount size, const M68000Long& location, unsigned int reg);
+	inline void BuildAddressIndirectDisplace(Bitcount size, const M68000Long& location, unsigned int reg, const M68000* cpu, bool transparent, const M68000Word& instructionRegister);
+	inline void BuildAddressIndirectIndex(Bitcount size, const M68000Long& location, unsigned int reg, const M68000* cpu, bool transparent, const M68000Word& instructionRegister);
+	inline void BuildAbsoluteAddressWord(Bitcount size, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister);
+	inline void BuildAbsoluteAddressLong(Bitcount size, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister);
+	inline void BuildPCIndirectDisplace(Bitcount size, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister);
+	inline void BuildPCIndirectIndex(Bitcount size, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister);
+	inline void BuildImmediateData(Bitcount size, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister);
+	inline void BuildImmediateData(const M68000Long& location, const Data& data, bool signExtended = false);
+	inline void BuildQuickData(const M68000Long& location, unsigned int data);
 
 	//Address functions
 	inline M68000Long ExtractProcessedImmediateData() const;
 	inline M68000Long GetSavedPC() const;
-	inline bool IncrementAddress(Bitcount asize);
-	bool GetAddress(const M68000* cpu, Data& aaddress) const;
-	bool GetAddressTransparent(Data& aaddress) const;
-	bool GetAddressDisplacementTargetNoIndex(M68000* cpu, Data& aaddress) const;
+	inline bool IncrementAddress(Bitcount size);
+	bool GetAddress(const M68000* cpu, Data& address) const;
+	bool GetAddressTransparent(Data& address) const;
+	bool GetAddressDisplacementTargetNoIndex(M68000* cpu, Data& address) const;
 
 	//Extension word info
 	inline unsigned int ExtensionSize();
@@ -84,25 +84,26 @@ public:
 	void AddLabelTargetsToSet(std::set<unsigned int>& labelTargetLocations) const;
 
 private:
-	Bitcount size;
-	Mode mode;
-	unsigned int reg;
-	M68000Word address;
-	Data data;
-	bool dataSignExtended;
-	bool useAddressRegister;
-	Bitcount indexSize;
-	unsigned int indexReg;
-	Data displacement;
-	M68000Long savedPC;
-
 	//Extension word size tables
-	static const unsigned int extensionSize8[];
-	static const unsigned int extensionSize32[];
+	static const unsigned int ExtensionSize8[];
+	static const unsigned int ExtensionSize32[];
 
 	//Decode time tables
-	static const ExecuteTime executeTime8[];
-	static const ExecuteTime executeTime32[];
+	static const ExecuteTime ExecuteTime8[];
+	static const ExecuteTime ExecuteTime32[];
+
+private:
+	Bitcount _size;
+	Mode _mode;
+	unsigned int _reg;
+	M68000Word _address;
+	Data _data;
+	bool _dataSignExtended;
+	bool _useAddressRegister;
+	Bitcount _indexSize;
+	unsigned int _indexReg;
+	Data _displacement;
+	M68000Long _savedPC;
 };
 
 } //Close namespace M68000

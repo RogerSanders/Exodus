@@ -23,7 +23,7 @@ enum class WAVFile::CreateMode
 //Constructors
 //----------------------------------------------------------------------------------------
 WAVFile::WAVFile()
-:fileBuffer(0), bufferSize(0), fileOpen(false), waveHeaderLoaded(false), savedSampleCount(0)
+:_fileBuffer(0), _bufferSize(0), _fileOpen(false), _waveHeaderLoaded(false), _savedSampleCount(0)
 {
 	SetByteOrder(ByteOrder::LittleEndian);
 }
@@ -34,15 +34,15 @@ WAVFile::WAVFile()
 bool WAVFile::GetDataFormat(unsigned int& channelCount, unsigned int& bitsPerSample, unsigned int& samplesPerSec) const
 {
 	//Ensure that the wave header has been populated
-	if(!waveHeaderLoaded)
+	if(!_waveHeaderLoaded)
 	{
 		return false;
 	}
 
 	//Read the WAVEFORMATEX header structure
-	channelCount = (unsigned int)waveHeader.nChannels;
-	samplesPerSec = (unsigned int)waveHeader.nSamplesPerSec;
-	bitsPerSample = (unsigned int)waveHeader.wBitsPerSample;
+	channelCount = (unsigned int)_waveHeader.nChannels;
+	samplesPerSec = (unsigned int)_waveHeader.nSamplesPerSec;
+	bitsPerSample = (unsigned int)_waveHeader.wBitsPerSample;
 
 	return true;
 }
@@ -51,28 +51,28 @@ bool WAVFile::GetDataFormat(unsigned int& channelCount, unsigned int& bitsPerSam
 void WAVFile::SetDataFormat(unsigned int channelCount, unsigned int bitsPerSample, unsigned int samplesPerSec)
 {
 	//Build the WAVEFORMATEX header structure
-	waveHeader.wFormatTag = WAVE_FORMAT_PCM;
-	waveHeader.nChannels = (WORD)channelCount;
-	waveHeader.nSamplesPerSec = (DWORD)samplesPerSec;
-	waveHeader.nBlockAlign = (WORD)((channelCount * bitsPerSample) / 8);
-	waveHeader.nAvgBytesPerSec = (DWORD)(samplesPerSec * waveHeader.nBlockAlign);
-	waveHeader.wBitsPerSample = (WORD)bitsPerSample;
-	waveHeader.cbSize = 0;
+	_waveHeader.wFormatTag = WAVE_FORMAT_PCM;
+	_waveHeader.nChannels = (WORD)channelCount;
+	_waveHeader.nSamplesPerSec = (DWORD)samplesPerSec;
+	_waveHeader.nBlockAlign = (WORD)((channelCount * bitsPerSample) / 8);
+	_waveHeader.nAvgBytesPerSec = (DWORD)(samplesPerSec * _waveHeader.nBlockAlign);
+	_waveHeader.wBitsPerSample = (WORD)bitsPerSample;
+	_waveHeader.cbSize = 0;
 
 	//Flag that the wave header has been populated
-	waveHeaderLoaded = true;
+	_waveHeaderLoaded = true;
 }
 
 //----------------------------------------------------------------------------------------
 WAVFile::SizeType WAVFile::GetSavedSampleCount() const
 {
-	return savedSampleCount;
+	return _savedSampleCount;
 }
 
 //----------------------------------------------------------------------------------------
 //File binding
 //----------------------------------------------------------------------------------------
-bool WAVFile::Open(const std::wstring& filename, OpenMode openMode, CreateMode createMode, SizeType abufferSize)
+bool WAVFile::Open(const std::wstring& filename, OpenMode openMode, CreateMode createMode, SizeType bufferSize)
 {
 	//If a file handle is currently open, close it.
 	if(IsOpen())
@@ -143,8 +143,8 @@ bool WAVFile::Open(const std::wstring& filename, OpenMode openMode, CreateMode c
 	mmioInfo.adwInfo[0] = (DWORD)HandleToLong(fileHandle);
 
 	//Open an MMIO file handle for the target file we've already loaded
-	mmioHandle = mmioOpen(NULL, &mmioInfo, 0);
-	if(mmioHandle == NULL)
+	_mmioHandle = mmioOpen(NULL, &mmioInfo, 0);
+	if(_mmioHandle == NULL)
 	{
 		return false;
 	}
@@ -154,109 +154,109 @@ bool WAVFile::Open(const std::wstring& filename, OpenMode openMode, CreateMode c
 	if(openExistingFile)
 	{
 		//Attempt to load the RIFF chunk as a WAVE type
-		ZeroMemory(&riffChunk, sizeof(riffChunk));
-		riffChunk.fccType = mmioFOURCC('W', 'A', 'V', 'E');
-		MMRESULT mmioDescendReturn = mmioDescend(mmioHandle, &riffChunk, NULL, MMIO_FINDRIFF);
+		ZeroMemory(&_riffChunk, sizeof(_riffChunk));
+		_riffChunk.fccType = mmioFOURCC('W', 'A', 'V', 'E');
+		MMRESULT mmioDescendReturn = mmioDescend(_mmioHandle, &_riffChunk, NULL, MMIO_FINDRIFF);
 		if(mmioDescendReturn != MMSYSERR_NOERROR)
 		{
-			mmioClose(mmioHandle, 0);
+			mmioClose(_mmioHandle, 0);
 			return false;
 		}
 
 		//Attempt to locate the format chunk
-		ZeroMemory(&fmtChunk, sizeof(fmtChunk));
-		fmtChunk.ckid = mmioFOURCC('f', 'm', 't', ' ');
-		mmioDescendReturn = mmioDescend(mmioHandle, &fmtChunk, &riffChunk, MMIO_FINDCHUNK);
+		ZeroMemory(&_fmtChunk, sizeof(_fmtChunk));
+		_fmtChunk.ckid = mmioFOURCC('f', 'm', 't', ' ');
+		mmioDescendReturn = mmioDescend(_mmioHandle, &_fmtChunk, &_riffChunk, MMIO_FINDCHUNK);
 		if(mmioDescendReturn != MMSYSERR_NOERROR)
 		{
-			mmioClose(mmioHandle, 0);
+			mmioClose(_mmioHandle, 0);
 			return false;
 		}
 
 		//Ensure the format chunk is large enough to hold our required parameters
-		unsigned int waveHeaderSize = sizeof(waveHeader.wFormatTag) + sizeof(waveHeader.nChannels) + sizeof(waveHeader.nSamplesPerSec) + sizeof(waveHeader.nBlockAlign) + sizeof(waveHeader.nAvgBytesPerSec) + sizeof(waveHeader.wBitsPerSample);
-		if(fmtChunk.cksize < (DWORD)waveHeaderSize)
+		unsigned int waveHeaderSize = sizeof(_waveHeader.wFormatTag) + sizeof(_waveHeader.nChannels) + sizeof(_waveHeader.nSamplesPerSec) + sizeof(_waveHeader.nBlockAlign) + sizeof(_waveHeader.nAvgBytesPerSec) + sizeof(_waveHeader.wBitsPerSample);
+		if(_fmtChunk.cksize < (DWORD)waveHeaderSize)
 		{
-			mmioClose(mmioHandle, 0);
+			mmioClose(_mmioHandle, 0);
 			return false;
 		}
 
 		//Read the parameters from the format chunk
 		LONG mmioReadReturn;
 		bool mmioReadSucceeded = true;
-		mmioReadReturn = mmioRead(mmioHandle, (char*)&waveHeader.wFormatTag, sizeof(waveHeader.wFormatTag));
+		mmioReadReturn = mmioRead(_mmioHandle, (char*)&_waveHeader.wFormatTag, sizeof(_waveHeader.wFormatTag));
 		mmioReadSucceeded &= (mmioReadReturn != -1);
-		mmioReadReturn = mmioRead(mmioHandle, (char*)&waveHeader.nChannels, sizeof(waveHeader.nChannels));
+		mmioReadReturn = mmioRead(_mmioHandle, (char*)&_waveHeader.nChannels, sizeof(_waveHeader.nChannels));
 		mmioReadSucceeded &= (mmioReadReturn != -1);
-		mmioReadReturn = mmioRead(mmioHandle, (char*)&waveHeader.nSamplesPerSec, sizeof(waveHeader.nSamplesPerSec));
+		mmioReadReturn = mmioRead(_mmioHandle, (char*)&_waveHeader.nSamplesPerSec, sizeof(_waveHeader.nSamplesPerSec));
 		mmioReadSucceeded &= (mmioReadReturn != -1);
-		mmioReadReturn = mmioRead(mmioHandle, (char*)&waveHeader.nAvgBytesPerSec, sizeof(waveHeader.nAvgBytesPerSec));
+		mmioReadReturn = mmioRead(_mmioHandle, (char*)&_waveHeader.nAvgBytesPerSec, sizeof(_waveHeader.nAvgBytesPerSec));
 		mmioReadSucceeded &= (mmioReadReturn != -1);
-		mmioReadReturn = mmioRead(mmioHandle, (char*)&waveHeader.nBlockAlign, sizeof(waveHeader.nBlockAlign));
+		mmioReadReturn = mmioRead(_mmioHandle, (char*)&_waveHeader.nBlockAlign, sizeof(_waveHeader.nBlockAlign));
 		mmioReadSucceeded &= (mmioReadReturn != -1);
-		mmioReadReturn = mmioRead(mmioHandle, (char*)&waveHeader.wBitsPerSample, sizeof(waveHeader.wBitsPerSample));
+		mmioReadReturn = mmioRead(_mmioHandle, (char*)&_waveHeader.wBitsPerSample, sizeof(_waveHeader.wBitsPerSample));
 		mmioReadSucceeded &= (mmioReadReturn != -1);
-		waveHeader.cbSize = 0;
+		_waveHeader.cbSize = 0;
 		if(!mmioReadSucceeded)
 		{
-			mmioClose(mmioHandle, 0);
+			mmioClose(_mmioHandle, 0);
 			return false;
 		}
 
 		//Since we've now read the contents of the wave header, flag that the wave header
 		//has been loaded.
-		waveHeaderLoaded = true;
+		_waveHeaderLoaded = true;
 
 		//Ascend out of the format chunk
 		MMRESULT mmioAscendReturn;
-		mmioAscendReturn = mmioAscend(mmioHandle, &fmtChunk, 0);
+		mmioAscendReturn = mmioAscend(_mmioHandle, &_fmtChunk, 0);
 		if(mmioAscendReturn != MMSYSERR_NOERROR)
 		{
-			mmioClose(mmioHandle, 0);
+			mmioClose(_mmioHandle, 0);
 			return false;
 		}
 
 		//Attempt to locate the data chunk
-		ZeroMemory(&dataChunk, sizeof(dataChunk));
-		dataChunk.ckid = mmioFOURCC('d', 'a', 't', 'a');
-		mmioDescendReturn = mmioDescend(mmioHandle, &dataChunk, &riffChunk, MMIO_FINDCHUNK);
+		ZeroMemory(&_dataChunk, sizeof(_dataChunk));
+		_dataChunk.ckid = mmioFOURCC('d', 'a', 't', 'a');
+		mmioDescendReturn = mmioDescend(_mmioHandle, &_dataChunk, &_riffChunk, MMIO_FINDCHUNK);
 		if(mmioDescendReturn != MMSYSERR_NOERROR)
 		{
-			mmioClose(mmioHandle, 0);
+			mmioClose(_mmioHandle, 0);
 			return false;
 		}
 
 		//Calculate the number of whole samples which are recorded as present in the data
 		//segment
-		savedSampleCount = (dataChunk.cksize / waveHeader.nBlockAlign);
+		_savedSampleCount = (_dataChunk.cksize / _waveHeader.nBlockAlign);
 	}
 	else
 	{
 		//Ensure that the wave header has been loaded
-		if(!waveHeaderLoaded)
+		if(!_waveHeaderLoaded)
 		{
-			mmioClose(mmioHandle, 0);
+			mmioClose(_mmioHandle, 0);
 			return false;
 		}
 
 		//Write the WAVE chunk header
-		ZeroMemory(&riffChunk, sizeof(riffChunk));
-		riffChunk.fccType = mmioFOURCC('W', 'A', 'V', 'E');
+		ZeroMemory(&_riffChunk, sizeof(_riffChunk));
+		_riffChunk.fccType = mmioFOURCC('W', 'A', 'V', 'E');
 		MMRESULT mmioCreateChunkReturn;
-		mmioCreateChunkReturn = mmioCreateChunk(mmioHandle, &riffChunk, MMIO_CREATERIFF);
+		mmioCreateChunkReturn = mmioCreateChunk(_mmioHandle, &_riffChunk, MMIO_CREATERIFF);
 		if(mmioCreateChunkReturn != MMSYSERR_NOERROR)
 		{
-			mmioClose(mmioHandle, 0);
+			mmioClose(_mmioHandle, 0);
 			return false;
 		}
 
 		//Write the format chunk header
-		ZeroMemory(&fmtChunk, sizeof(fmtChunk));
-		fmtChunk.ckid = mmioFOURCC('f', 'm', 't', ' ');
-		mmioCreateChunkReturn = mmioCreateChunk(mmioHandle, &fmtChunk, 0);
+		ZeroMemory(&_fmtChunk, sizeof(_fmtChunk));
+		_fmtChunk.ckid = mmioFOURCC('f', 'm', 't', ' ');
+		mmioCreateChunkReturn = mmioCreateChunk(_mmioHandle, &_fmtChunk, 0);
 		if(mmioCreateChunkReturn != MMSYSERR_NOERROR)
 		{
-			mmioClose(mmioHandle, 0);
+			mmioClose(_mmioHandle, 0);
 			return false;
 		}
 
@@ -270,85 +270,85 @@ bool WAVFile::Open(const std::wstring& filename, OpenMode openMode, CreateMode c
 		//padding issues.
 		LONG mmioWriteReturn;
 		bool mmioWriteSucceeded = true;
-		mmioWriteReturn = mmioWrite(mmioHandle, (const char*)&waveHeader.wFormatTag, sizeof(waveHeader.wFormatTag));
+		mmioWriteReturn = mmioWrite(_mmioHandle, (const char*)&_waveHeader.wFormatTag, sizeof(_waveHeader.wFormatTag));
 		mmioWriteSucceeded &= (mmioWriteReturn != -1);
-		mmioWriteReturn = mmioWrite(mmioHandle, (const char*)&waveHeader.nChannels, sizeof(waveHeader.nChannels));
+		mmioWriteReturn = mmioWrite(_mmioHandle, (const char*)&_waveHeader.nChannels, sizeof(_waveHeader.nChannels));
 		mmioWriteSucceeded &= (mmioWriteReturn != -1);
-		mmioWriteReturn = mmioWrite(mmioHandle, (const char*)&waveHeader.nSamplesPerSec, sizeof(waveHeader.nSamplesPerSec));
+		mmioWriteReturn = mmioWrite(_mmioHandle, (const char*)&_waveHeader.nSamplesPerSec, sizeof(_waveHeader.nSamplesPerSec));
 		mmioWriteSucceeded &= (mmioWriteReturn != -1);
-		mmioWriteReturn = mmioWrite(mmioHandle, (const char*)&waveHeader.nAvgBytesPerSec, sizeof(waveHeader.nAvgBytesPerSec));
+		mmioWriteReturn = mmioWrite(_mmioHandle, (const char*)&_waveHeader.nAvgBytesPerSec, sizeof(_waveHeader.nAvgBytesPerSec));
 		mmioWriteSucceeded &= (mmioWriteReturn != -1);
-		mmioWriteReturn = mmioWrite(mmioHandle, (const char*)&waveHeader.nBlockAlign, sizeof(waveHeader.nBlockAlign));
+		mmioWriteReturn = mmioWrite(_mmioHandle, (const char*)&_waveHeader.nBlockAlign, sizeof(_waveHeader.nBlockAlign));
 		mmioWriteSucceeded &= (mmioWriteReturn != -1);
-		mmioWriteReturn = mmioWrite(mmioHandle, (const char*)&waveHeader.wBitsPerSample, sizeof(waveHeader.wBitsPerSample));
+		mmioWriteReturn = mmioWrite(_mmioHandle, (const char*)&_waveHeader.wBitsPerSample, sizeof(_waveHeader.wBitsPerSample));
 		mmioWriteSucceeded &= (mmioWriteReturn != -1);
 		if(!mmioWriteSucceeded)
 		{
-			mmioClose(mmioHandle, 0);
+			mmioClose(_mmioHandle, 0);
 			return false;
 		}
 
 		//Ascend out of the format chunk
 		MMRESULT mmioAscendReturn;
-		mmioAscendReturn = mmioAscend(mmioHandle, &fmtChunk, 0);
+		mmioAscendReturn = mmioAscend(_mmioHandle, &_fmtChunk, 0);
 		if(mmioAscendReturn != MMSYSERR_NOERROR)
 		{
-			mmioClose(mmioHandle, 0);
+			mmioClose(_mmioHandle, 0);
 			return false;
 		}
 
 		//Write the data chunk header
-		ZeroMemory(&dataChunk, sizeof(dataChunk));
-		dataChunk.ckid = mmioFOURCC('d', 'a', 't', 'a');
-		mmioCreateChunkReturn = mmioCreateChunk(mmioHandle, &dataChunk, 0);
+		ZeroMemory(&_dataChunk, sizeof(_dataChunk));
+		_dataChunk.ckid = mmioFOURCC('d', 'a', 't', 'a');
+		mmioCreateChunkReturn = mmioCreateChunk(_mmioHandle, &_dataChunk, 0);
 		if(mmioCreateChunkReturn != MMSYSERR_NOERROR)
 		{
-			mmioClose(mmioHandle, 0);
+			mmioClose(_mmioHandle, 0);
 			return false;
 		}
 	}
 
 	//Initialize the buffer for the file
-	if(bufferSize != abufferSize)
+	if(_bufferSize != bufferSize)
 	{
-		bufferSize = abufferSize;
-		delete[] fileBuffer;
-		fileBuffer = new unsigned char[(size_t)bufferSize];
+		_bufferSize = bufferSize;
+		delete[] _fileBuffer;
+		_fileBuffer = new unsigned char[(size_t)_bufferSize];
 	}
-	bufferPosOffset = 0;
-	bytesRemainingInBuffer = bufferSize;
+	_bufferPosOffset = 0;
+	__bytesRemainingInBuffer = _bufferSize;
 
 	//Flag that a file is open, and return true.
-	fileOpen = true;
+	_fileOpen = true;
 	return true;
 }
 
 //----------------------------------------------------------------------------------------
 void WAVFile::Close()
 {
-	if(fileOpen)
+	if(_fileOpen)
 	{
 		//Write any buffered contents to the file
 		EmptyDataBuffer();
 
 		//Flag that a file is no longer open
-		fileOpen = false;
+		_fileOpen = false;
 
 		//Ascend out of the data chunk
-		mmioAscend(mmioHandle, &dataChunk, 0);
+		mmioAscend(_mmioHandle, &_dataChunk, 0);
 
 		//Ascend out of the WAVE chunk
-		mmioAscend(mmioHandle, &riffChunk, 0);
+		mmioAscend(_mmioHandle, &_riffChunk, 0);
 
 		//Close the MMIO file handle
-		mmioClose(mmioHandle, 0);
+		mmioClose(_mmioHandle, 0);
 	}
 }
 
 //----------------------------------------------------------------------------------------
 bool WAVFile::IsOpen() const
 {
-	return fileOpen;
+	return _fileOpen;
 }
 
 //----------------------------------------------------------------------------------------
@@ -356,7 +356,7 @@ bool WAVFile::IsOpen() const
 //----------------------------------------------------------------------------------------
 bool WAVFile::ReadBinary(void* rawData, SizeType bytesToRead)
 {
-	if(!fileOpen)
+	if(!_fileOpen)
 	{
 		return false;
 	}
@@ -366,7 +366,7 @@ bool WAVFile::ReadBinary(void* rawData, SizeType bytesToRead)
 	result &= EmptyDataBuffer();
 
 	//Perform the read
-	LONG mmioReadReturn = mmioRead(mmioHandle, (char*)rawData, (LONG)bytesToRead);
+	LONG mmioReadReturn = mmioRead(_mmioHandle, (char*)rawData, (LONG)bytesToRead);
 
 	//Flag that the read operation was successful if no error was returned, and we read
 	//the same number of bytes that were requested.
@@ -380,14 +380,14 @@ bool WAVFile::ReadBinary(void* rawData, SizeType bytesToRead)
 bool WAVFile::WriteBinary(const void* rawData, SizeType bytesToWrite)
 {
 	//Ensure that a file is currently open
-	if(!fileOpen)
+	if(!_fileOpen)
 	{
 		return false;
 	}
 
 	//Perform the write operation to the file
 	bool result = true;
-	if(bytesToWrite > bufferSize)
+	if(bytesToWrite > _bufferSize)
 	{
 		//If the size of the operation exceeds the maximum data buffer size for the file,
 		//empty any current contents from the buffer, and perform the operation
@@ -403,10 +403,10 @@ bool WAVFile::WriteBinary(const void* rawData, SizeType bytesToWrite)
 
 		//Write data to the buffer
 		SizeType bytesToWriteToBuffer = 0;
-		bytesToWriteToBuffer = (bytesToWrite <= bytesRemainingInBuffer)? bytesToWrite: bytesRemainingInBuffer;
-		memcpy((void*)(fileBuffer + bufferPosOffset), (void*)rawDataAsCharArray, (size_t)bytesToWriteToBuffer);
-		bufferPosOffset += bytesToWriteToBuffer;
-		bytesRemainingInBuffer -= bytesToWriteToBuffer;
+		bytesToWriteToBuffer = (bytesToWrite <= __bytesRemainingInBuffer)? bytesToWrite: __bytesRemainingInBuffer;
+		memcpy((void*)(_fileBuffer + _bufferPosOffset), (void*)rawDataAsCharArray, (size_t)bytesToWriteToBuffer);
+		_bufferPosOffset += bytesToWriteToBuffer;
+		__bytesRemainingInBuffer -= bytesToWriteToBuffer;
 
 		//Reload the data buffer if necessary, and write any remaining data to be written
 		//to the buffer.
@@ -417,9 +417,9 @@ bool WAVFile::WriteBinary(const void* rawData, SizeType bytesToWrite)
 			result &= EmptyDataBuffer();
 
 			//Write the data to the buffer
-			memcpy((void*)(fileBuffer + bufferPosOffset), (void*)(rawDataAsCharArray + bytesToWriteToBuffer), (size_t)bytesRemainingToWrite);
-			bufferPosOffset += bytesRemainingToWrite;
-			bytesRemainingInBuffer -= bytesRemainingToWrite;
+			memcpy((void*)(_fileBuffer + _bufferPosOffset), (void*)(rawDataAsCharArray + bytesToWriteToBuffer), (size_t)bytesRemainingToWrite);
+			_bufferPosOffset += bytesRemainingToWrite;
+			__bytesRemainingInBuffer -= bytesRemainingToWrite;
 		}
 	}
 
@@ -429,13 +429,13 @@ bool WAVFile::WriteBinary(const void* rawData, SizeType bytesToWrite)
 //----------------------------------------------------------------------------------------
 bool WAVFile::WriteBinaryUnbuffered(const void* rawData, SizeType bytesToWrite)
 {
-	if(!fileOpen)
+	if(!_fileOpen)
 	{
 		return false;
 	}
 
 	//Perform the write
-	LONG mmioWriteReturn = mmioWrite(mmioHandle, (const char*)rawData, (LONG)bytesToWrite);
+	LONG mmioWriteReturn = mmioWrite(_mmioHandle, (const char*)rawData, (LONG)bytesToWrite);
 
 	//Return true if the write was successful, and we wrote the same number of bytes that
 	//were supplied.
@@ -450,14 +450,14 @@ bool WAVFile::EmptyDataBuffer()
 	bool result = true;
 
 	//If the buffer contains written data, write the buffer contents to the file.
-	if(bufferPosOffset > 0)
+	if(_bufferPosOffset > 0)
 	{
-		result &= WriteBinaryUnbuffered((void*)fileBuffer, bufferPosOffset);
+		result &= WriteBinaryUnbuffered((void*)_fileBuffer, _bufferPosOffset);
 	}
 
 	//Reset the buffer position back to the start
-	bufferPosOffset = 0;
-	bytesRemainingInBuffer = bufferSize;
+	_bufferPosOffset = 0;
+	__bytesRemainingInBuffer = _bufferSize;
 
 	return result;
 }

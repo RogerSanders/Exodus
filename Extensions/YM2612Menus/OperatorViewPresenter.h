@@ -8,24 +8,24 @@ class OperatorViewPresenter :public ViewPresenterBase
 {
 public:
 	//Constructors
-	OperatorViewPresenter(const std::wstring& aviewGroupName, const std::wstring& aviewName, int aviewID, YM2612Menus& aowner, const IDevice& amodelInstanceKey, IYM2612& amodel, unsigned int achannelNo = 0, unsigned int aoperatorNo = 0);
+	OperatorViewPresenter(const std::wstring& viewGroupName, const std::wstring& viewName, int viewID, YM2612Menus& owner, const IDevice& modelInstanceKey, IYM2612& model, unsigned int channelNo = 0, unsigned int operatorNo = 0);
 
 	//View title functions
 	static std::wstring GetUnqualifiedViewTitle();
 
 	//View creation and deletion
 	virtual IView* CreateView(IUIManager& uiManager);
-	virtual void DeleteView(IView* aview);
+	virtual void DeleteView(IView* view);
 
 	//Operator functions
-	void SetTargetOperator(unsigned int achannelNo, unsigned int aoperatorNo);
+	void SetTargetOperator(unsigned int channelNo, unsigned int operatorNo);
 
 private:
-	YM2612Menus& owner;
-	const IDevice& modelInstanceKey;
-	IYM2612& model;
-	unsigned int channelNo;
-	unsigned int operatorNo;
+	YM2612Menus& _owner;
+	const IDevice& _modelInstanceKey;
+	IYM2612& _model;
+	unsigned int _channelNo;
+	unsigned int _operatorNo;
 };
 
 #endif

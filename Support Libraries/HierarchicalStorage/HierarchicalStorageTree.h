@@ -45,11 +45,11 @@ private:
 	std::wstring GetNumericCharacterReference(wchar_t character) const;
 
 private:
-	StorageMode storageMode;
-	HierarchicalStorageNode* root;
-	IHierarchicalStorageNode* currentNodeDuringLoad;
-	mutable std::wstring errorString;
-	bool allowSeparateBinaryData;
+	StorageMode _storageMode;
+	HierarchicalStorageNode* _root;
+	IHierarchicalStorageNode* _currentNodeDuringLoad;
+	mutable std::wstring _errorString;
+	bool _allowSeparateBinaryData;
 };
 
 #endif

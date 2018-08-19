@@ -6,7 +6,7 @@ namespace M68000 {
 class MOVEA :public M68000Instruction
 {
 public:
-	ExecuteTime GetExecuteTime(EffectiveAddress::Mode sourceMode, EffectiveAddress::Mode targetMode, Bitcount size)
+	ExecuteTime GetExecuteTime(EffectiveAddress::Mode _sourceMode, EffectiveAddress::Mode _targetMode, Bitcount operationSize)
 	{
 		static const ExecuteTime executeTimeArray[12][9] = {
 			           //Dn                     An                     (An)                   (An)+                  -(An)                  d(An)                  d(An,ix)               xxx.W                  xxx.L
@@ -37,84 +37,84 @@ public:
 			/*d(PC,ix)*/{ExecuteTime(18, 4, 0), ExecuteTime(18, 4, 0), ExecuteTime(26, 4, 2), ExecuteTime(26, 4, 2), ExecuteTime(26, 4, 2), ExecuteTime(30, 5, 2), ExecuteTime(32, 5, 2), ExecuteTime(30, 5, 2), ExecuteTime(34, 6, 2)},
 			/*#xxx*/    {ExecuteTime(12, 3, 0), ExecuteTime(12, 3, 0), ExecuteTime(20, 3, 2), ExecuteTime(20, 3, 2), ExecuteTime(20, 3, 2), ExecuteTime(24, 4, 2), ExecuteTime(26, 4, 2), ExecuteTime(24, 4, 2), ExecuteTime(28, 5, 2)}};
 
-		unsigned int sourceIndex = 0;
-		unsigned int targetIndex = 0;
-		switch(sourceMode)
+		unsigned int _sourceIndex = 0;
+		unsigned int _targetIndex = 0;
+		switch(_sourceMode)
 		{
 		case EffectiveAddress::Mode::DataRegDirect:
-			sourceIndex = 0;
+			_sourceIndex = 0;
 			break;
 		case EffectiveAddress::Mode::AddRegDirect:
-			sourceIndex = 1;
+			_sourceIndex = 1;
 			break;
 		case EffectiveAddress::Mode::AddRegIndirect:
-			sourceIndex = 2;
+			_sourceIndex = 2;
 			break;
 		case EffectiveAddress::Mode::AddRegIndirectPostInc:
-			sourceIndex = 3;
+			_sourceIndex = 3;
 			break;
 		case EffectiveAddress::Mode::AddRegIndirectPreDec:
-			sourceIndex = 4;
+			_sourceIndex = 4;
 			break;
 		case EffectiveAddress::Mode::AddRegIndirectDisplace:
-			sourceIndex = 5;
+			_sourceIndex = 5;
 			break;
 		case EffectiveAddress::Mode::AddRegIndirectIndex8Bit:
-			sourceIndex = 6;
+			_sourceIndex = 6;
 			break;
 		case EffectiveAddress::Mode::ABSWord:
-			sourceIndex = 7;
+			_sourceIndex = 7;
 			break;
 		case EffectiveAddress::Mode::ABSLong:
-			sourceIndex = 8;
+			_sourceIndex = 8;
 			break;
 		case EffectiveAddress::Mode::PCIndirectDisplace:
-			sourceIndex = 9;
+			_sourceIndex = 9;
 			break;
 		case EffectiveAddress::Mode::PCIndirectIndex8Bit:
-			sourceIndex = 10;
+			_sourceIndex = 10;
 			break;
 		case EffectiveAddress::Mode::Immediate:
-			sourceIndex = 11;
+			_sourceIndex = 11;
 			break;
 		}
-		switch(targetMode)
+		switch(_targetMode)
 		{
 		case EffectiveAddress::Mode::DataRegDirect:
-			targetIndex = 0;
+			_targetIndex = 0;
 			break;
 		case EffectiveAddress::Mode::AddRegDirect:
-			targetIndex = 1;
+			_targetIndex = 1;
 			break;
 		case EffectiveAddress::Mode::AddRegIndirect:
-			targetIndex = 2;
+			_targetIndex = 2;
 			break;
 		case EffectiveAddress::Mode::AddRegIndirectPostInc:
-			targetIndex = 3;
+			_targetIndex = 3;
 			break;
 		case EffectiveAddress::Mode::AddRegIndirectPreDec:
-			targetIndex = 4;
+			_targetIndex = 4;
 			break;
 		case EffectiveAddress::Mode::AddRegIndirectDisplace:
-			targetIndex = 5;
+			_targetIndex = 5;
 			break;
 		case EffectiveAddress::Mode::AddRegIndirectIndex8Bit:
-			targetIndex = 6;
+			_targetIndex = 6;
 			break;
 		case EffectiveAddress::Mode::ABSWord:
-			targetIndex = 7;
+			_targetIndex = 7;
 			break;
 		case EffectiveAddress::Mode::ABSLong:
-			targetIndex = 8;
+			_targetIndex = 8;
 			break;
 		}
-		if(size != BITCOUNT_LONG)
+		if(operationSize != BITCOUNT_LONG)
 		{
-			return executeTimeArray[sourceIndex][targetIndex];
+			return executeTimeArray[_sourceIndex][_targetIndex];
 		}
 		else
 		{
-			return executeTimeArrayLong[sourceIndex][targetIndex];
+			return executeTimeArrayLong[_sourceIndex][_targetIndex];
 		}
 	}
 
@@ -134,7 +134,7 @@ public:
 
 	virtual Disassembly M68000Disassemble(const M68000::LabelSubstitutionSettings& labelSettings) const
 	{
-		return Disassembly(GetOpcodeName() + L"." + DisassembleSize(size), source.Disassemble(labelSettings) + L", " + target.Disassemble(labelSettings));
+		return Disassembly(GetOpcodeName() + L"." + DisassembleSize(_size), _source.Disassemble(labelSettings) + L", " + _target.Disassemble(labelSettings));
 	}
 
 	virtual void M68000Decode(const M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)
@@ -145,36 +145,36 @@ public:
 //	| 0 | 0 |  SIZE |  ADDRESS  | 0 | 0 | 1 |    MODE   | REGISTER  |
 //	|   |   |       |  REGISTER |   |   |   |           |           |
 //	----------------------------------------=========================
-//	                                        |------source <ea>------|
+//	                                        |------_source <ea>------|
 		switch(data.GetDataSegment(12, 2))
 		{
 		case 3:	//11
-			size = BITCOUNT_WORD;
+			_size = BITCOUNT_WORD;
 			break;
 		case 2:	//10
-			size = BITCOUNT_LONG;
+			_size = BITCOUNT_LONG;
 			break;
 		}
 
-		source.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), size, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
-		AddInstructionSize(source.ExtensionSize());
-		target.BuildAddressDirect(size, location + GetInstructionSize(), data.GetDataSegment(9, 3));
-		AddExecuteCycleCount(GetExecuteTime(source.GetAddressMode(), target.GetAddressMode(), size));
+		_source.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), _size, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
+		AddInstructionSize(_source.ExtensionSize());
+		_target.BuildAddressDirect(_size, location + GetInstructionSize(), data.GetDataSegment(9, 3));
+		AddExecuteCycleCount(GetExecuteTime(_source.GetAddressMode(), _target.GetAddressMode(), _size));
 	}
 
 	virtual ExecuteTime M68000Execute(M68000* cpu, const M68000Long& location) const
 	{
 		double additionalTime = 0;
-		Data result(size);
+		Data result(_size);
 
-		//Read information about the source for use in active disassembly
-		unsigned int sourceReadFromAddress;
-		bool sourceIsUnmodifiedFromAddress = source.IsTargetUnmodifiedFromMemoryRead(cpu, size, sourceReadFromAddress);
-		unsigned int sourceReadFromAddressSize = source.GetTargetOriginalMemoryReadSize(cpu, size);
+		//Read information about the _source for use in active disassembly
+		unsigned int _sourceReadFromAddress;
+		bool _sourceIsUnmodifiedFromAddress = _source.IsTargetUnmodifiedFromMemoryRead(cpu, _size, _sourceReadFromAddress);
+		unsigned int _sourceReadFromAddressSize = _source.GetTargetOriginalMemoryReadSize(cpu, _size);
 
 		//Perform the operation
-		additionalTime += source.Read(cpu, result, GetInstructionRegister());
-		additionalTime += target.Write(cpu, result.SignExtend(BITCOUNT_LONG), GetInstructionRegister(), false, false, sourceIsUnmodifiedFromAddress, sourceReadFromAddress, sourceReadFromAddressSize);
+		additionalTime += _source.Read(cpu, result, GetInstructionRegister());
+		additionalTime += _target.Write(cpu, result.SignExtend(BITCOUNT_LONG), GetInstructionRegister(), false, false, _sourceIsUnmodifiedFromAddress, _sourceReadFromAddress, _sourceReadFromAddressSize);
 
 		//Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
@@ -183,14 +183,14 @@ public:
 
 	virtual void GetLabelTargetLocations(std::set<unsigned int>& labelTargetLocations) const
 	{
-		source.AddLabelTargetsToSet(labelTargetLocations);
-		target.AddLabelTargetsToSet(labelTargetLocations);
+		_source.AddLabelTargetsToSet(labelTargetLocations);
+		_target.AddLabelTargetsToSet(labelTargetLocations);
 	}
 
 private:
-	EffectiveAddress source;
-	EffectiveAddress target;
-	Bitcount size;
+	EffectiveAddress _source;
+	EffectiveAddress _target;
+	Bitcount _size;
 };
 
 } //Close namespace M68000

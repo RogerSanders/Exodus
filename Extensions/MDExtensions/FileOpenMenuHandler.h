@@ -15,17 +15,17 @@ public:
 
 public:
 	//Constructors
-	FileOpenMenuHandler(MegaDriveROMLoader& aextension);
+	FileOpenMenuHandler(MegaDriveROMLoader& extension);
 
 protected:
 	//Management functions
 	virtual void GetMenuItems(std::list<MenuItemDefinition>& menuItems) const;
 	virtual IViewPresenter* CreateViewForItem(int menuItemID, const std::wstring& viewName);
 	virtual void DeleteViewForItem(int menuItemID, IViewPresenter* viewPresenter);
-	virtual void HandleMenuItemSelectNonView(int menuItemID, IViewManager& aviewManager);
+	virtual void HandleMenuItemSelectNonView(int menuItemID, IViewManager& viewManager);
 
 private:
-	MegaDriveROMLoader& extension;
+	MegaDriveROMLoader& _extension;
 };
 
 #endif

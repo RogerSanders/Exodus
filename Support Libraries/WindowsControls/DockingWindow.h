@@ -24,9 +24,6 @@
 class DockingWindow :public IDockingWindow
 {
 public:
-	//Constants
-	static const wchar_t* windowClassName;
-
 	//Enumerations
 	enum class WindowMessages :unsigned int;
 	enum class ContentWindowInfo :unsigned int;
@@ -39,24 +36,22 @@ public:
 	struct GetContentWindowInfo;
 	struct GetDockedWindowInfo;
 
+	//Constants
+	static const wchar_t* WindowClassName;
+
 public:
 	//Constructors
-	DockingWindow(HINSTANCE amoduleHandle, HWND ahwnd);
+	DockingWindow(HINSTANCE moduleHandle, HWND hwnd);
 	virtual ~DockingWindow();
 
 	//Class registration
-	static bool RegisterWindowClass(HINSTANCE amoduleHandle);
-	static bool UnregisterWindowClass(HINSTANCE amoduleHandle);
+	static bool RegisterWindowClass(HINSTANCE moduleHandle);
+	static bool UnregisterWindowClass(HINSTANCE moduleHandle);
 
 	//Message handlers
 	static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 private:
-	//Constants
-	static const wchar_t* tabTrayWindowClassName;
-	static const wchar_t* placementTargetWindowClassName;
-	static const wchar_t* placementShadowWindowClassName;
-
 	//Structures
 	struct ChildContainerEntry;
 	struct ContentEntry;
@@ -65,6 +60,11 @@ private:
 	struct AutoHideDockInfo;
 	struct TabRenderInfo;
 	struct DockingWindowDropTargetInfo;
+
+	//Constants
+	static const wchar_t* TabTrayWindowClassName;
+	static const wchar_t* PlacementTargetWindowClassName;
+	static const wchar_t* PlacementShadowWindowClassName;
 
 private:
 	//Message handlers
@@ -178,70 +178,70 @@ private:
 
 private:
 	//Window handles
-	HINSTANCE moduleHandle;
-	HWND hwnd;
-	HWND tabDockPanel;
-	HWND dockPanel;
+	HINSTANCE _moduleHandle;
+	HWND _hwnd;
+	HWND _tabDockPanel;
+	HWND _dockPanel;
 
 	//Size info
-	int currentControlWidth;
-	int currentControlHeight;
+	int _currentControlWidth;
+	int _currentControlHeight;
 
 	//Font info
-	HFONT controlFont;
-	HFONT controlFontVertical;
-	int controlFontHeight;
-	int controlFontDescent;
+	HFONT _controlFont;
+	HFONT _controlFontVertical;
+	int _controlFontHeight;
+	int _controlFontDescent;
 
 	//Parent docking window info
-	IDockingWindow* parentDockingWindow;
+	IDockingWindow* _parentDockingWindow;
 
 	//Child content info
-	std::list<ChildContainerEntry> childContainers;
-	std::vector<ContentEntry> hostedContent;
-	std::map<int, size_t> tabIndexToHostedContentNo;
-	HWND contentTabControl;
-	int currentSelectedTabIndex;
-	int dockingPanelTabMarginSize;
-	int dockingPanelTabGroupSeparatorSize;
+	std::list<ChildContainerEntry> _childContainers;
+	std::vector<ContentEntry> _hostedContent;
+	std::map<int, size_t> _tabIndexToHostedContentNo;
+	HWND _contentTabControl;
+	int _currentSelectedTabIndex;
+	int _dockingPanelTabMarginSize;
+	int _dockingPanelTabGroupSeparatorSize;
 
 	//Autohide child containers
-	std::map<WindowEdge, AutoHideDockInfo> autoHideDocks;
-	std::map<WindowEdge, HCURSOR> enableAutoHideCursor;
-	std::map<WindowEdge, HCURSOR> disableAutoHideCursor;
-	bool autoHidePanelVisible;
-	IDockingWindow* currentAutoHidePanel;
-	HWND currentAutoHidePanelContent;
-	int tabExtendedHitRegionX;
-	int tabExtendedHitRegionY;
-	int tabExtendedHitRegionWidth;
-	int tabExtendedHitRegionHeight;
+	std::map<WindowEdge, AutoHideDockInfo> _autoHideDocks;
+	std::map<WindowEdge, HCURSOR> _enableAutoHideCursor;
+	std::map<WindowEdge, HCURSOR> _disableAutoHideCursor;
+	bool _autoHidePanelVisible;
+	IDockingWindow* _currentAutoHidePanel;
+	HWND _currentAutoHidePanelContent;
+	int _tabExtendedHitRegionX;
+	int _tabExtendedHitRegionY;
+	int _tabExtendedHitRegionWidth;
+	int _tabExtendedHitRegionHeight;
 
 	//Drag-info
-	bool windowDragInProgress;
-	IDockingWindow* dockingWindowUnderDragPos;
-	RECT windowSizeMoveInitialPos;
-	int lastDragCursorPosX;
-	int lastDragCursorPosY;
-	bool leftMouseButtonDown;
-	bool ignoreNextSizeAndMove;
-	bool tabDragActive;
-	bool tabDragIgnoreTabIndex;
-	int tabDragIndexToIgnore;
-	int dragTabIndex;
-	int tabWithDeadZoneForDrag;
-	int tabDeadZoneStartX;
-	int tabDeadZoneEndX;
+	bool _windowDragInProgress;
+	IDockingWindow* _dockingWindowUnderDragPos;
+	RECT _windowSizeMoveInitialPos;
+	int _lastDragCursorPosX;
+	int _lastDragCursorPosY;
+	bool _leftMouseButtonDown;
+	bool _ignoreNextSizeAndMove;
+	bool _tabDragActive;
+	bool _tabDragIgnoreTabIndex;
+	int _tabDragIndexToIgnore;
+	int _dragTabIndex;
+	int _tabWithDeadZoneForDrag;
+	int _tabDeadZoneStartX;
+	int _tabDeadZoneEndX;
 
 	//Placement target info
-	std::map<WindowEdge, HWND> placementTargets;
-	std::map<WindowEdge, HWND> placementTargetsForceTop;
-	IDockingWindow* placementTargetsChildDockingWindow;
-	bool placementTargetsVisible;
-	bool placementTargetCenterEnabled;
-	HWND placementTargetCenter;
-	bool placementShadowVisible;
-	HWND placementShadow;
+	std::map<WindowEdge, HWND> _placementTargets;
+	std::map<WindowEdge, HWND> _placementTargetsForceTop;
+	IDockingWindow* _placementTargetsChildDockingWindow;
+	bool _placementTargetsVisible;
+	bool _placementTargetCenterEnabled;
+	HWND _placementTargetCenter;
+	bool _placementShadowVisible;
+	HWND _placementShadow;
 };
 
 #include "DockingWindow.inl"

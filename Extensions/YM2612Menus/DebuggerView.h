@@ -9,7 +9,7 @@ class DebuggerView :public ViewBase
 {
 public:
 	//Constructors
-	DebuggerView(IUIManager& auiManager, DebuggerViewPresenter& apresenter, IYM2612& amodel);
+	DebuggerView(IUIManager& uiManager, DebuggerViewPresenter& presenter, IYM2612& model);
 	~DebuggerView();
 
 protected:
@@ -29,14 +29,14 @@ private:
 	bool ControlIDToDataID(int controlID, unsigned int& genericDataID, IYM2612::RegisterDataContext& registerDataContext, IYM2612::ChannelDataContext& channelDataContext, IYM2612::OperatorDataContext& operatorDataContext, const IGenericAccess::DataContext** dataContext);
 
 private:
-	DebuggerViewPresenter& presenter;
-	IYM2612& model;
-	bool initializedDialog;
-	std::wstring previousText;
-	unsigned int currentControlFocus;
-	COLORREF lockedColor;
-	HBRUSH lockedBrush;
-	unsigned int selectedChannel;
+	DebuggerViewPresenter& _presenter;
+	IYM2612& _model;
+	bool _initializedDialog;
+	std::wstring _previousText;
+	unsigned int _currentControlFocus;
+	COLORREF _lockedColor;
+	HBRUSH _lockedBrush;
+	unsigned int _selectedChannel;
 };
 
 #endif

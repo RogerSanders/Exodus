@@ -201,10 +201,10 @@ LONG WINAPI MinidumpExceptionHandler(_EXCEPTION_POINTERS* exceptionPointers)
 }
 
 //----------------------------------------------------------------------------------------
-bool RegisterMinidumpExceptionHandler(const std::wstring& aminidumpName, const std::wstring& aminidumpPath, bool alargeMinidump)
+bool RegisterMinidumpExceptionHandler(const std::wstring& minidumpName, const std::wstring& minidumpPath, bool largeMinidump)
 {
 	//Make sure the target directory is a fully qualified path
-	std::wstring minidumpPathFull = aminidumpPath;
+	std::wstring minidumpPathFull = minidumpPath;
 	if(PathIsRelativePath(minidumpPathFull))
 	{
 		//Get the current working directory
@@ -215,9 +215,9 @@ bool RegisterMinidumpExceptionHandler(const std::wstring& aminidumpName, const s
 	}
 
 	//Save the target filename, path, and large minidump flag.
-	SetMinidumpName(aminidumpName);
+	SetMinidumpName(minidumpName);
 	SetMinidumpPath(minidumpPathFull);
-	SetLargeMinidumpFlag(alargeMinidump);
+	SetLargeMinidumpFlag(largeMinidump);
 
 	//Register our exception handler
 	SetUnhandledExceptionFilter(MinidumpExceptionHandler);

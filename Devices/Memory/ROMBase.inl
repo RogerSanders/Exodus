@@ -1,14 +1,14 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-template<class T> ROMBase<T>::ROMBase(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
-:MemoryRead(aimplementationName, ainstanceName, amoduleID), memoryArraySize(0), memoryArray(0)
+template<class T> ROMBase<T>::ROMBase(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
+:MemoryRead(implementationName, instanceName, moduleID), _memoryArraySize(0), _memoryArray(0)
 {}
 
 //----------------------------------------------------------------------------------------
 template<class T> ROMBase<T>::~ROMBase()
 {
-	delete memoryArray;
+	delete _memoryArray;
 }
 
 //----------------------------------------------------------------------------------------
@@ -62,13 +62,13 @@ template<class T> bool ROMBase<T>::Construct(IHierarchicalStorageNode& node)
 		//Set the memory array size based on the recorded memory entry count. Note that at
 		//this point, the memory entry count has already been adjusted to a clean multiple
 		//of the array entry byte size.
-		memoryArraySize = memoryEntryCount;
+		_memoryArraySize = memoryEntryCount;
 
 		//Resize the internal memory array based on the calculated array size, and
 		//initialize all elements to 0.
-		delete memoryArray;
-		memoryArray = new T[memoryArraySize];
-		memset(&memoryArray[0], 0, (memoryArraySize * memoryArrayEntryByteSize));
+		delete _memoryArray;
+		_memoryArray = new T[_memoryArraySize];
+		memset(&_memoryArray[0], 0, (_memoryArraySize * memoryArrayEntryByteSize));
 
 		//Read the RepeatData attribute if specified
 		bool repeatData = false;
@@ -81,8 +81,8 @@ template<class T> bool ROMBase<T>::Construct(IHierarchicalStorageNode& node)
 		//Read in the ROM data
 		unsigned int dataStreamByteSize = (unsigned int)dataStream.Size();
 		unsigned int entriesInDataStream = (dataStreamByteSize / memoryArrayEntryByteSize);
-		unsigned int entriesToRead = (memoryArraySize < entriesInDataStream)? memoryArraySize: entriesInDataStream;
-		if(!dataStream.ReadDataBigEndian(&memoryArray[0], entriesToRead))
+		unsigned int entriesToRead = (_memoryArraySize < entriesInDataStream)? _memoryArraySize: entriesInDataStream;
+		if(!dataStream.ReadDataBigEndian(&_memoryArray[0], entriesToRead))
 		{
 			return false;
 		}
@@ -92,7 +92,7 @@ template<class T> bool ROMBase<T>::Construct(IHierarchicalStorageNode& node)
 		//doesn't align with a whole entry in the array, read in the remaining data into
 		//the next array entry, and pad out the missing lower data with zeros.
 		unsigned int bytesRemainingInDataStream = (dataStreamByteSize % memoryArrayEntryByteSize);
-		if((memoryArraySize > entriesInDataStream) && (bytesRemainingInDataStream > 0))
+		if((_memoryArraySize > entriesInDataStream) && (bytesRemainingInDataStream > 0))
 		{
 			//Read in each remaining byte in the data stream into the next available array
 			//entry
@@ -103,23 +103,23 @@ template<class T> bool ROMBase<T>::Construct(IHierarchicalStorageNode& node)
 				{
 					return false;
 				}
-				memoryArray[entriesToRead] = ((memoryArray[entriesToRead] << 8) | remainingData);
+				_memoryArray[entriesToRead] = ((_memoryArray[entriesToRead] << 8) | remainingData);
 			}
 
 			//Shift the data in the entry up by the required number of bits to align the
 			//partial data read with the top of the entry, and pad out the lower bits with
 			//zeros.
-			memoryArray[entriesToRead] <<= (8 * (memoryArrayEntryByteSize - bytesRemainingInDataStream));
+			_memoryArray[entriesToRead] <<= (8 * (memoryArrayEntryByteSize - bytesRemainingInDataStream));
 		}
 
 		//If the data string has been set to repeat until the end of the memory block is
 		//reached, fill out the remainder of the memory block now.
 		if(repeatData)
 		{
-			for(unsigned int i = entriesToRead; i < memoryArraySize; ++i)
+			for(unsigned int i = entriesToRead; i < _memoryArraySize; ++i)
 			{
 				unsigned int originalDataIndex = i % entriesInDataStream;
-				memoryArray[i] = memoryArray[originalDataIndex];
+				_memoryArray[i] = _memoryArray[originalDataIndex];
 			}
 		}
 	}
@@ -127,14 +127,14 @@ template<class T> bool ROMBase<T>::Construct(IHierarchicalStorageNode& node)
 	{
 		//If no embedded ROM data has been provided, ensure that a valid interface size
 		//has been specified, and set the size of our internal memory.
-		memoryArraySize = GetMemoryEntryCount();
-		if(memoryArraySize <= 0)
+		_memoryArraySize = GetMemoryEntryCount();
+		if(_memoryArraySize <= 0)
 		{
 			return false;
 		}
-		delete memoryArray;
-		memoryArray = new T[memoryArraySize];
-		memset(&memoryArray[0], 0, (memoryArraySize * memoryArrayEntryByteSize));
+		delete _memoryArray;
+		_memoryArray = new T[_memoryArraySize];
+		memset(&_memoryArray[0], 0, (_memoryArraySize * memoryArrayEntryByteSize));
 	}
 
 	return result;

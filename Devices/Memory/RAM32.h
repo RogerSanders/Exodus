@@ -6,7 +6,7 @@ class RAM32 :public RAMBase<unsigned int>
 {
 public:
 	//Constructors
-	RAM32(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
+	RAM32(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 
 	//Memory interface functions
 	virtual IBusInterface::AccessResult ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext);

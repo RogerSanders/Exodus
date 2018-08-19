@@ -4,11 +4,11 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-OperatorViewPresenter::OperatorViewPresenter(const std::wstring& aviewGroupName, const std::wstring& aviewName, int aviewID, YM2612Menus& aowner, const IDevice& amodelInstanceKey, IYM2612& amodel, unsigned int achannelNo, unsigned int aoperatorNo)
-:ViewPresenterBase(aowner.GetAssemblyHandle(), aviewGroupName, aviewName, aviewID, amodelInstanceKey.GetDeviceInstanceName(), amodelInstanceKey.GetDeviceModuleID(), amodelInstanceKey.GetModuleDisplayName()), owner(aowner), modelInstanceKey(amodelInstanceKey), model(amodel)
+OperatorViewPresenter::OperatorViewPresenter(const std::wstring& viewGroupName, const std::wstring& viewName, int viewID, YM2612Menus& owner, const IDevice& modelInstanceKey, IYM2612& model, unsigned int channelNo, unsigned int operatorNo)
+:ViewPresenterBase(owner.GetAssemblyHandle(), viewGroupName, viewName, viewID, modelInstanceKey.GetDeviceInstanceName(), modelInstanceKey.GetDeviceModuleID(), modelInstanceKey.GetModuleDisplayName()), _owner(owner), _modelInstanceKey(modelInstanceKey), _model(model)
 {
-	channelNo = achannelNo;
-	operatorNo = aoperatorNo;
+	_channelNo = channelNo;
+	_operatorNo = operatorNo;
 }
 
 //----------------------------------------------------------------------------------------
@@ -24,29 +24,29 @@ std::wstring OperatorViewPresenter::GetUnqualifiedViewTitle()
 //----------------------------------------------------------------------------------------
 IView* OperatorViewPresenter::CreateView(IUIManager& uiManager)
 {
-	return new OperatorView(uiManager, *this, model, channelNo, operatorNo);
+	return new OperatorView(uiManager, *this, _model, _channelNo, _operatorNo);
 }
 
 //----------------------------------------------------------------------------------------
-void OperatorViewPresenter::DeleteView(IView* aview)
+void OperatorViewPresenter::DeleteView(IView* view)
 {
-	delete aview;
+	delete view;
 }
 
 //----------------------------------------------------------------------------------------
 //Operator functions
 //----------------------------------------------------------------------------------------
-void OperatorViewPresenter::SetTargetOperator(unsigned int achannelNo, unsigned int aoperatorNo)
+void OperatorViewPresenter::SetTargetOperator(unsigned int channelNo, unsigned int operatorNo)
 {
-	channelNo = achannelNo;
-	operatorNo = aoperatorNo;
+	_channelNo = channelNo;
+	_operatorNo = operatorNo;
 	IView* viewBase = GetOpenView();
 	if(viewBase != 0)
 	{
 		OperatorView* view = dynamic_cast<OperatorView*>(viewBase);
 		if(view != 0)
 		{
-			view->SetTargetOperator(channelNo, operatorNo);
+			view->SetTargetOperator(_channelNo, _operatorNo);
 		}
 	}
 }

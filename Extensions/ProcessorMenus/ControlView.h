@@ -9,7 +9,7 @@ class ControlView :public ViewBase
 {
 public:
 	//Constructors
-	ControlView(IUIManager& auiManager, ControlViewPresenter& apresenter, IProcessor& amodel);
+	ControlView(IUIManager& uiManager, ControlViewPresenter& presenter, IProcessor& model);
 
 protected:
 	//Member window procedure
@@ -23,11 +23,11 @@ private:
 	INT_PTR msgWM_COMMAND(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
 private:
-	ControlViewPresenter& presenter;
-	IProcessor& model;
-	bool initializedDialog;
-	std::wstring previousText;
-	unsigned int currentControlFocus;
+	ControlViewPresenter& _presenter;
+	IProcessor& _model;
+	bool _initializedDialog;
+	std::wstring _previousText;
+	unsigned int _currentControlFocus;
 };
 
 #endif

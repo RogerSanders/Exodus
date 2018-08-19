@@ -8,7 +8,7 @@ class TimedBufferIntDevice :public MemoryWrite, public ITimedBufferIntDevice
 {
 public:
 	//Constructors
-	TimedBufferIntDevice(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
+	TimedBufferIntDevice(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 	virtual bool Construct(IHierarchicalStorageNode& node);
 
 	//Memory size functions
@@ -40,10 +40,10 @@ public:
 	ITimedBufferInt* GetTimedBuffer();
 
 private:
-	TimedBufferInt bufferShell;
-	bool initialMemoryDataSpecified;
-	bool repeatInitialMemoryData;
-	std::vector<unsigned char> initialMemoryData;
+	TimedBufferInt _bufferShell;
+	bool _initialMemoryDataSpecified;
+	bool _repeatInitialMemoryData;
+	std::vector<unsigned char> _initialMemoryData;
 };
 
 #endif

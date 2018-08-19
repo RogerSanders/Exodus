@@ -37,7 +37,7 @@ public:
 //	|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 //	| 0 | 1 | 0 | 0 | 1 | 1 | 1 | 0 | 0 | 1 | 1 | 1 | 0 | 0 | 1 | 1 |
 //	-----------------------------------------------------------------
-		target.BuildAddressPostinc(BITCOUNT_LONG, location + GetInstructionSize(), M68000::SP);
+		_target.BuildAddressPostinc(BITCOUNT_LONG, location + GetInstructionSize(), M68000::SP);
 		AddExecuteCycleCount(ExecuteTime(20, 5, 0));
 	}
 
@@ -48,8 +48,8 @@ public:
 		M68000Long originalPC;
 
 		//Perform the operation
-		additionalTime += target.Read(cpu, originalSR, GetInstructionRegister());
-		additionalTime += target.Read(cpu, originalPC, GetInstructionRegister());
+		additionalTime += _target.Read(cpu, originalSR, GetInstructionRegister());
+		additionalTime += _target.Read(cpu, originalPC, GetInstructionRegister());
 		cpu->PopCallStack(originalPC.GetData());
 		cpu->SetSR(originalSR);
 		cpu->SetPC(originalPC);
@@ -68,11 +68,11 @@ public:
 
 	virtual void GetLabelTargetLocations(std::set<unsigned int>& labelTargetLocations) const
 	{
-		target.AddLabelTargetsToSet(labelTargetLocations);
+		_target.AddLabelTargetsToSet(labelTargetLocations);
 	}
 
 private:
-	EffectiveAddress target;
+	EffectiveAddress _target;
 };
 
 } //Close namespace M68000

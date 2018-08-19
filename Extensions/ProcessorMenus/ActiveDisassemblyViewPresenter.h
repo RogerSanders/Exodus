@@ -8,19 +8,19 @@ class ActiveDisassemblyViewPresenter :public ViewPresenterBase
 {
 public:
 	//Constructors
-	ActiveDisassemblyViewPresenter(const std::wstring& aviewGroupName, const std::wstring& aviewName, int aviewID, ProcessorMenus& aowner, const IDevice& amodelInstanceKey, IProcessor& amodel);
+	ActiveDisassemblyViewPresenter(const std::wstring& viewGroupName, const std::wstring& viewName, int viewID, ProcessorMenus& owner, const IDevice& modelInstanceKey, IProcessor& model);
 
 	//View title functions
 	static std::wstring GetUnqualifiedViewTitle();
 
 	//View creation and deletion
 	virtual IView* CreateView(IUIManager& uiManager);
-	virtual void DeleteView(IView* aview);
+	virtual void DeleteView(IView* view);
 
 private:
-	ProcessorMenus& owner;
-	const IDevice& modelInstanceKey;
-	IProcessor& model;
+	ProcessorMenus& _owner;
+	const IDevice& _modelInstanceKey;
+	IProcessor& _model;
 };
 
 #endif

@@ -32,7 +32,7 @@ protected:
 	//be accessed directly by any derived class other than the "Device" base class. This
 	//data member is only marked as protected temporarily so we can implement a
 	//performance workaround until C++11 support is added.
-	IDeviceContext* deviceContext;
+	IDeviceContext* _deviceContext;
 };
 
 #endif

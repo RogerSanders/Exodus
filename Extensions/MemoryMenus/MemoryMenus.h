@@ -8,7 +8,7 @@ class MemoryMenus :public Extension
 {
 public:
 	//Constructors
-	MemoryMenus(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
+	MemoryMenus(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 	~MemoryMenus();
 
 	//Window functions
@@ -19,7 +19,7 @@ public:
 	virtual bool OpenDeviceView(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IDevice* targetDevice);
 
 private:
-	std::map<IDevice*, DebugMenuHandler*> debugMenuHandlers;
+	std::map<IDevice*, DebugMenuHandler*> _debugMenuHandlers;
 };
 
 #endif

@@ -25,37 +25,37 @@ std::wstring Watchpoint::GetLogString() const
 //----------------------------------------------------------------------------------------
 bool Watchpoint::GetEnabled() const
 {
-	return enabled;
+	return _enabled;
 }
 
 //----------------------------------------------------------------------------------------
 void Watchpoint::SetEnabled(bool state)
 {
-	enabled = state;
+	_enabled = state;
 }
 
 //----------------------------------------------------------------------------------------
 bool Watchpoint::GetLogEvent() const
 {
-	return logEvent;
+	return _logEvent;
 }
 
 //----------------------------------------------------------------------------------------
 void Watchpoint::SetLogEvent(bool state)
 {
-	logEvent = state;
+	_logEvent = state;
 }
 
 //----------------------------------------------------------------------------------------
 bool Watchpoint::GetBreakEvent() const
 {
-	return breakEvent;
+	return _breakEvent;
 }
 
 //----------------------------------------------------------------------------------------
 void Watchpoint::SetBreakEvent(bool state)
 {
-	breakEvent = state;
+	_breakEvent = state;
 }
 
 //----------------------------------------------------------------------------------------
@@ -63,42 +63,42 @@ void Watchpoint::SetBreakEvent(bool state)
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> Watchpoint::GetName() const
 {
-	return name;
+	return _name;
 }
 
 //----------------------------------------------------------------------------------------
-void Watchpoint::SetName(const Marshal::In<std::wstring>& aname)
+void Watchpoint::SetName(const Marshal::In<std::wstring>& name)
 {
-	name = aname;
+	_name = name;
 }
 
 //----------------------------------------------------------------------------------------
 Marshal::Ret<std::wstring> Watchpoint::GenerateName() const
 {
 	std::wstring newName;
-	switch(locationCondition)
+	switch(_locationCondition)
 	{
 	case Condition::Equal:{
 		std::wstring locationData1AsString;
-		IntToStringBase16(GetLocationConditionData1(), locationData1AsString, addressBusCharWidth, false);
-		newName += (!locationConditionNot)? locationData1AsString: L"!=" + locationData1AsString;
+		IntToStringBase16(GetLocationConditionData1(), locationData1AsString, _addressBusCharWidth, false);
+		newName += (!_locationConditionNot)? locationData1AsString: L"!=" + locationData1AsString;
 		break;}
 	case Condition::Greater:{
 		std::wstring locationData1AsString;
-		IntToStringBase16(GetLocationConditionData1(), locationData1AsString, addressBusCharWidth, false);
-		newName += (!locationConditionNot)? L">" + locationData1AsString: L"<=" + locationData1AsString;
+		IntToStringBase16(GetLocationConditionData1(), locationData1AsString, _addressBusCharWidth, false);
+		newName += (!_locationConditionNot)? L">" + locationData1AsString: L"<=" + locationData1AsString;
 		break;}
 	case Condition::Less:{
 		std::wstring locationData1AsString;
-		IntToStringBase16(GetLocationConditionData1(), locationData1AsString, addressBusCharWidth, false);
-		newName += (!locationConditionNot)? L"<" + locationData1AsString: L">=" + locationData1AsString;
+		IntToStringBase16(GetLocationConditionData1(), locationData1AsString, _addressBusCharWidth, false);
+		newName += (!_locationConditionNot)? L"<" + locationData1AsString: L">=" + locationData1AsString;
 		break;}
 	case Condition::GreaterAndLess:{
 		std::wstring locationData1AsString;
 		std::wstring locationData2AsString;
-		IntToStringBase16(GetLocationConditionData1(), locationData1AsString, addressBusCharWidth, false);
-		IntToStringBase16(GetLocationConditionData2(), locationData2AsString, addressBusCharWidth, false);
-		newName += (!locationConditionNot)? L">" + locationData1AsString + L" && " + L"<" + locationData2AsString: L"<=" + locationData1AsString + L" || " + L">=" + locationData2AsString;
+		IntToStringBase16(GetLocationConditionData1(), locationData1AsString, _addressBusCharWidth, false);
+		IntToStringBase16(GetLocationConditionData2(), locationData2AsString, _addressBusCharWidth, false);
+		newName += (!_locationConditionNot)? L">" + locationData1AsString + L" && " + L"<" + locationData2AsString: L"<=" + locationData1AsString + L" || " + L">=" + locationData2AsString;
 		break;}
 	}
 	return newName;
@@ -109,68 +109,68 @@ Marshal::Ret<std::wstring> Watchpoint::GenerateName() const
 //----------------------------------------------------------------------------------------
 bool Watchpoint::GetLocationConditionNot() const
 {
-	return locationConditionNot;
+	return _locationConditionNot;
 }
 
 //----------------------------------------------------------------------------------------
 void Watchpoint::SetLocationConditionNot(bool state)
 {
-	locationConditionNot = state;
+	_locationConditionNot = state;
 }
 
 //----------------------------------------------------------------------------------------
 Watchpoint::Condition Watchpoint::GetLocationCondition() const
 {
-	return locationCondition;
+	return _locationCondition;
 }
 
 //----------------------------------------------------------------------------------------
 void Watchpoint::SetLocationCondition(Condition condition)
 {
-	locationCondition = condition;
+	_locationCondition = condition;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int Watchpoint::GetLocationConditionData1() const
 {
-	return locationConditionData1;
+	return _locationConditionData1;
 }
 
 //----------------------------------------------------------------------------------------
 void Watchpoint::SetLocationConditionData1(unsigned int data)
 {
-	locationConditionData1 = data;
+	_locationConditionData1 = data;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int Watchpoint::GetLocationConditionData2() const
 {
-	return locationConditionData2;
+	return _locationConditionData2;
 }
 
 //----------------------------------------------------------------------------------------
 void Watchpoint::SetLocationConditionData2(unsigned int data)
 {
-	locationConditionData2 = data;
+	_locationConditionData2 = data;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int Watchpoint::GetLocationMask() const
 {
-	return locationMask;
+	return _locationMask;
 }
 
 //----------------------------------------------------------------------------------------
 void Watchpoint::SetLocationMask(unsigned int data)
 {
-	locationMask = data & ((1 << addressBusWidth) - 1);
+	_locationMask = data & ((1 << _addressBusWidth) - 1);
 }
 
 //----------------------------------------------------------------------------------------
 bool Watchpoint::PassesLocationCondition(unsigned int location)
 {
 	bool result = true;
-	unsigned int locationMasked = (location & locationMask);
+	unsigned int locationMasked = (location & _locationMask);
 	switch(GetLocationCondition())
 	{
 	case Condition::Equal:
@@ -195,37 +195,37 @@ bool Watchpoint::PassesLocationCondition(unsigned int location)
 //----------------------------------------------------------------------------------------
 unsigned int Watchpoint::GetHitCounter() const
 {
-	return hitCounter;
+	return _hitCounter;
 }
 
 //----------------------------------------------------------------------------------------
-void Watchpoint::SetHitCounter(unsigned int ahitCounter)
+void Watchpoint::SetHitCounter(unsigned int hitCounter)
 {
-	hitCounter = ahitCounter;
+	_hitCounter = hitCounter;
 }
 
 //----------------------------------------------------------------------------------------
 bool Watchpoint::GetBreakOnCounter() const
 {
-	return breakOnCounter;
+	return _breakOnCounter;
 }
 
 //----------------------------------------------------------------------------------------
 void Watchpoint::SetBreakOnCounter(bool state)
 {
-	breakOnCounter = state;
+	_breakOnCounter = state;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int Watchpoint::GetBreakCounter() const
 {
-	return breakCounter;
+	return _breakCounter;
 }
 
 //----------------------------------------------------------------------------------------
-void Watchpoint::SetBreakCounter(unsigned int abreakCounter)
+void Watchpoint::SetBreakCounter(unsigned int breakCounter)
 {
-	breakCounter = (abreakCounter > 0)? abreakCounter: 1;
+	_breakCounter = (breakCounter > 0)? breakCounter: 1;
 }
 
 //----------------------------------------------------------------------------------------
@@ -247,25 +247,25 @@ bool Watchpoint::CheckHitCounter()
 //----------------------------------------------------------------------------------------
 bool Watchpoint::GetOnRead() const
 {
-	return read;
+	return _read;
 }
 
 //----------------------------------------------------------------------------------------
 void Watchpoint::SetOnRead(bool state)
 {
-	read = state;
+	_read = state;
 }
 
 //----------------------------------------------------------------------------------------
 bool Watchpoint::GetOnWrite() const
 {
-	return write;
+	return _write;
 }
 
 //----------------------------------------------------------------------------------------
 void Watchpoint::SetOnWrite(bool state)
 {
-	write = state;
+	_write = state;
 }
 
 //----------------------------------------------------------------------------------------
@@ -273,61 +273,61 @@ void Watchpoint::SetOnWrite(bool state)
 //----------------------------------------------------------------------------------------
 bool Watchpoint::GetReadConditionEnabled() const
 {
-	return readConditionEnabled;
+	return _readConditionEnabled;
 }
 
 //----------------------------------------------------------------------------------------
 void Watchpoint::SetReadConditionEnabled(bool state)
 {
-	readConditionEnabled = state;
+	_readConditionEnabled = state;
 }
 
 //----------------------------------------------------------------------------------------
 bool Watchpoint::GetReadConditionNot() const
 {
-	return readConditionNot;
+	return _readConditionNot;
 }
 
 //----------------------------------------------------------------------------------------
 void Watchpoint::SetReadConditionNot(bool state)
 {
-	readConditionNot = state;
+	_readConditionNot = state;
 }
 
 //----------------------------------------------------------------------------------------
 Watchpoint::Condition Watchpoint::GetReadCondition() const
 {
-	return readCondition;
+	return _readCondition;
 }
 
 //----------------------------------------------------------------------------------------
 void Watchpoint::SetReadCondition(Condition condition)
 {
-	readCondition = condition;
+	_readCondition = condition;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int Watchpoint::GetReadConditionData1() const
 {
-	return readConditionData1;
+	return _readConditionData1;
 }
 
 //----------------------------------------------------------------------------------------
 void Watchpoint::SetReadConditionData1(unsigned int data)
 {
-	readConditionData1 = data & ((1 << dataBusWidth) - 1);
+	_readConditionData1 = data & ((1 << _dataBusWidth) - 1);
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int Watchpoint::GetReadConditionData2() const
 {
-	return readConditionData2;
+	return _readConditionData2;
 }
 
 //----------------------------------------------------------------------------------------
 void Watchpoint::SetReadConditionData2(unsigned int data)
 {
-	readConditionData2 = data & ((1 << dataBusWidth) - 1);
+	_readConditionData2 = data & ((1 << _dataBusWidth) - 1);
 }
 
 //----------------------------------------------------------------------------------------
@@ -361,61 +361,61 @@ bool Watchpoint::PassesReadCondition(unsigned int data)
 //----------------------------------------------------------------------------------------
 bool Watchpoint::GetWriteConditionEnabled() const
 {
-	return writeConditionEnabled;
+	return _writeConditionEnabled;
 }
 
 //----------------------------------------------------------------------------------------
 void Watchpoint::SetWriteConditionEnabled(bool state)
 {
-	writeConditionEnabled = state;
+	_writeConditionEnabled = state;
 }
 
 //----------------------------------------------------------------------------------------
 bool Watchpoint::GetWriteConditionNot() const
 {
-	return writeConditionNot;
+	return _writeConditionNot;
 }
 
 //----------------------------------------------------------------------------------------
 void Watchpoint::SetWriteConditionNot(bool state)
 {
-	writeConditionNot = state;
+	_writeConditionNot = state;
 }
 
 //----------------------------------------------------------------------------------------
 Watchpoint::Condition Watchpoint::GetWriteCondition() const
 {
-	return writeCondition;
+	return _writeCondition;
 }
 
 //----------------------------------------------------------------------------------------
 void Watchpoint::SetWriteCondition(Condition condition)
 {
-	writeCondition = condition;
+	_writeCondition = condition;
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int Watchpoint::GetWriteConditionData1() const
 {
-	return writeConditionData1;
+	return _writeConditionData1;
 }
 
 //----------------------------------------------------------------------------------------
 void Watchpoint::SetWriteConditionData1(unsigned int data)
 {
-	writeConditionData1 = data & ((1 << dataBusWidth) - 1);
+	_writeConditionData1 = data & ((1 << _dataBusWidth) - 1);
 }
 
 //----------------------------------------------------------------------------------------
 unsigned int Watchpoint::GetWriteConditionData2() const
 {
-	return writeConditionData2;
+	return _writeConditionData2;
 }
 
 //----------------------------------------------------------------------------------------
 void Watchpoint::SetWriteConditionData2(unsigned int data)
 {
-	writeConditionData2 = data & ((1 << dataBusWidth) - 1);
+	_writeConditionData2 = data & ((1 << _dataBusWidth) - 1);
 }
 
 //----------------------------------------------------------------------------------------
@@ -449,67 +449,67 @@ bool Watchpoint::PassesWriteCondition(unsigned int data)
 //----------------------------------------------------------------------------------------
 void Watchpoint::LoadState(IHierarchicalStorageNode& node)
 {
-	node.ExtractAttribute(L"Name", name);
-	node.ExtractAttribute(L"Enabled", enabled);
-	node.ExtractAttribute(L"LogEvent", logEvent);
-	node.ExtractAttribute(L"BreakEvent", breakEvent);
-	node.ExtractAttribute(L"LocationConditionNot", locationConditionNot);
+	node.ExtractAttribute(L"Name", _name);
+	node.ExtractAttribute(L"Enabled", _enabled);
+	node.ExtractAttribute(L"LogEvent", _logEvent);
+	node.ExtractAttribute(L"BreakEvent", _breakEvent);
+	node.ExtractAttribute(L"LocationConditionNot", _locationConditionNot);
 	unsigned int locationConditionAsInt;
 	node.ExtractAttribute(L"LocationCondition", locationConditionAsInt);
-	locationCondition = (Condition)locationConditionAsInt;
-	node.ExtractAttributeHex(L"LocationConditionData1", locationConditionData1);
-	node.ExtractAttributeHex(L"LocationConditionData2", locationConditionData2);
-	node.ExtractAttributeHex(L"LocationMask", locationMask);
-	node.ExtractAttribute(L"HitCounter", hitCounter);
-	node.ExtractAttribute(L"HitCounterIncrement", hitCounterIncrement);
-	node.ExtractAttribute(L"BreakOnCounter", breakOnCounter);
-	node.ExtractAttribute(L"BreakCounter", breakCounter);
+	_locationCondition = (Condition)locationConditionAsInt;
+	node.ExtractAttributeHex(L"LocationConditionData1", _locationConditionData1);
+	node.ExtractAttributeHex(L"LocationConditionData2", _locationConditionData2);
+	node.ExtractAttributeHex(L"LocationMask", _locationMask);
+	node.ExtractAttribute(L"HitCounter", _hitCounter);
+	node.ExtractAttribute(L"HitCounterIncrement", _hitCounterIncrement);
+	node.ExtractAttribute(L"BreakOnCounter", _breakOnCounter);
+	node.ExtractAttribute(L"BreakCounter", _breakCounter);
 
-	node.ExtractAttribute(L"Read", read);
-	node.ExtractAttribute(L"Write", write);
-	node.ExtractAttribute(L"ReadConditionEnabled", readConditionEnabled);
-	node.ExtractAttribute(L"ReadConditionNot", readConditionNot);
+	node.ExtractAttribute(L"Read", _read);
+	node.ExtractAttribute(L"Write", _write);
+	node.ExtractAttribute(L"ReadConditionEnabled", _readConditionEnabled);
+	node.ExtractAttribute(L"ReadConditionNot", _readConditionNot);
 	unsigned int readConditionAsInt;
 	node.ExtractAttribute(L"ReadCondition", readConditionAsInt);
-	readCondition = (Condition)readConditionAsInt;
-	node.ExtractAttributeHex(L"ReadConditionData1", readConditionData1);
-	node.ExtractAttributeHex(L"ReadConditionData2", readConditionData1);
-	node.ExtractAttribute(L"WriteConditionEnabled", writeConditionEnabled);
-	node.ExtractAttribute(L"WriteConditionNot", writeConditionNot);
+	_readCondition = (Condition)readConditionAsInt;
+	node.ExtractAttributeHex(L"ReadConditionData1", _readConditionData1);
+	node.ExtractAttributeHex(L"ReadConditionData2", _readConditionData1);
+	node.ExtractAttribute(L"WriteConditionEnabled", _writeConditionEnabled);
+	node.ExtractAttribute(L"WriteConditionNot", _writeConditionNot);
 	unsigned int writeConditionAsInt;
 	node.ExtractAttribute(L"WriteCondition", writeConditionAsInt);
-	writeCondition = (Condition)writeConditionAsInt;
-	node.ExtractAttributeHex(L"WriteConditionData1", writeConditionData1);
-	node.ExtractAttributeHex(L"WriteConditionData2", writeConditionData1);
+	_writeCondition = (Condition)writeConditionAsInt;
+	node.ExtractAttributeHex(L"WriteConditionData1", _writeConditionData1);
+	node.ExtractAttributeHex(L"WriteConditionData2", _writeConditionData1);
 }
 
 //----------------------------------------------------------------------------------------
 void Watchpoint::SaveState(IHierarchicalStorageNode& node) const
 {
-	node.CreateAttribute(L"Name", name);
-	node.CreateAttribute(L"Enabled", enabled);
-	node.CreateAttribute(L"LogEvent", logEvent);
-	node.CreateAttribute(L"BreakEvent", breakEvent);
-	node.CreateAttribute(L"LocationConditionNot", locationConditionNot);
-	node.CreateAttribute(L"LocationCondition", (unsigned int)locationCondition);
-	node.CreateAttributeHex(L"LocationConditionData1", locationConditionData1, 8);
-	node.CreateAttributeHex(L"LocationConditionData2", locationConditionData2, 8);
-	node.CreateAttributeHex(L"LocationMask", locationMask, 8);
-	node.CreateAttribute(L"HitCounter", hitCounter);
-	node.CreateAttribute(L"HitCounterIncrement", hitCounterIncrement);
-	node.CreateAttribute(L"BreakOnCounter", breakOnCounter);
-	node.CreateAttribute(L"BreakCounter", breakCounter);
+	node.CreateAttribute(L"Name", _name);
+	node.CreateAttribute(L"Enabled", _enabled);
+	node.CreateAttribute(L"LogEvent", _logEvent);
+	node.CreateAttribute(L"BreakEvent", _breakEvent);
+	node.CreateAttribute(L"LocationConditionNot", _locationConditionNot);
+	node.CreateAttribute(L"LocationCondition", (unsigned int)_locationCondition);
+	node.CreateAttributeHex(L"LocationConditionData1", _locationConditionData1, 8);
+	node.CreateAttributeHex(L"LocationConditionData2", _locationConditionData2, 8);
+	node.CreateAttributeHex(L"LocationMask", _locationMask, 8);
+	node.CreateAttribute(L"HitCounter", _hitCounter);
+	node.CreateAttribute(L"HitCounterIncrement", _hitCounterIncrement);
+	node.CreateAttribute(L"BreakOnCounter", _breakOnCounter);
+	node.CreateAttribute(L"BreakCounter", _breakCounter);
 
-	node.CreateAttribute(L"Read", read);
-	node.CreateAttribute(L"Write", write);
-	node.CreateAttribute(L"ReadConditionEnabled", readConditionEnabled);
-	node.CreateAttribute(L"ReadConditionNot", readConditionNot);
-	node.CreateAttribute(L"ReadCondition", (unsigned int)readCondition);
-	node.CreateAttributeHex(L"ReadConditionData1", readConditionData1, 8);
-	node.CreateAttributeHex(L"ReadConditionData2", readConditionData1, 8);
-	node.CreateAttribute(L"WriteConditionEnabled", writeConditionEnabled);
-	node.CreateAttribute(L"WriteConditionNot", writeConditionNot);
-	node.CreateAttribute(L"WriteCondition", (unsigned int)writeCondition);
-	node.CreateAttributeHex(L"WriteConditionData1", writeConditionData1, 8);
-	node.CreateAttributeHex(L"WriteConditionData2", writeConditionData1, 8);
+	node.CreateAttribute(L"Read", _read);
+	node.CreateAttribute(L"Write", _write);
+	node.CreateAttribute(L"ReadConditionEnabled", _readConditionEnabled);
+	node.CreateAttribute(L"ReadConditionNot", _readConditionNot);
+	node.CreateAttribute(L"ReadCondition", (unsigned int)_readCondition);
+	node.CreateAttributeHex(L"ReadConditionData1", _readConditionData1, 8);
+	node.CreateAttributeHex(L"ReadConditionData2", _readConditionData1, 8);
+	node.CreateAttribute(L"WriteConditionEnabled", _writeConditionEnabled);
+	node.CreateAttribute(L"WriteConditionNot", _writeConditionNot);
+	node.CreateAttribute(L"WriteCondition", (unsigned int)_writeCondition);
+	node.CreateAttributeHex(L"WriteConditionData1", _writeConditionData1, 8);
+	node.CreateAttributeHex(L"WriteConditionData2", _writeConditionData1, 8);
 }

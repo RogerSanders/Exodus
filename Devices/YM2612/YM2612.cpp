@@ -10,7 +10,7 @@
 //generator implementation for the MAME core. Some corrections have been made to the
 //attenuation increment table following hardware tests.
 //----------------------------------------------------------------------------------------
-const unsigned int YM2612::counterShiftTable[1 << rateBitCount] = {
+const unsigned int YM2612::CounterShiftTable[1 << RateBitCount] = {
 	11, 11, 11, 11, //0-3    (0x00-0x03)
 	10, 10, 10, 10, //4-7    (0x04-0x07)
 	9,  9,  9,  9,  //8-11   (0x08-0x0B)
@@ -29,7 +29,7 @@ const unsigned int YM2612::counterShiftTable[1 << rateBitCount] = {
 	0,  0,  0,  0}; //60-63  (0x3C-0x3F)
 
 //----------------------------------------------------------------------------------------
-const unsigned int YM2612::attenuationIncrementTable[1 << rateBitCount][8] = {
+const unsigned int YM2612::AttenuationIncrementTable[1 << RateBitCount][8] = {
 	{0,0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0}, {0,1,0,1,0,1,0,1}, {0,1,0,1,0,1,0,1},  //0-3    (0x00-0x03)
 	{0,1,0,1,0,1,0,1}, {0,1,0,1,0,1,0,1}, {0,1,1,1,0,1,1,1}, {0,1,1,1,0,1,1,1},  //4-7    (0x04-0x07)
 	{0,1,0,1,0,1,0,1}, {0,1,0,1,1,1,0,1}, {0,1,1,1,0,1,1,1}, {0,1,1,1,1,1,1,1},  //8-11   (0x08-0x0B)
@@ -51,7 +51,7 @@ const unsigned int YM2612::attenuationIncrementTable[1 << rateBitCount][8] = {
 //This table is derived from the detune table given in the YM2608 Application Manual,
 //page 26. The negative inverse of the table (detune 4-7) is generated in code.
 //----------------------------------------------------------------------------------------
-const unsigned int YM2612::detunePhaseIncrementTable[1 << keyCodeBitCount][1 << (detuneBitCount - 1)] = {
+const unsigned int YM2612::DetunePhaseIncrementTable[1 << KeyCodeBitCount][1 << (DetuneBitCount - 1)] = {
 //	   Detune        Key-Code
 //	 0  1  2  3
 	{0, 0, 1, 2},  //0  (0x00)
@@ -88,7 +88,7 @@ const unsigned int YM2612::detunePhaseIncrementTable[1 << keyCodeBitCount][1 << 
 	{0, 8,16,22}}; //31 (0x1F)
 
 //----------------------------------------------------------------------------------------
-const unsigned int YM2612::phaseModIncrementTable[1 << pmsBitCount][1 << (phaseModIndexBitCount - 2)] = {
+const unsigned int YM2612::PhaseModIncrementTable[1 << PmsBitCount][1 << (PhaseModIndexBitCount - 2)] = {
 	{0, 0, 0, 0, 0, 0, 0, 0},  //0
 	{0, 0, 0, 0, 1, 1, 1, 1},  //1
 	{0, 0, 0, 1, 1, 1, 2, 2},  //2
@@ -99,80 +99,80 @@ const unsigned int YM2612::phaseModIncrementTable[1 << pmsBitCount][1 << (phaseM
 	{0, 0, 8,12,16,16,20,24}}; //7
 
 //----------------------------------------------------------------------------------------
-const unsigned int YM2612::channelAddressOffsets[channelCount] = {
+const unsigned int YM2612::ChannelAddressOffsets[ChannelCount] = {
 	0,                         //Channel 1
 	1,                         //Channel 2
 	2,                         //Channel 3
-	registerCountPerPart + 0,  //Channel 4
-	registerCountPerPart + 1,  //Channel 5
-	registerCountPerPart + 2}; //Channel 6
+	RegisterCountPerPart + 0,  //Channel 4
+	RegisterCountPerPart + 1,  //Channel 5
+	RegisterCountPerPart + 2}; //Channel 6
 
 //----------------------------------------------------------------------------------------
-const unsigned int YM2612::operatorAddressOffsets[channelCount][operatorCount] = {
-	{channelAddressOffsets[0] + 0x0, channelAddressOffsets[0] + 0x8, channelAddressOffsets[0] + 0x4, channelAddressOffsets[0] + 0xC},  //Channel 1
-	{channelAddressOffsets[1] + 0x0, channelAddressOffsets[1] + 0x8, channelAddressOffsets[1] + 0x4, channelAddressOffsets[1] + 0xC},  //Channel 2
-	{channelAddressOffsets[2] + 0x0, channelAddressOffsets[2] + 0x8, channelAddressOffsets[2] + 0x4, channelAddressOffsets[2] + 0xC},  //Channel 3
-	{channelAddressOffsets[3] + 0x0, channelAddressOffsets[3] + 0x8, channelAddressOffsets[3] + 0x4, channelAddressOffsets[3] + 0xC},  //Channel 4
-	{channelAddressOffsets[4] + 0x0, channelAddressOffsets[4] + 0x8, channelAddressOffsets[4] + 0x4, channelAddressOffsets[4] + 0xC},  //Channel 5
-	{channelAddressOffsets[5] + 0x0, channelAddressOffsets[5] + 0x8, channelAddressOffsets[5] + 0x4, channelAddressOffsets[5] + 0xC}}; //Channel 6
+const unsigned int YM2612::OperatorAddressOffsets[ChannelCount][OperatorCount] = {
+	{ChannelAddressOffsets[0] + 0x0, ChannelAddressOffsets[0] + 0x8, ChannelAddressOffsets[0] + 0x4, ChannelAddressOffsets[0] + 0xC},  //Channel 1
+	{ChannelAddressOffsets[1] + 0x0, ChannelAddressOffsets[1] + 0x8, ChannelAddressOffsets[1] + 0x4, ChannelAddressOffsets[1] + 0xC},  //Channel 2
+	{ChannelAddressOffsets[2] + 0x0, ChannelAddressOffsets[2] + 0x8, ChannelAddressOffsets[2] + 0x4, ChannelAddressOffsets[2] + 0xC},  //Channel 3
+	{ChannelAddressOffsets[3] + 0x0, ChannelAddressOffsets[3] + 0x8, ChannelAddressOffsets[3] + 0x4, ChannelAddressOffsets[3] + 0xC},  //Channel 4
+	{ChannelAddressOffsets[4] + 0x0, ChannelAddressOffsets[4] + 0x8, ChannelAddressOffsets[4] + 0x4, ChannelAddressOffsets[4] + 0xC},  //Channel 5
+	{ChannelAddressOffsets[5] + 0x0, ChannelAddressOffsets[5] + 0x8, ChannelAddressOffsets[5] + 0x4, ChannelAddressOffsets[5] + 0xC}}; //Channel 6
 
 //----------------------------------------------------------------------------------------
-const unsigned int YM2612::channel3OperatorFrequencyAddressOffsets[2][operatorCount] = {
+const unsigned int YM2612::Channel3OperatorFrequencyAddressOffsets[2][OperatorCount] = {
 	{0xA9, 0xAA, 0xA8, 0xA2},
 	{0xAD, 0xAE, 0xAC, 0xA6}};
 
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-YM2612::YM2612(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
-:Device(aimplementationName, ainstanceName, amoduleID),
-status(8), bstatus(8), reg(registerCountTotal, false, Data(8)),
-latchedFrequencyData(channelCount, Data(8)), blatchedFrequencyData(channelCount, Data(8)),
-latchedFrequencyDataCH3(3, Data(8)), blatchedFrequencyDataCH3(3, Data(8)),
-timerAOverflowTimes(false)
+YM2612::YM2612(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
+:Device(implementationName, instanceName, moduleID),
+_status(8), _bstatus(8), _reg(RegisterCountTotal, false, Data(8)),
+_latchedFrequencyData(ChannelCount, Data(8)), _blatchedFrequencyData(ChannelCount, Data(8)),
+_latchedFrequencyDataCH3(3, Data(8)), _blatchedFrequencyDataCH3(3, Data(8)),
+_timerAOverflowTimes(false)
 {
 	//Bus interface
-	memoryBus = 0;
-	icLineState = false;
+	_memoryBus = 0;
+	_icLineState = false;
 
 	//Set the default clock rate parameters
-	externalClockRate = 0;
-	fmClockDivider = 6;
-	egClockDivider = 3;
-	outputClockDivider = channelCount * operatorCount;	//24
-	timerAClockDivider = 1;
-	timerBClockDivider = 16;
+	_externalClockRate = 0;
+	_fmClockDivider = 6;
+	_egClockDivider = 3;
+	_outputClockDivider = ChannelCount * OperatorCount;	//24
+	_timerAClockDivider = 1;
+	_timerBClockDivider = 16;
 
 	//Initialize the audio output stream
-	outputSampleRate = 48000;	//44100;
-	outputStream.Open(2, 16, outputSampleRate, outputSampleRate/4, outputSampleRate/20);
+	_outputSampleRate = 48000;	//44100;
+	_outputStream.Open(2, 16, _outputSampleRate, _outputSampleRate/4, _outputSampleRate/20);
 
 	//Initialize the raw register locking state
-	for(unsigned int registerNo = 0; registerNo < registerCountTotal; ++registerNo)
+	for(unsigned int registerNo = 0; registerNo < RegisterCountTotal; ++registerNo)
 	{
-		rawRegisterLocking[registerNo] = false;
+		_rawRegisterLocking[registerNo] = false;
 	}
 
 	//Initialize the key locking state
-	for(unsigned int channelNo = 0; channelNo < channelCount; ++channelNo)
+	for(unsigned int channelNo = 0; channelNo < ChannelCount; ++channelNo)
 	{
-		for(unsigned int operatorNo = 0; operatorNo < operatorCount; ++operatorNo)
+		for(unsigned int operatorNo = 0; operatorNo < OperatorCount; ++operatorNo)
 		{
-			keyStateLocking[channelNo][operatorNo] = false;
+			_keyStateLocking[channelNo][operatorNo] = false;
 		}
 	}
 
 	//Initialize the timer locking state
-	timerAStateLocking.load = false;
-	timerAStateLocking.enable = false;
-	timerAStateLocking.overflow = false;
-	timerAStateLocking.rate = false;
-	timerAStateLocking.counter = false;
-	timerBStateLocking.load = false;
-	timerBStateLocking.enable = false;
-	timerBStateLocking.overflow = false;
-	timerBStateLocking.rate = false;
-	timerBStateLocking.counter = false;
+	_timerAStateLocking.load = false;
+	_timerAStateLocking.enable = false;
+	_timerAStateLocking.overflow = false;
+	_timerAStateLocking.rate = false;
+	_timerAStateLocking.counter = false;
+	_timerBStateLocking.load = false;
+	_timerBStateLocking.enable = false;
+	_timerBStateLocking.overflow = false;
+	_timerBStateLocking.rate = false;
+	_timerBStateLocking.counter = false;
 }
 
 //----------------------------------------------------------------------------------------
@@ -191,7 +191,7 @@ bool YM2612::BuildDevice()
 	//Build the sin table. This table has been tested and confirmed to be 100% identical
 	//to the one in the real chip, by reading the internal operator output using the test
 	//register.
-	for(unsigned int i = 0; i < (1 << sinTableBitCount); ++i)
+	for(unsigned int i = 0; i < (1 << SinTableBitCount); ++i)
 	{
 		//Calculate the normalized phase value for the input into the sine table. Note
 		//that this is calculated as a normalized result from 0.0-1.0 where 0 is not
@@ -200,7 +200,7 @@ bool YM2612::BuildDevice()
 		//when it was "mirrored" to create the negative oscillation of the wave. It's
 		//also convenient we don't have to worry about a phase of 0, because 0 is an
 		//invalid input for a log function, which we need to use below.
-		double phaseNormalized = ((double)((i << 1) + 1) / (1 << (sinTableBitCount + 1)));
+		double phaseNormalized = ((double)((i << 1) + 1) / (1 << (SinTableBitCount + 1)));
 
 		//Calculate the pure sine value for the input. Note that we only build a sine
 		//table for a quarter of the full oscillation (0-PI/2), since the upper two bits
@@ -233,7 +233,7 @@ bool YM2612::BuildDevice()
 	//Build the pow table. This table has been tested and confirmed to be 100% identical
 	//to the one in the real chip, by reading the internal operator output using the test
 	//register.
-	for(unsigned int i = 0; i < (1 << powTableBitCount); ++i)
+	for(unsigned int i = 0; i < (1 << PowTableBitCount); ++i)
 	{
 		//Normalize the current index to the range 0.0-1.0. Note that in this case, 0.0
 		//is a value which is never actually reached, since we start from i+1. They only
@@ -241,13 +241,13 @@ bool YM2612::BuildDevice()
 		//better to simply subtract 1 from every final number and have 1.0 as the input
 		//limit instead when building the table, so an input of 0 would output 0x7FF,
 		//but they didn't.
-		double entryNormalized = (double)(i + 1) / (double)(1 << powTableBitCount);
+		double entryNormalized = (double)(i + 1) / (double)(1 << PowTableBitCount);
 
 		//Calculate 2^-entryNormalized
 		double resultNormalized = pow(2, -entryNormalized);
 
 		//Convert the normalized result to an 11-bit rounded result
-		unsigned int result = (unsigned int)((resultNormalized * (1 << powTableOutputBitCount)) + 0.5);
+		unsigned int result = (unsigned int)((resultNormalized * (1 << PowTableOutputBitCount)) + 0.5);
 
 		//Write the result to the table
 		powTable[i] = result;
@@ -255,21 +255,21 @@ bool YM2612::BuildDevice()
 
 	//Initialize the wave logging state
 	std::wstring captureFolder = GetSystemInterface().GetCapturePath();
-	wavLoggingEnabled = false;
+	_wavLoggingEnabled = false;
 	std::wstring wavLoggingFileName = GetDeviceInstanceName() + L".wav";
-	wavLoggingPath = PathCombinePaths(captureFolder, wavLoggingFileName);
-	for(unsigned int channelNo = 0; channelNo < channelCount; ++channelNo)
+	_wavLoggingPath = PathCombinePaths(captureFolder, wavLoggingFileName);
+	for(unsigned int channelNo = 0; channelNo < ChannelCount; ++channelNo)
 	{
-		wavLoggingChannelEnabled[channelNo] = false;
+		_wavLoggingChannelEnabled[channelNo] = false;
 		std::wstringstream wavLoggingChannelFileName;
 		wavLoggingChannelFileName << GetDeviceInstanceName() << L" - C" << channelNo + 1 << L".wav";
-		wavLoggingChannelPath[channelNo] = PathCombinePaths(captureFolder, wavLoggingChannelFileName.str());
-		for(unsigned int operatorNo = 0; operatorNo < operatorCount; ++operatorNo)
+		_wavLoggingChannelPath[channelNo] = PathCombinePaths(captureFolder, wavLoggingChannelFileName.str());
+		for(unsigned int operatorNo = 0; operatorNo < OperatorCount; ++operatorNo)
 		{
-			wavLoggingOperatorEnabled[channelNo][operatorNo] = false;
+			_wavLoggingOperatorEnabled[channelNo][operatorNo] = false;
 			std::wstringstream wavLoggingOperatorFileName;
 			wavLoggingOperatorFileName << GetDeviceInstanceName() << L" - C" << channelNo + 1 << L"O" << operatorNo + 1 << L".wav";
-			wavLoggingOperatorPath[channelNo][operatorNo] = PathCombinePaths(captureFolder, wavLoggingOperatorFileName.str());
+			_wavLoggingOperatorPath[channelNo][operatorNo] = PathCombinePaths(captureFolder, wavLoggingOperatorFileName.str());
 		}
 	}
 
@@ -343,13 +343,13 @@ bool YM2612::BuildDevice()
 	                    ->AddEntry(new GenericAccessGroupDataEntry(IYM2612DataSource::AudioLoggingEnabled, L"Log Enabled"))
 	                    ->AddEntry(new GenericAccessGroupDataEntry(IYM2612DataSource::AudioLoggingPath, L"Log Path")));
 	GenericAccessGroup* channelGroup = new GenericAccessGroup(L"Channel Output");
-	for(unsigned int channelNo = 0; channelNo < channelCount; ++channelNo)
+	for(unsigned int channelNo = 0; channelNo < ChannelCount; ++channelNo)
 	{
 		std::wstring channelNoAsString;
 		IntToString(channelNo + 1, channelNoAsString);
 		channelGroup->AddEntry((new GenericAccessGroupDataEntry(IYM2612DataSource::ChannelAudioLoggingEnabled, L"Channel " + channelNoAsString + L" Log Enabled"))->SetDataContext(new ChannelDataContext(channelNo)));
 	}
-	for(unsigned int channelNo = 0; channelNo < channelCount; ++channelNo)
+	for(unsigned int channelNo = 0; channelNo < ChannelCount; ++channelNo)
 	{
 		std::wstring channelNoAsString;
 		IntToString(channelNo + 1, channelNoAsString);
@@ -357,18 +357,18 @@ bool YM2612::BuildDevice()
 	}
 	audioLoggingPage->AddEntry(channelGroup);
 	GenericAccessGroup* operatorGroup = new GenericAccessGroup(L"Operator Output");
-	for(unsigned int channelNo = 0; channelNo < channelCount; ++channelNo)
+	for(unsigned int channelNo = 0; channelNo < ChannelCount; ++channelNo)
 	{
 		std::wstring channelNoAsString;
 		IntToString(channelNo + 1, channelNoAsString);
 		GenericAccessGroup* channelGroupForOperators = (new GenericAccessGroup(L"Channel " + channelNoAsString))->SetOpenByDefault(false);
-		for(unsigned int operatorNo = 0; operatorNo < operatorCount; ++operatorNo)
+		for(unsigned int operatorNo = 0; operatorNo < OperatorCount; ++operatorNo)
 		{
 			std::wstring operatorNoAsString;
 			IntToString(operatorNo + 1, operatorNoAsString);
 			channelGroupForOperators->AddEntry((new GenericAccessGroupDataEntry(IYM2612DataSource::OperatorAudioLoggingEnabled, L"Operator " + operatorNoAsString + L" Log Enabled"))->SetDataContext(new OperatorDataContext(channelNo, operatorNo)));
 		}
-		for(unsigned int operatorNo = 0; operatorNo < operatorCount; ++operatorNo)
+		for(unsigned int operatorNo = 0; operatorNo < OperatorCount; ++operatorNo)
 		{
 			std::wstring operatorNoAsString;
 			IntToString(operatorNo + 1, operatorNoAsString);
@@ -385,7 +385,7 @@ bool YM2612::BuildDevice()
 //----------------------------------------------------------------------------------------
 bool YM2612::ValidateDevice()
 {
-	return (externalClockRate != 0.0);
+	return (_externalClockRate != 0.0);
 }
 
 //----------------------------------------------------------------------------------------
@@ -400,17 +400,17 @@ void YM2612::Initialize()
 	//modification in order to set these flags, otherwise no sound would be produced. The
 	//YM2608 would also select these flags by default, as it has an even greater focus on
 	//YM2203 compatibility.
-	reg.Initialize();
-	timerAOverflowTimes.Initialize();
-	currentReg = 0;
-	status = 0;
+	_reg.Initialize();
+	_timerAOverflowTimes.Initialize();
+	_currentReg = 0;
+	_status = 0;
 
 	//Bus interface
-	icLineState = false;
+	_icLineState = false;
 
 	//We have confirmed that the YM2612 powers up with output enabled to both the left and
 	//right speakers for all channels.
-	for(unsigned int channelNo = 0; channelNo < channelCount; ++channelNo)
+	for(unsigned int channelNo = 0; channelNo < ChannelCount; ++channelNo)
 	{
 		unsigned int channelAddressOffset = GetChannelBlockAddressOffset(channelNo);
 		SetOutputLeft(channelAddressOffset, true, AccessTarget().AccessLatest());
@@ -418,58 +418,58 @@ void YM2612::Initialize()
 	}
 
 	//Initialize the timer state
-	lastTimesliceLength = 0;
-	timersLastUpdateTime = 0;
-	timersRemainingTime = 0;
-	timerARemainingCycles = 0;
-	timerBRemainingCycles = 0;
-	timerACounter = 0;
-	timerBCounter = 0;
-	timerAInitialCounter = 0;
-	timerBInitialCounter = 0;
-	timerAEnable = false;
-	timerBEnable = false;
-	timerALoad = false;
-	timerBLoad = false;
-	irqLineState = false;
+	_lastTimesliceLength = 0;
+	_timersLastUpdateTime = 0;
+	_timersRemainingTime = 0;
+	_timerARemainingCycles = 0;
+	_timerBRemainingCycles = 0;
+	_timerACounter = 0;
+	_timerBCounter = 0;
+	_timerAInitialCounter = 0;
+	_timerBInitialCounter = 0;
+	_timerAEnable = false;
+	_timerBEnable = false;
+	_timerALoad = false;
+	_timerBLoad = false;
+	_irqLineState = false;
 
 	//Initialize the render thread properties
-	remainingRenderTime = 0;
-	egRemainingRenderCycles = 0;
-	outputBuffer.clear();
+	_remainingRenderTime = 0;
+	_egRemainingRenderCycles = 0;
+	_outputBuffer.clear();
 
 	//Clear all register latch data
-	for(unsigned int channelNo = 0; channelNo < channelCount; ++channelNo)
+	for(unsigned int channelNo = 0; channelNo < ChannelCount; ++channelNo)
 	{
-		latchedFrequencyDataPending[channelNo] = false;
-		latchedFrequencyData[channelNo] = 0;
+		_latchedFrequencyDataPending[channelNo] = false;
+		_latchedFrequencyData[channelNo] = 0;
 	}
 	for(unsigned int regNo = 0; regNo < 3; ++regNo)
 	{
-		latchedFrequencyDataPendingCH3[regNo] = false;
-		latchedFrequencyDataCH3[regNo] = 0;
+		_latchedFrequencyDataPendingCH3[regNo] = false;
+		_latchedFrequencyDataCH3[regNo] = 0;
 	}
 
 	//Initialize the envelope generator state
-	envelopeCycleCounter = 0;
-	cyclesUntilLFOIncrement = 0;
-	currentLFOCounter = 0;
-	for(unsigned int channelNo = 0; channelNo < channelCount; ++channelNo)
+	_envelopeCycleCounter = 0;
+	_cyclesUntilLFOIncrement = 0;
+	_currentLFOCounter = 0;
+	for(unsigned int channelNo = 0; channelNo < ChannelCount; ++channelNo)
 	{
-		for(unsigned int operatorNo = 0; operatorNo < operatorCount; ++operatorNo)
+		for(unsigned int operatorNo = 0; operatorNo < OperatorCount; ++operatorNo)
 		{
-			operatorData[channelNo][operatorNo].phase = OperatorData::ADSR_RELEASE;
-			operatorData[channelNo][operatorNo].keyonPrevious = false;
-			operatorData[channelNo][operatorNo].keyon = false;
-			operatorData[channelNo][operatorNo].csmKeyOn = false;
-			operatorData[channelNo][operatorNo].attenuation = (1 << attenuationBitCount) - 1;
-			operatorData[channelNo][operatorNo].ssgOutputInverted = false;
+			_operatorData[channelNo][operatorNo].phase = OperatorData::ADSR_RELEASE;
+			_operatorData[channelNo][operatorNo].keyonPrevious = false;
+			_operatorData[channelNo][operatorNo].keyon = false;
+			_operatorData[channelNo][operatorNo].csmKeyOn = false;
+			_operatorData[channelNo][operatorNo].attenuation = (1 << AttenuationBitCount) - 1;
+			_operatorData[channelNo][operatorNo].ssgOutputInverted = false;
 		}
 	}
 
 	//Fix any locked registers at their set value
-	std::unique_lock<std::mutex> lock2(registerLockMutex);
-	for(std::map<unsigned int, std::list<RegisterLocking>>::const_iterator lockedRegisterStateIterator = lockedRegisterState.begin(); lockedRegisterStateIterator != lockedRegisterState.end(); ++lockedRegisterStateIterator)
+	std::unique_lock<std::mutex> lock2(_registerLockMutex);
+	for(std::map<unsigned int, std::list<RegisterLocking>>::const_iterator lockedRegisterStateIterator = _lockedRegisterState.begin(); lockedRegisterStateIterator != _lockedRegisterState.end(); ++lockedRegisterStateIterator)
 	{
 		for(std::list<RegisterLocking>::const_iterator i = lockedRegisterStateIterator->second.begin(); i != lockedRegisterStateIterator->second.end(); ++i)
 		{
@@ -482,9 +482,9 @@ void YM2612::Initialize()
 void YM2612::Reset(double accessTime)
 {
 	//Initialize all our internal registers to 0
-	std::unique_lock<std::mutex> lock(accessMutex);
+	std::unique_lock<std::mutex> lock(_accessMutex);
 	AccessTarget accessTarget;
-	if(reg.DoesLatestTimesliceExist())
+	if(_reg.DoesLatestTimesliceExist())
 	{
 		accessTarget.AccessTime(accessTime);
 	}
@@ -492,7 +492,7 @@ void YM2612::Reset(double accessTime)
 	{
 		accessTarget.AccessLatest();
 	}
-	for(unsigned int i = 0; i < registerCountTotal; ++i)
+	for(unsigned int i = 0; i < RegisterCountTotal; ++i)
 	{
 		Data data(8, 0);
 		RegisterSpecialUpdateFunction(i, data, accessTime, GetDeviceContext(), 0);
@@ -501,7 +501,7 @@ void YM2612::Reset(double accessTime)
 
 	//We have confirmed that the YM2612 powers up with output enabled to both the left and
 	//right speakers for all channels.
-	for(unsigned int channelNo = 0; channelNo < channelCount; ++channelNo)
+	for(unsigned int channelNo = 0; channelNo < ChannelCount; ++channelNo)
 	{
 		unsigned int channelAddressOffset = GetChannelBlockAddressOffset(channelNo);
 		SetOutputLeft(channelAddressOffset, true, AccessTarget().AccessLatest());
@@ -509,8 +509,8 @@ void YM2612::Reset(double accessTime)
 	}
 
 	//Fix any locked registers at their set value
-	std::unique_lock<std::mutex> lock2(registerLockMutex);
-	for(std::map<unsigned int, std::list<RegisterLocking>>::const_iterator lockedRegisterStateIterator = lockedRegisterState.begin(); lockedRegisterStateIterator != lockedRegisterState.end(); ++lockedRegisterStateIterator)
+	std::unique_lock<std::mutex> lock2(_registerLockMutex);
+	for(std::map<unsigned int, std::list<RegisterLocking>>::const_iterator lockedRegisterStateIterator = _lockedRegisterState.begin(); lockedRegisterStateIterator != _lockedRegisterState.end(); ++lockedRegisterStateIterator)
 	{
 		for(std::list<RegisterLocking>::const_iterator i = lockedRegisterStateIterator->second.begin(); i != lockedRegisterStateIterator->second.end(); ++i)
 		{
@@ -526,7 +526,7 @@ bool YM2612::AddReference(const Marshal::In<std::wstring>& referenceName, IBusIn
 {
 	if(referenceName == L"BusInterface")
 	{
-		memoryBus = target;
+		_memoryBus = target;
 	}
 	else
 	{
@@ -538,9 +538,9 @@ bool YM2612::AddReference(const Marshal::In<std::wstring>& referenceName, IBusIn
 //----------------------------------------------------------------------------------------
 void YM2612::RemoveReference(IBusInterface* target)
 {
-	if(memoryBus == target)
+	if(_memoryBus == target)
 	{
-		memoryBus = 0;
+		_memoryBus = 0;
 	}
 }
 
@@ -589,16 +589,16 @@ unsigned int YM2612::GetLineWidth(unsigned int lineID) const
 //----------------------------------------------------------------------------------------
 void YM2612::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
-	std::unique_lock<std::mutex> lock(lineMutex);
+	std::unique_lock<std::mutex> lock(_lineMutex);
 
 	//Process the line state change
 	switch((LineID)targetLine)
 	{
 	case LineID::IC:{
 		bool icLineStateNew = lineData.LSB();
-		if(icLineStateNew != icLineState)
+		if(icLineStateNew != _icLineState)
 		{
-			icLineState = icLineStateNew;
+			_icLineState = icLineStateNew;
 			Reset(accessTime);
 		}
 		break;}
@@ -608,18 +608,18 @@ void YM2612::SetLineState(unsigned int targetLine, const Data& lineData, IDevice
 //----------------------------------------------------------------------------------------
 void YM2612::AssertCurrentOutputLineState() const
 {
-	if(memoryBus != 0)
+	if(_memoryBus != 0)
 	{
-		if(irqLineState) memoryBus->SetLineState((unsigned int)LineID::IRQ, Data(GetLineWidth((unsigned int)LineID::IRQ), 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(_irqLineState) _memoryBus->SetLineState((unsigned int)LineID::IRQ, Data(GetLineWidth((unsigned int)LineID::IRQ), 1), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
 }
 
 //----------------------------------------------------------------------------------------
 void YM2612::NegateCurrentOutputLineState() const
 {
-	if(memoryBus != 0)
+	if(_memoryBus != 0)
 	{
-		if(irqLineState) memoryBus->SetLineState((unsigned int)LineID::IRQ, Data(GetLineWidth((unsigned int)LineID::IRQ), 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
+		if(_irqLineState) _memoryBus->SetLineState((unsigned int)LineID::IRQ, Data(GetLineWidth((unsigned int)LineID::IRQ), 0), GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0);
 	}
 }
 
@@ -652,7 +652,7 @@ void YM2612::SetClockSourceRate(unsigned int clockInput, double clockRate, IDevi
 	//Apply the input clock rate change
 	if((ClockID)clockInput == ClockID::C0M)
 	{
-		externalClockRate = clockRate;
+		_externalClockRate = clockRate;
 	}
 
 	//Since a clock rate change will affect our timing point calculations, trigger a
@@ -666,7 +666,7 @@ void YM2612::TransparentSetClockSourceRate(unsigned int clockInput, double clock
 	//Apply the input clock rate change
 	if((ClockID)clockInput == ClockID::C0M)
 	{
-		externalClockRate = clockRate;
+		_externalClockRate = clockRate;
 	}
 }
 
@@ -676,13 +676,13 @@ void YM2612::TransparentSetClockSourceRate(unsigned int clockInput, double clock
 void YM2612::BeginExecution()
 {
 	//Initialize the worker thread state
-	pendingRenderOperationCount = 0;
-	renderThreadLagging = false;
-	regTimesliceList.clear();
-	timerATimesliceList.clear();
+	_pendingRenderOperationCount = 0;
+	_renderThreadLagging = false;
+	_regTimesliceList.clear();
+	_timerATimesliceList.clear();
 
 	//Start the render worker thread
-	renderThreadActive = true;
+	_renderThreadActive = true;
 	std::thread workerThread(std::bind(std::mem_fn(&YM2612::RenderThread), this));
 	workerThread.detach();
 }
@@ -690,14 +690,14 @@ void YM2612::BeginExecution()
 //----------------------------------------------------------------------------------------
 void YM2612::SuspendExecution()
 {
-	std::unique_lock<std::mutex> lock(renderThreadMutex);
+	std::unique_lock<std::mutex> lock(_renderThreadMutex);
 
 	//Suspend the render worker thread
-	if(renderThreadActive)
+	if(_renderThreadActive)
 	{
-		renderThreadActive = false;
-		renderThreadUpdate.notify_all();
-		renderThreadStopped.wait(lock);
+		_renderThreadActive = false;
+		_renderThreadUpdate.notify_all();
+		_renderThreadStopped.wait(lock);
 	}
 }
 
@@ -721,24 +721,24 @@ void YM2612::NotifyUpcomingTimeslice(double nanoseconds)
 	//between timer updates based on the progress through the current timeslice. Since
 	//we're now switching to a new timeslice, we need to advance to the end of the last
 	//timeslice and reset the access time.
-	if(lastTimesliceLength > 0)
+	if(_lastTimesliceLength > 0)
 	{
-		std::unique_lock<std::mutex> lock(accessMutex);
-		UpdateTimers(lastTimesliceLength);
+		std::unique_lock<std::mutex> lock(_accessMutex);
+		UpdateTimers(_lastTimesliceLength);
 	}
-	timersLastUpdateTime = 0;
+	_timersLastUpdateTime = 0;
 
-	lastTimesliceLength = nanoseconds;
-	lastAccessTime = 0;
+	_lastTimesliceLength = nanoseconds;
+	_lastAccessTime = 0;
 
 	//Add the new timeslice to all our timed buffers
-	reg.AddTimeslice(nanoseconds);
-	timerAOverflowTimes.AddTimeslice(nanoseconds);
+	_reg.AddTimeslice(nanoseconds);
+	_timerAOverflowTimes.AddTimeslice(nanoseconds);
 
 	//Add references to the new timeslice entry from our timed buffers to the uncommitted
 	//timeslice lists for the buffers
-	regTimesliceListUncommitted.push_back(reg.GetLatestTimeslice());
-	timerATimesliceListUncommitted.push_back(timerAOverflowTimes.GetLatestTimeslice());
+	_regTimesliceListUncommitted.push_back(_reg.GetLatestTimeslice());
+	_timerATimesliceListUncommitted.push_back(_timerAOverflowTimes.GetLatestTimeslice());
 }
 
 //----------------------------------------------------------------------------------------
@@ -747,12 +747,12 @@ void YM2612::ExecuteTimeslice(double nanoseconds)
 	//If the render thread is lagging, pause here until it has caught up, so we don't
 	//leave the render thread behind with an ever-increasing workload it will never be
 	//able to complete.
-	if(renderThreadLagging)
+	if(_renderThreadLagging)
 	{
-		std::unique_lock<std::mutex> lock(timesliceMutex);
-		while(renderThreadLagging)
+		std::unique_lock<std::mutex> lock(_timesliceMutex);
+		while(_renderThreadLagging)
 		{
-			renderThreadLaggingStateChange.wait(lock);
+			_renderThreadLaggingStateChange.wait(lock);
 		}
 	}
 }
@@ -761,113 +761,113 @@ void YM2612::ExecuteTimeslice(double nanoseconds)
 void YM2612::ExecuteRollback()
 {
 	//Clock settings
-	externalClockRate = bexternalClockRate;
+	_externalClockRate = _bexternalClockRate;
 
 	//Bus interface
-	icLineState = bicLineState;
+	_icLineState = _bicLineState;
 
 	//Rollback our timed buffers
-	reg.Rollback();
-	timerAOverflowTimes.Rollback();
+	_reg.Rollback();
+	_timerAOverflowTimes.Rollback();
 
 	//Rollback our port registers
-	currentReg = bcurrentReg;
-	status = bstatus;
+	_currentReg = _bcurrentReg;
+	_status = _bstatus;
 
 	//Rollback the register latch data
-	for(unsigned int i = 0; i < channelCount; ++i)
+	for(unsigned int i = 0; i < ChannelCount; ++i)
 	{
-		latchedFrequencyDataPending[i] = blatchedFrequencyDataPending[i];
-		latchedFrequencyData[i] = blatchedFrequencyData[i];
+		_latchedFrequencyDataPending[i] = _blatchedFrequencyDataPending[i];
+		_latchedFrequencyData[i] = _blatchedFrequencyData[i];
 	}
 	for(unsigned int i = 0; i < 3; ++i)
 	{
-		latchedFrequencyDataPendingCH3[i] = blatchedFrequencyDataPendingCH3[i];
-		latchedFrequencyDataCH3[i] = blatchedFrequencyDataCH3[i];
+		_latchedFrequencyDataPendingCH3[i] = _blatchedFrequencyDataPendingCH3[i];
+		_latchedFrequencyDataCH3[i] = _blatchedFrequencyDataCH3[i];
 	}
 
 	//Rollback the timer data
-	timersRemainingTime = btimersRemainingTime;
-	timerARemainingCycles = btimerARemainingCycles;
-	timerBRemainingCycles = btimerBRemainingCycles;
-	timerACounter = btimerACounter;
-	timerBCounter = btimerBCounter;
-	timerAInitialCounter = btimerAInitialCounter;
-	timerBInitialCounter = btimerBInitialCounter;
-	timerAEnable = btimerAEnable;
-	timerBEnable = btimerBEnable;
-	timerALoad = btimerALoad;
-	timerBLoad = btimerBLoad;
-	irqLineState = birqLineState;
+	_timersRemainingTime = _btimersRemainingTime;
+	_timerARemainingCycles = _btimerARemainingCycles;
+	_timerBRemainingCycles = _btimerBRemainingCycles;
+	_timerACounter = _btimerACounter;
+	_timerBCounter = _btimerBCounter;
+	_timerAInitialCounter = _btimerAInitialCounter;
+	_timerBInitialCounter = _btimerBInitialCounter;
+	_timerAEnable = _btimerAEnable;
+	_timerBEnable = _btimerBEnable;
+	_timerALoad = _btimerALoad;
+	_timerBLoad = _btimerBLoad;
+	_irqLineState = _birqLineState;
 
 	//Clear any uncommitted timeslices from our render timeslice buffers
-	regTimesliceListUncommitted.clear();
-	timerATimesliceListUncommitted.clear();
+	_regTimesliceListUncommitted.clear();
+	_timerATimesliceListUncommitted.clear();
 }
 
 //----------------------------------------------------------------------------------------
 void YM2612::ExecuteCommit()
 {
 	//Clock settings
-	bexternalClockRate = externalClockRate;
+	_bexternalClockRate = _externalClockRate;
 
 	//Bus interface
-	bicLineState = icLineState;
+	_bicLineState = _icLineState;
 
 	//Commit our timed buffers
-	reg.Commit();
-	timerAOverflowTimes.Commit();
+	_reg.Commit();
+	_timerAOverflowTimes.Commit();
 
 	//Take a backup of our port registers
-	bcurrentReg = currentReg;
-	bstatus = status;
+	_bcurrentReg = _currentReg;
+	_bstatus = _status;
 
 	//Take a backup of the register latch data
-	for(unsigned int i = 0; i < channelCount; ++i)
+	for(unsigned int i = 0; i < ChannelCount; ++i)
 	{
-		blatchedFrequencyDataPending[i] = latchedFrequencyDataPending[i];
-		blatchedFrequencyData[i] = latchedFrequencyData[i];
+		_blatchedFrequencyDataPending[i] = _latchedFrequencyDataPending[i];
+		_blatchedFrequencyData[i] = _latchedFrequencyData[i];
 	}
 	for(unsigned int i = 0; i < 3; ++i)
 	{
-		blatchedFrequencyDataPendingCH3[i] = latchedFrequencyDataPendingCH3[i];
-		blatchedFrequencyDataCH3[i] = latchedFrequencyDataCH3[i];
+		_blatchedFrequencyDataPendingCH3[i] = _latchedFrequencyDataPendingCH3[i];
+		_blatchedFrequencyDataCH3[i] = _latchedFrequencyDataCH3[i];
 	}
 
 	//Take a backup of the timer data
-	btimersRemainingTime = timersRemainingTime;
-	btimerARemainingCycles = timerARemainingCycles;
-	btimerBRemainingCycles = timerBRemainingCycles;
-	btimerACounter = timerACounter;
-	btimerBCounter = timerBCounter;
-	btimerAInitialCounter = timerAInitialCounter;
-	btimerBInitialCounter = timerBInitialCounter;
-	btimerAEnable = timerAEnable;
-	btimerBEnable = timerBEnable;
-	btimerALoad = timerALoad;
-	btimerBLoad = timerBLoad;
-	birqLineState = irqLineState;
+	_btimersRemainingTime = _timersRemainingTime;
+	_btimerARemainingCycles = _timerARemainingCycles;
+	_btimerBRemainingCycles = _timerBRemainingCycles;
+	_btimerACounter = _timerACounter;
+	_btimerBCounter = _timerBCounter;
+	_btimerAInitialCounter = _timerAInitialCounter;
+	_btimerBInitialCounter = _timerBInitialCounter;
+	_btimerAEnable = _timerAEnable;
+	_btimerBEnable = _timerBEnable;
+	_btimerALoad = _timerALoad;
+	_btimerBLoad = _timerBLoad;
+	_birqLineState = _irqLineState;
 
 	//Ensure that a valid latest timeslice exists in all our buffers. We need this
 	//check here, because commits can be triggered by the system at potentially any
 	//point in time, whether a timeslice has been issued or not.
-	if(!regTimesliceListUncommitted.empty() && !timerATimesliceListUncommitted.empty())
+	if(!_regTimesliceListUncommitted.empty() && !_timerATimesliceListUncommitted.empty())
 	{
 		//Obtain a timeslice lock so we can update the data we feed to the render
 		//thread
-		std::unique_lock<std::mutex> lock(timesliceMutex);
+		std::unique_lock<std::mutex> lock(_timesliceMutex);
 
 		//Add the number of timeslices we are about to commit to the count of pending
 		//render operations. This is used to track if the render thread is lagging.
-		pendingRenderOperationCount += (unsigned int)regTimesliceListUncommitted.size();
+		_pendingRenderOperationCount += (unsigned int)_regTimesliceListUncommitted.size();
 
 		//Move all timeslices in our uncommitted timeslice lists over to the committed
 		//timeslice lists, for processing by the render thread.
-		regTimesliceList.splice(regTimesliceList.end(), regTimesliceListUncommitted);
-		timerATimesliceList.splice(timerATimesliceList.end(), timerATimesliceListUncommitted);
+		_regTimesliceList.splice(_regTimesliceList.end(), _regTimesliceListUncommitted);
+		_timerATimesliceList.splice(_timerATimesliceList.end(), _timerATimesliceListUncommitted);
 
 		//Notify the render thread that it's got more work to do
-		renderThreadUpdate.notify_all();
+		_renderThreadUpdate.notify_all();
 	}
 }
 
@@ -875,7 +875,7 @@ void YM2612::ExecuteCommit()
 //##TODO## Refactor this function to break it down into a set of smaller functions
 void YM2612::RenderThread()
 {
-	std::unique_lock<std::mutex> lock(renderThreadMutex);
+	std::unique_lock<std::mutex> lock(_renderThreadMutex);
 
 	//Start the render loop
 	bool done = false;
@@ -886,21 +886,21 @@ void YM2612::RenderThread()
 		RandomTimeAccessValue<bool, double>::Timeslice timerATimesliceCopy;
 		bool renderTimesliceObtained = false;
 		{
-			std::unique_lock<std::mutex> timesliceLock(timesliceMutex);
+			std::unique_lock<std::mutex> timesliceLock(_timesliceMutex);
 
 			//If there is at least one render timeslice pending, grab it from the queue.
-			if(!regTimesliceList.empty() && !timerATimesliceList.empty())
+			if(!_regTimesliceList.empty() && !_timerATimesliceList.empty())
 			{
 				//Update the lagging state for the render thread
-				--pendingRenderOperationCount;
-				renderThreadLagging = (pendingRenderOperationCount > maxPendingRenderOperationCount);
-				renderThreadLaggingStateChange.notify_all();
+				--_pendingRenderOperationCount;
+				_renderThreadLagging = (_pendingRenderOperationCount > maxPendingRenderOperationCount);
+				_renderThreadLaggingStateChange.notify_all();
 
 				//Grab the next completed timeslice from the timeslice list
-				regTimesliceCopy = *regTimesliceList.begin();
-				timerATimesliceCopy = *timerATimesliceList.begin();
-				regTimesliceList.pop_front();
-				timerATimesliceList.pop_front();
+				regTimesliceCopy = *_regTimesliceList.begin();
+				timerATimesliceCopy = *_timerATimesliceList.begin();
+				_regTimesliceList.pop_front();
+				_timerATimesliceList.pop_front();
 
 				//Flag that we managed to obtain a render timeslice
 				renderTimesliceObtained = true;
@@ -914,14 +914,14 @@ void YM2612::RenderThread()
 			//If the render thread has not already been instructed to stop, suspend this
 			//thread until a timeslice becomes available or this thread is instructed to
 			//stop.
-			if(renderThreadActive)
+			if(_renderThreadActive)
 			{
-				renderThreadUpdate.wait(lock);
+				_renderThreadUpdate.wait(lock);
 			}
 
 			//If the render thread has been suspended, flag that we need to exit this
 			//render loop.
-			done = !renderThreadActive;
+			done = !_renderThreadActive;
 
 			//Begin the loop again
 			continue;
@@ -931,11 +931,11 @@ void YM2612::RenderThread()
 		accessTarget.AccessCommitted();
 
 		//Calculate the FM clock period
-		double fmClock = (externalClockRate / fmClockDivider) / outputClockDivider;
+		double fmClock = (_externalClockRate / _fmClockDivider) / _outputClockDivider;
 		double fmClockPeriod = 1000000000 / fmClock;
 
 		//Render the YM2612 output
-		size_t outputBufferPos = outputBuffer.size();
+		size_t outputBufferPos = _outputBuffer.size();
 //		unsigned int outputBufferMultiplexedPos = 0;
 //		std::vector<short> outputBufferMultiplexed(0);
 		bool moreSamplesRemaining = true;
@@ -946,27 +946,27 @@ void YM2612::RenderThread()
 			//the end of a timeslice. Negative times won't cause writes to be processed at
 			//the incorrect time under the current model, but we do need to ensure that
 			//remainingRenderTime isn't negative before attempting to generate an output.
-			remainingRenderTime += reg.GetNextWriteTime(regTimesliceCopy);
+			_remainingRenderTime += _reg.GetNextWriteTime(regTimesliceCopy);
 
 			//##DEBUG##
 //			std::wcout << "YM2612 Buffer:\t" << remainingRenderTime << '\t' << outputBuffer.size() << '\t' << ((unsigned int)(remainingRenderTime / fmClockPeriod) * 2) << '\n';
 
 			//Calculate the output sample count. Note that remainingRenderTime may be
 			//negative, but we catch that below before using outputSampleCount.
-			unsigned int outputSampleCount = ((unsigned int)(remainingRenderTime / fmClockPeriod) * 2);
+			unsigned int outputSampleCount = ((unsigned int)(_remainingRenderTime / fmClockPeriod) * 2);
 
 			//If we have one or more output samples to generate before the next settings
 			//change or the end of the target timeslice, generate and output the samples.
-			if((remainingRenderTime > 0) && (outputSampleCount > 0))
+			if((_remainingRenderTime > 0) && (outputSampleCount > 0))
 			{
 				//Resize the output buffer to fit the samples we're about to add
-				outputBuffer.resize(outputBuffer.size() + outputSampleCount);
+				_outputBuffer.resize(_outputBuffer.size() + outputSampleCount);
 	//			outputBufferMultiplexed.resize(outputBufferMultiplexed.size() + (outputSampleCount * channelCount));
 
 				//##TODO## Change the way we advance the render thread so that the update
 				//steps are driven by integer cycle numbers, rather than timeslice values.
 				//Refer to the timer update function.
-				while(remainingRenderTime >= fmClockPeriod)
+				while(_remainingRenderTime >= fmClockPeriod)
 				{
 					//If CSM mode is active, advance the timer A overflow buffer by one step.
 					//We make this conditional as an optimization, to prevent the need to
@@ -979,27 +979,27 @@ void YM2612::RenderThread()
 						//the overflow value as a signal line which is only asserted when an
 						//overflow has occurred after the last update. Each write always sets
 						//it to true, and we reset it once that write has been processed.
-						timerAOverflowTimes.WriteCommitted(false);
+						_timerAOverflowTimes.WriteCommitted(false);
 						//Advance the buffer
-						timerAOverflowTimes.AdvanceByTime(fmClockPeriod, timerATimesliceCopy);
+						_timerAOverflowTimes.AdvanceByTime(fmClockPeriod, timerATimesliceCopy);
 					}
 
 					//Advance the global envelope generator state, and determine whether an
 					//envelope generator update cycle needs to run for each operator on this
 					//update step.
 					bool updateEnvelopeGenerator = false;
-					--egRemainingRenderCycles;
-					if(egRemainingRenderCycles <= 0)
+					--_egRemainingRenderCycles;
+					if(_egRemainingRenderCycles <= 0)
 					{
-						egRemainingRenderCycles = (int)egClockDivider;
-						++envelopeCycleCounter;
+						_egRemainingRenderCycles = (int)_egClockDivider;
+						++_envelopeCycleCounter;
 						updateEnvelopeGenerator = true;
 					}
 
 					//Update the state of the envelope and phase generators for each operator
-					for(unsigned int channelNo = 0; channelNo < channelCount; ++channelNo)
+					for(unsigned int channelNo = 0; channelNo < ChannelCount; ++channelNo)
 					{
-						for(unsigned int operatorNo = 0; operatorNo < operatorCount; ++operatorNo)
+						for(unsigned int operatorNo = 0; operatorNo < OperatorCount; ++operatorNo)
 						{
 							UpdateOperator(channelNo, operatorNo, updateEnvelopeGenerator);
 						}
@@ -1008,24 +1008,24 @@ void YM2612::RenderThread()
 					//Update the LFO
 					if(GetLFOEnabled(accessTarget))
 					{
-						--cyclesUntilLFOIncrement;
-						if(cyclesUntilLFOIncrement <= 0)
+						--_cyclesUntilLFOIncrement;
+						if(_cyclesUntilLFOIncrement <= 0)
 						{
 							const unsigned int lfoIncrementValues[8] = {108, 77, 71, 67, 62, 44, 8, 5};
 							unsigned int lfoData = GetLFOData(accessTarget);
-							cyclesUntilLFOIncrement = lfoIncrementValues[lfoData];
-							++currentLFOCounter;
+							_cyclesUntilLFOIncrement = lfoIncrementValues[lfoData];
+							++_currentLFOCounter;
 						}
 					}
 					else
 					{
 						//If the LFO is disabled, the LFO counter is forced to 0
-						currentLFOCounter = 0;
+						_currentLFOCounter = 0;
 					}
 
 					//Calculate the FM output for each channel in the YM2612 for this sample
-					int channelOutput[channelCount][2];
-					for(unsigned int channelNo = 0; channelNo < channelCount; ++channelNo)
+					int channelOutput[ChannelCount][2];
+					for(unsigned int channelNo = 0; channelNo < ChannelCount; ++channelNo)
 					{
 						//Calculate the address offset for all channel registers for the
 						//target channel
@@ -1035,7 +1035,7 @@ void YM2612::RenderThread()
 						unsigned int algorithmNo = GetAlgorithmData(channelAddressOffset, accessTarget);
 
 						//Calculate the output for each operator in the channel
-						for(unsigned int operatorNo = 0; operatorNo < operatorCount; ++operatorNo)
+						for(unsigned int operatorNo = 0; operatorNo < OperatorCount; ++operatorNo)
 						{
 							//Calculate the address offset for all operator registers for
 							//the target channel and operator
@@ -1045,35 +1045,35 @@ void YM2612::RenderThread()
 							int phaseModulation = 0;
 							if((operatorNo == OPERATOR2) && ((algorithmNo == 0) || (algorithmNo == 3) || (algorithmNo == 4) || (algorithmNo == 5) || (algorithmNo == 6)))
 							{
-								phaseModulation = operatorOutput[channelNo][OPERATOR1];
+								phaseModulation = _operatorOutput[channelNo][OPERATOR1];
 							}
 							else if((operatorNo == OPERATOR3) && ((algorithmNo == 0) || (algorithmNo == 2)))
 							{
-								phaseModulation = operatorOutput[channelNo][OPERATOR2];
+								phaseModulation = _operatorOutput[channelNo][OPERATOR2];
 							}
 							else if((operatorNo == OPERATOR3) && (algorithmNo == 1))
 							{
-								phaseModulation = operatorOutput[channelNo][OPERATOR1] + operatorOutput[channelNo][OPERATOR2];
+								phaseModulation = _operatorOutput[channelNo][OPERATOR1] + _operatorOutput[channelNo][OPERATOR2];
 							}
 							else if((operatorNo == OPERATOR3) && (algorithmNo == 5))
 							{
-								phaseModulation = operatorOutput[channelNo][OPERATOR1];
+								phaseModulation = _operatorOutput[channelNo][OPERATOR1];
 							}
 							else if((operatorNo == OPERATOR4) && ((algorithmNo == 0) || (algorithmNo == 1) || (algorithmNo == 4)))
 							{
-								phaseModulation = operatorOutput[channelNo][OPERATOR3];
+								phaseModulation = _operatorOutput[channelNo][OPERATOR3];
 							}
 							else if((operatorNo == OPERATOR4) && (algorithmNo == 2))
 							{
-								phaseModulation = operatorOutput[channelNo][OPERATOR1] + operatorOutput[channelNo][OPERATOR3];
+								phaseModulation = _operatorOutput[channelNo][OPERATOR1] + _operatorOutput[channelNo][OPERATOR3];
 							}
 							else if((operatorNo == OPERATOR4) && (algorithmNo == 3))
 							{
-								phaseModulation = operatorOutput[channelNo][OPERATOR2] + operatorOutput[channelNo][OPERATOR3];
+								phaseModulation = _operatorOutput[channelNo][OPERATOR2] + _operatorOutput[channelNo][OPERATOR3];
 							}
 							else if((operatorNo == OPERATOR4) && (algorithmNo == 5))
 							{
-								phaseModulation = operatorOutput[channelNo][OPERATOR1];
+								phaseModulation = _operatorOutput[channelNo][OPERATOR1];
 							}
 							//Convert the 14-bit operator unit output from the modulator into
 							//a 10-bit phase modulation input. Note that the bits are not
@@ -1091,7 +1091,7 @@ void YM2612::RenderThread()
 							//              | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
 							//              -----------------------------------------
 							phaseModulation >>= 1;
-							phaseModulation &= ((1 << phaseBitCount) - 1);
+							phaseModulation &= ((1 << PhaseBitCount) - 1);
 
 							//If we're updating operator 1, calculate the self-feedback value
 							//for phase modulation.
@@ -1100,10 +1100,10 @@ void YM2612::RenderThread()
 								unsigned int feedback = GetFeedbackData(channelAddressOffset, accessTarget);
 								if(feedback > 0)
 								{
-									phaseModulation = feedbackBuffer[channelNo][0] + feedbackBuffer[channelNo][1];
+									phaseModulation = _feedbackBuffer[channelNo][0] + _feedbackBuffer[channelNo][1];
 									phaseModulation >>= (10 - feedback);
 
-									phaseModulation &= ((1 << phaseBitCount) - 1);
+									phaseModulation &= ((1 << PhaseBitCount) - 1);
 								}
 							}
 
@@ -1115,26 +1115,26 @@ void YM2612::RenderThread()
 
 							//Calculate the output from the operator unit
 							int result = CalculateOperator(phase, phaseModulation, attenuation);
-							operatorOutput[channelNo][operatorNo] = result;
+							_operatorOutput[channelNo][operatorNo] = result;
 
 							//If we're updating operator 1, add the output sample to the
 							//self-feedback output buffer.
 							if(operatorNo == OPERATOR1)
 							{
-								feedbackBuffer[channelNo][0] = feedbackBuffer[channelNo][1];
-								feedbackBuffer[channelNo][1] = result;
+								_feedbackBuffer[channelNo][0] = _feedbackBuffer[channelNo][1];
+								_feedbackBuffer[channelNo][1] = result;
 							}
 
 							//Write to the wav log
-							if(wavLoggingOperatorEnabled[channelNo][operatorNo])
+							if(_wavLoggingOperatorEnabled[channelNo][operatorNo])
 							{
-								std::unique_lock<std::mutex> lock(waveLoggingMutex);
+								std::unique_lock<std::mutex> lock(_waveLoggingMutex);
 								short outputSample;
-								float operatorOutputNormalized = (float)operatorOutput[channelNo][operatorNo] / ((1 << (operatorOutputBitCount - 1)) - 1);
+								float operatorOutputNormalized = (float)_operatorOutput[channelNo][operatorNo] / ((1 << (OperatorOutputBitCount - 1)) - 1);
 								//We halve the amplitude of the operator output just to
 								//make it a little easier to work with.
 								outputSample = (short)(operatorOutputNormalized * (32767.0f/2));
-								wavLogOperator[channelNo][operatorNo].WriteData(outputSample);
+								_wavLogOperator[channelNo][operatorNo].WriteData(outputSample);
 							}
 						}
 
@@ -1171,7 +1171,7 @@ void YM2612::RenderThread()
 							//         -----  |  -----
 							//         | 3 |--/
 							//         -----
-							combinedChannelOutput = operatorOutput[channelNo][OPERATOR4];
+							combinedChannelOutput = _operatorOutput[channelNo][OPERATOR4];
 							break;
 						case 4:
 							//  -----  -----
@@ -1181,7 +1181,7 @@ void YM2612::RenderThread()
 							//  -----  -----  |
 							//  | 3 |--| 4 |--/
 							//  -----  -----
-							combinedChannelOutput = operatorOutput[channelNo][OPERATOR4] + operatorOutput[channelNo][OPERATOR2];
+							combinedChannelOutput = _operatorOutput[channelNo][OPERATOR4] + _operatorOutput[channelNo][OPERATOR2];
 							break;
 						case 5:
 							//            -----
@@ -1206,7 +1206,7 @@ void YM2612::RenderThread()
 							//    |       |       |
 							//    \-------+-------/
 							//            |
-							combinedChannelOutput = operatorOutput[channelNo][OPERATOR4] + operatorOutput[channelNo][OPERATOR2] + operatorOutput[channelNo][OPERATOR3];
+							combinedChannelOutput = _operatorOutput[channelNo][OPERATOR4] + _operatorOutput[channelNo][OPERATOR2] + _operatorOutput[channelNo][OPERATOR3];
 							break;
 						case 7:
 							//  -----   -----   -----   -----
@@ -1215,7 +1215,7 @@ void YM2612::RenderThread()
 							//    |       |       |       |
 							//    \-----------+-----------/
 							//                |
-							combinedChannelOutput = operatorOutput[channelNo][OPERATOR4] + operatorOutput[channelNo][OPERATOR2] + operatorOutput[channelNo][OPERATOR3] + operatorOutput[channelNo][OPERATOR1];
+							combinedChannelOutput = _operatorOutput[channelNo][OPERATOR4] + _operatorOutput[channelNo][OPERATOR2] + _operatorOutput[channelNo][OPERATOR3] + _operatorOutput[channelNo][OPERATOR1];
 							break;
 						}
 
@@ -1232,7 +1232,7 @@ void YM2612::RenderThread()
 							//Convert from the 8-bit signed DAC data value to a 14-bit signed
 							//operator output. The DAC data is mapped to the upper 8 bits of
 							//the 14-bit output.
-							dacResult <<= operatorOutputBitCount - dacDataBitCount;
+							dacResult <<= OperatorOutputBitCount - dacDataBitCount;
 							//Since DAC is enabled, the specified DAC sample replaces the
 							//calculated FM output for this channel.
 							combinedChannelOutput = dacResult;
@@ -1249,8 +1249,8 @@ void YM2612::RenderThread()
 						//A single operator at max attenuation won't clip, but multiple
 						//operators combined might. We add a limit here to reproduce the
 						//clipping operation.
-						int maxAccumulatorOutput = (int)((1 << (accumulatorOutputBitCount - 1)) - 1);
-						int minAccumulatorOutput = -(int)((1 << (accumulatorOutputBitCount - 1)) - 1);
+						int maxAccumulatorOutput = (int)((1 << (AccumulatorOutputBitCount - 1)) - 1);
+						int minAccumulatorOutput = -(int)((1 << (AccumulatorOutputBitCount - 1)) - 1);
 						if(combinedChannelOutput > maxAccumulatorOutput)
 						{
 							combinedChannelOutput = maxAccumulatorOutput;
@@ -1265,19 +1265,19 @@ void YM2612::RenderThread()
 						channelOutput[channelNo][1] = GetOutputRight(channelAddressOffset, accessTarget)? combinedChannelOutput: 0;
 
 						//Write to the wave log
-						if(wavLoggingChannelEnabled[channelNo])
+						if(_wavLoggingChannelEnabled[channelNo])
 						{
-							std::unique_lock<std::mutex> lock(waveLoggingMutex);
+							std::unique_lock<std::mutex> lock(_waveLoggingMutex);
 							short outputSampleLeft;
 							short outputSampleRight;
-							float channelOutputLeftNormalized = (float)channelOutput[channelNo][0] / ((1 << (accumulatorOutputBitCount - 1)) - 1);
-							float channelOutputRightNormalized = (float)channelOutput[channelNo][1] / ((1 << (accumulatorOutputBitCount - 1)) - 1);
+							float channelOutputLeftNormalized = (float)channelOutput[channelNo][0] / ((1 << (AccumulatorOutputBitCount - 1)) - 1);
+							float channelOutputRightNormalized = (float)channelOutput[channelNo][1] / ((1 << (AccumulatorOutputBitCount - 1)) - 1);
 							//We halve the amplitude of the channel output just to
 							//make it a little easier to work with.
 							outputSampleLeft = (short)(channelOutputLeftNormalized * (32767.0f/2));
 							outputSampleRight = (short)(channelOutputRightNormalized * (32767.0f/2));
-							wavLogChannel[channelNo].WriteData(outputSampleLeft);
-							wavLogChannel[channelNo].WriteData(outputSampleRight);
+							_wavLogChannel[channelNo].WriteData(outputSampleLeft);
+							_wavLogChannel[channelNo].WriteData(outputSampleRight);
 						}
 					}
 
@@ -1313,23 +1313,23 @@ void YM2612::RenderThread()
 					//we're sending to the sound card.
 					double finalOutputLeft = 0;
 					double finalOutputRight = 0;
-					for(unsigned int i = 0; i < channelCount; ++i)
+					for(unsigned int i = 0; i < ChannelCount; ++i)
 					{
-						float channelOutputLeftNormalized = (float)channelOutput[i][0] / ((1 << (accumulatorOutputBitCount - 1)) - 1);
-						float channelOutputRightNormalized = (float)channelOutput[i][1] / ((1 << (accumulatorOutputBitCount - 1)) - 1);
-						finalOutputLeft += (channelOutputLeftNormalized / channelCount);
-						finalOutputRight += (channelOutputRightNormalized / channelCount);
+						float channelOutputLeftNormalized = (float)channelOutput[i][0] / ((1 << (AccumulatorOutputBitCount - 1)) - 1);
+						float channelOutputRightNormalized = (float)channelOutput[i][1] / ((1 << (AccumulatorOutputBitCount - 1)) - 1);
+						finalOutputLeft += (channelOutputLeftNormalized / ChannelCount);
+						finalOutputRight += (channelOutputRightNormalized / ChannelCount);
 					}
 					short outputSampleLeft = (short)(32767.0f * finalOutputLeft);
 					short outputSampleRight = (short)(32767.0f * finalOutputRight);
-					outputBuffer[outputBufferPos++] = outputSampleLeft;
-					outputBuffer[outputBufferPos++] = outputSampleRight;
+					_outputBuffer[outputBufferPos++] = outputSampleLeft;
+					_outputBuffer[outputBufferPos++] = outputSampleRight;
 
 					//Write to the wave log
-					if(wavLoggingEnabled)
+					if(_wavLoggingEnabled)
 					{
-						std::unique_lock<std::mutex> lock(waveLoggingMutex);
-						Stream::ViewBinary wavlogStream(wavLog);
+						std::unique_lock<std::mutex> lock(_waveLoggingMutex);
+						Stream::ViewBinary wavlogStream(_wavLog);
 						wavlogStream << outputSampleLeft;
 						wavlogStream << outputSampleRight;
 					}
@@ -1353,11 +1353,11 @@ void YM2612::RenderThread()
 					//	}
 					//}
 
-					remainingRenderTime -= fmClockPeriod;
+					_remainingRenderTime -= fmClockPeriod;
 				}
 			}
 
-			RandomTimeAccessBuffer<Data, double>::WriteInfo writeInfo = reg.GetWriteInfo(0, regTimesliceCopy);
+			RandomTimeAccessBuffer<Data, double>::WriteInfo writeInfo = _reg.GetWriteInfo(0, regTimesliceCopy);
 			if(writeInfo.exists)
 			{
 				//Handle any special case register changes
@@ -1408,21 +1408,21 @@ void YM2612::RenderThread()
 
 						if(validChannelSelected)
 						{
-							if(!keyStateLocking[channelNo][OPERATOR4])
+							if(!_keyStateLocking[channelNo][OPERATOR4])
 							{
-								operatorData[channelNo][OPERATOR4].keyon = op4KeyState;
+								_operatorData[channelNo][OPERATOR4].keyon = op4KeyState;
 							}
-							if(!keyStateLocking[channelNo][OPERATOR3])
+							if(!_keyStateLocking[channelNo][OPERATOR3])
 							{
-								operatorData[channelNo][OPERATOR3].keyon = op3KeyState;
+								_operatorData[channelNo][OPERATOR3].keyon = op3KeyState;
 							}
-							if(!keyStateLocking[channelNo][OPERATOR2])
+							if(!_keyStateLocking[channelNo][OPERATOR2])
 							{
-								operatorData[channelNo][OPERATOR2].keyon = op2KeyState;
+								_operatorData[channelNo][OPERATOR2].keyon = op2KeyState;
 							}
-							if(!keyStateLocking[channelNo][OPERATOR1])
+							if(!_keyStateLocking[channelNo][OPERATOR1])
 							{
-								operatorData[channelNo][OPERATOR1].keyon = op1KeyState;
+								_operatorData[channelNo][OPERATOR1].keyon = op1KeyState;
 							}
 						}
 					}
@@ -1433,13 +1433,13 @@ void YM2612::RenderThread()
 			//about this conditional step of the timer A overflow buffer.
 			if(GetCH3Mode(accessTarget) != 2)
 			{
-				timerAOverflowTimes.AdvanceByTime(writeInfo.writeTime, timerATimesliceCopy);
+				_timerAOverflowTimes.AdvanceByTime(writeInfo.writeTime, timerATimesliceCopy);
 				//Reset the committed state. We do this after each update here, as CSM
 				//mode has been disabled until this point, so all the overflow events
 				//we've just advanced through would have been ignored.
-				timerAOverflowTimes.WriteCommitted(false);
+				_timerAOverflowTimes.WriteCommitted(false);
 			}
-			moreSamplesRemaining = reg.AdvanceByStep(regTimesliceCopy);
+			moreSamplesRemaining = _reg.AdvanceByStep(regTimesliceCopy);
 		}
 
 		//Play the mixed audio stream. Note that we fold samples from successive render
@@ -1447,18 +1447,18 @@ void YM2612::RenderThread()
 		//when we have a significant number of samples to send.
 		unsigned int outputFrequency = (unsigned int)fmClock;
 		size_t minimumSamplesToOutput = (size_t)(outputFrequency / 60);
-		if(outputBuffer.size() >= minimumSamplesToOutput)
+		if(_outputBuffer.size() >= minimumSamplesToOutput)
 		{
-			unsigned int internalSampleCount = (unsigned int)outputBuffer.size() / 2;
-			unsigned int outputSampleCount = (unsigned int)((double)internalSampleCount * ((double)outputSampleRate / (double)outputFrequency));
-			AudioStream::AudioBuffer* outputBufferFinal = outputStream.CreateAudioBuffer(outputSampleCount, 2);
+			unsigned int internalSampleCount = (unsigned int)_outputBuffer.size() / 2;
+			unsigned int outputSampleCount = (unsigned int)((double)internalSampleCount * ((double)_outputSampleRate / (double)outputFrequency));
+			AudioStream::AudioBuffer* outputBufferFinal = _outputStream.CreateAudioBuffer(outputSampleCount, 2);
 			if(outputBufferFinal != 0)
 			{
-				outputStream.ConvertSampleRate(outputBuffer, internalSampleCount, 2, outputBufferFinal->buffer, outputSampleCount);
-				outputStream.PlayBuffer(outputBufferFinal);
+				_outputStream.ConvertSampleRate(_outputBuffer, internalSampleCount, 2, outputBufferFinal->buffer, outputSampleCount);
+				_outputStream.PlayBuffer(outputBufferFinal);
 			}
-			outputBuffer.clear();
-			outputBuffer.reserve(minimumSamplesToOutput * 2);
+			_outputBuffer.clear();
+			_outputBuffer.reserve(minimumSamplesToOutput * 2);
 
 			//##DEBUG##
 			//std::wcout << "YM2612 Output: " << internalSampleCount << '\t' << outputSampleCount << '\n';
@@ -1480,12 +1480,12 @@ void YM2612::RenderThread()
 
 		//Advance past the timeslice we've just rendered from
 		{
-			std::unique_lock<std::mutex> lock(timesliceMutex);
-			reg.AdvancePastTimeslice(regTimesliceCopy);
-			timerAOverflowTimes.AdvancePastTimeslice(timerATimesliceCopy);
+			std::unique_lock<std::mutex> lock(_timesliceMutex);
+			_reg.AdvancePastTimeslice(regTimesliceCopy);
+			_timerAOverflowTimes.AdvancePastTimeslice(timerATimesliceCopy);
 		}
 	}
-	renderThreadStopped.notify_all();
+	_renderThreadStopped.notify_all();
 }
 
 //----------------------------------------------------------------------------------------
@@ -1495,7 +1495,7 @@ void YM2612::UpdateOperator(unsigned int channelNo, unsigned int operatorNo, boo
 {
 	AccessTarget accessTarget;
 	accessTarget.AccessCommitted();
-	OperatorData* state = &operatorData[channelNo][operatorNo];
+	OperatorData* state = &_operatorData[channelNo][operatorNo];
 
 	//Calculate the address offsets for all channel and operator registers for the target
 	//channel and operator.
@@ -1510,7 +1510,7 @@ void YM2612::UpdateOperator(unsigned int channelNo, unsigned int operatorNo, boo
 	//Update the CSM key-on state
 	if(channelNo == CHANNEL3)
 	{
-		state->csmKeyOn = (GetCH3Mode(accessTarget) == 2) && timerAOverflowTimes.ReadCommitted();
+		state->csmKeyOn = (GetCH3Mode(accessTarget) == 2) && _timerAOverflowTimes.ReadCommitted();
 	}
 
 	//Respond to any key on/off changes
@@ -1543,7 +1543,7 @@ void YM2612::UpdateOperator(unsigned int channelNo, unsigned int operatorNo, boo
 			//occurs.
 			if(GetSSGEnabled(operatorAddressOffset, accessTarget) && (state->ssgOutputInverted ^ GetSSGAttack(operatorAddressOffset, accessTarget)))
 			{
-				state->attenuation = Data(attenuationBitCount, 0x200) - state->attenuation;
+				state->attenuation = Data(AttenuationBitCount, 0x200) - state->attenuation;
 			}
 		}
 		state->keyonPrevious = keyonState;
@@ -1681,8 +1681,8 @@ void YM2612::UpdateOperator(unsigned int channelNo, unsigned int operatorNo, boo
 //----------------------------------------------------------------------------------------
 unsigned int YM2612::CalculateKeyCode(unsigned int block, unsigned int fnumber) const
 {
-	Data keyCode(keyCodeBitCount);
-	Data fnumberData(fnumDataBitCount, fnumber);
+	Data keyCode(KeyCodeBitCount);
+	Data fnumberData(FnumDataBitCount, fnumber);
 	keyCode.SetDataSegment(2, 3, block);
 	keyCode.SetBit(1, fnumberData.GetBit(10));
 	keyCode.SetBit(0, (fnumberData.GetBit(10) && (fnumberData.GetBit(9) || fnumberData.GetBit(8) || fnumberData.GetBit(7))) || (!fnumberData.GetBit(10) && (fnumberData.GetBit(9) && fnumberData.GetBit(8) && fnumberData.GetBit(7))));
@@ -1696,7 +1696,7 @@ void YM2612::UpdatePhaseGenerator(unsigned int channelNo, unsigned int operatorN
 {
 	AccessTarget accessTarget;
 	accessTarget.AccessCommitted();
-	OperatorData* state = &operatorData[channelNo][operatorNo];
+	OperatorData* state = &_operatorData[channelNo][operatorNo];
 
 	//This algorithm is primarily based on the F-Number calculation given in the YM2608
 	//manual, page 24. That formula is as follows:
@@ -1719,13 +1719,13 @@ void YM2612::UpdatePhaseGenerator(unsigned int channelNo, unsigned int operatorN
 	//      |-------------------|
 	//      | 4 | 3 | 2 | 1 | 0 |
 	//      ---------------------
-	Data pmCounter(phaseModIndexBitCount, currentLFOCounter >> 2);
+	Data pmCounter(PhaseModIndexBitCount, _currentLFOCounter >> 2);
 	unsigned int pmSensitivity = GetPMSData(channelAddressOffset, accessTarget);
 	if((pmCounter != 0) && (pmSensitivity != 0))
 	{
-		bool pmInverted = pmCounter.GetBit(phaseModIndexBitCount - 1);
-		bool pmSlopeNegative = pmCounter.GetBit(phaseModIndexBitCount - 2);
-		Data quarterPhase(phaseModIndexBitCount - 2, pmCounter.GetData());
+		bool pmInverted = pmCounter.GetBit(PhaseModIndexBitCount - 1);
+		bool pmSlopeNegative = pmCounter.GetBit(PhaseModIndexBitCount - 2);
+		Data quarterPhase(PhaseModIndexBitCount - 2, pmCounter.GetData());
 		if(pmSlopeNegative)
 		{
 			quarterPhase = ~quarterPhase;
@@ -1745,11 +1745,11 @@ void YM2612::UpdatePhaseGenerator(unsigned int channelNo, unsigned int operatorN
 		//for the increment values for each bit, below the level of the LSB of fnum.
 
 		int pmIncrement = 0;
-		for(unsigned int i = 0; i < fnumDataBitCount; ++i)
+		for(unsigned int i = 0; i < FnumDataBitCount; ++i)
 		{
 			if((frequencyData & (1 << i)) != 0)
 			{
-				unsigned int pmIncrementValue = phaseModIncrementTable[pmSensitivity][quarterPhase.GetData()];
+				unsigned int pmIncrementValue = PhaseModIncrementTable[pmSensitivity][quarterPhase.GetData()];
 				pmIncrement += (int)(pmIncrementValue << i);
 			}
 		}
@@ -1785,7 +1785,7 @@ void YM2612::UpdatePhaseGenerator(unsigned int channelNo, unsigned int operatorN
 		//}
 
 		//Clamp the adjusted fnum value to an 11-bit result.
-		frequencyData &= ((1 << fnumDataBitCount) - 1);
+		frequencyData &= ((1 << FnumDataBitCount) - 1);
 	}
 
 	//Adjust the fnum data by the block shift data, to calculate the initial phase
@@ -1810,10 +1810,10 @@ void YM2612::UpdatePhaseGenerator(unsigned int channelNo, unsigned int operatorN
 	//Apply detune to the phase increment value. Note that the detune adjustment is
 	//applied before the frequency multiplier.
 	unsigned int keyCode = CalculateKeyCode(blockData, frequencyData);
-	Data detuneData(detuneBitCount, GetDetuneData(operatorAddressOffset, accessTarget));
-	bool detuneNegative = detuneData.GetBit(detuneBitCount - 1);
+	Data detuneData(DetuneBitCount, GetDetuneData(operatorAddressOffset, accessTarget));
+	bool detuneNegative = detuneData.GetBit(DetuneBitCount - 1);
 	unsigned int detuneIndex = detuneData.GetDataSegment(0, 2);
-	unsigned int detuneIncrement = detunePhaseIncrementTable[keyCode][detuneIndex];
+	unsigned int detuneIncrement = DetunePhaseIncrementTable[keyCode][detuneIndex];
 	if(detuneNegative)
 	{
 		phaseIncrement -= detuneIncrement;
@@ -1846,7 +1846,7 @@ void YM2612::UpdatePhaseGenerator(unsigned int channelNo, unsigned int operatorN
 //----------------------------------------------------------------------------------------
 unsigned int YM2612::GetCurrentPhase(unsigned int channelNo, unsigned int operatorNo) const
 {
-	const OperatorData* state = &operatorData[channelNo][operatorNo];
+	const OperatorData* state = &_operatorData[channelNo][operatorNo];
 	//This function returns the 10-bit output from the phase generator, which is used by
 	//the operator unit. This 10-bit output represents the upper 10 bits of the internal
 	//phase counter. We extract the upper 10 bits of the internal phase counter here, to
@@ -1893,7 +1893,7 @@ void YM2612::UpdateEnvelopeGenerator(unsigned int channelNo, unsigned int operat
 {
 	AccessTarget accessTarget;
 	accessTarget.AccessCommitted();
-	OperatorData* state = &operatorData[channelNo][operatorNo];
+	OperatorData* state = &_operatorData[channelNo][operatorNo];
 
 	//Check if we need to progress to a different phase of the ADSR envelope
 	if(state->phase == OperatorData::ADSR_ATTACK)
@@ -1964,14 +1964,14 @@ void YM2612::UpdateEnvelopeGenerator(unsigned int channelNo, unsigned int operat
 
 	//Check the envelope cycle counter and see if we should be adjusting the attenuation
 	//for the operator on this cycle.
-	unsigned int counterShiftValue = counterShiftTable[rate];
-	if((envelopeCycleCounter % (1 << counterShiftValue)) == 0)
+	unsigned int counterShiftValue = CounterShiftTable[rate];
+	if((_envelopeCycleCounter % (1 << counterShiftValue)) == 0)
 	{
 		//Get the index of the next attenuation increment value in the update cycle (0-7)
-		unsigned int updateCycle = (envelopeCycleCounter >> counterShiftValue) & 0x07;
+		unsigned int updateCycle = (_envelopeCycleCounter >> counterShiftValue) & 0x07;
 
 		//Read the next attenuation increment value in the cycle
-		unsigned int attenuationIncrement = attenuationIncrementTable[rate][updateCycle];
+		unsigned int attenuationIncrement = AttenuationIncrementTable[rate][updateCycle];
 
 		//Update the attenuation
 		unsigned int newAttenuation = state->attenuation.GetData();
@@ -2037,7 +2037,7 @@ void YM2612::UpdateEnvelopeGenerator(unsigned int channelNo, unsigned int operat
 			//this this clamping behaviour has also been confirmed to work correctly when
 			//the decay rate is modified during the decay phase, to cause the final step
 			//to "skip over" the usual ending value of 0x400.
-			unsigned int maxAttenuation = (1 << attenuationBitCount) - 1;
+			unsigned int maxAttenuation = (1 << AttenuationBitCount) - 1;
 			if(newAttenuation > maxAttenuation)
 			{
 				newAttenuation = maxAttenuation;
@@ -2054,7 +2054,7 @@ void YM2612::SetADSRPhase(unsigned int channelNo, unsigned int operatorNo, unsig
 {
 	AccessTarget accessTarget;
 	accessTarget.AccessCommitted();
-	OperatorData* state = &operatorData[channelNo][operatorNo];
+	OperatorData* state = &_operatorData[channelNo][operatorNo];
 
 	if(phase != state->phase)
 	{
@@ -2081,7 +2081,7 @@ unsigned int YM2612::GetOutputAttenuation(unsigned int channelNo, unsigned int o
 {
 	AccessTarget accessTarget;
 	accessTarget.AccessCommitted();
-	const OperatorData* state = &operatorData[channelNo][operatorNo];
+	const OperatorData* state = &_operatorData[channelNo][operatorNo];
 
 	unsigned int attenuation = state->attenuation.GetData();
 
@@ -2126,8 +2126,8 @@ unsigned int YM2612::GetOutputAttenuation(unsigned int channelNo, unsigned int o
 		//since an amplitude modulation index of 0 represents the "peak" of the wave, the
 		//operator will be attenuated by a fixed amount through amplitude modulation while
 		//the LFO counter is being held at 0.
-		bool inverted = (currentLFOCounter & 0x40) == 0;
-		unsigned int amValue = currentLFOCounter & 0x3F;
+		bool inverted = (_currentLFOCounter & 0x40) == 0;
+		unsigned int amValue = _currentLFOCounter & 0x3F;
 		if(inverted)
 		{
 			amValue = ~amValue & 0x3F;
@@ -2143,9 +2143,9 @@ unsigned int YM2612::GetOutputAttenuation(unsigned int channelNo, unsigned int o
 	}
 
 	//Limit the result to the maximum attenuation value
-	if(attenuation >= (1 << attenuationBitCount))
+	if(attenuation >= (1 << AttenuationBitCount))
 	{
-		attenuation = (1 << attenuationBitCount) - 1;
+		attenuation = (1 << AttenuationBitCount) - 1;
 	}
 
 	return attenuation;
@@ -2168,9 +2168,9 @@ unsigned int YM2612::CalculateRate(unsigned int rateData, unsigned int rateKeySc
 	//The rate number is a 6-bit number, and the result is capped at the max to prevent
 	//overflows. We limit the result to the maximum value here in the case where the
 	//calculation exceeds the maximum.
-	if(rate >= (1 << rateBitCount))
+	if(rate >= (1 << RateBitCount))
 	{
-		rate = (1 << rateBitCount) - 1;
+		rate = (1 << RateBitCount) - 1;
 	}
 	return rate;
 }
@@ -2237,8 +2237,8 @@ unsigned int YM2612::ConvertSustainLevelToAttenuation(unsigned int sustainLevel)
 //----------------------------------------------------------------------------------------
 unsigned int YM2612::InversePow2(unsigned int num) const
 {
-	unsigned int shiftCount = num >> powTableBitCount;
-	unsigned int tableIndex = num & ((1 << powTableBitCount) - 1);
+	unsigned int shiftCount = num >> PowTableBitCount;
+	unsigned int tableIndex = num & ((1 << PowTableBitCount) - 1);
 	unsigned int tableEntry = powTable[tableIndex];
 	unsigned int outputShifted = (tableEntry << 2) >> shiftCount;
 	return outputShifted;
@@ -2248,7 +2248,7 @@ unsigned int YM2612::InversePow2(unsigned int num) const
 int YM2612::CalculateOperator(unsigned int phase, int phaseModulation, unsigned int attenuation) const
 {
 	//Add the current phase and phase modulation values
-	Data combinedPhase(phaseBitCount);
+	Data combinedPhase(PhaseBitCount);
 	combinedPhase = (unsigned int)((int)phase + phaseModulation);
 
 	//The YM2612 sine table only stores values for a quarter of the full sine wave. We
@@ -2259,9 +2259,9 @@ int YM2612::CalculateOperator(unsigned int phase, int phaseModulation, unsigned 
 	//inverting the half-phase, the quarter-phase sine table can be used to resolve the
 	//correct sine value for the full positive oscillation. The separated sign bit is
 	//used later to correct the result for negative oscillations.
-	bool signBit = combinedPhase.GetBit(phaseBitCount - 1);
-	bool slopeBit = combinedPhase.GetBit(phaseBitCount - 2);
-	Data quarterPhase(phaseBitCount - 2);
+	bool signBit = combinedPhase.GetBit(PhaseBitCount - 1);
+	bool slopeBit = combinedPhase.GetBit(PhaseBitCount - 2);
+	Data quarterPhase(PhaseBitCount - 2);
 	quarterPhase = combinedPhase;
 	if(slopeBit)
 	{
@@ -2297,19 +2297,19 @@ int YM2612::CalculateOperator(unsigned int phase, int phaseModulation, unsigned 
 //----------------------------------------------------------------------------------------
 IBusInterface::AccessResult YM2612::ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
-	std::unique_lock<std::mutex> lock(accessMutex);
+	std::unique_lock<std::mutex> lock(_accessMutex);
 
 	//Trigger a system rollback if the device has been accessed out of order. This is
 	//required in order to ensure that the address register is correct when each write
 	//occurs.
-	if(accessTime < lastAccessTime)
+	if(accessTime < _lastAccessTime)
 	{
 		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 	}
-	lastAccessTime = accessTime;
+	_lastAccessTime = accessTime;
 
 	UpdateTimers(accessTime);
-	data.SetLowerBits(status);
+	data.SetLowerBits(_status);
 
 	return true;
 }
@@ -2317,18 +2317,18 @@ IBusInterface::AccessResult YM2612::ReadInterface(unsigned int interfaceNumber, 
 //----------------------------------------------------------------------------------------
 IBusInterface::AccessResult YM2612::WriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
-	std::unique_lock<std::mutex> lock(accessMutex);
+	std::unique_lock<std::mutex> lock(_accessMutex);
 	AccessTarget accessTarget;
 	accessTarget.AccessTime(accessTime);
 
 	//Trigger a system rollback if the device has been accessed out of order. This is
 	//required in order to ensure that the register latch settings are correct when each
 	//write occurs.
-	if(accessTime < lastAccessTime)
+	if(accessTime < _lastAccessTime)
 	{
 		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
 	}
-	lastAccessTime = accessTime;
+	_lastAccessTime = accessTime;
 
 	//Decode and carry out the write operation. Note that hardware tests have shown that
 	//both data ports are equivalent, and that a write to either of the address ports
@@ -2338,25 +2338,25 @@ IBusInterface::AccessResult YM2612::WriteInterface(unsigned int interfaceNumber,
 	if(location == 0)
 	{
 		//Set the currently latched register to the specified part 1 register
-		currentReg = data.GetData();
+		_currentReg = data.GetData();
 	}
 	else if(location == 2)
 	{
 		//Set the currently latched register to the specified part 2 register
-		currentReg = registerCountPerPart + data.GetData();
+		_currentReg = RegisterCountPerPart + data.GetData();
 	}
 	else if((location == 1) || (location == 3))
 	{
 		//Only commit this register write if it wasn't latched
-		if(!rawRegisterLocking[currentReg] && !CheckForLatchedWrite(currentReg, data, accessTime))
+		if(!_rawRegisterLocking[_currentReg] && !CheckForLatchedWrite(_currentReg, data, accessTime))
 		{
 			//Write to the selected register
-			RegisterSpecialUpdateFunction(currentReg, data, accessTime, caller, accessContext);
-			SetRegisterData(currentReg, data, accessTarget);
+			RegisterSpecialUpdateFunction(_currentReg, data, accessTime, caller, accessContext);
+			SetRegisterData(_currentReg, data, accessTarget);
 
 			//Fix any locked registers at their set value
-			std::unique_lock<std::mutex> lock2(registerLockMutex);
-			for(std::map<unsigned int, std::list<RegisterLocking>>::const_iterator lockedRegisterStateIterator = lockedRegisterState.begin(); lockedRegisterStateIterator != lockedRegisterState.end(); ++lockedRegisterStateIterator)
+			std::unique_lock<std::mutex> lock2(_registerLockMutex);
+			for(std::map<unsigned int, std::list<RegisterLocking>>::const_iterator lockedRegisterStateIterator = _lockedRegisterState.begin(); lockedRegisterStateIterator != _lockedRegisterState.end(); ++lockedRegisterStateIterator)
 			{
 				for(std::list<RegisterLocking>::const_iterator i = lockedRegisterStateIterator->second.begin(); i != lockedRegisterStateIterator->second.end(); ++i)
 				{
@@ -2390,20 +2390,20 @@ void YM2612::RegisterSpecialUpdateFunction(unsigned int location, const Data& da
 		//      ---------------------------------
 	case 0x24:{
 		UpdateTimers(accessTime);
-		if(!timerAStateLocking.rate)
+		if(!_timerAStateLocking.rate)
 		{
-			unsigned int trueTimerAInitialCounter = ~timerAInitialCounter & 0x3FF;
+			unsigned int trueTimerAInitialCounter = ~_timerAInitialCounter & 0x3FF;
 			trueTimerAInitialCounter = (trueTimerAInitialCounter & 0x003) | (data.GetDataSegment(0, 8) << 2);
-			timerAInitialCounter = ~trueTimerAInitialCounter & 0x3FF;
+			_timerAInitialCounter = ~trueTimerAInitialCounter & 0x3FF;
 		}
 		break;}
 	case 0x25:{
 		UpdateTimers(accessTime);
-		if(!timerAStateLocking.rate)
+		if(!_timerAStateLocking.rate)
 		{
-			unsigned int trueTimerAInitialCounter = ~timerAInitialCounter & 0x3FF;
+			unsigned int trueTimerAInitialCounter = ~_timerAInitialCounter & 0x3FF;
 			trueTimerAInitialCounter = (trueTimerAInitialCounter & 0x3FC) | data.GetDataSegment(0, 2);
-			timerAInitialCounter = ~trueTimerAInitialCounter & 0x3FF;
+			_timerAInitialCounter = ~trueTimerAInitialCounter & 0x3FF;
 		}
 		break;}
 	case 0x26:
@@ -2413,9 +2413,9 @@ void YM2612::RegisterSpecialUpdateFunction(unsigned int location, const Data& da
 		//      |            Timer B            |
 		//      ---------------------------------
 		UpdateTimers(accessTime);
-		if(!timerBStateLocking.rate)
+		if(!_timerBStateLocking.rate)
 		{
-			timerBInitialCounter = ~data.GetDataSegment(0, 8) & 0xFF;
+			_timerBInitialCounter = ~data.GetDataSegment(0, 8) & 0xFF;
 		}
 		break;
 	case 0x27:
@@ -2437,52 +2437,52 @@ void YM2612::RegisterSpecialUpdateFunction(unsigned int location, const Data& da
 		//changed from 0 to 1. A timer does not resume counting from its previous
 		//position when the load bit is toggled from 0 to 1. Setting the load bit to 1
 		//for a timer which is already loaded does not force a re-load of the counter.
-		if(!timerAStateLocking.load)
+		if(!_timerAStateLocking.load)
 		{
 			bool timerALoadNew = data.GetBit(0);
-			if(!timerALoad && timerALoadNew)
+			if(!_timerALoad && timerALoadNew)
 			{
-				timerACounter = timerAInitialCounter;
+				_timerACounter = _timerAInitialCounter;
 			}
-			timerALoad = timerALoadNew;
+			_timerALoad = timerALoadNew;
 		}
-		if(!timerBStateLocking.load)
+		if(!_timerBStateLocking.load)
 		{
 			bool timerBLoadNew = data.GetBit(1);
-			if(!timerBLoad && timerBLoadNew)
+			if(!_timerBLoad && timerBLoadNew)
 			{
-				timerBCounter = timerBInitialCounter;
+				_timerBCounter = _timerBInitialCounter;
 			}
-			timerBLoad = timerBLoadNew;
+			_timerBLoad = timerBLoadNew;
 		}
 
 		//Update the enable bits for timers A and B
-		if(!timerAStateLocking.enable)
+		if(!_timerAStateLocking.enable)
 		{
-			timerAEnable = data.GetBit(2);
+			_timerAEnable = data.GetBit(2);
 		}
-		if(!timerBStateLocking.enable)
+		if(!_timerBStateLocking.enable)
 		{
-			timerBEnable = data.GetBit(3);
+			_timerBEnable = data.GetBit(3);
 		}
 
 		//Update the overflow bits for timers A and B. We also negate the IRQ line here
 		//if it was asserted, and is now clear after processing the reset bits.
 		bool initialIntLineState = GetTimerAOverflow() || GetTimerBOverflow();
-		if(!timerAStateLocking.overflow && data.GetBit(4))
+		if(!_timerAStateLocking.overflow && data.GetBit(4))
 		{
 			SetTimerAOverflow(false);
 		}
-		if(!timerBStateLocking.overflow && data.GetBit(5))
+		if(!_timerBStateLocking.overflow && data.GetBit(5))
 		{
 			SetTimerBOverflow(false);
 		}
 		if(initialIntLineState && !GetTimerAOverflow() && !GetTimerBOverflow())
 		{
-			if(memoryBus != 0)
+			if(_memoryBus != 0)
 			{
-				irqLineState = false;
-				memoryBus->SetLineState((unsigned int)LineID::IRQ, Data(GetLineWidth((unsigned int)LineID::IRQ), (unsigned int)irqLineState), GetDeviceContext(), caller, accessTime, accessContext);
+				_irqLineState = false;
+				_memoryBus->SetLineState((unsigned int)LineID::IRQ, Data(GetLineWidth((unsigned int)LineID::IRQ), (unsigned int)_irqLineState), GetDeviceContext(), caller, accessTime, accessContext);
 			}
 		}
 		break;
@@ -2500,114 +2500,114 @@ bool YM2612::CheckForLatchedWrite(unsigned int location, const Data& data, doubl
 	//If we're writing to a block/fnum register, the write needs to be put in limbo until
 	//the corresponding fnum register is next written to.
 	case 0xA4:
-		latchedFrequencyDataPending[CHANNEL1] = true;
-		latchedFrequencyData[CHANNEL1] = data;
+		_latchedFrequencyDataPending[CHANNEL1] = true;
+		_latchedFrequencyData[CHANNEL1] = data;
 		return true;
 	case 0xA5:
-		latchedFrequencyDataPending[CHANNEL2] = true;
-		latchedFrequencyData[CHANNEL2] = data;
+		_latchedFrequencyDataPending[CHANNEL2] = true;
+		_latchedFrequencyData[CHANNEL2] = data;
 		return true;
 	case 0xA6:
-		latchedFrequencyDataPending[CHANNEL3] = true;
-		latchedFrequencyData[CHANNEL3] = data;
+		_latchedFrequencyDataPending[CHANNEL3] = true;
+		_latchedFrequencyData[CHANNEL3] = data;
 		return true;
 	case 0x1A4:
-		latchedFrequencyDataPending[CHANNEL4] = true;
-		latchedFrequencyData[CHANNEL4] = data;
+		_latchedFrequencyDataPending[CHANNEL4] = true;
+		_latchedFrequencyData[CHANNEL4] = data;
 		return true;
 	case 0x1A5:
-		latchedFrequencyDataPending[CHANNEL5] = true;
-		latchedFrequencyData[CHANNEL5] = data;
+		_latchedFrequencyDataPending[CHANNEL5] = true;
+		_latchedFrequencyData[CHANNEL5] = data;
 		return true;
 	case 0x1A6:
-		latchedFrequencyDataPending[CHANNEL6] = true;
-		latchedFrequencyData[CHANNEL6] = data;
+		_latchedFrequencyDataPending[CHANNEL6] = true;
+		_latchedFrequencyData[CHANNEL6] = data;
 		return true;
 	case 0xAD:
-		latchedFrequencyDataPendingCH3[0] = true;
-		latchedFrequencyDataCH3[0] = data;
+		_latchedFrequencyDataPendingCH3[0] = true;
+		_latchedFrequencyDataCH3[0] = data;
 		return true;
 	case 0xAC:
-		latchedFrequencyDataPendingCH3[1] = true;
-		latchedFrequencyDataCH3[1] = data;
+		_latchedFrequencyDataPendingCH3[1] = true;
+		_latchedFrequencyDataCH3[1] = data;
 		return true;
 	case 0xAE:
-		latchedFrequencyDataPendingCH3[2] = true;
-		latchedFrequencyDataCH3[2] = data;
+		_latchedFrequencyDataPendingCH3[2] = true;
+		_latchedFrequencyDataCH3[2] = data;
 		return true;
 
 	//If we're writing to an fnum register, commit any latched write to the corresponding
 	//block/fnum register.
 	case 0xA0:
-		if(latchedFrequencyDataPending[CHANNEL1])
+		if(_latchedFrequencyDataPending[CHANNEL1])
 		{
-			SetRegisterData(0xA4, latchedFrequencyData[CHANNEL1], accessTarget);
-			latchedFrequencyDataPending[CHANNEL1] = false;
-			latchedFrequencyData[CHANNEL1] = 0;
+			SetRegisterData(0xA4, _latchedFrequencyData[CHANNEL1], accessTarget);
+			_latchedFrequencyDataPending[CHANNEL1] = false;
+			_latchedFrequencyData[CHANNEL1] = 0;
 		}
 		return false;
 	case 0xA1:
-		if(latchedFrequencyDataPending[CHANNEL2])
+		if(_latchedFrequencyDataPending[CHANNEL2])
 		{
-			SetRegisterData(0xA5, latchedFrequencyData[CHANNEL2], accessTarget);
-			latchedFrequencyDataPending[CHANNEL2] = false;
-			latchedFrequencyData[CHANNEL2] = 0;
+			SetRegisterData(0xA5, _latchedFrequencyData[CHANNEL2], accessTarget);
+			_latchedFrequencyDataPending[CHANNEL2] = false;
+			_latchedFrequencyData[CHANNEL2] = 0;
 		}
 		return false;
 	case 0xA2:
-		if(latchedFrequencyDataPending[CHANNEL3])
+		if(_latchedFrequencyDataPending[CHANNEL3])
 		{
-			SetRegisterData(0xA6, latchedFrequencyData[CHANNEL3], accessTarget);
-			latchedFrequencyDataPending[CHANNEL3] = false;
-			latchedFrequencyData[CHANNEL3] = 0;
+			SetRegisterData(0xA6, _latchedFrequencyData[CHANNEL3], accessTarget);
+			_latchedFrequencyDataPending[CHANNEL3] = false;
+			_latchedFrequencyData[CHANNEL3] = 0;
 		}
 		return false;
 	case 0x1A0:
-		if(latchedFrequencyDataPending[CHANNEL4])
+		if(_latchedFrequencyDataPending[CHANNEL4])
 		{
-			SetRegisterData(0x1A4, latchedFrequencyData[CHANNEL4], accessTarget);
-			latchedFrequencyDataPending[CHANNEL4] = false;
-			latchedFrequencyData[CHANNEL4] = 0;
+			SetRegisterData(0x1A4, _latchedFrequencyData[CHANNEL4], accessTarget);
+			_latchedFrequencyDataPending[CHANNEL4] = false;
+			_latchedFrequencyData[CHANNEL4] = 0;
 		}
 		return false;
 	case 0x1A1:
-		if(latchedFrequencyDataPending[CHANNEL5])
+		if(_latchedFrequencyDataPending[CHANNEL5])
 		{
-			SetRegisterData(0x1A5, latchedFrequencyData[CHANNEL5], accessTarget);
-			latchedFrequencyDataPending[CHANNEL5] = false;
-			latchedFrequencyData[CHANNEL5] = 0;
+			SetRegisterData(0x1A5, _latchedFrequencyData[CHANNEL5], accessTarget);
+			_latchedFrequencyDataPending[CHANNEL5] = false;
+			_latchedFrequencyData[CHANNEL5] = 0;
 		}
 		return false;
 	case 0x1A2:
-		if(latchedFrequencyDataPending[CHANNEL6])
+		if(_latchedFrequencyDataPending[CHANNEL6])
 		{
-			SetRegisterData(0x1A6, latchedFrequencyData[CHANNEL6], accessTarget);
-			latchedFrequencyDataPending[CHANNEL6] = false;
-			latchedFrequencyData[CHANNEL6] = 0;
+			SetRegisterData(0x1A6, _latchedFrequencyData[CHANNEL6], accessTarget);
+			_latchedFrequencyDataPending[CHANNEL6] = false;
+			_latchedFrequencyData[CHANNEL6] = 0;
 		}
 		return false;
 	case 0xA9:
-		if(latchedFrequencyDataPendingCH3[0])
+		if(_latchedFrequencyDataPendingCH3[0])
 		{
-			SetRegisterData(0xAD, latchedFrequencyDataCH3[0], accessTarget);
-			latchedFrequencyDataPendingCH3[0] = false;
-			latchedFrequencyDataCH3[0] = 0;
+			SetRegisterData(0xAD, _latchedFrequencyDataCH3[0], accessTarget);
+			_latchedFrequencyDataPendingCH3[0] = false;
+			_latchedFrequencyDataCH3[0] = 0;
 		}
 		return false;
 	case 0xA8:
-		if(latchedFrequencyDataPendingCH3[1])
+		if(_latchedFrequencyDataPendingCH3[1])
 		{
-			SetRegisterData(0xAC, latchedFrequencyDataCH3[1], accessTarget);
-			latchedFrequencyDataPendingCH3[1] = false;
-			latchedFrequencyDataCH3[1] = 0;
+			SetRegisterData(0xAC, _latchedFrequencyDataCH3[1], accessTarget);
+			_latchedFrequencyDataPendingCH3[1] = false;
+			_latchedFrequencyDataCH3[1] = 0;
 		}
 		return false;
 	case 0xAA:
-		if(latchedFrequencyDataPendingCH3[2])
+		if(_latchedFrequencyDataPendingCH3[2])
 		{
-			SetRegisterData(0xAE, latchedFrequencyDataCH3[2], accessTarget);
-			latchedFrequencyDataPendingCH3[2] = false;
-			latchedFrequencyDataCH3[2] = 0;
+			SetRegisterData(0xAE, _latchedFrequencyDataCH3[2], accessTarget);
+			_latchedFrequencyDataPendingCH3[2] = false;
+			_latchedFrequencyDataCH3[2] = 0;
 		}
 		return false;
 	}
@@ -2620,48 +2620,48 @@ bool YM2612::CheckForLatchedWrite(unsigned int location, const Data& data, doubl
 void YM2612::UpdateTimers(double timesliceProgress)
 {
 	//Calculate the total number of cycles that have executed since the last timer update
-	double initialTimersRemainingTime = timersRemainingTime;
-	double timerClockPeriod = 1000000000.0 / ((externalClockRate / (double)fmClockDivider) / (double)outputClockDivider);
-	double timePeriod = timersRemainingTime + (timesliceProgress - timersLastUpdateTime);
+	double initialTimersRemainingTime = _timersRemainingTime;
+	double timerClockPeriod = 1000000000.0 / ((_externalClockRate / (double)_fmClockDivider) / (double)_outputClockDivider);
+	double timePeriod = _timersRemainingTime + (timesliceProgress - _timersLastUpdateTime);
 	unsigned int timerClockCyclesExecuted = (unsigned int)(timePeriod / timerClockPeriod);
-	timersRemainingTime = timePeriod - ((double)timerClockCyclesExecuted * timerClockPeriod);
-	timersLastUpdateTime = timesliceProgress;
+	_timersRemainingTime = timePeriod - ((double)timerClockCyclesExecuted * timerClockPeriod);
+	_timersLastUpdateTime = timesliceProgress;
 
 	//Calculate the total number of steps the timers have advanced
-	unsigned int initialTimerARemainingCycles = timerARemainingCycles;
-	unsigned int totalTimerACyclesExecuted = (timerClockCyclesExecuted + timerARemainingCycles) / timerAClockDivider;
-	timerARemainingCycles = (timerClockCyclesExecuted + timerARemainingCycles) % timerAClockDivider;
-	unsigned int initialTimerBRemainingCycles = timerBRemainingCycles;
-	unsigned int totalTimerBCyclesExecuted = (timerClockCyclesExecuted + timerBRemainingCycles) / timerBClockDivider;
-	timerBRemainingCycles = (timerClockCyclesExecuted + timerBRemainingCycles) % timerBClockDivider;
+	unsigned int initialTimerARemainingCycles = _timerARemainingCycles;
+	unsigned int totalTimerACyclesExecuted = (timerClockCyclesExecuted + _timerARemainingCycles) / _timerAClockDivider;
+	_timerARemainingCycles = (timerClockCyclesExecuted + _timerARemainingCycles) % _timerAClockDivider;
+	unsigned int initialTimerBRemainingCycles = _timerBRemainingCycles;
+	unsigned int totalTimerBCyclesExecuted = (timerClockCyclesExecuted + _timerBRemainingCycles) / _timerBClockDivider;
+	_timerBRemainingCycles = (timerClockCyclesExecuted + _timerBRemainingCycles) % _timerBClockDivider;
 
 	//If timer A is loaded and the counter isn't locked, update the timer value
-	if(timerALoad && !timerAStateLocking.counter)
+	if(_timerALoad && !_timerAStateLocking.counter)
 	{
-		unsigned int timerAPeriod = timerAInitialCounter + 1;
+		unsigned int timerAPeriod = _timerAInitialCounter + 1;
 
 		//Calculate each overflow time. In the case of timer A, we do this regardless of
 		//whether the timer is enabled, or whether the overflow flag is locked, since CSM
 		//key-on events are still generated each time timer A expires, regardless of
 		//whether the timer is enabled or the state of the overflow bit.
-		int timerAOverflowCount = ((int)totalTimerACyclesExecuted + ((int)timerAInitialCounter - (int)timerACounter)) / (int)timerAPeriod;
+		int timerAOverflowCount = ((int)totalTimerACyclesExecuted + ((int)_timerAInitialCounter - (int)_timerACounter)) / (int)timerAPeriod;
 		for(int i = 0; i < timerAOverflowCount; ++i)
 		{
-			unsigned int overflowCycle = ((unsigned int)i * timerAPeriod) + timerACounter;
-			double interruptTime = ((double)((overflowCycle * timerAClockDivider) + initialTimerARemainingCycles) * timerClockPeriod) - initialTimersRemainingTime;
+			unsigned int overflowCycle = ((unsigned int)i * timerAPeriod) + _timerACounter;
+			double interruptTime = ((double)((overflowCycle * _timerAClockDivider) + initialTimerARemainingCycles) * timerClockPeriod) - initialTimersRemainingTime;
 
 			//Only use this overflow time to adjust the overflow flag and IRQ line state
 			//if the timer is enabled, and the overflow flag isn't locked.
-			if(timerAEnable && !timerAStateLocking.overflow)
+			if(_timerAEnable && !_timerAStateLocking.overflow)
 			{
 				//If the IRQ line is currently negated, and we're about to generate an
 				//overflow, assert the IRQ line.
 				if(!GetTimerAOverflow() && !GetTimerBOverflow())
 				{
-					if(memoryBus != 0)
+					if(_memoryBus != 0)
 					{
-						irqLineState = true;
-						memoryBus->SetLineState((unsigned int)LineID::IRQ, Data(GetLineWidth((unsigned int)LineID::IRQ), (unsigned int)irqLineState), GetDeviceContext(), GetDeviceContext(), interruptTime, (unsigned int)AccessContext::IRQ);
+						_irqLineState = true;
+						_memoryBus->SetLineState((unsigned int)LineID::IRQ, Data(GetLineWidth((unsigned int)LineID::IRQ), (unsigned int)_irqLineState), GetDeviceContext(), GetDeviceContext(), interruptTime, (unsigned int)AccessContext::IRQ);
 					}
 				}
 				//Update the overflow flag
@@ -2670,37 +2670,37 @@ void YM2612::UpdateTimers(double timesliceProgress)
 			//Record the exact times when each timer A overflow occurred since the
 			//last update cycle. This is required in order to implement accurate CSM
 			//support.
-			timerAOverflowTimes.Write(interruptTime, true);
+			_timerAOverflowTimes.Write(interruptTime, true);
 		}
 
 		//Calculate the new counter value for the timer
 		unsigned int timerACounterDisplace = totalTimerACyclesExecuted % timerAPeriod;
-		timerACounter = (timerACounter + (timerAPeriod - timerACounterDisplace)) % timerAPeriod;
+		_timerACounter = (_timerACounter + (timerAPeriod - timerACounterDisplace)) % timerAPeriod;
 	}
 
 	//If timer B is loaded and the counter isn't locked, update the timer value
-	if(timerBLoad && !timerBStateLocking.counter)
+	if(_timerBLoad && !_timerBStateLocking.counter)
 	{
-		unsigned int timerBPeriod = timerBInitialCounter + 1;
+		unsigned int timerBPeriod = _timerBInitialCounter + 1;
 
 		//If the timer is enabled, generate interrupts for each time an overflow has
 		//occurred, and update the overflow flag.
-		if(timerBEnable && !timerBStateLocking.overflow)
+		if(_timerBEnable && !_timerBStateLocking.overflow)
 		{
 			//Calculate each overflow time
-			int timerBOverflowCount = ((int)totalTimerBCyclesExecuted + ((int)timerBInitialCounter - (int)timerBCounter)) / (int)timerBPeriod;
+			int timerBOverflowCount = ((int)totalTimerBCyclesExecuted + ((int)_timerBInitialCounter - (int)_timerBCounter)) / (int)timerBPeriod;
 			for(int i = 0; i < timerBOverflowCount; ++i)
 			{
-				unsigned int overflowCycle = ((unsigned int)i * timerBPeriod) + timerBCounter;
-				double interruptTime = ((double)((overflowCycle * timerBClockDivider) + initialTimerBRemainingCycles) * timerClockPeriod) - initialTimersRemainingTime;
+				unsigned int overflowCycle = ((unsigned int)i * timerBPeriod) + _timerBCounter;
+				double interruptTime = ((double)((overflowCycle * _timerBClockDivider) + initialTimerBRemainingCycles) * timerClockPeriod) - initialTimersRemainingTime;
 				//If the IRQ line is currently negated, and we're about to generate an
 				//overflow, assert the IRQ line.
 				if(!GetTimerAOverflow() && !GetTimerBOverflow())
 				{
-					if(memoryBus != 0)
+					if(_memoryBus != 0)
 					{
-						irqLineState = true;
-						memoryBus->SetLineState((unsigned int)LineID::IRQ, Data(GetLineWidth((unsigned int)LineID::IRQ), (unsigned int)irqLineState), GetDeviceContext(), GetDeviceContext(), interruptTime, (unsigned int)AccessContext::IRQ);
+						_irqLineState = true;
+						_memoryBus->SetLineState((unsigned int)LineID::IRQ, Data(GetLineWidth((unsigned int)LineID::IRQ), (unsigned int)_irqLineState), GetDeviceContext(), GetDeviceContext(), interruptTime, (unsigned int)AccessContext::IRQ);
 					}
 				}
 				//Update the overflow flag
@@ -2710,7 +2710,7 @@ void YM2612::UpdateTimers(double timesliceProgress)
 
 		//Calculate the new counter value for the timer
 		unsigned int timerBCounterDisplace = totalTimerBCyclesExecuted % timerBPeriod;
-		timerBCounter = (timerBCounter + (timerBPeriod - timerBCounterDisplace)) % timerBPeriod;
+		_timerBCounter = (_timerBCounter + (timerBPeriod - timerBCounterDisplace)) % timerBPeriod;
 	}
 }
 
@@ -2725,75 +2725,75 @@ void YM2612::LoadState(IHierarchicalStorageNode& node)
 		//Clock settings
 		if((*i)->GetName() == L"ExternalClockRate")
 		{
-			(*i)->ExtractData(externalClockRate);
+			(*i)->ExtractData(_externalClockRate);
 		}
 
 		//Bus interface
 		else if((*i)->GetName() == L"ICLineState")
 		{
-			icLineState = (*i)->ExtractData<bool>();
+			_icLineState = (*i)->ExtractData<bool>();
 		}
 
 		//Register data
 		else if((*i)->GetName() == L"Registers")
 		{
-			reg.LoadState(*(*i));
+			_reg.LoadState(*(*i));
 		}
 		else if((*i)->GetName() == L"StatusRegister")
 		{
-			(*i)->ExtractData(status);
+			(*i)->ExtractData(_status);
 		}
 
 		//Register latch settings
 		else if((*i)->GetName() == L"LatchedRegister")
 		{
-			(*i)->ExtractData(currentReg);
+			(*i)->ExtractData(_currentReg);
 		}
 		else if((*i)->GetName() == L"LatchedFrequencyData")
 		{
 			unsigned int channelNo;
-			if((*i)->ExtractAttribute(L"ChannelNo", channelNo) && (channelNo < channelCount))
+			if((*i)->ExtractAttribute(L"ChannelNo", channelNo) && (channelNo < ChannelCount))
 			{
-				latchedFrequencyDataPending[channelNo] = true;
-				(*i)->ExtractData(latchedFrequencyData[channelNo]);
+				_latchedFrequencyDataPending[channelNo] = true;
+				(*i)->ExtractData(_latchedFrequencyData[channelNo]);
 			}
 		}
 		else if((*i)->GetName() == L"LatchedFrequencyDataCH3")
 		{
 			unsigned int operatorNo;
-			if((*i)->ExtractAttribute(L"OperatorNo", operatorNo) && (operatorNo < operatorCount))
+			if((*i)->ExtractAttribute(L"OperatorNo", operatorNo) && (operatorNo < OperatorCount))
 			{
-				latchedFrequencyDataPendingCH3[operatorNo] = true;
-				(*i)->ExtractData(latchedFrequencyDataCH3[operatorNo]);
+				_latchedFrequencyDataPendingCH3[operatorNo] = true;
+				(*i)->ExtractData(_latchedFrequencyDataCH3[operatorNo]);
 			}
 		}
 
 		//Render thread properties
 		else if((*i)->GetName() == L"RemainingRenderTime")
 		{
-			(*i)->ExtractData(remainingRenderTime);
+			(*i)->ExtractData(_remainingRenderTime);
 		}
 		else if((*i)->GetName() == L"EGRemainingRenderCycles")
 		{
-			(*i)->ExtractData(egRemainingRenderCycles);
+			(*i)->ExtractData(_egRemainingRenderCycles);
 		}
 
 		//Render data
 		else if((*i)->GetName() == L"EnvelopeCycleCounter")
 		{
-			(*i)->ExtractHexData(envelopeCycleCounter);
+			(*i)->ExtractHexData(_envelopeCycleCounter);
 		}
 		else if((*i)->GetName() == L"RenderData")
 		{
 			unsigned int channelNo;
 			unsigned int operatorNo;
-			if((*i)->ExtractAttribute(L"ChannelNo", channelNo) && (channelNo < channelCount) &&
-			   (*i)->ExtractAttribute(L"OperatorNo", operatorNo) && (operatorNo < operatorCount))
+			if((*i)->ExtractAttribute(L"ChannelNo", channelNo) && (channelNo < ChannelCount) &&
+			   (*i)->ExtractAttribute(L"OperatorNo", operatorNo) && (operatorNo < OperatorCount))
 			{
-				OperatorData* state = &operatorData[channelNo][operatorNo];
+				OperatorData* state = &_operatorData[channelNo][operatorNo];
 				(*i)->ExtractAttributeHex(L"Attenuation", state->attenuation);
 				(*i)->ExtractAttributeHex(L"PhaseCounter", state->phaseCounter);
-				if(!keyStateLocking[channelNo][operatorNo])
+				if(!_keyStateLocking[channelNo][operatorNo])
 				{
 					(*i)->ExtractAttribute(L"KeyOn", state->keyon);
 				}
@@ -2824,75 +2824,75 @@ void YM2612::LoadState(IHierarchicalStorageNode& node)
 		else if((*i)->GetName() == L"OP1FeedbackData")
 		{
 			unsigned int channelNo;
-			if((*i)->ExtractAttribute(L"ChannelNo", channelNo) && (channelNo < channelCount))
+			if((*i)->ExtractAttribute(L"ChannelNo", channelNo) && (channelNo < ChannelCount))
 			{
-				(*i)->ExtractAttributeHex(L"Sample1", feedbackBuffer[channelNo][0]);
-				(*i)->ExtractAttributeHex(L"Sample2", feedbackBuffer[channelNo][1]);
+				(*i)->ExtractAttributeHex(L"Sample1", _feedbackBuffer[channelNo][0]);
+				(*i)->ExtractAttributeHex(L"Sample2", _feedbackBuffer[channelNo][1]);
 			}
 		}
 		else if((*i)->GetName() == L"CyclesUntilLFOIncrement")
 		{
-			(*i)->ExtractData(cyclesUntilLFOIncrement);
+			(*i)->ExtractData(_cyclesUntilLFOIncrement);
 		}
 		else if((*i)->GetName() == L"CurrentLFOCounter")
 		{
-			(*i)->ExtractData(currentLFOCounter);
+			(*i)->ExtractData(_currentLFOCounter);
 		}
 
 		//Timer status
 		else if((*i)->GetName() == L"LastTimesliceLength")
 		{
-			(*i)->ExtractData(lastTimesliceLength);
+			(*i)->ExtractData(_lastTimesliceLength);
 		}
 		else if((*i)->GetName() == L"TimersRemainingTime")
 		{
-			(*i)->ExtractData(timersRemainingTime);
+			(*i)->ExtractData(_timersRemainingTime);
 		}
 		else if((*i)->GetName() == L"TimerARemainingCycles")
 		{
-			(*i)->ExtractData(timerARemainingCycles);
+			(*i)->ExtractData(_timerARemainingCycles);
 		}
 		else if((*i)->GetName() == L"TimerBRemainingCycles")
 		{
-			(*i)->ExtractData(timerBRemainingCycles);
+			(*i)->ExtractData(_timerBRemainingCycles);
 		}
-		else if(((*i)->GetName() == L"TimerACounter") && !timerAStateLocking.counter)
+		else if(((*i)->GetName() == L"TimerACounter") && !_timerAStateLocking.counter)
 		{
-			(*i)->ExtractData(timerACounter);
+			(*i)->ExtractData(_timerACounter);
 		}
-		else if(((*i)->GetName() == L"TimerBCounter") && !timerBStateLocking.counter)
+		else if(((*i)->GetName() == L"TimerBCounter") && !_timerBStateLocking.counter)
 		{
-			(*i)->ExtractData(timerBCounter);
+			(*i)->ExtractData(_timerBCounter);
 		}
-		else if(((*i)->GetName() == L"TimerAInitialCounter") && !timerAStateLocking.rate)
+		else if(((*i)->GetName() == L"TimerAInitialCounter") && !_timerAStateLocking.rate)
 		{
-			(*i)->ExtractData(timerAInitialCounter);
+			(*i)->ExtractData(_timerAInitialCounter);
 		}
-		else if(((*i)->GetName() == L"TimerBInitialCounter") && !timerBStateLocking.rate)
+		else if(((*i)->GetName() == L"TimerBInitialCounter") && !_timerBStateLocking.rate)
 		{
-			(*i)->ExtractData(timerBInitialCounter);
+			(*i)->ExtractData(_timerBInitialCounter);
 		}
-		else if(((*i)->GetName() == L"TimerAEnable") && !timerAStateLocking.enable)
+		else if(((*i)->GetName() == L"TimerAEnable") && !_timerAStateLocking.enable)
 		{
-			(*i)->ExtractData(timerAEnable);
+			(*i)->ExtractData(_timerAEnable);
 		}
-		else if(((*i)->GetName() == L"TimerBEnable") && !timerBStateLocking.enable)
+		else if(((*i)->GetName() == L"TimerBEnable") && !_timerBStateLocking.enable)
 		{
-			(*i)->ExtractData(timerBEnable);
+			(*i)->ExtractData(_timerBEnable);
 		}
-		else if(((*i)->GetName() == L"TimerALoad") && !timerAStateLocking.load)
+		else if(((*i)->GetName() == L"TimerALoad") && !_timerAStateLocking.load)
 		{
-			(*i)->ExtractData(timerALoad);
+			(*i)->ExtractData(_timerALoad);
 		}
-		else if(((*i)->GetName() == L"TimerBLoad") && !timerBStateLocking.load)
+		else if(((*i)->GetName() == L"TimerBLoad") && !_timerBStateLocking.load)
 		{
-			(*i)->ExtractData(timerBLoad);
+			(*i)->ExtractData(_timerBLoad);
 		}
 	}
 
 	//Fix any locked registers at their set value
-	std::unique_lock<std::mutex> lock2(registerLockMutex);
-	for(std::map<unsigned int, std::list<RegisterLocking>>::const_iterator lockedRegisterStateIterator = lockedRegisterState.begin(); lockedRegisterStateIterator != lockedRegisterState.end(); ++lockedRegisterStateIterator)
+	std::unique_lock<std::mutex> lock2(_registerLockMutex);
+	for(std::map<unsigned int, std::list<RegisterLocking>>::const_iterator lockedRegisterStateIterator = _lockedRegisterState.begin(); lockedRegisterStateIterator != _lockedRegisterState.end(); ++lockedRegisterStateIterator)
 	{
 		for(std::list<RegisterLocking>::const_iterator i = lockedRegisterStateIterator->second.begin(); i != lockedRegisterStateIterator->second.end(); ++i)
 		{
@@ -2905,51 +2905,51 @@ void YM2612::LoadState(IHierarchicalStorageNode& node)
 void YM2612::SaveState(IHierarchicalStorageNode& node) const
 {
 	//Clock settings
-	node.CreateChild(L"ExternalClockRate").SetData(externalClockRate);
+	node.CreateChild(L"ExternalClockRate").SetData(_externalClockRate);
 
 	//Bus interface
-	node.CreateChild(L"ICLineState").SetData(icLineState);
+	node.CreateChild(L"ICLineState").SetData(_icLineState);
 
 	//Register data
 	IHierarchicalStorageNode& regNode = node.CreateChild(L"Registers");
 	std::wstring regBufferName = GetFullyQualifiedDeviceInstanceName();
 	regBufferName += L".Registers";
-	reg.SaveState(regNode, regBufferName, false);
-	node.CreateChild(L"StatusRegister").SetData(status);
+	_reg.SaveState(regNode, regBufferName, false);
+	node.CreateChild(L"StatusRegister").SetData(_status);
 
 	//Register latch settings
-	node.CreateChild(L"LatchedRegister").SetData(currentReg);
-	for(unsigned int i = 0; i < channelCount; ++i)
+	node.CreateChild(L"LatchedRegister").SetData(_currentReg);
+	for(unsigned int i = 0; i < ChannelCount; ++i)
 	{
-		if(latchedFrequencyDataPending[i])
+		if(_latchedFrequencyDataPending[i])
 		{
-			node.CreateChild(L"LatchedFrequencyData").SetData(latchedFrequencyData[i]).CreateAttribute(L"ChannelNo", i);
+			node.CreateChild(L"LatchedFrequencyData").SetData(_latchedFrequencyData[i]).CreateAttribute(L"ChannelNo", i);
 		}
 	}
 	for(unsigned int i = 0; i < 3; ++i)
 	{
-		if(latchedFrequencyDataPendingCH3[i])
+		if(_latchedFrequencyDataPendingCH3[i])
 		{
-			node.CreateChild(L"LatchedFrequencyDataCH3").SetData(latchedFrequencyDataCH3[i]).CreateAttribute(L"OperatorNo", i);
+			node.CreateChild(L"LatchedFrequencyDataCH3").SetData(_latchedFrequencyDataCH3[i]).CreateAttribute(L"OperatorNo", i);
 		}
 	}
 
 	//Render thread properties
-	node.CreateChild(L"RemainingRenderTime", remainingRenderTime);
-	node.CreateChild(L"EGRemainingRenderCycles", egRemainingRenderCycles);
+	node.CreateChild(L"RemainingRenderTime", _remainingRenderTime);
+	node.CreateChild(L"EGRemainingRenderCycles", _egRemainingRenderCycles);
 
 	//Render data
-	node.CreateChildHex(L"EnvelopeCycleCounter", envelopeCycleCounter, sizeof(envelopeCycleCounter)*2);
-	for(unsigned int channelNo = 0; channelNo < channelCount; ++channelNo)
+	node.CreateChildHex(L"EnvelopeCycleCounter", _envelopeCycleCounter, sizeof(_envelopeCycleCounter)*2);
+	for(unsigned int channelNo = 0; channelNo < ChannelCount; ++channelNo)
 	{
-		for(unsigned int operatorNo = 0; operatorNo < operatorCount; ++operatorNo)
+		for(unsigned int operatorNo = 0; operatorNo < OperatorCount; ++operatorNo)
 		{
-			const OperatorData* state = &operatorData[channelNo][operatorNo];
+			const OperatorData* state = &_operatorData[channelNo][operatorNo];
 			IHierarchicalStorageNode& renderDataState = node.CreateChild(L"RenderData");
 			renderDataState.CreateAttribute(L"ChannelNo", channelNo);
 			renderDataState.CreateAttribute(L"OperatorNo", operatorNo);
-			renderDataState.CreateAttributeHex(L"Attenuation", state->attenuation, (attenuationBitCount+3)/4);
-			renderDataState.CreateAttributeHex(L"PhaseCounter", state->phaseCounter, (phaseBitCount+3)/4);
+			renderDataState.CreateAttributeHex(L"Attenuation", state->attenuation, (AttenuationBitCount+3)/4);
+			renderDataState.CreateAttributeHex(L"PhaseCounter", state->phaseCounter, (PhaseBitCount+3)/4);
 			renderDataState.CreateAttribute(L"KeyOn", state->keyon);
 			renderDataState.CreateAttribute(L"CSMKeyOn", state->csmKeyOn);
 			renderDataState.CreateAttribute(L"KeyOnPrevious", state->keyonPrevious);
@@ -2974,58 +2974,58 @@ void YM2612::SaveState(IHierarchicalStorageNode& node) const
 			renderDataState.CreateAttribute(L"Phase", phaseString);
 		}
 	}
-	for(unsigned int i = 0; i < channelCount; ++i)
+	for(unsigned int i = 0; i < ChannelCount; ++i)
 	{
 		IHierarchicalStorageNode& feedbackData = node.CreateChild(L"OP1FeedbackData");
 		feedbackData.CreateAttribute(L"ChannelNo", i);
-		feedbackData.CreateAttributeHex(L"Sample1", feedbackBuffer[i][0], (operatorOutputBitCount+3)/4);
-		feedbackData.CreateAttributeHex(L"Sample2", feedbackBuffer[i][1], (operatorOutputBitCount+3)/4);
+		feedbackData.CreateAttributeHex(L"Sample1", _feedbackBuffer[i][0], (OperatorOutputBitCount+3)/4);
+		feedbackData.CreateAttributeHex(L"Sample2", _feedbackBuffer[i][1], (OperatorOutputBitCount+3)/4);
 	}
-	node.CreateChild(L"CyclesUntilLFOIncrement", cyclesUntilLFOIncrement);
-	node.CreateChild(L"CurrentLFOCounter", currentLFOCounter);
+	node.CreateChild(L"CyclesUntilLFOIncrement", _cyclesUntilLFOIncrement);
+	node.CreateChild(L"CurrentLFOCounter", _currentLFOCounter);
 
 	//Timer status
-	node.CreateChild(L"LastTimesliceLength", lastTimesliceLength);
-	node.CreateChild(L"TimersRemainingTime", timersRemainingTime);
-	node.CreateChild(L"TimerARemainingCycles", timerARemainingCycles);
-	node.CreateChild(L"TimerBRemainingCycles", timerBRemainingCycles);
-	node.CreateChild(L"TimerACounter", timerACounter);
-	node.CreateChild(L"TimerBCounter", timerBCounter);
-	node.CreateChild(L"TimerAInitialCounter", timerAInitialCounter);
-	node.CreateChild(L"TimerBInitialCounter", timerBInitialCounter);
-	node.CreateChild(L"TimerAEnable", timerAEnable);
-	node.CreateChild(L"TimerBEnable", timerBEnable);
-	node.CreateChild(L"TimerALoad", timerALoad);
-	node.CreateChild(L"TimerBLoad", timerBLoad);
+	node.CreateChild(L"LastTimesliceLength", _lastTimesliceLength);
+	node.CreateChild(L"TimersRemainingTime", _timersRemainingTime);
+	node.CreateChild(L"TimerARemainingCycles", _timerARemainingCycles);
+	node.CreateChild(L"TimerBRemainingCycles", _timerBRemainingCycles);
+	node.CreateChild(L"TimerACounter", _timerACounter);
+	node.CreateChild(L"TimerBCounter", _timerBCounter);
+	node.CreateChild(L"TimerAInitialCounter", _timerAInitialCounter);
+	node.CreateChild(L"TimerBInitialCounter", _timerBInitialCounter);
+	node.CreateChild(L"TimerAEnable", _timerAEnable);
+	node.CreateChild(L"TimerBEnable", _timerBEnable);
+	node.CreateChild(L"TimerALoad", _timerALoad);
+	node.CreateChild(L"TimerBLoad", _timerBLoad);
 }
 
 //----------------------------------------------------------------------------------------
 void YM2612::LoadDebuggerState(IHierarchicalStorageNode& node)
 {
 	//Initialize the register locking state
-	std::unique_lock<std::mutex> lock2(registerLockMutex);
-	lockedRegisterState.clear();
-	for(unsigned int i = 0; i < registerCountTotal; ++i)
+	std::unique_lock<std::mutex> lock2(_registerLockMutex);
+	_lockedRegisterState.clear();
+	for(unsigned int i = 0; i < RegisterCountTotal; ++i)
 	{
-		rawRegisterLocking[i] = false;
+		_rawRegisterLocking[i] = false;
 	}
-	for(unsigned int channelNo = 0; channelNo < channelCount; ++channelNo)
+	for(unsigned int channelNo = 0; channelNo < ChannelCount; ++channelNo)
 	{
-		for(unsigned int operatorNo = 0; operatorNo < operatorCount; ++operatorNo)
+		for(unsigned int operatorNo = 0; operatorNo < OperatorCount; ++operatorNo)
 		{
-			keyStateLocking[channelNo][operatorNo] = false;
+			_keyStateLocking[channelNo][operatorNo] = false;
 		}
 	}
-	timerAStateLocking.rate = false;
-	timerAStateLocking.counter = false;
-	timerAStateLocking.load = false;
-	timerAStateLocking.enable = false;
-	timerAStateLocking.overflow = false;
-	timerBStateLocking.rate = false;
-	timerBStateLocking.counter = false;
-	timerBStateLocking.load = false;
-	timerBStateLocking.enable = false;
-	timerBStateLocking.overflow = false;
+	_timerAStateLocking.rate = false;
+	_timerAStateLocking.counter = false;
+	_timerAStateLocking.load = false;
+	_timerAStateLocking.enable = false;
+	_timerAStateLocking.overflow = false;
+	_timerBStateLocking.rate = false;
+	_timerBStateLocking.counter = false;
+	_timerBStateLocking.load = false;
+	_timerBStateLocking.enable = false;
+	_timerBStateLocking.overflow = false;
 
 	//Load the register locking state
 	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
@@ -3044,7 +3044,7 @@ void YM2612::LoadDebuggerState(IHierarchicalStorageNode& node)
 					unsigned int channelNo;
 					if((*i)->ExtractAttribute(L"ChannelNo", channelNo))
 					{
-						lockedRegisterState[dataID].push_back(RegisterLocking(dataID, ChannelDataContext(channelNo), lockedValue));
+						_lockedRegisterState[dataID].push_back(RegisterLocking(dataID, ChannelDataContext(channelNo), lockedValue));
 					}
 				}
 				else if(usingOperatorDataContextAttribute != 0)
@@ -3053,12 +3053,12 @@ void YM2612::LoadDebuggerState(IHierarchicalStorageNode& node)
 					unsigned int operatorNo;
 					if((*i)->ExtractAttribute(L"ChannelNo", channelNo) && (*i)->ExtractAttribute(L"OperatorNo", operatorNo))
 					{
-						lockedRegisterState[dataID].push_back(RegisterLocking(dataID, OperatorDataContext(channelNo, operatorNo), lockedValue));
+						_lockedRegisterState[dataID].push_back(RegisterLocking(dataID, OperatorDataContext(channelNo, operatorNo), lockedValue));
 					}
 				}
 				else
 				{
-					lockedRegisterState[dataID].push_back(RegisterLocking(dataID, lockedValue));
+					_lockedRegisterState[dataID].push_back(RegisterLocking(dataID, lockedValue));
 				}
 			}
 		}
@@ -3067,9 +3067,9 @@ void YM2612::LoadDebuggerState(IHierarchicalStorageNode& node)
 			unsigned int registerNo;
 			if((*i)->ExtractAttribute(L"RegisterNo", registerNo))
 			{
-				if(registerNo < registerCountTotal)
+				if(registerNo < RegisterCountTotal)
 				{
-					rawRegisterLocking[registerNo] = true;
+					_rawRegisterLocking[registerNo] = true;
 				}
 			}
 		}
@@ -3079,51 +3079,51 @@ void YM2612::LoadDebuggerState(IHierarchicalStorageNode& node)
 			unsigned int operatorNo;
 			if((*i)->ExtractAttribute(L"ChannelNo", channelNo) && (*i)->ExtractAttribute(L"OperatorNo", operatorNo))
 			{
-				if((channelNo < channelCount) && (operatorNo < operatorCount))
+				if((channelNo < ChannelCount) && (operatorNo < OperatorCount))
 				{
-					keyStateLocking[channelNo][operatorNo] = true;
+					_keyStateLocking[channelNo][operatorNo] = true;
 				}
 			}
 		}
 		else if((*i)->GetName() == L"LockedTimerARate")
 		{
-			timerAStateLocking.rate = true;
+			_timerAStateLocking.rate = true;
 		}
 		else if((*i)->GetName() == L"LockedTimerACounter")
 		{
-			timerAStateLocking.counter = true;
+			_timerAStateLocking.counter = true;
 		}
 		else if((*i)->GetName() == L"LockedTimerALoad")
 		{
-			timerAStateLocking.load = true;
+			_timerAStateLocking.load = true;
 		}
 		else if((*i)->GetName() == L"LockedTimerAEnable")
 		{
-			timerAStateLocking.enable = true;
+			_timerAStateLocking.enable = true;
 		}
 		else if((*i)->GetName() == L"LockedTimerAOverflow")
 		{
-			timerAStateLocking.overflow = true;
+			_timerAStateLocking.overflow = true;
 		}
 		else if((*i)->GetName() == L"LockedTimerBRate")
 		{
-			timerBStateLocking.rate = true;
+			_timerBStateLocking.rate = true;
 		}
 		else if((*i)->GetName() == L"LockedTimerBCounter")
 		{
-			timerBStateLocking.counter = true;
+			_timerBStateLocking.counter = true;
 		}
 		else if((*i)->GetName() == L"LockedTimerBLoad")
 		{
-			timerBStateLocking.load = true;
+			_timerBStateLocking.load = true;
 		}
 		else if((*i)->GetName() == L"LockedTimerBEnable")
 		{
-			timerBStateLocking.enable = true;
+			_timerBStateLocking.enable = true;
 		}
 		else if((*i)->GetName() == L"LockedTimerBOverflow")
 		{
-			timerBStateLocking.overflow = true;
+			_timerBStateLocking.overflow = true;
 		}
 	}
 }
@@ -3132,7 +3132,7 @@ void YM2612::LoadDebuggerState(IHierarchicalStorageNode& node)
 void YM2612::SaveDebuggerState(IHierarchicalStorageNode& node) const
 {
 	//Save the register locking state
-	for(std::map<unsigned int, std::list<RegisterLocking>>::const_iterator lockedRegisterStateIterator = lockedRegisterState.begin(); lockedRegisterStateIterator != lockedRegisterState.end(); ++lockedRegisterStateIterator)
+	for(std::map<unsigned int, std::list<RegisterLocking>>::const_iterator lockedRegisterStateIterator = _lockedRegisterState.begin(); lockedRegisterStateIterator != _lockedRegisterState.end(); ++lockedRegisterStateIterator)
 	{
 		for(std::list<RegisterLocking>::const_iterator lockedRegisterStateListIterator = lockedRegisterStateIterator->second.begin(); lockedRegisterStateListIterator != lockedRegisterStateIterator->second.end(); ++lockedRegisterStateListIterator)
 		{
@@ -3153,60 +3153,60 @@ void YM2612::SaveDebuggerState(IHierarchicalStorageNode& node) const
 			}
 		}
 	}
-	for(unsigned int i = 0; i < registerCountTotal; ++i)
+	for(unsigned int i = 0; i < RegisterCountTotal; ++i)
 	{
-		if(rawRegisterLocking[i])
+		if(_rawRegisterLocking[i])
 		{
 			node.CreateChild(L"LockedRawRegister").CreateAttributeHex(L"RegisterNo", i, 3);
 		}
 	}
-	for(unsigned int channelNo = 0; channelNo < channelCount; ++channelNo)
+	for(unsigned int channelNo = 0; channelNo < ChannelCount; ++channelNo)
 	{
-		for(unsigned int operatorNo = 0; operatorNo < operatorCount; ++operatorNo)
+		for(unsigned int operatorNo = 0; operatorNo < OperatorCount; ++operatorNo)
 		{
-			if(keyStateLocking[channelNo][operatorNo])
+			if(_keyStateLocking[channelNo][operatorNo])
 			{
 				node.CreateChild(L"LockedKeyState").CreateAttribute(L"ChannelNo", channelNo).CreateAttribute(L"OperatorNo", operatorNo);
 			}
 		}
 	}
-	if(timerAStateLocking.rate)
+	if(_timerAStateLocking.rate)
 	{
 		node.CreateChild(L"LockedTimerARate");
 	}
-	if(timerAStateLocking.counter)
+	if(_timerAStateLocking.counter)
 	{
 		node.CreateChild(L"LockedTimerACounter");
 	}
-	if(timerAStateLocking.load)
+	if(_timerAStateLocking.load)
 	{
 		node.CreateChild(L"LockedTimerALoad");
 	}
-	if(timerAStateLocking.enable)
+	if(_timerAStateLocking.enable)
 	{
 		node.CreateChild(L"LockedTimerAEnable");
 	}
-	if(timerAStateLocking.overflow)
+	if(_timerAStateLocking.overflow)
 	{
 		node.CreateChild(L"LockedTimerAOverflow");
 	}
-	if(timerBStateLocking.rate)
+	if(_timerBStateLocking.rate)
 	{
 		node.CreateChild(L"LockedTimerBRate");
 	}
-	if(timerBStateLocking.counter)
+	if(_timerBStateLocking.counter)
 	{
 		node.CreateChild(L"LockedTimerBCounter");
 	}
-	if(timerBStateLocking.load)
+	if(_timerBStateLocking.load)
 	{
 		node.CreateChild(L"LockedTimerBLoad");
 	}
-	if(timerBStateLocking.enable)
+	if(_timerBStateLocking.enable)
 	{
 		node.CreateChild(L"LockedTimerBEnable");
 	}
-	if(timerBStateLocking.overflow)
+	if(_timerBStateLocking.overflow)
 	{
 		node.CreateChild(L"LockedTimerBOverflow");
 	}
@@ -3241,13 +3241,13 @@ bool YM2612::ReadGenericData(unsigned int dataID, const DataContext* dataContext
 	case IYM2612DataSource::TimerAReset:
 		return dataValue.SetValue(GetTimerAReset(AccessTarget().AccessLatest()));
 	case IYM2612DataSource::TimerBEnable:
-		return dataValue.SetValue(timerBEnable);
+		return dataValue.SetValue(_timerBEnable);
 	case IYM2612DataSource::TimerAEnable:
-		return dataValue.SetValue(timerAEnable);
+		return dataValue.SetValue(_timerAEnable);
 	case IYM2612DataSource::TimerBLoad:
-		return dataValue.SetValue(timerBLoad);
+		return dataValue.SetValue(_timerBLoad);
 	case IYM2612DataSource::TimerALoad:
-		return dataValue.SetValue(timerALoad);
+		return dataValue.SetValue(_timerALoad);
 	case IYM2612DataSource::DACData:
 		return dataValue.SetValue(GetDACData(AccessTarget().AccessLatest()));
 	case IYM2612DataSource::DACEnabled:
@@ -3352,9 +3352,9 @@ bool YM2612::ReadGenericData(unsigned int dataID, const DataContext* dataContext
 		return dataValue.SetValue(GetPMSData(channelAddressOffset, AccessTarget().AccessLatest()));}
 	case IYM2612DataSource::KeyState:{
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
-		return dataValue.SetValue(operatorData[operatorDataContext.channelNo][operatorDataContext.operatorNo].keyon);}
+		return dataValue.SetValue(_operatorData[operatorDataContext.channelNo][operatorDataContext.operatorNo].keyon);}
 	case IYM2612DataSource::StatusRegister:
-		return dataValue.SetValue(status.GetData());
+		return dataValue.SetValue(_status.GetData());
 	case IYM2612DataSource::BusyFlag:
 		return dataValue.SetValue(GetBusyFlag());
 	case IYM2612DataSource::TimerBOverflow:
@@ -3362,37 +3362,37 @@ bool YM2612::ReadGenericData(unsigned int dataID, const DataContext* dataContext
 	case IYM2612DataSource::TimerAOverflow:
 		return dataValue.SetValue(GetTimerAOverflow());
 	case IYM2612DataSource::TimerACurrentCounter:
-		return dataValue.SetValue(timerACounter);
+		return dataValue.SetValue(_timerACounter);
 	case IYM2612DataSource::TimerBCurrentCounter:
-		return dataValue.SetValue(timerBCounter);
+		return dataValue.SetValue(_timerBCounter);
 	case IYM2612DataSource::ExternalClockRate:
-		return dataValue.SetValue(externalClockRate);
+		return dataValue.SetValue(_externalClockRate);
 	case IYM2612DataSource::FMClockDivider:
-		return dataValue.SetValue(fmClockDivider);
+		return dataValue.SetValue(_fmClockDivider);
 	case IYM2612DataSource::EGClockDivider:
-		return dataValue.SetValue(egClockDivider);
+		return dataValue.SetValue(_egClockDivider);
 	case IYM2612DataSource::OutputClockDivider:
-		return dataValue.SetValue(outputClockDivider);
+		return dataValue.SetValue(_outputClockDivider);
 	case IYM2612DataSource::TimerAClockDivider:
-		return dataValue.SetValue(timerAClockDivider);
+		return dataValue.SetValue(_timerAClockDivider);
 	case IYM2612DataSource::TimerBClockDivider:
-		return dataValue.SetValue(timerBClockDivider);
+		return dataValue.SetValue(_timerBClockDivider);
 	case IYM2612DataSource::AudioLoggingEnabled:
-		return dataValue.SetValue(wavLoggingEnabled);
+		return dataValue.SetValue(_wavLoggingEnabled);
 	case IYM2612DataSource::ChannelAudioLoggingEnabled:{
 		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
-		return dataValue.SetValue(wavLoggingChannelEnabled[channelDataContext.channelNo]);}
+		return dataValue.SetValue(_wavLoggingChannelEnabled[channelDataContext.channelNo]);}
 	case IYM2612DataSource::OperatorAudioLoggingEnabled:{
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
-		return dataValue.SetValue(wavLoggingOperatorEnabled[operatorDataContext.channelNo][operatorDataContext.operatorNo]);}
+		return dataValue.SetValue(_wavLoggingOperatorEnabled[operatorDataContext.channelNo][operatorDataContext.operatorNo]);}
 	case IYM2612DataSource::AudioLoggingPath:
-		return dataValue.SetValue(wavLoggingPath);
+		return dataValue.SetValue(_wavLoggingPath);
 	case IYM2612DataSource::ChannelAudioLoggingPath:{
 		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
-		return dataValue.SetValue(wavLoggingChannelPath[channelDataContext.channelNo]);}
+		return dataValue.SetValue(_wavLoggingChannelPath[channelDataContext.channelNo]);}
 	case IYM2612DataSource::OperatorAudioLoggingPath:{
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
-		return dataValue.SetValue(wavLoggingOperatorPath[operatorDataContext.channelNo][operatorDataContext.operatorNo]);}
+		return dataValue.SetValue(_wavLoggingOperatorPath[operatorDataContext.channelNo][operatorDataContext.operatorNo]);}
 	}
 	return false;
 }
@@ -3409,8 +3409,8 @@ bool YM2612::WriteGenericData(unsigned int dataID, const DataContext* dataContex
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
 		Data registerData(8, dataValueAsUInt.GetValue());
-		std::unique_lock<std::mutex> lock(accessMutex);
-		RegisterSpecialUpdateFunction(registerDataContext.registerNo, registerData, timersLastUpdateTime, GetDeviceContext(), 0);
+		std::unique_lock<std::mutex> lock(_accessMutex);
+		RegisterSpecialUpdateFunction(registerDataContext.registerNo, registerData, _timersLastUpdateTime, GetDeviceContext(), 0);
 		SetRegisterData(registerDataContext.registerNo, registerData, AccessTarget().AccessLatest());
 		return true;}
 	case IYM2612DataSource::TestData:{
@@ -3432,13 +3432,13 @@ bool YM2612::WriteGenericData(unsigned int dataID, const DataContext* dataContex
 		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetTimerAData(dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
-		timerAInitialCounter = dataValueAsUInt.GetValue();
+		_timerAInitialCounter = dataValueAsUInt.GetValue();
 		return true;}
 	case IYM2612DataSource::TimerBData:{
 		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
 		SetTimerBData(dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
-		timerBInitialCounter = dataValueAsUInt.GetValue();
+		_timerBInitialCounter = dataValueAsUInt.GetValue();
 		return true;}
 	case IYM2612DataSource::CH3Mode:{
 		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
@@ -3459,25 +3459,25 @@ bool YM2612::WriteGenericData(unsigned int dataID, const DataContext* dataContex
 		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetTimerBEnable(dataValueAsBool.GetValue(), AccessTarget().AccessLatest());
-		timerBEnable = dataValueAsBool.GetValue();
+		_timerBEnable = dataValueAsBool.GetValue();
 		return true;}
 	case IYM2612DataSource::TimerAEnable:{
 		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetTimerAEnable(dataValueAsBool.GetValue(), AccessTarget().AccessLatest());
-		timerAEnable = dataValueAsBool.GetValue();
+		_timerAEnable = dataValueAsBool.GetValue();
 		return true;}
 	case IYM2612DataSource::TimerBLoad:{
 		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetTimerBLoad(dataValueAsBool.GetValue(), AccessTarget().AccessLatest());
-		timerBLoad = dataValueAsBool.GetValue();
+		_timerBLoad = dataValueAsBool.GetValue();
 		return true;}
 	case IYM2612DataSource::TimerALoad:{
 		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		SetTimerALoad(dataValueAsBool.GetValue(), AccessTarget().AccessLatest());
-		timerALoad = dataValueAsBool.GetValue();
+		_timerALoad = dataValueAsBool.GetValue();
 		return true;}
 	case IYM2612DataSource::DACData:{
 		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
@@ -3666,12 +3666,12 @@ bool YM2612::WriteGenericData(unsigned int dataID, const DataContext* dataContex
 		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
-		operatorData[operatorDataContext.channelNo][operatorDataContext.operatorNo].keyon = dataValueAsBool.GetValue();
+		_operatorData[operatorDataContext.channelNo][operatorDataContext.operatorNo].keyon = dataValueAsBool.GetValue();
 		return true;}
 	case IYM2612DataSource::StatusRegister:{
 		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
-		status = dataValueAsUInt.GetValue();
+		_status = dataValueAsUInt.GetValue();
 		return true;}
 	case IYM2612DataSource::BusyFlag:{
 		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
@@ -3691,42 +3691,42 @@ bool YM2612::WriteGenericData(unsigned int dataID, const DataContext* dataContex
 	case IYM2612DataSource::TimerACurrentCounter:{
 		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
-		timerACounter = dataValueAsUInt.GetValue();
+		_timerACounter = dataValueAsUInt.GetValue();
 		return true;}
 	case IYM2612DataSource::TimerBCurrentCounter:{
 		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
-		timerBCounter = dataValueAsUInt.GetValue();
+		_timerBCounter = dataValueAsUInt.GetValue();
 		return true;}
 	case IYM2612DataSource::ExternalClockRate:{
 		if(dataType != IGenericAccessDataValue::DataType::Double) return false;
 		IGenericAccessDataValueDouble& dataValueAsDouble = (IGenericAccessDataValueDouble&)dataValue;
-		externalClockRate = dataValueAsDouble.GetValue();
+		_externalClockRate = dataValueAsDouble.GetValue();
 		return true;}
 	case IYM2612DataSource::FMClockDivider:{
 		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
-		fmClockDivider = dataValueAsUInt.GetValue();
+		_fmClockDivider = dataValueAsUInt.GetValue();
 		return true;}
 	case IYM2612DataSource::EGClockDivider:{
 		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
-		egClockDivider = dataValueAsUInt.GetValue();
+		_egClockDivider = dataValueAsUInt.GetValue();
 		return true;}
 	case IYM2612DataSource::OutputClockDivider:{
 		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
-		outputClockDivider = dataValueAsUInt.GetValue();
+		_outputClockDivider = dataValueAsUInt.GetValue();
 		return true;}
 	case IYM2612DataSource::TimerAClockDivider:{
 		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
-		timerAClockDivider = dataValueAsUInt.GetValue();
+		_timerAClockDivider = dataValueAsUInt.GetValue();
 		return true;}
 	case IYM2612DataSource::TimerBClockDivider:{
 		if(dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
-		timerBClockDivider = dataValueAsUInt.GetValue();
+		_timerBClockDivider = dataValueAsUInt.GetValue();
 		return true;}
 	case IYM2612DataSource::AudioLoggingEnabled:{
 		if(dataType != IGenericAccessDataValue::DataType::Bool) return false;
@@ -3748,19 +3748,19 @@ bool YM2612::WriteGenericData(unsigned int dataID, const DataContext* dataContex
 	case IYM2612DataSource::AudioLoggingPath:{
 		if(dataType != IGenericAccessDataValue::DataType::FilePath) return false;
 		IGenericAccessDataValueFilePath& dataValueAsFilePath = (IGenericAccessDataValueFilePath&)dataValue;
-		wavLoggingPath = dataValueAsFilePath.GetValue();
+		_wavLoggingPath = dataValueAsFilePath.GetValue();
 		return true;}
 	case IYM2612DataSource::ChannelAudioLoggingPath:{
 		if(dataType != IGenericAccessDataValue::DataType::FilePath) return false;
 		IGenericAccessDataValueFilePath& dataValueAsFilePath = (IGenericAccessDataValueFilePath&)dataValue;
 		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
-		wavLoggingChannelPath[channelDataContext.channelNo] = dataValueAsFilePath.GetValue();
+		_wavLoggingChannelPath[channelDataContext.channelNo] = dataValueAsFilePath.GetValue();
 		return true;}
 	case IYM2612DataSource::OperatorAudioLoggingPath:{
 		if(dataType != IGenericAccessDataValue::DataType::FilePath) return false;
 		IGenericAccessDataValueFilePath& dataValueAsFilePath = (IGenericAccessDataValueFilePath&)dataValue;
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
-		wavLoggingOperatorPath[operatorDataContext.channelNo][operatorDataContext.operatorNo] = dataValueAsFilePath.GetValue();
+		_wavLoggingOperatorPath[operatorDataContext.channelNo][operatorDataContext.operatorNo] = dataValueAsFilePath.GetValue();
 		return true;}
 	}
 	return false;
@@ -3771,15 +3771,15 @@ bool YM2612::WriteGenericData(unsigned int dataID, const DataContext* dataContex
 //----------------------------------------------------------------------------------------
 bool YM2612::GetGenericDataLocked(unsigned int dataID, const DataContext* dataContext) const
 {
-	std::unique_lock<std::mutex> lock(registerLockMutex);
+	std::unique_lock<std::mutex> lock(_registerLockMutex);
 	switch((IYM2612DataSource)dataID)
 	{
 	case IYM2612DataSource::RawRegister:{
 		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
-		return rawRegisterLocking[registerDataContext.registerNo];}
+		return _rawRegisterLocking[registerDataContext.registerNo];}
 	case IYM2612DataSource::KeyState:{
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
-		return keyStateLocking[operatorDataContext.channelNo][operatorDataContext.operatorNo];}
+		return _keyStateLocking[operatorDataContext.channelNo][operatorDataContext.operatorNo];}
 	case IYM2612DataSource::TestData:
 	case IYM2612DataSource::LFOEnabled:
 	case IYM2612DataSource::LFOData:
@@ -3788,32 +3788,32 @@ bool YM2612::GetGenericDataLocked(unsigned int dataID, const DataContext* dataCo
 	case IYM2612DataSource::DACEnabled:
 	case IYM2612DataSource::TimerBReset:
 	case IYM2612DataSource::TimerAReset:{
-		std::map<unsigned int, std::list<RegisterLocking>>::const_iterator lockedRegisterStateIterator = lockedRegisterState.find(dataID);
-		if(lockedRegisterStateIterator != lockedRegisterState.end())
+		std::map<unsigned int, std::list<RegisterLocking>>::const_iterator lockedRegisterStateIterator = _lockedRegisterState.find(dataID);
+		if(lockedRegisterStateIterator != _lockedRegisterState.end())
 		{
 			return true;
 		}
 		break;}
 	case IYM2612DataSource::TimerBEnable:
-		return timerBStateLocking.enable;
+		return _timerBStateLocking.enable;
 	case IYM2612DataSource::TimerAEnable:
-		return timerAStateLocking.enable;
+		return _timerAStateLocking.enable;
 	case IYM2612DataSource::TimerBLoad:
-		return timerBStateLocking.load;
+		return _timerBStateLocking.load;
 	case IYM2612DataSource::TimerALoad:
-		return timerAStateLocking.load;
+		return _timerAStateLocking.load;
 	case IYM2612DataSource::TimerBData:
-		return timerBStateLocking.rate;
+		return _timerBStateLocking.rate;
 	case IYM2612DataSource::TimerAData:
-		return timerAStateLocking.rate;
+		return _timerAStateLocking.rate;
 	case IYM2612DataSource::TimerBCurrentCounter:
-		return timerBStateLocking.counter;
+		return _timerBStateLocking.counter;
 	case IYM2612DataSource::TimerACurrentCounter:
-		return timerAStateLocking.counter;
+		return _timerAStateLocking.counter;
 	case IYM2612DataSource::TimerBOverflow:
-		return timerBStateLocking.overflow;
+		return _timerBStateLocking.overflow;
 	case IYM2612DataSource::TimerAOverflow:
-		return timerAStateLocking.overflow;
+		return _timerAStateLocking.overflow;
 	case IYM2612DataSource::FeedbackData:
 	case IYM2612DataSource::AlgorithmData:
 	case IYM2612DataSource::OutputLeft:
@@ -3821,8 +3821,8 @@ bool YM2612::GetGenericDataLocked(unsigned int dataID, const DataContext* dataCo
 	case IYM2612DataSource::AMSData:
 	case IYM2612DataSource::PMSData:{
 		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
-		std::map<unsigned int, std::list<RegisterLocking>>::const_iterator lockedRegisterStateIterator = lockedRegisterState.find(dataID);
-		if(lockedRegisterStateIterator != lockedRegisterState.end())
+		std::map<unsigned int, std::list<RegisterLocking>>::const_iterator lockedRegisterStateIterator = _lockedRegisterState.find(dataID);
+		if(lockedRegisterStateIterator != _lockedRegisterState.end())
 		{
 			for(std::list<RegisterLocking>::const_iterator i = lockedRegisterStateIterator->second.begin(); i != lockedRegisterStateIterator->second.end(); ++i)
 			{
@@ -3853,8 +3853,8 @@ bool YM2612::GetGenericDataLocked(unsigned int dataID, const DataContext* dataCo
 	case IYM2612DataSource::FrequencyDataChannel3:
 	case IYM2612DataSource::BlockDataChannel3:{
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
-		std::map<unsigned int, std::list<RegisterLocking>>::const_iterator lockedRegisterStateIterator = lockedRegisterState.find(dataID);
-		if(lockedRegisterStateIterator != lockedRegisterState.end())
+		std::map<unsigned int, std::list<RegisterLocking>>::const_iterator lockedRegisterStateIterator = _lockedRegisterState.find(dataID);
+		if(lockedRegisterStateIterator != _lockedRegisterState.end())
 		{
 			for(std::list<RegisterLocking>::const_iterator i = lockedRegisterStateIterator->second.begin(); i != lockedRegisterStateIterator->second.end(); ++i)
 			{
@@ -3872,16 +3872,16 @@ bool YM2612::GetGenericDataLocked(unsigned int dataID, const DataContext* dataCo
 //----------------------------------------------------------------------------------------
 bool YM2612::SetGenericDataLocked(unsigned int dataID, const DataContext* dataContext, bool state)
 {
-	std::unique_lock<std::mutex> lock2(registerLockMutex);
+	std::unique_lock<std::mutex> lock2(_registerLockMutex);
 	switch((IYM2612DataSource)dataID)
 	{
 	case IYM2612DataSource::RawRegister:{
 		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
-		rawRegisterLocking[registerDataContext.registerNo] = state;
+		_rawRegisterLocking[registerDataContext.registerNo] = state;
 		return true;}
 	case IYM2612DataSource::KeyState:{
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
-		keyStateLocking[operatorDataContext.channelNo][operatorDataContext.operatorNo] = state;
+		_keyStateLocking[operatorDataContext.channelNo][operatorDataContext.operatorNo] = state;
 		return true;}
 	case IYM2612DataSource::TestData:
 	case IYM2612DataSource::LFOEnabled:
@@ -3893,7 +3893,7 @@ bool YM2612::SetGenericDataLocked(unsigned int dataID, const DataContext* dataCo
 	case IYM2612DataSource::DACEnabled:{
 		if(!state)
 		{
-			lockedRegisterState.erase(dataID);
+			_lockedRegisterState.erase(dataID);
 		}
 		else
 		{
@@ -3902,38 +3902,38 @@ bool YM2612::SetGenericDataLocked(unsigned int dataID, const DataContext* dataCo
 			{
 				return false;
 			}
-			lockedRegisterState[dataID].push_back(RegisterLocking(dataID, lockedDataValue));
+			_lockedRegisterState[dataID].push_back(RegisterLocking(dataID, lockedDataValue));
 		}
 		return true;}
 	case IYM2612DataSource::TimerBEnable:
-		timerBStateLocking.enable = state;
+		_timerBStateLocking.enable = state;
 		return true;
 	case IYM2612DataSource::TimerAEnable:
-		timerAStateLocking.enable = state;
+		_timerAStateLocking.enable = state;
 		return true;
 	case IYM2612DataSource::TimerBLoad:
-		timerBStateLocking.load = state;
+		_timerBStateLocking.load = state;
 		return true;
 	case IYM2612DataSource::TimerALoad:
-		timerAStateLocking.load = state;
+		_timerAStateLocking.load = state;
 		return true;
 	case IYM2612DataSource::TimerBData:
-		timerBStateLocking.rate = state;
+		_timerBStateLocking.rate = state;
 		return true;
 	case IYM2612DataSource::TimerAData:
-		timerAStateLocking.rate = state;
+		_timerAStateLocking.rate = state;
 		return true;
 	case IYM2612DataSource::TimerBCurrentCounter:
-		timerBStateLocking.counter = state;
+		_timerBStateLocking.counter = state;
 		return true;
 	case IYM2612DataSource::TimerACurrentCounter:
-		timerAStateLocking.counter = state;
+		_timerAStateLocking.counter = state;
 		return true;
 	case IYM2612DataSource::TimerBOverflow:
-		timerBStateLocking.overflow = state;
+		_timerBStateLocking.overflow = state;
 		return true;
 	case IYM2612DataSource::TimerAOverflow:
-		timerAStateLocking.overflow = state;
+		_timerAStateLocking.overflow = state;
 		return true;
 	case IYM2612DataSource::FeedbackData:
 	case IYM2612DataSource::AlgorithmData:
@@ -3942,7 +3942,7 @@ bool YM2612::SetGenericDataLocked(unsigned int dataID, const DataContext* dataCo
 	case IYM2612DataSource::AMSData:
 	case IYM2612DataSource::PMSData:{
 		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
-		std::list<RegisterLocking>& lockedRegisterList = lockedRegisterState[dataID];
+		std::list<RegisterLocking>& lockedRegisterList = _lockedRegisterState[dataID];
 		std::list<RegisterLocking>::iterator lockedRegisterListIterator = lockedRegisterList.begin();
 		while(lockedRegisterListIterator != lockedRegisterList.end())
 		{
@@ -3951,7 +3951,7 @@ bool YM2612::SetGenericDataLocked(unsigned int dataID, const DataContext* dataCo
 				lockedRegisterList.erase(lockedRegisterListIterator);
 				if(lockedRegisterList.empty())
 				{
-					lockedRegisterState.erase(dataID);
+					_lockedRegisterState.erase(dataID);
 				}
 				break;
 			}
@@ -3964,7 +3964,7 @@ bool YM2612::SetGenericDataLocked(unsigned int dataID, const DataContext* dataCo
 			{
 				return false;
 			}
-			lockedRegisterState[dataID].push_back(RegisterLocking(dataID, channelDataContext, lockedDataValue));
+			_lockedRegisterState[dataID].push_back(RegisterLocking(dataID, channelDataContext, lockedDataValue));
 		}
 		return true;}
 	case IYM2612DataSource::DetuneData:
@@ -3987,7 +3987,7 @@ bool YM2612::SetGenericDataLocked(unsigned int dataID, const DataContext* dataCo
 	case IYM2612DataSource::FrequencyDataChannel3:
 	case IYM2612DataSource::BlockDataChannel3:{
 		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
-		std::list<RegisterLocking>& lockedRegisterList = lockedRegisterState[dataID];
+		std::list<RegisterLocking>& lockedRegisterList = _lockedRegisterState[dataID];
 		std::list<RegisterLocking>::iterator lockedRegisterListIterator = lockedRegisterList.begin();
 		while(lockedRegisterListIterator != lockedRegisterList.end())
 		{
@@ -3996,7 +3996,7 @@ bool YM2612::SetGenericDataLocked(unsigned int dataID, const DataContext* dataCo
 				lockedRegisterList.erase(lockedRegisterListIterator);
 				if(lockedRegisterList.empty())
 				{
-					lockedRegisterState.erase(dataID);
+					_lockedRegisterState.erase(dataID);
 				}
 				break;
 			}
@@ -4009,7 +4009,7 @@ bool YM2612::SetGenericDataLocked(unsigned int dataID, const DataContext* dataCo
 			{
 				return false;
 			}
-			lockedRegisterState[dataID].push_back(RegisterLocking(dataID, operatorDataContext, lockedDataValue));
+			_lockedRegisterState[dataID].push_back(RegisterLocking(dataID, operatorDataContext, lockedDataValue));
 		}
 		return true;}
 	}
@@ -4021,25 +4021,25 @@ bool YM2612::SetGenericDataLocked(unsigned int dataID, const DataContext* dataCo
 //----------------------------------------------------------------------------------------
 void YM2612::SetAudioLoggingEnabled(bool state)
 {
-	double fmClock = (externalClockRate / fmClockDivider) / outputClockDivider;
-	ToggleLoggingEnabledState(wavLog, wavLoggingPath, wavLoggingEnabled, state, 2, 16, (unsigned int)fmClock);
-	wavLoggingEnabled = state;
+	double fmClock = (_externalClockRate / _fmClockDivider) / _outputClockDivider;
+	ToggleLoggingEnabledState(_wavLog, _wavLoggingPath, _wavLoggingEnabled, state, 2, 16, (unsigned int)fmClock);
+	_wavLoggingEnabled = state;
 }
 
 //----------------------------------------------------------------------------------------
 void YM2612::SetChannelAudioLoggingEnabled(unsigned int channelNo, bool state)
 {
-	double fmClock = (externalClockRate / fmClockDivider) / outputClockDivider;
-	ToggleLoggingEnabledState(wavLogChannel[channelNo], wavLoggingChannelPath[channelNo], wavLoggingChannelEnabled[channelNo], state, 2, 16, (unsigned int)fmClock);
-	wavLoggingChannelEnabled[channelNo] = state;
+	double fmClock = (_externalClockRate / _fmClockDivider) / _outputClockDivider;
+	ToggleLoggingEnabledState(_wavLogChannel[channelNo], _wavLoggingChannelPath[channelNo], _wavLoggingChannelEnabled[channelNo], state, 2, 16, (unsigned int)fmClock);
+	_wavLoggingChannelEnabled[channelNo] = state;
 }
 
 //----------------------------------------------------------------------------------------
 void YM2612::SetOperatorAudioLoggingEnabled(unsigned int channelNo, unsigned int operatorNo, bool state)
 {
-	double fmClock = (externalClockRate / fmClockDivider) / outputClockDivider;
-	ToggleLoggingEnabledState(wavLogOperator[channelNo][operatorNo], wavLoggingOperatorPath[channelNo][operatorNo], wavLoggingOperatorEnabled[channelNo][operatorNo], state, 1, 16, (unsigned int)fmClock);
-	wavLoggingOperatorEnabled[channelNo][operatorNo] = state;
+	double fmClock = (_externalClockRate / _fmClockDivider) / _outputClockDivider;
+	ToggleLoggingEnabledState(_wavLogOperator[channelNo][operatorNo], _wavLoggingOperatorPath[channelNo][operatorNo], _wavLoggingOperatorEnabled[channelNo][operatorNo], state, 1, 16, (unsigned int)fmClock);
+	_wavLoggingOperatorEnabled[channelNo][operatorNo] = state;
 }
 
 //----------------------------------------------------------------------------------------

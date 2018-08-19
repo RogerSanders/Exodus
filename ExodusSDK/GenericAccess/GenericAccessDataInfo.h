@@ -7,22 +7,22 @@ class GenericAccessDataInfo :public IGenericAccessDataInfo
 {
 public:
 	//Constructors
-	template<class T> inline GenericAccessDataInfo(T aid, IGenericAccessDataValue::DataType atype);
+	template<class T> inline GenericAccessDataInfo(T id, IGenericAccessDataValue::DataType type);
 
 	//Interface version functions
 	virtual unsigned int GetIGenericAccessDataInfoVersion() const;
 
 	//Data info functions
 	virtual unsigned int GetID() const;
-	inline GenericAccessDataInfo* SetID(unsigned int aid);
+	inline GenericAccessDataInfo* SetID(unsigned int id);
 	virtual IGenericAccessDataValue::DataType GetType() const;
-	inline GenericAccessDataInfo* SetType(IGenericAccessDataValue::DataType atype);
+	inline GenericAccessDataInfo* SetType(IGenericAccessDataValue::DataType type);
 	virtual bool GetReadOnly() const;
-	inline GenericAccessDataInfo* SetReadOnly(bool areadOnly);
+	inline GenericAccessDataInfo* SetReadOnly(bool readOnly);
 	virtual bool GetLockingSupported() const;
-	inline GenericAccessDataInfo* SetLockingSupported(bool alockingSupported);
+	inline GenericAccessDataInfo* SetLockingSupported(bool lockingSupported);
 	virtual bool GetHighlightUsed() const;
-	inline GenericAccessDataInfo* SetHighlightUsed(bool ahighlightUsed);
+	inline GenericAccessDataInfo* SetHighlightUsed(bool highlightUsed);
 
 	//Data display mode functions
 	virtual IGenericAccessDataValue::IntDisplayMode GetIntDisplayMode() const;
@@ -60,46 +60,46 @@ public:
 	virtual bool GetFilePathAllowScanningIntoArchives() const;
 	inline GenericAccessDataInfo* SetFilePathAllowScanningIntoArchives(bool state);
 	virtual Marshal::Ret<std::wstring> GetFilePathExtensionFilter() const;
-	inline GenericAccessDataInfo* SetFilePathExtensionFilter(const std::wstring& afilePathExtensionFilter);
+	inline GenericAccessDataInfo* SetFilePathExtensionFilter(const std::wstring& filePathExtensionFilter);
 	virtual Marshal::Ret<std::wstring> GetFilePathDefaultExtension() const;
-	inline GenericAccessDataInfo* SetFilePathDefaultExtension(const std::wstring& afilePathDefaultExtension);
+	inline GenericAccessDataInfo* SetFilePathDefaultExtension(const std::wstring& filePathDefaultExtension);
 
 	//Folder path settings
 	virtual bool GetFolderPathCreatingTarget() const;
 	inline GenericAccessDataInfo* SetFolderPathCreatingTarget(bool state);
 
 private:
-	unsigned int id;
-	IGenericAccessDataValue::DataType dataType;
-	bool readOnly;
-	bool lockingSupported;
-	bool highlightUsed;
+	unsigned int _id;
+	IGenericAccessDataValue::DataType _dataType;
+	bool _readOnly;
+	bool _lockingSupported;
+	bool _highlightUsed;
 
 	//Display mode state
-	IGenericAccessDataValue::IntDisplayMode intDisplayMode;
-	IGenericAccessDataValue::FloatDisplayMode floatDisplayMode;
-	unsigned int minWholeNumberChars;
-	unsigned int minFractionalNumberChars;
+	IGenericAccessDataValue::IntDisplayMode _intDisplayMode;
+	IGenericAccessDataValue::FloatDisplayMode _floatDisplayMode;
+	unsigned int _minWholeNumberChars;
+	unsigned int _minFractionalNumberChars;
 
 	//Data limit state
-	int intMinValue;
-	int intMaxValue;
-	unsigned int uintMinValue;
-	unsigned int uintMaxValue;
-	float floatMinValue;
-	float floatMaxValue;
-	double doubleMinValue;
-	double doubleMaxValue;
-	unsigned int maxStringLength;
+	int _intMinValue;
+	int _intMaxValue;
+	unsigned int _uintMinValue;
+	unsigned int _uintMaxValue;
+	float _floatMinValue;
+	float _floatMaxValue;
+	double _doubleMinValue;
+	double _doubleMaxValue;
+	unsigned int _maxStringLength;
 
 	//File path settings
-	bool filePathCreatingTarget;
-	bool filePathAllowScanningIntoArchives;
-	std::wstring filePathExtensionFilter;
-	std::wstring filePathDefaultExtension;
+	bool _filePathCreatingTarget;
+	bool _filePathAllowScanningIntoArchives;
+	std::wstring _filePathExtensionFilter;
+	std::wstring _filePathDefaultExtension;
 
 	//Folder path settings
-	bool folderPathCreatingTarget;
+	bool _folderPathCreatingTarget;
 };
 
 #include "GenericAccessDataInfo.inl"

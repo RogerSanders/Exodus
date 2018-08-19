@@ -22,7 +22,7 @@ public:
 
 	virtual Disassembly M68000Disassemble(const M68000::LabelSubstitutionSettings& labelSettings) const
 	{
-		return Disassembly(GetOpcodeName() + L"." + DisassembleSize(size), source.Disassemble(labelSettings) + L", " + target.Disassemble(labelSettings));
+		return Disassembly(GetOpcodeName() + L"." + DisassembleSize(_size), _source.Disassemble(labelSettings) + L", " + _target.Disassemble(labelSettings));
 	}
 
 	virtual void M68000Decode(const M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)
@@ -34,12 +34,12 @@ public:
 //	|---------------------------------------------------------------|
 //	|                        16 BITS OFFSET (d)                     |
 //	-----------------------------------------------------------------
-		size = BITCOUNT_WORD;
-		source.BuildAddressDirect(size, location + GetInstructionSize(), data.GetDataSegment(0, 3));
-		stackPointer.BuildAddressDirect(BITCOUNT_LONG, location + GetInstructionSize(), M68000::SP);
-		target.BuildAddressPredec(BITCOUNT_LONG, location + GetInstructionSize(), M68000::SP);
-		offset.BuildImmediateData(size, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
-		AddInstructionSize(offset.ExtensionSize());
+		_size = BITCOUNT_WORD;
+		_source.BuildAddressDirect(_size, location + GetInstructionSize(), data.GetDataSegment(0, 3));
+		_stackPointer.BuildAddressDirect(BITCOUNT_LONG, location + GetInstructionSize(), M68000::SP);
+		_target.BuildAddressPredec(BITCOUNT_LONG, location + GetInstructionSize(), M68000::SP);
+		_offset.BuildImmediateData(_size, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
+		AddInstructionSize(_offset.ExtensionSize());
 		AddExecuteCycleCount(ExecuteTime(16, 2, 2));
 	}
 
@@ -50,18 +50,18 @@ public:
 		M68000Long currentStack;
 		M68000Long offsetData;
 
-		//Read source register, and write it to the stack
-		additionalTime += source.Read(cpu, currentReg, GetInstructionRegister());
-		additionalTime += target.Write(cpu, currentReg, GetInstructionRegister());
+		//Read _source register, and write it to the stack
+		additionalTime += _source.Read(cpu, currentReg, GetInstructionRegister());
+		additionalTime += _target.Write(cpu, currentReg, GetInstructionRegister());
 
-		//Write stack address into source register
-		additionalTime += stackPointer.Read(cpu, currentStack, GetInstructionRegister());
-		additionalTime += source.Write(cpu, currentStack, GetInstructionRegister());
+		//Write stack address into _source register
+		additionalTime += _stackPointer.Read(cpu, currentStack, GetInstructionRegister());
+		additionalTime += _source.Write(cpu, currentStack, GetInstructionRegister());
 
 		//Add offset to stack address
-		additionalTime += offset.Read(cpu, offsetData, GetInstructionRegister());
+		additionalTime += _offset.Read(cpu, offsetData, GetInstructionRegister());
 		currentStack += offsetData;
-		additionalTime += stackPointer.Write(cpu, currentStack, GetInstructionRegister());
+		additionalTime += _stackPointer.Write(cpu, currentStack, GetInstructionRegister());
 
 		//Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
@@ -72,11 +72,11 @@ public:
 	{ }
 
 private:
-	EffectiveAddress source;
-	EffectiveAddress target;
-	EffectiveAddress offset;
-	EffectiveAddress stackPointer;
-	Bitcount size;
+	EffectiveAddress _source;
+	EffectiveAddress _target;
+	EffectiveAddress _offset;
+	EffectiveAddress _stackPointer;
+	Bitcount _size;
 };
 
 } //Close namespace M68000

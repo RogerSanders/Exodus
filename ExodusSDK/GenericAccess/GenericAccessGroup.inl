@@ -1,18 +1,18 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-GenericAccessGroup::GenericAccessGroup(const std::wstring& aname)
-:parent(0), dataContext(0), name(aname), openByDefault(true)
+GenericAccessGroup::GenericAccessGroup(const std::wstring& name)
+:_parent(0), _dataContext(0), _name(name), _openByDefault(true)
 {}
 
 //----------------------------------------------------------------------------------------
 GenericAccessGroup::~GenericAccessGroup()
 {
 	//Delete the data context object we've been assigned
-	delete dataContext;
+	delete _dataContext;
 
 	//Delete any child content that we've been given ownership of
-	for(std::list<IGenericAccessGroupEntry*>::const_iterator i = childEntries.begin(); i != childEntries.end(); ++i)
+	for(std::list<IGenericAccessGroupEntry*>::const_iterator i = _childEntries.begin(); i != _childEntries.end(); ++i)
 	{
 		delete *i;
 	}
@@ -21,25 +21,25 @@ GenericAccessGroup::~GenericAccessGroup()
 //----------------------------------------------------------------------------------------
 //Data context functions
 //----------------------------------------------------------------------------------------
-GenericAccessGroup* GenericAccessGroup::SetDataContext(const IGenericAccess::DataContext* adataContext)
+GenericAccessGroup* GenericAccessGroup::SetDataContext(const IGenericAccess::DataContext* dataContext)
 {
-	dataContext = adataContext;
+	_dataContext = dataContext;
 	return this;
 }
 
 //----------------------------------------------------------------------------------------
 //Group info methods
 //----------------------------------------------------------------------------------------
-GenericAccessGroup* GenericAccessGroup::SetName(const std::wstring& aname)
+GenericAccessGroup* GenericAccessGroup::SetName(const std::wstring& name)
 {
-	name = aname;
+	_name = name;
 	return this;
 }
 
 //----------------------------------------------------------------------------------------
 GenericAccessGroup* GenericAccessGroup::SetOpenByDefault(bool state)
 {
-	openByDefault = state;
+	_openByDefault = state;
 	return this;
 }
 
@@ -52,7 +52,7 @@ GenericAccessGroup* GenericAccessGroup::AddEntry(IGenericAccessGroupEntry* entry
 	SetParentForTargetEntry(entry, this);
 
 	//Add the new entry to the list of child entries
-	childEntries.push_back(entry);
+	_childEntries.push_back(entry);
 	return this;
 }
 
@@ -60,12 +60,12 @@ GenericAccessGroup* GenericAccessGroup::AddEntry(IGenericAccessGroupEntry* entry
 GenericAccessGroup* GenericAccessGroup::RemoveEntry(IGenericAccessGroupEntry* entry)
 {
 	//Remove the target entry from the list of children if it is currently present
-	for(std::list<IGenericAccessGroupEntry*>::iterator i = childEntries.begin(); i != childEntries.end(); ++i)
+	for(std::list<IGenericAccessGroupEntry*>::iterator i = _childEntries.begin(); i != _childEntries.end(); ++i)
 	{
 		if(*i == entry)
 		{
 			SetParentForTargetEntry(entry, 0);
-			childEntries.erase(i);
+			_childEntries.erase(i);
 			break;
 		}
 	}

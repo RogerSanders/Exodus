@@ -6,7 +6,7 @@ class IViewManagerNotifierInterface :public IViewManager
 {
 public:
 	//View management functions
-	virtual void NotifyViewClosed(IViewPresenter& aviewPresenter) = 0;
+	virtual void NotifyViewClosed(IViewPresenter& viewPresenter) = 0;
 };
 
 #endif

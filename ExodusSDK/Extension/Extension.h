@@ -6,15 +6,15 @@ class Extension :public IExtension
 {
 public:
 	//Constructors
-	inline Extension(const std::wstring& aclassName, const std::wstring& ainstanceName, unsigned int amoduleID);
+	inline Extension(const std::wstring& className, const std::wstring& instanceName, unsigned int moduleID);
 	virtual ~Extension();
 
 	//Interface version functions
 	virtual unsigned int GetIExtensionVersion() const;
 
 	//Initialization functions
-	virtual bool BindToSystemInterface(ISystemExtensionInterface* asystemInterface);
-	virtual bool BindToGUIInterface(IGUIExtensionInterface* aguiInterface);
+	virtual bool BindToSystemInterface(ISystemExtensionInterface* systemInterface);
+	virtual bool BindToGUIInterface(IGUIExtensionInterface* guiInterface);
 	virtual bool Construct(IHierarchicalStorageNode& node);
 	virtual bool BuildExtension();
 	virtual bool ValidateExtension();
@@ -47,7 +47,7 @@ public:
 
 	//Window functions
 	virtual AssemblyHandle GetAssemblyHandle() const;
-	virtual void SetAssemblyHandle(AssemblyHandle aassemblyHandle);
+	virtual void SetAssemblyHandle(AssemblyHandle assemblyHandle);
 	virtual bool RegisterSystemMenuHandler();
 	virtual void UnregisterSystemMenuHandler();
 	virtual bool RegisterModuleMenuHandler(unsigned int moduleID);
@@ -70,13 +70,13 @@ public:
 	virtual bool OpenExtensionView(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IExtension* targetExtension);
 
 private:
-	std::wstring className;
-	std::wstring instanceName;
-	unsigned int moduleID;
-	AssemblyHandle assemblyHandle;
-	ISystemExtensionInterface* systemInterface;
-	IGUIExtensionInterface* guiInterface;
-	IViewManager* viewManager;
+	std::wstring _className;
+	std::wstring _instanceName;
+	unsigned int _moduleID;
+	AssemblyHandle _assemblyHandle;
+	ISystemExtensionInterface* _systemInterface;
+	IGUIExtensionInterface* _guiInterface;
+	IViewManager* _viewManager;
 };
 
 #include "Extension.inl"

@@ -22,20 +22,20 @@ public:
 
 	virtual Disassembly Z80Disassemble(const Z80::LabelSubstitutionSettings& labelSettings) const
 	{
-		return Disassembly(L"INC", target.Disassemble());
+		return Disassembly(L"INC", _target.Disassemble());
 	}
 
 	virtual void Z80Decode(const Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)
 	{
-		target.SetIndexState(GetIndexState(), GetIndexOffset());
+		_target.SetIndexState(GetIndexState(), GetIndexOffset());
 
 		//INC ss		00ss0011
 		//INC IX		11011101 00ss0011
 		//INC IY		11111101 00ss0011
-		target.Decode16BitRegister(data.GetDataSegment(4, 2));
+		_target.Decode16BitRegister(data.GetDataSegment(4, 2));
 
-		AddInstructionSize(GetIndexOffsetSize(target.UsesIndexOffset()));
-		AddInstructionSize(target.ExtensionSize());
+		AddInstructionSize(GetIndexOffsetSize(_target.UsesIndexOffset()));
+		AddInstructionSize(_target.ExtensionSize());
 		AddExecuteCycleCount(6);
 	}
 
@@ -46,9 +46,9 @@ public:
 		Z80Word result;
 
 		//Perform the operation
-		additionalTime += target.Read(cpu, location, op1);
+		additionalTime += _target.Read(cpu, location, op1);
 		result = op1 + 1;
-		additionalTime += target.Write(cpu, location, result);
+		additionalTime += _target.Write(cpu, location, result);
 
 		//Adjust the PC and return the execution time
 		cpu->SetPC(location + GetInstructionSize());
@@ -56,7 +56,7 @@ public:
 	}
 
 private:
-	EffectiveAddress target;
+	EffectiveAddress _target;
 };
 
 } //Close namespace Z80

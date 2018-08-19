@@ -9,7 +9,7 @@ class CallStackView :public ViewBase
 {
 public:
 	//Constructors
-	CallStackView(IUIManager& auiManager, CallStackViewPresenter& apresenter, IProcessor& amodel);
+	CallStackView(IUIManager& uiManager, CallStackViewPresenter& presenter, IProcessor& model);
 
 protected:
 	//Member window procedure
@@ -46,16 +46,15 @@ private:
 	INT_PTR msgPanelWM_COMMAND(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
 private:
-	CallStackViewPresenter& presenter;
-	IProcessor& model;
-	bool initializedDialog;
-	std::wstring previousText;
-	unsigned int currentControlFocus;
-	HWND hwndDataGrid;
-	HWND hwndControlPanel;
-	HFONT hfontHeader;
-	HFONT hfontData;
-	unsigned int logLastModifiedToken;
+	CallStackViewPresenter& _presenter;
+	IProcessor& _model;
+	bool _initializedDialog;
+	unsigned int _currentControlFocus;
+	HWND _hwndDataGrid;
+	HWND _hwndControlPanel;
+	HFONT _hfontHeader;
+	HFONT _hfontData;
+	unsigned int _logLastModifiedToken;
 };
 
 #endif

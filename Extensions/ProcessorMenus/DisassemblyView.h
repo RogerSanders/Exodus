@@ -9,7 +9,7 @@ class DisassemblyView :public ViewBase
 {
 public:
 	//Constructors
-	DisassemblyView(IUIManager& auiManager, DisassemblyViewPresenter& apresenter, IProcessor& amodel);
+	DisassemblyView(IUIManager& uiManager, DisassemblyViewPresenter& presenter, IProcessor& model);
 
 protected:
 	//Member window procedure
@@ -55,26 +55,26 @@ private:
 	void ToggleBreakpointStateAtAddress(unsigned int pcLocation, bool toggleEnableState);
 
 private:
-	DisassemblyViewPresenter& presenter;
-	IProcessor& model;
-	bool initializedDialog;
-	std::wstring previousText;
-	unsigned int currentControlFocus;
-	HWND hwndDataGrid;
-	HWND hwndControlPanel;
-	HFONT hfontHeader;
-	HFONT hfontData;
-	unsigned int visibleRows;
-	bool track;
-	bool forcePCSync;
-	unsigned int currentPCLocation;
-	unsigned int startLocation;
-	unsigned int endLocation;
-	unsigned int firstVisibleValueLocation;
-	unsigned int lastVisibleValueLocation;
-	unsigned int readAbove;
-	unsigned int lastBufferedOpcodeSize;
-	unsigned int firstVisibleOpcodeSize;
+	DisassemblyViewPresenter& _presenter;
+	IProcessor& _model;
+	bool _initializedDialog;
+	std::wstring _previousText;
+	unsigned int _currentControlFocus;
+	HWND _hwndDataGrid;
+	HWND _hwndControlPanel;
+	HFONT _hfontHeader;
+	HFONT _hfontData;
+	unsigned int _visibleRows;
+	bool _track;
+	bool _forcePCSync;
+	unsigned int _currentPCLocation;
+	unsigned int _startLocation;
+	unsigned int _endLocation;
+	unsigned int _firstVisibleValueLocation;
+	unsigned int _lastVisibleValueLocation;
+	unsigned int _readAbove;
+	unsigned int _lastBufferedOpcodeSize;
+	unsigned int _firstVisibleOpcodeSize;
 };
 
 #endif

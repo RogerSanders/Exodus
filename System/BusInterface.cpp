@@ -8,56 +8,56 @@
 //Constructors
 //----------------------------------------------------------------------------------------
 BusInterface::BusInterface()
-:memoryInterfaceDefined(false), portInterfaceDefined(false), nextCELineID(1)
+:_memoryInterfaceDefined(false), _portInterfaceDefined(false), _nextCELineID(1)
 {}
 
 //----------------------------------------------------------------------------------------
 BusInterface::~BusInterface()
 {
 	//Delete all the list entries from the physical memory map
-	for(unsigned int i = 0; i < physicalMemoryMap.size(); ++i)
+	for(unsigned int i = 0; i < _physicalMemoryMap.size(); ++i)
 	{
-		delete physicalMemoryMap[i];
+		delete _physicalMemoryMap[i];
 	}
 
 	//Delete all the allocated MapEntry objects from the memory map
-	for(unsigned int i = 0; i < memoryMap.size(); ++i)
+	for(unsigned int i = 0; i < _memoryMap.size(); ++i)
 	{
-		delete memoryMap[i];
+		delete _memoryMap[i];
 	}
 
 	//Delete all the list entries from the physical port map
-	for(unsigned int i = 0; i < physicalPortMap.size(); ++i)
+	for(unsigned int i = 0; i < _physicalPortMap.size(); ++i)
 	{
-		delete physicalPortMap[i];
+		delete _physicalPortMap[i];
 	}
 
 	//Delete all the allocated MapEntry objects from the port map
-	for(unsigned int i = 0; i < portMap.size(); ++i)
+	for(unsigned int i = 0; i < _portMap.size(); ++i)
 	{
-		delete portMap[i];
+		delete _portMap[i];
 	}
 
 	//Delete all the list entries from the physical line maps
-	for(unsigned int deviceNo = 0; deviceNo < physicalLineMapOnSourceDevice.size(); ++deviceNo)
+	for(unsigned int deviceNo = 0; deviceNo < _physicalLineMapOnSourceDevice.size(); ++deviceNo)
 	{
-		for(unsigned int lineNo = 0; lineNo < physicalLineMapOnSourceDevice[deviceNo].size(); ++lineNo)
+		for(unsigned int lineNo = 0; lineNo < _physicalLineMapOnSourceDevice[deviceNo].size(); ++lineNo)
 		{
-			delete physicalLineMapOnSourceDevice[deviceNo][lineNo];
+			delete _physicalLineMapOnSourceDevice[deviceNo][lineNo];
 		}
 	}
-	for(unsigned int deviceNo = 0; deviceNo < physicalLineMapOnTargetDevice.size(); ++deviceNo)
+	for(unsigned int deviceNo = 0; deviceNo < _physicalLineMapOnTargetDevice.size(); ++deviceNo)
 	{
-		for(unsigned int lineNo = 0; lineNo < physicalLineMapOnTargetDevice[deviceNo].size(); ++lineNo)
+		for(unsigned int lineNo = 0; lineNo < _physicalLineMapOnTargetDevice[deviceNo].size(); ++lineNo)
 		{
-			delete physicalLineMapOnTargetDevice[deviceNo][lineNo];
+			delete _physicalLineMapOnTargetDevice[deviceNo][lineNo];
 		}
 	}
 
 	//Delete all the allocated LineEntry objects from the line map
-	for(unsigned int i = 0; i < lineMap.size(); ++i)
+	for(unsigned int i = 0; i < _lineMap.size(); ++i)
 	{
-		delete lineMap[i];
+		delete _lineMap[i];
 	}
 }
 
@@ -67,44 +67,44 @@ bool BusInterface::Construct(const BusInterfaceParams& params)
 	//Load the memory map parameters
 	if(params.addressBusWidthDefined && params.dataBusWidthDefined)
 	{
-		memoryInterfaceDefined = true;
-		addressBusWidth = params.addressBusWidth;
-		addressBusMask = ((1 << addressBusWidth) - 1);
-		dataBusWidth = params.dataBusWidth;
+		_memoryInterfaceDefined = true;
+		_addressBusWidth = params.addressBusWidth;
+		_addressBusMask = ((1 << _addressBusWidth) - 1);
+		_dataBusWidth = params.dataBusWidth;
 
 		if(params.usePhysicalMemoryMapDefined)
 		{
-			usePhysicalMemoryMap = params.usePhysicalMemoryMap;
+			_usePhysicalMemoryMap = params.usePhysicalMemoryMap;
 		}
 		else
 		{
-			usePhysicalMemoryMap = (addressBusWidth <= 24);
+			_usePhysicalMemoryMap = (_addressBusWidth <= 24);
 		}
-		if(usePhysicalMemoryMap)
+		if(_usePhysicalMemoryMap)
 		{
-			physicalMemoryMap.resize(1 << addressBusWidth, 0);
+			_physicalMemoryMap.resize(1 << _addressBusWidth, 0);
 		}
 	}
 
 	//Load the port map parameters
 	if(params.portAddressBusWidthDefined && params.portDataBusWidthDefined)
 	{
-		portInterfaceDefined = true;
-		portAddressBusWidth = params.portAddressBusWidth;
-		portAddressBusMask = ((1 << portAddressBusWidth) - 1);
-		portDataBusWidth = params.portDataBusWidth;
+		_portInterfaceDefined = true;
+		_portAddressBusWidth = params.portAddressBusWidth;
+		_portAddressBusMask = ((1 << _portAddressBusWidth) - 1);
+		_portDataBusWidth = params.portDataBusWidth;
 
 		if(params.usePhysicalPortMapDefined)
 		{
-			usePhysicalPortMap = params.usePhysicalPortMap;
+			_usePhysicalPortMap = params.usePhysicalPortMap;
 		}
 		else
 		{
-			usePhysicalPortMap = (portAddressBusWidth <= 24);
+			_usePhysicalPortMap = (_portAddressBusWidth <= 24);
 		}
-		if(usePhysicalPortMap)
+		if(_usePhysicalPortMap)
 		{
-			physicalPortMap.resize(1 << portAddressBusWidth, 0);
+			_physicalPortMap.resize(1 << _portAddressBusWidth, 0);
 		}
 	}
 
@@ -351,7 +351,7 @@ bool BusInterface::BuildMapEntry(MapEntry& mapEntry, IDevice* device, const Devi
 		for(std::map<std::wstring, unsigned int>::const_iterator ceLineConditionIterator = ceLineConditionMap.begin(); ceLineConditionIterator != ceLineConditionMap.end(); ++ceLineConditionIterator)
 		{
 			//Search for a defined CE line with the same name
-			const CELineMap& targetCELineMap = memoryMapping? ceLineDefinitionsMemory: ceLineDefinitionsPort;
+			const CELineMap& targetCELineMap = memoryMapping? _ceLineDefinitionsMemory: _ceLineDefinitionsPort;
 			CELineMap::const_iterator targetCELineMapIterator = targetCELineMap.begin();
 			bool foundTargetCELine = false;
 			while(!foundTargetCELine && (targetCELineMapIterator != targetCELineMap.end()))
@@ -641,14 +641,14 @@ bool BusInterface::MapDevice(IDevice* device, IHierarchicalStorageNode& node)
 bool BusInterface::MapDevice(IDevice* device, const DeviceMappingParams& params)
 {
 	//Ensure that the properties of the memory interface for this bus have been defined
-	if(!memoryInterfaceDefined)
+	if(!_memoryInterfaceDefined)
 	{
 		return false;
 	}
 
 	//Create a new MapEntry object
 	MapEntry* mapEntry = new MapEntry;
-	if(!BuildMapEntry(*mapEntry, device, params, addressBusMask, addressBusWidth, dataBusWidth, true))
+	if(!BuildMapEntry(*mapEntry, device, params, _addressBusMask, _addressBusWidth, _dataBusWidth, true))
 	{
 		delete mapEntry;
 		return false;
@@ -668,23 +668,23 @@ bool BusInterface::MapDevice(IDevice* device, const DeviceMappingParams& params)
 bool BusInterface::MapDevice(MapEntry* mapEntry)
 {
 	//Look for any entries which overlap with the new mapping
-	for(unsigned int i = 0; i < (unsigned int)memoryMap.size(); ++i)
+	for(unsigned int i = 0; i < (unsigned int)_memoryMap.size(); ++i)
 	{
 		//If we've found an existing mapping which overlaps with the new mapping, return
 		//false.
-		if(DoMapEntriesOverlap(*memoryMap[i], *mapEntry))
+		if(DoMapEntriesOverlap(*_memoryMap[i], *mapEntry))
 		{
 			return false;
 		}
 	}
 
 	//Add the new entry to the memory map
-	memoryMap.push_back(mapEntry);
+	_memoryMap.push_back(mapEntry);
 
 	//If a physical memory map is being used, add the map entry to the array.
-	if(usePhysicalMemoryMap)
+	if(_usePhysicalMemoryMap)
 	{
-		AddMapEntryToPhysicalMap(mapEntry, physicalMemoryMap, addressBusMask);
+		AddMapEntryToPhysicalMap(mapEntry, _physicalMemoryMap, _addressBusMask);
 	}
 
 	return true;
@@ -695,11 +695,11 @@ void BusInterface::UnmapMemoryForDevice(IDevice* device)
 {
 	//Build a list of all entries which map to the device
 	std::list<MapEntry*> entriesToRemove;
-	for(unsigned int i = 0; i < (unsigned int)memoryMap.size(); ++i)
+	for(unsigned int i = 0; i < (unsigned int)_memoryMap.size(); ++i)
 	{
-		if(memoryMap[i]->device == device)
+		if(_memoryMap[i]->device == device)
 		{
-			entriesToRemove.push_back(memoryMap[i]);
+			entriesToRemove.push_back(_memoryMap[i]);
 		}
 	}
 
@@ -714,19 +714,19 @@ void BusInterface::UnmapMemoryForDevice(IDevice* device)
 void BusInterface::UnmapDevice(MapEntry* mapEntry)
 {
 	//If a physical memory map is being used, remove the map entry from the array.
-	if(usePhysicalMemoryMap)
+	if(_usePhysicalMemoryMap)
 	{
-		RemoveMapEntryFromPhysicalMap(mapEntry, physicalMemoryMap, addressBusMask);
+		RemoveMapEntryFromPhysicalMap(mapEntry, _physicalMemoryMap, _addressBusMask);
 	}
 
 	//Remove the entry from the memory map
 	bool done = false;
-	std::vector<MapEntry*>::iterator i = memoryMap.begin();
-	while(!done && (i != memoryMap.end()))
+	std::vector<MapEntry*>::iterator i = _memoryMap.begin();
+	while(!done && (i != _memoryMap.end()))
 	{
 		if(*i == mapEntry)
 		{
-			memoryMap.erase(i);
+			_memoryMap.erase(i);
 			done = true;
 		}
 		else
@@ -812,14 +812,14 @@ bool BusInterface::MapPort(IDevice* device, IHierarchicalStorageNode& node)
 bool BusInterface::MapPort(IDevice* device, const DeviceMappingParams& params)
 {
 	//Ensure that the properties of the port interface for this bus have been defined
-	if(!portInterfaceDefined)
+	if(!_portInterfaceDefined)
 	{
 		return false;
 	}
 
 	//Create a new MapEntry object
 	MapEntry* mapEntry = new MapEntry;
-	if(!BuildMapEntry(*mapEntry, device, params, portAddressBusMask, portAddressBusWidth, portDataBusWidth, false))
+	if(!BuildMapEntry(*mapEntry, device, params, _portAddressBusMask, _portAddressBusWidth, _portDataBusWidth, false))
 	{
 		delete mapEntry;
 		return false;
@@ -839,23 +839,23 @@ bool BusInterface::MapPort(IDevice* device, const DeviceMappingParams& params)
 bool BusInterface::MapPort(MapEntry* mapEntry)
 {
 	//Look for any entries which overlap with the new mapping
-	for(unsigned int i = 0; i < (unsigned int)portMap.size(); ++i)
+	for(unsigned int i = 0; i < (unsigned int)_portMap.size(); ++i)
 	{
 		//If we've found an existing mapping which overlaps with the new mapping, return
 		//false.
-		if(DoMapEntriesOverlap(*portMap[i], *mapEntry))
+		if(DoMapEntriesOverlap(*_portMap[i], *mapEntry))
 		{
 			return false;
 		}
 	}
 
 	//Add the new entry to the memory map
-	portMap.push_back(mapEntry);
+	_portMap.push_back(mapEntry);
 
 	//If a physical memory map is being used, add the map entry to the array.
-	if(usePhysicalPortMap)
+	if(_usePhysicalPortMap)
 	{
-		AddMapEntryToPhysicalMap(mapEntry, physicalPortMap, portAddressBusMask);
+		AddMapEntryToPhysicalMap(mapEntry, _physicalPortMap, _portAddressBusMask);
 	}
 
 	return true;
@@ -866,11 +866,11 @@ void BusInterface::UnmapPortForDevice(IDevice* device)
 {
 	//Build a list of all entries which map to the device
 	std::list<MapEntry*> entriesToRemove;
-	for(unsigned int i = 0; i < (unsigned int)portMap.size(); ++i)
+	for(unsigned int i = 0; i < (unsigned int)_portMap.size(); ++i)
 	{
-		if(portMap[i]->device == device)
+		if(_portMap[i]->device == device)
 		{
-			entriesToRemove.push_back(portMap[i]);
+			entriesToRemove.push_back(_portMap[i]);
 		}
 	}
 
@@ -885,19 +885,19 @@ void BusInterface::UnmapPortForDevice(IDevice* device)
 void BusInterface::UnmapPort(MapEntry* mapEntry)
 {
 	//If a physical port map is being used, remove the map entry from the array.
-	if(usePhysicalPortMap)
+	if(_usePhysicalPortMap)
 	{
-		RemoveMapEntryFromPhysicalMap(mapEntry, physicalPortMap, portAddressBusMask);
+		RemoveMapEntryFromPhysicalMap(mapEntry, _physicalPortMap, _portAddressBusMask);
 	}
 
 	//Remove the entry from the memory map
 	bool done = false;
-	std::vector<MapEntry*>::iterator i = portMap.begin();
-	while(!done && (i != portMap.end()))
+	std::vector<MapEntry*>::iterator i = _portMap.begin();
+	while(!done && (i != _portMap.end()))
 	{
 		if(*i == mapEntry)
 		{
-			portMap.erase(i);
+			_portMap.erase(i);
 			done = true;
 		}
 		else
@@ -1031,7 +1031,7 @@ bool BusInterface::MapLine(IDevice* sourceDevice, unsigned int targetLineGroupID
 		mappingTemplate.lineMapping = params.lineMapping;
 
 		//Add the template to our internal structures
-		LineGroupMappingInfo& lineGroupMappingInfo = lineGroupMappingTemplates[targetLineGroupID];
+		LineGroupMappingInfo& lineGroupMappingInfo = _lineGroupMappingTemplates[targetLineGroupID];
 		lineGroupMappingInfo.lineMappingTemplates.push_back(mappingTemplate);
 	}
 	else
@@ -1040,7 +1040,7 @@ bool BusInterface::MapLine(IDevice* sourceDevice, unsigned int targetLineGroupID
 		//and map any we encounter.
 		bool foundMatchingTemplate = false;
 		bool templateMappingResult = true;
-		LineGroupMappingInfo& lineGroupMappingInfo = lineGroupMappingTemplates[targetLineGroupID];
+		LineGroupMappingInfo& lineGroupMappingInfo = _lineGroupMappingTemplates[targetLineGroupID];
 		for(std::list<LineMappingTemplate>::const_iterator i = lineGroupMappingInfo.lineMappingTemplates.begin(); i != lineGroupMappingInfo.lineMappingTemplates.end(); ++i)
 		{
 			//Check for mirrored mappings which reference a different device
@@ -1124,7 +1124,7 @@ bool BusInterface::MapLine(unsigned int sourceLineGroupID, IDevice* targetDevice
 		mappingTemplate.lineMapping = params.lineMapping;
 
 		//Add the template to our internal structures
-		LineGroupMappingInfo& lineGroupMappingInfo = lineGroupMappingTemplates[sourceLineGroupID];
+		LineGroupMappingInfo& lineGroupMappingInfo = _lineGroupMappingTemplates[sourceLineGroupID];
 		lineGroupMappingInfo.lineMappingTemplates.push_back(mappingTemplate);
 	}
 	else
@@ -1133,7 +1133,7 @@ bool BusInterface::MapLine(unsigned int sourceLineGroupID, IDevice* targetDevice
 		//and map any we encounter.
 		bool foundMatchingTemplate = false;
 		bool templateMappingResult = true;
-		LineGroupMappingInfo& lineGroupMappingInfo = lineGroupMappingTemplates[sourceLineGroupID];
+		LineGroupMappingInfo& lineGroupMappingInfo = _lineGroupMappingTemplates[sourceLineGroupID];
 		for(std::list<LineMappingTemplate>::const_iterator i = lineGroupMappingInfo.lineMappingTemplates.begin(); i != lineGroupMappingInfo.lineMappingTemplates.end(); ++i)
 		{
 			foundMatchingTemplate = true;
@@ -1183,14 +1183,14 @@ bool BusInterface::MapLine(unsigned int sourceLineGroupID, IDevice* targetDevice
 //----------------------------------------------------------------------------------------
 bool BusInterface::IsDeviceLineMappedTo(IDevice* device, unsigned int lineNo) const
 {
-	unsigned int deviceArraySize = (unsigned int)physicalLineMapOnTargetDevice.size();
+	unsigned int deviceArraySize = (unsigned int)_physicalLineMapOnTargetDevice.size();
 	unsigned int deviceIndexNo = device->GetDeviceContext()->GetDeviceIndexNo();
 	if(deviceIndexNo < deviceArraySize)
 	{
-		unsigned int lineArraySize = (unsigned int)physicalLineMapOnTargetDevice[deviceIndexNo].size();
+		unsigned int lineArraySize = (unsigned int)_physicalLineMapOnTargetDevice[deviceIndexNo].size();
 		if(lineNo < lineArraySize)
 		{
-			return (physicalLineMapOnTargetDevice[deviceIndexNo][lineNo] != 0);
+			return (_physicalLineMapOnTargetDevice[deviceIndexNo][lineNo] != 0);
 		}
 	}
 	return false;
@@ -1249,11 +1249,11 @@ bool BusInterface::ExtractLineMappingParams(IHierarchicalStorageNode& node, Line
 bool BusInterface::MapLine(LineEntry* lineEntry)
 {
 	//Add the new entry to the line map
-	lineMap.push_back(lineEntry);
+	_lineMap.push_back(lineEntry);
 
 	//Add to the physical line maps
-	AddLineEntryToPhysicalMap(lineEntry, physicalLineMapOnSourceDevice, lineEntry->sourceDevice, lineEntry->sourceLine);
-	AddLineEntryToPhysicalMap(lineEntry, physicalLineMapOnTargetDevice, lineEntry->targetDevice, lineEntry->targetLine);
+	AddLineEntryToPhysicalMap(lineEntry, _physicalLineMapOnSourceDevice, lineEntry->sourceDevice, lineEntry->sourceLine);
+	AddLineEntryToPhysicalMap(lineEntry, _physicalLineMapOnTargetDevice, lineEntry->targetDevice, lineEntry->targetLine);
 
 	return true;
 }
@@ -1266,9 +1266,9 @@ void BusInterface::UnmapLineForDevice(IDevice* device)
 	std::list<LineEntry*> lineEntryObjectsToDelete;
 	unsigned int lineMapCurrentReadIndex = 0;
 	unsigned int lineMapCurrentWriteIndex = 0;
-	while(lineMapCurrentReadIndex < (unsigned int)lineMap.size())
+	while(lineMapCurrentReadIndex < (unsigned int)_lineMap.size())
 	{
-		LineEntry* currentEntry = lineMap[lineMapCurrentReadIndex];
+		LineEntry* currentEntry = _lineMap[lineMapCurrentReadIndex];
 		if((currentEntry->sourceDevice == device) || (currentEntry->targetDevice == device))
 		{
 			lineEntryObjectsToDelete.push_back(currentEntry);
@@ -1277,13 +1277,13 @@ void BusInterface::UnmapLineForDevice(IDevice* device)
 		{
 			if(lineMapCurrentReadIndex != lineMapCurrentWriteIndex)
 			{
-				lineMap[lineMapCurrentWriteIndex] = lineMap[lineMapCurrentReadIndex];
+				_lineMap[lineMapCurrentWriteIndex] = _lineMap[lineMapCurrentReadIndex];
 			}
 			++lineMapCurrentWriteIndex;
 		}
 		++lineMapCurrentReadIndex;
 	}
-	lineMap.resize(lineMapCurrentWriteIndex, 0);
+	_lineMap.resize(lineMapCurrentWriteIndex, 0);
 
 	//Remove all entries from the physical line maps where the device we're removing isn't
 	//a primary key into the map. We use the list of LineEntry objects being removed that
@@ -1294,7 +1294,7 @@ void BusInterface::UnmapLineForDevice(IDevice* device)
 
 		//Select the physical line map that this entry is loaded into where the device
 		//being unmapped is not the primary key
-		ThinVector<LineEntry*,1>** previousArrayLocation = (lineEntry->sourceDevice == device)? &physicalLineMapOnTargetDevice[lineEntry->targetDevice->GetDeviceContext()->GetDeviceIndexNo()][lineEntry->targetLine]: &physicalLineMapOnSourceDevice[lineEntry->sourceDevice->GetDeviceContext()->GetDeviceIndexNo()][lineEntry->sourceLine];
+		ThinVector<LineEntry*,1>** previousArrayLocation = (lineEntry->sourceDevice == device)? &_physicalLineMapOnTargetDevice[lineEntry->targetDevice->GetDeviceContext()->GetDeviceIndexNo()][lineEntry->targetLine]: &_physicalLineMapOnSourceDevice[lineEntry->sourceDevice->GetDeviceContext()->GetDeviceIndexNo()][lineEntry->sourceLine];
 
 		//Delete the target line entry from the physical line map
 		ThinVector<LineEntry*,1>* previousArray = *previousArrayLocation;
@@ -1313,21 +1313,21 @@ void BusInterface::UnmapLineForDevice(IDevice* device)
 	//Remove all entries from the physical line maps where the device we're removing is a
 	//primary key into the map
 	unsigned int deviceIndex = device->GetDeviceContext()->GetDeviceIndexNo();
-	if(deviceIndex < physicalLineMapOnSourceDevice.size())
+	if(deviceIndex < _physicalLineMapOnSourceDevice.size())
 	{
-		for(unsigned int lineIndex = 0; lineIndex < physicalLineMapOnSourceDevice[deviceIndex].size(); ++lineIndex)
+		for(unsigned int lineIndex = 0; lineIndex < _physicalLineMapOnSourceDevice[deviceIndex].size(); ++lineIndex)
 		{
-			delete physicalLineMapOnSourceDevice[deviceIndex][lineIndex];
+			delete _physicalLineMapOnSourceDevice[deviceIndex][lineIndex];
 		}
-		physicalLineMapOnSourceDevice[deviceIndex].clear();
+		_physicalLineMapOnSourceDevice[deviceIndex].clear();
 	}
-	if(deviceIndex < physicalLineMapOnTargetDevice.size())
+	if(deviceIndex < _physicalLineMapOnTargetDevice.size())
 	{
-		for(unsigned int lineIndex = 0; lineIndex < physicalLineMapOnTargetDevice[deviceIndex].size(); ++lineIndex)
+		for(unsigned int lineIndex = 0; lineIndex < _physicalLineMapOnTargetDevice[deviceIndex].size(); ++lineIndex)
 		{
-			delete physicalLineMapOnTargetDevice[deviceIndex][lineIndex];
+			delete _physicalLineMapOnTargetDevice[deviceIndex][lineIndex];
 		}
-		physicalLineMapOnTargetDevice[deviceIndex].clear();
+		_physicalLineMapOnTargetDevice[deviceIndex].clear();
 	}
 
 	//Delete any LineEntry objects which referred to this device
@@ -1337,7 +1337,7 @@ void BusInterface::UnmapLineForDevice(IDevice* device)
 	}
 
 	//Remove any line mapping templates which reference the device
-	for(LineGroupMappings::iterator lineGroupMappingIterator = lineGroupMappingTemplates.begin(); lineGroupMappingIterator != lineGroupMappingTemplates.end(); ++lineGroupMappingIterator)
+	for(LineGroupMappings::iterator lineGroupMappingIterator = _lineGroupMappingTemplates.begin(); lineGroupMappingIterator != _lineGroupMappingTemplates.end(); ++lineGroupMappingIterator)
 	{
 		LineGroupMappingInfo& lineGroupMappingInfo = lineGroupMappingIterator->second;
 		std::list<LineMappingTemplate>::iterator i = lineGroupMappingInfo.lineMappingTemplates.begin();
@@ -1420,7 +1420,7 @@ bool BusInterface::DefineCELinePort(IHierarchicalStorageNode& node)
 bool BusInterface::DefineCELine(IHierarchicalStorageNode& node, bool memoryMapping)
 {
 	//Select the target CE line map we want to work with
-	CELineMap& targetCELineMap = memoryMapping? ceLineDefinitionsMemory: ceLineDefinitionsPort;
+	CELineMap& targetCELineMap = memoryMapping? _ceLineDefinitionsMemory: _ceLineDefinitionsPort;
 
 	//Extract all the necessary attributes
 	CELineDefinition ceLineDefinition;
@@ -1452,10 +1452,10 @@ bool BusInterface::DefineCELine(IHierarchicalStorageNode& node, bool memoryMappi
 	}
 
 	//Generate a unique ID for the CE line
-	ceLineDefinition.busLineID = nextCELineID++;
+	ceLineDefinition.busLineID = _nextCELineID++;
 	while(targetCELineMap.find(ceLineDefinition.busLineID) != targetCELineMap.end())
 	{
-		ceLineDefinition.busLineID = nextCELineID++;
+		ceLineDefinition.busLineID = _nextCELineID++;
 	}
 
 	//Insert the new CE line definition into our map
@@ -1480,8 +1480,8 @@ bool BusInterface::MapCELineInputPort(IDevice* device, IHierarchicalStorageNode&
 bool BusInterface::MapCELineInput(IDevice* device, IHierarchicalStorageNode& node, bool memoryMapping)
 {
 	//Select the target CE line maps we want to work with
-	CELineMap& targetCELineMap = ceLineDefinitionsMemory;
-	std::vector<CELineDeviceEntry>& targetCELineDeviceMappings = ceLineDeviceMappingsMemory;
+	CELineMap& targetCELineMap = _ceLineDefinitionsMemory;
+	std::vector<CELineDeviceEntry>& targetCELineDeviceMappings = _ceLineDeviceMappingsMemory;
 
 	//Attempt to locate an existing mapping entry for this device
 	bool foundTargetDeviceMapping = false;
@@ -1584,8 +1584,8 @@ bool BusInterface::MapCELineOutputPort(IDevice* device, IHierarchicalStorageNode
 bool BusInterface::MapCELineOutput(IDevice* device, IHierarchicalStorageNode& node, bool memoryMapping)
 {
 	//Select the target CE line maps we want to work with
-	CELineMap& targetCELineMap = ceLineDefinitionsMemory;
-	std::vector<CELineDeviceEntry>& targetCELineDeviceMappings = ceLineDeviceMappingsMemory;
+	CELineMap& targetCELineMap = _ceLineDefinitionsMemory;
+	std::vector<CELineDeviceEntry>& targetCELineDeviceMappings = _ceLineDeviceMappingsMemory;
 
 	//Attempt to locate an existing mapping entry for this device
 	bool foundTargetDeviceMapping = false;
@@ -1687,11 +1687,11 @@ bool BusInterface::BindCELineMappings()
 bool BusInterface::BindCELineMappings(bool memoryMapping)
 {
 	//Select the target CE line maps we want to work with
-	CELineMap& targetCELineMap = memoryMapping? ceLineDefinitionsMemory: ceLineDefinitionsPort;
-	unsigned int& targetCELineDeviceMappingsOutputDeviceSize = memoryMapping? ceLineDeviceMappingsMemoryOutputDeviceSize: ceLineDeviceMappingsPortOutputDeviceSize;
-	unsigned int& targetCELineInitialState = memoryMapping? ceLineInitialStateMemory: ceLineInitialStatePort;
-	std::vector<CELineDeviceEntry>& targetCELineDeviceMappings = memoryMapping? ceLineDeviceMappingsMemory: ceLineDeviceMappingsPort;
-	std::vector<MapEntry*>& targetMap = memoryMapping? memoryMap: portMap;
+	CELineMap& targetCELineMap = memoryMapping? _ceLineDefinitionsMemory: _ceLineDefinitionsPort;
+	unsigned int& targetCELineDeviceMappingsOutputDeviceSize = memoryMapping? _ceLineDeviceMappingsMemoryOutputDeviceSize: _ceLineDeviceMappingsPortOutputDeviceSize;
+	unsigned int& targetCELineInitialState = memoryMapping? _ceLineInitialStateMemory: _ceLineInitialStatePort;
+	std::vector<CELineDeviceEntry>& targetCELineDeviceMappings = memoryMapping? _ceLineDeviceMappingsMemory: _ceLineDeviceMappingsPort;
+	std::vector<MapEntry*>& targetMap = memoryMapping? _memoryMap: _portMap;
 
 	//For each CE line, build lists of all devices which export and import those lines. We
 	//also clear all existing line bit number allocations here.
@@ -2223,30 +2223,30 @@ void BusInterface::UnmapCELinesForDevice(IDevice* device)
 {
 	//Delete memory CE lines defined by this device
 	std::list<unsigned int> memoryMappingsToDelete;
-	for(unsigned int i = 0; i < (unsigned int)ceLineDeviceMappingsMemory.size(); ++i)
+	for(unsigned int i = 0; i < (unsigned int)_ceLineDeviceMappingsMemory.size(); ++i)
 	{
-		if(ceLineDeviceMappingsMemory[i].device == device)
+		if(_ceLineDeviceMappingsMemory[i].device == device)
 		{
 			memoryMappingsToDelete.push_back(i);
 		}
 	}
 	for(std::list<unsigned int>::const_reverse_iterator i = memoryMappingsToDelete.rbegin(); i != memoryMappingsToDelete.rend(); ++i)
 	{
-		ceLineDeviceMappingsMemory.erase(ceLineDeviceMappingsMemory.begin() + *i);
+		_ceLineDeviceMappingsMemory.erase(_ceLineDeviceMappingsMemory.begin() + *i);
 	}
 
 	//Delete port CE lines defined by this device
 	std::list<unsigned int> portMappingsToDelete;
-	for(unsigned int i = 0; i < (unsigned int)ceLineDeviceMappingsPort.size(); ++i)
+	for(unsigned int i = 0; i < (unsigned int)_ceLineDeviceMappingsPort.size(); ++i)
 	{
-		if(ceLineDeviceMappingsPort[i].device == device)
+		if(_ceLineDeviceMappingsPort[i].device == device)
 		{
 			portMappingsToDelete.push_back(i);
 		}
 	}
 	for(std::list<unsigned int>::const_reverse_iterator i = portMappingsToDelete.rbegin(); i != portMappingsToDelete.rend(); ++i)
 	{
-		ceLineDeviceMappingsPort.erase(ceLineDeviceMappingsPort.begin() + *i);
+		_ceLineDeviceMappingsPort.erase(_ceLineDeviceMappingsPort.begin() + *i);
 	}
 }
 
@@ -2309,7 +2309,7 @@ bool BusInterface::ExtractClockSourceMappingParams(IHierarchicalStorageNode& nod
 //----------------------------------------------------------------------------------------
 bool BusInterface::MapClockSource(const ClockSourceEntry& clockSourceEntry)
 {
-	clockSourceMap.push_back(clockSourceEntry);
+	_clockSourceMap.push_back(clockSourceEntry);
 	return true;
 }
 
@@ -2317,14 +2317,14 @@ bool BusInterface::MapClockSource(const ClockSourceEntry& clockSourceEntry)
 void BusInterface::UnmapClockSourceForDevice(IDevice* device)
 {
 	//Remove any references to the device from the clock source map
-	std::list<ClockSourceEntry>::iterator i = clockSourceMap.begin();
-	while(i != clockSourceMap.end())
+	std::list<ClockSourceEntry>::iterator i = _clockSourceMap.begin();
+	while(i != _clockSourceMap.end())
 	{
 		std::list<ClockSourceEntry>::iterator currentEntry = i;
 		++i;
 		if(currentEntry->targetDevice == device)
 		{
-			clockSourceMap.erase(currentEntry);
+			_clockSourceMap.erase(currentEntry);
 		}
 	}
 }
@@ -2334,12 +2334,12 @@ void BusInterface::UnmapClockSourceForDevice(IDevice* device)
 //----------------------------------------------------------------------------------------
 unsigned int BusInterface::CalculateCELineStateMemory(unsigned int location, const Data& data, IDeviceContext* caller, void* calculateCELineStateContext, double accessTime) const
 {
-	unsigned int ceLineState = ceLineInitialStateMemory;
+	unsigned int ceLineState = _ceLineInitialStateMemory;
 
 	//Combine the CE line state output for each device
-	for(unsigned int i = 0; i < ceLineDeviceMappingsMemoryOutputDeviceSize; ++i)
+	for(unsigned int i = 0; i < _ceLineDeviceMappingsMemoryOutputDeviceSize; ++i)
 	{
-		const CELineDeviceEntry& deviceEntry = ceLineDeviceMappingsMemory[i];
+		const CELineDeviceEntry& deviceEntry = _ceLineDeviceMappingsMemory[i];
 		unsigned int deviceReturn = deviceEntry.device->CalculateCELineStateMemory(location, data, ceLineState & deviceEntry.inputCELineMask, this, caller, calculateCELineStateContext, accessTime);
 		ceLineState |= (deviceReturn & deviceEntry.outputCELineMask);
 	}
@@ -2350,12 +2350,12 @@ unsigned int BusInterface::CalculateCELineStateMemory(unsigned int location, con
 //----------------------------------------------------------------------------------------
 unsigned int BusInterface::CalculateCELineStateMemoryTransparent(unsigned int location, const Data& data, IDeviceContext* caller, void* calculateCELineStateContext) const
 {
-	unsigned int ceLineState = ceLineInitialStateMemory;
+	unsigned int ceLineState = _ceLineInitialStateMemory;
 
 	//Combine the CE line state output for each device
-	for(unsigned int i = 0; i < ceLineDeviceMappingsMemoryOutputDeviceSize; ++i)
+	for(unsigned int i = 0; i < _ceLineDeviceMappingsMemoryOutputDeviceSize; ++i)
 	{
-		const CELineDeviceEntry& deviceEntry = ceLineDeviceMappingsMemory[i];
+		const CELineDeviceEntry& deviceEntry = _ceLineDeviceMappingsMemory[i];
 		unsigned int deviceReturn = deviceEntry.device->CalculateCELineStateMemoryTransparent(location, data, ceLineState & deviceEntry.inputCELineMask, this, caller, calculateCELineStateContext);
 		ceLineState |= (deviceReturn & deviceEntry.outputCELineMask);
 	}
@@ -2366,12 +2366,12 @@ unsigned int BusInterface::CalculateCELineStateMemoryTransparent(unsigned int lo
 //----------------------------------------------------------------------------------------
 unsigned int BusInterface::CalculateCELineStatePort(unsigned int location, const Data& data, IDeviceContext* caller, void* calculateCELineStateContext, double accessTime) const
 {
-	unsigned int ceLineState = ceLineInitialStatePort;
+	unsigned int ceLineState = _ceLineInitialStatePort;
 
 	//Combine the CE line state output for each device
-	for(unsigned int i = 0; i < ceLineDeviceMappingsPortOutputDeviceSize; ++i)
+	for(unsigned int i = 0; i < _ceLineDeviceMappingsPortOutputDeviceSize; ++i)
 	{
-		const CELineDeviceEntry& deviceEntry = ceLineDeviceMappingsPort[i];
+		const CELineDeviceEntry& deviceEntry = _ceLineDeviceMappingsPort[i];
 		unsigned int deviceReturn = deviceEntry.device->CalculateCELineStatePort(location, data, ceLineState & deviceEntry.inputCELineMask, this, caller, calculateCELineStateContext, accessTime);
 		ceLineState |= (deviceReturn & deviceEntry.outputCELineMask);
 	}
@@ -2382,12 +2382,12 @@ unsigned int BusInterface::CalculateCELineStatePort(unsigned int location, const
 //----------------------------------------------------------------------------------------
 unsigned int BusInterface::CalculateCELineStatePortTransparent(unsigned int location, const Data& data, IDeviceContext* caller, void* calculateCELineStateContext) const
 {
-	unsigned int ceLineState = ceLineInitialStatePort;
+	unsigned int ceLineState = _ceLineInitialStatePort;
 
 	//Combine the CE line state output for each device
-	for(unsigned int i = 0; i < ceLineDeviceMappingsPortOutputDeviceSize; ++i)
+	for(unsigned int i = 0; i < _ceLineDeviceMappingsPortOutputDeviceSize; ++i)
 	{
-		const CELineDeviceEntry& deviceEntry = ceLineDeviceMappingsPort[i];
+		const CELineDeviceEntry& deviceEntry = _ceLineDeviceMappingsPort[i];
 		unsigned int deviceReturn = deviceEntry.device->CalculateCELineStatePortTransparent(location, data, ceLineState & deviceEntry.inputCELineMask, this, caller, calculateCELineStateContext);
 		ceLineState |= (deviceReturn & deviceEntry.outputCELineMask);
 	}
@@ -2400,10 +2400,10 @@ unsigned int BusInterface::CalculateCELineStatePortTransparent(unsigned int loca
 //----------------------------------------------------------------------------------------
 BusInterface::MapEntry* BusInterface::ResolveMemoryAddress(unsigned int ce, unsigned int location) const
 {
-	if(usePhysicalMemoryMap)
+	if(_usePhysicalMemoryMap)
 	{
 		//Resolve the address from the physical memory map
-		const ThinVector<MapEntry*,1>* mappingArrayAtLocation = physicalMemoryMap[location];
+		const ThinVector<MapEntry*,1>* mappingArrayAtLocation = _physicalMemoryMap[location];
 		if(mappingArrayAtLocation != 0)
 		{
 			for(size_t i = 0; i < mappingArrayAtLocation->arraySize; ++i)
@@ -2419,9 +2419,9 @@ BusInterface::MapEntry* BusInterface::ResolveMemoryAddress(unsigned int ce, unsi
 	else
 	{
 		//Resolve the address from the normal memory map
-		for(unsigned int i = 0; i < (unsigned int)memoryMap.size(); ++i)
+		for(unsigned int i = 0; i < (unsigned int)_memoryMap.size(); ++i)
 		{
-			MapEntry* mapEntry = memoryMap[i];
+			MapEntry* mapEntry = _memoryMap[i];
 			if((mapEntry->address <= (location & mapEntry->addressEffectiveBitMaskForTargetting)) //The current memory map entry starts before or on the target address
 			&& ((mapEntry->address + mapEntry->interfaceSize) > (location & mapEntry->addressEffectiveBitMaskForTargetting)) //The current map entry ends after the target address
 			&& (mapEntry->ce == (ce & mapEntry->ceMask))) //The ce line mapping of the address mapping matches the ce line state of our query
@@ -2438,7 +2438,7 @@ BusInterface::MapEntry* BusInterface::ResolveMemoryAddress(unsigned int ce, unsi
 BusInterface::AccessResult BusInterface::ReadMemory(unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext, void* calculateCELineStateContext)
 {
 	AccessResult accessResult(false, true, 0);
-	location &= addressBusMask;
+	location &= _addressBusMask;
 	unsigned int ce = CalculateCELineStateMemory(location, data, caller, calculateCELineStateContext, accessTime);
 	MapEntry* mapEntry = ResolveMemoryAddress(ce, location);
 	if(mapEntry != 0)
@@ -2491,7 +2491,7 @@ BusInterface::AccessResult BusInterface::ReadMemory(unsigned int location, Data&
 BusInterface::AccessResult BusInterface::WriteMemory(unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext, void* calculateCELineStateContext)
 {
 	AccessResult accessResult(false);
-	location &= addressBusMask;
+	location &= _addressBusMask;
 	unsigned int ce = CalculateCELineStateMemory(location, data, caller, calculateCELineStateContext, accessTime);
 	MapEntry* mapEntry = ResolveMemoryAddress(ce, location);
 	if(mapEntry != 0)
@@ -2525,7 +2525,7 @@ BusInterface::AccessResult BusInterface::WriteMemory(unsigned int location, cons
 //----------------------------------------------------------------------------------------
 void BusInterface::TransparentReadMemory(unsigned int location, Data& data, IDeviceContext* caller, unsigned int accessContext, void* calculateCELineStateContext) const
 {
-	location &= addressBusMask;
+	location &= _addressBusMask;
 	unsigned int ce = CalculateCELineStateMemoryTransparent(location, data, caller, calculateCELineStateContext);
 	MapEntry* mapEntry = ResolveMemoryAddress(ce, location);
 	if(mapEntry != 0)
@@ -2558,7 +2558,7 @@ void BusInterface::TransparentReadMemory(unsigned int location, Data& data, IDev
 //----------------------------------------------------------------------------------------
 void BusInterface::TransparentWriteMemory(unsigned int location, const Data& data, IDeviceContext* caller, unsigned int accessContext, void* calculateCELineStateContext) const
 {
-	location &= addressBusMask;
+	location &= _addressBusMask;
 	unsigned int ce = CalculateCELineStateMemoryTransparent(location, data, caller, calculateCELineStateContext);
 	MapEntry* mapEntry = ResolveMemoryAddress(ce, location);
 	if(mapEntry != 0)
@@ -2593,10 +2593,10 @@ void BusInterface::TransparentWriteMemory(unsigned int location, const Data& dat
 //----------------------------------------------------------------------------------------
 BusInterface::MapEntry* BusInterface::ResolvePortAddress(unsigned int ce, unsigned int location) const
 {
-	if(usePhysicalPortMap)
+	if(_usePhysicalPortMap)
 	{
 		//Resolve the address from the physical memory map
-		const ThinVector<MapEntry*,1>* mappingArrayAtLocation = physicalPortMap[location];
+		const ThinVector<MapEntry*,1>* mappingArrayAtLocation = _physicalPortMap[location];
 		if(mappingArrayAtLocation != 0)
 		{
 			for(size_t i = 0; i < mappingArrayAtLocation->arraySize; ++i)
@@ -2612,9 +2612,9 @@ BusInterface::MapEntry* BusInterface::ResolvePortAddress(unsigned int ce, unsign
 	else
 	{
 		//Resolve the address from the normal memory map
-		for(unsigned int i = 0; i < (unsigned int)portMap.size(); ++i)
+		for(unsigned int i = 0; i < (unsigned int)_portMap.size(); ++i)
 		{
-			MapEntry* mapEntry = portMap[i];
+			MapEntry* mapEntry = _portMap[i];
 			if((mapEntry->address <= (location & mapEntry->addressEffectiveBitMaskForTargetting)) //The current memory map entry starts before or on the target address
 			&& ((mapEntry->address + mapEntry->interfaceSize) > (location & mapEntry->addressEffectiveBitMaskForTargetting)) //The current map entry ends after the target address
 			&& (mapEntry->ce == (ce & mapEntry->ceMask))) //The ce line mapping of the address mapping matches the ce line state of our query
@@ -2631,7 +2631,7 @@ BusInterface::MapEntry* BusInterface::ResolvePortAddress(unsigned int ce, unsign
 BusInterface::AccessResult BusInterface::ReadPort(unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext, void* calculateCELineStateContext)
 {
 	AccessResult accessResult(false, true, 0);
-	location &= portAddressBusMask;
+	location &= _portAddressBusMask;
 	unsigned int ce = CalculateCELineStatePort(location, data, caller, calculateCELineStateContext, accessTime);
 	MapEntry* mapEntry = ResolvePortAddress(ce, location);
 	if(mapEntry != 0)
@@ -2684,7 +2684,7 @@ BusInterface::AccessResult BusInterface::ReadPort(unsigned int location, Data& d
 BusInterface::AccessResult BusInterface::WritePort(unsigned int location, const Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext, void* calculateCELineStateContext)
 {
 	AccessResult accessResult(false);
-	location &= portAddressBusMask;
+	location &= _portAddressBusMask;
 	unsigned int ce = CalculateCELineStatePort(location, data, caller, calculateCELineStateContext, accessTime);
 	MapEntry* mapEntry = ResolvePortAddress(ce, location);
 	if(mapEntry != 0)
@@ -2718,7 +2718,7 @@ BusInterface::AccessResult BusInterface::WritePort(unsigned int location, const 
 //----------------------------------------------------------------------------------------
 void BusInterface::TransparentReadPort(unsigned int location, Data& data, IDeviceContext* caller, unsigned int accessContext, void* calculateCELineStateContext) const
 {
-	location &= portAddressBusMask;
+	location &= _portAddressBusMask;
 	unsigned int ce = CalculateCELineStatePortTransparent(location, data, caller, calculateCELineStateContext);
 	MapEntry* mapEntry = ResolvePortAddress(ce, location);
 	if(mapEntry != 0)
@@ -2751,7 +2751,7 @@ void BusInterface::TransparentReadPort(unsigned int location, Data& data, IDevic
 //----------------------------------------------------------------------------------------
 void BusInterface::TransparentWritePort(unsigned int location, const Data& data, IDeviceContext* caller, unsigned int accessContext, void* calculateCELineStateContext) const
 {
-	location &= portAddressBusMask;
+	location &= _portAddressBusMask;
 	unsigned int ce = CalculateCELineStatePortTransparent(location, data, caller, calculateCELineStateContext);
 	MapEntry* mapEntry = ResolvePortAddress(ce, location);
 	if(mapEntry != 0)
@@ -2788,14 +2788,14 @@ bool BusInterface::SetLineState(unsigned int sourceLine, const Data& lineData, I
 {
 	//##DEBUG##
 //	std::wcout << "SetLineBegin\t" << sourceDevice->GetTargetDevice()->GetDeviceInstanceName() << '\t' << sourceLine << '\t' << sourceDevice->GetTargetDevice()->GetLineName(sourceLine) << '\n';
-	unsigned int deviceArraySize = (unsigned int)physicalLineMapOnSourceDevice.size();
+	unsigned int deviceArraySize = (unsigned int)_physicalLineMapOnSourceDevice.size();
 	unsigned int deviceIndexNo = sourceDevice->GetDeviceIndexNo();
 	if(deviceIndexNo < deviceArraySize)
 	{
-		unsigned int lineArraySize = (unsigned int)physicalLineMapOnSourceDevice[deviceIndexNo].size();
+		unsigned int lineArraySize = (unsigned int)_physicalLineMapOnSourceDevice[deviceIndexNo].size();
 		if(sourceLine < lineArraySize)
 		{
-			ThinVector<LineEntry*,1>* mappedLineList = physicalLineMapOnSourceDevice[deviceIndexNo][sourceLine];
+			ThinVector<LineEntry*,1>* mappedLineList = _physicalLineMapOnSourceDevice[deviceIndexNo][sourceLine];
 			if(mappedLineList != 0)
 			{
 				for(unsigned int i = 0; i < mappedLineList->arraySize; ++i)
@@ -2828,14 +2828,14 @@ bool BusInterface::RevokeSetLineState(unsigned int sourceLine, const Data& lineD
 {
 	//##DEBUG##
 //	std::wcout << "SetLineBegin\t" << sourceDevice->GetTargetDevice()->GetDeviceInstanceName() << '\t' << sourceLine << '\t' << sourceDevice->GetTargetDevice()->GetLineName(sourceLine) << '\n';
-	unsigned int deviceArraySize = (unsigned int)physicalLineMapOnSourceDevice.size();
+	unsigned int deviceArraySize = (unsigned int)_physicalLineMapOnSourceDevice.size();
 	unsigned int deviceIndexNo = sourceDevice->GetDeviceIndexNo();
 	if(deviceIndexNo < deviceArraySize)
 	{
-		unsigned int lineArraySize = (unsigned int)physicalLineMapOnSourceDevice[deviceIndexNo].size();
+		unsigned int lineArraySize = (unsigned int)_physicalLineMapOnSourceDevice[deviceIndexNo].size();
 		if(sourceLine < lineArraySize)
 		{
-			ThinVector<LineEntry*,1>* mappedLineList = physicalLineMapOnSourceDevice[deviceIndexNo][sourceLine];
+			ThinVector<LineEntry*,1>* mappedLineList = _physicalLineMapOnSourceDevice[deviceIndexNo][sourceLine];
 			if(mappedLineList != 0)
 			{
 				for(unsigned int i = 0; i < mappedLineList->arraySize; ++i)
@@ -2867,14 +2867,14 @@ bool BusInterface::AdvanceToLineState(unsigned int sourceLine, const Data& lineD
 //	std::wcout << "AdvanceToLineStateBegin\t" << sourceDevice->GetTargetDevice()->GetDeviceInstanceName() << '\t' << sourceLine << '\t' << sourceDevice->GetTargetDevice()->GetLineName(sourceLine) << '\n';
 	bool result = true;
 	bool foundTargetDevice = false;
-	unsigned int deviceArraySize = (unsigned int)physicalLineMapOnTargetDevice.size();
+	unsigned int deviceArraySize = (unsigned int)_physicalLineMapOnTargetDevice.size();
 	unsigned int deviceIndexNo = sourceDevice->GetDeviceIndexNo();
 	if(deviceIndexNo < deviceArraySize)
 	{
-		unsigned int lineArraySize = (unsigned int)physicalLineMapOnTargetDevice[deviceIndexNo].size();
+		unsigned int lineArraySize = (unsigned int)_physicalLineMapOnTargetDevice[deviceIndexNo].size();
 		if(sourceLine < lineArraySize)
 		{
-			ThinVector<LineEntry*,1>* mappedLineList = physicalLineMapOnTargetDevice[deviceIndexNo][sourceLine];
+			ThinVector<LineEntry*,1>* mappedLineList = _physicalLineMapOnTargetDevice[deviceIndexNo][sourceLine];
 			if(mappedLineList != 0)
 			{
 				for(unsigned int i = 0; i < mappedLineList->arraySize; ++i)
@@ -2905,7 +2905,7 @@ bool BusInterface::AdvanceToLineState(unsigned int sourceLine, const Data& lineD
 //----------------------------------------------------------------------------------------
 void BusInterface::SetClockRate(double newClockRate, const IClockSource* sourceClock, IDeviceContext* callingDevice, double accessTime, unsigned int accessContext)
 {
-	for(std::list<ClockSourceEntry>::const_iterator i = clockSourceMap.begin(); i != clockSourceMap.end(); ++i)
+	for(std::list<ClockSourceEntry>::const_iterator i = _clockSourceMap.begin(); i != _clockSourceMap.end(); ++i)
 	{
 		const ClockSourceEntry* clockSourceEntry = &(*i);
 		if(clockSourceEntry->inputClockSource == sourceClock)
@@ -2918,7 +2918,7 @@ void BusInterface::SetClockRate(double newClockRate, const IClockSource* sourceC
 //----------------------------------------------------------------------------------------
 void BusInterface::TransparentSetClockRate(double newClockRate, const IClockSource* sourceClock)
 {
-	for(std::list<ClockSourceEntry>::const_iterator i = clockSourceMap.begin(); i != clockSourceMap.end(); ++i)
+	for(std::list<ClockSourceEntry>::const_iterator i = _clockSourceMap.begin(); i != _clockSourceMap.end(); ++i)
 	{
 		const ClockSourceEntry* clockSourceEntry = &(*i);
 		if(clockSourceEntry->inputClockSource == sourceClock)

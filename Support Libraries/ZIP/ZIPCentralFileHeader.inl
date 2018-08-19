@@ -1,13 +1,13 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-ZIPChunk_CentralFileHeader::ZIPChunk_CentralFileHeader()
+ZIPChunkCentralFileHeader::ZIPChunkCentralFileHeader()
 {
 	Initialize();
 }
 
 //----------------------------------------------------------------------------------------
-ZIPChunk_CentralFileHeader::ZIPChunk_CentralFileHeader(const ZIPChunk_LocalFileHeader& localFileHeader)
+ZIPChunkCentralFileHeader::ZIPChunkCentralFileHeader(const ZIPChunkLocalFileHeader& localFileHeader)
 {
 	Initialize();
 	versionMadeBy = localFileHeader.versionToExtract;
@@ -26,9 +26,9 @@ ZIPChunk_CentralFileHeader::ZIPChunk_CentralFileHeader(const ZIPChunk_LocalFileH
 }
 
 //----------------------------------------------------------------------------------------
-void ZIPChunk_CentralFileHeader::Initialize()
+void ZIPChunkCentralFileHeader::Initialize()
 {
-	signature = validSignature;
+	signature = ValidSignature;
 	versionMadeBy = 0;
 	versionNeededToExtract = 0;
 	bitFlags = 0;
@@ -53,7 +53,7 @@ void ZIPChunk_CentralFileHeader::Initialize()
 //----------------------------------------------------------------------------------------
 //Serialization functions
 //----------------------------------------------------------------------------------------
-bool ZIPChunk_CentralFileHeader::LoadFromStream(Stream::IStream& stream)
+bool ZIPChunkCentralFileHeader::LoadFromStream(Stream::IStream& stream)
 {
 	bool result = true;
 
@@ -78,11 +78,11 @@ bool ZIPChunk_CentralFileHeader::LoadFromStream(Stream::IStream& stream)
 	result &= stream.ReadTextFixedLengthBufferAsASCII(extraFieldLength, extraField);
 	result &= stream.ReadTextFixedLengthBufferAsASCII(fileCommentLength, fileComment);
 
-	return (result && (signature == validSignature));
+	return (result && (signature == ValidSignature));
 }
 
 //----------------------------------------------------------------------------------------
-bool ZIPChunk_CentralFileHeader::SaveToStream(Stream::IStream& stream) const
+bool ZIPChunkCentralFileHeader::SaveToStream(Stream::IStream& stream) const
 {
 	bool result = true;
 
@@ -117,7 +117,7 @@ bool ZIPChunk_CentralFileHeader::SaveToStream(Stream::IStream& stream) const
 //----------------------------------------------------------------------------------------
 //Size functions
 //----------------------------------------------------------------------------------------
-unsigned int ZIPChunk_CentralFileHeader::GetSize()
+unsigned int ZIPChunkCentralFileHeader::GetSize()
 {
 	unsigned int size = 0;
 

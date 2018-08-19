@@ -56,7 +56,7 @@ class SN76489 :public Device, public GenericAccessBase<ISN76489>
 {
 public:
 	//Constructors
-	SN76489(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID);
+	SN76489(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
 
 	//Interface version functions
 	virtual unsigned int GetISN76489Version() const;
@@ -114,6 +114,9 @@ private:
 	//Typedefs
 	typedef RandomTimeAccessBuffer<Data, double>::AccessTarget AccessTarget;
 
+	//Constants
+	static const unsigned int maxPendingRenderOperationCount = 4;
+
 private:
 	//Render functions
 	void RenderThread();
@@ -131,59 +134,58 @@ private:
 
 private:
 	//Registers
-	mutable std::mutex accessMutex;
-	double lastAccessTime;
-	RandomTimeAccessBuffer<Data, double> reg;
-	unsigned int latchedChannel;
-	unsigned int blatchedChannel;
-	bool latchedVolume;
-	bool blatchedVolume;
+	mutable std::mutex _accessMutex;
+	double _lastAccessTime;
+	RandomTimeAccessBuffer<Data, double> _reg;
+	unsigned int _latchedChannel;
+	unsigned int _blatchedChannel;
+	bool _latchedVolume;
+	bool _blatchedVolume;
 
 	//Render thread properties
-	mutable std::mutex renderThreadMutex;
-	mutable std::mutex timesliceMutex;
-	std::condition_variable renderThreadUpdate;
-	std::condition_variable renderThreadStopped;
-	bool renderThreadActive;
-	static const unsigned int maxPendingRenderOperationCount = 4;
-	bool renderThreadLagging;
-	std::condition_variable renderThreadLaggingStateChange;
-	unsigned int pendingRenderOperationCount;
-	std::list<RandomTimeAccessBuffer<Data, double>::Timeslice> regTimesliceList;
-	std::list<RandomTimeAccessBuffer<Data, double>::Timeslice> regTimesliceListUncommitted;
-	double remainingRenderTime;
-	unsigned int outputSampleRate;
-	AudioStream outputStream;
-	std::vector<short> outputBuffer;
+	mutable std::mutex _renderThreadMutex;
+	mutable std::mutex _timesliceMutex;
+	std::condition_variable _renderThreadUpdate;
+	std::condition_variable _renderThreadStopped;
+	bool _renderThreadActive;
+	bool _renderThreadLagging;
+	std::condition_variable _renderThreadLaggingStateChange;
+	unsigned int _pendingRenderOperationCount;
+	std::list<RandomTimeAccessBuffer<Data, double>::Timeslice> _regTimesliceList;
+	std::list<RandomTimeAccessBuffer<Data, double>::Timeslice> _regTimesliceListUncommitted;
+	double _remainingRenderTime;
+	unsigned int _outputSampleRate;
+	AudioStream _outputStream;
+	std::vector<short> _outputBuffer;
 
 	//Render data
-	ChannelRenderData channelRenderData[channelCount];
-	unsigned int noiseShiftRegister;
-	bool noiseOutputMasked;
+	ChannelRenderData _channelRenderData[ChannelCount];
+	unsigned int _noiseShiftRegister;
+	bool _noiseOutputMasked;
 
 	//Device Properties
-	double externalClockRate;
-	double externalClockDivider;
-	unsigned int shiftRegisterBitCount;
-	unsigned int shiftRegisterDefaultValue;
-	unsigned int noiseWhiteTappedBitMask;
-	unsigned int noisePeriodicTappedBitMask;
-	std::list<GenericAccessDataInfo*> genericDataToUpdateOnShiftRegisterBitCountChange;
+	double _externalClockRate;
+	double _externalClockDivider;
+	unsigned int _shiftRegisterBitCount;
+	unsigned int _shiftRegisterDefaultValue;
+	unsigned int _noiseWhiteTappedBitMask;
+	unsigned int _noisePeriodicTappedBitMask;
+	std::list<GenericAccessDataInfo*> _genericDataToUpdateOnShiftRegisterBitCountChange;
 
 	//Register locking
-	bool channelVolumeRegisterLocked[channelCount];
-	bool channelDataRegisterLocked[channelCount];
-	bool noiseChannelTypeLocked;
-	bool noiseChannelPeriodLocked;
+	bool _channelVolumeRegisterLocked[ChannelCount];
+	bool _channelDataRegisterLocked[ChannelCount];
+	bool _noiseChannelTypeLocked;
+	bool _noiseChannelPeriodLocked;
 
 	//Wave logging
-	mutable std::mutex waveLoggingMutex;
-	bool wavLoggingEnabled;
-	bool wavLoggingChannelEnabled[channelCount];
-	std::wstring wavLoggingPath;
-	std::wstring wavLoggingChannelPath[channelCount];
-	Stream::WAVFile wavLog;
-	Stream::WAVFile wavLogChannel[channelCount];
+	mutable std::mutex _waveLoggingMutex;
+	bool _wavLoggingEnabled;
+	bool _wavLoggingChannelEnabled[ChannelCount];
+	std::wstring _wavLoggingPath;
+	std::wstring _wavLoggingChannelPath[ChannelCount];
+	Stream::WAVFile _wavLog;
+	Stream::WAVFile _wavLogChannel[ChannelCount];
 };
 
 #include "SN76489.inl"

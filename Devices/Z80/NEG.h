@@ -27,14 +27,14 @@ public:
 
 	virtual void Z80Decode(const Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)
 	{
-		target.SetIndexState(GetIndexState(), GetIndexOffset());
+		_target.SetIndexState(GetIndexState(), GetIndexOffset());
 
 		//NEG		11101101 01000100
-		target.SetMode(EffectiveAddress::Mode::A);
+		_target.SetMode(EffectiveAddress::Mode::A);
 		AddExecuteCycleCount(4);
 
-		AddInstructionSize(GetIndexOffsetSize(target.UsesIndexOffset()));
-		AddInstructionSize(target.ExtensionSize());
+		AddInstructionSize(GetIndexOffsetSize(_target.UsesIndexOffset()));
+		AddInstructionSize(_target.ExtensionSize());
 	}
 
 	virtual ExecuteTime Z80Execute(Z80* cpu, const Z80Word& location) const
@@ -44,9 +44,9 @@ public:
 		Z80Byte result;
 
 		//Perform the operation
-		additionalTime += target.Read(cpu, location, op1);
+		additionalTime += _target.Read(cpu, location, op1);
 		result = 0 - op1.GetData();
-		additionalTime += target.Write(cpu, location, result);
+		additionalTime += _target.Write(cpu, location, result);
 
 		//Set the flag results
 		cpu->SetFlagS(result.Negative());
@@ -64,7 +64,7 @@ public:
 	}
 
 private:
-	EffectiveAddress target;
+	EffectiveAddress _target;
 };
 
 } //Close namespace Z80

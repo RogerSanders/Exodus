@@ -3,8 +3,8 @@
 //----------------------------------------------------------------------------------------
 //Constructors
 //----------------------------------------------------------------------------------------
-ROM8Variable::ROM8Variable(const std::wstring& aimplementationName, const std::wstring& ainstanceName, unsigned int amoduleID)
-:ROMBase(aimplementationName, ainstanceName, amoduleID)
+ROM8Variable::ROM8Variable(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
+:ROMBase(implementationName, instanceName, moduleID)
 {}
 
 //----------------------------------------------------------------------------------------
@@ -20,19 +20,19 @@ IBusInterface::AccessResult ROM8Variable::ReadInterface(unsigned int interfaceNu
 		unsigned int dataByteSize = data.GetByteSize();
 		for(unsigned int i = 0; i < dataByteSize; ++i)
 		{
-			data.SetByteFromTopDown(i, memoryArray[(location + i) % memoryArraySize]);
+			data.SetByteFromTopDown(i, _memoryArray[(location + i) % _memoryArraySize]);
 		}
 		break;}
 	case 1:
-		data = memoryArray[location % memoryArraySize];
+		data = _memoryArray[location % _memoryArraySize];
 		break;
 	case 2:{
 		unsigned int baseLocation = location * (interfaceNumber / arrayEntryByteSize);
-		data = ((unsigned int)memoryArray[baseLocation % memoryArraySize] << (arrayEntryByteSize * Data::bitsPerByte)) | (unsigned int)memoryArray[(baseLocation + 1) % memoryArraySize];
+		data = ((unsigned int)_memoryArray[baseLocation % _memoryArraySize] << (arrayEntryByteSize * Data::BitsPerByte)) | (unsigned int)_memoryArray[(baseLocation + 1) % _memoryArraySize];
 		break;}
 	case 4:{
 		unsigned int baseLocation = location * (interfaceNumber / arrayEntryByteSize);
-		data = ((unsigned int)memoryArray[baseLocation % memoryArraySize] << (arrayEntryByteSize * 3 * Data::bitsPerByte)) | ((unsigned int)memoryArray[(baseLocation + 1) % memoryArraySize] << (arrayEntryByteSize * 2 * Data::bitsPerByte)) | ((unsigned int)memoryArray[(baseLocation + 2) % memoryArraySize] << (arrayEntryByteSize * 1 * Data::bitsPerByte)) | (unsigned int)memoryArray[(baseLocation + 3) % memoryArraySize];
+		data = ((unsigned int)_memoryArray[baseLocation % _memoryArraySize] << (arrayEntryByteSize * 3 * Data::BitsPerByte)) | ((unsigned int)_memoryArray[(baseLocation + 1) % _memoryArraySize] << (arrayEntryByteSize * 2 * Data::BitsPerByte)) | ((unsigned int)_memoryArray[(baseLocation + 2) % _memoryArraySize] << (arrayEntryByteSize * 1 * Data::BitsPerByte)) | (unsigned int)_memoryArray[(baseLocation + 3) % _memoryArraySize];
 		break;}
 	}
 	return true;
@@ -61,23 +61,23 @@ void ROM8Variable::TransparentWriteInterface(unsigned int interfaceNumber, unsig
 		unsigned int dataByteSize = data.GetByteSize();
 		for(unsigned int i = 0; i < dataByteSize; ++i)
 		{
-			memoryArray[(location + i) % memoryArraySize] = data.GetByteFromTopDown(i);
+			_memoryArray[(location + i) % _memoryArraySize] = data.GetByteFromTopDown(i);
 		}
 		break;}
 	case 1:
-		memoryArray[location % memoryArraySize] = (unsigned char)data.GetData();
+		_memoryArray[location % _memoryArraySize] = (unsigned char)data.GetData();
 		break;
 	case 2:{
 		unsigned int baseLocation = location * (interfaceNumber / arrayEntryByteSize);
-		memoryArray[baseLocation % memoryArraySize] = data.GetByteFromTopDown(0);
-		memoryArray[(baseLocation + 1) % memoryArraySize] = data.GetByteFromTopDown(1);
+		_memoryArray[baseLocation % _memoryArraySize] = data.GetByteFromTopDown(0);
+		_memoryArray[(baseLocation + 1) % _memoryArraySize] = data.GetByteFromTopDown(1);
 		break;}
 	case 4:{
 		unsigned int baseLocation = location * (interfaceNumber / arrayEntryByteSize);
-		memoryArray[baseLocation % memoryArraySize] = data.GetByteFromTopDown(0);
-		memoryArray[(baseLocation + 1) % memoryArraySize] = data.GetByteFromTopDown(1);
-		memoryArray[(baseLocation + 2) % memoryArraySize] = data.GetByteFromTopDown(2);
-		memoryArray[(baseLocation + 3) % memoryArraySize] = data.GetByteFromTopDown(3);
+		_memoryArray[baseLocation % _memoryArraySize] = data.GetByteFromTopDown(0);
+		_memoryArray[(baseLocation + 1) % _memoryArraySize] = data.GetByteFromTopDown(1);
+		_memoryArray[(baseLocation + 2) % _memoryArraySize] = data.GetByteFromTopDown(2);
+		_memoryArray[(baseLocation + 3) % _memoryArraySize] = data.GetByteFromTopDown(3);
 		break;}
 	}
 }
@@ -87,11 +87,11 @@ void ROM8Variable::TransparentWriteInterface(unsigned int interfaceNumber, unsig
 //----------------------------------------------------------------------------------------
 unsigned int ROM8Variable::ReadMemoryEntry(unsigned int location) const
 {
-	return memoryArray[location % memoryArraySize];
+	return _memoryArray[location % _memoryArraySize];
 }
 
 //----------------------------------------------------------------------------------------
 void ROM8Variable::WriteMemoryEntry(unsigned int location, unsigned int data)
 {
-	memoryArray[location % memoryArraySize] = (unsigned char)data;
+	_memoryArray[location % _memoryArraySize] = (unsigned char)data;
 }

@@ -9,7 +9,7 @@ class AboutView :public ViewBase
 {
 public:
 	//Constructors
-	AboutView(IUIManager& auiManager, AboutViewPresenter& apresenter, ExodusInterface& amodel);
+	AboutView(IUIManager& uiManager, AboutViewPresenter& presenter, ExodusInterface& model);
 
 protected:
 	//Member window procedure
@@ -33,13 +33,13 @@ private:
 	INT_PTR msgPanelWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam);
 
 private:
-	AboutViewPresenter& presenter;
-	ExodusInterface& model;
-	HFONT fontHandle;
-	HWND hwndLayoutGrid;
-	HWND hwndNestedDialog;
-	int layoutGridBorderWidth;
-	int layoutGridBorderHeight;
+	AboutViewPresenter& _presenter;
+	ExodusInterface& _model;
+	HFONT _fontHandle;
+	HWND _hwndLayoutGrid;
+	HWND _hwndNestedDialog;
+	int _layoutGridBorderWidth;
+	int _layoutGridBorderHeight;
 };
 
 #endif

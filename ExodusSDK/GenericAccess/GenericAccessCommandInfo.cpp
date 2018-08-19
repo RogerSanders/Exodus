@@ -13,11 +13,11 @@ unsigned int GenericAccessCommandInfo::GetIGenericAccessCommandInfoVersion() con
 //----------------------------------------------------------------------------------------
 unsigned int GenericAccessCommandInfo::GetID() const
 {
-	return id;
+	return _id;
 }
 
 //----------------------------------------------------------------------------------------
 bool GenericAccessCommandInfo::GetCanExecute() const
 {
-	return canExecute;
+	return _canExecute;
 }
