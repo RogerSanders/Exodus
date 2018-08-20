@@ -9,7 +9,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 ExodusSystemMenus::ExodusSystemMenus(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
 :Extension(implementationName, instanceName, moduleID), _model(0), _debugMenuHandler(0), _settingsMenuHandler(0), _systemMenuHandler(0)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 ExodusSystemMenus::~ExodusSystemMenus()

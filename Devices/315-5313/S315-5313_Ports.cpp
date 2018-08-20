@@ -459,7 +459,7 @@ void S315_5313::UpdatePredictedLineStateChanges(IDeviceContext* callingDevice, d
 	//##TODO## Confirm on the hardware that INT is triggered when VINT is disabled
 	HVCounterAdvanceSession advanceSessionINTAsserted;
 	BeginHVCounterAdvanceSessionFromCurrentState(advanceSessionINTAsserted);
-	while (!AdvanceHVCounterSession(advanceSessionINTAsserted, advanceSessionINTAsserted.hscanSettings->fflagSetPoint, advanceSessionINTAsserted.vscanSettings->vblankSetPoint, true)) {}
+	while (!AdvanceHVCounterSession(advanceSessionINTAsserted, advanceSessionINTAsserted.hscanSettings->fflagSetPoint, advanceSessionINTAsserted.vscanSettings->vblankSetPoint, true)) { }
 	unsigned int mclkTicksBeforeTriggerTimeINTAsserted = advanceSessionINTAsserted.mclkTicksAdvanced;
 
 	// Calculate the number of MCLK ticks required to reach the point at which the INT line
@@ -470,7 +470,7 @@ void S315_5313::UpdatePredictedLineStateChanges(IDeviceContext* callingDevice, d
 	// Z80 runs an interrupt acknowledge cycle.
 	HVCounterAdvanceSession advanceSessionINTNegated;
 	BeginHVCounterAdvanceSessionFromCurrentState(advanceSessionINTNegated);
-	while (!AdvanceHVCounterSession(advanceSessionINTNegated, advanceSessionINTNegated.hscanSettings->vcounterIncrementPoint, advanceSessionINTNegated.vscanSettings->vblankSetPoint+1, true)) {}
+	while (!AdvanceHVCounterSession(advanceSessionINTNegated, advanceSessionINTNegated.hscanSettings->vcounterIncrementPoint, advanceSessionINTNegated.vscanSettings->vblankSetPoint+1, true)) { }
 	unsigned int mclkTicksBeforeTriggerTimeINTNegated = advanceSessionINTNegated.mclkTicksAdvanced;
 
 	// Conditionally assert and negate the INT line
@@ -502,7 +502,7 @@ void S315_5313::UpdatePredictedLineStateChanges(IDeviceContext* callingDevice, d
 		{
 			HVCounterAdvanceSession advanceSessionVInt;
 			BeginHVCounterAdvanceSessionFromCurrentState(advanceSessionVInt);
-			while (!AdvanceHVCounterSession(advanceSessionVInt, advanceSessionVInt.hscanSettings->fflagSetPoint, advanceSessionVInt.vscanSettings->vblankSetPoint, true)) {}
+			while (!AdvanceHVCounterSession(advanceSessionVInt, advanceSessionVInt.hscanSettings->fflagSetPoint, advanceSessionVInt.vscanSettings->vblankSetPoint, true)) { }
 			mclkTicksBeforeTriggerTimeVInt = advanceSessionVInt.mclkTicksAdvanced;
 		}
 	}
@@ -535,7 +535,7 @@ void S315_5313::UpdatePredictedLineStateChanges(IDeviceContext* callingDevice, d
 				if ((vcounterPlusHIntCounter <= advanceSessionHInt.vscanSettings->vblankSetPoint) && (vcounterPlusHIntCounter > advanceSessionHInt.vcounterCurrent))
 				{
 					foundTriggerTimeHInt = true;
-					while (!AdvanceHVCounterSession(advanceSessionHInt, advanceSessionHInt.hscanSettings->vcounterIncrementPoint, vcounterPlusHIntCounter, true)) {}
+					while (!AdvanceHVCounterSession(advanceSessionHInt, advanceSessionHInt.hscanSettings->vcounterIncrementPoint, vcounterPlusHIntCounter, true)) { }
 					mclkTicksBeforeTriggerTimeHInt = advanceSessionHInt.mclkTicksAdvanced;
 				}
 			}
@@ -549,9 +549,9 @@ void S315_5313::UpdatePredictedLineStateChanges(IDeviceContext* callingDevice, d
 				// If the hint counter will expire before the end of active scan in a new
 				// frame, calculate the number of MCLK cycles until we reach that point
 				// from the current render position, and set that as the hint trigger time.
-				while (!AdvanceHVCounterSession(advanceSessionHInt, advanceSessionHInt.hscanSettings->vcounterIncrementPoint, 0, true)) {}
+				while (!AdvanceHVCounterSession(advanceSessionHInt, advanceSessionHInt.hscanSettings->vcounterIncrementPoint, 0, true)) { }
 				unsigned int hintCounterExpireVCounterPosFromStartOfFrame = AddStepsToVCounter(*advanceSessionHInt.hscanSettings, advanceSessionHInt.hcounterCurrent, *advanceSessionHInt.vscanSettings, advanceSessionHInt.interlaceEnabledCurrent, advanceSessionHInt.oddFlagCurrent, advanceSessionHInt.vcounterCurrent, _hintCounterReloadValue);
-				while (!AdvanceHVCounterSession(advanceSessionHInt, advanceSessionHInt.hscanSettings->vcounterIncrementPoint, hintCounterExpireVCounterPosFromStartOfFrame, false)) {}
+				while (!AdvanceHVCounterSession(advanceSessionHInt, advanceSessionHInt.hscanSettings->vcounterIncrementPoint, hintCounterExpireVCounterPosFromStartOfFrame, false)) { }
 				if (hintCounterExpireVCounterPosFromStartOfFrame <= advanceSessionHInt.vscanSettings->vblankSetPoint)
 				{
 					foundTriggerTimeHInt = true;
@@ -576,7 +576,7 @@ void S315_5313::UpdatePredictedLineStateChanges(IDeviceContext* callingDevice, d
 			foundTriggerTimeEXInt = true;
 			HVCounterAdvanceSession advanceSessionEXInt;
 			BeginHVCounterAdvanceSessionFromCurrentState(advanceSessionEXInt);
-			while (!AdvanceHVCounterSession(advanceSessionEXInt, _externalInterruptVideoTriggerPointHCounter, _externalInterruptVideoTriggerPointVCounter, true)) {}
+			while (!AdvanceHVCounterSession(advanceSessionEXInt, _externalInterruptVideoTriggerPointHCounter, _externalInterruptVideoTriggerPointVCounter, true)) { }
 			mclkTicksBeforeTriggerTimeEXInt = advanceSessionEXInt.mclkTicksAdvanced;
 		}
 	}

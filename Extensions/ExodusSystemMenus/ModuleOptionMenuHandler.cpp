@@ -6,7 +6,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 ModuleOptionMenuHandler::ModuleOptionMenuHandler(ExodusSystemMenus& owner, ISystemGUIInterface& model, unsigned int moduleID)
 :_owner(owner), _model(model), _moduleID(moduleID), _builtModuleSettingsList(false)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 ModuleOptionMenuHandler::~ModuleOptionMenuHandler()

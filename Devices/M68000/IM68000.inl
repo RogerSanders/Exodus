@@ -97,7 +97,7 @@ struct IM68000::RegisterDataContext :public IGenericAccess::DataContext
 {
 	RegisterDataContext(unsigned int aregisterNo = 0)
 	:registerNo(aregisterNo)
-	{}
+	{ }
 
 	unsigned int registerNo;
 };
@@ -107,7 +107,7 @@ struct IM68000::ExceptionDebuggingEntry
 {
 	ExceptionDebuggingEntry()
 	:vectorNumber(Exceptions::Reset), enableLogging(false), enableBreak(false), disable(false)
-	{}
+	{ }
 
 	Exceptions vectorNumber;
 	bool enableLogging;

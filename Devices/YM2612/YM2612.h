@@ -145,7 +145,7 @@ private:
 
 		OperatorData()
 		:attenuation(10), phaseCounter(20)
-		{}
+		{ }
 
 		Data attenuation;   // 10-bit
 		Data phaseCounter;  // 20-bit
@@ -167,13 +167,13 @@ private:
 	{
 		RegisterLocking(unsigned int adataID, const std::wstring& alockedValue)
 		:dataID(adataID), usingChannelDataContext(false), usingOperatorDataContext(false), lockedValue(alockedValue)
-		{}
+		{ }
 		RegisterLocking(unsigned int adataID, const ChannelDataContext& achannelDataContext, const std::wstring& alockedValue)
 		:dataID(adataID), channelDataContext(achannelDataContext), usingChannelDataContext(true), usingOperatorDataContext(false), lockedValue(alockedValue)
-		{}
+		{ }
 		RegisterLocking(unsigned int adataID, const OperatorDataContext& aoperatorDataContext, const std::wstring& alockedValue)
 		:dataID(adataID), operatorDataContext(aoperatorDataContext), usingChannelDataContext(false), usingOperatorDataContext(true), lockedValue(alockedValue)
-		{}
+		{ }
 
 		const IGenericAccess::DataContext* GetDataContext() const
 		{

@@ -4,7 +4,7 @@
 // Constructors
 //----------------------------------------------------------------------------------------------------------------------
 Extension::~Extension()
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Interface version functions
@@ -122,19 +122,19 @@ unsigned int Extension::GetExtensionModuleID() const
 // Savestate functions
 //----------------------------------------------------------------------------------------------------------------------
 void Extension::LoadSettingsState(IHierarchicalStorageNode& node)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 void Extension::SaveSettingsState(IHierarchicalStorageNode& node) const
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 void Extension::LoadDebuggerState(IHierarchicalStorageNode& node)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 void Extension::SaveDebuggerState(IHierarchicalStorageNode& node) const
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Window functions
@@ -158,7 +158,7 @@ bool Extension::RegisterSystemMenuHandler()
 
 //----------------------------------------------------------------------------------------------------------------------
 void Extension::UnregisterSystemMenuHandler()
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 bool Extension::RegisterModuleMenuHandler(unsigned int moduleID)
@@ -168,7 +168,7 @@ bool Extension::RegisterModuleMenuHandler(unsigned int moduleID)
 
 //----------------------------------------------------------------------------------------------------------------------
 void Extension::UnregisterModuleMenuHandler(unsigned int moduleID)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 bool Extension::RegisterDeviceMenuHandler(IDevice* targetDevice)
@@ -178,7 +178,7 @@ bool Extension::RegisterDeviceMenuHandler(IDevice* targetDevice)
 
 //----------------------------------------------------------------------------------------------------------------------
 void Extension::UnregisterDeviceMenuHandler(IDevice* targetDevice)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 bool Extension::RegisterExtensionMenuHandler(IExtension* targetExtension)
@@ -188,23 +188,23 @@ bool Extension::RegisterExtensionMenuHandler(IExtension* targetExtension)
 
 //----------------------------------------------------------------------------------------------------------------------
 void Extension::UnregisterExtensionMenuHandler(IExtension* targetExtension)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 void Extension::AddSystemMenuItems(SystemMenu systemMenu, IMenuSegment& menuSegment)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 void Extension::AddModuleMenuItems(ModuleMenu moduleMenu, IMenuSegment& menuSegment, unsigned int moduleID)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 void Extension::AddDeviceMenuItems(DeviceMenu deviceMenu, IMenuSegment& menuSegment, IDevice* targetDevice)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 void Extension::AddExtensionMenuItems(ExtensionMenu extensionMenu, IMenuSegment& menuSegment, IExtension* targetExtension)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 bool Extension::RestoreSystemViewState(const Marshal::In<std::wstring>& viewGroupName, const Marshal::In<std::wstring>& viewName, IHierarchicalStorageNode& viewState, IViewPresenter** restoredViewPresenter)

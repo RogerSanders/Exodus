@@ -25,22 +25,22 @@ enum class File::CreateMode
 //----------------------------------------------------------------------------------------------------------------------
 File::File()
 :_fileBuffer(0), _bufferSize(0), _fileOpen(false), _bufferInWriteMode(false)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 File::File(TextEncoding textEncoding)
 :Stream(textEncoding), _fileBuffer(0), _bufferSize(0), _fileOpen(false), _bufferInWriteMode(false)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 File::File(TextEncoding textEncoding, NewLineEncoding newLineEncoding)
 :Stream(textEncoding, newLineEncoding), _fileBuffer(0), _bufferSize(0), _fileOpen(false), _bufferInWriteMode(false)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 File::File(TextEncoding textEncoding, NewLineEncoding newLineEncoding, ByteOrder byteOrder)
 :Stream(textEncoding, newLineEncoding, byteOrder), _fileBuffer(0), _bufferSize(0), _fileOpen(false), _bufferInWriteMode(false)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // File binding

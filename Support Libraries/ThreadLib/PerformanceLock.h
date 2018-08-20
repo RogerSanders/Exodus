@@ -19,7 +19,7 @@ private:
 	// Don't allow the lock to be copied
 	PerformanceLock(const PerformanceLock& object)
 	:_mutex(object._mutex)
-	{}
+	{ }
 
 private:
 	PerformanceMutex& _mutex;

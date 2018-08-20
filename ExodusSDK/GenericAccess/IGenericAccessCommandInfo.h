@@ -11,7 +11,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~IGenericAccessCommandInfo() = 0 {}
+	virtual ~IGenericAccessCommandInfo() = 0 { }
 
 	// Interface version functions
 	static inline unsigned int ThisIGenericAccessCommandInfoVersion() { return 1; }

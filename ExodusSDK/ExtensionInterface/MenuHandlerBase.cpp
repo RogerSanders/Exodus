@@ -7,7 +7,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 MenuHandlerBase::MenuHandlerBase(const std::wstring& menuHandlerName, IViewManager& viewManager)
 :_menuHandlerName(menuHandlerName), _viewManager(viewManager), _deleteThreadCount(0)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 MenuHandlerBase::~MenuHandlerBase()
@@ -331,7 +331,7 @@ bool MenuHandlerBase::AddCreatedView(int menuItemID, IViewPresenter* viewPresent
 
 //----------------------------------------------------------------------------------------------------------------------
 void MenuHandlerBase::HandleMenuItemSelectNonView(int menuItemID, IViewManager& viewManager)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // View management

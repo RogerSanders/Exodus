@@ -5,7 +5,7 @@ namespace Stream {
 //----------------------------------------------------------------------------------------------------------------------
 ViewBinary::ViewBinary(IStreamNonSeekable& stream)
 :_stream(stream), _byteOrder(IStream::ByteOrder::Platform), _noErrorState(true)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // State functions

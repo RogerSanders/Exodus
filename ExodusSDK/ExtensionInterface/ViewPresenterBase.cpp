@@ -5,22 +5,22 @@
 //----------------------------------------------------------------------------------------------------------------------
 ViewPresenterBase::ViewPresenterBase(AssemblyHandle assemblyHandle, const std::wstring& viewGroupName, const std::wstring& viewName, int viewID)
 :_assemblyHandle(assemblyHandle), _viewGroupName(viewGroupName), _viewName(viewName), _viewID(viewID), _view(0), _notifier(0), _viewOpen(false), _viewTarget(ViewTarget::System), _viewTargetGlobalExtension(false)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 ViewPresenterBase::ViewPresenterBase(AssemblyHandle assemblyHandle, const std::wstring& viewGroupName, const std::wstring& viewName, int viewID, unsigned int moduleID, const std::wstring& moduleDisplayName)
 :_assemblyHandle(assemblyHandle), _viewGroupName(viewGroupName), _viewName(viewName), _viewID(viewID), _view(0), _notifier(0), _viewOpen(false), _viewTarget(ViewTarget::Module), _viewTargetModuleID(moduleID), _viewTargetModuleDisplayName(moduleDisplayName), _viewTargetGlobalExtension(false)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 ViewPresenterBase::ViewPresenterBase(AssemblyHandle assemblyHandle, const std::wstring& viewGroupName, const std::wstring& viewName, int viewID, const std::wstring& deviceInstanceName, unsigned int moduleID, const std::wstring& moduleDisplayName)
 :_assemblyHandle(assemblyHandle), _viewGroupName(viewGroupName), _viewName(viewName), _viewID(viewID), _view(0), _notifier(0), _viewOpen(false), _viewTarget(ViewTarget::Device), _viewTargetDeviceInstanceName(deviceInstanceName), _viewTargetModuleID(moduleID), _viewTargetModuleDisplayName(moduleDisplayName), _viewTargetGlobalExtension(false)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 ViewPresenterBase::ViewPresenterBase(AssemblyHandle assemblyHandle, const std::wstring& viewGroupName, const std::wstring& viewName, int viewID, const std::wstring& extensionInstanceName, bool globalExtension, unsigned int moduleID, const std::wstring& moduleDisplayName)
 :_assemblyHandle(assemblyHandle), _viewGroupName(viewGroupName), _viewName(viewName), _viewID(viewID), _view(0), _notifier(0), _viewOpen(false), _viewTarget(ViewTarget::Device), _viewTargetExtensionInstanceName(extensionInstanceName), _viewTargetModuleID(moduleID), _viewTargetModuleDisplayName(moduleDisplayName), _viewTargetGlobalExtension(globalExtension)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Interface version functions
@@ -180,11 +180,11 @@ unsigned int ViewPresenterBase::GetViewTargetModuleID() const
 // Notifiers
 //----------------------------------------------------------------------------------------------------------------------
 void ViewPresenterBase::NotifyViewOpened()
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 void ViewPresenterBase::NotifyViewClosed()
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // State functions

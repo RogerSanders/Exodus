@@ -29,7 +29,7 @@ enum class EffectiveAddress::Mode
 //----------------------------------------------------------------------------------------------------------------------
 EffectiveAddress::EffectiveAddress()
 :_data(BITCOUNT_BYTE), _displacement(BITCOUNT_BYTE), _dataSignExtended(false)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Decode functions

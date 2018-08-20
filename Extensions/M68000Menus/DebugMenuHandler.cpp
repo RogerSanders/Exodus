@@ -6,7 +6,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 DebugMenuHandler::DebugMenuHandler(M68000Menus& owner, const IDevice& modelInstanceKey, IM68000& model)
 :MenuHandlerBase(L"M68000DebugMenu", owner.GetViewManager()), _owner(owner), _modelInstanceKey(modelInstanceKey), _model(model)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Management functions

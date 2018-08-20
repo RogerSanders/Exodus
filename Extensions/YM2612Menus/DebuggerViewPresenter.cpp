@@ -6,7 +6,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 DebuggerViewPresenter::DebuggerViewPresenter(const std::wstring& viewGroupName, const std::wstring& viewName, int viewID, YM2612Menus& owner, const IDevice& modelInstanceKey, IYM2612& model)
 :ViewPresenterBase(owner.GetAssemblyHandle(), viewGroupName, viewName, viewID, modelInstanceKey.GetDeviceInstanceName(), modelInstanceKey.GetDeviceModuleID(), modelInstanceKey.GetModuleDisplayName()), _owner(owner), _modelInstanceKey(modelInstanceKey), _model(model)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // View title functions

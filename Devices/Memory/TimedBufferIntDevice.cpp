@@ -5,7 +5,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 TimedBufferIntDevice::TimedBufferIntDevice(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
 :MemoryWrite(implementationName, instanceName, moduleID), _initialMemoryDataSpecified(false), _repeatInitialMemoryData(false)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 bool TimedBufferIntDevice::Construct(IHierarchicalStorageNode& node)

@@ -17,7 +17,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~IViewPresenter() = 0 {}
+	virtual ~IViewPresenter() = 0 { }
 
 	// Interface version functions
 	static inline unsigned int ThisIViewPresenterVersion() { return 1; }

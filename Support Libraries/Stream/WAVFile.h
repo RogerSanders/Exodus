@@ -13,7 +13,7 @@ public:
 	enum class CreateMode;
 
 	// Make sure the WAVFile object is non-copyable
-	protected: WAVFile(const WAVFile& object) {} public:
+	protected: WAVFile(const WAVFile& object) { } public:
 
 	// Constructors
 	inline WAVFile();

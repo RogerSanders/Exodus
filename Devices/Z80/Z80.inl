@@ -32,10 +32,10 @@ struct Z80::LineAccess
 {
 	LineAccess(unsigned int alineLD, const Data& astate, double aaccessTime)
 	:lineID(alineLD), state(astate), accessTime(aaccessTime), clockRateChange(false)
-	{}
+	{ }
 	LineAccess(unsigned int alineLD, double aclockRate, double aaccessTime)
 	:lineID(alineLD), state(0, 0), clockRate(aclockRate), accessTime(aaccessTime), clockRateChange(true)
-	{}
+	{ }
 
 	unsigned int lineID;
 	bool clockRateChange;
@@ -49,7 +49,7 @@ struct Z80::CalculateCELineStateContext
 {
 	CalculateCELineStateContext(bool alineRD, bool alineWR)
 	:lineRD(alineRD), lineWR(alineWR)
-	{}
+	{ }
 
 	bool lineRD;
 	bool lineWR;

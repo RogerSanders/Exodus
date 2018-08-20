@@ -5,7 +5,7 @@ class IExecutionSuspendManager
 {
 public:
 	// Constructors
-	virtual ~IExecutionSuspendManager() = 0 {}
+	virtual ~IExecutionSuspendManager() = 0 { }
 
 	// Suspend functions
 	virtual void EnableTimesliceExecutionSuspend() = 0;

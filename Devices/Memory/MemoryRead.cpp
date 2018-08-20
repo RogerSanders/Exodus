@@ -5,7 +5,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 MemoryRead::MemoryRead(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
 :Device(implementationName, instanceName, moduleID), _memoryEntryCount(0)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Interface version functions
@@ -53,7 +53,7 @@ bool MemoryRead::IsMemoryLockingSupported() const
 
 //----------------------------------------------------------------------------------------------------------------------
 void MemoryRead::LockMemoryBlock(unsigned int location, unsigned int size, bool state)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 bool MemoryRead::IsAddressLocked(unsigned int location) const

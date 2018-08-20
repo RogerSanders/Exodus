@@ -12,7 +12,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~IBreakpoint() = 0 {}
+	virtual ~IBreakpoint() = 0 { }
 
 	// Interface version functions
 	static inline unsigned int ThisIBreakpointVersion() { return 1; }

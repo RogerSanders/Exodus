@@ -6,7 +6,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 SettingsMenuHandler::SettingsMenuHandler(GenericAccessMenus& owner, const IDevice& modelInstanceKey, IGenericAccess& model)
 :MenuHandlerBase(L"GenericAccessSettingsMenu", owner.GetViewManager()), _owner(owner), _modelInstanceKey(modelInstanceKey), _model(model)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Management functions

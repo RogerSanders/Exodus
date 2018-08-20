@@ -113,7 +113,7 @@ struct S315_5313::HScanSettings
 	 rightBlankingHCounterLastValue(arightBlankingHCounterLastValue),
 	 rightBlankingPixelCount(arightBlankingPixelCount),
 	 hcounterStepsPerIteration(ahcounterActiveScanMaxValue + 1 + ((ahcounterMaxValue + 1) - ahcounterBlankingInitialValue))
-	{}
+	{ }
 
 	unsigned int hcounterActiveScanMaxValue;
 	unsigned int hcounterBlankingInitialValue;
@@ -199,7 +199,7 @@ struct S315_5313::VScanSettings
 	 bottomBlankingLineCount(abottomBlankingLineCount),
 	 vcounterStepsPerIteration(avcounterActiveScanMaxValue + 1 + ((avcounterMaxValue + 1) - avcounterBlankingInitialValue)),
 	 vcounterStepsPerIterationOddFlag(avcounterActiveScanMaxValue + 1 + ((avcounterMaxValue + 1) - avcounterBlankingInitialValueOddFlag))
-	{}
+	{ }
 
 	unsigned int vcounterActiveScanMaxValue;
 	unsigned int vcounterBlankingInitialValue;
@@ -234,10 +234,10 @@ struct S315_5313::VScanSettings
 struct S315_5313::TimesliceRenderInfo
 {
 	TimesliceRenderInfo()
-	{}
+	{ }
 	TimesliceRenderInfo(unsigned int atimesliceStartPosition)
 	:timesliceStartPosition(atimesliceStartPosition)
-	{}
+	{ }
 
 	unsigned int timesliceStartPosition;
 	unsigned int timesliceEndPosition;
@@ -248,7 +248,7 @@ struct S315_5313::SpriteDisplayCacheEntry
 {
 	SpriteDisplayCacheEntry()
 	:vpos(16, 0), sizeAndLinkData(16, 0), mappingData(16, 0), hpos(16, 0)
-	{}
+	{ }
 
 	unsigned int spriteTableIndex;
 	unsigned int spriteRowIndex;
@@ -263,7 +263,7 @@ struct S315_5313::SpriteCellDisplayCacheEntry
 {
 	SpriteCellDisplayCacheEntry()
 	:patternData(32, 0)
-	{}
+	{ }
 
 	unsigned int spriteDisplayCacheIndex;
 	unsigned int spriteCellColumnNo;
@@ -284,7 +284,7 @@ struct S315_5313::SpritePixelBufferEntry
 {
 	SpritePixelBufferEntry()
 	:spriteMappingData(32, 0)
-	{}
+	{ }
 
 	unsigned int paletteLine;
 	unsigned int paletteIndex;
@@ -362,7 +362,7 @@ struct S315_5313::FIFOBufferEntry
 	// don't affect the pending writes.
 	FIFOBufferEntry()
 	:codeRegData(6), addressRegData(16), dataPortWriteData(16)
-	{}
+	{ }
 
 	Data codeRegData;
 	Data addressRegData;
@@ -377,7 +377,7 @@ struct S315_5313::HVCounterAdvanceSession
 {
 	HVCounterAdvanceSession()
 	:hscanSettings(0), vscanSettings(0), pixelClockTicksAdvanced(0), mclkTicksAdvanced(0)
-	{}
+	{ }
 
 	const HScanSettings* hscanSettings;
 	const VScanSettings* vscanSettings;

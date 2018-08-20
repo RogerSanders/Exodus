@@ -78,7 +78,7 @@ private:
 	{
 		TileEntry()
 		:value(0), r(0), g(0), b(0)
-		{}
+		{ }
 		unsigned int value;
 		unsigned char r;
 		unsigned char g;

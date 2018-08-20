@@ -12,7 +12,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~IBusInterface() = 0 {}
+	virtual ~IBusInterface() = 0 { }
 
 	// Interface version functions
 	static inline unsigned int ThisIBusInterfaceVersion() { return 1; }

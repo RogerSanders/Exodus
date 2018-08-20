@@ -9,7 +9,7 @@ class IHierarchicalStorageAttribute
 {
 public:
 	// Constructors
-	virtual ~IHierarchicalStorageAttribute() = 0 {}
+	virtual ~IHierarchicalStorageAttribute() = 0 { }
 
 	// Name functions
 	virtual Marshal::Ret<std::wstring> GetName() const = 0;

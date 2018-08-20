@@ -3,12 +3,12 @@
 //----------------------------------------------------------------------------------------------------------------------
 template<class T> ThinListDouble<T>::ThinListDouble()
 :previous(0), next(0)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 template<class T> ThinListDouble<T>::ThinListDouble(const T& aobject, ThinListDouble<T>* aprevious, ThinListDouble<T>* anext)
 :previous(aprevious), next(anext), object(aobject)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 template<class T> ThinListDouble<T>::ThinListDouble(const ThinListDouble<T>& source, ThinListDouble<T>* aprevious)

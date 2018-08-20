@@ -14,7 +14,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~IDeviceInfo() = 0 {}
+	virtual ~IDeviceInfo() = 0 { }
 
 	// Interface version functions
 	static inline unsigned int ThisIDeviceInfoVersion() { return 1; }

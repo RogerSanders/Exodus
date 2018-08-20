@@ -25,7 +25,7 @@ struct Processor::LabelSubstitutionSettings
 {
 	LabelSubstitutionSettings()
 	:enableSubstitution(false), observedLabelCount(0), detectedLabelCount(0)
-	{}
+	{ }
 
 	bool enableSubstitution;
 	std::map<unsigned int, LabelSubstitutionEntry> labelTargetsAddressingLocation;
@@ -48,7 +48,7 @@ struct Processor::LabelEntry
 {
 	LabelEntry()
 	:predicted(true)
-	{}
+	{ }
 
 	unsigned int location;
 	std::wstring label;
@@ -74,7 +74,7 @@ struct Processor::DisassemblyAddressInfo
 {
 	DisassemblyAddressInfo()
 	:conflictsWithKnownCode(false), arrayStartingHereDefined(false), entryDefinedOutsideArray(false)
-	{}
+	{ }
 
 	// Comment info
 	std::wstring comment;
@@ -106,7 +106,7 @@ struct Processor::DisassemblyArrayInfo
 {
 	DisassemblyArrayInfo()
 	:conflictsWithKnownCode(false)
-	{}
+	{ }
 
 	unsigned int arrayID;
 	unsigned int baseMemoryAddress;

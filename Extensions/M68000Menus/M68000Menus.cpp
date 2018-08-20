@@ -7,7 +7,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 M68000Menus::M68000Menus(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
 :Extension(implementationName, instanceName, moduleID)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 M68000Menus::~M68000Menus()

@@ -5,7 +5,7 @@ struct IBusInterface::AccessResult
 {
 	AccessResult(bool adeviceReplied = true, bool aaccessMaskUsed = false, unsigned int aaccessMask = 0, bool abusError = false, double aexecutionTime = 0, bool aunpredictableBusDelay = false)
 	:deviceReplied(adeviceReplied), accessMaskUsed(aaccessMaskUsed), accessMask(aaccessMask), busError(abusError), executionTime(aexecutionTime), unpredictableBusDelay(aunpredictableBusDelay)
-	{}
+	{ }
 
 	//##TODO## Replace this "deviceReplied" flag with something better. What this is
 	// really attempting to support is the DTACK line for the M68000, but the actual target

@@ -5,7 +5,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 ROM32Variable::ROM32Variable(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
 :ROMBase(implementationName, instanceName, moduleID)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Memory interface functions

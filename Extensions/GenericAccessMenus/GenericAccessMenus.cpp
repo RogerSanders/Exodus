@@ -7,7 +7,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 GenericAccessMenus::GenericAccessMenus(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
 :Extension(implementationName, instanceName, moduleID)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 GenericAccessMenus::~GenericAccessMenus()
