@@ -2116,7 +2116,7 @@ bool S315_5313::AdvanceProcessorState(unsigned int mclkCyclesTarget, bool stopAt
 		}
 		else
 		{
-			_vsramLastRenderReadCache = ((unsigned int)_vsram->ReadLatest(0x4C+0) << 8) | (unsigned int)_vsram->ReadLatest(0x4D+1);
+			_vsramLastRenderReadCache = ((unsigned int)_vsram->ReadLatest(0x4C+0) << 8) | (unsigned int)_vsram->ReadLatest(0x4C+1);
 			_vsramLastRenderReadCache &= ((unsigned int)_vsram->ReadLatest(0x4E+0) << 8) | (unsigned int)_vsram->ReadLatest(0x4E+1);
 		}
 

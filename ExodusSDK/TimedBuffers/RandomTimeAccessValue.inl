@@ -597,16 +597,16 @@ template<class DataType, class TimesliceType> bool RandomTimeAccessValue<DataTyp
 	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
 	for (std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
-		if (i->GetName() == L"TimesliceList")
+		if ((*i)->GetName() == L"TimesliceList")
 		{
-			if (!LoadTimesliceEntries(&(*i), timesliceSaveList))
+			if (!LoadTimesliceEntries(*(*i), timesliceSaveList))
 			{
 				return false;
 			}
 		}
-		else if (i->GetName() == L"WriteList")
+		else if ((*i)->GetName() == L"WriteList")
 		{
-			if (!LoadWriteEntries(&(*i), writeSaveList))
+			if (!LoadWriteEntries(*(*i), writeSaveList))
 			{
 				return false;
 			}
@@ -660,10 +660,10 @@ template<class DataType, class TimesliceType> bool RandomTimeAccessValue<DataTyp
 	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
 	for (std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
-		if (i->GetName() == L"Timeslice")
+		if ((*i)->GetName() == L"Timeslice")
 		{
-			IHierarchicalStorageAttribute* timesliceID = i->GetAttribute(L"TimesliceID");
-			IHierarchicalStorageAttribute* timesliceLength = i->GetAttribute(L"TimesliceLength");
+			IHierarchicalStorageAttribute* timesliceID = (*i)->GetAttribute(L"TimesliceID");
+			IHierarchicalStorageAttribute* timesliceLength = (*i)->GetAttribute(L"TimesliceLength");
 			if ((timesliceID != 0) && (timesliceLength != 0))
 			{
 				TimesliceSaveEntry entry(timesliceID->ExtractValue<unsigned int>(), timesliceLength->ExtractValue<TimesliceType>());
@@ -689,11 +689,11 @@ template<class DataType, class TimesliceType> bool RandomTimeAccessValue<DataTyp
 	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
 	for (std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
-		if (i->GetName() == L"Write")
+		if ((*i)->GetName() == L"Write")
 		{
-			IHierarchicalStorageAttribute* writeTime = i->GetAttribute(L"WriteTime");
-			IHierarchicalStorageAttribute* oldValue = i->GetAttribute(L"OldValue");
-			IHierarchicalStorageAttribute* timesliceID = i->GetAttribute(L"TimesliceID");
+			IHierarchicalStorageAttribute* writeTime = (*i)->GetAttribute(L"WriteTime");
+			IHierarchicalStorageAttribute* oldValue = (*i)->GetAttribute(L"OldValue");
+			IHierarchicalStorageAttribute* timesliceID = (*i)->GetAttribute(L"TimesliceID");
 			if ((writeTime != 0) && (oldValue != 0) && (timesliceID != 0))
 			{
 				// Extract the write entry from the XML stream
@@ -740,10 +740,9 @@ template<class DataType, class TimesliceType> bool RandomTimeAccessValue<DataTyp
 	for (typename std::list<TimesliceEntry>::const_iterator i = _timesliceList.begin(); i != _timesliceList.end(); ++i)
 	{
 		timesliceSaveList.push_back(TimesliceSaveEntry(i, id));
-		IHierarchicalStorageNode timesliceEntry(L"Timeslice");
-		timesliceEntry.AddAttribute(IHierarchicalStorageAttribute(L"TimesliceID", id));
-		timesliceEntry.AddAttribute(IHierarchicalStorageAttribute(L"TimesliceLength", i->timesliceLength));
-		timesliceListState.AddChild(timesliceEntry);
+		IHierarchicalStorageNode& timesliceEntry = timesliceListState.CreateChild(L"Timeslice");
+		timesliceEntry.CreateAttribute(L"TimesliceID", id);
+		timesliceEntry.CreateAttribute(L"TimesliceLength", i->timesliceLength);
 		++id;
 	}
 
@@ -752,15 +751,14 @@ template<class DataType, class TimesliceType> bool RandomTimeAccessValue<DataTyp
 	typename std::list<TimesliceSaveEntry>::iterator currentTimeslice = timesliceSaveList.begin();
 	for (typename std::list<WriteEntry>::const_iterator i = _writeList.begin(); i != _writeList.end(); ++i)
 	{
-		IHierarchicalStorageNode writeEntry(L"Write");
+		IHierarchicalStorageNode& writeEntry = writeListState.CreateChild(L"Write");
 		while (currentTimeslice->timeslice != i->currentTimeslice)
 		{
 			++currentTimeslice;
 		}
-		writeEntry.AddAttribute(IHierarchicalStorageAttribute(L"TimesliceID", currentTimeslice->id));
-		writeEntry.AddAttribute(IHierarchicalStorageAttribute(L"WriteTime", i->writeTime));
-		writeEntry.AddAttribute(IHierarchicalStorageAttribute(L"OldValue", saveValue));
-		writeListState.AddChild(writeEntry);
+		writeEntry.CreateAttribute(L"TimesliceID", currentTimeslice->id);
+		writeEntry.CreateAttribute(L"WriteTime", i->writeTime);
+		writeEntry.CreateAttribute(L"OldValue", saveValue);
 		saveValue = i->newValue;
 	}
 
