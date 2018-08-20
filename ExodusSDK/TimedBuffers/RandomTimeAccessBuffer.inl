@@ -14,13 +14,13 @@ template<class DataType, class TimesliceType> struct RandomTimeAccessBuffer<Data
 template<class DataType, class TimesliceType> struct RandomTimeAccessBuffer<DataType, TimesliceType>::WriteEntry
 {
 	WriteEntry()
-	{}
+	{ }
 	WriteEntry(const DataType& defaultValue)
 	:newValue(defaultValue)
-	{}
+	{ }
 	WriteEntry(unsigned int awriteAddress, TimesliceType awriteTime, const DataType& anewValue, const Timeslice& acurrentTimeslice)
 	:writeAddress(awriteAddress), writeTime(awriteTime), newValue(anewValue), currentTimeslice(acurrentTimeslice)
-	{}
+	{ }
 
 	unsigned int writeAddress;
 	TimesliceType writeTime;
@@ -33,10 +33,10 @@ template<class DataType, class TimesliceType> struct RandomTimeAccessBuffer<Data
 {
 	TimesliceSaveEntry(typename const std::list<TimesliceEntry>::const_iterator& atimeslice, unsigned int aid)
 	:timeslice(atimeslice), id(aid)
-	{}
+	{ }
 	TimesliceSaveEntry(unsigned int aid, TimesliceType atimesliceLength)
 	:id(aid), timesliceLength(atimesliceLength)
-	{}
+	{ }
 	typename std::list<TimesliceEntry>::const_iterator timeslice;
 	Timeslice timesliceLoad;
 	unsigned int id;
@@ -48,7 +48,7 @@ template<class DataType, class TimesliceType> struct RandomTimeAccessBuffer<Data
 {
 	WriteSaveEntry(unsigned int awriteAddress, TimesliceType awriteTime, const DataType& aoldValue, unsigned int acurrentTimeslice)
 	:writeAddress(awriteAddress), writeTime(awriteTime), oldValue(aoldValue), currentTimeslice(acurrentTimeslice)
-	{}
+	{ }
 	unsigned int writeAddress;
 	TimesliceType writeTime;
 	DataType oldValue;
@@ -60,12 +60,12 @@ template<class DataType, class TimesliceType> struct RandomTimeAccessBuffer<Data
 //----------------------------------------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> RandomTimeAccessBuffer<DataType, TimesliceType>::RandomTimeAccessBuffer()
 :_latestMemoryBufferExists(false)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> RandomTimeAccessBuffer<DataType, TimesliceType>::RandomTimeAccessBuffer(const DataType& defaultValue)
 :_defaultValue(defaultValue)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> RandomTimeAccessBuffer<DataType, TimesliceType>::RandomTimeAccessBuffer(unsigned int size, bool keepLatestCopy)

@@ -18,13 +18,13 @@ public:
 	// Constructors
 	inline M68000Byte()
 	:Data(BITCOUNT_BYTE)
-	{}
+	{ }
 	inline M68000Byte(unsigned int data)
 	:Data(BITCOUNT_BYTE, data)
-	{}
+	{ }
 	inline explicit M68000Byte(const Data& data)
 	:Data(BITCOUNT_BYTE, data.GetData())
-	{}
+	{ }
 
 	// Integer operators
 	M68000Byte operator+(unsigned int target) const
@@ -372,13 +372,13 @@ public:
 	// Constructors
 	inline M68000Word()
 	:Data(BITCOUNT_WORD)
-	{}
+	{ }
 	inline M68000Word(unsigned int data)
 	:Data(BITCOUNT_WORD, data)
-	{}
+	{ }
 	inline explicit M68000Word(const Data& data)
 	:Data(BITCOUNT_WORD, data.GetData())
-	{}
+	{ }
 
 	// Integer operators
 	M68000Word operator+(unsigned int target) const
@@ -726,13 +726,13 @@ public:
 	// Constructors
 	inline M68000Long()
 	:Data(BITCOUNT_LONG)
-	{}
+	{ }
 	inline M68000Long(unsigned int data)
 	:Data(BITCOUNT_LONG, data)
-	{}
+	{ }
 	inline explicit M68000Long(const Data& data)
 	:Data(BITCOUNT_LONG, data.GetData())
-	{}
+	{ }
 
 	// Integer operators
 	M68000Long operator+(unsigned int target) const

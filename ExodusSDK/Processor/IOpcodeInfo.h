@@ -8,7 +8,7 @@ class IOpcodeInfo
 {
 public:
 	// Constructors
-	virtual ~IOpcodeInfo() = 0 {}
+	virtual ~IOpcodeInfo() = 0 { }
 
 	// Interface version functions
 	static inline unsigned int ThisIOpcodeInfoVersion() { return 1; }

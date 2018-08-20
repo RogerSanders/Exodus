@@ -11,7 +11,7 @@ class IDeviceContext
 {
 public:
 	// Constructors
-	virtual ~IDeviceContext() = 0 {}
+	virtual ~IDeviceContext() = 0 { }
 
 	// Interface version functions
 	static inline unsigned int ThisIDeviceContextVersion() { return 1; }

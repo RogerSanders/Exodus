@@ -46,7 +46,7 @@ struct Image::TIFFStreamManager
 	// Constructors
 	TIFFStreamManager(Stream::IStream& astream)
 	:stream(astream)
-	{}
+	{ }
 
 	TIFF* Open(std::string imageName, std::string mode)
 	{
@@ -196,7 +196,7 @@ private:
 	}
 
 	static void term_source(j_decompress_ptr cinfo)
-	{}
+	{ }
 
 private:
 	jpeg_source_mgr pub;

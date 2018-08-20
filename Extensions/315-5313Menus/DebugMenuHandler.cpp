@@ -12,7 +12,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 DebugMenuHandler::DebugMenuHandler(S315_5313Menus& owner, const IDevice& modelInstanceKey, IS315_5313& model)
 :MenuHandlerBase(L"VDPDebugMenu", owner.GetViewManager()), _owner(owner), _modelInstanceKey(modelInstanceKey), _model(model)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Management functions

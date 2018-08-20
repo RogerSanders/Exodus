@@ -6,7 +6,7 @@ class IDockingWindowDropTargetInfo
 {
 public:
 	// Constructors
-	virtual ~IDockingWindowDropTargetInfo() = 0 {}
+	virtual ~IDockingWindowDropTargetInfo() = 0 { }
 	virtual void Destroy() = 0;
 
 	// Info functions

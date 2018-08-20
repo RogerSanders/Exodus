@@ -6,7 +6,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 DeviceControlViewPresenter::DeviceControlViewPresenter(const std::wstring& viewGroupName, const std::wstring& viewName, int viewID, ExodusSystemMenus& owner, ISystemGUIInterface& model)
 :ViewPresenterBase(owner.GetAssemblyHandle(), viewGroupName, viewName, viewID), _owner(owner), _model(model)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // View title functions

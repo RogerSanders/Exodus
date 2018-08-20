@@ -9,7 +9,7 @@ class IEmbeddedROMInfo
 {
 public:
 	// Constructors
-	virtual ~IEmbeddedROMInfo() = 0 {}
+	virtual ~IEmbeddedROMInfo() = 0 { }
 
 	// Interface version functions
 	static inline unsigned int ThisIEmbeddedROMInfoVersion() { return 1; }

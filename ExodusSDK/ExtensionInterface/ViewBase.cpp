@@ -5,7 +5,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 ViewBase::ViewBase(IUIManager& uiManager, IViewPresenter& viewPresenter)
 :_hwndInternal(NULL), _parentWindow(0), _uiManager(uiManager), _viewPresenter(viewPresenter), _assemblyHandle(0), _dialogSettingsCaptured(false), _windowSettingsCaptured(false), _initiallyDocked(false), _initiallyCollapsed(false), _windowShownForFirstTime(false), _viewType(ViewType::Dockable), _initialDialogPos(DialogPos::Default)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Interface version functions

@@ -3,7 +3,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 template<class T> GenericAccessGroupSingleSelectionList::GenericAccessGroupSingleSelectionList(T dataID, const std::wstring& name)
 :_parent(0), _dataContext(0), _dataID((unsigned int)dataID), _allowNewItemEntry(false), _name(name)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 GenericAccessGroupSingleSelectionList::~GenericAccessGroupSingleSelectionList()

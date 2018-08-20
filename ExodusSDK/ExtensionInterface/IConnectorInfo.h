@@ -8,7 +8,7 @@ class IConnectorInfo
 {
 public:
 	// Constructors
-	virtual ~IConnectorInfo() = 0 {}
+	virtual ~IConnectorInfo() = 0 { }
 
 	// Interface version functions
 	static inline unsigned int ThisIConnectorInfoVersion(){ return 1; }

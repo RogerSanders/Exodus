@@ -14,7 +14,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~IGenericAccessDataValue() = 0 {}
+	virtual ~IGenericAccessDataValue() = 0 { }
 
 	// Interface version functions
 	static inline unsigned int ThisIGenericAccessDataValueVersion() { return 1; }

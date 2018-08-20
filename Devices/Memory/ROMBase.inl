@@ -3,7 +3,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 template<class T> ROMBase<T>::ROMBase(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
 :MemoryRead(implementationName, instanceName, moduleID), _memoryArraySize(0), _memoryArray(0)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 template<class T> ROMBase<T>::~ROMBase()

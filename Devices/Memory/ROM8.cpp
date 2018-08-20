@@ -5,7 +5,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 ROM8::ROM8(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
 :ROMBase(implementationName, instanceName, moduleID)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Memory interface functions

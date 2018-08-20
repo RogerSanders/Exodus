@@ -28,7 +28,7 @@ private:
 	{
 		ParentCollectionInfo(const IGenericAccessGroupCollectionEntry* acollection, const std::wstring& achildKey, const IGenericAccessGroupEntry* achildEntry)
 		:collection(acollection), childKey(achildKey), childEntry(achildEntry)
-		{}
+		{ }
 
 		const IGenericAccessGroupCollectionEntry* collection;
 		std::wstring childKey;

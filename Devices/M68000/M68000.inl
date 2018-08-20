@@ -74,13 +74,13 @@ struct M68000::LineAccess
 {
 	LineAccess()
 	:state(0), clockRate(0), accessTime(0.0), notifyWhenApplied(false), appliedFlag(0), waitingDevice(0), clockRateChange(false)
-	{}
+	{ }
 	LineAccess(LineID alineLD, const Data& astate, double aaccessTime)
 	:lineID(alineLD), state(astate), accessTime(aaccessTime), notifyWhenApplied(false), appliedFlag(0), waitingDevice(0), clockRateChange(false)
-	{}
+	{ }
 	LineAccess(ClockID aclockLD, double aclockRate, double aaccessTime)
 	:clockID(aclockLD), state(0, 0), clockRate(aclockRate), accessTime(aaccessTime), notifyWhenApplied(false), appliedFlag(0), waitingDevice(0), clockRateChange(true)
-	{}
+	{ }
 
 	union
 	{
@@ -106,7 +106,7 @@ struct M68000::CalculateCELineStateContext
 {
 	CalculateCELineStateContext(FunctionCode afunctionCode, bool aupperDataStrobe, bool alowerDataStrobe, bool areadHighWriteLow, bool armwCycleInProgress, bool armwCycleFirstOperation)
 	:functionCode(afunctionCode), upperDataStrobe(aupperDataStrobe), lowerDataStrobe(alowerDataStrobe), readHighWriteLow(areadHighWriteLow), rmwCycleInProgress(armwCycleInProgress), rmwCycleFirstOperation(armwCycleFirstOperation)
-	{}
+	{ }
 
 	FunctionCode functionCode;
 	bool upperDataStrobe;

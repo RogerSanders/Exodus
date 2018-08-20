@@ -13,7 +13,7 @@ class IGUIExtensionInterface
 {
 public:
 	// Constructors
-	virtual ~IGUIExtensionInterface() = 0 {}
+	virtual ~IGUIExtensionInterface() = 0 { }
 
 	// Interface version functions
 	static inline unsigned int ThisIGUIExtensionInterfaceVersion() { return 1; }

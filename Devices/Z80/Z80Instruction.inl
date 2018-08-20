@@ -20,16 +20,16 @@ enum class Z80Instruction::ConditionCode
 struct Z80Instruction::Disassembly
 {
 	Disassembly()
-	{}
+	{ }
 	Disassembly(const std::wstring& aopcode)
 	:disassemblyOpcode(aopcode)
-	{}
+	{ }
 	Disassembly(const std::wstring& aopcode, const std::wstring& aarguments)
 	:disassemblyOpcode(aopcode), disassemblyArguments(aarguments)
-	{}
+	{ }
 	Disassembly(const std::wstring& aopcode, const std::wstring& aarguments, const std::wstring& acomment)
 	:disassemblyOpcode(aopcode), disassemblyArguments(aarguments), disassemblyComment(acomment)
-	{}
+	{ }
 
 	std::wstring disassemblyOpcode;
 	std::wstring disassemblyArguments;
@@ -41,12 +41,12 @@ struct Z80Instruction::Disassembly
 //----------------------------------------------------------------------------------------------------------------------
 Z80Instruction::Z80Instruction()
 :_instructionSize(0), _mandatoryIndexOffset(false), _transparentOpcode(false), _indexState(EffectiveAddress::IndexState::None), _executeCycleCount(0)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 Z80Instruction::Z80Instruction(const Z80Instruction& object)
 :_instructionSize(object._instructionSize), _indexState(object._indexState), _instructionLocation(object._instructionLocation), _instructionRegister(object._instructionRegister), _indexOffset(object._indexOffset), _transparentOpcode(object._transparentOpcode), _mandatoryIndexOffset(object._mandatoryIndexOffset), _executeCycleCount(0)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Size functions

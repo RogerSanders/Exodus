@@ -5,7 +5,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 MenuSelectableOption::MenuSelectableOption(IMenuHandler& menuHandler, int menuItemID, const std::wstring& title)
 :_menuHandler(menuHandler), _menuItemID(menuItemID), _title(title), _physicalMenuHandle(0), _physicalMenuItemID(0), _checkedState(false)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Interface version functions

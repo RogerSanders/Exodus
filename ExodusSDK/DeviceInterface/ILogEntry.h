@@ -12,7 +12,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~ILogEntry() = 0 {}
+	virtual ~ILogEntry() = 0 { }
 
 	// Interface version functions
 	static inline unsigned int ThisILogEntryVersion() { return 1; }

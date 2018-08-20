@@ -46,10 +46,10 @@ private:
 	struct MemoryWriteStatus
 	{
 		MemoryWriteStatus()
-		{}
+		{ }
 		MemoryWriteStatus(bool awritten, unsigned char adata, IDeviceContext* aauthor, double atimeslice, unsigned int aaccessContext)
 		:written(awritten), shared(false), data(adata), author(aauthor), timeslice(atimeslice), accessContext(aaccessContext)
-		{}
+		{ }
 
 		bool written;
 		bool shared;

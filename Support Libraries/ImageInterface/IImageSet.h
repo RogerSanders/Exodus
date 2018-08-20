@@ -6,7 +6,7 @@ class IImageSet
 {
 public:
 	// Constructors
-	virtual ~IImageSet() = 0 {}
+	virtual ~IImageSet() = 0 { }
 
 	// Contained image functions
 	virtual unsigned int GetImageCount() const = 0;

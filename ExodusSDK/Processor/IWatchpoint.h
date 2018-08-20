@@ -12,7 +12,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~IWatchpoint() = 0 {}
+	virtual ~IWatchpoint() = 0 { }
 
 	// Interface version functions
 	static inline unsigned int ThisIWatchpointVersion() { return 1; }

@@ -25,7 +25,7 @@ public:
 	// Constructors
 	StateInfo()
 	:valid(false), debuggerState(false), screenshotPresent(false)
-	{}
+	{ }
 	StateInfo(MarshalSupport::marshal_object_tag, const StateInfo& source)
 	{
 		source.MarshalToTarget(valid, debuggerState, creationDate, creationTime, comments, screenshotPresent, screenshotFilename);
@@ -60,7 +60,7 @@ struct ISystemGUIInterface::ModuleRelationship
 public:
 	// Constructors
 	ModuleRelationship()
-	{}
+	{ }
 	ModuleRelationship(MarshalSupport::marshal_object_tag, const ModuleRelationship& source)
 	{
 		source.MarshalToTarget(savedModuleID, savedModuleClassName, savedModuleInstanceName, foundMatch, loadedModuleID);
@@ -94,7 +94,7 @@ struct ISystemGUIInterface::SavedRelationshipImportConnector
 public:
 	// Constructors
 	SavedRelationshipImportConnector()
-	{}
+	{ }
 	SavedRelationshipImportConnector(MarshalSupport::marshal_object_tag, const SavedRelationshipImportConnector& source)
 	{
 		source.MarshalToTarget(moduleID, className, instanceNameLocal, instanceNameRemote);
@@ -123,7 +123,7 @@ struct ISystemGUIInterface::SavedRelationshipExportConnector
 public:
 	// Constructors
 	SavedRelationshipExportConnector()
-	{}
+	{ }
 	SavedRelationshipExportConnector(MarshalSupport::marshal_object_tag, const SavedRelationshipExportConnector& source)
 	{
 		source.MarshalToTarget(className, instanceName);
@@ -148,7 +148,7 @@ struct ISystemGUIInterface::SavedRelationshipModule
 public:
 	// Constructors
 	SavedRelationshipModule()
-	{}
+	{ }
 	SavedRelationshipModule(MarshalSupport::marshal_object_tag, const SavedRelationshipModule& source)
 	{
 		source.MarshalToTarget(moduleID, systemClassName, className, instanceName, filePath, exportedConnectors, importedConnectors);
@@ -183,7 +183,7 @@ struct ISystemGUIInterface::ConnectorMapping
 public:
 	// Constructors
 	ConnectorMapping()
-	{}
+	{ }
 	ConnectorMapping(MarshalSupport::marshal_object_tag, const ConnectorMapping& source)
 	{
 		source.MarshalToTarget(connectorID, importingModuleConnectorInstanceName);
@@ -208,7 +208,7 @@ struct ISystemGUIInterface::ConnectorDefinitionImport
 public:
 	// Constructors
 	ConnectorDefinitionImport()
-	{}
+	{ }
 	ConnectorDefinitionImport(MarshalSupport::marshal_object_tag, const ConnectorDefinitionImport& source)
 	{
 		source.MarshalToTarget(className, instanceName);
@@ -233,7 +233,7 @@ struct ISystemGUIInterface::ConnectorDefinitionExport
 public:
 	// Constructors
 	ConnectorDefinitionExport()
-	{}
+	{ }
 	ConnectorDefinitionExport(MarshalSupport::marshal_object_tag, const ConnectorDefinitionExport& source)
 	{
 		source.MarshalToTarget(className, instanceName);
@@ -258,7 +258,7 @@ struct ISystemGUIInterface::SystemLogEntry
 public:
 	// Constructors
 	SystemLogEntry()
-	{}
+	{ }
 	SystemLogEntry(MarshalSupport::marshal_object_tag, const SystemLogEntry& sourceObject)
 	{
 		sourceObject.MarshalToTarget(eventLevel, text, source, eventLevelString, eventTimeString);

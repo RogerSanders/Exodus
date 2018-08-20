@@ -3,7 +3,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 GenericAccessGroup::GenericAccessGroup(const std::wstring& name)
 :_parent(0), _dataContext(0), _name(name), _openByDefault(true)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 GenericAccessGroup::~GenericAccessGroup()

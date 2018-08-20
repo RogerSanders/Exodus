@@ -9,7 +9,7 @@ class IModuleSettingOptionInfo
 {
 public:
 	// Constructors
-	virtual ~IModuleSettingOptionInfo() = 0 {}
+	virtual ~IModuleSettingOptionInfo() = 0 { }
 
 	// Interface version functions
 	static inline unsigned int ThisIModuleSettingOptionInfoVersion() { return 1; }

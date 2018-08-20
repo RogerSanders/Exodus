@@ -5,7 +5,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 DebugMenuHandler::DebugMenuHandler(Z80Menus& owner, const IDevice& modelInstanceKey, IZ80& model)
 :MenuHandlerBase(L"Z80DebugMenu", owner.GetViewManager()), _owner(owner), _modelInstanceKey(modelInstanceKey), _model(model)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Management functions

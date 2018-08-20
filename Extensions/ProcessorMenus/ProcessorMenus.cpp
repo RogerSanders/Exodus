@@ -6,7 +6,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 ProcessorMenus::ProcessorMenus(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
 :Extension(implementationName, instanceName, moduleID)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 ProcessorMenus::~ProcessorMenus()

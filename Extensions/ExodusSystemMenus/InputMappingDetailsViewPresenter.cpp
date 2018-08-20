@@ -6,7 +6,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 InputMappingDetailsViewPresenter::InputMappingDetailsViewPresenter(const std::wstring& viewGroupName, const std::wstring& viewName, int viewID, ExodusSystemMenus& owner, ISystemGUIInterface& model, IDevice* targetDevice)
 :ViewPresenterBase(owner.GetAssemblyHandle(), viewGroupName, viewName, viewID), _owner(owner), _model(model), _targetDevice(targetDevice)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // View title functions

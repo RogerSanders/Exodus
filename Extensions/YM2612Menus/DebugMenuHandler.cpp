@@ -8,7 +8,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 DebugMenuHandler::DebugMenuHandler(YM2612Menus& owner, const IDevice& modelInstanceKey, IYM2612& model)
 :MenuHandlerBase(L"YM2612DebugMenu", owner.GetViewManager()), _owner(owner), _modelInstanceKey(modelInstanceKey), _model(model)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Management functions

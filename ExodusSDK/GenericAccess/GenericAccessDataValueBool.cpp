@@ -6,7 +6,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 GenericAccessDataValueBool::GenericAccessDataValueBool(bool value)
 :_dataValue(value)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Interface version functions
@@ -65,4 +65,4 @@ bool GenericAccessDataValueBool::SetValueString(const Marshal::In<std::wstring>&
 // Value limit functions
 //----------------------------------------------------------------------------------------------------------------------
 void GenericAccessDataValueBool::ApplyLimitSettingsToCurrentValue()
-{}
+{ }

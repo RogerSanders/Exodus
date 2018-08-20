@@ -35,7 +35,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~IImage() = 0 {}
+	virtual ~IImage() = 0 { }
 
 	// Image format functions
 	virtual unsigned int GetImageWidth() const = 0;

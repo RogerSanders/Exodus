@@ -5,12 +5,12 @@ namespace M68000 {
 //----------------------------------------------------------------------------------------------------------------------
 ExecuteTime::ExecuteTime()
 :cycles(0), busRead(0), busWrite(0), additionalTime(0)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 ExecuteTime::ExecuteTime(unsigned int acycles, unsigned int abusRead, unsigned int abusWrite, double aadditionalTime)
 :cycles(acycles), busRead(abusRead), busWrite(abusWrite), additionalTime(aadditionalTime)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Set functions

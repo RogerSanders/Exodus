@@ -13,7 +13,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~IGenericAccessPage() = 0 {}
+	virtual ~IGenericAccessPage() = 0 { }
 
 	// Interface version functions
 	static inline unsigned int ThisIGenericAccessPageVersion() { return 1; }
