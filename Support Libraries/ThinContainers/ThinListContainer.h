@@ -1,7 +1,8 @@
 #ifndef __THINLISTCONTAINER_H__
 #define __THINLISTCONTAINER_H__
 
-template<class T> struct ThinListContainer
+template<class T>
+struct ThinListContainer
 {
 public:
 	// Typedefs

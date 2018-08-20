@@ -274,10 +274,14 @@ public:
 	virtual bool ReadDataLittleEndian(float* data, SizeType length) = 0;
 	virtual bool ReadDataLittleEndian(double* data, SizeType length) = 0;
 	virtual bool ReadDataLittleEndian(long double* data, SizeType length) = 0;
-	template<class T> inline bool ReadData(ByteOrder byteOrder, std::vector<T>& data, SizeType length);
-	template<class T> inline bool ReadData(std::vector<T>& data, SizeType length);
-	template<class T> inline bool ReadDataBigEndian(std::vector<T>& data, SizeType length);
-	template<class T> inline bool ReadDataLittleEndian(std::vector<T>& data, SizeType length);
+	template<class T>
+	inline bool ReadData(ByteOrder byteOrder, std::vector<T>& data, SizeType length);
+	template<class T>
+	inline bool ReadData(std::vector<T>& data, SizeType length);
+	template<class T>
+	inline bool ReadDataBigEndian(std::vector<T>& data, SizeType length);
+	template<class T>
+	inline bool ReadDataLittleEndian(std::vector<T>& data, SizeType length);
 	inline bool ReadData(std::vector<bool>& data, SizeType length);
 	inline bool ReadDataBigEndian(std::vector<bool>& data, SizeType length);
 	inline bool ReadDataLittleEndian(std::vector<bool>& data, SizeType length);
@@ -587,17 +591,25 @@ public:
 	virtual bool WriteDataLittleEndian(const float* data, SizeType length) = 0;
 	virtual bool WriteDataLittleEndian(const double* data, SizeType length) = 0;
 	virtual bool WriteDataLittleEndian(const long double* data, SizeType length) = 0;
-	template<class T> inline bool WriteData(ByteOrder byteOrder, const std::vector<T>& data);
-	template<class T> inline bool WriteData(const std::vector<T>& data);
-	template<class T> inline bool WriteDataBigEndian(const std::vector<T>& data);
-	template<class T> inline bool WriteDataLittleEndian(const std::vector<T>& data);
+	template<class T>
+	inline bool WriteData(ByteOrder byteOrder, const std::vector<T>& data);
+	template<class T>
+	inline bool WriteData(const std::vector<T>& data);
+	template<class T>
+	inline bool WriteDataBigEndian(const std::vector<T>& data);
+	template<class T>
+	inline bool WriteDataLittleEndian(const std::vector<T>& data);
 	inline bool WriteData(const std::vector<bool>& data);
 	inline bool WriteDataBigEndian(const std::vector<bool>& data);
 	inline bool WriteDataLittleEndian(const std::vector<bool>& data);
-	template<class T> inline bool WriteDataMultipleTimes(ByteOrder byteOrder, T data, SizeType count);
-	template<class T> inline bool WriteDataMultipleTimes(T data, SizeType count);
-	template<class T> inline bool WriteDataBigEndianMultipleTimes(T data, SizeType count);
-	template<class T> inline bool WriteDataLittleEndianMultipleTimes(T data, SizeType count);
+	template<class T>
+	inline bool WriteDataMultipleTimes(ByteOrder byteOrder, T data, SizeType count);
+	template<class T>
+	inline bool WriteDataMultipleTimes(T data, SizeType count);
+	template<class T>
+	inline bool WriteDataBigEndianMultipleTimes(T data, SizeType count);
+	template<class T>
+	inline bool WriteDataLittleEndianMultipleTimes(T data, SizeType count);
 };
 IStreamNonSeekable::~IStreamNonSeekable() { }
 

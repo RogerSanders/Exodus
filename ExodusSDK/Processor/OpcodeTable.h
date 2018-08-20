@@ -4,7 +4,8 @@
 #include <set>
 #include <string>
 
-template<class T> class OpcodeTable
+template<class T>
+class OpcodeTable
 {
 public:
 	// Constructors

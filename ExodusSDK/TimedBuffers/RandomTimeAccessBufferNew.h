@@ -94,7 +94,8 @@ functions across any number of threads simultaneously, although technically we a
 could.
 */
 
-template<class T> class RandomTimeAccessBufferNew
+template<class T>
+class RandomTimeAccessBufferNew
 {
 public:
 	// Structures

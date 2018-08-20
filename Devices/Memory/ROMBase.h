@@ -2,7 +2,8 @@
 #define __ROMBASE_H__
 #include "MemoryRead.h"
 
-template<class T> class ROMBase :public MemoryRead
+template<class T>
+class ROMBase :public MemoryRead
 {
 public:
 	// Constructors

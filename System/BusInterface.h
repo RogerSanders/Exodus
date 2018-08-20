@@ -191,8 +191,10 @@ private:
 	MapEntry* ResolvePortAddress(unsigned int ce, unsigned int location) const;
 
 	// ThinVector helper functions
-	template<class T> static ThinVector<T*,1>* AddItemToThinVector(ThinVector<T*,1>* existingArray, T* item);
-	template<class T> static ThinVector<T*,1>* RemoveItemFromThinVector(ThinVector<T*,1>* existingArray, T* item);
+	template<class T>
+	static ThinVector<T*,1>* AddItemToThinVector(ThinVector<T*,1>* existingArray, T* item);
+	template<class T>
+	static ThinVector<T*,1>* RemoveItemFromThinVector(ThinVector<T*,1>* existingArray, T* item);
 
 private:
 	// Memory map

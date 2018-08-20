@@ -8,7 +8,8 @@
 #pragma clang diagnostic ignored "-Wmicrosoft-pure-definition"
 #endif
 
-template<class DataType, class TimesliceType> class ITimedBufferTimeslice
+template<class DataType, class TimesliceType>
+class ITimedBufferTimeslice
 {
 protected:
 	// Make sure the object can't be deleted from this base

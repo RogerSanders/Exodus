@@ -1,12 +1,14 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Constructors
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> ROMBase<T>::ROMBase(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
+template<class T>
+ROMBase<T>::ROMBase(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
 :MemoryRead(implementationName, instanceName, moduleID), _memoryArraySize(0), _memoryArray(0)
 { }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> ROMBase<T>::~ROMBase()
+template<class T>
+ROMBase<T>::~ROMBase()
 {
 	delete _memoryArray;
 }
@@ -14,7 +16,8 @@ template<class T> ROMBase<T>::~ROMBase()
 //----------------------------------------------------------------------------------------------------------------------
 // Initialization functions
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> bool ROMBase<T>::Construct(IHierarchicalStorageNode& node)
+template<class T>
+bool ROMBase<T>::Construct(IHierarchicalStorageNode& node)
 {
 	bool result = MemoryRead::Construct(node);
 
@@ -143,7 +146,8 @@ template<class T> bool ROMBase<T>::Construct(IHierarchicalStorageNode& node)
 //----------------------------------------------------------------------------------------------------------------------
 // Memory size functions
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> unsigned int ROMBase<T>::GetMemoryEntrySizeInBytes() const
+template<class T>
+unsigned int ROMBase<T>::GetMemoryEntrySizeInBytes() const
 {
 	return sizeof(T);
 }

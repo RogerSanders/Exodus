@@ -954,7 +954,8 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Structures
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> struct RandomTimeAccessBufferNew<T>::TimesliceEntry
+template<class T>
+struct RandomTimeAccessBufferNew<T>::TimesliceEntry
 {
 	TimesliceEntry()
 	:notDeleted(true)
@@ -966,7 +967,8 @@ template<class T> struct RandomTimeAccessBufferNew<T>::TimesliceEntry
 };
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> struct RandomTimeAccessBufferNew<T>::WriteEntry
+template<class T>
+struct RandomTimeAccessBufferNew<T>::WriteEntry
 {
 	WriteEntry()
 	:notDeleted(true)
@@ -986,7 +988,8 @@ template<class T> struct RandomTimeAccessBufferNew<T>::WriteEntry
 };
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> struct RandomTimeAccessBufferNew<T>::WriteInfo
+template<class T>
+struct RandomTimeAccessBufferNew<T>::WriteInfo
 {
 	WriteInfo()
 	{ }
@@ -1001,7 +1004,8 @@ template<class T> struct RandomTimeAccessBufferNew<T>::WriteInfo
 };
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> struct RandomTimeAccessBufferNew<T>::TimesliceSaveEntry
+template<class T>
+struct RandomTimeAccessBufferNew<T>::TimesliceSaveEntry
 {
 	TimesliceSaveEntry(typename TimesliceList::Element* atimeslice, unsigned int aid)
 	:timeslice(atimeslice), id(aid)
@@ -1016,7 +1020,8 @@ template<class T> struct RandomTimeAccessBufferNew<T>::TimesliceSaveEntry
 };
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> struct RandomTimeAccessBufferNew<T>::WriteSaveEntry
+template<class T>
+struct RandomTimeAccessBufferNew<T>::WriteSaveEntry
 {
 	WriteSaveEntry(unsigned int awriteAddress, double awriteTime, const T& aoldValue, unsigned int acurrentTimeslice)
 	:writeAddress(awriteAddress), writeTime(awriteTime), oldValue(aoldValue), currentTimeslice(acurrentTimeslice)
@@ -1028,7 +1033,8 @@ template<class T> struct RandomTimeAccessBufferNew<T>::WriteSaveEntry
 };
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> struct RandomTimeAccessBufferNew<T>::AccessTarget
+template<class T>
+struct RandomTimeAccessBufferNew<T>::AccessTarget
 {
 	enum Target
 	{
@@ -1079,17 +1085,20 @@ template<class T> struct RandomTimeAccessBufferNew<T>::AccessTarget
 //----------------------------------------------------------------------------------------------------------------------
 // Constructors
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> RandomTimeAccessBufferNew<T>::RandomTimeAccessBufferNew()
+template<class T>
+RandomTimeAccessBufferNew<T>::RandomTimeAccessBufferNew()
 { }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> RandomTimeAccessBufferNew<T>::RandomTimeAccessBufferNew(unsigned int size)
+template<class T>
+RandomTimeAccessBufferNew<T>::RandomTimeAccessBufferNew(unsigned int size)
 {
 	memory.resize(size);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> RandomTimeAccessBufferNew<T>::RandomTimeAccessBufferNew(unsigned int size, const T& adefaultValue)
+template<class T>
+RandomTimeAccessBufferNew<T>::RandomTimeAccessBufferNew(unsigned int size, const T& adefaultValue)
 :defaultValue(adefaultValue)
 {
 	memory.resize(size, defaultValue);
@@ -1098,7 +1107,8 @@ template<class T> RandomTimeAccessBufferNew<T>::RandomTimeAccessBufferNew(unsign
 //----------------------------------------------------------------------------------------------------------------------
 // Common functions: Overlapped access permissible
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> T RandomTimeAccessBufferNew<T>::Read(unsigned int address, const AccessTarget& accessTarget) const
+template<class T>
+T RandomTimeAccessBufferNew<T>::Read(unsigned int address, const AccessTarget& accessTarget) const
 {
 	switch (accessTarget.accessTarget)
 	{
@@ -1116,7 +1126,8 @@ template<class T> T RandomTimeAccessBufferNew<T>::Read(unsigned int address, con
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void RandomTimeAccessBufferNew<T>::Write(unsigned int address, const T& data, const AccessTarget& accessTarget)
+template<class T>
+void RandomTimeAccessBufferNew<T>::Write(unsigned int address, const T& data, const AccessTarget& accessTarget)
 {
 	switch (accessTarget.accessTarget)
 	{
@@ -1134,7 +1145,8 @@ template<class T> void RandomTimeAccessBufferNew<T>::Write(unsigned int address,
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> unsigned int RandomTimeAccessBufferNew<T>::Size() const
+template<class T>
+unsigned int RandomTimeAccessBufferNew<T>::Size() const
 {
 	return (unsigned int)memory.size();
 }
@@ -1147,7 +1159,8 @@ template<class T> unsigned int RandomTimeAccessBufferNew<T>::Size() const
 // ad-hoc reads of a buffer when there are a large number of reads and writes occurring to
 // a small number of addresses.
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> T RandomTimeAccessBufferNew<T>::Read(unsigned int address, double readTime) const
+template<class T>
+T RandomTimeAccessBufferNew<T>::Read(unsigned int address, double readTime) const
 {
 	// Search for written values in the current timeslice
 	WriteList::Element* i = writeList.GetLastEntry();
@@ -1174,7 +1187,8 @@ template<class T> T RandomTimeAccessBufferNew<T>::Read(unsigned int address, dou
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void RandomTimeAccessBufferNew<T>::Write(unsigned int address, double writeTime, const T& data)
+template<class T>
+void RandomTimeAccessBufferNew<T>::Write(unsigned int address, double writeTime, const T& data)
 {
 	WriteEntry entry(address, writeTime, data, latestTimeslice);
 
@@ -1197,7 +1211,8 @@ template<class T> void RandomTimeAccessBufferNew<T>::Write(unsigned int address,
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void RandomTimeAccessBufferNew<T>::AddTimeslice(double timeslice)
+template<class T>
+void RandomTimeAccessBufferNew<T>::AddTimeslice(double timeslice)
 {
 	// Add the new timeslice entry to the list
 	TimesliceEntry entry;
@@ -1210,7 +1225,8 @@ template<class T> void RandomTimeAccessBufferNew<T>::AddTimeslice(double timesli
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> T RandomTimeAccessBufferNew<T>::ReadLatest(unsigned int address) const
+template<class T>
+T RandomTimeAccessBufferNew<T>::ReadLatest(unsigned int address) const
 {
 	std::unique_lock<std::mutex> lock(accessLock);
 
@@ -1230,7 +1246,8 @@ template<class T> T RandomTimeAccessBufferNew<T>::ReadLatest(unsigned int addres
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void RandomTimeAccessBufferNew<T>::WriteLatest(unsigned int address, const T& data)
+template<class T>
+void RandomTimeAccessBufferNew<T>::WriteLatest(unsigned int address, const T& data)
 {
 	std::unique_lock<std::mutex> lock(accessLock);
 
@@ -1252,7 +1269,8 @@ template<class T> void RandomTimeAccessBufferNew<T>::WriteLatest(unsigned int ad
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void RandomTimeAccessBufferNew<T>::GetLatestBufferCopy(std::vector<T>& buffer) const
+template<class T>
+void RandomTimeAccessBufferNew<T>::GetLatestBufferCopy(std::vector<T>& buffer) const
 {
 	std::unique_lock<std::mutex> lock(accessLock);
 
@@ -1271,7 +1289,8 @@ template<class T> void RandomTimeAccessBufferNew<T>::GetLatestBufferCopy(std::ve
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void RandomTimeAccessBufferNew<T>::Commit()
+template<class T>
+void RandomTimeAccessBufferNew<T>::Commit()
 {
 	// Flag all timeslices as committed
 	TimesliceList::Element* i = timesliceList.GetLastEntry();
@@ -1283,7 +1302,8 @@ template<class T> void RandomTimeAccessBufferNew<T>::Commit()
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void RandomTimeAccessBufferNew<T>::Rollback()
+template<class T>
+void RandomTimeAccessBufferNew<T>::Rollback()
 {
 	// Erase non-committed memory writes
 	WriteList::Element* i = writeList.GetLastEntry();
@@ -1307,7 +1327,8 @@ template<class T> void RandomTimeAccessBufferNew<T>::Rollback()
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> typename RandomTimeAccessBufferNew<T>::Timeslice RandomTimeAccessBufferNew<T>::GetLatestTimeslice() const
+template<class T>
+typename RandomTimeAccessBufferNew<T>::Timeslice RandomTimeAccessBufferNew<T>::GetLatestTimeslice() const
 {
 	return latestTimeslice;
 }
@@ -1315,13 +1336,15 @@ template<class T> typename RandomTimeAccessBufferNew<T>::Timeslice RandomTimeAcc
 //----------------------------------------------------------------------------------------------------------------------
 // Committed functions: One committed function at a time, overlapped with others
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> T RandomTimeAccessBufferNew<T>::ReadCommitted(unsigned int address) const
+template<class T>
+T RandomTimeAccessBufferNew<T>::ReadCommitted(unsigned int address) const
 {
 	return memory[address];
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> T RandomTimeAccessBufferNew<T>::ReadCommitted(unsigned int address, double readTime) const
+template<class T>
+T RandomTimeAccessBufferNew<T>::ReadCommitted(unsigned int address, double readTime) const
 {
 	double currentTimeBase = 0;
 
@@ -1366,13 +1389,15 @@ template<class T> T RandomTimeAccessBufferNew<T>::ReadCommitted(unsigned int add
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void RandomTimeAccessBufferNew<T>::WriteCommitted(unsigned int address, const T& data)
+template<class T>
+void RandomTimeAccessBufferNew<T>::WriteCommitted(unsigned int address, const T& data)
 {
 	memory[address] = data;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void RandomTimeAccessBufferNew<T>::AdvancePastTimeslice(const Timeslice& targetTimeslice)
+template<class T>
+void RandomTimeAccessBufferNew<T>::AdvancePastTimeslice(const Timeslice& targetTimeslice)
 {
 	// Commit buffered writes which we have passed in this step
 	TimesliceList::Element* currentTimeslice = timesliceList.GetFirstEntry();
@@ -1414,7 +1439,8 @@ template<class T> void RandomTimeAccessBufferNew<T>::AdvancePastTimeslice(const 
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void RandomTimeAccessBufferNew<T>::AdvanceToTimeslice(const Timeslice& targetTimeslice)
+template<class T>
+void RandomTimeAccessBufferNew<T>::AdvanceToTimeslice(const Timeslice& targetTimeslice)
 {
 	// Commit buffered writes which we have passed in this step
 	TimesliceList::Element* currentTimeslice = timesliceList.GetFirstEntry();
@@ -1456,7 +1482,8 @@ template<class T> void RandomTimeAccessBufferNew<T>::AdvanceToTimeslice(const Ti
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void RandomTimeAccessBufferNew<T>::AdvanceByTime(double step, const Timeslice& targetTimeslice)
+template<class T>
+void RandomTimeAccessBufferNew<T>::AdvanceByTime(double step, const Timeslice& targetTimeslice)
 {
 	double currentTimeBase = 0;
 
@@ -1513,7 +1540,8 @@ template<class T> void RandomTimeAccessBufferNew<T>::AdvanceByTime(double step, 
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> bool RandomTimeAccessBufferNew<T>::AdvanceByStep(const Timeslice& targetTimeslice)
+template<class T>
+bool RandomTimeAccessBufferNew<T>::AdvanceByStep(const Timeslice& targetTimeslice)
 {
 	double currentTimeBase = 0;
 	double writeTime = targetTimeslice->object.timesliceLength;
@@ -1569,7 +1597,8 @@ template<class T> bool RandomTimeAccessBufferNew<T>::AdvanceByStep(const Timesli
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> double RandomTimeAccessBufferNew<T>::GetNextWriteTime(const Timeslice& targetTimeslice)
+template<class T>
+double RandomTimeAccessBufferNew<T>::GetNextWriteTime(const Timeslice& targetTimeslice)
 {
 	bool foundWrite = false;
 	double nextWriteTime = 0;
@@ -1618,7 +1647,8 @@ template<class T> double RandomTimeAccessBufferNew<T>::GetNextWriteTime(const Ti
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> typename RandomTimeAccessBufferNew<T>::WriteInfo RandomTimeAccessBufferNew<T>::GetWriteInfo(unsigned int index, const Timeslice& targetTimeslice)
+template<class T>
+typename RandomTimeAccessBufferNew<T>::WriteInfo RandomTimeAccessBufferNew<T>::GetWriteInfo(unsigned int index, const Timeslice& targetTimeslice)
 {
 	double currentTimeBase = 0;
 	unsigned int currentIndex = 0;
@@ -1670,7 +1700,8 @@ template<class T> typename RandomTimeAccessBufferNew<T>::WriteInfo RandomTimeAcc
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void RandomTimeAccessBufferNew<T>::Flush(const Timeslice& targetTimeslice)
+template<class T>
+void RandomTimeAccessBufferNew<T>::Flush(const Timeslice& targetTimeslice)
 {
 	std::unique_lock<std::mutex> lock(accessLock);
 
@@ -1700,7 +1731,8 @@ template<class T> void RandomTimeAccessBufferNew<T>::Flush(const Timeslice& targ
 //----------------------------------------------------------------------------------------------------------------------
 // Control functions: Require global exclusive access
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void RandomTimeAccessBufferNew<T>::Initialize()
+template<class T>
+void RandomTimeAccessBufferNew<T>::Initialize()
 {
 	// Initialize buffers
 	for (unsigned int i = 0; i < memory.size(); ++i)
@@ -1714,13 +1746,15 @@ template<class T> void RandomTimeAccessBufferNew<T>::Initialize()
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void RandomTimeAccessBufferNew<T>::Resize(unsigned int size)
+template<class T>
+void RandomTimeAccessBufferNew<T>::Resize(unsigned int size)
 {
 	memory.resize(size, defaultValue);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void RandomTimeAccessBufferNew<T>::LoadState(IHierarchicalStorageNode& node)
+template<class T>
+void RandomTimeAccessBufferNew<T>::LoadState(IHierarchicalStorageNode& node)
 {
 	std::list<TimesliceSaveEntry> timesliceSaveList;
 	std::list<WriteSaveEntry> writeSaveList;
@@ -1781,7 +1815,8 @@ template<class T> void RandomTimeAccessBufferNew<T>::LoadState(IHierarchicalStor
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> std::list<typename RandomTimeAccessBufferNew<T>::TimesliceSaveEntry> RandomTimeAccessBufferNew<T>::LoadTimesliceEntries(IHierarchicalStorageNode& node)
+template<class T> std::list<typename RandomTimeAccessBufferNew<T>::TimesliceSaveEntry>
+RandomTimeAccessBufferNew<T>::LoadTimesliceEntries(IHierarchicalStorageNode& node)
 {
 	std::list<TimesliceSaveEntry> timesliceSaveList;
 
@@ -1812,7 +1847,8 @@ template<class T> std::list<typename RandomTimeAccessBufferNew<T>::TimesliceSave
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> std::list<typename RandomTimeAccessBufferNew<T>::WriteSaveEntry> RandomTimeAccessBufferNew<T>::LoadWriteEntries(IHierarchicalStorageNode& node)
+template<class T> std::list<typename RandomTimeAccessBufferNew<T>::WriteSaveEntry>
+RandomTimeAccessBufferNew<T>::LoadWriteEntries(IHierarchicalStorageNode& node)
 {
 	std::list<WriteSaveEntry> writeSaveList;
 
@@ -1848,7 +1884,8 @@ template<class T> std::list<typename RandomTimeAccessBufferNew<T>::WriteSaveEntr
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void RandomTimeAccessBufferNew<T>::GetState(IHierarchicalStorageNode& node, const std::wstring& bufferName, bool inlineData) const
+template<class T>
+void RandomTimeAccessBufferNew<T>::GetState(IHierarchicalStorageNode& node, const std::wstring& bufferName, bool inlineData) const
 {
 	std::list<TimesliceSaveEntry> timesliceSaveList;
 	std::vector<T> saveMemory;

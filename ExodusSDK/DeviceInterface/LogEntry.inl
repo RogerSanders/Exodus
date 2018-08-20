@@ -22,14 +22,16 @@ void LogEntry::SetEventLevel(EventLevel level)
 //----------------------------------------------------------------------------------------------------------------------
 // Text-based stream functions
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> LogEntry& LogEntry::operator>>(T& data)
+template<class T>
+LogEntry& LogEntry::operator>>(T& data)
 {
 	_text << data;
 	return *this;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> LogEntry& LogEntry::operator<<(const T& data)
+template<class T>
+LogEntry& LogEntry::operator<<(const T& data)
 {
 	_text << data;
 	return *this;

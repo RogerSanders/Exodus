@@ -4,7 +4,8 @@
 #include <string>
 using namespace MarshalSupport::Operators;
 
-template<class B> class GenericAccessDataValueBase :public B
+template<class B>
+class GenericAccessDataValueBase :public B
 {
 public:
 	// Interface version functions
