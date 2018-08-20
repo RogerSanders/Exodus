@@ -7,7 +7,8 @@ class GenericAccessDataInfo :public IGenericAccessDataInfo
 {
 public:
 	// Constructors
-	template<class T> inline GenericAccessDataInfo(T id, IGenericAccessDataValue::DataType type);
+	template<class T>
+	inline GenericAccessDataInfo(T id, IGenericAccessDataValue::DataType type);
 
 	// Interface version functions
 	virtual unsigned int GetIGenericAccessDataInfoVersion() const;

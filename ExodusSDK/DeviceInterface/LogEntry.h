@@ -35,8 +35,10 @@ public:
 	virtual unsigned int GetInterfaceVersion() const;
 
 	// Text-based stream functions
-	template<class T> inline LogEntry& operator>>(T& data);
-	template<class T> inline LogEntry& operator<<(const T& data);
+	template<class T>
+	inline LogEntry& operator>>(T& data);
+	template<class T>
+	inline LogEntry& operator<<(const T& data);
 
 private:
 	EventLevel _eventLevel;

@@ -1,12 +1,14 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Constructors
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> ThinListContainer<T>::ThinListContainer()
+template<class T>
+ThinListContainer<T>::ThinListContainer()
 :first(0)
 { }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> ThinListContainer<T>::~ThinListContainer()
+template<class T>
+ThinListContainer<T>::~ThinListContainer()
 {
 	delete first;
 }
@@ -14,7 +16,8 @@ template<class T> ThinListContainer<T>::~ThinListContainer()
 //----------------------------------------------------------------------------------------------------------------------
 // Iteration functions
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> typename ThinListContainer<T>::Element* ThinListContainer<T>::GetFirstEntry() const
+template<class T>
+typename ThinListContainer<T>::Element* ThinListContainer<T>::GetFirstEntry() const
 {
 	return first;
 }
@@ -22,14 +25,16 @@ template<class T> typename ThinListContainer<T>::Element* ThinListContainer<T>::
 //----------------------------------------------------------------------------------------------------------------------
 // Insert functions
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void ThinListContainer<T>::PushToFront(const T& entry)
+template<class T>
+void ThinListContainer<T>::PushToFront(const T& entry)
 {
 	Element* newEntry = new Element(entry, first);
 	first = newEntry;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void ThinListContainer<T>::InsertAfter(Element* element, const T& entry)
+template<class T>
+void ThinListContainer<T>::InsertAfter(Element* element, const T& entry)
 {
 	element->InsertAfter(entry);
 }
@@ -37,7 +42,8 @@ template<class T> void ThinListContainer<T>::InsertAfter(Element* element, const
 //----------------------------------------------------------------------------------------------------------------------
 // Erase functions
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void ThinListContainer<T>::EraseFromBackToElement(Element* targetElement)
+template<class T>
+void ThinListContainer<T>::EraseFromBackToElement(Element* targetElement)
 {
 	Element* deleteStart = targetElement->next;
 	targetElement->next = 0;
@@ -45,7 +51,8 @@ template<class T> void ThinListContainer<T>::EraseFromBackToElement(Element* tar
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void ThinListContainer<T>::Clear()
+template<class T>
+void ThinListContainer<T>::Clear()
 {
 	delete first;
 	first = 0;
@@ -54,7 +61,8 @@ template<class T> void ThinListContainer<T>::Clear()
 //----------------------------------------------------------------------------------------------------------------------
 // Query functions
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> bool ThinListContainer<T>::Empty() const
+template<class T>
+bool ThinListContainer<T>::Empty() const
 {
 	return (first == 0);
 }

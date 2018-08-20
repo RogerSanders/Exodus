@@ -19,9 +19,12 @@ public:
 	inline void SetViewByteOrder(IStream::ByteOrder byteOrder);
 
 	// Binary stream functions
-	template<class T> ViewBinary& operator>>(T& data);
-	template<class T> ViewBinary& operator<<(const T& data);
-	template<class T> ViewBinary& operator>>(std::vector<T>& data);
+	template<class T>
+	ViewBinary& operator>>(T& data);
+	template<class T>
+	ViewBinary& operator<<(const T& data);
+	template<class T>
+	ViewBinary& operator>>(std::vector<T>& data);
 	inline ViewBinary& operator>>(std::vector<bool>& data);
 	inline ViewBinary& operator>>(std::vector<char>& data);
 	inline ViewBinary& operator>>(std::vector<signed char>& data);
@@ -38,7 +41,8 @@ public:
 	inline ViewBinary& operator>>(std::vector<float>& data);
 	inline ViewBinary& operator>>(std::vector<double>& data);
 	inline ViewBinary& operator>>(std::vector<long double>& data);
-	template<class T> ViewBinary& operator<<(const std::vector<T>& data);
+	template<class T>
+	ViewBinary& operator<<(const std::vector<T>& data);
 	inline ViewBinary& operator<<(const std::vector<bool>& data);
 	inline ViewBinary& operator<<(const std::vector<char>& data);
 	inline ViewBinary& operator<<(const std::vector<signed char>& data);

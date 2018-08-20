@@ -47,7 +47,8 @@ anyway.
 // cases, this buffer is internal to a device, and that device itself has locks to prevent
 // concurrent access. If the buffer is being used in this kind of scenario, by instructing
 // this container to skip the lock, we could get a performance boost.
-template<class DataType, class TimesliceType> class RandomTimeAccessBuffer
+template<class DataType, class TimesliceType>
+class RandomTimeAccessBuffer
 {
 public:
 	// Structures

@@ -15,7 +15,8 @@ namespace Stream {
 #define STREAM_PLATFORMBYTEORDER_BIGENDIAN 0
 #define STREAM_PLATFORMNEWLINEENCODING DOS
 
-template<class B> class Stream :public B
+template<class B>
+class Stream :public B
 {
 public:
 	// Constructors
@@ -476,18 +477,28 @@ private:
 	inline bool ReadTextInternalFixedLengthBufferAsUTF32(typename B::ByteOrder byteOrder, typename B::SizeType codeUnitsInStream, wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, typename B::SizeType& codeUnitsWritten, wchar_t paddingChar);
 
 	// Internal type-independent data read functions
-	template<class T> bool ReadDataInternal(T& data, typename B::ByteOrder byteOrder);
-	template<class T> bool ReadDataInternal(T& data);
-	template<class T> bool ReadDataInternalBigEndian(T& data);
-	template<class T> bool ReadDataInternalLittleEndian(T& data);
-	template<class T> bool ReadDataInternal(T* data, typename B::SizeType length, typename B::ByteOrder byteOrder);
-	template<class T> bool ReadDataInternal(T* data, typename B::SizeType length);
-	template<class T> bool ReadDataInternalBigEndian(T* data, typename B::SizeType length);
-	template<class T> bool ReadDataInternalLittleEndian(T* data, typename B::SizeType length);
+	template<class T>
+	bool ReadDataInternal(T& data, typename B::ByteOrder byteOrder);
+	template<class T>
+	bool ReadDataInternal(T& data);
+	template<class T>
+	bool ReadDataInternalBigEndian(T& data);
+	template<class T>
+	bool ReadDataInternalLittleEndian(T& data);
+	template<class T>
+	bool ReadDataInternal(T* data, typename B::SizeType length, typename B::ByteOrder byteOrder);
+	template<class T>
+	bool ReadDataInternal(T* data, typename B::SizeType length);
+	template<class T>
+	bool ReadDataInternalBigEndian(T* data, typename B::SizeType length);
+	template<class T>
+	bool ReadDataInternalLittleEndian(T* data, typename B::SizeType length);
 
 	// Inverted byte order read functions
-	template<class T> bool ReadBinaryInvertedByteOrder(T& data);
-	template<class T> bool ReadBinaryInvertedByteOrder(T* data, typename B::SizeType length);
+	template<class T>
+	bool ReadBinaryInvertedByteOrder(T& data);
+	template<class T>
+	bool ReadBinaryInvertedByteOrder(T* data, typename B::SizeType length);
 
 	// Internal text format independent char write functions
 	inline bool WriteCharInternal(const typename B::UnicodeCodePoint& data, typename B::ByteOrder byteOrder, typename B::SizeType& remainingCodeUnitsAvailable, bool insertCarriageReturn);
@@ -519,18 +530,28 @@ private:
 	inline bool WriteTextInternalFixedLengthBufferAsUTF32(typename B::ByteOrder byteOrder, typename B::SizeType codeUnitsInStream, const wchar_t* memoryBuffer, typename B::SizeType codeUnitsInMemory, wchar_t paddingChar);
 
 	// Internal type-independent data write functions
-	template<class T> bool WriteDataInternal(T data, typename B::ByteOrder byteOrder);
-	template<class T> bool WriteDataInternal(T data);
-	template<class T> bool WriteDataInternalBigEndian(T data);
-	template<class T> bool WriteDataInternalLittleEndian(T data);
-	template<class T> bool WriteDataInternal(const T* data, typename B::SizeType length, typename B::ByteOrder byteOrder);
-	template<class T> bool WriteDataInternal(const T* data, typename B::SizeType length);
-	template<class T> bool WriteDataInternalBigEndian(const T* data, typename B::SizeType length);
-	template<class T> bool WriteDataInternalLittleEndian(const T* data, typename B::SizeType length);
+	template<class T>
+	bool WriteDataInternal(T data, typename B::ByteOrder byteOrder);
+	template<class T>
+	bool WriteDataInternal(T data);
+	template<class T>
+	bool WriteDataInternalBigEndian(T data);
+	template<class T>
+	bool WriteDataInternalLittleEndian(T data);
+	template<class T>
+	bool WriteDataInternal(const T* data, typename B::SizeType length, typename B::ByteOrder byteOrder);
+	template<class T>
+	bool WriteDataInternal(const T* data, typename B::SizeType length);
+	template<class T>
+	bool WriteDataInternalBigEndian(const T* data, typename B::SizeType length);
+	template<class T>
+	bool WriteDataInternalLittleEndian(const T* data, typename B::SizeType length);
 
 	// Inverted byte order write functions
-	template<class T> bool WriteBinaryInvertedByteOrder(T data);
-	template<class T> bool WriteBinaryInvertedByteOrder(const T* data, typename B::SizeType length);
+	template<class T>
+	bool WriteBinaryInvertedByteOrder(T data);
+	template<class T>
+	bool WriteBinaryInvertedByteOrder(const T* data, typename B::SizeType length);
 
 	// Text conversion functions
 	static void ConvertASCIIToUnicodeCodePoint(unsigned char source, typename B::UnicodeCodePoint& target);

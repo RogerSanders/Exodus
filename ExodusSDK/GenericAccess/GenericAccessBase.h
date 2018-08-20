@@ -4,7 +4,8 @@
 #include <map>
 #include <vector>
 
-template<class B> class GenericAccessBase :public B
+template<class B>
+class GenericAccessBase :public B
 {
 public:
 	// Constructors

@@ -1,7 +1,8 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Constructors
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> GenericAccessCommandInfo::GenericAccessCommandInfo(T id)
+template<class T>
+GenericAccessCommandInfo::GenericAccessCommandInfo(T id)
 :_id((unsigned int)id)
 {
 	// Initialize the general command info to defaults

@@ -1,7 +1,8 @@
 #ifndef __THINVECTOR_H__
 #define __THINVECTOR_H__
 
-template<class T, size_t S> struct ThinVector
+template<class T, size_t S>
+struct ThinVector
 {
 public:
 	// Constructors
