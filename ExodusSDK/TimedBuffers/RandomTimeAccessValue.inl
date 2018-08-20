@@ -1,14 +1,16 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Structures
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> struct RandomTimeAccessValue<DataType, TimesliceType>::TimesliceEntry
+template<class DataType, class TimesliceType>
+struct RandomTimeAccessValue<DataType, TimesliceType>::TimesliceEntry
 {
 	TimesliceType timesliceLength;
 	bool committed;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> struct RandomTimeAccessValue<DataType, TimesliceType>::WriteEntry
+template<class DataType, class TimesliceType>
+struct RandomTimeAccessValue<DataType, TimesliceType>::WriteEntry
 {
 	WriteEntry()
 	{ }
@@ -25,7 +27,8 @@ template<class DataType, class TimesliceType> struct RandomTimeAccessValue<DataT
 };
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> struct RandomTimeAccessValue<DataType, TimesliceType>::WriteInfo
+template<class DataType, class TimesliceType>
+struct RandomTimeAccessValue<DataType, TimesliceType>::WriteInfo
 {
 	WriteInfo()
 	{ }
@@ -39,7 +42,8 @@ template<class DataType, class TimesliceType> struct RandomTimeAccessValue<DataT
 };
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> struct RandomTimeAccessValue<DataType, TimesliceType>::TimesliceSaveEntry
+template<class DataType, class TimesliceType>
+struct RandomTimeAccessValue<DataType, TimesliceType>::TimesliceSaveEntry
 {
 	TimesliceSaveEntry(const typename std::list<TimesliceEntry>::const_iterator& atimeslice, unsigned int aid)
 	:timeslice(atimeslice), id(aid)
@@ -54,7 +58,8 @@ template<class DataType, class TimesliceType> struct RandomTimeAccessValue<DataT
 };
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> struct RandomTimeAccessValue<DataType, TimesliceType>::WriteSaveEntry
+template<class DataType, class TimesliceType>
+struct RandomTimeAccessValue<DataType, TimesliceType>::WriteSaveEntry
 {
 	WriteSaveEntry(TimesliceType awriteTime, const DataType& aoldValue, unsigned int acurrentTimeslice)
 	:writeTime(awriteTime), oldValue(aoldValue), currentTimeslice(acurrentTimeslice)
@@ -67,24 +72,28 @@ template<class DataType, class TimesliceType> struct RandomTimeAccessValue<DataT
 //----------------------------------------------------------------------------------------------------------------------
 // Constructors
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> RandomTimeAccessValue<DataType, TimesliceType>::RandomTimeAccessValue()
+template<class DataType, class TimesliceType>
+RandomTimeAccessValue<DataType, TimesliceType>::RandomTimeAccessValue()
 { }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> RandomTimeAccessValue<DataType, TimesliceType>::RandomTimeAccessValue(const DataType& defaultValue)
+template<class DataType, class TimesliceType>
+RandomTimeAccessValue<DataType, TimesliceType>::RandomTimeAccessValue(const DataType& defaultValue)
 :_value(defaultValue)
 { }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Dereference operators
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> const DataType& RandomTimeAccessValue<DataType, TimesliceType>::operator*() const
+template<class DataType, class TimesliceType>
+const DataType& RandomTimeAccessValue<DataType, TimesliceType>::operator*() const
 {
 	return _value;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> DataType& RandomTimeAccessValue<DataType, TimesliceType>::operator*()
+template<class DataType, class TimesliceType>
+DataType& RandomTimeAccessValue<DataType, TimesliceType>::operator*()
 {
 	return _value;
 }
@@ -92,7 +101,8 @@ template<class DataType, class TimesliceType> DataType& RandomTimeAccessValue<Da
 //----------------------------------------------------------------------------------------------------------------------
 // Access functions
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> DataType RandomTimeAccessValue<DataType, TimesliceType>::Read(TimesliceType readTime) const
+template<class DataType, class TimesliceType>
+DataType RandomTimeAccessValue<DataType, TimesliceType>::Read(TimesliceType readTime) const
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 
@@ -120,7 +130,8 @@ template<class DataType, class TimesliceType> DataType RandomTimeAccessValue<Dat
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataType, TimesliceType>::Write(TimesliceType writeTime, const DataType& data)
+template<class DataType, class TimesliceType>
+void RandomTimeAccessValue<DataType, TimesliceType>::Write(TimesliceType writeTime, const DataType& data)
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 	WriteEntry entry(writeTime, data, _latestTimeslice);
@@ -136,13 +147,15 @@ template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataTyp
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> DataType RandomTimeAccessValue<DataType, TimesliceType>::ReadCommitted() const
+template<class DataType, class TimesliceType>
+DataType RandomTimeAccessValue<DataType, TimesliceType>::ReadCommitted() const
 {
 	return _value;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> DataType RandomTimeAccessValue<DataType, TimesliceType>::ReadCommitted(TimesliceType readTime) const
+template<class DataType, class TimesliceType>
+DataType RandomTimeAccessValue<DataType, TimesliceType>::ReadCommitted(TimesliceType readTime) const
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 	TimesliceType currentTimeBase = 0;
@@ -181,13 +194,15 @@ template<class DataType, class TimesliceType> DataType RandomTimeAccessValue<Dat
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataType, TimesliceType>::WriteCommitted(const DataType& data)
+template<class DataType, class TimesliceType>
+void RandomTimeAccessValue<DataType, TimesliceType>::WriteCommitted(const DataType& data)
 {
 	_value = data;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> DataType RandomTimeAccessValue<DataType, TimesliceType>::ReadLatest() const
+template<class DataType, class TimesliceType>
+DataType RandomTimeAccessValue<DataType, TimesliceType>::ReadLatest() const
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 
@@ -206,7 +221,8 @@ template<class DataType, class TimesliceType> DataType RandomTimeAccessValue<Dat
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataType, TimesliceType>::WriteLatest(const DataType& data)
+template<class DataType, class TimesliceType>
+void RandomTimeAccessValue<DataType, TimesliceType>::WriteLatest(const DataType& data)
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 
@@ -222,7 +238,8 @@ template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataTyp
 //----------------------------------------------------------------------------------------------------------------------
 // Time management functions
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataType, TimesliceType>::Initialize()
+template<class DataType, class TimesliceType>
+void RandomTimeAccessValue<DataType, TimesliceType>::Initialize()
 {
 	_value = DataType();
 
@@ -234,14 +251,16 @@ template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataTyp
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> bool RandomTimeAccessValue<DataType, TimesliceType>::DoesLatestTimesliceExist() const
+template<class DataType, class TimesliceType>
+bool RandomTimeAccessValue<DataType, TimesliceType>::DoesLatestTimesliceExist() const
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 	return !_timesliceList.empty();
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> typename RandomTimeAccessValue<DataType, TimesliceType>::Timeslice RandomTimeAccessValue<DataType, TimesliceType>::GetLatestTimeslice()
+template<class DataType, class TimesliceType>
+typename RandomTimeAccessValue<DataType, TimesliceType>::Timeslice RandomTimeAccessValue<DataType, TimesliceType>::GetLatestTimeslice()
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 
@@ -256,7 +275,8 @@ template<class DataType, class TimesliceType> typename RandomTimeAccessValue<Dat
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataType, TimesliceType>::AdvancePastTimeslice(const Timeslice& targetTimeslice)
+template<class DataType, class TimesliceType>
+void RandomTimeAccessValue<DataType, TimesliceType>::AdvancePastTimeslice(const Timeslice& targetTimeslice)
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 
@@ -296,7 +316,8 @@ template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataTyp
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataType, TimesliceType>::AdvanceToTimeslice(const Timeslice& targetTimeslice)
+template<class DataType, class TimesliceType>
+void RandomTimeAccessValue<DataType, TimesliceType>::AdvanceToTimeslice(const Timeslice& targetTimeslice)
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 
@@ -336,7 +357,8 @@ template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataTyp
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataType, TimesliceType>::AdvanceByTime(TimesliceType step, const Timeslice& targetTimeslice)
+template<class DataType, class TimesliceType>
+void RandomTimeAccessValue<DataType, TimesliceType>::AdvanceByTime(TimesliceType step, const Timeslice& targetTimeslice)
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 	TimesliceType currentTimeBase = 0;
@@ -383,7 +405,8 @@ template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataTyp
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> bool RandomTimeAccessValue<DataType, TimesliceType>::AdvanceByStep(const Timeslice& targetTimeslice)
+template<class DataType, class TimesliceType>
+bool RandomTimeAccessValue<DataType, TimesliceType>::AdvanceByStep(const Timeslice& targetTimeslice)
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 	TimesliceType currentTimeBase = 0;
@@ -435,7 +458,8 @@ template<class DataType, class TimesliceType> bool RandomTimeAccessValue<DataTyp
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> TimesliceType RandomTimeAccessValue<DataType, TimesliceType>::GetNextWriteTime(const Timeslice& targetTimeslice)
+template<class DataType, class TimesliceType>
+TimesliceType RandomTimeAccessValue<DataType, TimesliceType>::GetNextWriteTime(const Timeslice& targetTimeslice)
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 	bool foundWrite = false;
@@ -478,7 +502,8 @@ template<class DataType, class TimesliceType> TimesliceType RandomTimeAccessValu
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> typename RandomTimeAccessValue<DataType, TimesliceType>::WriteInfo RandomTimeAccessValue<DataType, TimesliceType>::GetWriteInfo(unsigned int index, const Timeslice& targetTimeslice)
+template<class DataType, class TimesliceType>
+typename RandomTimeAccessValue<DataType, TimesliceType>::WriteInfo RandomTimeAccessValue<DataType, TimesliceType>::GetWriteInfo(unsigned int index, const Timeslice& targetTimeslice)
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 	TimesliceType currentTimeBase = 0;
@@ -522,7 +547,8 @@ template<class DataType, class TimesliceType> typename RandomTimeAccessValue<Dat
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataType, TimesliceType>::Commit()
+template<class DataType, class TimesliceType>
+void RandomTimeAccessValue<DataType, TimesliceType>::Commit()
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 
@@ -536,7 +562,8 @@ template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataTyp
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataType, TimesliceType>::Rollback()
+template<class DataType, class TimesliceType>
+void RandomTimeAccessValue<DataType, TimesliceType>::Rollback()
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 
@@ -568,7 +595,8 @@ template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataTyp
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataType, TimesliceType>::AddTimeslice(TimesliceType timeslice)
+template<class DataType, class TimesliceType>
+void RandomTimeAccessValue<DataType, TimesliceType>::AddTimeslice(TimesliceType timeslice)
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 
@@ -585,7 +613,8 @@ template<class DataType, class TimesliceType> void RandomTimeAccessValue<DataTyp
 //----------------------------------------------------------------------------------------------------------------------
 // Savestate functions
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> bool RandomTimeAccessValue<DataType, TimesliceType>::LoadState(IHierarchicalStorageNode& node)
+template<class DataType, class TimesliceType>
+bool RandomTimeAccessValue<DataType, TimesliceType>::LoadState(IHierarchicalStorageNode& node)
 {
 	std::list<TimesliceSaveEntry> timesliceSaveList;
 	std::list<WriteSaveEntry> writeSaveList;
@@ -655,7 +684,8 @@ template<class DataType, class TimesliceType> bool RandomTimeAccessValue<DataTyp
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> bool RandomTimeAccessValue<DataType, TimesliceType>::LoadTimesliceEntries(IHierarchicalStorageNode& node, std::list<TimesliceSaveEntry>& timesliceSaveList)
+template<class DataType, class TimesliceType>
+bool RandomTimeAccessValue<DataType, TimesliceType>::LoadTimesliceEntries(IHierarchicalStorageNode& node, std::list<TimesliceSaveEntry>& timesliceSaveList)
 {
 	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
 	for (std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
@@ -684,7 +714,8 @@ template<class DataType, class TimesliceType> bool RandomTimeAccessValue<DataTyp
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> bool RandomTimeAccessValue<DataType, TimesliceType>::LoadWriteEntries(IHierarchicalStorageNode& node, std::list<WriteSaveEntry>& writeSaveList)
+template<class DataType, class TimesliceType>
+bool RandomTimeAccessValue<DataType, TimesliceType>::LoadWriteEntries(IHierarchicalStorageNode& node, std::list<WriteSaveEntry>& writeSaveList)
 {
 	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
 	for (std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
@@ -716,7 +747,8 @@ template<class DataType, class TimesliceType> bool RandomTimeAccessValue<DataTyp
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> bool RandomTimeAccessValue<DataType, TimesliceType>::SaveState(IHierarchicalStorageNode& node) const
+template<class DataType, class TimesliceType>
+bool RandomTimeAccessValue<DataType, TimesliceType>::SaveState(IHierarchicalStorageNode& node) const
 {
 	std::list<TimesliceSaveEntry> timesliceSaveList;
 	DataType saveValue(_value);

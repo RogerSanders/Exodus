@@ -1,7 +1,8 @@
 #ifndef __TIMEDBUFFERADVANCESESSION_H__
 #define __TIMEDBUFFERADVANCESESSION_H__
 
-template<class DataType, class TimesliceType> struct TimedBufferAdvanceSession
+template<class DataType, class TimesliceType>
+struct TimedBufferAdvanceSession
 {
 public:
 	// Constructors

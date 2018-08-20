@@ -1,7 +1,8 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Constructors
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> GenericAccessGroupCommandEntry::GenericAccessGroupCommandEntry(T commandID, const std::wstring& name)
+template<class T>
+GenericAccessGroupCommandEntry::GenericAccessGroupCommandEntry(T commandID, const std::wstring& name)
 :_parent(0), _dataContext(0), _commandID((unsigned int)commandID), _name(name)
 { }
 

@@ -2931,7 +2931,8 @@ void BusInterface::TransparentSetClockRate(double newClockRate, const IClockSour
 //----------------------------------------------------------------------------------------------------------------------
 // ThinVector helper functions
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> ThinVector<T*,1>* BusInterface::AddItemToThinVector(ThinVector<T*,1>* existingArray, T* item)
+template<class T>
+ThinVector<T*,1>* BusInterface::AddItemToThinVector(ThinVector<T*,1>* existingArray, T* item)
 {
 	// Calculate the required size in bytes of a new ThinVector object which is large
 	// enough to hold all the content of the existing ThinVector at this location, plus the
@@ -2973,7 +2974,8 @@ template<class T> ThinVector<T*,1>* BusInterface::AddItemToThinVector(ThinVector
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> ThinVector<T*,1>* BusInterface::RemoveItemFromThinVector(ThinVector<T*,1>* existingArray, T* item)
+template<class T>
+ThinVector<T*,1>* BusInterface::RemoveItemFromThinVector(ThinVector<T*,1>* existingArray, T* item)
 {
 	// Allocate a new ThinVector object of the required size to hold all the content of
 	// the existing ThinVector object, plus the new item. See the AddItemToThinVector

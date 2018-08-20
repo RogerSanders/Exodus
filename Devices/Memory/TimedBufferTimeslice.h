@@ -2,7 +2,8 @@
 #define __TIMEDBUFFERTIMESLICE_H__
 #include "TimedBuffers/TimedBuffers.pkg"
 
-template<class DataType, class TimesliceType> class TimedBufferTimeslice :public ITimedBufferTimeslice<DataType, TimesliceType>
+template<class DataType, class TimesliceType>
+class TimedBufferTimeslice :public ITimedBufferTimeslice<DataType, TimesliceType>
 {
 public:
 	// Constructors

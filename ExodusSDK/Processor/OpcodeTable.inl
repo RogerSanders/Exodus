@@ -3,7 +3,8 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Constructors
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> OpcodeTable<T>::OpcodeTable(unsigned int opcodeDecodeBits)
+template<class T>
+OpcodeTable<T>::OpcodeTable(unsigned int opcodeDecodeBits)
 {
 	_opcodeDecodeBits = opcodeDecodeBits;
 	_opcodeDecodeMask = (1 << _opcodeDecodeBits) - 1;
@@ -12,7 +13,8 @@ template<class T> OpcodeTable<T>::OpcodeTable(unsigned int opcodeDecodeBits)
 //----------------------------------------------------------------------------------------------------------------------
 // Initialization functions
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void OpcodeTable<T>::InitializeOpcodeTable()
+template<class T>
+void OpcodeTable<T>::InitializeOpcodeTable()
 {
 	_opcodeArray.assign((size_t)1 << _opcodeDecodeBits, (T*)0);
 }
@@ -20,7 +22,8 @@ template<class T> void OpcodeTable<T>::InitializeOpcodeTable()
 //----------------------------------------------------------------------------------------------------------------------
 // Instruction functions
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> bool OpcodeTable<T>::AllocateRegionToOpcode(const T* opcode, const std::wstring& definition, const std::wstring& substitutions)
+template<class T>
+bool OpcodeTable<T>::AllocateRegionToOpcode(const T* opcode, const std::wstring& definition, const std::wstring& substitutions)
 {
 	size_t p1;
 	size_t p2;
@@ -140,7 +143,8 @@ template<class T> bool OpcodeTable<T>::AllocateRegionToOpcode(const T* opcode, c
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> const T* OpcodeTable<T>::GetInstruction(unsigned int opcode) const
+template<class T>
+const T* OpcodeTable<T>::GetInstruction(unsigned int opcode) const
 {
 	return _opcodeArray[opcode & _opcodeDecodeMask];
 }

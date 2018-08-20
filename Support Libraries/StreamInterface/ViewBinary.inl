@@ -42,21 +42,24 @@ void ViewBinary::SetViewByteOrder(IStream::ByteOrder byteOrder)
 //----------------------------------------------------------------------------------------------------------------------
 // Binary stream functions
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> ViewBinary& ViewBinary::operator>>(T& data)
+template<class T>
+ViewBinary& ViewBinary::operator>>(T& data)
 {
 	_noErrorState &= _stream.ReadData(_byteOrder, data);
 	return *this;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> ViewBinary& ViewBinary::operator<<(const T& data)
+template<class T>
+ViewBinary& ViewBinary::operator<<(const T& data)
 {
 	_noErrorState &= _stream.WriteData(_byteOrder, data);
 	return *this;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> ViewBinary& ViewBinary::operator>>(std::vector<T>& data)
+template<class T>
+ViewBinary& ViewBinary::operator>>(std::vector<T>& data)
 {
 	size_t elementCount = data.size();
 	for (size_t i = 0; i < elementCount; ++i)
@@ -179,7 +182,8 @@ ViewBinary& ViewBinary::operator>>(std::vector<long double>& data)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> ViewBinary& ViewBinary::operator<<(const std::vector<T>& data)
+template<class T>
+ViewBinary& ViewBinary::operator<<(const std::vector<T>& data)
 {
 	size_t elementCount = data.size();
 	for (size_t i = 0; i < elementCount; ++i)

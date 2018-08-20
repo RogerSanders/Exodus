@@ -19,15 +19,22 @@ public:
 	//##FIX## Why do we reset the stream position when extracting data, but not when
 	// inserting data?
 	inline std::wstring GetValue() const;
-	template<class T> T ExtractValue();
-	template<class T> T ExtractHexValue();
-	template<class T> void ExtractValue(T& target);
-	template<class T> void ExtractHexValue(T& target);
+	template<class T>
+	T ExtractValue();
+	template<class T>
+	T ExtractHexValue();
+	template<class T>
+	void ExtractValue(T& target);
+	template<class T>
+	void ExtractHexValue(T& target);
 
 	// Value write functions
-	template<class T> void SetValue(const T& data);
-	template<class T> void InsertValue(const T& data);
-	template<class T> void InsertHexValue(const T& data, unsigned int length);
+	template<class T>
+	void SetValue(const T& data);
+	template<class T>
+	void InsertValue(const T& data);
+	template<class T>
+	void InsertHexValue(const T& data, unsigned int length);
 
 protected:
 	// Stream functions

@@ -1,7 +1,8 @@
 //----------------------------------------------------------------------------------------------------------------------
 // DPI functions
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> T DPIScaleWidth(T pixelWidth)
+template<class T>
+T DPIScaleWidth(T pixelWidth)
 {
 	// Calculate a scale value for pixel values based on the current screen DPI settings
 	float dpiScaleX;
@@ -16,7 +17,8 @@ template<class T> T DPIScaleWidth(T pixelWidth)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> T DPIScaleHeight(T pixelHeight)
+template<class T>
+T DPIScaleHeight(T pixelHeight)
 {
 	// Calculate a scale value for pixel values based on the current screen DPI settings
 	float dpiScaleX;
@@ -31,7 +33,8 @@ template<class T> T DPIScaleHeight(T pixelHeight)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> T DPIReverseScaleWidth(T pixelWidth)
+template<class T>
+T DPIReverseScaleWidth(T pixelWidth)
 {
 	// Calculate a scale value for pixel values based on the current screen DPI settings
 	float dpiScaleX;
@@ -46,7 +49,8 @@ template<class T> T DPIReverseScaleWidth(T pixelWidth)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> T DPIReverseScaleHeight(T pixelHeight)
+template<class T>
+T DPIReverseScaleHeight(T pixelHeight)
 {
 	// Calculate a scale value for pixel values based on the current screen DPI settings
 	float dpiScaleX;

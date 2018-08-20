@@ -51,10 +51,14 @@ std::wstring GetModuleFilePath(HMODULE moduleHandle);
 bool DPIIsScalingActive();
 void DPIGetScreenSettings(int& dpiX, int& dpiY);
 void DPIGetScreenScaleFactors(float& dpiScaleX, float& dpiScaleY);
-template<class T> T DPIScaleWidth(T pixelWidth);
-template<class T> T DPIScaleHeight(T pixelHeight);
-template<class T> T DPIReverseScaleWidth(T pixelWidth);
-template<class T> T DPIReverseScaleHeight(T pixelHeight);
+template<class T>
+T DPIScaleWidth(T pixelWidth);
+template<class T>
+T DPIScaleHeight(T pixelHeight);
+template<class T>
+T DPIReverseScaleWidth(T pixelWidth);
+template<class T>
+T DPIReverseScaleHeight(T pixelHeight);
 
 // BindStdHandlesToConsole function
 void BindStdHandlesToConsole();

@@ -3,7 +3,8 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Interface version functions
 //----------------------------------------------------------------------------------------------------------------------
-template<class B> unsigned int GenericAccessDataValueBase<B>::GetIGenericAccessDataValueVersion() const
+template<class B>
+unsigned int GenericAccessDataValueBase<B>::GetIGenericAccessDataValueVersion() const
 {
 	return B::ThisIGenericAccessDataValueVersion();
 }
@@ -11,49 +12,57 @@ template<class B> unsigned int GenericAccessDataValueBase<B>::GetIGenericAccessD
 //----------------------------------------------------------------------------------------------------------------------
 // Value write functions
 //----------------------------------------------------------------------------------------------------------------------
-template<class B> bool GenericAccessDataValueBase<B>::SetValueBool(bool value)
+template<class B>
+bool GenericAccessDataValueBase<B>::SetValueBool(bool value)
 {
 	return false;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class B> bool GenericAccessDataValueBase<B>::SetValueInt(int value)
+template<class B>
+bool GenericAccessDataValueBase<B>::SetValueInt(int value)
 {
 	return false;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class B> bool GenericAccessDataValueBase<B>::SetValueUInt(unsigned int value)
+template<class B>
+bool GenericAccessDataValueBase<B>::SetValueUInt(unsigned int value)
 {
 	return false;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class B> bool GenericAccessDataValueBase<B>::SetValueFloat(float value)
+template<class B>
+bool GenericAccessDataValueBase<B>::SetValueFloat(float value)
 {
 	return false;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class B> bool GenericAccessDataValueBase<B>::SetValueDouble(double value)
+template<class B>
+bool GenericAccessDataValueBase<B>::SetValueDouble(double value)
 {
 	return false;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class B> bool GenericAccessDataValueBase<B>::SetValueString(const Marshal::In<std::wstring>& value)
+template<class B>
+bool GenericAccessDataValueBase<B>::SetValueString(const Marshal::In<std::wstring>& value)
 {
 	return false;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class B> bool GenericAccessDataValueBase<B>::SetValueFilePath(const Marshal::In<std::wstring>& value)
+template<class B>
+bool GenericAccessDataValueBase<B>::SetValueFilePath(const Marshal::In<std::wstring>& value)
 {
 	return false;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class B> bool GenericAccessDataValueBase<B>::SetValueFolderPath(const Marshal::In<std::wstring>& value)
+template<class B>
+bool GenericAccessDataValueBase<B>::SetValueFolderPath(const Marshal::In<std::wstring>& value)
 {
 	return false;
 }

@@ -4,14 +4,16 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Structures
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> struct RandomTimeAccessBuffer<DataType, TimesliceType>::TimesliceEntry
+template<class DataType, class TimesliceType>
+struct RandomTimeAccessBuffer<DataType, TimesliceType>::TimesliceEntry
 {
 	TimesliceType timesliceLength;
 	bool committed;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> struct RandomTimeAccessBuffer<DataType, TimesliceType>::WriteEntry
+template<class DataType, class TimesliceType>
+struct RandomTimeAccessBuffer<DataType, TimesliceType>::WriteEntry
 {
 	WriteEntry()
 	{ }
@@ -29,7 +31,8 @@ template<class DataType, class TimesliceType> struct RandomTimeAccessBuffer<Data
 };
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> struct RandomTimeAccessBuffer<DataType, TimesliceType>::TimesliceSaveEntry
+template<class DataType, class TimesliceType>
+struct RandomTimeAccessBuffer<DataType, TimesliceType>::TimesliceSaveEntry
 {
 	TimesliceSaveEntry(const typename std::list<TimesliceEntry>::const_iterator& atimeslice, unsigned int aid)
 	:timeslice(atimeslice), id(aid)
@@ -44,7 +47,8 @@ template<class DataType, class TimesliceType> struct RandomTimeAccessBuffer<Data
 };
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> struct RandomTimeAccessBuffer<DataType, TimesliceType>::WriteSaveEntry
+template<class DataType, class TimesliceType>
+struct RandomTimeAccessBuffer<DataType, TimesliceType>::WriteSaveEntry
 {
 	WriteSaveEntry(unsigned int awriteAddress, TimesliceType awriteTime, const DataType& aoldValue, unsigned int acurrentTimeslice)
 	:writeAddress(awriteAddress), writeTime(awriteTime), oldValue(aoldValue), currentTimeslice(acurrentTimeslice)
@@ -58,17 +62,20 @@ template<class DataType, class TimesliceType> struct RandomTimeAccessBuffer<Data
 //----------------------------------------------------------------------------------------------------------------------
 // Constructors
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> RandomTimeAccessBuffer<DataType, TimesliceType>::RandomTimeAccessBuffer()
+template<class DataType, class TimesliceType>
+RandomTimeAccessBuffer<DataType, TimesliceType>::RandomTimeAccessBuffer()
 :_latestMemoryBufferExists(false)
 { }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> RandomTimeAccessBuffer<DataType, TimesliceType>::RandomTimeAccessBuffer(const DataType& defaultValue)
+template<class DataType, class TimesliceType>
+RandomTimeAccessBuffer<DataType, TimesliceType>::RandomTimeAccessBuffer(const DataType& defaultValue)
 :_defaultValue(defaultValue)
 { }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> RandomTimeAccessBuffer<DataType, TimesliceType>::RandomTimeAccessBuffer(unsigned int size, bool keepLatestCopy)
+template<class DataType, class TimesliceType>
+RandomTimeAccessBuffer<DataType, TimesliceType>::RandomTimeAccessBuffer(unsigned int size, bool keepLatestCopy)
 :_latestMemoryBufferExists(keepLatestCopy)
 {
 	_memory.resize(size);
@@ -79,7 +86,8 @@ template<class DataType, class TimesliceType> RandomTimeAccessBuffer<DataType, T
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> RandomTimeAccessBuffer<DataType, TimesliceType>::RandomTimeAccessBuffer(unsigned int size, bool keepLatestCopy, const DataType& defaultValue)
+template<class DataType, class TimesliceType>
+RandomTimeAccessBuffer<DataType, TimesliceType>::RandomTimeAccessBuffer(unsigned int size, bool keepLatestCopy, const DataType& defaultValue)
 :_defaultValue(defaultValue), _latestMemoryBufferExists(keepLatestCopy)
 {
 	_memory.resize(size, _defaultValue);
@@ -92,13 +100,15 @@ template<class DataType, class TimesliceType> RandomTimeAccessBuffer<DataType, T
 //----------------------------------------------------------------------------------------------------------------------
 // Size functions
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> unsigned int RandomTimeAccessBuffer<DataType, TimesliceType>::Size() const
+template<class DataType, class TimesliceType>
+unsigned int RandomTimeAccessBuffer<DataType, TimesliceType>::Size() const
 {
 	return (unsigned int)_memory.size();
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataType, TimesliceType>::Resize(unsigned int size, bool keepLatestCopy)
+template<class DataType, class TimesliceType>
+void RandomTimeAccessBuffer<DataType, TimesliceType>::Resize(unsigned int size, bool keepLatestCopy)
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 	_latestMemoryBufferExists = keepLatestCopy;
@@ -116,7 +126,8 @@ template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataTy
 //----------------------------------------------------------------------------------------------------------------------
 // Access functions
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> DataType RandomTimeAccessBuffer<DataType, TimesliceType>::Read(unsigned int address, const AccessTarget& accessTarget) const
+template<class DataType, class TimesliceType>
+DataType RandomTimeAccessBuffer<DataType, TimesliceType>::Read(unsigned int address, const AccessTarget& accessTarget) const
 {
 	switch (accessTarget.target)
 	{
@@ -134,7 +145,8 @@ template<class DataType, class TimesliceType> DataType RandomTimeAccessBuffer<Da
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataType, TimesliceType>::Write(unsigned int address, const DataType& data, const AccessTarget& accessTarget)
+template<class DataType, class TimesliceType>
+void RandomTimeAccessBuffer<DataType, TimesliceType>::Write(unsigned int address, const DataType& data, const AccessTarget& accessTarget)
 {
 	switch (accessTarget.target)
 	{
@@ -152,7 +164,8 @@ template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataTy
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> DataType RandomTimeAccessBuffer<DataType, TimesliceType>::Read(unsigned int address, const TimedBufferAccessTarget<DataType, TimesliceType>* accessTarget) const
+template<class DataType, class TimesliceType>
+DataType RandomTimeAccessBuffer<DataType, TimesliceType>::Read(unsigned int address, const TimedBufferAccessTarget<DataType, TimesliceType>* accessTarget) const
 {
 	switch (accessTarget.target)
 	{
@@ -170,7 +183,8 @@ template<class DataType, class TimesliceType> DataType RandomTimeAccessBuffer<Da
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataType, TimesliceType>::Write(unsigned int address, const DataType& data, const TimedBufferAccessTarget<DataType, TimesliceType>* accessTarget)
+template<class DataType, class TimesliceType>
+void RandomTimeAccessBuffer<DataType, TimesliceType>::Write(unsigned int address, const DataType& data, const TimedBufferAccessTarget<DataType, TimesliceType>* accessTarget)
 {
 	switch (accessTarget.target)
 	{
@@ -193,7 +207,8 @@ template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataTy
 // ad-hoc reads of a buffer when there are a large number of reads and writes occurring to
 // a small number of addresses.
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> DataType RandomTimeAccessBuffer<DataType, TimesliceType>::Read(unsigned int address, TimesliceType readTime) const
+template<class DataType, class TimesliceType>
+DataType RandomTimeAccessBuffer<DataType, TimesliceType>::Read(unsigned int address, TimesliceType readTime) const
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 
@@ -222,7 +237,8 @@ template<class DataType, class TimesliceType> DataType RandomTimeAccessBuffer<Da
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataType, TimesliceType>::Write(unsigned int address, TimesliceType writeTime, const DataType& data)
+template<class DataType, class TimesliceType>
+void RandomTimeAccessBuffer<DataType, TimesliceType>::Write(unsigned int address, TimesliceType writeTime, const DataType& data)
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 
@@ -250,19 +266,22 @@ template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataTy
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> DataType& RandomTimeAccessBuffer<DataType, TimesliceType>::ReferenceCommitted(unsigned int address)
+template<class DataType, class TimesliceType>
+DataType& RandomTimeAccessBuffer<DataType, TimesliceType>::ReferenceCommitted(unsigned int address)
 {
 	return _memory[address];
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> DataType RandomTimeAccessBuffer<DataType, TimesliceType>::ReadCommitted(unsigned int address) const
+template<class DataType, class TimesliceType>
+DataType RandomTimeAccessBuffer<DataType, TimesliceType>::ReadCommitted(unsigned int address) const
 {
 	return _memory[address];
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> DataType RandomTimeAccessBuffer<DataType, TimesliceType>::ReadCommitted(unsigned int address, TimesliceType readTime) const
+template<class DataType, class TimesliceType>
+DataType RandomTimeAccessBuffer<DataType, TimesliceType>::ReadCommitted(unsigned int address, TimesliceType readTime) const
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 	TimesliceType currentTimeBase = 0;
@@ -304,7 +323,8 @@ template<class DataType, class TimesliceType> DataType RandomTimeAccessBuffer<Da
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataType, TimesliceType>::WriteCommitted(unsigned int address, const DataType& data)
+template<class DataType, class TimesliceType>
+void RandomTimeAccessBuffer<DataType, TimesliceType>::WriteCommitted(unsigned int address, const DataType& data)
 {
 	//##NOTE## We don't update the latest memory buffer state here, since it would be very
 	// costly in performance to do so, and the premise of this function is kind of flawed
@@ -316,7 +336,8 @@ template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataTy
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> DataType RandomTimeAccessBuffer<DataType, TimesliceType>::ReadLatest(unsigned int address) const
+template<class DataType, class TimesliceType>
+DataType RandomTimeAccessBuffer<DataType, TimesliceType>::ReadLatest(unsigned int address) const
 {
 	// If we don't have a cached copy of the latest memory state saved, determine the
 	// latest value for the target memory address by iterating through the uncommitted
@@ -345,7 +366,8 @@ template<class DataType, class TimesliceType> DataType RandomTimeAccessBuffer<Da
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataType, TimesliceType>::WriteLatest(unsigned int address, const DataType& data)
+template<class DataType, class TimesliceType>
+void RandomTimeAccessBuffer<DataType, TimesliceType>::WriteLatest(unsigned int address, const DataType& data)
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 
@@ -376,7 +398,8 @@ template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataTy
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataType, TimesliceType>::GetLatestBufferCopy(std::vector<DataType>& buffer) const
+template<class DataType, class TimesliceType>
+void RandomTimeAccessBuffer<DataType, TimesliceType>::GetLatestBufferCopy(std::vector<DataType>& buffer) const
 {
 	if (!_latestMemoryBufferExists)
 	{
@@ -401,7 +424,8 @@ template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataTy
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataType, TimesliceType>::GetLatestBufferCopy(DataType* buffer, unsigned int bufferSize) const
+template<class DataType, class TimesliceType>
+void RandomTimeAccessBuffer<DataType, TimesliceType>::GetLatestBufferCopy(DataType* buffer, unsigned int bufferSize) const
 {
 	// Determine the number of elements to copy
 	size_t copySize = (size_t)bufferSize;
@@ -433,7 +457,8 @@ template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataTy
 //----------------------------------------------------------------------------------------------------------------------
 // Time management functions
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataType, TimesliceType>::Initialize()
+template<class DataType, class TimesliceType>
+void RandomTimeAccessBuffer<DataType, TimesliceType>::Initialize()
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 
@@ -456,14 +481,16 @@ template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataTy
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> bool RandomTimeAccessBuffer<DataType, TimesliceType>::DoesLatestTimesliceExist() const
+template<class DataType, class TimesliceType>
+bool RandomTimeAccessBuffer<DataType, TimesliceType>::DoesLatestTimesliceExist() const
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 	return !_timesliceList.empty();
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> typename RandomTimeAccessBuffer<DataType, TimesliceType>::Timeslice RandomTimeAccessBuffer<DataType, TimesliceType>::GetLatestTimeslice()
+template<class DataType, class TimesliceType>
+typename RandomTimeAccessBuffer<DataType, TimesliceType>::Timeslice RandomTimeAccessBuffer<DataType, TimesliceType>::GetLatestTimeslice()
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 
@@ -478,7 +505,8 @@ template<class DataType, class TimesliceType> typename RandomTimeAccessBuffer<Da
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataType, TimesliceType>::AdvancePastTimeslice(const Timeslice& targetTimeslice)
+template<class DataType, class TimesliceType>
+void RandomTimeAccessBuffer<DataType, TimesliceType>::AdvancePastTimeslice(const Timeslice& targetTimeslice)
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 
@@ -518,7 +546,8 @@ template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataTy
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataType, TimesliceType>::AdvanceToTimeslice(const Timeslice& targetTimeslice)
+template<class DataType, class TimesliceType>
+void RandomTimeAccessBuffer<DataType, TimesliceType>::AdvanceToTimeslice(const Timeslice& targetTimeslice)
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 
@@ -558,7 +587,8 @@ template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataTy
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataType, TimesliceType>::AdvanceByTime(TimesliceType step, const Timeslice& targetTimeslice)
+template<class DataType, class TimesliceType>
+void RandomTimeAccessBuffer<DataType, TimesliceType>::AdvanceByTime(TimesliceType step, const Timeslice& targetTimeslice)
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 
@@ -606,7 +636,8 @@ template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataTy
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> bool RandomTimeAccessBuffer<DataType, TimesliceType>::AdvanceByStep(const Timeslice& targetTimeslice)
+template<class DataType, class TimesliceType>
+bool RandomTimeAccessBuffer<DataType, TimesliceType>::AdvanceByStep(const Timeslice& targetTimeslice)
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 
@@ -659,7 +690,8 @@ template<class DataType, class TimesliceType> bool RandomTimeAccessBuffer<DataTy
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataType, TimesliceType>::AdvanceBySession(TimesliceType currentProgress, AdvanceSession& advanceSession, const Timeslice& targetTimeslice)
+template<class DataType, class TimesliceType>
+void RandomTimeAccessBuffer<DataType, TimesliceType>::AdvanceBySession(TimesliceType currentProgress, AdvanceSession& advanceSession, const Timeslice& targetTimeslice)
 {
 	// Note that we split the internals of this method outside this inline wrapper function
 	// for performance. If we fold all the logic into one method, we can't effectively
@@ -674,7 +706,8 @@ template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataTy
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataType, TimesliceType>::AdvanceBySessionInternal(TimesliceType currentProgress, AdvanceSession& advanceSession, const Timeslice& targetTimeslice)
+template<class DataType, class TimesliceType>
+void RandomTimeAccessBuffer<DataType, TimesliceType>::AdvanceBySessionInternal(TimesliceType currentProgress, AdvanceSession& advanceSession, const Timeslice& targetTimeslice)
 {
 	// Since a write needs to be processed, obtain a lock, and loop around until there
 	// are no writes left within the update step.
@@ -776,7 +809,8 @@ template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataTy
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> TimesliceType RandomTimeAccessBuffer<DataType, TimesliceType>::GetNextWriteTimeNoLock(const Timeslice& targetTimeslice) const
+template<class DataType, class TimesliceType>
+TimesliceType RandomTimeAccessBuffer<DataType, TimesliceType>::GetNextWriteTimeNoLock(const Timeslice& targetTimeslice) const
 {
 	bool foundWrite = false;
 	TimesliceType nextWriteTime = 0;
@@ -818,14 +852,16 @@ template<class DataType, class TimesliceType> TimesliceType RandomTimeAccessBuff
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> TimesliceType RandomTimeAccessBuffer<DataType, TimesliceType>::GetNextWriteTime(const Timeslice& targetTimeslice) const
+template<class DataType, class TimesliceType>
+TimesliceType RandomTimeAccessBuffer<DataType, TimesliceType>::GetNextWriteTime(const Timeslice& targetTimeslice) const
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 	return GetNextWriteTimeNoLock(targetTimeslice);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> typename RandomTimeAccessBuffer<DataType, TimesliceType>::WriteInfo RandomTimeAccessBuffer<DataType, TimesliceType>::GetWriteInfo(unsigned int index, const Timeslice& targetTimeslice)
+template<class DataType, class TimesliceType>
+typename RandomTimeAccessBuffer<DataType, TimesliceType>::WriteInfo RandomTimeAccessBuffer<DataType, TimesliceType>::GetWriteInfo(unsigned int index, const Timeslice& targetTimeslice)
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 
@@ -871,7 +907,8 @@ template<class DataType, class TimesliceType> typename RandomTimeAccessBuffer<Da
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataType, TimesliceType>::Commit()
+template<class DataType, class TimesliceType>
+void RandomTimeAccessBuffer<DataType, TimesliceType>::Commit()
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 
@@ -885,7 +922,8 @@ template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataTy
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataType, TimesliceType>::Rollback()
+template<class DataType, class TimesliceType>
+void RandomTimeAccessBuffer<DataType, TimesliceType>::Rollback()
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 
@@ -930,7 +968,8 @@ template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataTy
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataType, TimesliceType>::AddTimeslice(TimesliceType timeslice)
+template<class DataType, class TimesliceType>
+void RandomTimeAccessBuffer<DataType, TimesliceType>::AddTimeslice(TimesliceType timeslice)
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 
@@ -947,7 +986,8 @@ template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataTy
 //----------------------------------------------------------------------------------------------------------------------
 // Session management functions
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataType, TimesliceType>::BeginAdvanceSession(AdvanceSession& advanceSession, const Timeslice& targetTimeslice, bool retrieveWriteInfo) const
+template<class DataType, class TimesliceType>
+void RandomTimeAccessBuffer<DataType, TimesliceType>::BeginAdvanceSession(AdvanceSession& advanceSession, const Timeslice& targetTimeslice, bool retrieveWriteInfo) const
 {
 	std::unique_lock<std::mutex> lock(_accessLock);
 
@@ -966,7 +1006,8 @@ template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataTy
 //----------------------------------------------------------------------------------------------------------------------
 // Savestate functions
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> bool RandomTimeAccessBuffer<DataType, TimesliceType>::LoadState(IHierarchicalStorageNode& node)
+template<class DataType, class TimesliceType>
+bool RandomTimeAccessBuffer<DataType, TimesliceType>::LoadState(IHierarchicalStorageNode& node)
 {
 	std::list<TimesliceSaveEntry> timesliceSaveList;
 	std::list<WriteSaveEntry> writeSaveList;
@@ -1055,7 +1096,8 @@ template<class DataType, class TimesliceType> bool RandomTimeAccessBuffer<DataTy
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> bool RandomTimeAccessBuffer<DataType, TimesliceType>::LoadTimesliceEntries(IHierarchicalStorageNode& node, std::list<TimesliceSaveEntry>& timesliceSaveList)
+template<class DataType, class TimesliceType>
+bool RandomTimeAccessBuffer<DataType, TimesliceType>::LoadTimesliceEntries(IHierarchicalStorageNode& node, std::list<TimesliceSaveEntry>& timesliceSaveList)
 {
 	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
 	for (std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
@@ -1084,7 +1126,8 @@ template<class DataType, class TimesliceType> bool RandomTimeAccessBuffer<DataTy
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> bool RandomTimeAccessBuffer<DataType, TimesliceType>::LoadWriteEntries(IHierarchicalStorageNode& node, std::list<WriteSaveEntry>& writeSaveList)
+template<class DataType, class TimesliceType>
+bool RandomTimeAccessBuffer<DataType, TimesliceType>::LoadWriteEntries(IHierarchicalStorageNode& node, std::list<WriteSaveEntry>& writeSaveList)
 {
 	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
 	for (std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
@@ -1118,7 +1161,8 @@ template<class DataType, class TimesliceType> bool RandomTimeAccessBuffer<DataTy
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class DataType, class TimesliceType> bool RandomTimeAccessBuffer<DataType, TimesliceType>::SaveState(IHierarchicalStorageNode& node, const std::wstring& bufferName, bool inlineData) const
+template<class DataType, class TimesliceType>
+bool RandomTimeAccessBuffer<DataType, TimesliceType>::SaveState(IHierarchicalStorageNode& node, const std::wstring& bufferName, bool inlineData) const
 {
 	std::list<TimesliceSaveEntry> timesliceSaveList;
 	std::vector<DataType> saveMemory;
