@@ -40,8 +40,8 @@ private:
 	};
 	struct SettingEntry
 	{
-		SettingEntry(ISystemGUIInterface& asystemInterface, unsigned int moduleID, unsigned int asettingID, const std::function<void()>& acallback)
-		:systemInterface(asystemInterface), moduleID(moduleID), settingID(asettingID), optionChangeObserver(acallback)
+		SettingEntry(ISystemGUIInterface& asystemInterface, unsigned int amoduleID, unsigned int asettingID, const std::function<void()>& acallback)
+		:systemInterface(asystemInterface), moduleID(amoduleID), settingID(asettingID), optionChangeObserver(acallback)
 		{
 			systemInterface.ModuleSettingActiveOptionChangeNotifyRegister(moduleID, settingID, optionChangeObserver);
 		}

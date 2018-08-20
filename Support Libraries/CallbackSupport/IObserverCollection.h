@@ -8,7 +8,7 @@ class IObserverCollection
 {
 public:
 	// Constructors
-	virtual ~IObserverCollection() = 0 { }
+	inline virtual ~IObserverCollection() = 0;
 
 	// Observer management functions
 	virtual void AddObserver(IObserverSubscription& observer) = 0;
@@ -18,5 +18,6 @@ public:
 	// Notification functions
 	virtual void NotifyObservers() const = 0;
 };
+IObserverCollection::~IObserverCollection() { }
 
 #endif

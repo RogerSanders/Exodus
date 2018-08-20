@@ -630,7 +630,7 @@ void WC_HexEdit::SetWindowSettings(unsigned int windowPos, unsigned int windowSi
 void WC_HexEdit::UpdateColumnSettings(unsigned int columnCount, unsigned int valuesPerColumn, bool textAreaEnabled)
 {
 	_columns = columnCount;
-	valuesPerColumn = valuesPerColumn;
+	_valuesPerColumn = valuesPerColumn;
 	_textDisplayEnabled = textAreaEnabled;
 	// Ensure there is always at least one column visible, and at least one value in each
 	// column.
@@ -638,9 +638,9 @@ void WC_HexEdit::UpdateColumnSettings(unsigned int columnCount, unsigned int val
 	{
 		_columns = 1;
 	}
-	if (valuesPerColumn < 1)
+	if (_valuesPerColumn < 1)
 	{
-		valuesPerColumn = 1;
+		_valuesPerColumn = 1;
 	}
 
 	// Calculate the number of rows which can be shown within the control. We lock the
@@ -653,7 +653,7 @@ void WC_HexEdit::UpdateColumnSettings(unsigned int columnCount, unsigned int val
 	}
 
 	// Calculate the maximum number of lines we can display
-	_valuesPerRow = _columns * valuesPerColumn;
+	_valuesPerRow = _columns * _valuesPerColumn;
 	_valuesPerPage = completeRows * _valuesPerRow;
 	_visibleRows = completeRows + partialRows;
 	_visibleValuesPerPage = _visibleRows * _valuesPerRow;
@@ -663,10 +663,10 @@ void WC_HexEdit::UpdateColumnSettings(unsigned int columnCount, unsigned int val
 	_addressSectionWidth = _addressWidth * _fontWidth;
 	_dataDividerLinePosX = _addressSectionPos + _addressSectionWidth + (_dividerSpace / 2);
 	_dataSectionPos = _addressSectionPos + _addressSectionWidth + _dividerSpace;
-	_dataSectionWidth = (valuesPerColumn * _columns * _fontWidth * 2) + ((_columns - 1) * _columnSpace);
+	_dataSectionWidth = (_valuesPerColumn * _columns * _fontWidth * 2) + ((_columns - 1) * _columnSpace);
 	_charDividerLinePosX = _dataSectionPos + _dataSectionWidth + (_dividerSpace / 2);
 	_textSectionPos = _dataSectionPos + _dataSectionWidth + _dividerSpace;
-	_textSectionWidth = valuesPerColumn * _columns * _fontWidth;
+	_textSectionWidth = _valuesPerColumn * _columns * _fontWidth;
 
 	// When the column size changes, we need to re-select the current byte so that
 	// the caret is drawn in the correct location.
@@ -772,7 +772,7 @@ void WC_HexEdit::SelectByte(int bytePos)
 	{
 		_firstNybbleWritten = false;
 		unsigned char originalByte = ReadByte(_selectedByte);
-		unsigned char dataToWrite = (_storedNybble << 4) | (originalByte & 0x0F);
+		unsigned char dataToWrite = (unsigned char)((_storedNybble << 4) | (originalByte & 0x0F));
 		WriteByte(_selectedByte, dataToWrite);
 	}
 
@@ -1548,7 +1548,7 @@ LRESULT WC_HexEdit::msgWM_CHAR(WPARAM wParam, LPARAM lParam)
 			if (_firstNybbleWritten)
 			{
 				_firstNybbleWritten = false;
-				dataToWrite = (_storedNybble << 4) | dataToWrite;
+				dataToWrite = (unsigned char)((_storedNybble << 4) | dataToWrite);
 				WriteByte(_selectedByte, dataToWrite);
 				SelectByte((int)_selectedByte + 1);
 			}
@@ -1816,7 +1816,7 @@ LRESULT WC_HexEdit::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 					unsigned char byte = _dataBuffer[dataPos];
 					if ((fullDataPos == _selectedByte) && _firstNybbleWritten)
 					{
-						byte = (_storedNybble << 4) | (byte & 0xF);
+						byte = (unsigned char)((_storedNybble << 4) | (byte & 0xF));
 					}
 					std::wstring text;
 					IntToStringBase16(byte, text, 2, false);

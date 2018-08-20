@@ -309,8 +309,8 @@ struct System::InputRegistration
 //----------------------------------------------------------------------------------------------------------------------
 struct System::UnmappedLineStateInfo
 {
-	UnmappedLineStateInfo(unsigned int moduleID, IDevice* atargetDevice, unsigned int alineNo, Data alineData)
-	:moduleID(moduleID), targetDevice(atargetDevice), lineNo(alineNo), lineData(alineData)
+	UnmappedLineStateInfo(unsigned int amoduleID, IDevice* atargetDevice, unsigned int alineNo, Data alineData)
+	:moduleID(amoduleID), targetDevice(atargetDevice), lineNo(alineNo), lineData(alineData)
 	{ }
 
 	unsigned int moduleID;

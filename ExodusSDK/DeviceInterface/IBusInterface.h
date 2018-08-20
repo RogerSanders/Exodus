@@ -12,7 +12,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~IBusInterface() = 0 { }
+	inline virtual ~IBusInterface() = 0;
 
 	// Interface version functions
 	static inline unsigned int ThisIBusInterfaceVersion() { return 1; }
@@ -51,6 +51,7 @@ public:
 	virtual void SetClockRate(double newClockRate, const IClockSource* sourceClock, IDeviceContext* callingDevice, double accessTime, unsigned int accessContext) = 0;
 	virtual void TransparentSetClockRate(double newClockRate, const IClockSource* sourceClock) = 0;
 };
+IBusInterface::~IBusInterface() { }
 
 #include "IBusInterface.inl"
 #endif

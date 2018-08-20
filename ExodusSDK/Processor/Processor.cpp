@@ -551,7 +551,7 @@ void Processor::TriggerBreakpoint(Breakpoint* breakpoint) const
 	// GetDeviceContext()->SetSystemRollback(GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), &function);
 	// std::function<void()> function = std::bind(&Processor::BreakpointCallback, this, breakpoint);
 	BreakpointCallbackParams* params = new BreakpointCallbackParams();
-	params->object = (Processor*)this;
+	params->object = const_cast<Processor*>(this);
 	params->breakpoint = breakpoint;
 	GetSystemInterface().SetSystemRollback(GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0, BreakpointCallbackRaw, params);
 
@@ -757,7 +757,7 @@ void Processor::CheckMemoryWriteInternal(unsigned int location, unsigned int dat
 void Processor::TriggerWatchpoint(Watchpoint* watchpoint) const
 {
 	WatchpointCallbackParams* params = new WatchpointCallbackParams();
-	params->object = (Processor*)this;
+	params->object = const_cast<Processor*>(this);
 	params->watchpoint = watchpoint;
 	GetSystemInterface().SetSystemRollback(GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0, WatchpointCallbackRaw, params);
 }
@@ -1799,7 +1799,7 @@ void Processor::AddDisassemblyAddressInfoEntryToArray(DisassemblyAddressInfo* ne
 			{
 				// If we've found a code entry which overlaps with our new data entry, mark
 				// the data entry as conflicted.
-				if ((entry->entryType == DisassemblyEntryType::Code))
+				if (entry->entryType == DisassemblyEntryType::Code)
 				{
 					newEntry->conflictsWithKnownCode = true;
 				}
@@ -4630,7 +4630,7 @@ bool Processor::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 	switch ((IProcessorDataSource)dataID)
 	{
 	case IProcessorDataSource::BreakpointName:{
-		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
+		const BreakpointDataContext& breakpointDataContext = *((const BreakpointDataContext*)dataContext);
 		bool result = false;
 		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
@@ -4639,7 +4639,7 @@ bool Processor::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 		}
 		return result;}
 	case IProcessorDataSource::BreakpointEnable:{
-		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
+		const BreakpointDataContext& breakpointDataContext = *((const BreakpointDataContext*)dataContext);
 		bool result = false;
 		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
@@ -4648,7 +4648,7 @@ bool Processor::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 		}
 		return result;}
 	case IProcessorDataSource::BreakpointLog:{
-		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
+		const BreakpointDataContext& breakpointDataContext = *((const BreakpointDataContext*)dataContext);
 		bool result = false;
 		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
@@ -4657,7 +4657,7 @@ bool Processor::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 		}
 		return result;}
 	case IProcessorDataSource::BreakpointBreak:{
-		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
+		const BreakpointDataContext& breakpointDataContext = *((const BreakpointDataContext*)dataContext);
 		bool result = false;
 		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
@@ -4666,7 +4666,7 @@ bool Processor::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 		}
 		return result;}
 	case IProcessorDataSource::BreakpointNotCondition:{
-		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
+		const BreakpointDataContext& breakpointDataContext = *((const BreakpointDataContext*)dataContext);
 		bool result = false;
 		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
@@ -4675,7 +4675,7 @@ bool Processor::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 		}
 		return result;}
 	case IProcessorDataSource::BreakpointCondition:{
-		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
+		const BreakpointDataContext& breakpointDataContext = *((const BreakpointDataContext*)dataContext);
 		bool result = false;
 		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
@@ -4684,7 +4684,7 @@ bool Processor::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 		}
 		return result;}
 	case IProcessorDataSource::BreakpointLocation1:{
-		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
+		const BreakpointDataContext& breakpointDataContext = *((const BreakpointDataContext*)dataContext);
 		bool result = false;
 		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
@@ -4693,7 +4693,7 @@ bool Processor::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 		}
 		return result;}
 	case IProcessorDataSource::BreakpointLocation2:{
-		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
+		const BreakpointDataContext& breakpointDataContext = *((const BreakpointDataContext*)dataContext);
 		bool result = false;
 		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
@@ -4702,7 +4702,7 @@ bool Processor::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 		}
 		return result;}
 	case IProcessorDataSource::BreakpointLocationMask:{
-		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
+		const BreakpointDataContext& breakpointDataContext = *((const BreakpointDataContext*)dataContext);
 		bool result = false;
 		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
@@ -4711,7 +4711,7 @@ bool Processor::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 		}
 		return result;}
 	case IProcessorDataSource::BreakpointHitCounter:{
-		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
+		const BreakpointDataContext& breakpointDataContext = *((const BreakpointDataContext*)dataContext);
 		bool result = false;
 		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
@@ -4720,7 +4720,7 @@ bool Processor::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 		}
 		return result;}
 	case IProcessorDataSource::BreakpointEnableBreakInterval:{
-		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
+		const BreakpointDataContext& breakpointDataContext = *((const BreakpointDataContext*)dataContext);
 		bool result = false;
 		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
@@ -4729,7 +4729,7 @@ bool Processor::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 		}
 		return result;}
 	case IProcessorDataSource::BreakpointBreakInterval:{
-		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
+		const BreakpointDataContext& breakpointDataContext = *((const BreakpointDataContext*)dataContext);
 		bool result = false;
 		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
@@ -4751,7 +4751,7 @@ bool Processor::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 	case IProcessorDataSource::BreakpointName:{
 		if (dataType != IGenericAccessDataValue::DataType::String) return false;
 		IGenericAccessDataValueString& dataValueAsString = (IGenericAccessDataValueString&)dataValue;
-		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
+		const BreakpointDataContext& breakpointDataContext = *((const BreakpointDataContext*)dataContext);
 		bool result = false;
 		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
@@ -4763,7 +4763,7 @@ bool Processor::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 	case IProcessorDataSource::BreakpointEnable:{
 		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
-		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
+		const BreakpointDataContext& breakpointDataContext = *((const BreakpointDataContext*)dataContext);
 		bool result = false;
 		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
@@ -4775,7 +4775,7 @@ bool Processor::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 	case IProcessorDataSource::BreakpointLog:{
 		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
-		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
+		const BreakpointDataContext& breakpointDataContext = *((const BreakpointDataContext*)dataContext);
 		bool result = false;
 		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
@@ -4787,7 +4787,7 @@ bool Processor::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 	case IProcessorDataSource::BreakpointBreak:{
 		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
-		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
+		const BreakpointDataContext& breakpointDataContext = *((const BreakpointDataContext*)dataContext);
 		bool result = false;
 		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
@@ -4799,7 +4799,7 @@ bool Processor::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 	case IProcessorDataSource::BreakpointNotCondition:{
 		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
-		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
+		const BreakpointDataContext& breakpointDataContext = *((const BreakpointDataContext*)dataContext);
 		bool result = false;
 		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
@@ -4811,7 +4811,7 @@ bool Processor::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 	case IProcessorDataSource::BreakpointCondition:{
 		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
-		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
+		const BreakpointDataContext& breakpointDataContext = *((const BreakpointDataContext*)dataContext);
 		bool result = false;
 		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
@@ -4823,7 +4823,7 @@ bool Processor::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 	case IProcessorDataSource::BreakpointLocation1:{
 		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
-		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
+		const BreakpointDataContext& breakpointDataContext = *((const BreakpointDataContext*)dataContext);
 		bool result = false;
 		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
@@ -4835,7 +4835,7 @@ bool Processor::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 	case IProcessorDataSource::BreakpointLocation2:{
 		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
-		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
+		const BreakpointDataContext& breakpointDataContext = *((const BreakpointDataContext*)dataContext);
 		bool result = false;
 		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
@@ -4847,7 +4847,7 @@ bool Processor::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 	case IProcessorDataSource::BreakpointLocationMask:{
 		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
-		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
+		const BreakpointDataContext& breakpointDataContext = *((const BreakpointDataContext*)dataContext);
 		bool result = false;
 		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
@@ -4859,7 +4859,7 @@ bool Processor::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 	case IProcessorDataSource::BreakpointHitCounter:{
 		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
-		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
+		const BreakpointDataContext& breakpointDataContext = *((const BreakpointDataContext*)dataContext);
 		bool result = false;
 		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
@@ -4871,7 +4871,7 @@ bool Processor::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 	case IProcessorDataSource::BreakpointEnableBreakInterval:{
 		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
-		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
+		const BreakpointDataContext& breakpointDataContext = *((const BreakpointDataContext*)dataContext);
 		bool result = false;
 		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
@@ -4883,7 +4883,7 @@ bool Processor::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 	case IProcessorDataSource::BreakpointBreakInterval:{
 		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
-		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
+		const BreakpointDataContext& breakpointDataContext = *((const BreakpointDataContext*)dataContext);
 		bool result = false;
 		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
@@ -4904,7 +4904,7 @@ bool Processor::ExecuteGenericCommand(unsigned int commandID, const DataContext*
 	switch ((IProcessorCommand)commandID)
 	{
 	case IProcessorCommand::BreakpointResetHitCounter:{
-		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
+		const BreakpointDataContext& breakpointDataContext = *((const BreakpointDataContext*)dataContext);
 		bool result = false;
 		if (LockBreakpoint(breakpointDataContext.breakpoint))
 		{
@@ -4914,7 +4914,7 @@ bool Processor::ExecuteGenericCommand(unsigned int commandID, const DataContext*
 		}
 		return result;}
 	case IProcessorCommand::BreakpointDelete:{
-		const BreakpointDataContext& breakpointDataContext = *((BreakpointDataContext*)dataContext);
+		const BreakpointDataContext& breakpointDataContext = *((const BreakpointDataContext*)dataContext);
 		DeleteBreakpoint(breakpointDataContext.breakpoint);
 		return true;}
 	case IProcessorCommand::BreakpointNew:

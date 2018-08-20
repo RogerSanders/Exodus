@@ -81,9 +81,6 @@ public:
 	virtual ExecuteTime M68000Execute(M68000* cpu, const M68000Long& location) const
 	{
 		double additionalTime = 0;
-		EffectiveAddress newTarget(_target);
-		EffectiveAddress newSource(_source);
-
 		if (_memoryTarget)
 		{
 			// Move the data from the _source to the _target memory location

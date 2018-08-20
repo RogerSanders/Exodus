@@ -180,6 +180,7 @@ GenericAccessDataInfo* GenericAccessDataInfo::SetFilePathCreatingTarget(bool sta
 GenericAccessDataInfo* GenericAccessDataInfo::SetFilePathAllowScanningIntoArchives(bool state)
 {
 	_filePathAllowScanningIntoArchives = state;
+	return this;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -202,4 +203,5 @@ GenericAccessDataInfo* GenericAccessDataInfo::SetFilePathDefaultExtension(const 
 GenericAccessDataInfo* GenericAccessDataInfo::SetFolderPathCreatingTarget(bool state)
 {
 	_folderPathCreatingTarget = state;
+	return this;
 }

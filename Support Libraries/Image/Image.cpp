@@ -956,7 +956,7 @@ bool Image::LoadTGAImage(Stream::IStream& stream)
 	unsigned int colorChannelCount = 0;
 	TGAImageType imageType;
 	bool rleCompressionUsed = false;
-	switch (fileHeader.imageType)
+	switch ((TGAImageType)fileHeader.imageType)
 	{
 	case TGAImageType::RLEPalette:
 		rleCompressionUsed = true;
@@ -1767,7 +1767,7 @@ bool Image::LoadBMPImage(Stream::IStream& stream)
 	// The few extra bytes of memory allocation for the bmiColors member in the BITMAPINFO
 	// structure doesn't matter.
 	unsigned int bitmapInfoSize = sizeof(BITMAPINFO) + newColorTableSize;
-	BITMAPINFO* bitmapInfo = (BITMAPINFO*)new unsigned char[bitmapInfoSize];
+	BITMAPINFO* bitmapInfo = (BITMAPINFO*)(void*)new unsigned char[bitmapInfoSize];
 	bitmapInfo->bmiHeader.biSize = sizeof(bitmapInfo->bmiHeader);
 	bitmapInfo->bmiHeader.biWidth = infoHeader.biWidth;
 	bitmapInfo->bmiHeader.biHeight = infoHeader.biHeight;
@@ -1852,7 +1852,7 @@ bool Image::SaveBMPImage(Stream::IStream& stream)
 	BITMAPFILEHEADER fileHeader;
 	char typeByte1 = 'B';
 	char typeByte2 = 'M';
-	fileHeader.bfType = ((WORD)typeByte2 << 8) | (WORD)typeByte1;
+	fileHeader.bfType = (WORD)((WORD)typeByte2 << 8) | (WORD)typeByte1;
 	fileHeader.bfSize = fileSize;
 	fileHeader.bfReserved1 = 0;
 	fileHeader.bfReserved2 = 0;
@@ -2230,7 +2230,7 @@ bool Image::LoadDIBImage(Stream::IStream& stream, const BITMAPINFOHEADER* bitmap
 					{
 						// If custom bitmasks have been provided to define how to decode
 						// the data, read the bitmasks in.
-						DWORD* maskTable = (DWORD*)((unsigned char*)&bitmapHeader + sizeof(BITMAPINFOHEADER));
+						DWORD* maskTable = (DWORD*)(void*)((unsigned char*)&bitmapHeader + sizeof(BITMAPINFOHEADER));
 						rMask = (unsigned int)maskTable[0];
 						gMask = (unsigned int)maskTable[1];
 						bMask = (unsigned int)maskTable[2];
@@ -2407,7 +2407,7 @@ bool Image::SaveDIBImage(Stream::IStream& stream, BITMAPINFOHEADER* bitmapHeader
 		// Write the line padding to the end of the line
 		for (unsigned int i = 0; i < linePaddingByteCount; ++i)
 		{
-			stream.WriteData(unsigned char(0));
+			stream.WriteData((unsigned char)0);
 		}
 	}
 

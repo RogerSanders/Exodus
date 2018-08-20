@@ -16,13 +16,13 @@ template<class B> bool Stream<B>::ReadCharInternal(typename B::UnicodeCodePoint&
 {
 	switch (_textEncoding)
 	{
-	case TextEncoding::ASCII:
+	case B::TextEncoding::ASCII:
 		return ReadCharInternalAsASCII(data, _byteOrder, remainingCodeUnitsAvailable, stripCarriageReturn);
-	case TextEncoding::UTF8:
+	case B::TextEncoding::UTF8:
 		return ReadCharInternalAsUTF8(data, _byteOrder, remainingCodeUnitsAvailable, stripCarriageReturn);
-	case TextEncoding::UTF16:
+	case B::TextEncoding::UTF16:
 		return ReadCharInternalAsUTF16(data, _byteOrder, remainingCodeUnitsAvailable, stripCarriageReturn);
-	case TextEncoding::UTF32:
+	case B::TextEncoding::UTF32:
 		return ReadCharInternalAsUTF32(data, _byteOrder, remainingCodeUnitsAvailable, stripCarriageReturn);
 	}
 	return false;
@@ -319,7 +319,7 @@ template<class B> bool Stream<B>::ReadTextInternalFixedLengthBufferAsASCII(typen
 	codeUnitsWritten = 0;
 	while (codeUnitsInStream > 0)
 	{
-		UnicodeCodePoint codePoint;
+		typename B::UnicodeCodePoint codePoint;
 		result &= ReadCharInternalAsASCII(codePoint, _byteOrder, codeUnitsInStream, false);
 
 		// Convert from UnicodeCodePoint to ASCII
@@ -844,7 +844,7 @@ template<class B> bool Stream<B>::WriteCharInternalAsUTF8(const typename B::Unic
 	}
 
 	// Ensure that code units are available in the stream
-	if (remainingCodeUnitsAvailable < (SizeType)bytesToWrite)
+	if (remainingCodeUnitsAvailable < (typename B::SizeType)bytesToWrite)
 	{
 		return false;
 	}
@@ -1669,7 +1669,7 @@ template<class B> template<class T> bool Stream<B>::WriteBinaryInvertedByteOrder
 	unsigned int dataTypeSize = sizeof(*data);
 	for (unsigned int entry = 0; entry < length; ++entry)
 	{
-		unsigned char* binaryData = (unsigned char*)&data[entry];
+		const unsigned char* binaryData = (const unsigned char*)&data[entry];
 		unsigned char* binaryTemp = (unsigned char*)&temp[entry];
 		for (unsigned int i = 0; i < dataTypeSize; ++i)
 		{
@@ -1694,5 +1694,13 @@ template<class B> bool Stream<B>::ByteToBool(unsigned char data)
 {
 	return (data != 0);
 }
+
+//----------------------------------------------------------------------------------------------------------------------
+// Explicit template instantiation declarations
+//----------------------------------------------------------------------------------------------------------------------
+template<> bool Stream<IStream>::ProcessByteOrderMark();
+template<> bool Stream<IStreamNonSeekable>::ProcessByteOrderMark();
+extern template class Stream<IStream>;
+extern template class Stream<IStreamNonSeekable>;
 
 } // Close namespace Stream

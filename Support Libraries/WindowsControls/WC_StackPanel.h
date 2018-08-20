@@ -65,7 +65,6 @@ private:
 	void UpdateChildWindowPositions();
 
 private:
-	HINSTANCE _moduleHandle;
 	HWND _hwnd;
 	int _currentControlWidth;
 	int _currentControlHeight;

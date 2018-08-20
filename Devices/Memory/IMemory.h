@@ -4,6 +4,9 @@
 class IMemory
 {
 public:
+	// Constructors
+	inline virtual ~IMemory() = 0;
+
 	// Interface version functions
 	static inline unsigned int ThisIMemoryVersion() { return 1; }
 	virtual unsigned int GetIMemoryVersion() const = 0;
@@ -21,5 +24,6 @@ public:
 	virtual void LockMemoryBlock(unsigned int location, unsigned int size, bool state) = 0;
 	virtual bool IsAddressLocked(unsigned int location) const = 0;
 };
+IMemory::~IMemory() { }
 
 #endif

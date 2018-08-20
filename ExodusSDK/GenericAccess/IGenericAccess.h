@@ -15,12 +15,14 @@ public:
 	class DataContext
 	{
 	public:
-		virtual ~DataContext() = 0 { }
+		DataContext() = default;
+		DataContext(const DataContext& source) = default;
+		inline virtual ~DataContext() = 0;
 	};
 
 public:
 	// Constructors
-	virtual ~IGenericAccess() = 0 { }
+	inline virtual ~IGenericAccess() = 0;
 
 	// Interface version functions
 	static inline unsigned int ThisIGenericAccessVersion() { return 1; }
@@ -56,5 +58,7 @@ public:
 	// Command execution functions
 	virtual bool ExecuteGenericCommand(unsigned int commandID, const DataContext* dataContext) = 0;
 };
+IGenericAccess::DataContext::~DataContext() { }
+IGenericAccess::~IGenericAccess() { }
 
 #endif

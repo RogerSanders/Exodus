@@ -9,7 +9,7 @@ class IEmbeddedROMInfo
 {
 public:
 	// Constructors
-	virtual ~IEmbeddedROMInfo() = 0 { }
+	inline virtual ~IEmbeddedROMInfo() = 0;
 
 	// Interface version functions
 	static inline unsigned int ThisIEmbeddedROMInfoVersion() { return 1; }
@@ -35,5 +35,6 @@ public:
 	virtual void SetROMEntryBitCount(unsigned int romEntryBitCount) = 0;
 	virtual void SetFilePath(const Marshal::In<std::wstring>& filePath) = 0;
 };
+IEmbeddedROMInfo::~IEmbeddedROMInfo() { }
 
 #endif

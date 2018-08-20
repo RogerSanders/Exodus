@@ -2562,7 +2562,6 @@ INT_PTR CALLBACK ExodusInterface::MapConnectorProc(HWND hwnd, UINT Message, WPAR
 		break;}
 	default:
 		return FALSE;
-		break;
 	}
 	return TRUE;
 }
@@ -2600,7 +2599,7 @@ INT_PTR CALLBACK ExodusInterface::LoadPluginProc(HWND hwnd, UINT Message, WPARAM
 				UpdateDlgItemString(hwnd, IDC_LOADPLUGIN_PLUGINTEXT, PathGetFileName(currentPluginName));
 			}
 			float progress = state->_loadPluginsProgress;
-			int progressInt = (int)((progress * 100) + 0.5);
+			int progressInt = (int)((progress * 100) + 0.5f);
 			SendMessage(GetDlgItem(hwnd, IDC_LOADPLUGIN_PROGRESS), PBM_SETPOS, (WPARAM)progressInt, 0);
 		}
 		break;}
@@ -2622,7 +2621,6 @@ INT_PTR CALLBACK ExodusInterface::LoadPluginProc(HWND hwnd, UINT Message, WPARAM
 		break;}
 	default:
 		return FALSE;
-		break;
 	}
 	return TRUE;
 }
@@ -2658,7 +2656,7 @@ INT_PTR CALLBACK ExodusInterface::LoadModuleProc(HWND hwnd, UINT Message, WPARAM
 				UpdateDlgItemString(hwnd, IDC_LOADMODULE_MODULETEXT, currentModuleName);
 			}
 			float progress = state->_system->LoadModuleSynchronousProgress();
-			int progressInt = (int)((progress * 100) + 0.5);
+			int progressInt = (int)((progress * 100) + 0.5f);
 			SendMessage(GetDlgItem(hwnd, IDC_LOADMODULE_PROGRESS), PBM_SETPOS, (WPARAM)progressInt, 0);
 		}
 		break;}
@@ -2680,7 +2678,6 @@ INT_PTR CALLBACK ExodusInterface::LoadModuleProc(HWND hwnd, UINT Message, WPARAM
 		break;}
 	default:
 		return FALSE;
-		break;
 	}
 	return TRUE;
 }
@@ -2728,7 +2725,6 @@ INT_PTR CALLBACK ExodusInterface::UnloadModuleProc(HWND hwnd, UINT Message, WPAR
 		break;}
 	default:
 		return FALSE;
-		break;
 	}
 	return TRUE;
 }
@@ -2793,7 +2789,6 @@ INT_PTR CALLBACK ExodusInterface::SelectCompressedFileProc(HWND hwnd, UINT Messa
 		break;}
 	default:
 		return FALSE;
-		break;
 	}
 	return TRUE;
 }
@@ -3057,7 +3052,6 @@ LRESULT CALLBACK ExodusInterface::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LP
 		break;
 	default:
 		return DefWindowProc(hwnd, msg, wParam, lParam);
-		break;
 	}
 	return 0;
 }

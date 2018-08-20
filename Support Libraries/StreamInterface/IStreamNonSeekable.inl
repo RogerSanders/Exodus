@@ -1097,7 +1097,7 @@ template<class T> bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, std::ve
 //----------------------------------------------------------------------------------------------------------------------
 template<class T> bool IStreamNonSeekable::ReadData(std::vector<T>& data, SizeType length)
 {
-	data.resize((std::vector<T>::size_type)length);
+	data.resize((typename std::vector<T>::size_type)length);
 	if (length <= 0)
 	{
 		return true;
@@ -1108,7 +1108,7 @@ template<class T> bool IStreamNonSeekable::ReadData(std::vector<T>& data, SizeTy
 //----------------------------------------------------------------------------------------------------------------------
 template<class T> bool IStreamNonSeekable::ReadDataBigEndian(std::vector<T>& data, SizeType length)
 {
-	data.resize((std::vector<T>::size_type)length);
+	data.resize((typename std::vector<T>::size_type)length);
 	if (length <= 0)
 	{
 		return true;
@@ -1119,7 +1119,7 @@ template<class T> bool IStreamNonSeekable::ReadDataBigEndian(std::vector<T>& dat
 //----------------------------------------------------------------------------------------------------------------------
 template<class T> bool IStreamNonSeekable::ReadDataLittleEndian(std::vector<T>& data, SizeType length)
 {
-	data.resize((std::vector<T>::size_type)length);
+	data.resize((typename std::vector<T>::size_type)length);
 	if (length <= 0)
 	{
 		return true;
@@ -1564,6 +1564,18 @@ bool IStreamNonSeekable::WriteText(const std::wstring& data)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+bool IStreamNonSeekable::WriteTextAsASCII(const std::string& data)
+{
+	return WriteTextAsASCII(data.c_str(), (SizeType)data.length());
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+bool IStreamNonSeekable::WriteTextAsASCII(const std::wstring& data)
+{
+	return WriteTextAsASCII(data.c_str(), (SizeType)data.length());
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextAsUTF8(const std::string& data)
 {
 	return WriteTextAsUTF8(data.c_str(), (SizeType)data.length());
@@ -1612,6 +1624,18 @@ bool IStreamNonSeekable::WriteTextBigEndian(const std::wstring& data)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+bool IStreamNonSeekable::WriteTextBigEndianAsASCII(const std::string& data)
+{
+	return WriteTextBigEndianAsASCII(data.c_str(), (SizeType)data.length());
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+bool IStreamNonSeekable::WriteTextBigEndianAsASCII(const std::wstring& data)
+{
+	return WriteTextBigEndianAsASCII(data.c_str(), (SizeType)data.length());
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 bool IStreamNonSeekable::WriteTextBigEndianAsUTF8(const std::string& data)
 {
 	return WriteTextBigEndianAsUTF8(data.c_str(), (SizeType)data.length());
@@ -1657,6 +1681,18 @@ bool IStreamNonSeekable::WriteTextLittleEndian(const std::string& data)
 bool IStreamNonSeekable::WriteTextLittleEndian(const std::wstring& data)
 {
 	return WriteTextLittleEndian(data.c_str(), (SizeType)data.length());
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+bool IStreamNonSeekable::WriteTextLittleEndianAsASCII(const std::string& data)
+{
+	return WriteTextLittleEndianAsASCII(data.c_str(), (SizeType)data.length());
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+bool IStreamNonSeekable::WriteTextLittleEndianAsASCII(const std::wstring& data)
+{
+	return WriteTextLittleEndianAsASCII(data.c_str(), (SizeType)data.length());
 }
 
 //----------------------------------------------------------------------------------------------------------------------

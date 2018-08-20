@@ -27,12 +27,14 @@ void ByteOrder::SetByteOrder(IStream::ByteOrder abyteOrder)
 ViewText& operator>>(ViewText& stream, const ByteOrder& object)
 {
 	stream.SetViewByteOrder(object._byteOrder);
+	return stream;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 ViewText& operator<<(ViewText& stream, const ByteOrder& object)
 {
 	stream.SetViewByteOrder(object._byteOrder);
+	return stream;
 }
 
 } // Close namespace Stream

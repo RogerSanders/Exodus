@@ -11,7 +11,7 @@ const wchar_t* WC_StackPanel::WindowClassName = L"EX_StackPanel";
 // Constructors
 //----------------------------------------------------------------------------------------------------------------------
 WC_StackPanel::WC_StackPanel(HINSTANCE moduleHandle, HWND hwnd)
-:_moduleHandle(moduleHandle), _hwnd(hwnd)
+:_hwnd(hwnd)
 {
 	_currentControlWidth = 0;
 	_currentControlHeight = 0;

@@ -2956,7 +2956,7 @@ template<class T> ThinVector<T*,1>* BusInterface::AddItemToThinVector(ThinVector
 	// behaviour of the ThinVector class is fully visible and well understood, and there
 	// are no destructors or any reliance on the array size template parameter beyond the
 	// default constructor.
-	ThinVector<T*,1>* newArray = (ThinVector<T*,1>*)new unsigned char[newThinVectorByteSize];
+	ThinVector<T*,1>* newArray = (ThinVector<T*,1>*)(void*)new unsigned char[newThinVectorByteSize];
 
 	// Set the array size of our new ThinVector object to the correct size
 	newArray->arraySize = newArraySize;
@@ -2980,7 +2980,7 @@ template<class T> ThinVector<T*,1>* BusInterface::RemoveItemFromThinVector(ThinV
 	// function for a description on how the ThinVector structure is being used here.
 	size_t newArraySize = existingArray->arraySize - 1;
 	size_t newThinVectorByteSize = sizeof(existingArray->arraySize) + (sizeof(existingArray->array[0]) * newArraySize);
-	ThinVector<T*,1>* newArray = (ThinVector<T*,1>*)new unsigned char[newThinVectorByteSize];
+	ThinVector<T*,1>* newArray = (ThinVector<T*,1>*)(void*)new unsigned char[newThinVectorByteSize];
 
 	// Set the array size of our new ThinVector object to the correct size
 	newArray->arraySize = newArraySize;

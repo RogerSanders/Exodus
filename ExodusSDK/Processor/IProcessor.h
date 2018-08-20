@@ -24,7 +24,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~IProcessor() = 0 { }
+	inline virtual ~IProcessor() = 0;
 
 	// Interface version functions
 	static inline unsigned int ThisIProcessorVersion() { return 1; }
@@ -169,6 +169,7 @@ public:
 	virtual bool ActiveDisassemblyExportAnalysisToTextFile(const Marshal::In<std::wstring>& filePath) const = 0;
 	virtual bool ActiveDisassemblyExportAnalysisToIDCFile(const Marshal::In<std::wstring>& filePath) const = 0;
 };
+IProcessor::~IProcessor() { }
 
 #include "IProcessor.inl"
 #endif

@@ -88,7 +88,7 @@ template<class T> bool RAMBase<T>::Construct(IHierarchicalStorageNode& node)
 				{
 					return false;
 				}
-				_initialMemoryData[entriesToRead] = ((_initialMemoryData[entriesToRead] << 8) | remainingData);
+				_initialMemoryData[entriesToRead] = (T)((_initialMemoryData[entriesToRead] << 8) | remainingData);
 			}
 
 			// Shift the data in the entry up by the required number of bits to align the
@@ -136,7 +136,7 @@ template<class T> unsigned int RAMBase<T>::GetMemoryEntrySizeInBytes() const
 //----------------------------------------------------------------------------------------------------------------------
 template<class T> void RAMBase<T>::ExecuteRollback()
 {
-	for (MemoryAccessBuffer::const_iterator i = _buffer.begin(); i != _buffer.end(); ++i)
+	for (typename MemoryAccessBuffer::const_iterator i = _buffer.begin(); i != _buffer.end(); ++i)
 	{
 		_memoryArray[i->first] = i->second;
 	}

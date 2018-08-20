@@ -77,7 +77,6 @@ private:
 
 private:
 	HWND _hwndInternal;
-	HWND _parentWindow;
 	IUIManager& _uiManager;
 	IViewPresenter& _viewPresenter;
 	bool _windowShownForFirstTime;

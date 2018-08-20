@@ -10,7 +10,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~IClockSource() = 0 { }
+	inline virtual ~IClockSource() = 0;
 
 	// Interface version functions
 	static inline unsigned int ThisIClockSourceVersion() { return 1; }
@@ -30,6 +30,7 @@ public:
 	virtual bool TransparentSetClockDivider(double divider) = 0;
 	virtual bool TransparentSetClockMultiplier(double multiplier) = 0;
 };
+IClockSource::~IClockSource() { }
 
 #include "IClockSource.inl"
 #endif

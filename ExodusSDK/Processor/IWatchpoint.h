@@ -12,7 +12,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~IWatchpoint() = 0 { }
+	inline virtual ~IWatchpoint() = 0;
 
 	// Interface version functions
 	static inline unsigned int ThisIWatchpointVersion() { return 1; }
@@ -84,6 +84,7 @@ public:
 	virtual void SetWriteConditionData2(unsigned int data) = 0;
 	virtual bool PassesWriteCondition(unsigned int data) = 0;
 };
+IWatchpoint::~IWatchpoint() { }
 
 #include "IWatchpoint.inl"
 #endif

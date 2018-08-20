@@ -1,9 +1,16 @@
 #include "PathFunctions.h"
 #include "WindowFunctions.h"
-#include <commctrl.h>
-#include <shlobj.h>
+#include <CommCtrl.h>
+#include <ShlObj.h>
 #include <sstream>
 #include <locale>
+
+//----------------------------------------------------------------------------------------------------------------------
+// Forward declarations
+//----------------------------------------------------------------------------------------------------------------------
+static std::wstring BuildCommonFileDialogTypeFilterString(const std::list<FileSelectionType>& typeFilters);
+static int CALLBACK SetSHBrowseForFolderInitialDir(HWND hwnd, UINT umsg, LPARAM lparam, LPARAM lpData);
+static bool CreateDirectoryInternal(const std::wstring& path);
 
 //----------------------------------------------------------------------------------------------------------------------
 // Path handling functions
@@ -792,47 +799,6 @@ bool CreateDirectory(const std::wstring& path, bool createIntermediateDirectorie
 		if (!CreateDirectoryInternal(currentPath))
 		{
 			return false;
-		}
-	}
-
-	return true;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-bool CreateDirectoryAndAllIntermediateDirectories(const std::wstring& path)
-{
-	// Split the target path into its components
-	std::vector<std::wstring> pathComponents = SplitPathIntoComponents(path);
-
-	// Iterate through each path component and ensure a directory exists at each level of
-	// the path
-	std::wstring currentPath;
-	for (unsigned int i = 0; i < (unsigned int)pathComponents.size(); ++i)
-	{
-		// Add the next path component to the current path string
-		currentPath = PathCombinePaths(currentPath, pathComponents[i]);
-
-		// Obtain file attributes for the element referenced by the target path
-		DWORD fileAttributes = GetFileAttributes(currentPath.c_str());
-
-		// If the file attributes couldn't be retrieved, assume the folder doesn't exist
-		// and create it, otherwise verify that the target path references a folder.
-		if (fileAttributes == INVALID_FILE_ATTRIBUTES)
-		{
-			// Attempt to create the target folder, and return false if it fails.
-			BOOL createDirectoryReturn = CreateDirectory(currentPath.c_str(), NULL);
-			if (createDirectoryReturn == 0)
-			{
-				return false;
-			}
-		}
-		else
-		{
-			// If this path element references a file rather than a folder, return false.
-			if ((fileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
-			{
-				return false;
-			}
 		}
 	}
 

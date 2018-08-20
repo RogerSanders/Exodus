@@ -54,9 +54,9 @@ public:
 	struct TimesliceEntry;
 
 	// Typedefs
-	typedef typename TimedBufferWriteInfo<DataType, TimesliceType> WriteInfo;
-	typedef typename TimedBufferAccessTarget<DataType, TimesliceType> AccessTarget;
-	typedef typename TimedBufferAdvanceSession<DataType, TimesliceType> AdvanceSession;
+	typedef TimedBufferWriteInfo<DataType, TimesliceType> WriteInfo;
+	typedef TimedBufferAccessTarget<DataType, TimesliceType> AccessTarget;
+	typedef TimedBufferAdvanceSession<DataType, TimesliceType> AdvanceSession;
 	typedef typename std::list<TimesliceEntry>::iterator Timeslice;
 
 	// Constructors

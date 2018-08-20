@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets">
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>12.0.30501.0</_ProjectFileVersion>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalOptions>-Wall -Wno-old-style-cast -Wno-c++98-compat -Wno-unused-parameter -Wno-c++98-compat-pedantic -Wno-reserved-id-macro -Wno-zero-as-null-pointer-constant -Wno-covered-switch-default -Wno-sign-conversion -Wno-unused-command-line-argument -Wno-reorder -Wno-header-hygiene -Wno-implicit-fallthrough -Wno-switch -Wno-switch-enum -Wno-non-virtual-dtor -Wno-delete-non-virtual-dtor -Wno-global-constructors -Wno-missing-prototypes -Wno-unused-private-field -Wno-float-equal %(AdditionalOptions)</AdditionalOptions>
+      <WarningLevel>Level4</WarningLevel>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>

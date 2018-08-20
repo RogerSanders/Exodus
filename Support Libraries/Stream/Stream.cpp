@@ -2,12 +2,6 @@
 namespace Stream {
 
 //----------------------------------------------------------------------------------------------------------------------
-// Explicit template instantiation
-//----------------------------------------------------------------------------------------------------------------------
-template class Stream<IStream>;
-template class Stream<IStreamNonSeekable>;
-
-//----------------------------------------------------------------------------------------------------------------------
 // Byte order mark functions
 //----------------------------------------------------------------------------------------------------------------------
 template<> bool Stream<IStream>::ProcessByteOrderMark()
@@ -148,6 +142,8 @@ template<class B> void Stream<B>::InsertByteOrderMark()
 {
 	switch (_textEncoding)
 	{
+	case B::TextEncoding::ASCII:
+		break;
 	case B::TextEncoding::UTF8:{
 		unsigned char byte1 = 0xEF;
 		unsigned char byte2 = 0xBB;
@@ -2244,5 +2240,11 @@ template<class B> bool Stream<B>::ConvertUnicodeCodePointToWCharT(const typename
 	}
 	return true;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
+// Explicit template instantiation
+//----------------------------------------------------------------------------------------------------------------------
+template class Stream<IStream>;
+template class Stream<IStreamNonSeekable>;
 
 } // Close namespace Stream

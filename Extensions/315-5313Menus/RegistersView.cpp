@@ -52,7 +52,7 @@ INT_PTR RegistersView::msgWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	{
 		TCITEM tabItem;
 		tabItem.mask = TCIF_TEXT;
-		tabItem.pszText = (LPWSTR)_tabItems[i].tabName.c_str();
+		tabItem.pszText = (LPWSTR)const_cast<wchar_t*>(_tabItems[i].tabName.c_str());
 		SendMessage(GetDlgItem(hwnd, IDC_VDP_REGISTERS_TABCONTROL), TCM_INSERTITEM, i, (LPARAM)&tabItem);
 	}
 
@@ -161,7 +161,7 @@ INT_PTR RegistersView::msgWM_NOTIFY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	NMHDR* nmhdr = (NMHDR*)lparam;
 	if (nmhdr->idFrom == IDC_VDP_REGISTERS_TABCONTROL)
 	{
-		if ((nmhdr->code == TCN_SELCHANGE))
+		if (nmhdr->code == TCN_SELCHANGE)
 		{
 			// Begin a session for processing this batch of window visibility changes.
 			// Processing all the changes in a single operation in this manner gives the

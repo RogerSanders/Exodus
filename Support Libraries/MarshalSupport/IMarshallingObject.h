@@ -6,7 +6,7 @@ class IMarshallingObject
 {
 protected:
 	// Constructors
-	inline ~IMarshallingObject() { };
+	inline ~IMarshallingObject() { }
 };
 
 } // Close namespace MarshalSupport

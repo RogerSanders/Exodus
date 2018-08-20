@@ -427,10 +427,10 @@ void Image::ReadPixelDataInternal(unsigned int posX, unsigned int posY, unsigned
 	switch (_dataFormat)
 	{
 	case DATAFORMAT_FLOAT:
-		data = (unsigned int)(((double)pixelData.dataFloat * ((double)maxValue / 1.0)) + 0.5f);
+		data = (unsigned int)(((double)pixelData.dataFloat * ((double)maxValue / 1.0)) + 0.5);
 		break;
 	case DATAFORMAT_8BIT:
-		data = (unsigned int)(((double)pixelData.data8Bit * ((double)maxValue / 255.0)) + 0.5f);
+		data = (unsigned int)(((double)pixelData.data8Bit * ((double)maxValue / 255.0)) + 0.5);
 		break;
 	default:
 		DebugAssert(false);
@@ -487,7 +487,7 @@ void Image::WritePixelDataInternal(unsigned int posX, unsigned int posY, unsigne
 		pixelData.dataFloat = (float)((double)data * (1.0 / (double)maxValue));
 		break;
 	case DATAFORMAT_8BIT:
-		pixelData.data8Bit = (unsigned char)(((double)data * (255.0 / (double)maxValue)) + 0.5f);
+		pixelData.data8Bit = (unsigned char)(((double)data * (255.0 / (double)maxValue)) + 0.5);
 		break;
 	default:
 		DebugAssert(false);

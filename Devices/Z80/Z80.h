@@ -283,10 +283,6 @@ private:
 	struct LineAccess;
 	struct CalculateCELineStateContext;
 
-	// View and menu classes
-	friend class RegistersViewPresenter;
-	friend class RegistersView;
-
 private:
 	// Bus interface
 	mutable ReadWriteLock _externalReferenceLock;

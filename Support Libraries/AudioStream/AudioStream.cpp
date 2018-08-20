@@ -1,7 +1,7 @@
 #include "AudioStream.h"
-#include <Mmreg.h>
-#include <Ks.h>
-#include <Ksmedia.h>
+#include <mmreg.h>
+#include <ks.h>
+#include <ksmedia.h>
 //##DEBUG##
 #include <iostream>
 

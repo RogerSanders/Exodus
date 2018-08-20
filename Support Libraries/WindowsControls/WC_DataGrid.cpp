@@ -3,7 +3,7 @@
 #include <locale>
 #include <algorithm>
 #include <Uxtheme.h>
-#include <Vsstyle.h>
+#include <vsstyle.h>
 #include <iterator>
 //##DEBUG##
 #include <iostream>

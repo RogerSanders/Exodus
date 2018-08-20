@@ -11,7 +11,7 @@ class IDeviceContext
 {
 public:
 	// Constructors
-	virtual ~IDeviceContext() = 0 { }
+	inline virtual ~IDeviceContext() = 0;
 
 	// Interface version functions
 	static inline unsigned int ThisIDeviceContextVersion() { return 1; }
@@ -58,5 +58,6 @@ public:
 	// Dependent device functions
 	virtual void SetDeviceDependencyEnable(IDeviceContext* targetDevice, bool state) = 0;
 };
+IDeviceContext::~IDeviceContext() { }
 
 #endif

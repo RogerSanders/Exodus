@@ -72,7 +72,6 @@ private:
 	static void UpdateDockedWindowPositionAndSize(DockedWindowEntry& entry, bool& updatedWindowSize, bool& updatedWindowPosition, int& currentClientPosX, int& currentClientPosY, int& remainingClientWidth, int& remainingClientHeight);
 
 private:
-	HINSTANCE _moduleHandle;
 	HWND _hwnd;
 	int _currentControlWidth;
 	int _currentControlHeight;

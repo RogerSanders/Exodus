@@ -26,7 +26,8 @@ public:
 
 	// Buffer management
 	inline void Resize(SizeType size);
-	inline unsigned char* GetRawBuffer() const;
+	inline const unsigned char* GetRawBuffer() const;
+	inline unsigned char* GetRawBuffer();
 
 	// Dereference operators
 	inline const unsigned char& operator[](SizeType position) const;

@@ -18,8 +18,8 @@ public:
 	virtual void DeleteView(IView* view);
 
 private:
-	S315_5313Menus& owner;
-	const IDevice& modelInstanceKey;
+	S315_5313Menus& _owner;
+	const IDevice& _modelInstanceKey;
 	IS315_5313& _model;
 };
 

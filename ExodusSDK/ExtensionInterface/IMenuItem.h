@@ -9,7 +9,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~IMenuItem() = 0 { }
+	inline virtual ~IMenuItem() = 0;
 
 	// Interface version functions
 	static inline unsigned int ThisIMenuItemVersion();
@@ -18,6 +18,7 @@ public:
 	// Type functions
 	virtual Type GetType() const = 0;
 };
+IMenuItem::~IMenuItem() { }
 
 #include "IMenuItem.inl"
 #endif

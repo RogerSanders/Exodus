@@ -3216,7 +3216,7 @@ bool S315_5313::GetScreenshot(IImage& targetImage) const
 			Image lineImage(lineWidth, 1, IImage::PIXELFORMAT_RGB, IImage::DATAFORMAT_8BIT);
 			for (unsigned int xpos = 0; xpos < lineWidth; ++xpos)
 			{
-				ImageBufferColorEntry& imageBufferEntry = *((ImageBufferColorEntry*)&_imageBuffer[_drawingImageBufferPlane][((ypos * ImageBufferWidth) + xpos) * 4]);
+				const ImageBufferColorEntry& imageBufferEntry = *((const ImageBufferColorEntry*)&_imageBuffer[_drawingImageBufferPlane][((ypos * ImageBufferWidth) + xpos) * 4]);
 				lineImage.WritePixelData(xpos, ypos, 0, imageBufferEntry.r);
 				lineImage.WritePixelData(xpos, ypos, 1, imageBufferEntry.g);
 				lineImage.WritePixelData(xpos, ypos, 2, imageBufferEntry.b);
@@ -3239,7 +3239,7 @@ bool S315_5313::GetScreenshot(IImage& targetImage) const
 		{
 			for (unsigned int xpos = 0; xpos < imageWidth; ++xpos)
 			{
-				ImageBufferColorEntry& imageBufferEntry = *((ImageBufferColorEntry*)&_imageBuffer[_drawingImageBufferPlane][((ypos * ImageBufferWidth) + xpos) * 4]);
+				const ImageBufferColorEntry& imageBufferEntry = *((const ImageBufferColorEntry*)&_imageBuffer[_drawingImageBufferPlane][((ypos * ImageBufferWidth) + xpos) * 4]);
 				targetImage.WritePixelData(xpos, ypos, 0, imageBufferEntry.r);
 				targetImage.WritePixelData(xpos, ypos, 1, imageBufferEntry.g);
 				targetImage.WritePixelData(xpos, ypos, 2, imageBufferEntry.b);
@@ -3796,7 +3796,7 @@ bool S315_5313::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 	switch ((IS315_5313DataSource)dataID)
 	{
 	case IS315_5313DataSource::RawRegister:{
-		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
+		const RegisterDataContext& registerDataContext = *((const RegisterDataContext*)dataContext);
 		Data registerData = GetRegisterData(registerDataContext.registerNo, accessTarget);
 		return dataValue.SetValue(registerData.GetData());}
 	case IS315_5313DataSource::RegStatus:
@@ -3992,19 +3992,19 @@ bool S315_5313::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 	case IS315_5313DataSource::RegVCounterLatched:
 		return dataValue.SetValue(_vcounterLatchedData.GetData());
 	case IS315_5313DataSource::RegFIFOCode:{
-		const FIFOEntryDataContext& fifoEntryDataContext = *((FIFOEntryDataContext*)dataContext);
+		const FIFOEntryDataContext& fifoEntryDataContext = *((const FIFOEntryDataContext*)dataContext);
 		return dataValue.SetValue(_fifoBuffer[fifoEntryDataContext.entryNo].codeRegData.GetData());}
 	case IS315_5313DataSource::RegFIFOAddress:{
-		const FIFOEntryDataContext& fifoEntryDataContext = *((FIFOEntryDataContext*)dataContext);
+		const FIFOEntryDataContext& fifoEntryDataContext = *((const FIFOEntryDataContext*)dataContext);
 		return dataValue.SetValue(_fifoBuffer[fifoEntryDataContext.entryNo].addressRegData.GetData());}
 	case IS315_5313DataSource::RegFIFOData:{
-		const FIFOEntryDataContext& fifoEntryDataContext = *((FIFOEntryDataContext*)dataContext);
+		const FIFOEntryDataContext& fifoEntryDataContext = *((const FIFOEntryDataContext*)dataContext);
 		return dataValue.SetValue(_fifoBuffer[fifoEntryDataContext.entryNo].dataPortWriteData.GetData());}
 	case IS315_5313DataSource::RegFIFOWritePending:{
-		const FIFOEntryDataContext& fifoEntryDataContext = *((FIFOEntryDataContext*)dataContext);
+		const FIFOEntryDataContext& fifoEntryDataContext = *((const FIFOEntryDataContext*)dataContext);
 		return dataValue.SetValue(_fifoBuffer[fifoEntryDataContext.entryNo].pendingDataWrite);}
 	case IS315_5313DataSource::RegFIFOWriteHalfWritten:{
-		const FIFOEntryDataContext& fifoEntryDataContext = *((FIFOEntryDataContext*)dataContext);
+		const FIFOEntryDataContext& fifoEntryDataContext = *((const FIFOEntryDataContext*)dataContext);
 		return dataValue.SetValue(_fifoBuffer[fifoEntryDataContext.entryNo].dataWriteHalfWritten);}
 	case IS315_5313DataSource::RegNextFIFOReadEntry:
 		return dataValue.SetValue(_fifoNextReadEntry);
@@ -4087,7 +4087,7 @@ bool S315_5313::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 	case IS315_5313DataSource::RawRegister:{
 		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
-		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
+		const RegisterDataContext& registerDataContext = *((const RegisterDataContext*)dataContext);
 		Data registerData(8, dataValueAsUInt.GetValue());
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		TransparentRegisterSpecialUpdateFunction(registerDataContext.registerNo, registerData);
@@ -4629,35 +4629,35 @@ bool S315_5313::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 	case IS315_5313DataSource::RegFIFOCode:{
 		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
-		const FIFOEntryDataContext& fifoEntryDataContext = *((FIFOEntryDataContext*)dataContext);
+		const FIFOEntryDataContext& fifoEntryDataContext = *((const FIFOEntryDataContext*)dataContext);
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		_fifoBuffer[fifoEntryDataContext.entryNo].codeRegData = dataValueAsUInt.GetValue();
 		return true;}
 	case IS315_5313DataSource::RegFIFOAddress:{
 		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
-		const FIFOEntryDataContext& fifoEntryDataContext = *((FIFOEntryDataContext*)dataContext);
+		const FIFOEntryDataContext& fifoEntryDataContext = *((const FIFOEntryDataContext*)dataContext);
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		_fifoBuffer[fifoEntryDataContext.entryNo].addressRegData = dataValueAsUInt.GetValue();
 		return true;}
 	case IS315_5313DataSource::RegFIFOData:{
 		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
-		const FIFOEntryDataContext& fifoEntryDataContext = *((FIFOEntryDataContext*)dataContext);
+		const FIFOEntryDataContext& fifoEntryDataContext = *((const FIFOEntryDataContext*)dataContext);
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		_fifoBuffer[fifoEntryDataContext.entryNo].dataPortWriteData = dataValueAsUInt.GetValue();
 		return true;}
 	case IS315_5313DataSource::RegFIFOWritePending:{
 		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
-		const FIFOEntryDataContext& fifoEntryDataContext = *((FIFOEntryDataContext*)dataContext);
+		const FIFOEntryDataContext& fifoEntryDataContext = *((const FIFOEntryDataContext*)dataContext);
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		_fifoBuffer[fifoEntryDataContext.entryNo].pendingDataWrite = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::RegFIFOWriteHalfWritten:{
 		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
-		const FIFOEntryDataContext& fifoEntryDataContext = *((FIFOEntryDataContext*)dataContext);
+		const FIFOEntryDataContext& fifoEntryDataContext = *((const FIFOEntryDataContext*)dataContext);
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		_fifoBuffer[fifoEntryDataContext.entryNo].dataWriteHalfWritten = dataValueAsBool.GetValue();
 		return true;}
@@ -4836,7 +4836,7 @@ bool S315_5313::GetGenericDataLocked(unsigned int dataID, const DataContext* dat
 	switch ((IS315_5313DataSource)dataID)
 	{
 	case IS315_5313DataSource::RawRegister:{
-		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
+		const RegisterDataContext& registerDataContext = *((const RegisterDataContext*)dataContext);
 		return _rawRegisterLocking[registerDataContext.registerNo];}
 	case IS315_5313DataSource::FlagFIFOEmpty:
 	case IS315_5313DataSource::FlagFIFOFull:
@@ -4930,7 +4930,7 @@ bool S315_5313::SetGenericDataLocked(unsigned int dataID, const DataContext* dat
 	switch ((IS315_5313DataSource)dataID)
 	{
 	case IS315_5313DataSource::RawRegister:{
-		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
+		const RegisterDataContext& registerDataContext = *((const RegisterDataContext*)dataContext);
 		_rawRegisterLocking[registerDataContext.registerNo] = state;
 		return true;}
 	case IS315_5313DataSource::FlagFIFOEmpty:

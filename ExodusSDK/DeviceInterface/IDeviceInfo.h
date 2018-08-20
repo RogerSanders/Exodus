@@ -14,7 +14,10 @@ public:
 
 public:
 	// Constructors
-	virtual ~IDeviceInfo() = 0 { }
+	IDeviceInfo() = default;
+	IDeviceInfo(const IDeviceInfo& source) = default;
+	IDeviceInfo& operator=(const IDeviceInfo& source) = default;
+	inline virtual ~IDeviceInfo() = 0;
 
 	// Interface version functions
 	static inline unsigned int ThisIDeviceInfoVersion() { return 1; }
@@ -38,5 +41,6 @@ public:
 	virtual void SetDeviceCopyright(const Marshal::In<std::wstring>& deviceCopyright) = 0;
 	virtual void SetDeviceComments(const Marshal::In<std::wstring>& deviceComments) = 0;
 };
+IDeviceInfo::~IDeviceInfo() { }
 
 #endif

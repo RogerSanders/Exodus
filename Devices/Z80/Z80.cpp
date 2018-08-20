@@ -23,7 +23,7 @@ Z80::Z80(const std::wstring& implementationName, const std::wstring& instanceNam
 Z80::~Z80()
 {
 	// Delete the opcode buffer
-	delete _opcodeBuffer;
+	delete[] (unsigned char*)_opcodeBuffer;
 
 	// Delete all objects stored in the opcode lists
 	for (std::list<Z80Instruction*>::const_iterator i = _opcodeList.begin(); i != _opcodeList.end(); ++i)
@@ -1104,7 +1104,7 @@ void Z80::ApplyLineStateChange(unsigned int targetLine, const Data& lineData, st
 //	message << "Z80 line state change applied\t" << targetLine << '\t' << lineData.GetData() << "\n";
 //	std::wcout << message.str();
 
-	switch (targetLine)
+	switch ((LineID)targetLine)
 	{
 	case LineID::Reset:
 		_resetLineState = lineData.NonZero();

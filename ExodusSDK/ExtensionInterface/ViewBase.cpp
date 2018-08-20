@@ -4,7 +4,7 @@
 // Constructors
 //----------------------------------------------------------------------------------------------------------------------
 ViewBase::ViewBase(IUIManager& uiManager, IViewPresenter& viewPresenter)
-:_hwndInternal(NULL), _parentWindow(0), _uiManager(uiManager), _viewPresenter(viewPresenter), _assemblyHandle(0), _dialogSettingsCaptured(false), _windowSettingsCaptured(false), _initiallyDocked(false), _initiallyCollapsed(false), _windowShownForFirstTime(false), _viewType(ViewType::Dockable), _initialDialogPos(DialogPos::Default)
+:_hwndInternal(NULL), _uiManager(uiManager), _viewPresenter(viewPresenter), _assemblyHandle(0), _dialogSettingsCaptured(false), _windowSettingsCaptured(false), _initiallyDocked(false), _initiallyCollapsed(false), _windowShownForFirstTime(false), _viewType(ViewType::Dockable), _initialDialogPos(DialogPos::Default)
 { }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -330,7 +330,7 @@ HWND ViewBase::CreateChildDialog(HWND parentWindow, void* assemblyHandle, LPCWST
 HWND ViewBase::CreateChildWindow(DWORD windowStyle, DWORD extendedWindowStyle, unsigned int posX, unsigned int posY, unsigned int width, unsigned int height, HWND parentWindow, const std::function<INT_PTR(HWND, UINT, WPARAM, LPARAM)>& wndProcHandler)
 {
 	// Register the child window class
-	static const std::wstring childWindowClassName = L"ViewBaseChildWindow";
+	const std::wstring childWindowClassName = L"ViewBaseChildWindow";
 	WNDCLASSEX wc;
 	wc.cbSize        = sizeof(WNDCLASSEX);
 	wc.style         = 0;

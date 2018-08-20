@@ -13,7 +13,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~IGenericAccessPage() = 0 { }
+	inline virtual ~IGenericAccessPage() = 0;
 
 	// Interface version functions
 	static inline unsigned int ThisIGenericAccessPageVersion() { return 1; }
@@ -27,6 +27,7 @@ public:
 	// Content functions
 	virtual const IGenericAccessGroup* GetContentRoot() const = 0;
 };
+IGenericAccessPage::~IGenericAccessPage() { }
 
 #include "IGenericAccessPage.inl"
 #endif

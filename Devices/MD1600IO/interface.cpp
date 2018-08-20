@@ -4,52 +4,62 @@
 #include "MDControl6.h"
 #include "MDBusArbiter.h"
 
-IDevice* GetA10000(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
+//----------------------------------------------------------------------------------------------------------------------
+static IDevice* GetA10000(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
 	return static_cast<IDevice*>(new A10000(implementationName, instanceName, moduleID));
 }
 
-void DeleteA10000(IDevice* device)
+//----------------------------------------------------------------------------------------------------------------------
+static void DeleteA10000(IDevice* device)
 {
 	delete static_cast<A10000*>(device);
 }
 
-IDevice* GetMDControl3(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
+//----------------------------------------------------------------------------------------------------------------------
+static IDevice* GetMDControl3(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
 	return static_cast<IDevice*>(new MDControl3(implementationName, instanceName, moduleID));
 }
 
-void DeleteMDControl3(IDevice* device)
+//----------------------------------------------------------------------------------------------------------------------
+static void DeleteMDControl3(IDevice* device)
 {
 	delete static_cast<MDControl3*>(device);
 }
 
-IDevice* GetMDControl6(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
+//----------------------------------------------------------------------------------------------------------------------
+static IDevice* GetMDControl6(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
 	return static_cast<IDevice*>(new MDControl6(implementationName, instanceName, moduleID));
 }
 
-void DeleteMDControl6(IDevice* device)
+//----------------------------------------------------------------------------------------------------------------------
+static void DeleteMDControl6(IDevice* device)
 {
 	delete static_cast<MDControl6*>(device);
 }
 
-IDevice* GetMDBusArbiter(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
+//----------------------------------------------------------------------------------------------------------------------
+static IDevice* GetMDBusArbiter(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
 	return static_cast<IDevice*>(new MDBusArbiter(implementationName, instanceName, moduleID));
 }
 
-void DeleteMDBusArbiter(IDevice* device)
+//----------------------------------------------------------------------------------------------------------------------
+static void DeleteMDBusArbiter(IDevice* device)
 {
 	delete static_cast<MDBusArbiter*>(device);
 }
 
 #ifdef EX_DLLINTERFACE
+//----------------------------------------------------------------------------------------------------------------------
 extern "C" __declspec(dllexport) unsigned int GetInterfaceVersion()
 {
 	return EXODUS_INTERFACEVERSION;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 extern "C" __declspec(dllexport) bool GetDeviceEntry(unsigned int entryNo, IDeviceInfo& entry)
 {
 	// Retrieve any required information from the version info table for our plugin

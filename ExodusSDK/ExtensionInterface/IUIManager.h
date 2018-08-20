@@ -15,7 +15,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~IUIManager() = 0 { }
+	inline virtual ~IUIManager() = 0;
 
 	// Interface version functions
 	static inline unsigned int ThisIUIManagerVersion() { return 1; }
@@ -50,6 +50,7 @@ public:
 	virtual void NotifyDialogActivated(HWND dialogWindow) = 0;
 	virtual void NotifyDialogDeactivated(HWND dialogWindow) = 0;
 };
+IUIManager::~IUIManager() { }
 
 #include "IUIManager.inl"
 #endif

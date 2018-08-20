@@ -12,7 +12,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~ILogEntry() = 0 { }
+	inline virtual ~ILogEntry() = 0;
 
 	// Interface version functions
 	static inline unsigned int ThisILogEntryVersion() { return 1; }
@@ -31,6 +31,7 @@ public:
 	// Version functions
 	virtual unsigned int GetInterfaceVersion() const = 0;
 };
+ILogEntry::~ILogEntry() { }
 
 #include "ILogEntry.inl"
 #endif

@@ -16,8 +16,8 @@ enum class ViewManager::ViewOperationType
 //----------------------------------------------------------------------------------------------------------------------
 struct ViewManager::ViewInfo
 {
-	ViewInfo(IViewPresenter& viewPresenter)
-	:viewPresenter(viewPresenter), waitCount(0), viewCurrentlyOpen(false), viewOpenFailed(false), ignoreForLayoutPurposes(false), node(0)
+	ViewInfo(IViewPresenter& aviewPresenter)
+	:viewPresenter(aviewPresenter), waitCount(0), viewCurrentlyOpen(false), viewOpenFailed(false), ignoreForLayoutPurposes(false), node(0)
 	{ }
 
 	bool viewCurrentlyOpen;
@@ -35,8 +35,8 @@ struct ViewManager::ViewInfo
 //----------------------------------------------------------------------------------------------------------------------
 struct ViewManager::ViewOperation
 {
-	ViewOperation(ViewOperationType atype, IViewPresenter& viewPresenter, IHierarchicalStorageNode* aviewState = 0)
-	:type(atype), viewPresenter(viewPresenter), viewState(aviewState)
+	ViewOperation(ViewOperationType atype, IViewPresenter& aviewPresenter, IHierarchicalStorageNode* aviewState = 0)
+	:type(atype), viewPresenter(aviewPresenter), viewState(aviewState)
 	{ }
 
 	ViewOperationType type;
@@ -62,8 +62,8 @@ struct ViewManager::PlaceholderWindowInfo
 //----------------------------------------------------------------------------------------------------------------------
 struct ViewManager::OpenWindowInfo
 {
-	OpenWindowInfo(HWND ahwnd, IView& aview, IViewPresenter& viewPresenter, std::wstring awindowTitle = L"")
-	:hwnd(ahwnd), view(aview), viewPresenter(viewPresenter), windowTitle(awindowTitle)
+	OpenWindowInfo(HWND ahwnd, IView& aview, IViewPresenter& aviewPresenter, std::wstring awindowTitle = L"")
+	:hwnd(ahwnd), view(aview), viewPresenter(aviewPresenter), windowTitle(awindowTitle)
 	{ }
 
 	HWND hwnd;

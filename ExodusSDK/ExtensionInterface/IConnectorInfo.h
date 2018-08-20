@@ -8,7 +8,10 @@ class IConnectorInfo
 {
 public:
 	// Constructors
-	virtual ~IConnectorInfo() = 0 { }
+	IConnectorInfo() = default;
+	IConnectorInfo(const IConnectorInfo& source) = default;
+	IConnectorInfo& operator=(const IConnectorInfo& source) = default;
+	inline virtual ~IConnectorInfo() = 0;
 
 	// Interface version functions
 	static inline unsigned int ThisIConnectorInfoVersion(){ return 1; }
@@ -36,5 +39,6 @@ public:
 	virtual Marshal::Ret<std::wstring> GetImportingModuleConnectorInstanceName() const = 0;
 	virtual void SetImportingModuleConnectorInstanceName(const Marshal::In<std::wstring>& importingModuleConnectorInstanceName) = 0;
 };
+IConnectorInfo::~IConnectorInfo() { }
 
 #endif

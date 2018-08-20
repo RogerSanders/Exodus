@@ -1,22 +1,26 @@
 #include "DeviceInterface/DeviceInterface.pkg"
 #include "S315_5313.h"
 
-IDevice* GetS315_5313(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
+//----------------------------------------------------------------------------------------------------------------------
+static IDevice* GetS315_5313(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
 	return static_cast<IDevice*>(new S315_5313(implementationName, instanceName, moduleID));
 }
 
-void DeleteS315_5313(IDevice* device)
+//----------------------------------------------------------------------------------------------------------------------
+static void DeleteS315_5313(IDevice* device)
 {
 	delete static_cast<S315_5313*>(device);
 }
 
 #ifdef EX_DLLINTERFACE
+//----------------------------------------------------------------------------------------------------------------------
 extern "C" __declspec(dllexport) unsigned int GetInterfaceVersion()
 {
 	return EXODUS_INTERFACEVERSION;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 extern "C" __declspec(dllexport) bool GetDeviceEntry(unsigned int entryNo, IDeviceInfo& entry)
 {
 	// Retrieve any required information from the version info table for our plugin
@@ -39,5 +43,4 @@ extern "C" __declspec(dllexport) bool GetDeviceEntry(unsigned int entryNo, IDevi
 	}
 	return false;
 }
-
 #endif

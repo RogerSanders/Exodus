@@ -4,10 +4,10 @@
 // Define NOMINMAX so we don't get the extremely problematic "min" and "max" macro
 // definitions from windef.h
 #define NOMINMAX
-#include <windows.h>
-#include <gl\gl.h>
-#include <gl\glu.h>
-#include <uxtheme.h>
+#include <Windows.h>
+#include <gl\GL.h>
+#include <gl\GLU.h>
+#include <Uxtheme.h>
 #include <string>
 #include <list>
 #include <vector>

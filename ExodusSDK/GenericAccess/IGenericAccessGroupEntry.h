@@ -13,7 +13,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~IGenericAccessGroupEntry() = 0 { }
+	inline virtual ~IGenericAccessGroupEntry() = 0;
 
 	// Interface version functions
 	static inline unsigned int ThisIGenericAccessGroupEntryVersion() { return 1; }
@@ -36,6 +36,7 @@ protected:
 	// Parent functions
 	virtual void SetParent(IGenericAccessGroup* parent) = 0;
 };
+IGenericAccessGroupEntry::~IGenericAccessGroupEntry() { }
 
 #include "IGenericAccessGroupEntry.inl"
 #endif

@@ -9,7 +9,7 @@ class IModuleSettingOptionInfo
 {
 public:
 	// Constructors
-	virtual ~IModuleSettingOptionInfo() = 0 { }
+	inline virtual ~IModuleSettingOptionInfo() = 0;
 
 	// Interface version functions
 	static inline unsigned int ThisIModuleSettingOptionInfoVersion() { return 1; }
@@ -23,5 +23,6 @@ public:
 	virtual void SetName(const Marshal::In<std::wstring>& name) = 0;
 	virtual void SetDisplayName(const Marshal::In<std::wstring>& displayName) = 0;
 };
+IModuleSettingOptionInfo::~IModuleSettingOptionInfo() { }
 
 #endif

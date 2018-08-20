@@ -2,40 +2,40 @@
 #include "WindowsSupport/WindowsSupport.pkg"
 #include "Stream/Stream.pkg"
 #include "ZIP/ZIP.pkg"
-#include <Dbghelp.h>
+#include <DbgHelp.h>
 
 //----------------------------------------------------------------------------------------------------------------------
-std::wstring GetMinidumpPath()
+static std::wstring GetMinidumpPath()
 {
 	return GetEnvironmentVariableString(L"DEBUG_MINIDUMP_PATH");
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-std::wstring GetMinidumpName()
+static std::wstring GetMinidumpName()
 {
 	return GetEnvironmentVariableString(L"DEBUG_MINIDUMP_NAME");
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-bool GetLargeMinidumpFlag()
+static bool GetLargeMinidumpFlag()
 {
 	return !GetEnvironmentVariableString(L"DEBUG_MINIDUMP_LARGE").empty();
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-void SetMinidumpPath(const std::wstring& minidumpPath)
+static void SetMinidumpPath(const std::wstring& minidumpPath)
 {
 	SetEnvironmentVariableString(L"DEBUG_MINIDUMP_PATH", minidumpPath);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-void SetMinidumpName(const std::wstring& minidumpName)
+static void SetMinidumpName(const std::wstring& minidumpName)
 {
 	SetEnvironmentVariableString(L"DEBUG_MINIDUMP_NAME", minidumpName);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-void SetLargeMinidumpFlag(bool largeMinidump)
+static void SetLargeMinidumpFlag(bool largeMinidump)
 {
 	SetEnvironmentVariableString(L"DEBUG_MINIDUMP_LARGE", largeMinidump? L"1": L"");
 }
@@ -43,7 +43,7 @@ void SetLargeMinidumpFlag(bool largeMinidump)
 //----------------------------------------------------------------------------------------------------------------------
 // Minidump functions
 //----------------------------------------------------------------------------------------------------------------------
-bool GenerateMinidump(_EXCEPTION_POINTERS* exceptionPointers, MINIDUMP_TYPE minidumpType, const std::wstring& minidumpFolder, const std::wstring& minidumpFileName, bool compress)
+static bool GenerateMinidump(_EXCEPTION_POINTERS* exceptionPointers, MINIDUMP_TYPE minidumpType, const std::wstring& minidumpFolder, const std::wstring& minidumpFileName, bool compress)
 {
 	// Append the minidump extension to the file name
 	std::wstring minidumpFilePath = PathCombinePaths(minidumpFolder, minidumpFileName + L".dmp");
@@ -144,7 +144,7 @@ bool GenerateMinidump(_EXCEPTION_POINTERS* exceptionPointers, MINIDUMP_TYPE mini
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-LONG WINAPI MinidumpExceptionHandler(_EXCEPTION_POINTERS* exceptionPointers)
+static LONG WINAPI MinidumpExceptionHandler(_EXCEPTION_POINTERS* exceptionPointers)
 {
 	// Get the minidump properties
 	std::wstring minidumpPath = GetMinidumpPath();

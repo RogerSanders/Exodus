@@ -76,7 +76,6 @@ private:
 	AssemblyHandle _assemblyHandle;
 	ISystemExtensionInterface* _systemInterface;
 	IGUIExtensionInterface* _guiInterface;
-	IViewManager* _viewManager;
 };
 
 #include "Extension.inl"

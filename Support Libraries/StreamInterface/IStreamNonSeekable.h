@@ -20,7 +20,9 @@ public:
 
 public:
 	// Constructors
-	virtual ~IStreamNonSeekable() = 0 { }
+	IStreamNonSeekable() = default;
+	IStreamNonSeekable(const IStreamNonSeekable& source) = default;
+	inline virtual ~IStreamNonSeekable() = 0;
 
 	// Byte order mark functions
 	virtual bool ProcessByteOrderMark() = 0;
@@ -597,6 +599,7 @@ public:
 	template<class T> inline bool WriteDataBigEndianMultipleTimes(T data, SizeType count);
 	template<class T> inline bool WriteDataLittleEndianMultipleTimes(T data, SizeType count);
 };
+IStreamNonSeekable::~IStreamNonSeekable() { }
 
 } // Close namespace Stream
 #include "IStreamNonSeekable.inl"

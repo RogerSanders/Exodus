@@ -24,7 +24,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~IExtension() = 0 { }
+	inline virtual ~IExtension() = 0;
 
 	// Interface version functions
 	static inline unsigned int ThisIExtensionVersion() { return 1; }
@@ -84,6 +84,7 @@ public:
 
 	//##TODO## Add functions to deal with toolbars
 };
+IExtension::~IExtension() { }
 
 #include "IExtension.inl"
 #endif

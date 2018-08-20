@@ -247,7 +247,7 @@ bool File::WriteBinary(const void* rawData, SizeType bytesToWrite)
 	{
 		// If the size of the operation can fit within the data buffer, perform the
 		// operation using the data buffer.
-		unsigned char* rawDataAsCharArray = (unsigned char*)rawData;
+		const unsigned char* rawDataAsCharArray = (const unsigned char*)rawData;
 
 		// Write data to the buffer
 		SizeType bytesToWriteToBuffer = 0;
@@ -255,7 +255,7 @@ bool File::WriteBinary(const void* rawData, SizeType bytesToWrite)
 		{
 			bytesToWriteToBuffer = (bytesToWrite <= _bytesRemainingInBuffer)? bytesToWrite: _bytesRemainingInBuffer;
 		}
-		memcpy((void*)(_fileBuffer + _bufferPosOffset), (void*)rawDataAsCharArray, (size_t)bytesToWriteToBuffer);
+		memcpy((void*)(_fileBuffer + _bufferPosOffset), (const void*)rawDataAsCharArray, (size_t)bytesToWriteToBuffer);
 		_bufferPosOffset += bytesToWriteToBuffer;
 		_bytesRemainingInBuffer -= bytesToWriteToBuffer;
 
@@ -269,7 +269,7 @@ bool File::WriteBinary(const void* rawData, SizeType bytesToWrite)
 			result &= PrepareDataBufferForWrites();
 
 			// Write the data to the buffer
-			memcpy((void*)(_fileBuffer + _bufferPosOffset), (void*)(rawDataAsCharArray + bytesToWriteToBuffer), (size_t)bytesRemainingToWrite);
+			memcpy((void*)(_fileBuffer + _bufferPosOffset), (const void*)(rawDataAsCharArray + bytesToWriteToBuffer), (size_t)bytesRemainingToWrite);
 			_bufferPosOffset += bytesRemainingToWrite;
 			_bytesRemainingInBuffer -= bytesRemainingToWrite;
 		}

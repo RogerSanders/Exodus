@@ -9,7 +9,7 @@ class IHierarchicalStorageAttribute
 {
 public:
 	// Constructors
-	virtual ~IHierarchicalStorageAttribute() = 0 { }
+	inline virtual ~IHierarchicalStorageAttribute() = 0;
 
 	// Name functions
 	virtual Marshal::Ret<std::wstring> GetName() const = 0;
@@ -35,6 +35,7 @@ protected:
 	virtual void EmptyInternalStream() = 0;
 	virtual Stream::IStream& GetInternalStream() const = 0;
 };
+IHierarchicalStorageAttribute::~IHierarchicalStorageAttribute() { }
 
 #include "IHierarchicalStorageAttribute.inl"
 #endif
