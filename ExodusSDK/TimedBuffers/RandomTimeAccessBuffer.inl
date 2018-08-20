@@ -890,20 +890,20 @@ template<class DataType, class TimesliceType> void RandomTimeAccessBuffer<DataTy
 	std::unique_lock<std::mutex> lock(_accessLock);
 
 	// Erase non-committed memory writes
-	std::list<WriteEntry>::reverse_iterator i = _writeList.rbegin();
-	while ((i != _writeList.rend()) && (!i->currentTimeslice->committed))
+	std::list<WriteEntry>::reverse_iterator writeListIterator = _writeList.rbegin();
+	while ((writeListIterator != _writeList.rend()) && (!writeListIterator->currentTimeslice->committed))
 	{
-		++i;
+		++writeListIterator;
 	}
-	_writeList.erase(i.base(), _writeList.end());
+	_writeList.erase(writeListIterator.base(), _writeList.end());
 
 	// Erase non-committed timeslice entries
-	std::list<TimesliceEntry>::reverse_iterator j = _timesliceList.rbegin();
-	while ((j != _timesliceList.rend()) && (!j->committed))
+	std::list<TimesliceEntry>::reverse_iterator timesliceListIterator = _timesliceList.rbegin();
+	while ((timesliceListIterator != _timesliceList.rend()) && (!timesliceListIterator->committed))
 	{
-		++j;
+		++timesliceListIterator;
 	}
-	_timesliceList.erase(j.base(), _timesliceList.end());
+	_timesliceList.erase(timesliceListIterator.base(), _timesliceList.end());
 
 	// Recalculate the latest timeslice
 	if (_timesliceList.empty())

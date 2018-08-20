@@ -3058,19 +3058,17 @@ void M68000::LoadDebuggerState(IHierarchicalStorageNode& node)
 		else if (keyName == L"ExceptionDebugList")
 		{
 			_exceptionList.clear();
-			std::list<IHierarchicalStorageNode*> childList = (*i)->GetChildList();
-			for (std::list<IHierarchicalStorageNode*>::iterator childNodeIterator = childList.begin(); childNodeIterator != childList.end(); ++childNodeIterator)
+			for (IHierarchicalStorageNode* childNode : (*i)->GetChildList().Get())
 			{
-				IHierarchicalStorageNode& childNode = *(*childNodeIterator);
-				if (childNode.GetName() == L"ExceptionDebugListEntry")
+				if (childNode->GetName() == L"ExceptionDebugListEntry")
 				{
 					ExceptionDebuggingEntry entry;
 					unsigned int vectorNumber;
-					childNode.ExtractAttribute(L"VectorNumber", vectorNumber);
+					childNode->ExtractAttribute(L"VectorNumber", vectorNumber);
 					entry.vectorNumber = (Exceptions)vectorNumber;
-					childNode.ExtractAttribute(L"EnableLogging", entry.enableLogging);
-					childNode.ExtractAttribute(L"EnableBreak", entry.enableBreak);
-					childNode.ExtractAttribute(L"Disable", entry.disable);
+					childNode->ExtractAttribute(L"EnableLogging", entry.enableLogging);
+					childNode->ExtractAttribute(L"EnableBreak", entry.enableBreak);
+					childNode->ExtractAttribute(L"Disable", entry.disable);
 					_exceptionList.push_back(entry);
 				}
 			}

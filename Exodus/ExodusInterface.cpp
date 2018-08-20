@@ -1707,9 +1707,11 @@ bool ExodusInterface::LoadAssembly(const Marshal::In<std::wstring>& filePath)
 	}
 
 	// Write an entry in the event log about this assembly load operation
-	LogEntry logEntry(LogEntry::EventLevel::Info, L"System", L"");
-	logEntry << L"Loading plugins from assembly \"" << filePath << "\".";
-	_system->WriteLogEvent(logEntry);
+	{
+		LogEntry logEntry(LogEntry::EventLevel::Info, L"System", L"");
+		logEntry << L"Loading plugins from assembly \"" << filePath << "\".";
+		_system->WriteLogEvent(logEntry);
+	}
 
 	// Register each device in the assembly
 	bool result = true;
@@ -3603,8 +3605,8 @@ LRESULT CALLBACK ExodusInterface::WndWindowSelectProc(HWND hwnd, UINT msg, WPARA
 			int monitorPosY = monitorInfo.rcWork.top;
 			int monitorWidth = monitorInfo.rcWork.right - monitorInfo.rcWork.left;
 			int monitorHeight = monitorInfo.rcWork.bottom - monitorInfo.rcWork.top;
-			unsigned int maxColumns = (unsigned int)monitorWidth / cellWidth;
-			unsigned int maxEntrierPerColumn = (unsigned int)monitorHeight / cellHeight;
+			//unsigned int maxColumns = (unsigned int)monitorWidth / cellWidth;
+			//unsigned int maxEntrierPerColumn = (unsigned int)monitorHeight / cellHeight;
 			float aspectRatioScreen = (float)monitorWidth / (float)monitorHeight;
 
 			// Calculate the number of columns to show, and the number of entries per

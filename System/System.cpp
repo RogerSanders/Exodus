@@ -145,8 +145,8 @@ bool System::LoadState(const Marshal::In<std::wstring>& filePath, FileType fileT
 		for (std::list<IHierarchicalStorageNode*>::iterator i = binaryList.begin(); i != binaryList.end(); ++i)
 		{
 			std::wstring binaryFileName = (*i)->GetBinaryDataBufferName() + L".bin";
-			ZIPFileEntry* entry = archive.GetFileEntry(binaryFileName);
-			if (entry == 0)
+			ZIPFileEntry* binaryFileEntry = archive.GetFileEntry(binaryFileName);
+			if (binaryFileEntry == 0)
 			{
 				WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to load state from file " + filePath + L" because the binary data file " + binaryFileName + L" could not be found within the zip archive!"));
 				if (running)
@@ -157,7 +157,7 @@ bool System::LoadState(const Marshal::In<std::wstring>& filePath, FileType fileT
 			}
 			Stream::IStream& binaryData = (*i)->GetBinaryDataBufferStream();
 			binaryData.SetStreamPos(0);
-			if (!entry->Decompress(binaryData))
+			if (!binaryFileEntry->Decompress(binaryData))
 			{
 				WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to load state from file " + filePath + L" because there was an error decompressing the binary data file " + binaryFileName + L" from the zip archive!"));
 				if (running)
@@ -434,12 +434,12 @@ bool System::SaveState(const Marshal::In<std::wstring>& filePath, FileType fileT
 		binaryList = tree.GetBinaryDataNodeList();
 		for (std::list<IHierarchicalStorageNode*>::iterator i = binaryList.begin(); i != binaryList.end(); ++i)
 		{
-			ZIPFileEntry entry;
+			ZIPFileEntry binaryFileEntry;
 			std::wstring binaryFileName = (*i)->GetBinaryDataBufferName() + L".bin";
-			entry.SetFileName(binaryFileName);
+			binaryFileEntry.SetFileName(binaryFileName);
 			Stream::IStream& binaryData = (*i)->GetBinaryDataBufferStream();
 			binaryData.SetStreamPos(0);
-			if (!entry.Compress(binaryData))
+			if (!binaryFileEntry.Compress(binaryData))
 			{
 				WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to save state to file " + filePath + L" because there was an error compressing the " + binaryFileName + L" file!"));
 				if (running)
@@ -448,14 +448,14 @@ bool System::SaveState(const Marshal::In<std::wstring>& filePath, FileType fileT
 				}
 				return false;
 			}
-			archive.AddFileEntry(entry);
+			archive.AddFileEntry(binaryFileEntry);
 		}
 
 		// Add the screenshot file
 		if (screenshotPresent)
 		{
-			ZIPFileEntry entry;
-			entry.SetFileName(screenshotFilename);
+			ZIPFileEntry screenshotFileEntry;
+			screenshotFileEntry.SetFileName(screenshotFilename);
 			Stream::Buffer screenshotFile(0);
 			if (!screenshot.SavePNGImage(screenshotFile))
 			{
@@ -467,7 +467,7 @@ bool System::SaveState(const Marshal::In<std::wstring>& filePath, FileType fileT
 				return false;
 			}
 			screenshotFile.SetStreamPos(0);
-			if (!entry.Compress(screenshotFile))
+			if (!screenshotFileEntry.Compress(screenshotFile))
 			{
 				WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to save state to file " + filePath + L" because there was an error compressing the " + screenshotFilename + L" file!"));
 				if (running)
@@ -476,7 +476,7 @@ bool System::SaveState(const Marshal::In<std::wstring>& filePath, FileType fileT
 				}
 				return false;
 			}
-			archive.AddFileEntry(entry);
+			archive.AddFileEntry(screenshotFileEntry);
 		}
 
 		// Create the target file
@@ -666,15 +666,15 @@ bool System::LoadPersistentStateForModule(const std::wstring& filePath, unsigned
 		for (std::list<IHierarchicalStorageNode*>::iterator i = binaryList.begin(); i != binaryList.end(); ++i)
 		{
 			std::wstring binaryFileName = (*i)->GetBinaryDataBufferName() + L".bin";
-			ZIPFileEntry* entry = archive.GetFileEntry(binaryFileName);
-			if (entry == 0)
+			ZIPFileEntry* binaryFileEntry = archive.GetFileEntry(binaryFileName);
+			if (binaryFileEntry == 0)
 			{
 				WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to load persistent state from file " + filePath + L" because the binary data file " + binaryFileName + L" could not be found within the zip archive!"));
 				return false;
 			}
 			Stream::IStream& binaryData = (*i)->GetBinaryDataBufferStream();
 			binaryData.SetStreamPos(0);
-			if (!entry->Decompress(binaryData))
+			if (!binaryFileEntry->Decompress(binaryData))
 			{
 				WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to load persistent state from file " + filePath + L" because there was an error decompressing the binary data file " + binaryFileName + L" from the zip archive!"));
 				return false;
@@ -866,17 +866,17 @@ bool System::SavePersistentStateForModule(const std::wstring& filePath, unsigned
 		binaryList = tree.GetBinaryDataNodeList();
 		for (std::list<IHierarchicalStorageNode*>::iterator i = binaryList.begin(); i != binaryList.end(); ++i)
 		{
-			ZIPFileEntry entry;
+			ZIPFileEntry binaryFileEntry;
 			std::wstring binaryFileName = (*i)->GetBinaryDataBufferName() + L".bin";
-			entry.SetFileName(binaryFileName);
+			binaryFileEntry.SetFileName(binaryFileName);
 			Stream::IStream& binaryData = (*i)->GetBinaryDataBufferStream();
 			binaryData.SetStreamPos(0);
-			if (!entry.Compress(binaryData))
+			if (!binaryFileEntry.Compress(binaryData))
 			{
 				WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"System", L"Failed to save persistent state to file " + filePath + L" because there was an error compressing the " + binaryFileName + L" file!"));
 				return false;
 			}
-			archive.AddFileEntry(entry);
+			archive.AddFileEntry(binaryFileEntry);
 		}
 
 		// Create the target file
@@ -4275,13 +4275,13 @@ bool System::SaveSystem(const Marshal::In<std::wstring>& filePath)
 		// If the target file is contained within the same directory or a subdirectory of
 		// the location where the system file is being saved, convert the path to the ROM
 		// file into a relative path.
-		std::wstring filePath = embeddedROMInfo.filePath;
-		if (PathStartsWithBasePath(fileDir, filePath))
+		std::wstring embeddedFilePath = embeddedROMInfo.filePath;
+		if (PathStartsWithBasePath(fileDir, embeddedFilePath))
 		{
 			std::wstring relativePath;
-			if (PathBuildRelativePathToTarget(fileDir, filePath, true, relativePath))
+			if (PathBuildRelativePathToTarget(fileDir, embeddedFilePath, true, relativePath))
 			{
-				filePath = relativePath;
+				embeddedFilePath = relativePath;
 			}
 		}
 
@@ -4290,7 +4290,7 @@ bool System::SaveSystem(const Marshal::In<std::wstring>& filePath)
 		loadROMDataNode.CreateAttribute(L"ModuleID", embeddedROMInfo.moduleID);
 		loadROMDataNode.CreateAttribute(L"EmbeddedROMName", embeddedROMInfo.targetDevice->GetDeviceInstanceName());
 		loadROMDataNode.CreateAttribute(L"InterfaceNumber", embeddedROMInfo.interfaceNumber);
-		loadROMDataNode.CreateAttribute(L"FilePath", filePath);
+		loadROMDataNode.CreateAttribute(L"FilePath", embeddedFilePath);
 	}
 	embeddedROMLock.unlock();
 
@@ -6751,7 +6751,7 @@ bool System::LoadModule_System_ExportBusInterface(IHierarchicalStorageNode& node
 				return false;
 			}
 			std::wstring lineGroupName = childLineGroupNameAttribute->GetValue();
-			std::wstring importName = childImportNameAttribute->GetValue();
+			std::wstring lineImportName = childImportNameAttribute->GetValue();
 
 			// Find the ID for the referenced line group
 			NameToIDMap::const_iterator lineGroupNameToIDMapIterator = lineGroupNameToIDMap.find(lineGroupName);
@@ -6783,7 +6783,7 @@ bool System::LoadModule_System_ExportBusInterface(IHierarchicalStorageNode& node
 			// exported bus interface.
 			ExportedLineGroupInfo exportedLineGroupInfo;
 			exportedLineGroupInfo.lineGroupID = lineGroupID;
-			exportedLineGroupInfo.importName = importName;
+			exportedLineGroupInfo.importName = lineImportName;
 			exportedLineGroupInfo.localName = lineGroupDetails.lineGroupName;
 			exportedBusInfo.exportedLineGroups.push_back(exportedLineGroupInfo);
 		}
@@ -7211,7 +7211,7 @@ bool System::LoadModule_System_ImportBusInterface(IHierarchicalStorageNode& node
 				return false;
 			}
 			std::wstring lineGroupName = childLineGroupNameAttribute->GetValue();
-			std::wstring importName = childImportNameAttribute->GetValue();
+			std::wstring lineImportName = childImportNameAttribute->GetValue();
 
 			// Find the definition of the referenced exported line group
 			bool foundReferencedLineGroup = false;
@@ -7220,7 +7220,7 @@ bool System::LoadModule_System_ImportBusInterface(IHierarchicalStorageNode& node
 			while (!foundReferencedLineGroup && (exportedLineGroupIterator != exportedBusInfo.exportedLineGroups.end()))
 			{
 				const ExportedLineGroupInfo& exportedLineGroupInfo = *exportedLineGroupIterator;
-				if (exportedLineGroupInfo.importName == importName)
+				if (exportedLineGroupInfo.importName == lineImportName)
 				{
 					foundReferencedLineGroup = true;
 					lineGroupID = exportedLineGroupInfo.lineGroupID;
@@ -7242,7 +7242,7 @@ bool System::LoadModule_System_ImportBusInterface(IHierarchicalStorageNode& node
 			ImportedLineGroupInfo importedLineGroupInfo;
 			importedLineGroupInfo.lineGroupID = lineGroupID;
 			importedLineGroupInfo.localName = lineGroupName;
-			importedLineGroupInfo.importName = importName;
+			importedLineGroupInfo.importName = lineImportName;
 			importedBusInfo.importedLineGroups.push_back(importedLineGroupInfo);
 
 			// Add a mapping for this line group name back to the line group ID
@@ -7742,8 +7742,8 @@ bool System::LoadModule_System_Setting(IHierarchicalStorageNode& node, unsigned 
 
 	// Load the child elements from this setting node
 	unsigned int defaultOption = 0;
-	unsigned int toggleSettingOnOptionIndex;
 	bool toggleSettingOnOptionIndexDefined = false;
+	unsigned int toggleSettingOnOptionIndex = { };
 	std::vector<SystemSettingOption> options;
 	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
 	for (std::list<IHierarchicalStorageNode*>::const_iterator i = childList.begin(); i != childList.end(); ++i)
@@ -9646,12 +9646,12 @@ bool System::ApplySystemStateChange(const SystemStateChange& stateChange)
 				// Attempt to apply all settings changes listed under this option
 				bool appliedWithoutErrors = true;
 				SystemSettingOption& settingOption = systemSettingInfo.options[systemSettingInfo.selectedOption];
-				for (std::list<SystemStateChange>::const_iterator i = settingOption.stateChanges.begin(); i != settingOption.stateChanges.end(); ++i)
+				for (const SystemStateChange& stateChangeEntry : settingOption.stateChanges)
 				{
 					// Apply this system state change
-					if (!ApplySystemStateChange(*i))
+					if (!ApplySystemStateChange(stateChangeEntry))
 					{
-						WriteLogEvent(LogEntry(LogEntry::EventLevel::Warning, L"System", L"Failed to apply system setting change while setting option \"" + stateChange.setSystemOptionValue + L"\" on setting \"" + systemSettingInfo.name + L"\" in System::ApplySystemStateChange!"));
+						WriteLogEvent(LogEntry(LogEntry::EventLevel::Warning, L"System", L"Failed to apply system setting change while setting option \"" + stateChangeEntry.setSystemOptionValue + L"\" on setting \"" + systemSettingInfo.name + L"\" in System::ApplySystemStateChange!"));
 						appliedWithoutErrors = false;
 					}
 				}

@@ -314,7 +314,7 @@ void DeviceContext::SetDeviceDependencyEnable(IDeviceContext* targetDevice, bool
 	// Attempt to find a dependency on the specified target device, and update its
 	// dependency enable state to the state specified.
 	bool foundDeviceDependency = false;
-	bool previousDependencyState;
+	bool previousDependencyState = { };
 	unsigned int dependentTargetCount = (unsigned int)_deviceDependencies.size();
 	unsigned int i = 0;
 	while (i < dependentTargetCount)

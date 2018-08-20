@@ -2736,13 +2736,13 @@ void ViewManager::DestroyUnusedPlaceholderWindows(const std::map<unsigned int, P
 	for (std::map<unsigned int, PlaceholderWindowInfo>::const_iterator i = placeholderWindowInfo.begin(); i != placeholderWindowInfo.end(); ++i)
 	{
 		// Destroy the target placeholder window
-		const PlaceholderWindowInfo& placeholderWindowInfo = i->second;
-		SendMessage(placeholderWindowInfo.parentWindowFrame, (UINT)DockingWindow::WindowMessages::RemoveContentWindow, 0, (LPARAM)placeholderWindowInfo.placeholderContentWindow);
-		DestroyWindow(placeholderWindowInfo.placeholderContentWindow);
+		const PlaceholderWindowInfo& placeholderWindow = i->second;
+		SendMessage(placeholderWindow.parentWindowFrame, (UINT)DockingWindow::WindowMessages::RemoveContentWindow, 0, (LPARAM)placeholderWindow.placeholderContentWindow);
+		DestroyWindow(placeholderWindow.placeholderContentWindow);
 
 		// Recursively close the parent docking window for the placeholder window until we
 		// find one with remaining content, or we reach the main docking window.
-		HWND searchParentDockingWindow = placeholderWindowInfo.parentWindowFrame;
+		HWND searchParentDockingWindow = placeholderWindow.parentWindowFrame;
 		while ((searchParentDockingWindow != NULL) && (searchParentDockingWindow != _mainDockingWindow))
 		{
 			unsigned int dockedWindowCount = (unsigned int)SendMessage(searchParentDockingWindow, (UINT)DockingWindow::WindowMessages::GetDockedWindowCount, 0, 0);
@@ -2979,7 +2979,7 @@ bool ViewManager::FindBestWindowPosition(int newWindowWidth, int newWindowHeight
 	// Evaluate the best auto-generated region, if one exists.
 	bool foundRegion = false;
 	Region2D bestRegion;
-	long bestRegionDistance;
+	long bestRegionDistance = { };
 	for (std::list<Region2D>::const_iterator i = regionList.begin(); i != regionList.end(); ++i)
 	{
 		if ((i->sizex >= newWindowWidth) && (i->sizey >= newWindowHeight))
@@ -2999,7 +2999,7 @@ bool ViewManager::FindBestWindowPosition(int newWindowWidth, int newWindowHeight
 	if (!foundRegion)
 	{
 		long newWindowRegionArea = newWindowWidth * newWindowHeight;
-		long bestUsefulRegionArea;
+		long bestUsefulRegionArea = { };
 		for (std::list<Region2D>::const_iterator i = regionList.begin(); i != regionList.end(); ++i)
 		{
 			// If our new window would pass the edge of the available screen region if

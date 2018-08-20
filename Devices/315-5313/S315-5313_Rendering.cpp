@@ -1258,10 +1258,10 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 		unsigned int screenCellNo = activeScanPixelIndex / cellBlockSizeH;
 		unsigned int screenColumnNo = screenCellNo / CellsPerColumn;
 		bool windowEnabledAtCell = _renderWindowActiveCache[screenColumnNo];
-		unsigned int mappingNumberWindow;
-		unsigned int scrolledMappingNumberLayerA;
-		unsigned int pixelNumberWindow;
-		unsigned int scrolledPixelNumberLayerA;
+		unsigned int mappingNumberWindow = { };
+		unsigned int scrolledMappingNumberLayerA = { };
+		unsigned int pixelNumberWindow = { };
+		unsigned int scrolledPixelNumberLayerA = { };
 		if (windowEnabledAtCell)
 		{
 			// Read the pixel data from the window plane

@@ -3257,154 +3257,154 @@ bool S315_5313::GetScreenshot(IImage& targetImage) const
 void S315_5313::LoadState(IHierarchicalStorageNode& node)
 {
 	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
-	for (std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	for (IHierarchicalStorageNode* i : childList)
 	{
-		if ((*i)->GetName() == L"Registers")
+		if (i->GetName() == L"Registers")
 		{
-			_reg.LoadState(*(*i));
+			_reg.LoadState(*i);
 
 			// Update any cached register settings
 			AccessTarget accessTarget;
 			accessTarget.AccessLatest();
-			for (unsigned int i = 0; i < RegisterCount; ++i)
+			for (unsigned int registerNo = 0; registerNo < RegisterCount; ++registerNo)
 			{
-				TransparentRegisterSpecialUpdateFunction(i, GetRegisterData(i, accessTarget));
+				TransparentRegisterSpecialUpdateFunction(registerNo, GetRegisterData(registerNo, accessTarget));
 			}
 		}
-		else if ((*i)->GetName() == L"Register")
+		else if (i->GetName() == L"Register")
 		{
-			IHierarchicalStorageAttribute* nameAttribute = (*i)->GetAttribute(L"name");
+			IHierarchicalStorageAttribute* nameAttribute = i->GetAttribute(L"name");
 			if (nameAttribute != 0)
 			{
 				std::wstring registerName = nameAttribute->GetValue();
 				// Bus interface
-				if (registerName == L"BusGranted")				_busGranted = (*i)->ExtractData<bool>();
-				else if (registerName == L"PalModeLineState")	_palModeLineState = (*i)->ExtractData<bool>();
-				else if (registerName == L"ResetLineState")		_resetLineState = (*i)->ExtractData<bool>();
-				else if (registerName == L"LineStateIPL")		_lineStateIPL = (*i)->ExtractData<unsigned int>();
-				else if (registerName == L"BusRequestLineState")	_busRequestLineState = (*i)->ExtractData<bool>();
+				if (registerName == L"BusGranted")				_busGranted = i->ExtractData<bool>();
+				else if (registerName == L"PalModeLineState")	_palModeLineState = i->ExtractData<bool>();
+				else if (registerName == L"ResetLineState")		_resetLineState = i->ExtractData<bool>();
+				else if (registerName == L"LineStateIPL")		_lineStateIPL = i->ExtractData<unsigned int>();
+				else if (registerName == L"BusRequestLineState")	_busRequestLineState = i->ExtractData<bool>();
 				// Clock sources
-				else if (registerName == L"ClockMclkCurrent")		_clockMclkCurrent = (*i)->ExtractData<double>();
+				else if (registerName == L"ClockMclkCurrent")		_clockMclkCurrent = i->ExtractData<double>();
 				// Physical registers and memory buffers
-				else if (registerName == L"Status")				_status = (*i)->ExtractHexData<unsigned int>();
-				else if (registerName == L"HCounter")			_hcounter = (*i)->ExtractHexData<unsigned int>();
-				else if (registerName == L"VCounter")			_vcounter = (*i)->ExtractHexData<unsigned int>();
-				else if (registerName == L"HCounterLatchedData")	_hcounterLatchedData = (*i)->ExtractHexData<unsigned int>();
-				else if (registerName == L"VCounterLatchedData")	_vcounterLatchedData = (*i)->ExtractHexData<unsigned int>();
-				else if (registerName == L"HIntCounter")			_hintCounter = (*i)->ExtractHexData<unsigned int>();
-				else if (registerName == L"VIntPending")			_vintPending = (*i)->ExtractData<bool>();
-				else if (registerName == L"HIntPending")			_hintPending = (*i)->ExtractData<bool>();
-				else if (registerName == L"EXIntPending")		_exintPending = (*i)->ExtractData<bool>();
+				else if (registerName == L"Status")				_status = i->ExtractHexData<unsigned int>();
+				else if (registerName == L"HCounter")			_hcounter = i->ExtractHexData<unsigned int>();
+				else if (registerName == L"VCounter")			_vcounter = i->ExtractHexData<unsigned int>();
+				else if (registerName == L"HCounterLatchedData")	_hcounterLatchedData = i->ExtractHexData<unsigned int>();
+				else if (registerName == L"VCounterLatchedData")	_vcounterLatchedData = i->ExtractHexData<unsigned int>();
+				else if (registerName == L"HIntCounter")			_hintCounter = i->ExtractHexData<unsigned int>();
+				else if (registerName == L"VIntPending")			_vintPending = i->ExtractData<bool>();
+				else if (registerName == L"HIntPending")			_hintPending = i->ExtractData<bool>();
+				else if (registerName == L"EXIntPending")		_exintPending = i->ExtractData<bool>();
 				// Active register settings
-				else if (registerName == L"InterlaceEnabled")	_interlaceEnabled = (*i)->ExtractData<bool>();
-				else if (registerName == L"InterlaceDouble")		_interlaceDouble = (*i)->ExtractData<bool>();
-				else if (registerName == L"ScreenModeRS0")		_screenModeRS0 = (*i)->ExtractData<bool>();
-				else if (registerName == L"ScreenModeRS1")		_screenModeRS1 = (*i)->ExtractData<bool>();
-				else if (registerName == L"ScreenModeV30")		_screenModeV30 = (*i)->ExtractData<bool>();
-				else if (registerName == L"PalMode")				_palMode = (*i)->ExtractData<bool>();
+				else if (registerName == L"InterlaceEnabled")	_interlaceEnabled = i->ExtractData<bool>();
+				else if (registerName == L"InterlaceDouble")		_interlaceDouble = i->ExtractData<bool>();
+				else if (registerName == L"ScreenModeRS0")		_screenModeRS0 = i->ExtractData<bool>();
+				else if (registerName == L"ScreenModeRS1")		_screenModeRS1 = i->ExtractData<bool>();
+				else if (registerName == L"ScreenModeV30")		_screenModeV30 = i->ExtractData<bool>();
+				else if (registerName == L"PalMode")				_palMode = i->ExtractData<bool>();
 				// FIFO buffer registers
-				else if (registerName == L"FIFONextReadEntry")			_fifoNextReadEntry = (*i)->ExtractHexData<unsigned int>();
-				else if (registerName == L"FIFONextWriteEntry")			_fifoNextWriteEntry = (*i)->ExtractHexData<unsigned int>();
-				else if (registerName == L"ReadBuffer")					_readBuffer = (*i)->ExtractHexData<unsigned int>();
-				else if (registerName == L"ReadDataAvailable")			_readDataAvailable = (*i)->ExtractData<bool>();
-				else if (registerName == L"ReadDataHalfCached")			_readDataHalfCached = (*i)->ExtractData<bool>();
-				else if (registerName == L"DMAFillOperationRunning")		_dmaFillOperationRunning = (*i)->ExtractData<bool>();
-				else if (registerName == L"VSRAMLastRenderReadCache")	_vsramLastRenderReadCache = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"FIFONextReadEntry")			_fifoNextReadEntry = i->ExtractHexData<unsigned int>();
+				else if (registerName == L"FIFONextWriteEntry")			_fifoNextWriteEntry = i->ExtractHexData<unsigned int>();
+				else if (registerName == L"ReadBuffer")					_readBuffer = i->ExtractHexData<unsigned int>();
+				else if (registerName == L"ReadDataAvailable")			_readDataAvailable = i->ExtractData<bool>();
+				else if (registerName == L"ReadDataHalfCached")			_readDataHalfCached = i->ExtractData<bool>();
+				else if (registerName == L"DMAFillOperationRunning")		_dmaFillOperationRunning = i->ExtractData<bool>();
+				else if (registerName == L"VSRAMLastRenderReadCache")	_vsramLastRenderReadCache = i->ExtractHexData<unsigned int>();
 				// Update state
-				else if (registerName == L"CurrentTimesliceLength")					_currentTimesliceLength = (*i)->ExtractData<double>();
-				else if (registerName == L"LastTimesliceMclkCyclesRemainingTime")	_lastTimesliceMclkCyclesRemainingTime = (*i)->ExtractData<double>();
-				else if (registerName == L"CurrentTimesliceMclkCyclesRemainingTime")	_currentTimesliceMclkCyclesRemainingTime = (*i)->ExtractData<double>();
-				else if (registerName == L"LastTimesliceMclkCyclesOverrun")			_lastTimesliceMclkCyclesOverrun = (*i)->ExtractData<unsigned int>();
-				else if (registerName == L"StateLastUpdateTime")						_stateLastUpdateTime = (*i)->ExtractData<double>();
-				else if (registerName == L"StateLastUpdateMclk")						_stateLastUpdateMclk = (*i)->ExtractData<unsigned int>();
-				else if (registerName == L"StateLastUpdateMclkUnused")				_stateLastUpdateMclkUnused = (*i)->ExtractData<unsigned int>();
-				else if (registerName == L"StateLastUpdateMclkUnusedFromLastTimeslice")	_stateLastUpdateMclkUnusedFromLastTimeslice = (*i)->ExtractData<unsigned int>();
+				else if (registerName == L"CurrentTimesliceLength")					_currentTimesliceLength = i->ExtractData<double>();
+				else if (registerName == L"LastTimesliceMclkCyclesRemainingTime")	_lastTimesliceMclkCyclesRemainingTime = i->ExtractData<double>();
+				else if (registerName == L"CurrentTimesliceMclkCyclesRemainingTime")	_currentTimesliceMclkCyclesRemainingTime = i->ExtractData<double>();
+				else if (registerName == L"LastTimesliceMclkCyclesOverrun")			_lastTimesliceMclkCyclesOverrun = i->ExtractData<unsigned int>();
+				else if (registerName == L"StateLastUpdateTime")						_stateLastUpdateTime = i->ExtractData<double>();
+				else if (registerName == L"StateLastUpdateMclk")						_stateLastUpdateMclk = i->ExtractData<unsigned int>();
+				else if (registerName == L"StateLastUpdateMclkUnused")				_stateLastUpdateMclkUnused = i->ExtractData<unsigned int>();
+				else if (registerName == L"StateLastUpdateMclkUnusedFromLastTimeslice")	_stateLastUpdateMclkUnusedFromLastTimeslice = i->ExtractData<unsigned int>();
 				// Interrupt line rollback data
-				else if (registerName == L"LineStateChangePendingVINT")				_lineStateChangePendingVINT = (*i)->ExtractData<bool>();
-				else if (registerName == L"LineStateChangeVINTMClkCountFromCurrent")	_lineStateChangeVINTMClkCountFromCurrent = (*i)->ExtractData<unsigned int>();
-				else if (registerName == L"LineStateChangeVINTTime")					_lineStateChangeVINTTime = (*i)->ExtractData<double>();
-				else if (registerName == L"LineStateChangePendingHINT")				_lineStateChangePendingHINT = (*i)->ExtractData<bool>();
-				else if (registerName == L"LineStateChangeHINTMClkCountFromCurrent")	_lineStateChangeHINTMClkCountFromCurrent = (*i)->ExtractData<unsigned int>();
-				else if (registerName == L"LineStateChangeHINTTime")					_lineStateChangeHINTTime = (*i)->ExtractData<double>();
-				else if (registerName == L"LineStateChangePendingEXINT")				_lineStateChangePendingEXINT = (*i)->ExtractData<bool>();
-				else if (registerName == L"LineStateChangeEXINTMClkCountFromCurrent")	_lineStateChangeEXINTMClkCountFromCurrent = (*i)->ExtractData<unsigned int>();
-				else if (registerName == L"LineStateChangeEXINTTime")					_lineStateChangeEXINTTime = (*i)->ExtractData<double>();
-				else if (registerName == L"LineStateChangePendingINTAsserted")				_lineStateChangePendingINTAsserted = (*i)->ExtractData<bool>();
-				else if (registerName == L"LineStateChangeINTAssertedMClkCountFromCurrent")	_lineStateChangeINTAssertedMClkCountFromCurrent = (*i)->ExtractData<unsigned int>();
-				else if (registerName == L"LineStateChangeINTAssertedTime")					_lineStateChangeINTAssertedTime = (*i)->ExtractData<double>();
-				else if (registerName == L"LineStateChangePendingINTNegated")				_lineStateChangePendingINTNegated = (*i)->ExtractData<bool>();
-				else if (registerName == L"LineStateChangeINTNegatedMClkCountFromCurrent")	_lineStateChangeINTNegatedMClkCountFromCurrent = (*i)->ExtractData<unsigned int>();
-				else if (registerName == L"LineStateChangeINTNegatedTime")					_lineStateChangeINTNegatedTime = (*i)->ExtractData<double>();
+				else if (registerName == L"LineStateChangePendingVINT")				_lineStateChangePendingVINT = i->ExtractData<bool>();
+				else if (registerName == L"LineStateChangeVINTMClkCountFromCurrent")	_lineStateChangeVINTMClkCountFromCurrent = i->ExtractData<unsigned int>();
+				else if (registerName == L"LineStateChangeVINTTime")					_lineStateChangeVINTTime = i->ExtractData<double>();
+				else if (registerName == L"LineStateChangePendingHINT")				_lineStateChangePendingHINT = i->ExtractData<bool>();
+				else if (registerName == L"LineStateChangeHINTMClkCountFromCurrent")	_lineStateChangeHINTMClkCountFromCurrent = i->ExtractData<unsigned int>();
+				else if (registerName == L"LineStateChangeHINTTime")					_lineStateChangeHINTTime = i->ExtractData<double>();
+				else if (registerName == L"LineStateChangePendingEXINT")				_lineStateChangePendingEXINT = i->ExtractData<bool>();
+				else if (registerName == L"LineStateChangeEXINTMClkCountFromCurrent")	_lineStateChangeEXINTMClkCountFromCurrent = i->ExtractData<unsigned int>();
+				else if (registerName == L"LineStateChangeEXINTTime")					_lineStateChangeEXINTTime = i->ExtractData<double>();
+				else if (registerName == L"LineStateChangePendingINTAsserted")				_lineStateChangePendingINTAsserted = i->ExtractData<bool>();
+				else if (registerName == L"LineStateChangeINTAssertedMClkCountFromCurrent")	_lineStateChangeINTAssertedMClkCountFromCurrent = i->ExtractData<unsigned int>();
+				else if (registerName == L"LineStateChangeINTAssertedTime")					_lineStateChangeINTAssertedTime = i->ExtractData<double>();
+				else if (registerName == L"LineStateChangePendingINTNegated")				_lineStateChangePendingINTNegated = i->ExtractData<bool>();
+				else if (registerName == L"LineStateChangeINTNegatedMClkCountFromCurrent")	_lineStateChangeINTNegatedMClkCountFromCurrent = i->ExtractData<unsigned int>();
+				else if (registerName == L"LineStateChangeINTNegatedTime")					_lineStateChangeINTNegatedTime = i->ExtractData<double>();
 				// Control port registers
-				else if (registerName == L"CodeAndAddressRegistersModifiedSinceLastWrite")	_codeAndAddressRegistersModifiedSinceLastWrite = (*i)->ExtractData<bool>();
-				else if (registerName == L"CommandWritePending")								_commandWritePending = (*i)->ExtractData<bool>();
-				else if (registerName == L"OriginalCommandAddress")							_originalCommandAddress = (*i)->ExtractHexData<unsigned int>();
-				else if (registerName == L"CommandAddress")									_commandAddress = (*i)->ExtractHexData<unsigned int>();
-				else if (registerName == L"CommandCode")										_commandCode = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"CodeAndAddressRegistersModifiedSinceLastWrite")	_codeAndAddressRegistersModifiedSinceLastWrite = i->ExtractData<bool>();
+				else if (registerName == L"CommandWritePending")								_commandWritePending = i->ExtractData<bool>();
+				else if (registerName == L"OriginalCommandAddress")							_originalCommandAddress = i->ExtractHexData<unsigned int>();
+				else if (registerName == L"CommandAddress")									_commandAddress = i->ExtractHexData<unsigned int>();
+				else if (registerName == L"CommandCode")										_commandCode = i->ExtractHexData<unsigned int>();
 				// Digital render data buffers
-				else if (registerName == L"RenderDigitalHCounterPos")					_renderDigitalHCounterPos = (*i)->ExtractHexData<unsigned int>();
-				else if (registerName == L"RenderDigitalVCounterPos")					_renderDigitalVCounterPos = (*i)->ExtractHexData<unsigned int>();
-				else if (registerName == L"RenderDigitalVCounterPosPreviousLine")		_renderDigitalVCounterPosPreviousLine = (*i)->ExtractHexData<unsigned int>();
-				else if (registerName == L"RenderDigitalRemainingMclkCycles")			_renderDigitalRemainingMclkCycles = (*i)->ExtractData<unsigned int>();
-				else if (registerName == L"RenderDigitalScreenModeRS0Active")			_renderDigitalScreenModeRS0Active = (*i)->ExtractData<bool>();
-				else if (registerName == L"RenderDigitalScreenModeRS1Active")			_renderDigitalScreenModeRS1Active = (*i)->ExtractData<bool>();
-				else if (registerName == L"RenderDigitalScreenModeV30Active")			_renderDigitalScreenModeV30Active = (*i)->ExtractData<bool>();
-				else if (registerName == L"RenderDigitalInterlaceEnabledActive")			_renderDigitalInterlaceEnabledActive = (*i)->ExtractData<bool>();
-				else if (registerName == L"RenderDigitalInterlaceDoubleActive")			_renderDigitalInterlaceDoubleActive = (*i)->ExtractData<bool>();
-				else if (registerName == L"RenderDigitalPalModeActive")					_renderDigitalPalModeActive = (*i)->ExtractData<bool>();
-				else if (registerName == L"RenderDigitalOddFlagSet")						_renderDigitalOddFlagSet = (*i)->ExtractData<bool>();
-				else if (registerName == L"RenderLayerAHscrollPatternDisplacement")		_renderLayerAHscrollPatternDisplacement = (*i)->ExtractData<unsigned int>();
-				else if (registerName == L"RenderLayerBHscrollPatternDisplacement")		_renderLayerBHscrollPatternDisplacement = (*i)->ExtractData<unsigned int>();
-				else if (registerName == L"RenderLayerAHscrollMappingDisplacement")		_renderLayerAHscrollMappingDisplacement = (*i)->ExtractData<unsigned int>();
-				else if (registerName == L"RenderLayerBHscrollMappingDisplacement")		_renderLayerBHscrollMappingDisplacement = (*i)->ExtractData<unsigned int>();
-				else if (registerName == L"RenderLayerAVscrollPatternDisplacement")		_renderLayerAVscrollPatternDisplacement = (*i)->ExtractData<unsigned int>();
-				else if (registerName == L"RenderLayerBVscrollPatternDisplacement")		_renderLayerBVscrollPatternDisplacement = (*i)->ExtractData<unsigned int>();
-				else if (registerName == L"RenderLayerAVscrollMappingDisplacement")		_renderLayerAVscrollMappingDisplacement = (*i)->ExtractData<unsigned int>();
-				else if (registerName == L"RenderLayerBVscrollMappingDisplacement")		_renderLayerBVscrollMappingDisplacement = (*i)->ExtractData<unsigned int>();
-				else if (registerName == L"RenderWindowActiveCache")						(*i)->ExtractBinaryData(_renderWindowActiveCache);
-				else if (registerName == L"RenderMappingDataCacheLayerA")				(*i)->ExtractBinaryData(_renderMappingDataCacheLayerA);
-				else if (registerName == L"RenderMappingDataCacheLayerB")				(*i)->ExtractBinaryData(_renderMappingDataCacheLayerB);
-				else if (registerName == L"RenderMappingDataCacheSourceAddressLayerA")	(*i)->ExtractBinaryData(_renderMappingDataCacheSourceAddressLayerA);
-				else if (registerName == L"RenderMappingDataCacheSourceAddressLayerB")	(*i)->ExtractBinaryData(_renderMappingDataCacheSourceAddressLayerB);
-				else if (registerName == L"RenderPatternDataCacheLayerA")				(*i)->ExtractBinaryData(_renderPatternDataCacheLayerA);
-				else if (registerName == L"RenderPatternDataCacheLayerB")				(*i)->ExtractBinaryData(_renderPatternDataCacheLayerB);
-				else if (registerName == L"RenderPatternDataCacheSprite")				(*i)->ExtractBinaryData(_renderPatternDataCacheLayerB);
-				else if (registerName == L"RenderSpriteDisplayCacheEntryCount")			_renderSpriteDisplayCacheEntryCount = (*i)->ExtractData<unsigned int>();
-				else if (registerName == L"RenderSpriteDisplayCacheCurrentIndex")		_renderSpriteDisplayCacheCurrentIndex = (*i)->ExtractData<unsigned int>();
-				else if (registerName == L"RenderSpriteSearchComplete")					_renderSpriteSearchComplete = (*i)->ExtractData<bool>();
-				else if (registerName == L"RenderSpriteOverflow")						_renderSpriteOverflow = (*i)->ExtractData<bool>();
-				else if (registerName == L"RenderSpriteNextAttributeTableEntryToRead")	_renderSpriteNextAttributeTableEntryToRead = (*i)->ExtractData<unsigned int>();
-				else if (registerName == L"RenderSpriteDisplayCellCacheEntryCount")		_renderSpriteDisplayCellCacheEntryCount = (*i)->ExtractData<unsigned int>();
-				else if (registerName == L"RenderSpriteDisplayCellCacheCurrentIndex")	_renderSpriteDisplayCellCacheCurrentIndex = (*i)->ExtractData<unsigned int>();
-				else if (registerName == L"RenderSpriteDotOverflow")						_renderSpriteDotOverflow = (*i)->ExtractData<bool>();
-				else if (registerName == L"RenderSpriteDotOverflowPreviousLine")			_renderSpriteDotOverflowPreviousLine = (*i)->ExtractData<bool>();
-				else if (registerName == L"RenderSpritePixelBufferDigitalRenderPlane")	_renderSpritePixelBufferDigitalRenderPlane = (*i)->ExtractData<unsigned int>();
-				else if (registerName == L"RenderSpritePixelBufferAnalogRenderPlane")	_renderSpritePixelBufferAnalogRenderPlane = (*i)->ExtractData<unsigned int>();
-				else if (registerName == L"NonSpriteMaskCellEncountered")				_nonSpriteMaskCellEncountered = (*i)->ExtractData<bool>();
-				else if (registerName == L"RenderSpriteMaskActive")						_renderSpriteMaskActive = (*i)->ExtractData<bool>();
-				else if (registerName == L"RenderSpriteCollision")						_renderSpriteCollision = (*i)->ExtractData<bool>();
-				else if (registerName == L"RenderVSRAMCachedRead")						_renderVSRAMCachedRead = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"RenderDigitalHCounterPos")					_renderDigitalHCounterPos = i->ExtractHexData<unsigned int>();
+				else if (registerName == L"RenderDigitalVCounterPos")					_renderDigitalVCounterPos = i->ExtractHexData<unsigned int>();
+				else if (registerName == L"RenderDigitalVCounterPosPreviousLine")		_renderDigitalVCounterPosPreviousLine = i->ExtractHexData<unsigned int>();
+				else if (registerName == L"RenderDigitalRemainingMclkCycles")			_renderDigitalRemainingMclkCycles = i->ExtractData<unsigned int>();
+				else if (registerName == L"RenderDigitalScreenModeRS0Active")			_renderDigitalScreenModeRS0Active = i->ExtractData<bool>();
+				else if (registerName == L"RenderDigitalScreenModeRS1Active")			_renderDigitalScreenModeRS1Active = i->ExtractData<bool>();
+				else if (registerName == L"RenderDigitalScreenModeV30Active")			_renderDigitalScreenModeV30Active = i->ExtractData<bool>();
+				else if (registerName == L"RenderDigitalInterlaceEnabledActive")			_renderDigitalInterlaceEnabledActive = i->ExtractData<bool>();
+				else if (registerName == L"RenderDigitalInterlaceDoubleActive")			_renderDigitalInterlaceDoubleActive = i->ExtractData<bool>();
+				else if (registerName == L"RenderDigitalPalModeActive")					_renderDigitalPalModeActive = i->ExtractData<bool>();
+				else if (registerName == L"RenderDigitalOddFlagSet")						_renderDigitalOddFlagSet = i->ExtractData<bool>();
+				else if (registerName == L"RenderLayerAHscrollPatternDisplacement")		_renderLayerAHscrollPatternDisplacement = i->ExtractData<unsigned int>();
+				else if (registerName == L"RenderLayerBHscrollPatternDisplacement")		_renderLayerBHscrollPatternDisplacement = i->ExtractData<unsigned int>();
+				else if (registerName == L"RenderLayerAHscrollMappingDisplacement")		_renderLayerAHscrollMappingDisplacement = i->ExtractData<unsigned int>();
+				else if (registerName == L"RenderLayerBHscrollMappingDisplacement")		_renderLayerBHscrollMappingDisplacement = i->ExtractData<unsigned int>();
+				else if (registerName == L"RenderLayerAVscrollPatternDisplacement")		_renderLayerAVscrollPatternDisplacement = i->ExtractData<unsigned int>();
+				else if (registerName == L"RenderLayerBVscrollPatternDisplacement")		_renderLayerBVscrollPatternDisplacement = i->ExtractData<unsigned int>();
+				else if (registerName == L"RenderLayerAVscrollMappingDisplacement")		_renderLayerAVscrollMappingDisplacement = i->ExtractData<unsigned int>();
+				else if (registerName == L"RenderLayerBVscrollMappingDisplacement")		_renderLayerBVscrollMappingDisplacement = i->ExtractData<unsigned int>();
+				else if (registerName == L"RenderWindowActiveCache")						i->ExtractBinaryData(_renderWindowActiveCache);
+				else if (registerName == L"RenderMappingDataCacheLayerA")				i->ExtractBinaryData(_renderMappingDataCacheLayerA);
+				else if (registerName == L"RenderMappingDataCacheLayerB")				i->ExtractBinaryData(_renderMappingDataCacheLayerB);
+				else if (registerName == L"RenderMappingDataCacheSourceAddressLayerA")	i->ExtractBinaryData(_renderMappingDataCacheSourceAddressLayerA);
+				else if (registerName == L"RenderMappingDataCacheSourceAddressLayerB")	i->ExtractBinaryData(_renderMappingDataCacheSourceAddressLayerB);
+				else if (registerName == L"RenderPatternDataCacheLayerA")				i->ExtractBinaryData(_renderPatternDataCacheLayerA);
+				else if (registerName == L"RenderPatternDataCacheLayerB")				i->ExtractBinaryData(_renderPatternDataCacheLayerB);
+				else if (registerName == L"RenderPatternDataCacheSprite")				i->ExtractBinaryData(_renderPatternDataCacheLayerB);
+				else if (registerName == L"RenderSpriteDisplayCacheEntryCount")			_renderSpriteDisplayCacheEntryCount = i->ExtractData<unsigned int>();
+				else if (registerName == L"RenderSpriteDisplayCacheCurrentIndex")		_renderSpriteDisplayCacheCurrentIndex = i->ExtractData<unsigned int>();
+				else if (registerName == L"RenderSpriteSearchComplete")					_renderSpriteSearchComplete = i->ExtractData<bool>();
+				else if (registerName == L"RenderSpriteOverflow")						_renderSpriteOverflow = i->ExtractData<bool>();
+				else if (registerName == L"RenderSpriteNextAttributeTableEntryToRead")	_renderSpriteNextAttributeTableEntryToRead = i->ExtractData<unsigned int>();
+				else if (registerName == L"RenderSpriteDisplayCellCacheEntryCount")		_renderSpriteDisplayCellCacheEntryCount = i->ExtractData<unsigned int>();
+				else if (registerName == L"RenderSpriteDisplayCellCacheCurrentIndex")	_renderSpriteDisplayCellCacheCurrentIndex = i->ExtractData<unsigned int>();
+				else if (registerName == L"RenderSpriteDotOverflow")						_renderSpriteDotOverflow = i->ExtractData<bool>();
+				else if (registerName == L"RenderSpriteDotOverflowPreviousLine")			_renderSpriteDotOverflowPreviousLine = i->ExtractData<bool>();
+				else if (registerName == L"RenderSpritePixelBufferDigitalRenderPlane")	_renderSpritePixelBufferDigitalRenderPlane = i->ExtractData<unsigned int>();
+				else if (registerName == L"RenderSpritePixelBufferAnalogRenderPlane")	_renderSpritePixelBufferAnalogRenderPlane = i->ExtractData<unsigned int>();
+				else if (registerName == L"NonSpriteMaskCellEncountered")				_nonSpriteMaskCellEncountered = i->ExtractData<bool>();
+				else if (registerName == L"RenderSpriteMaskActive")						_renderSpriteMaskActive = i->ExtractData<bool>();
+				else if (registerName == L"RenderSpriteCollision")						_renderSpriteCollision = i->ExtractData<bool>();
+				else if (registerName == L"RenderVSRAMCachedRead")						_renderVSRAMCachedRead = i->ExtractHexData<unsigned int>();
 				//##TODO## Image buffer
 				// DMA worker thread properties
-				else if (registerName == L"WorkerThreadPaused")	_workerThreadPaused = (*i)->ExtractData<bool>();
+				else if (registerName == L"WorkerThreadPaused")	_workerThreadPaused = i->ExtractData<bool>();
 				// DMA transfer registers
-				else if (registerName == L"DMATransferActive")			_dmaTransferActive = (*i)->ExtractData<bool>();
-				else if (registerName == L"DMATransferReadDataCached")	_dmaTransferReadDataCached = (*i)->ExtractData<bool>();
-				else if (registerName == L"DMATransferReadCache")		_dmaTransferReadCache = (*i)->ExtractHexData<unsigned int>();
-				else if (registerName == L"DMATransferNextReadMclk")		_dmaTransferNextReadMclk = (*i)->ExtractData<unsigned int>();
-				else if (registerName == L"DMATransferLastTimesliceUsedReadDelay")	_dmaTransferLastTimesliceUsedReadDelay = (*i)->ExtractData<unsigned int>();
-				else if (registerName == L"DMATransferInvalidPortWriteCached")	_dmaTransferInvalidPortWriteCached = (*i)->ExtractData<bool>();
-				else if (registerName == L"DMATransferInvalidPortWriteAddressCache")	_dmaTransferInvalidPortWriteAddressCache = (*i)->ExtractHexData<unsigned int>();
-				else if (registerName == L"DMATransferInvalidPortWriteDataCache")	_dmaTransferInvalidPortWriteDataCache = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"DMATransferActive")			_dmaTransferActive = i->ExtractData<bool>();
+				else if (registerName == L"DMATransferReadDataCached")	_dmaTransferReadDataCached = i->ExtractData<bool>();
+				else if (registerName == L"DMATransferReadCache")		_dmaTransferReadCache = i->ExtractHexData<unsigned int>();
+				else if (registerName == L"DMATransferNextReadMclk")		_dmaTransferNextReadMclk = i->ExtractData<unsigned int>();
+				else if (registerName == L"DMATransferLastTimesliceUsedReadDelay")	_dmaTransferLastTimesliceUsedReadDelay = i->ExtractData<unsigned int>();
+				else if (registerName == L"DMATransferInvalidPortWriteCached")	_dmaTransferInvalidPortWriteCached = i->ExtractData<bool>();
+				else if (registerName == L"DMATransferInvalidPortWriteAddressCache")	_dmaTransferInvalidPortWriteAddressCache = i->ExtractHexData<unsigned int>();
+				else if (registerName == L"DMATransferInvalidPortWriteDataCache")	_dmaTransferInvalidPortWriteDataCache = i->ExtractHexData<unsigned int>();
 				// External interrupt settings
-				else if (registerName == L"ExternalInterruptVideoTriggerPointPending")	_externalInterruptVideoTriggerPointPending = (*i)->ExtractData<bool>();
-				else if (registerName == L"ExternalInterruptVideoTriggerPointHCounter")	_externalInterruptVideoTriggerPointHCounter = (*i)->ExtractHexData<unsigned int>();
-				else if (registerName == L"ExternalInterruptVideoTriggerPointVCounter")	_externalInterruptVideoTriggerPointVCounter = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"ExternalInterruptVideoTriggerPointPending")	_externalInterruptVideoTriggerPointPending = i->ExtractData<bool>();
+				else if (registerName == L"ExternalInterruptVideoTriggerPointHCounter")	_externalInterruptVideoTriggerPointHCounter = i->ExtractHexData<unsigned int>();
+				else if (registerName == L"ExternalInterruptVideoTriggerPointVCounter")	_externalInterruptVideoTriggerPointVCounter = i->ExtractHexData<unsigned int>();
 			}
 		}
-		else if ((*i)->GetName() == L"FIFOBuffer")
+		else if (i->GetName() == L"FIFOBuffer")
 		{
-			std::list<IHierarchicalStorageNode*> entryList = (*i)->GetChildList();
+			std::list<IHierarchicalStorageNode*> entryList = i->GetChildList();
 			for (std::list<IHierarchicalStorageNode*>::iterator entryNodeIterator = entryList.begin(); entryNodeIterator != entryList.end(); ++entryNodeIterator)
 			{
 				IHierarchicalStorageNode* entryNode = *entryNodeIterator;
@@ -3423,9 +3423,9 @@ void S315_5313::LoadState(IHierarchicalStorageNode& node)
 				}
 			}
 		}
-		else if ((*i)->GetName() == L"RenderSpriteDisplayCache")
+		else if (i->GetName() == L"RenderSpriteDisplayCache")
 		{
-			std::list<IHierarchicalStorageNode*> entryList = (*i)->GetChildList();
+			std::list<IHierarchicalStorageNode*> entryList = i->GetChildList();
 			for (std::list<IHierarchicalStorageNode*>::iterator entryNodeIterator = entryList.begin(); entryNodeIterator != entryList.end(); ++entryNodeIterator)
 			{
 				IHierarchicalStorageNode* entryNode = *entryNodeIterator;
@@ -3445,9 +3445,9 @@ void S315_5313::LoadState(IHierarchicalStorageNode& node)
 				}
 			}
 		}
-		else if ((*i)->GetName() == L"RenderSpriteDisplayCellCache")
+		else if (i->GetName() == L"RenderSpriteDisplayCellCache")
 		{
-			std::list<IHierarchicalStorageNode*> entryList = (*i)->GetChildList();
+			std::list<IHierarchicalStorageNode*> entryList = i->GetChildList();
 			for (std::list<IHierarchicalStorageNode*>::iterator entryNodeIterator = entryList.begin(); entryNodeIterator != entryList.end(); ++entryNodeIterator)
 			{
 				IHierarchicalStorageNode* entryNode = *entryNodeIterator;
@@ -3467,14 +3467,14 @@ void S315_5313::LoadState(IHierarchicalStorageNode& node)
 				}
 			}
 		}
-		else if ((*i)->GetName() == L"SpritePixelBuffer")
+		else if (i->GetName() == L"SpritePixelBuffer")
 		{
-			std::list<IHierarchicalStorageNode*> entryList = (*i)->GetChildList();
+			std::list<IHierarchicalStorageNode*> entryList = i->GetChildList();
 			for (std::list<IHierarchicalStorageNode*>::iterator entryNodeIterator = entryList.begin(); entryNodeIterator != entryList.end(); ++entryNodeIterator)
 			{
 				IHierarchicalStorageNode* entryNode = *entryNodeIterator;
-				unsigned int entryIndex;
-				unsigned int renderPlane;
+				unsigned int entryIndex = { };
+				unsigned int renderPlane = { };
 				if (entryNode->ExtractAttribute(L"index", entryIndex) && entryNode->ExtractAttribute(L"renderPlane", renderPlane))
 				{
 					if ((entryIndex < spritePixelBufferSize) && (renderPlane < renderSpritePixelBufferPlaneCount))
