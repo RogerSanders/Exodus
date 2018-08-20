@@ -77,7 +77,7 @@ struct WC_DataGrid::Grid_InsertColumn
 {
 	Grid_InsertColumn(const std::wstring& aname = L"", unsigned int acolumnID = 0, bool aeditingAllowed = false, CellControlType acellType = CellControlType::TextBox)
 	:name(aname), columnID(acolumnID), editingAllowed(aeditingAllowed), cellType(acellType), sizeMode(ColumnSizeMode::SizeToContent), absoluteWidth(0), proportionalWidth(1.0), minWidth(-1), maxWidth(-1)
-	{}
+	{ }
 
 	std::wstring name;
 	unsigned int columnID;
@@ -110,7 +110,7 @@ struct WC_DataGrid::Grid_DeleteRows
 {
 	Grid_DeleteRows(unsigned int atargetRowNo = 0, unsigned int arowCount = 0)
 	:targetRowNo(atargetRowNo), rowCount(arowCount)
-	{}
+	{ }
 
 	unsigned int targetRowNo;
 	unsigned int rowCount;
@@ -131,10 +131,10 @@ struct WC_DataGrid::Grid_SetColumnInfo
 {
 	Grid_SetColumnInfo()
 	:columnID(0), controlType(CellControlType::TextBox), sizeMode(ColumnSizeMode::SizeToContent), absoluteWidth(0), proportionalWidth(0), minWidth(-1), maxWidth(-1)
-	{}
+	{ }
 	Grid_SetColumnInfo(unsigned int acolumnID, CellControlType acontrolType = CellControlType::TextBox)
 	:columnID(acolumnID), controlType(acontrolType), sizeMode(ColumnSizeMode::SizeToContent), absoluteWidth(0), proportionalWidth(0), minWidth(-1), maxWidth(-1)
-	{}
+	{ }
 
 	std::wstring name;
 	unsigned int columnID;
@@ -152,10 +152,10 @@ struct WC_DataGrid::Grid_SetCellInfo
 {
 	Grid_SetCellInfo()
 	:defined(false), columnID(0), rowNo(0), controlType(CellControlType::TextBox), treeEntryIndentLevel(0), showExpandIcon(false), pickFromSelectionListOnly(true), ellipsisMode(TextEllipsisMode::Text)
-	{}
+	{ }
 	Grid_SetCellInfo(unsigned int acolumnID, unsigned int arowNo, CellControlType acontrolType = CellControlType::TextBox, unsigned int atreeEntryIndentLevel = 0, bool ashowExpandIcon = false, bool aexpandIconIsExpanded = false)
 	:defined(true), columnID(acolumnID), rowNo(arowNo), controlType(acontrolType), treeEntryIndentLevel(atreeEntryIndentLevel), showExpandIcon(ashowExpandIcon), expandIconIsExpanded(aexpandIconIsExpanded), pickFromSelectionListOnly(true), ellipsisMode(TextEllipsisMode::Text)
-	{}
+	{ }
 
 	bool defined;
 	unsigned int columnID;
@@ -175,7 +175,7 @@ struct WC_DataGrid::Grid_UpdateCellText
 {
 	Grid_UpdateCellText()
 	:columnID(0), rowNo(0)
-	{}
+	{ }
 
 	std::wstring newText;
 	unsigned int columnID;
@@ -186,10 +186,10 @@ struct WC_DataGrid::Grid_UpdateCellText
 struct WC_DataGrid::Grid_SetVScrollInfo
 {
 	Grid_SetVScrollInfo()
-	{}
+	{ }
 	Grid_SetVScrollInfo(int aminPos, int amaxPos, int acurrentPos, int avaluesPerPage)
 	:minPos(aminPos), maxPos(amaxPos), currentPos(acurrentPos), valuesPerPage(avaluesPerPage)
-	{}
+	{ }
 
 	int minPos;
 	int maxPos;
@@ -202,7 +202,7 @@ struct WC_DataGrid::Grid_SetControlColor
 {
 	Grid_SetControlColor()
 	:backgroundColorDefined(false), textColorDefined(false), editColorDefined(false), lineColorDefined(false)
-	{}
+	{ }
 
 	bool backgroundColorDefined;
 	WinColor colorBackground;
@@ -221,7 +221,7 @@ struct WC_DataGrid::Grid_SetRowColor
 {
 	Grid_SetRowColor()
 	:backgroundColorDefined(false), textColorDefined(false), editColorDefined(false)
-	{}
+	{ }
 
 	bool backgroundColorDefined;
 	WinColor colorBackground;
@@ -238,7 +238,7 @@ struct WC_DataGrid::Grid_SetCellColor
 {
 	Grid_SetCellColor()
 	:backgroundColorDefined(false), textColorDefined(false), editColorDefined(false)
-	{}
+	{ }
 
 	unsigned int targetRowNo;
 	unsigned int targetColumnID;
@@ -319,7 +319,7 @@ struct WC_DataGrid::ColumnData
 {
 	ColumnData(const std::wstring& aname, unsigned int acolumnID, bool aeditingAllowed, CellControlType acontrolType)
 	:name(aname), columnID(acolumnID), editingAllowed(aeditingAllowed), controlType(acontrolType), actualWidth(0), manuallySettingColumnWidth(false)
-	{}
+	{ }
 
 	std::wstring name;
 	unsigned int columnID;
@@ -342,7 +342,7 @@ struct WC_DataGrid::CellControlInfo
 {
 	CellControlInfo(CellControlType acontrolType = CellControlType::TextBox)
 	:controlType(acontrolType), createdControlType(CellControlType::TextBox), hwnd(NULL), lastBackgroundColorSet(false), lastBackgroundColorBrush(NULL), pickFromSelectionListOnly(true), ellipsisMode(TextEllipsisMode::Text)
-	{}
+	{ }
 
 	CellControlType controlType;
 	CellControlType createdControlType;

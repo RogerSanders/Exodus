@@ -3,7 +3,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 template<class T> ThinListDoubleContainer<T>::ThinListDoubleContainer()
 :first(0), last(0)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 template<class T> ThinListDoubleContainer<T>::~ThinListDoubleContainer()

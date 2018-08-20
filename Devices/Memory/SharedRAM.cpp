@@ -5,7 +5,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 SharedRAM::SharedRAM(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
 :MemoryWrite(implementationName, instanceName, moduleID)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 bool SharedRAM::Construct(IHierarchicalStorageNode& node)

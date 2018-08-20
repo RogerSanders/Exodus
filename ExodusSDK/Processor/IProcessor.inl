@@ -47,10 +47,10 @@ struct IProcessor::CallStackEntry
 public:
 	// Constructors
 	CallStackEntry()
-	{}
+	{ }
 	CallStackEntry(unsigned int asourceAddress, unsigned int atargetAddress, unsigned int areturnAddress, const std::wstring& adisassembly)
 	:sourceAddress(asourceAddress), targetAddress(atargetAddress), returnAddress(areturnAddress), disassembly(adisassembly)
-	{}
+	{ }
 	CallStackEntry(MarshalSupport::marshal_object_tag, const CallStackEntry& source)
 	{
 		source.MarshalToTarget(sourceAddress, targetAddress, returnAddress, disassembly);
@@ -80,7 +80,7 @@ public:
 	// Constructors
 	explicit TraceLogEntry(unsigned int aaddress = 0)
 	:address(aaddress)
-	{}
+	{ }
 	TraceLogEntry(MarshalSupport::marshal_object_tag, const TraceLogEntry& source)
 	{
 		source.MarshalToTarget(address, disassembly);
@@ -104,7 +104,7 @@ struct IProcessor::BreakpointDataContext :public IGenericAccess::DataContext
 {
 	BreakpointDataContext(IBreakpoint* abreakpoint)
 	:breakpoint(abreakpoint)
-	{}
+	{ }
 
 	IBreakpoint* breakpoint;
 };

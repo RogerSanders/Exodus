@@ -11,13 +11,13 @@ template<class DataType, class TimesliceType> struct RandomTimeAccessValue<DataT
 template<class DataType, class TimesliceType> struct RandomTimeAccessValue<DataType, TimesliceType>::WriteEntry
 {
 	WriteEntry()
-	{}
+	{ }
 	WriteEntry(const DataType& defaultValue)
 	:newValue(defaultValue)
-	{}
+	{ }
 	WriteEntry(TimesliceType awriteTime, const DataType& anewValue, const Timeslice& acurrentTimeslice)
 	:writeTime(awriteTime), newValue(anewValue), currentTimeslice(acurrentTimeslice)
-	{}
+	{ }
 
 	TimesliceType writeTime;
 	DataType newValue;
@@ -28,10 +28,10 @@ template<class DataType, class TimesliceType> struct RandomTimeAccessValue<DataT
 template<class DataType, class TimesliceType> struct RandomTimeAccessValue<DataType, TimesliceType>::WriteInfo
 {
 	WriteInfo()
-	{}
+	{ }
 	WriteInfo(const DataType& defaultValue)
 	:newValue(defaultValue)
-	{}
+	{ }
 
 	bool exists;
 	TimesliceType writeTime;
@@ -43,10 +43,10 @@ template<class DataType, class TimesliceType> struct RandomTimeAccessValue<DataT
 {
 	TimesliceSaveEntry(typename const std::list<TimesliceEntry>::const_iterator& atimeslice, unsigned int aid)
 	:timeslice(atimeslice), id(aid)
-	{}
+	{ }
 	TimesliceSaveEntry(unsigned int aid, TimesliceType atimesliceLength)
 	:id(aid), timesliceLength(atimesliceLength)
-	{}
+	{ }
 	typename std::list<TimesliceEntry>::const_iterator timeslice;
 	Timeslice timesliceLoad;
 	unsigned int id;
@@ -58,7 +58,7 @@ template<class DataType, class TimesliceType> struct RandomTimeAccessValue<DataT
 {
 	WriteSaveEntry(TimesliceType awriteTime, const DataType& aoldValue, unsigned int acurrentTimeslice)
 	:writeTime(awriteTime), oldValue(aoldValue), currentTimeslice(acurrentTimeslice)
-	{}
+	{ }
 	TimesliceType writeTime;
 	DataType oldValue;
 	unsigned int currentTimeslice;
@@ -68,12 +68,12 @@ template<class DataType, class TimesliceType> struct RandomTimeAccessValue<DataT
 // Constructors
 //----------------------------------------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> RandomTimeAccessValue<DataType, TimesliceType>::RandomTimeAccessValue()
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> RandomTimeAccessValue<DataType, TimesliceType>::RandomTimeAccessValue(const DataType& defaultValue)
 :_value(defaultValue)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Dereference operators

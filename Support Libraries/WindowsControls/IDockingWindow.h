@@ -13,7 +13,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~IDockingWindow() = 0 {}
+	virtual ~IDockingWindow() = 0 { }
 
 	// Window handle methods
 	virtual HWND GetWindowHandle() const = 0;

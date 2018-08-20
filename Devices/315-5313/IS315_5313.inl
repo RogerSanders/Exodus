@@ -168,7 +168,7 @@ struct IS315_5313::RegisterDataContext :public IGenericAccess::DataContext
 {
 	RegisterDataContext(unsigned int aregisterNo = 0)
 	:registerNo(aregisterNo)
-	{}
+	{ }
 
 	unsigned int registerNo;
 };
@@ -178,7 +178,7 @@ struct IS315_5313::FIFOEntryDataContext :public IGenericAccess::DataContext
 {
 	FIFOEntryDataContext(unsigned int aentryNo = 0)
 	:entryNo(aentryNo)
-	{}
+	{ }
 
 	unsigned int entryNo;
 };
@@ -190,7 +190,7 @@ public:
 	// Constructors
 	PortMonitorEntry(const std::wstring& atarget, const std::wstring& asource, unsigned int adata, double aaccessTime, unsigned int ahcounterPos, unsigned int avcounterPos)
 	:target(atarget), source(asource), data(adata), accessTime(aaccessTime), hcounterPos(ahcounterPos), vcounterPos(avcounterPos)
-	{}
+	{ }
 	PortMonitorEntry(MarshalSupport::marshal_object_tag, const PortMonitorEntry& sourceObject)
 	{
 		sourceObject.MarshalToTarget(source, target, data, accessTime, hcounterPos, vcounterPos);
@@ -222,7 +222,7 @@ struct IS315_5313::SpriteMappingTableEntry
 {
 	SpriteMappingTableEntry()
 	:rawDataWord0(16), rawDataWord1(16), rawDataWord2(16), rawDataWord3(16)
-	{}
+	{ }
 
 	Data rawDataWord0;
 	Data rawDataWord1;
@@ -263,7 +263,7 @@ struct IS315_5313::ImageBufferInfo
 {
 	ImageBufferInfo()
 	:mappingData(32, 0)
-	{}
+	{ }
 
 	PixelSource pixelSource;
 	unsigned int hcounter;

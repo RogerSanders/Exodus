@@ -27,7 +27,7 @@ private:
 	{
 		MenuOption(unsigned int asettingID = 0, unsigned int aoptionID = 0)
 		:settingID(asettingID), optionID(aoptionID)
-		{}
+		{ }
 
 		unsigned int settingID;
 		unsigned int optionID;

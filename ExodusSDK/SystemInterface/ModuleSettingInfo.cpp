@@ -5,7 +5,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 ModuleSettingInfo::ModuleSettingInfo()
 :_optionCount(0), _defaultOptionIndex(0), _onOptionIndex(0), _offOptionIndex(0), _toggleSetting(false)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Interface version functions

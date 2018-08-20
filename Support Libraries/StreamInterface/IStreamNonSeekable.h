@@ -20,7 +20,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~IStreamNonSeekable() = 0 {}
+	virtual ~IStreamNonSeekable() = 0 { }
 
 	// Byte order mark functions
 	virtual bool ProcessByteOrderMark() = 0;

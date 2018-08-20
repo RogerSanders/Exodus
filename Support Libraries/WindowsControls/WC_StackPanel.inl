@@ -81,7 +81,7 @@ struct WC_StackPanel::RowInfo
 {
 	RowInfo()
 	:rowStackDirectionSize(0), rowNonStackDirectionSize(0)
-	{}
+	{ }
 
 	std::list<unsigned int> hostedWindows;
 	int rowStackDirectionSize;

@@ -6,7 +6,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 MemoryMenus::MemoryMenus(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
 :Extension(implementationName, instanceName, moduleID)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 MemoryMenus::~MemoryMenus()

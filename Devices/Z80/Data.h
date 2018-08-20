@@ -14,13 +14,13 @@ public:
 	// Constructors
 	inline Z80Byte()
 	:Data(BITCOUNT_BYTE)
-	{}
+	{ }
 	inline Z80Byte(unsigned int data)
 	:Data(BITCOUNT_BYTE, data)
-	{}
+	{ }
 	explicit inline Z80Byte(const Data& data)
 	:Data(BITCOUNT_BYTE, data.GetData())
-	{}
+	{ }
 
 	// Integer operators
 	Z80Byte operator+(unsigned int target) const
@@ -368,13 +368,13 @@ public:
 	// Constructors
 	inline Z80Word()
 	:Data(BITCOUNT_WORD)
-	{}
+	{ }
 	inline Z80Word(unsigned int data)
 	:Data(BITCOUNT_WORD, data)
-	{}
+	{ }
 	explicit inline Z80Word(const Data& data)
 	:Data(BITCOUNT_WORD, data.GetData())
-	{}
+	{ }
 
 	// Integer operators
 	Z80Word operator+(unsigned int target) const

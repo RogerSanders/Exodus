@@ -6,7 +6,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 GenericDataViewPresenter::GenericDataViewPresenter(const std::wstring& viewGroupName, const std::wstring& viewName, int viewID, GenericAccessMenus& owner, const IDevice& modelInstanceKey, IGenericAccess& model, const IGenericAccessPage* page)
 :ViewPresenterBase(owner.GetAssemblyHandle(), viewGroupName, viewName, viewID, modelInstanceKey.GetDeviceInstanceName(), modelInstanceKey.GetDeviceModuleID(), modelInstanceKey.GetModuleDisplayName()), _owner(owner), _modelInstanceKey(modelInstanceKey), _model(model), _page(page)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // View creation and deletion

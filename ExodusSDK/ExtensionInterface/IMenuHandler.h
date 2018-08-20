@@ -5,7 +5,7 @@ class IMenuHandler
 {
 public:
 	// Constructors
-	virtual ~IMenuHandler() = 0 {}
+	virtual ~IMenuHandler() = 0 { }
 
 	// Interface version functions
 	static inline unsigned int ThisIMenuHandlerVersion() { return 1; }

@@ -5,7 +5,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 MegaDriveROMLoader::FileOpenMenuHandler::FileOpenMenuHandler(MegaDriveROMLoader& extension)
 :MenuHandlerBase(L"MegaDriveROMLoaderFileOpenMenu", extension.GetViewManager()), _extension(extension)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Management functions

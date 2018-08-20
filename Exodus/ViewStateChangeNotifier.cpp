@@ -5,7 +5,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 ViewStateChangeNotifier::ViewStateChangeNotifier(IViewManagerNotifierInterface& viewManager, IViewPresenter& viewPresenter)
 :_viewManager(viewManager), _viewPresenter(viewPresenter)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Interface version functions

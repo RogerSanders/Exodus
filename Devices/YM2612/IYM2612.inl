@@ -98,7 +98,7 @@ struct IYM2612::RegisterDataContext :public IGenericAccess::DataContext
 {
 	RegisterDataContext(unsigned int aregisterNo = 0)
 	:registerNo(aregisterNo)
-	{}
+	{ }
 
 	unsigned int registerNo;
 };
@@ -108,7 +108,7 @@ struct IYM2612::ChannelDataContext :public IGenericAccess::DataContext
 {
 	ChannelDataContext(unsigned int achannelNo = 0)
 	:channelNo(achannelNo)
-	{}
+	{ }
 
 	unsigned int channelNo;
 };
@@ -118,7 +118,7 @@ struct IYM2612::OperatorDataContext :public IGenericAccess::DataContext
 {
 	OperatorDataContext(unsigned int achannelNo = 0, unsigned int aoperatorNo = 0)
 	:channelNo(achannelNo), operatorNo(aoperatorNo)
-	{}
+	{ }
 
 	unsigned int channelNo;
 	unsigned int operatorNo;

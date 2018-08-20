@@ -5,7 +5,7 @@ struct ExodusInterface::NewMenuItem
 {
 	NewMenuItem(HMENU aparentMenu, unsigned int amenuID, IMenuSelectableOption& amenuItem)
 	:parentMenu(aparentMenu), menuID(amenuID), menuItem(amenuItem)
-	{}
+	{ }
 
 	HMENU parentMenu;
 	unsigned int menuID;
@@ -17,7 +17,7 @@ struct ExodusInterface::SavestateCellWindowState
 {
 	SavestateCellWindowState()
 	:hbitmap(NULL), hwnd(NULL), savestatePresent(false), savestateSlotSelected(false), debugStatePresent(false), screenshotPresent(false), initializedBitmap(false)
-	{}
+	{ }
 
 	HWND hwnd;
 	unsigned int slotNo;
@@ -46,7 +46,7 @@ struct ExodusInterface::MapConnectorDialogParams
 {
 	MapConnectorDialogParams()
 	:selectionMade(false), system(0)
-	{}
+	{ }
 
 	bool selectionMade;
 	std::list<ConnectorInfo> connectorList;
@@ -59,7 +59,7 @@ struct ExodusInterface::SelectCompressedFileDialogParams
 {
 	SelectCompressedFileDialogParams()
 	:selectionMade(false)
-	{}
+	{ }
 
 	bool selectionMade;
 	unsigned int selectedEntryID;

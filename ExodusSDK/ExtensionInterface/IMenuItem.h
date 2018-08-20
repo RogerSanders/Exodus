@@ -9,7 +9,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~IMenuItem() = 0 {}
+	virtual ~IMenuItem() = 0 { }
 
 	// Interface version functions
 	static inline unsigned int ThisIMenuItemVersion();

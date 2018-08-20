@@ -14,7 +14,7 @@ public:
 	enum class StorageMode;
 
 	// Constructors
-	virtual ~IHierarchicalStorageTree() = 0 {}
+	virtual ~IHierarchicalStorageTree() = 0 { }
 
 	// Save/Load functions
 	virtual bool SaveTree(Stream::IStream& target) = 0;

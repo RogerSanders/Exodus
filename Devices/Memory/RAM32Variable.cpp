@@ -5,7 +5,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 RAM32Variable::RAM32Variable(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
 :RAMBase(implementationName, instanceName, moduleID)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Memory interface functions

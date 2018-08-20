@@ -343,7 +343,7 @@ unsigned int Processor::GetMemorySpaceByte(unsigned int location) const
 
 //----------------------------------------------------------------------------------------------------------------------
 void Processor::SetMemorySpaceByte(unsigned int location, unsigned int data)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 bool Processor::GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const

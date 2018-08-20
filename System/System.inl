@@ -24,7 +24,7 @@ struct System::DeviceLibraryEntry
 {
 	DeviceLibraryEntry()
 	:Allocator(0), Destructor(0), assemblyHandle(0), versionNo(0)
-	{}
+	{ }
 
 	IDeviceInfo::AllocatorPointer Allocator;
 	IDeviceInfo::DestructorPointer Destructor;
@@ -41,7 +41,7 @@ struct System::ExtensionLibraryEntry
 {
 	ExtensionLibraryEntry()
 	:Allocator(0), Destructor(0), assemblyHandle(0), versionNo(0), persistentGlobalExtension(false)
-	{}
+	{ }
 
 	IExtensionInfo::AllocatorPointer Allocator;
 	IExtensionInfo::DestructorPointer Destructor;
@@ -213,7 +213,7 @@ struct System::LoadedModuleInfoInternal
 {
 	LoadedModuleInfoInternal()
 	:moduleValidated(false), programModule(false)
-	{}
+	{ }
 
 	// Internal data
 	unsigned int moduleID;
@@ -297,7 +297,7 @@ struct System::InputRegistration
 {
 	InputRegistration()
 	:targetDevice(0), preferredSystemKeyCodeSpecified(false)
-	{}
+	{ }
 
 	unsigned int moduleID;
 	IDevice* targetDevice;
@@ -311,7 +311,7 @@ struct System::UnmappedLineStateInfo
 {
 	UnmappedLineStateInfo(unsigned int moduleID, IDevice* atargetDevice, unsigned int alineNo, Data alineData)
 	:moduleID(moduleID), targetDevice(atargetDevice), lineNo(alineNo), lineData(alineData)
-	{}
+	{ }
 
 	unsigned int moduleID;
 	IDevice* targetDevice;
@@ -324,7 +324,7 @@ struct System::SystemSettingInfo
 {
 	SystemSettingInfo()
 	:selectedOption(0), defaultOption(0), toggleSetting(false), menuItemEntry(0), onOption(0), offOption(0), settingChangeLeadInTimeRandom(false), settingChangeLeadInTime(0), settingChangeLeadInTimeEnd(0), toggleSettingAutoRevert(false), toggleSettingAutoRevertTimeRandom(0), toggleSettingAutoRevertTime(0), toggleSettingAutoRevertTimeEnd(0)
-	{}
+	{ }
 
 	unsigned int moduleID;
 	std::wstring name;
@@ -363,7 +363,7 @@ struct System::SystemSettingOption
 {
 	SystemSettingOption()
 	:menuItemEntry(0)
-	{}
+	{ }
 
 	std::wstring name;
 	std::wstring displayName;
@@ -447,7 +447,7 @@ struct System::SystemLineMapping
 	 lineMaskAND(0xFFFFFFFF),
 	 lineMaskOR(0),
 	 lineMaskXOR(0)
-	{}
+	{ }
 
 	unsigned int moduleID;
 	IDevice* targetDevice;

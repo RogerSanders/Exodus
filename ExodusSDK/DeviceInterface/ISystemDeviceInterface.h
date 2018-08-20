@@ -14,7 +14,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~ISystemDeviceInterface() = 0 {}
+	virtual ~ISystemDeviceInterface() = 0 { }
 
 	// Interface version functions
 	static inline unsigned int ThisISystemDeviceInterfaceVersion() { return 1; }

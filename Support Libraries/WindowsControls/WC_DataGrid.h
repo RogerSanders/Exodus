@@ -78,7 +78,7 @@ private:
 	{
 		CustomColorData()
 		:backgroundColorDefined(false), textColorDefined(false), editColorDefined(false), lineColorDefined(false)
-		{}
+		{ }
 
 		bool backgroundColorDefined;
 		WinColor colorBackground;
@@ -223,7 +223,7 @@ private:
 	{
 		CellMapping(unsigned int acolumnID, unsigned int arowNo)
 		:columnID(acolumnID), rowNo(arowNo)
-		{}
+		{ }
 
 		unsigned int columnID;
 		unsigned int rowNo;

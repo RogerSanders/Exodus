@@ -40,7 +40,7 @@ bool Device::ValidateDevice()
 
 //----------------------------------------------------------------------------------------------------------------------
 void Device::Initialize()
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Reference functions
@@ -70,19 +70,19 @@ bool Device::AddReference(const Marshal::In<std::wstring>& referenceName, IClock
 
 //----------------------------------------------------------------------------------------------------------------------
 void Device::RemoveReference(IDevice* target)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 void Device::RemoveReference(IExtension* target)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 void Device::RemoveReference(IBusInterface* target)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 void Device::RemoveReference(IClockSource* target)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Suspend functions
@@ -109,11 +109,11 @@ bool Device::UsesTransientExecution() const
 // device.
 //----------------------------------------------------------------------------------------------------------------------
 void Device::BeginExecution()
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 void Device::SuspendExecution()
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 double Device::ExecuteStep()
@@ -160,11 +160,11 @@ double Device::GetNextTimingPointInDeviceTime(unsigned int& accessContext) const
 
 //----------------------------------------------------------------------------------------------------------------------
 void Device::ExecuteRollback()
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 void Device::ExecuteCommit()
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 Device::UpdateMethod Device::GetUpdateMethod() const
@@ -184,7 +184,7 @@ bool Device::SendNotifyUpcomingTimeslice() const
 // require this information.
 //----------------------------------------------------------------------------------------------------------------------
 void Device::NotifyUpcomingTimeslice(double nanoseconds)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 bool Device::SendNotifyBeforeExecuteCalled() const
@@ -194,7 +194,7 @@ bool Device::SendNotifyBeforeExecuteCalled() const
 
 //----------------------------------------------------------------------------------------------------------------------
 void Device::NotifyBeforeExecuteCalled()
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 bool Device::SendNotifyAfterExecuteCalled() const
@@ -210,11 +210,11 @@ bool Device::SendNotifyAfterExecuteCalled() const
 // work before the system advances.
 //----------------------------------------------------------------------------------------------------------------------
 void Device::NotifyAfterExecuteCalled()
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 void Device::NotifyAfterExecuteStepFinishedTimeslice()
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Name functions
@@ -264,35 +264,35 @@ bool Device::GetScreenshot(IImage& image) const
 
 //----------------------------------------------------------------------------------------------------------------------
 void Device::LoadState(IHierarchicalStorageNode& node)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 void Device::SaveState(IHierarchicalStorageNode& node) const
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 void Device::LoadPersistentState(IHierarchicalStorageNode& node)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 void Device::SavePersistentState(IHierarchicalStorageNode& node) const
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 void Device::LoadSettingsState(IHierarchicalStorageNode& node)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 void Device::SaveSettingsState(IHierarchicalStorageNode& node) const
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 void Device::LoadDebuggerState(IHierarchicalStorageNode& node)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 void Device::SaveDebuggerState(IHierarchicalStorageNode& node) const
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // CE line state functions
@@ -304,11 +304,11 @@ unsigned int Device::GetCELineID(const Marshal::In<std::wstring>& lineName, bool
 
 //----------------------------------------------------------------------------------------------------------------------
 void Device::SetCELineInput(unsigned int lineID, bool lineMapped, unsigned int lineStartBitNumber)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 void Device::SetCELineOutput(unsigned int lineID, bool lineMapped, unsigned int lineStartBitNumber)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 unsigned int Device::CalculateCELineStateMemory(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext, double accessTime) const
@@ -350,11 +350,11 @@ IBusInterface::AccessResult Device::WriteInterface(unsigned int interfaceNumber,
 
 //----------------------------------------------------------------------------------------------------------------------
 void Device::TransparentReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, unsigned int accessContext)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 void Device::TransparentWriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, unsigned int accessContext)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Port functions
@@ -372,11 +372,11 @@ IBusInterface::AccessResult Device::WritePort(unsigned int interfaceNumber, unsi
 
 //----------------------------------------------------------------------------------------------------------------------
 void Device::TransparentReadPort(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, unsigned int accessContext)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 void Device::TransparentWritePort(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, unsigned int accessContext)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Line functions
@@ -400,11 +400,11 @@ unsigned int Device::GetLineWidth(unsigned int lineID) const
 
 //----------------------------------------------------------------------------------------------------------------------
 void Device::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 void Device::TransparentSetLineState(unsigned int targetLine, const Data& lineData)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 void Device::RevokeSetLineState(unsigned int targetLine, const Data& lineData, double reportedTime, IDeviceContext* caller, double accessTime, unsigned int accessContext)
@@ -421,11 +421,11 @@ bool Device::AdvanceToLineState(unsigned int targetLine, const Data& lineData, I
 
 //----------------------------------------------------------------------------------------------------------------------
 void Device::AssertCurrentOutputLineState() const
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 void Device::NegateCurrentOutputLineState() const
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Clock source functions
@@ -443,11 +443,11 @@ Marshal::Ret<std::wstring> Device::GetClockSourceName(unsigned int clockSourceID
 
 //----------------------------------------------------------------------------------------------------------------------
 void Device::SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceContext* caller, double accessTime, unsigned int accessContext)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 void Device::TransparentSetClockSourceRate(unsigned int clockInput, double clockRate)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Input functions
@@ -465,8 +465,8 @@ Marshal::Ret<std::wstring> Device::GetKeyCodeName(unsigned int keyCodeID) const
 
 //----------------------------------------------------------------------------------------------------------------------
 void Device::HandleInputKeyDown(unsigned int keyCodeID)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 void Device::HandleInputKeyUp(unsigned int keyCodeID)
-{}
+{ }

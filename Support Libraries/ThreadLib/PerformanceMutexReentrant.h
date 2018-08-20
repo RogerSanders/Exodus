@@ -8,7 +8,7 @@ struct PerformanceMutexReentrant
 public:
 	inline PerformanceMutexReentrant()
 	:_threadIDMutex(0), _lockCount(0)
-	{}
+	{ }
 
 	inline void Lock()
 	{
@@ -96,7 +96,7 @@ public:
 		// Note that if the current thread doesn't have a lock on the mutex, this will loop
 		// forever.
 		while (PerformanceInterlockedCompareExchangeAcquire(&_threadIDMutex, LockAcquireOrReleaseInProgress, currentThreadID) != currentThreadID)
-		{}
+		{ }
 
 		// Decrement the lock count for this thread, and flag that we should now release
 		// the thread ID lock if the lock count has reached 0. Note that documentation

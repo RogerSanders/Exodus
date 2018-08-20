@@ -29,16 +29,16 @@ enum class M68000Instruction::ConditionCode
 struct M68000Instruction::Disassembly
 {
 	Disassembly()
-	{}
+	{ }
 	Disassembly(const std::wstring& opcode)
 		:disassemblyOpcode(opcode)
-	{}
+	{ }
 	Disassembly(const std::wstring& opcode, const std::wstring& arguments)
 		:disassemblyOpcode(opcode), disassemblyArguments(arguments)
-	{}
+	{ }
 	Disassembly(const std::wstring& opcode, const std::wstring& arguments, const std::wstring& comment)
 		:disassemblyOpcode(opcode), disassemblyArguments(arguments), disassemblyComment(comment)
-	{}
+	{ }
 
 	std::wstring disassemblyOpcode;
 	std::wstring disassemblyArguments;
@@ -50,12 +50,12 @@ struct M68000Instruction::Disassembly
 //----------------------------------------------------------------------------------------------------------------------
 M68000Instruction::M68000Instruction()
 :_instructionSize(0), _transparentOpcode(false)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 M68000Instruction::M68000Instruction(const M68000Instruction& object)
 :_instructionSize(object._instructionSize), _executeCycleCount(object._executeCycleCount), _instructionRegister(object._instructionRegister), _instructionLocation(object._instructionLocation), _transparentOpcode(object._transparentOpcode)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Size functions

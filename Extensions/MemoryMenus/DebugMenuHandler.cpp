@@ -6,7 +6,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 DebugMenuHandler::DebugMenuHandler(MemoryMenus& owner, const IDevice& modelInstanceKey, IMemory& model)
 :MenuHandlerBase(L"MemoryReadDebugMenu", owner.GetViewManager()), _owner(owner), _modelInstanceKey(modelInstanceKey), _model(model)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Management functions

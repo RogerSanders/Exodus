@@ -14,7 +14,7 @@ public:
 	enum class CreateMode;
 
 	// Make sure the File object is non-copyable
-	protected: File(const File& object) {} public:
+	protected: File(const File& object) { } public:
 
 	// Constructors
 	inline File();

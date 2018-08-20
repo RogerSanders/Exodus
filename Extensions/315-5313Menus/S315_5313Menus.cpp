@@ -7,7 +7,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 S315_5313Menus::S315_5313Menus(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
 :Extension(implementationName, instanceName, moduleID)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 S315_5313Menus::~S315_5313Menus()

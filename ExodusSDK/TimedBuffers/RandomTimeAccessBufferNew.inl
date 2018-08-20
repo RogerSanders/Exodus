@@ -7,7 +7,7 @@
 //{
 //	TimesliceEntry()
 //	:notDeleted(true)
-//	{}
+//	{ }
 //
 //	double timesliceLength;
 //	bool committed;
@@ -19,13 +19,13 @@
 //{
 //	WriteEntry()
 //	:notDeleted(true)
-//	{}
+//	{ }
 //	WriteEntry(const T& defaultValue)
 //	:notDeleted(true), newValue(defaultValue)
-//	{}
+//	{ }
 //	WriteEntry(unsigned int awriteAddress, double awriteTime, const T& anewValue, const Timeslice& acurrentTimeslice)
 //	:notDeleted(true), writeAddress(awriteAddress), writeTime(awriteTime), newValue(anewValue), currentTimeslice(acurrentTimeslice)
-//	{}
+//	{ }
 //
 //	unsigned int writeAddress;
 //	double writeTime;
@@ -38,10 +38,10 @@
 // template<class T> struct RandomTimeAccessBufferNew<T>::WriteInfo
 //{
 //	WriteInfo()
-//	{}
+//	{ }
 //	WriteInfo(const T& defaultValue)
 //	:newValue(defaultValue)
-//	{}
+//	{ }
 //
 //	bool exists;
 //	unsigned int writeAddress;
@@ -54,10 +54,10 @@
 //{
 //	TimesliceSaveEntry(typename const std::list<TimesliceEntry>::const_iterator& atimeslice, unsigned int aid)
 //	:timeslice(atimeslice), id(aid)
-//	{}
+//	{ }
 //	TimesliceSaveEntry(unsigned int aid, double atimesliceLength)
 //	:id(aid), timesliceLength(atimesliceLength)
-//	{}
+//	{ }
 //	typename std::list<TimesliceEntry>::const_iterator timeslice;
 //	Timeslice timesliceLoad;
 //	unsigned int id;
@@ -69,7 +69,7 @@
 //{
 //	WriteSaveEntry(unsigned int awriteAddress, double awriteTime, T aoldValue, unsigned int acurrentTimeslice)
 //	:writeAddress(awriteAddress), writeTime(awriteTime), oldValue(aoldValue), currentTimeslice(acurrentTimeslice)
-//	{}
+//	{ }
 //	unsigned int writeAddress;
 //	double writeTime;
 //	T oldValue;
@@ -89,7 +89,7 @@
 //	};
 //
 //	AccessTarget()
-//	{}
+//	{ }
 //	AccessTarget& AccessCommitted()
 //	{
 //		accessTarget = ACCESSTARGET_COMMITTED;
@@ -129,7 +129,7 @@
 ////Constructors
 ////----------------------------------------------------------------------------------------------------------------------
 // template<class T> RandomTimeAccessBufferNew<T>::RandomTimeAccessBufferNew()
-//{}
+//{ }
 //
 ////----------------------------------------------------------------------------------------------------------------------
 // template<class T> RandomTimeAccessBufferNew<T>::RandomTimeAccessBufferNew(unsigned int size)
@@ -958,7 +958,7 @@ template<class T> struct RandomTimeAccessBufferNew<T>::TimesliceEntry
 {
 	TimesliceEntry()
 	:notDeleted(true)
-	{}
+	{ }
 
 	double timesliceLength;
 	bool committed;
@@ -970,13 +970,13 @@ template<class T> struct RandomTimeAccessBufferNew<T>::WriteEntry
 {
 	WriteEntry()
 	:notDeleted(true)
-	{}
+	{ }
 	WriteEntry(const T& defaultValue)
 	:notDeleted(true), newValue(defaultValue)
-	{}
+	{ }
 	WriteEntry(unsigned int awriteAddress, double awriteTime, const T& anewValue, const Timeslice& acurrentTimeslice)
 	:notDeleted(true), writeAddress(awriteAddress), writeTime(awriteTime), newValue(anewValue), currentTimeslice(acurrentTimeslice)
-	{}
+	{ }
 
 	unsigned int writeAddress;
 	double writeTime;
@@ -989,10 +989,10 @@ template<class T> struct RandomTimeAccessBufferNew<T>::WriteEntry
 template<class T> struct RandomTimeAccessBufferNew<T>::WriteInfo
 {
 	WriteInfo()
-	{}
+	{ }
 	WriteInfo(const T& defaultValue)
 	:newValue(defaultValue)
-	{}
+	{ }
 
 	bool exists;
 	unsigned int writeAddress;
@@ -1005,10 +1005,10 @@ template<class T> struct RandomTimeAccessBufferNew<T>::TimesliceSaveEntry
 {
 	TimesliceSaveEntry(typename TimesliceList::Element* atimeslice, unsigned int aid)
 	:timeslice(atimeslice), id(aid)
-	{}
+	{ }
 	TimesliceSaveEntry(unsigned int aid, double atimesliceLength)
 	:id(aid), timesliceLength(atimesliceLength)
-	{}
+	{ }
 	typename TimesliceList::Element* timeslice;
 	Timeslice timesliceLoad;
 	unsigned int id;
@@ -1020,7 +1020,7 @@ template<class T> struct RandomTimeAccessBufferNew<T>::WriteSaveEntry
 {
 	WriteSaveEntry(unsigned int awriteAddress, double awriteTime, const T& aoldValue, unsigned int acurrentTimeslice)
 	:writeAddress(awriteAddress), writeTime(awriteTime), oldValue(aoldValue), currentTimeslice(acurrentTimeslice)
-	{}
+	{ }
 	unsigned int writeAddress;
 	double writeTime;
 	T oldValue;
@@ -1040,7 +1040,7 @@ template<class T> struct RandomTimeAccessBufferNew<T>::AccessTarget
 	};
 
 	AccessTarget()
-	{}
+	{ }
 	AccessTarget& AccessCommitted()
 	{
 		accessTarget = ACCESSTARGET_COMMITTED;
@@ -1080,7 +1080,7 @@ template<class T> struct RandomTimeAccessBufferNew<T>::AccessTarget
 // Constructors
 //----------------------------------------------------------------------------------------------------------------------
 template<class T> RandomTimeAccessBufferNew<T>::RandomTimeAccessBufferNew()
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 template<class T> RandomTimeAccessBufferNew<T>::RandomTimeAccessBufferNew(unsigned int size)

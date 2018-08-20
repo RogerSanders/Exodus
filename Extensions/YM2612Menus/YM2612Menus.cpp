@@ -6,7 +6,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 YM2612Menus::YM2612Menus(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
 :Extension(implementationName, instanceName, moduleID)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 YM2612Menus::~YM2612Menus()

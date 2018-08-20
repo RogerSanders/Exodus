@@ -67,7 +67,7 @@ struct DockingWindow::AddDockedWindowParams
 {
 	AddDockedWindowParams()
 	:hwnd(NULL), dockLocation(WindowEdge::Left), forceToTopOfDockingOrder(false), autoHide(false)
-	{}
+	{ }
 
 	HWND hwnd;
 	WindowEdge dockLocation;
@@ -80,7 +80,7 @@ struct DockingWindow::GetContentWindowInfo
 {
 	GetContentWindowInfo()
 	:hwnd(NULL), windowTitle(0), tabIndex(0)
-	{}
+	{ }
 
 	HWND hwnd;
 	const wchar_t* windowTitle;
@@ -93,7 +93,7 @@ struct DockingWindow::GetDockedWindowInfo
 {
 	GetDockedWindowInfo()
 	:hwnd(NULL)
-	{}
+	{ }
 
 	HWND hwnd;
 	WindowEdge dockLocation;
@@ -115,7 +115,7 @@ struct DockingWindow::ContentEntry
 {
 	ContentEntry()
 	:contentWindow(NULL), tabIndex(-1), removedWindowStyles(0), contentWindowAsDockingWindow(0)
-	{}
+	{ }
 
 	HWND contentWindow;
 	std::wstring contentTitle;
@@ -129,7 +129,7 @@ struct DockingWindow::AutoHideDockTab
 {
 	AutoHideDockTab()
 	:contentWindow(NULL), tabPosX(0), tabPosY(0), tabWidth(0), tabHeight(0)
-	{}
+	{ }
 
 	HWND contentWindow;
 	int tabPosX;
@@ -143,7 +143,7 @@ struct DockingWindow::AutoHideDockTabGroup
 {
 	AutoHideDockTabGroup()
 	:childContainer(0)
-	{}
+	{ }
 
 	IDockingWindow* childContainer;
 	std::list<AutoHideDockTab> dockTabs;
@@ -154,7 +154,7 @@ struct DockingWindow::AutoHideDockInfo
 {
 	AutoHideDockInfo()
 	:dockWindow(NULL), tabRowCount(1)
-	{}
+	{ }
 
 	HWND dockWindow;
 	int tabRowCount;
@@ -167,7 +167,7 @@ struct DockingWindow::TabRenderInfo
 {
 	TabRenderInfo(AutoHideDockTab& adockTabInfo, const std::wstring& awindowTitle)
 	:dockTabInfo(adockTabInfo), windowTitle(awindowTitle)
-	{}
+	{ }
 
 	AutoHideDockTab& dockTabInfo;
 	std::wstring windowTitle;

@@ -6,7 +6,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 SN76489Menus::SN76489Menus(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
 :Extension(implementationName, instanceName, moduleID)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 SN76489Menus::~SN76489Menus()
