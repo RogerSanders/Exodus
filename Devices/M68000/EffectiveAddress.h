@@ -52,7 +52,7 @@ public:
 	inline void BuildAbsoluteAddressLong(Bitcount size, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister);
 	inline void BuildPCIndirectDisplace(Bitcount size, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister);
 	inline void BuildPCIndirectIndex(Bitcount size, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister);
-	inline void BuildImmediateData(Bitcount size, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister);
+	inline void BuildImmediateData(Bitcount size, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister, bool signExtended = false);
 	inline void BuildImmediateData(const M68000Long& location, const Data& data, bool signExtended = false);
 	inline void BuildQuickData(const M68000Long& location, unsigned int data);
 

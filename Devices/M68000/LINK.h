@@ -22,7 +22,7 @@ public:
 
 	virtual Disassembly M68000Disassemble(const M68000::LabelSubstitutionSettings& labelSettings) const
 	{
-		return Disassembly(GetOpcodeName() + L"." + DisassembleSize(_size), _source.Disassemble(labelSettings) + L", " + _target.Disassemble(labelSettings));
+		return Disassembly(GetOpcodeName() + L"." + DisassembleSize(_size), _source.Disassemble(labelSettings) + L", " + _offset.Disassemble(labelSettings));
 	}
 
 	virtual void M68000Decode(const M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent)
@@ -38,7 +38,7 @@ public:
 		_source.BuildAddressDirect(_size, location + GetInstructionSize(), data.GetDataSegment(0, 3));
 		_stackPointer.BuildAddressDirect(BITCOUNT_LONG, location + GetInstructionSize(), M68000::SP);
 		_target.BuildAddressPredec(BITCOUNT_LONG, location + GetInstructionSize(), M68000::SP);
-		_offset.BuildImmediateData(_size, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
+		_offset.BuildImmediateData(_size, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister(), true);
 		AddInstructionSize(_offset.ExtensionSize());
 		AddExecuteCycleCount(ExecuteTime(16, 2, 2));
 	}
