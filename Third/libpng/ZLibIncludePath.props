@@ -3,6 +3,9 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <IncludePath>$(ThirdIncludePathsZlib);$(IncludePath)</IncludePath>
+    <ThirdIncludePathsResolved>@(ThirdIncludePaths->'%(RootDir)%(Directory)', ';')</ThirdIncludePathsResolved>
+  </PropertyGroup>
+  <PropertyGroup>
+    <IncludePath>$(ThirdIncludePathsResolved);$(IncludePath)</IncludePath>
   </PropertyGroup>
 </Project>

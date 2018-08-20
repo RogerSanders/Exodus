@@ -205,7 +205,7 @@ void MDBusArbiter::ExecuteCommit()
 	_bm68kBusGrantLineState = _m68kBusGrantLineState;
 	_bvresLineState = _vresLineState;
 	_bhaltLineState = _haltLineState;
-	_bsresLineState = _bsresLineState;
+	_bsresLineState = _sresLineState;
 	_bwresLineState = _wresLineState;
 }
 

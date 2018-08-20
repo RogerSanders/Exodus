@@ -9582,13 +9582,12 @@ bool System::ApplySystemStateChange(const SystemStateChange& stateChange)
 			return clockSource->TransparentSetClockDivider(stateChange.setClockRateValue);
 		case ClockSource::ClockType::Multiplier:
 			return clockSource->TransparentSetClockMultiplier(stateChange.setClockRateValue);
-		default:
-			LogEntry logEntry(LogEntry::EventLevel::Warning, L"System", L"");
-			logEntry << L"An attempt was made to change a system clock rate using an invalid clock type flag with a value of \"" << (unsigned int)stateChange.setClockRateClockType << L"\" in System::ApplySystemStateChange!";
-			WriteLogEvent(logEntry);
-			return false;
 		}
-		break;}
+
+		LogEntry logEntry(LogEntry::EventLevel::Warning, L"System", L"");
+		logEntry << L"An attempt was made to change a system clock rate using an invalid clock type flag with a value of \"" << (unsigned int)stateChange.setClockRateClockType << L"\" in System::ApplySystemStateChange!";
+		WriteLogEvent(logEntry);
+		return false;}
 	case SystemStateChangeType::SetSystemLineState:{
 		// Retrieve the target system line ID
 		unsigned int systemLineID = GetSystemLineID(stateChange.moduleID, stateChange.targetElementName);

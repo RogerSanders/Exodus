@@ -59,7 +59,7 @@ bool MenuSubmenu::NoMenuItemsExist() const
 		IMenuItem::Type menuItemType = menuItem->GetType();
 		if (menuItemType == IMenuItem::Type::Segment)
 		{
-			const IMenuSegment* menuItemAsSegment = (IMenuSegment*)menuItem;
+			const IMenuSegment* menuItemAsSegment = (const IMenuSegment*)menuItem;
 			if (!menuItemAsSegment->NoMenuItemsExist())
 			{
 				return false;
@@ -67,7 +67,7 @@ bool MenuSubmenu::NoMenuItemsExist() const
 		}
 		else if (menuItemType == IMenuItem::Type::SubMenu)
 		{
-			const IMenuSubmenu* menuItemAsSubmenu = (IMenuSubmenu*)menuItem;
+			const IMenuSubmenu* menuItemAsSubmenu = (const IMenuSubmenu*)menuItem;
 			if (!menuItemAsSubmenu->NoMenuItemsExist())
 			{
 				return false;

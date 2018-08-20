@@ -1873,12 +1873,12 @@ void S315_5313::DigitalRenderBuildSpriteList(unsigned int screenRowNumber, bool 
 	{
 		static const unsigned int spriteCacheEntrySize = 4;
 		const unsigned int spriteAttributeTableSize = (screenModeRS1Active)? 80: 64;
-		static const unsigned int spritePosScreenStartH = 0x80;
+		//static const unsigned int spritePosScreenStartH = 0x80;
 		const unsigned int spritePosScreenStartV = (interlaceMode2Active)? 0x100: 0x80;
 		const unsigned int spritePosBitCountV = (interlaceMode2Active)? 10: 9;
 		const unsigned int rowsPerTile = (!interlaceMode2Active)? 8: 16;
 		const unsigned int renderSpriteDisplayCacheSize = (screenModeRS1Active)? 20: 16;
-		const unsigned int renderSpriteCellDisplayCacheSize = (screenModeRS1Active)? 40: 32;
+		//const unsigned int renderSpriteCellDisplayCacheSize = (screenModeRS1Active)? 40: 32;
 
 		// Calculate the address in the sprite cache of the next sprite to read data for
 		unsigned int spriteCacheAddress = (nextTableEntryToRead * spriteCacheEntrySize);
@@ -1953,13 +1953,13 @@ void S315_5313::DigitalRenderBuildSpriteCellList(const HScanSettings& hscanSetti
 	if (!spriteDotOverflow)
 	{
 		//##TODO## Tidy up this list of constants
-		static const unsigned int spriteCacheEntrySize = 4;
+		//static const unsigned int spriteCacheEntrySize = 4;
 		static const unsigned int spriteTableEntrySize = 8;
-		const unsigned int spriteAttributeTableSize = (screenModeRS1Active)? 80: 64;
+		//const unsigned int spriteAttributeTableSize = (screenModeRS1Active)? 80: 64;
 		static const unsigned int spritePosScreenStartH = 0x80;
 		const unsigned int spritePosScreenStartV = (interlaceMode2Active)? 0x100: 0x80;
 		const unsigned int rowsPerTile = (!interlaceMode2Active)? 8: 16;
-		const unsigned int renderSpriteDisplayCacheSize = (screenModeRS1Active)? 20: 16;
+		//const unsigned int renderSpriteDisplayCacheSize = (screenModeRS1Active)? 20: 16;
 		const unsigned int renderSpriteCellDisplayCacheSize = (screenModeRS1Active)? 40: 32;
 
 		// Calculate the address in VRAM of this sprite table entry

@@ -12,7 +12,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~IBreakpoint() = 0 { }
+	inline virtual ~IBreakpoint() = 0;
 
 	// Interface version functions
 	static inline unsigned int ThisIBreakpointVersion() { return 1; }
@@ -52,6 +52,7 @@ public:
 	virtual unsigned int GetBreakCounter() const = 0;
 	virtual void SetBreakCounter(unsigned int breakCounter) = 0;
 };
+IBreakpoint::~IBreakpoint() { }
 
 #include "IBreakpoint.inl"
 #endif

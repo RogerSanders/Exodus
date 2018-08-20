@@ -113,43 +113,43 @@ void TimedBufferInt::FreeTimesliceReference(Timeslice* targetTimeslice)
 //----------------------------------------------------------------------------------------------------------------------
 void TimedBufferInt::AdvancePastTimeslice(const Timeslice* targetTimeslice)
 {
-	_memory.AdvancePastTimeslice(((TimedBufferTimeslice<DataType, TimesliceType>*)targetTimeslice)->timeslice);
+	_memory.AdvancePastTimeslice(((const TimedBufferTimeslice<DataType, TimesliceType>*)targetTimeslice)->timeslice);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 void TimedBufferInt::AdvanceToTimeslice(const Timeslice* targetTimeslice)
 {
-	_memory.AdvanceToTimeslice(((TimedBufferTimeslice<DataType, TimesliceType>*)targetTimeslice)->timeslice);
+	_memory.AdvanceToTimeslice(((const TimedBufferTimeslice<DataType, TimesliceType>*)targetTimeslice)->timeslice);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 void TimedBufferInt::AdvanceByTime(TimesliceType step, const Timeslice* targetTimeslice)
 {
-	_memory.AdvanceByTime(step, ((TimedBufferTimeslice<DataType, TimesliceType>*)targetTimeslice)->timeslice);
+	_memory.AdvanceByTime(step, ((const TimedBufferTimeslice<DataType, TimesliceType>*)targetTimeslice)->timeslice);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 bool TimedBufferInt::AdvanceByStep(const Timeslice* targetTimeslice)
 {
-	return _memory.AdvanceByStep(((TimedBufferTimeslice<DataType, TimesliceType>*)targetTimeslice)->timeslice);
+	return _memory.AdvanceByStep(((const TimedBufferTimeslice<DataType, TimesliceType>*)targetTimeslice)->timeslice);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 void TimedBufferInt::AdvanceBySession(TimesliceType currentProgress, AdvanceSession& advanceSession, const Timeslice* targetTimeslice)
 {
-	_memory.AdvanceBySession(currentProgress, advanceSession, ((TimedBufferTimeslice<DataType, TimesliceType>*)targetTimeslice)->timeslice);
+	_memory.AdvanceBySession(currentProgress, advanceSession, ((const TimedBufferTimeslice<DataType, TimesliceType>*)targetTimeslice)->timeslice);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 TimedBufferInt::TimesliceType TimedBufferInt::GetNextWriteTime(const Timeslice* targetTimeslice) const
 {
-	return _memory.GetNextWriteTime(((TimedBufferTimeslice<DataType, TimesliceType>*)targetTimeslice)->timeslice);
+	return _memory.GetNextWriteTime(((const TimedBufferTimeslice<DataType, TimesliceType>*)targetTimeslice)->timeslice);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 TimedBufferInt::WriteInfo TimedBufferInt::GetWriteInfo(unsigned int index, const Timeslice* targetTimeslice)
 {
-	return _memory.GetWriteInfo(index, ((TimedBufferTimeslice<DataType, TimesliceType>*)targetTimeslice)->timeslice);
+	return _memory.GetWriteInfo(index, ((const TimedBufferTimeslice<DataType, TimesliceType>*)targetTimeslice)->timeslice);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -175,7 +175,7 @@ void TimedBufferInt::AddTimeslice(TimesliceType timeslice)
 //----------------------------------------------------------------------------------------------------------------------
 void TimedBufferInt::BeginAdvanceSession(AdvanceSession& advanceSession, const Timeslice* targetTimeslice, bool retrieveWriteInfo) const
 {
-	_memory.BeginAdvanceSession(advanceSession, ((TimedBufferTimeslice<DataType, TimesliceType>*)targetTimeslice)->timeslice, retrieveWriteInfo);
+	_memory.BeginAdvanceSession(advanceSession, ((const TimedBufferTimeslice<DataType, TimesliceType>*)targetTimeslice)->timeslice, retrieveWriteInfo);
 }
 
 //----------------------------------------------------------------------------------------------------------------------

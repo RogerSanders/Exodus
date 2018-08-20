@@ -14,7 +14,7 @@ public:
 	enum class StorageMode;
 
 	// Constructors
-	virtual ~IHierarchicalStorageTree() = 0 { }
+	inline virtual ~IHierarchicalStorageTree() = 0;
 
 	// Save/Load functions
 	virtual bool SaveTree(Stream::IStream& target) = 0;
@@ -33,6 +33,7 @@ public:
 	virtual IHierarchicalStorageNode& GetRootNode() const = 0;
 	virtual Marshal::Ret<std::list<IHierarchicalStorageNode*>> GetBinaryDataNodeList() = 0;
 };
+IHierarchicalStorageTree::~IHierarchicalStorageTree() { }
 
 #include "IHierarchicalStorageTree.inl"
 #endif

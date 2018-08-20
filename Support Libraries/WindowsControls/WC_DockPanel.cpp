@@ -10,7 +10,7 @@ const wchar_t* WC_DockPanel::WindowClassName = L"EX_DockPanel";
 // Constructors
 //----------------------------------------------------------------------------------------------------------------------
 WC_DockPanel::WC_DockPanel(HINSTANCE moduleHandle, HWND hwnd)
-:_moduleHandle(moduleHandle), _hwnd(hwnd)
+:_hwnd(hwnd)
 {
 	_currentControlWidth = 0;
 	_currentControlHeight = 0;

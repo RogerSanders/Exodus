@@ -18,7 +18,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~IView() = 0 { }
+	inline virtual ~IView() = 0;
 
 	// Interface version functions
 	static inline unsigned int ThisIViewVersion() { return 1; }
@@ -45,6 +45,7 @@ public:
 	virtual DialogPos GetViewInitialDialogPosition() const = 0;
 	virtual bool CanResizeDialog() const = 0;
 };
+IView::~IView() { }
 
 #include "IView.inl"
 #endif

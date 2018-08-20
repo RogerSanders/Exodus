@@ -12,12 +12,29 @@
     <ThirdDirPathExpat Condition="'$(ThirdDirPathExpat)' == ''">$(ThirdDir)expat\expat-2.1.0\</ThirdDirPathExpat>
     <ThirdDirPathLibpng Condition="'$(ThirdDirPathLibpng)' == ''">$(ThirdDir)libpng\lpng1612\</ThirdDirPathLibpng>
     <ThirdDirPathCatch Condition="'$(ThirdDirPathCatch)' == ''">$(ThirdDir)catch\Catch\</ThirdDirPathCatch>
-
-    <ThirdIncludePathsZlib>$(ThirdDirPathZlib)</ThirdIncludePathsZlib>
-    <ThirdIncludePathsLibjpeg>$(ThirdDirPathLibjpeg);$(ThirdDirPathLibjpeg)..\</ThirdIncludePathsLibjpeg>
-    <ThirdIncludePathsLibtiff>$(ThirdDirPathLibtiff)libtiff\;$(ThirdDirPathLibtiff)..\</ThirdIncludePathsLibtiff>
-    <ThirdIncludePathsExpat>$(ThirdDirPathExpat)lib\</ThirdIncludePathsExpat>
-    <ThirdIncludePathsLibpng>$(ThirdDirPathLibpng);$(ThirdDirPathLibpng)..\</ThirdIncludePathsLibpng>
-    <ThirdIncludePathsCatch>$(ThirdDirPathCatch);$(ThirdDirPathCatch)include\</ThirdIncludePathsCatch>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ThirdIncludePaths Include="$(ThirdDirPathZlib)"/>
+    <ThirdIncludePaths Include="$(ThirdDirPathLibjpeg)"/>
+    <ThirdIncludePaths Include="$(ThirdDirPathLibjpeg)..\)"/>
+    <ThirdIncludePaths Include="$(ThirdDirPathLibtiff)libtiff\"/>
+    <ThirdIncludePaths Include="$(ThirdDirPathLibtiff)..\"/>
+    <ThirdIncludePaths Include="$(ThirdDirPathExpat)lib\"/>
+    <ThirdIncludePaths Include="$(ThirdDirPathLibpng)"/>
+    <ThirdIncludePaths Include="$(ThirdDirPathLibpng)..\"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <TestingThirdIncludePaths Include="$(ThirdDirPathCatch)"/>
+    <TestingThirdIncludePaths Include="$(ThirdDirPathCatch)include\)"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ThirdLibPaths Include="$(ThirdDirPathZlib)"/>
+    <ThirdLibPaths Include="$(ThirdDirPathLibjpeg)"/>
+    <ThirdLibPaths Include="$(ThirdDirPathLibtiff)"/>
+    <ThirdLibPaths Include="$(ThirdDirPathExpat)"/>
+    <ThirdLibPaths Include="$(ThirdDirPathLibpng)"/>
+  </ItemGroup>
 </Project>

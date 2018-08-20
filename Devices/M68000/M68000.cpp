@@ -36,7 +36,7 @@ M68000::M68000(const std::wstring& implementationName, const std::wstring& insta
 M68000::~M68000()
 {
 	// Delete the opcode buffer
-	delete _opcodeBuffer;
+	delete[] (unsigned char*)_opcodeBuffer;
 
 	// Delete all objects stored in the opcode list
 	for (std::list<M68000Instruction*>::const_iterator i = _opcodeList.begin(); i != _opcodeList.end(); ++i)
@@ -3139,10 +3139,10 @@ bool M68000::ReadGenericData(unsigned int dataID, const DataContext* dataContext
 	case IM68000DataSource::RegisterUSP:
 		return dataValue.SetValue(GetUSP().GetData());
 	case IM68000DataSource::RegisterA:{
-		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
+		const RegisterDataContext& registerDataContext = *((const RegisterDataContext*)dataContext);
 		return dataValue.SetValue(GetA(registerDataContext.registerNo).GetData());}
 	case IM68000DataSource::RegisterD:{
-		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
+		const RegisterDataContext& registerDataContext = *((const RegisterDataContext*)dataContext);
 		return dataValue.SetValue(GetD(registerDataContext.registerNo).GetData());}
 	}
 	return Processor::ReadGenericData(dataID, dataContext, dataValue);
@@ -3228,7 +3228,7 @@ bool M68000::WriteGenericData(unsigned int dataID, const DataContext* dataContex
 	case IM68000DataSource::RegisterA:{
 		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
-		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
+		const RegisterDataContext& registerDataContext = *((const RegisterDataContext*)dataContext);
 		if (registerDataContext.registerNo == SP)
 		{
 			SetSP(M68000Long(dataValueAsUInt.GetValue()));
@@ -3241,7 +3241,7 @@ bool M68000::WriteGenericData(unsigned int dataID, const DataContext* dataContex
 	case IM68000DataSource::RegisterD:{
 		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
-		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
+		const RegisterDataContext& registerDataContext = *((const RegisterDataContext*)dataContext);
 		_d[registerDataContext.registerNo] = dataValueAsUInt.GetValue();
 		return true;}
 	}
@@ -3284,10 +3284,10 @@ bool M68000::GetGenericDataHighlightState(unsigned int dataID, const DataContext
 	case IM68000DataSource::RegisterUSP:
 		return (_regChangedUSP != GetUSP().GetData());
 	case IM68000DataSource::RegisterA:{
-		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
+		const RegisterDataContext& registerDataContext = *((const RegisterDataContext*)dataContext);
 		return (_regChangedA[registerDataContext.registerNo] != GetA(registerDataContext.registerNo).GetData());}
 	case IM68000DataSource::RegisterD:{
-		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
+		const RegisterDataContext& registerDataContext = *((const RegisterDataContext*)dataContext);
 		return (_regChangedD[registerDataContext.registerNo] != GetD(registerDataContext.registerNo).GetData());}
 	}
 	return Processor::GetGenericDataHighlightState(dataID, dataContext);

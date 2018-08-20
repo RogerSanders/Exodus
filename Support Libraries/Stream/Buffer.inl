@@ -81,7 +81,26 @@ void Buffer::CheckBufferSize(SizeType writeSize)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-unsigned char* Buffer::GetRawBuffer() const
+const unsigned char* Buffer::GetRawBuffer() const
+{
+	// We return a null pointer in the case that the internal buffer is empty, otherwise
+	// the std::vector throws an exception. We've found its useful for the user to be able
+	// to get the raw pointer for the internal buffer even when the buffer is empty, eg
+	// when iterating through the buffer for elements while not at the end of the buffer.
+	// In these cases the null pointer is never used, but its neater to obtain it before
+	// checking the size of the buffer.
+	if (_buffer.empty())
+	{
+		return (const unsigned char*)0;
+	}
+	else
+	{
+		return (const unsigned char*)&_buffer[0];
+	}
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+unsigned char* Buffer::GetRawBuffer()
 {
 	// We return a null pointer in the case that the internal buffer is empty, otherwise
 	// the std::vector throws an exception. We've found its useful for the user to be able

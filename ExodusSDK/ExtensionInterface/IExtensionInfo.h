@@ -14,7 +14,10 @@ public:
 
 public:
 	// Constructors
-	virtual ~IExtensionInfo() = 0 { }
+	IExtensionInfo() = default;
+	IExtensionInfo(const IExtensionInfo& source) = default;
+	IExtensionInfo& operator=(const IExtensionInfo& source) = default;
+	inline virtual ~IExtensionInfo() = 0;
 
 	// Interface version functions
 	static inline unsigned int ThisIExtensionInfoVersion() { return 1; }
@@ -40,5 +43,6 @@ public:
 	virtual void SetExtensionComments(const Marshal::In<std::wstring>& extensionComments) = 0;
 	virtual void SetIsPersistentGlobalExtension(bool state) = 0;
 };
+IExtensionInfo::~IExtensionInfo() { }
 
 #endif

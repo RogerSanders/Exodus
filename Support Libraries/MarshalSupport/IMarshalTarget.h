@@ -33,6 +33,16 @@ namespace MarshalSupport {
 // destructors where appropriate to prevent destruction through base class pointers.
 #pragma warning(disable:4265)
 #endif
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdelete-non-virtual-dtor"
+#pragma clang diagnostic ignored "-Wnon-virtual-dtor"
+#endif
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdelete-virtual-dtor"
+#pragma GCC diagnostic ignored "-Wnon-virtual-dtor"
+#endif
 
 //----------------------------------------------------------------------------------------------------------------------
 namespace Internal {
@@ -667,6 +677,12 @@ protected:
 // Restore the disabled warnings
 #ifdef _MSC_VER
 #pragma warning(pop)
+#endif
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
 #endif
 
 } // Close namespace MarshalSupport

@@ -52,7 +52,6 @@ private:
 	void UpdateVerticalScrollPos(int newScrollPos);
 
 private:
-	HINSTANCE _moduleHandle;
 	HWND _hwnd;
 	bool _scrollBarAutoHorizontal;
 	bool _scrollBarAutoVertical;

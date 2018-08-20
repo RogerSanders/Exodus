@@ -12,7 +12,7 @@ class IHierarchicalStorageNode
 {
 public:
 	// Constructors
-	virtual ~IHierarchicalStorageNode() = 0 { }
+	inline virtual ~IHierarchicalStorageNode() = 0;
 
 	// Name functions
 	virtual Marshal::Ret<std::wstring> GetName() const = 0;
@@ -84,6 +84,7 @@ protected:
 	virtual void ResetInternalStreamPosition() const = 0;
 	virtual Stream::IStream& GetInternalStream() const = 0;
 };
+IHierarchicalStorageNode::~IHierarchicalStorageNode() { }
 
 #include "IHierarchicalStorageNode.inl"
 #endif

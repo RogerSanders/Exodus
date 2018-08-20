@@ -5,7 +5,7 @@ class IMenuHandler
 {
 public:
 	// Constructors
-	virtual ~IMenuHandler() = 0 { }
+	inline virtual ~IMenuHandler() = 0;
 
 	// Interface version functions
 	static inline unsigned int ThisIMenuHandlerVersion() { return 1; }
@@ -14,5 +14,6 @@ public:
 	// Menu item handler functions
 	virtual void HandleMenuItemSelect(int menuItemID) = 0;
 };
+IMenuHandler::~IMenuHandler() { }
 
 #endif

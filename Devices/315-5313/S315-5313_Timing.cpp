@@ -757,12 +757,12 @@ bool S315_5313::EventOccursWithinCounterRange(const HScanSettings& hscanSettings
 	        )))) // The target event occurs at or after the start position
 	     && ((vcounterEnd > vcounterEventPos)
 	      || ((vcounterEnd == vcounterEventPos)
-	       && (((hcounterEnd < hscanSettings.vcounterIncrementPoint)
+	       && ((((hcounterEnd < hscanSettings.vcounterIncrementPoint)
 	         && (hcounterEventPos < hscanSettings.vcounterIncrementPoint))
-	         && (hcounterEnd >= hcounterEventPos)
-	        || ((hcounterEnd >= hscanSettings.vcounterIncrementPoint)
+	         && (hcounterEnd >= hcounterEventPos))
+	        || (((hcounterEnd >= hscanSettings.vcounterIncrementPoint)
 	         && (hcounterEventPos >= hscanSettings.vcounterIncrementPoint))
-	         && (hcounterEnd >= hcounterEventPos)
+	         && (hcounterEnd >= hcounterEventPos))
 	        || ((hcounterEventPos >= hscanSettings.vcounterIncrementPoint)
 	         && (hcounterEnd < hscanSettings.vcounterIncrementPoint)
 	       ))))); // The target event occurs at or after the end position

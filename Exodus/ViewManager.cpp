@@ -3372,17 +3372,17 @@ bool ViewManager::PointWithinRegion(int posx, int posy, const Region2D& region)
 //----------------------------------------------------------------------------------------------------------------------
 bool ViewManager::RegionIntersectsHorizontalLine(int posx, int posy, int width, const Region2D& region)
 {
-	return (posy >= region.posy) && (posy < (region.posy + region.sizey))   // The line is overlapping with or adjacent to the region vertically
-	   && ((posx <= region.posx) && ((posx + width) > region.posx)          // The line begins at or before the region, and intersects it as it moves right
-	    || (posx >= region.posx) && (posx < (region.posx + region.sizex))); // The line begins within the region
+	return (posy >= region.posy) && (posy < (region.posy + region.sizey))     // The line is overlapping with or adjacent to the region vertically
+	   && (((posx <= region.posx) && ((posx + width) > region.posx))          // The line begins at or before the region, and intersects it as it moves right
+	    || ((posx >= region.posx) && (posx < (region.posx + region.sizex)))); // The line begins within the region
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 bool ViewManager::RegionIntersectsVerticalLine(int posx, int posy, int height, const Region2D& region)
 {
-	return (posx >= region.posx) && (posx < (region.posx + region.sizex))   // The line is overlapping with or adjacent to the region horizontally
-	   && ((posy <= region.posy) && ((posy + height) > region.posy)         // The line begins at or before the region, and intersects it as it moves down
-	    || (posy >= region.posy) && (posy < (region.posy + region.sizey))); // The line begins within the region
+	return (posx >= region.posx) && (posx < (region.posx + region.sizex))     // The line is overlapping with or adjacent to the region horizontally
+	   && (((posy <= region.posy) && ((posy + height) > region.posy))         // The line begins at or before the region, and intersects it as it moves down
+	    || ((posy >= region.posy) && (posy < (region.posy + region.sizey)))); // The line begins within the region
 }
 
 //----------------------------------------------------------------------------------------------------------------------

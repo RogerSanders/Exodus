@@ -7,6 +7,10 @@
 // recognized by Visual Studio and some other debuggers to set the thread name in the
 // debugger. See the following MSDN article for further information:
 // http://msdn.microsoft.com/en-us/library/xcb2z8hs.aspx
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wlanguage-extension-token"
+#endif
 const DWORD MS_VC_EXCEPTION = 0x406D1388;
 
 #pragma pack(push, 8)
@@ -19,7 +23,7 @@ typedef struct tagTHREADNAME_INFO
 } THREADNAME_INFO;
 #pragma pack(pop)
 
-void SetThreadName(DWORD dwThreadID, char* threadName)
+static void SetThreadName(DWORD dwThreadID, char* threadName)
 {
 	THREADNAME_INFO info;
 	info.dwType = 0x1000;
@@ -35,6 +39,9 @@ void SetThreadName(DWORD dwThreadID, char* threadName)
 	{
 	}
 }
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 //----------------------------------------------------------------------------------------------------------------------
 // Threading functions

@@ -29,7 +29,7 @@ template<class B> GenericAccessBase<B>::~GenericAccessBase()
 //----------------------------------------------------------------------------------------------------------------------
 template<class B> unsigned int GenericAccessBase<B>::GetIGenericAccessVersion() const
 {
-	return ThisIGenericAccessVersion();
+	return B::ThisIGenericAccessVersion();
 }
 
 //----------------------------------------------------------------------------------------------------------------------

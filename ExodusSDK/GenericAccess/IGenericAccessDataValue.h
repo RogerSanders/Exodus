@@ -14,7 +14,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~IGenericAccessDataValue() = 0 { }
+	inline virtual ~IGenericAccessDataValue() = 0;
 
 	// Interface version functions
 	static inline unsigned int ThisIGenericAccessDataValueVersion() { return 1; }
@@ -45,6 +45,7 @@ public:
 	// Value limit functions
 	virtual void ApplyLimitSettingsToCurrentValue() = 0;
 };
+IGenericAccessDataValue::~IGenericAccessDataValue() { }
 
 #include "IGenericAccessDataValue.inl"
 #endif

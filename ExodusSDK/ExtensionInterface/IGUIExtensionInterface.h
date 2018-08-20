@@ -13,7 +13,7 @@ class IGUIExtensionInterface
 {
 public:
 	// Constructors
-	virtual ~IGUIExtensionInterface() = 0 { }
+	inline virtual ~IGUIExtensionInterface() = 0;
 
 	// Interface version functions
 	static inline unsigned int ThisIGUIExtensionInterfaceVersion() { return 1; }
@@ -63,5 +63,6 @@ public:
 	virtual Stream::IStream* OpenExistingFileForRead(const Marshal::In<std::wstring>& path) const = 0;
 	virtual void DeleteFileStream(Stream::IStream* stream) const = 0;
 };
+IGUIExtensionInterface::~IGUIExtensionInterface() { }
 
 #endif

@@ -9,7 +9,7 @@ class IModuleSettingInfo
 {
 public:
 	// Constructors
-	virtual ~IModuleSettingInfo() = 0 { }
+	inline virtual ~IModuleSettingInfo() = 0;
 
 	// Interface version functions
 	static inline unsigned int ThisIModuleSettingInfoVersion() { return 1; }
@@ -33,5 +33,6 @@ public:
 	virtual void SetToggleSettingOffOptionIndex(unsigned int offOptionIndex) = 0;
 	virtual void SetIsToggleSetting(bool toggleSetting) = 0;
 };
+IModuleSettingInfo::~IModuleSettingInfo() { }
 
 #endif

@@ -307,6 +307,8 @@ public:
 	void SaveCallStack(IHierarchicalStorageNode& node) const;
 
 	// Data read/write functions
+	using IGenericAccess::ReadGenericData;
+	using IGenericAccess::WriteGenericData;
 	virtual bool ReadGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue) const;
 	virtual bool WriteGenericData(unsigned int dataID, const DataContext* dataContext, IGenericAccessDataValue& dataValue);
 

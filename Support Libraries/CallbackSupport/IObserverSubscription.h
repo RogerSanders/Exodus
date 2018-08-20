@@ -6,7 +6,7 @@ class IObserverSubscription
 {
 public:
 	// Constructors
-	virtual ~IObserverSubscription() = 0 { }
+	inline virtual ~IObserverSubscription() = 0;
 
 	// Subscription functions
 	virtual void Subscribe(IObserverCollection& targetCollection) = 0;
@@ -18,5 +18,6 @@ public:
 	virtual void NotifyLinkedToCollection(IObserverCollection& targetCollection) = 0;
 	virtual void NotifyUnlinkedFromCollection(IObserverCollection& targetCollection) = 0;
 };
+IObserverSubscription::~IObserverSubscription() { }
 
 #endif

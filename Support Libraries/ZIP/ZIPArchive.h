@@ -27,16 +27,16 @@ class ZIPArchive
 {
 public:
 	// Enumerations
-	enum CompressionMethod
+	enum class CompressionMethod
 	{
-		COMPRESSIONMETHOD_STORE       = 0,
-		COMPRESSIONMETHOD_SHRUNK      = 1,
-		COMPRESSIONMETHOD_IMPLODED    = 6,
-		COMPRESSIONMETHOD_DEFLATE     = 8,
-		COMPRESSIONMETHOD_BZIP2       = 12,
-		COMPRESSIONMETHOD_LZMA        = 14,
-		COMPRESSIONMETHOD_WAVPACK     = 97,
-		COMPRESSIONMETHOD_PPMd        = 98
+		Store       = 0,
+		Shrunk      = 1,
+		Imploded    = 6,
+		Deflate     = 8,
+		BZip2       = 12,
+		Lzma        = 14,
+		WavPack     = 97,
+		PPMd        = 98
 	};
 
 	// 0 - The file is stored (no compression)
@@ -63,7 +63,7 @@ public:
 	// 98 - PPMd version I, Rev 1
 
 	// Constructors
-	ZIPArchive(CompressionMethod compressionmMethod = COMPRESSIONMETHOD_DEFLATE);
+	ZIPArchive(CompressionMethod compressionMethod = CompressionMethod::Deflate);
 
 	// Serialization functions
 	bool LoadFromStream(Stream::IStream& source);
@@ -79,7 +79,6 @@ private:
 	std::list<ZIPFileEntry> _fileList;
 	std::list<ZIPChunkCentralFileHeader> _centralDirectory;
 	ZIPChunkEndOfCentralDirectory _endOfCentralDirectoryHeader;
-	CompressionMethod _compressionMethod;
 };
 
 #endif

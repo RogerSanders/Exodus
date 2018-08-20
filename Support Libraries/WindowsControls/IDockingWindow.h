@@ -13,7 +13,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~IDockingWindow() = 0 { }
+	inline virtual ~IDockingWindow() = 0;
 
 	// Window handle methods
 	virtual HWND GetWindowHandle() const = 0;
@@ -50,6 +50,7 @@ public:
 	virtual void NotifyAddedToParent(IDockingWindow* newParentDockingWindow) = 0;
 	virtual void NotifyRemovedFromParent() = 0;
 };
+IDockingWindow::~IDockingWindow() { }
 
 #include "IDockingWindow.inl"
 #endif

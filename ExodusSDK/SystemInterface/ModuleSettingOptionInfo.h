@@ -1,6 +1,6 @@
 #ifndef __MODULESETTINGOPTIONINFO_H__
 #define __MODULESETTINGOPTIONINFO_H__
-#include "IModuleSettingoptionInfo.h"
+#include "IModuleSettingOptionInfo.h"
 
 class ModuleSettingOptionInfo :public IModuleSettingOptionInfo
 {

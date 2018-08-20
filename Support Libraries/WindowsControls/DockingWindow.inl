@@ -28,10 +28,10 @@ enum class DockingWindow::ContentWindowInfo :unsigned int
 };
 inline DockingWindow::ContentWindowInfo operator&(DockingWindow::ContentWindowInfo a, DockingWindow::ContentWindowInfo b) { return (DockingWindow::ContentWindowInfo)((unsigned int)a & (unsigned int)b); }
 inline DockingWindow::ContentWindowInfo operator|(DockingWindow::ContentWindowInfo a, DockingWindow::ContentWindowInfo b) { return (DockingWindow::ContentWindowInfo)((unsigned int)a | (unsigned int)b); }
-inline bool operator!=(DockingWindow::ContentWindowInfo a, unsigned int b) { return (unsigned int)a != b; }
-inline bool operator!=(unsigned int a, DockingWindow::ContentWindowInfo b) { return (unsigned int)a != b; }
-inline bool operator==(DockingWindow::ContentWindowInfo a, unsigned int b) { return (unsigned int)a == b; }
-inline bool operator==(unsigned int a, DockingWindow::ContentWindowInfo b) { return (unsigned int)a == b; }
+inline bool operator!=(DockingWindow::ContentWindowInfo a, unsigned int b) { return (unsigned int)a != (unsigned int)b; }
+inline bool operator!=(unsigned int a, DockingWindow::ContentWindowInfo b) { return (unsigned int)a != (unsigned int)b; }
+inline bool operator==(DockingWindow::ContentWindowInfo a, unsigned int b) { return (unsigned int)a == (unsigned int)b; }
+inline bool operator==(unsigned int a, DockingWindow::ContentWindowInfo b) { return (unsigned int)a == (unsigned int)b; }
 
 //----------------------------------------------------------------------------------------------------------------------
 enum class DockingWindow::DockedWindowInfo :unsigned int
@@ -40,10 +40,10 @@ enum class DockingWindow::DockedWindowInfo :unsigned int
 };
 inline DockingWindow::DockedWindowInfo operator&(DockingWindow::DockedWindowInfo a, DockingWindow::DockedWindowInfo b) { return (DockingWindow::DockedWindowInfo)((unsigned int)a & (unsigned int)b); }
 inline DockingWindow::DockedWindowInfo operator|(DockingWindow::DockedWindowInfo a, DockingWindow::DockedWindowInfo b) { return (DockingWindow::DockedWindowInfo)((unsigned int)a | (unsigned int)b); }
-inline bool operator!=(DockingWindow::DockedWindowInfo a, unsigned int b) { return (unsigned int)a != b; }
-inline bool operator!=(unsigned int a, DockingWindow::DockedWindowInfo b) { return (unsigned int)a != b; }
-inline bool operator==(DockingWindow::DockedWindowInfo a, unsigned int b) { return (unsigned int)a == b; }
-inline bool operator==(unsigned int a, DockingWindow::DockedWindowInfo b) { return (unsigned int)a == b; }
+inline bool operator!=(DockingWindow::DockedWindowInfo a, unsigned int b) { return (unsigned int)a != (unsigned int)b; }
+inline bool operator!=(unsigned int a, DockingWindow::DockedWindowInfo b) { return (unsigned int)a != (unsigned int)b; }
+inline bool operator==(DockingWindow::DockedWindowInfo a, unsigned int b) { return (unsigned int)a == (unsigned int)b; }
+inline bool operator==(unsigned int a, DockingWindow::DockedWindowInfo b) { return (unsigned int)a == (unsigned int)b; }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Structures

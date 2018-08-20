@@ -1346,7 +1346,7 @@ LRESULT DockingWindow::msgWM_BOUNCE(WPARAM wParam, LPARAM lParam)
 					TCITEM tabControlItem;
 					tabControlItem.mask = TCIF_PARAM | TCIF_TEXT;
 					tabControlItem.lParam = (LPARAM)draggedContentEntry.contentWindow;
-					tabControlItem.pszText = (LPWSTR)draggedContentEntry.contentTitle.c_str();
+					tabControlItem.pszText = (LPWSTR)const_cast<wchar_t*>(draggedContentEntry.contentTitle.c_str());
 					SendMessage(_contentTabControl, TCM_INSERTITEM, draggedContentEntry.tabIndex, (LPARAM)&tabControlItem);
 
 					// Update the index number of the tab currently being dragged
@@ -4459,7 +4459,7 @@ void DockingWindow::AddHostedContent(HWND contentWindow, const std::wstring& con
 				TCITEM tabControlItem;
 				tabControlItem.mask = TCIF_PARAM | TCIF_TEXT;
 				tabControlItem.lParam = (LPARAM)existingContentEntry.contentWindow;
-				tabControlItem.pszText = (LPWSTR)existingContentEntry.contentTitle.c_str();
+				tabControlItem.pszText = (LPWSTR)const_cast<wchar_t*>(existingContentEntry.contentTitle.c_str());
 				existingContentEntry.tabIndex = (int)SendMessage(_contentTabControl, TCM_INSERTITEM, 9999, (LPARAM)&tabControlItem);
 
 				// Add the existing content entry back into the tab index to content number
@@ -4493,7 +4493,7 @@ void DockingWindow::AddHostedContent(HWND contentWindow, const std::wstring& con
 		TCITEM tabControlItem;
 		tabControlItem.mask = TCIF_PARAM | TCIF_TEXT;
 		tabControlItem.lParam = (LPARAM)entry.contentWindow;
-		tabControlItem.pszText = (LPWSTR)entry.contentTitle.c_str();
+		tabControlItem.pszText = (LPWSTR)const_cast<wchar_t*>(entry.contentTitle.c_str());
 		entry.tabIndex = (int)SendMessage(_contentTabControl, TCM_INSERTITEM, 9999, (LPARAM)&tabControlItem);
 
 		// Set this content item as a child window of the tab control
@@ -4774,7 +4774,7 @@ void DockingWindow::SetHostedContentTitle(unsigned int contentEntryNo, const std
 	{
 		TCITEM tabControlItem;
 		tabControlItem.mask = TCIF_TEXT;
-		tabControlItem.pszText = (LPWSTR)contentEntry.contentTitle.c_str();
+		tabControlItem.pszText = (LPWSTR)const_cast<wchar_t*>(contentEntry.contentTitle.c_str());
 		SendMessage(_contentTabControl, TCM_SETITEM, (WPARAM)contentEntry.tabIndex, (LPARAM)&tabControlItem);
 	}
 

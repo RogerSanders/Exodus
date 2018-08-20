@@ -98,7 +98,7 @@ template<class T> bool ViewText::Read(T& data)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<> bool ViewText::Read(bool& data)
+template<> inline bool ViewText::Read(bool& data)
 {
 	const wchar_t* trueString = L"true";
 	const wchar_t* falseString = L"false";
@@ -173,7 +173,7 @@ template<> bool ViewText::Read(bool& data)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<> bool ViewText::Read(std::string& data)
+template<> inline bool ViewText::Read(std::string& data)
 {
 	bool result = ReadTextString(data, true);
 	_noErrorState &= result;
@@ -181,7 +181,7 @@ template<> bool ViewText::Read(std::string& data)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<> bool ViewText::Read(std::wstring& data)
+template<> inline bool ViewText::Read(std::wstring& data)
 {
 	bool result = ReadTextString(data, true);
 	_noErrorState &= result;
@@ -189,7 +189,7 @@ template<> bool ViewText::Read(std::wstring& data)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<> bool ViewText::Read(char& data)
+template<> inline bool ViewText::Read(char& data)
 {
 	IStream::UnicodeCodePoint codePoint;
 	if (!_stream.ReadChar(_byteOrder, codePoint))
@@ -203,7 +203,7 @@ template<> bool ViewText::Read(char& data)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<> bool ViewText::Read(wchar_t& data)
+template<> inline bool ViewText::Read(wchar_t& data)
 {
 	IStream::UnicodeCodePoint codePoint;
 	if (!_stream.ReadChar(_byteOrder, codePoint))
@@ -222,7 +222,7 @@ template<> bool ViewText::Read(wchar_t& data)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<> bool ViewText::Read(signed char& data)
+template<> inline bool ViewText::Read(signed char& data)
 {
 	int temp;
 	bool result = Read(temp);
@@ -232,7 +232,7 @@ template<> bool ViewText::Read(signed char& data)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<> bool ViewText::Read(unsigned char& data)
+template<> inline bool ViewText::Read(unsigned char& data)
 {
 	unsigned int temp;
 	bool result = Read(temp);
@@ -252,16 +252,16 @@ template<class T> bool ViewText::Write(const T& data)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<> bool ViewText::Write(const bool& data)
+template<> inline bool ViewText::Write(const bool& data)
 {
-	wchar_t* boolAsString = data? L"1": L"0";
+	const wchar_t* boolAsString = data? L"1": L"0";
 	bool result = _stream.WriteText(_byteOrder, boolAsString);
 	_noErrorState &= result;
 	return result;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<> bool ViewText::Write(const float& data)
+template<> inline bool ViewText::Write(const float& data)
 {
 	_wcharStream.str(L"");
 	_wcharStream << std::fixed << std::setprecision(7) << data;
@@ -271,7 +271,7 @@ template<> bool ViewText::Write(const float& data)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<> bool ViewText::Write(const double& data)
+template<> inline bool ViewText::Write(const double& data)
 {
 	_wcharStream.str(L"");
 	_wcharStream << std::fixed << std::setprecision(16) << data;
@@ -281,7 +281,7 @@ template<> bool ViewText::Write(const double& data)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<> bool ViewText::Write(const long double& data)
+template<> inline bool ViewText::Write(const long double& data)
 {
 	_wcharStream.str(L"");
 	_wcharStream << std::fixed << std::setprecision(64) << data;
@@ -291,7 +291,7 @@ template<> bool ViewText::Write(const long double& data)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<> bool ViewText::Write(const std::string& data)
+template<> inline bool ViewText::Write(const std::string& data)
 {
 	bool result = _stream.WriteText(_byteOrder, data);
 	_noErrorState &= result;
@@ -299,7 +299,7 @@ template<> bool ViewText::Write(const std::string& data)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<> bool ViewText::Write(const std::wstring& data)
+template<> inline bool ViewText::Write(const std::wstring& data)
 {
 	bool result = _stream.WriteText(_byteOrder, data);
 	_noErrorState &= result;
@@ -308,7 +308,7 @@ template<> bool ViewText::Write(const std::wstring& data)
 
 //----------------------------------------------------------------------------------------------------------------------
 //##FIX## These functions are unsafe
-template<> bool ViewText::Write(char* const& data)
+template<> inline bool ViewText::Write(char* const& data)
 {
 	bool result = _stream.WriteText(_byteOrder, data, GetStringLength(data));
 	_noErrorState &= result;
@@ -316,7 +316,7 @@ template<> bool ViewText::Write(char* const& data)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<> bool ViewText::Write(wchar_t* const& data)
+template<> inline bool ViewText::Write(wchar_t* const& data)
 {
 	bool result = _stream.WriteText(_byteOrder, data, GetStringLength(data));
 	_noErrorState &= result;
@@ -324,7 +324,7 @@ template<> bool ViewText::Write(wchar_t* const& data)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<> bool ViewText::Write(const char* const& data)
+template<> inline bool ViewText::Write(const char* const& data)
 {
 	bool result = _stream.WriteText(_byteOrder, data, GetStringLength(data));
 	_noErrorState &= result;
@@ -332,7 +332,7 @@ template<> bool ViewText::Write(const char* const& data)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<> bool ViewText::Write(const wchar_t* const& data)
+template<> inline bool ViewText::Write(const wchar_t* const& data)
 {
 	bool result = _stream.WriteText(_byteOrder, data, GetStringLength(data));
 	_noErrorState &= result;
@@ -366,7 +366,7 @@ template<size_t S> bool ViewText::Write(const wchar_t(&data)[S])
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<> bool ViewText::Write(const char& data)
+template<> inline bool ViewText::Write(const char& data)
 {
 	std::string temp;
 	temp.push_back(data);
@@ -376,7 +376,7 @@ template<> bool ViewText::Write(const char& data)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<> bool ViewText::Write(const wchar_t& data)
+template<> inline bool ViewText::Write(const wchar_t& data)
 {
 	std::wstring temp;
 	temp.push_back(data);
@@ -386,7 +386,7 @@ template<> bool ViewText::Write(const wchar_t& data)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<> bool ViewText::Write(const signed char& data)
+template<> inline bool ViewText::Write(const signed char& data)
 {
 	int temp = data;
 	bool result = Write(temp);
@@ -395,7 +395,7 @@ template<> bool ViewText::Write(const signed char& data)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<> bool ViewText::Write(const unsigned char& data)
+template<> inline bool ViewText::Write(const unsigned char& data)
 {
 	unsigned int temp = data;
 	bool result = Write(temp);

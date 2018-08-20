@@ -1,22 +1,26 @@
 #include "DeviceInterface/DeviceInterface.pkg"
 #include "Z80.h"
 
-IDevice* GetZ80(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
+//----------------------------------------------------------------------------------------------------------------------
+static IDevice* GetZ80(const wchar_t* implementationName, const wchar_t* instanceName, unsigned int moduleID)
 {
 	return static_cast<IDevice*>(new Z80::Z80(implementationName, instanceName, moduleID));
 }
 
-void DeleteZ80(IDevice* device)
+//----------------------------------------------------------------------------------------------------------------------
+static void DeleteZ80(IDevice* device)
 {
 	delete static_cast<Z80::Z80*>(device);
 }
 
 #ifdef EX_DLLINTERFACE
+//----------------------------------------------------------------------------------------------------------------------
 extern "C" __declspec(dllexport) unsigned int GetInterfaceVersion()
 {
 	return EXODUS_INTERFACEVERSION;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 extern "C" __declspec(dllexport) bool GetDeviceEntry(unsigned int entryNo, IDeviceInfo& entry)
 {
 	// Retrieve any required information from the version info table for our plugin

@@ -14,7 +14,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~ISystemDeviceInterface() = 0 { }
+	inline virtual ~ISystemDeviceInterface() = 0;
 
 	// Interface version functions
 	static inline unsigned int ThisISystemDeviceInterfaceVersion() { return 1; }
@@ -44,6 +44,7 @@ public:
 	virtual void HandleInputAxisUpdate(AxisCode axisCode, float newValue) = 0;
 	virtual void HandleInputScrollUpdate(ScrollCode scrollCode, int scrollTicks) = 0;
 };
+ISystemDeviceInterface::~ISystemDeviceInterface() { }
 
 #include "ISystemDeviceInterface.inl"
 #endif

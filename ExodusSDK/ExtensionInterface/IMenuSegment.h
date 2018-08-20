@@ -21,7 +21,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~IMenuSegment() = 0 { }
+	inline virtual ~IMenuSegment() = 0;
 
 	// Interface version functions
 	static inline unsigned int ThisIMenuSegmentVersion() { return 1; }
@@ -48,5 +48,6 @@ public:
 	virtual void DeleteMenuItem(IMenuItem& menuItem) = 0;
 	virtual void DeleteAllMenuItems() = 0;
 };
+IMenuSegment::~IMenuSegment() { }
 
 #endif

@@ -35,7 +35,9 @@ public:
 
 public:
 	// Constructors
-	virtual ~IImage() = 0 { }
+	IImage() = default;
+	IImage(const IImage& source) = default;
+	inline virtual ~IImage() = 0;
 
 	// Image format functions
 	virtual unsigned int GetImageWidth() const = 0;
@@ -94,6 +96,7 @@ public:
 	// virtual void ResampleBicubic(unsigned int newWidth, unsigned int newHeight) = 0;
 	// virtual void ResampleBicubic(Image& newImage, unsigned int newWidth, unsigned int newHeight) = 0;
 };
+IImage::~IImage() { }
 
 #include "IImage.inl"
 #endif

@@ -5,7 +5,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 template<class B> unsigned int GenericAccessDataValueBase<B>::GetIGenericAccessDataValueVersion() const
 {
-	return ThisIGenericAccessDataValueVersion();
+	return B::ThisIGenericAccessDataValueVersion();
 }
 
 //----------------------------------------------------------------------------------------------------------------------

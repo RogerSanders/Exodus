@@ -2,7 +2,7 @@
 // Constructors
 //----------------------------------------------------------------------------------------------------------------------
 Extension::Extension(const std::wstring& className, const std::wstring& instanceName, unsigned int moduleID)
-:_className(className), _instanceName(instanceName), _moduleID(moduleID), _assemblyHandle(0), _systemInterface(0), _guiInterface(0), _viewManager(0)
+:_className(className), _instanceName(instanceName), _moduleID(moduleID), _assemblyHandle(0), _systemInterface(0), _guiInterface(0)
 { }
 
 //----------------------------------------------------------------------------------------------------------------------

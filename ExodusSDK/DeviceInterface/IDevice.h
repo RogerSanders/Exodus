@@ -22,7 +22,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~IDevice() = 0 { }
+	inline virtual ~IDevice() = 0;
 
 	// Interface version functions
 	static inline unsigned int ThisIDeviceVersion() { return 1; }
@@ -152,6 +152,7 @@ public:
 	virtual void HandleInputKeyDown(unsigned int keyCodeID) = 0;
 	virtual void HandleInputKeyUp(unsigned int keyCodeID) = 0;
 };
+IDevice::~IDevice() { }
 
 #include "IDevice.inl"
 #endif

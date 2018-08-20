@@ -15,7 +15,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~ISystemInfo() = 0 { }
+	inline virtual ~ISystemInfo() = 0;
 
 	// Interface version functions
 	static inline unsigned int ThisISystemInfoVersion() { return 1; }
@@ -35,5 +35,6 @@ public:
 	virtual void SetSystemCopyright(const Marshal::In<std::wstring>& systemCopyright) = 0;
 	virtual void SetSystemComments(const Marshal::In<std::wstring>& systemmComments) = 0;
 };
+ISystemInfo::~ISystemInfo() { }
 
 #endif

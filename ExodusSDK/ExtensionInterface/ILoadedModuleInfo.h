@@ -8,7 +8,7 @@ class ILoadedModuleInfo
 {
 public:
 	// Constructors
-	virtual ~ILoadedModuleInfo() = 0 { }
+	inline virtual ~ILoadedModuleInfo() = 0;
 
 	// Interface version functions
 	static inline unsigned int ThisILoadedModuleInfoVersion() { return 1; }
@@ -42,5 +42,6 @@ public:
 	virtual Marshal::Ret<std::wstring> GetManufacturerDisplayName() const = 0;
 	virtual void SetManufacturerDisplayName(const Marshal::In<std::wstring>& manufacturerDisplayName) = 0;
 };
+ILoadedModuleInfo::~ILoadedModuleInfo() { }
 
 #endif

@@ -18,7 +18,7 @@ public:
 
 public:
 	// Make sure the object can't be deleted from this base
-	protected: virtual ~ITimedBufferInt() = 0 { } public:
+	protected: inline virtual ~ITimedBufferInt() = 0; public:
 
 	// Size functions
 	virtual unsigned int Size() const = 0;
@@ -64,6 +64,7 @@ protected:
 	// Access functions
 	virtual void GetLatestBufferCopy(DataType* buffer, unsigned int bufferSize) const = 0;
 };
+ITimedBufferInt::~ITimedBufferInt() { }
 
 #include "ITimedBufferInt.inl"
 #endif

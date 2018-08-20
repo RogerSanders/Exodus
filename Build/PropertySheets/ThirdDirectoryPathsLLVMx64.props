@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(SolutionDir)\Build\MSBuild\Exodus.Third.Paths.targets" />
+  <ImportGroup Label="PropertySheets">
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>12.0.30501.0</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ThirdLibPathsResolved>@(ThirdLibPaths->'%(RootDir)%(Directory)')</ThirdLibPathsResolved>
+    <ThirdIncludePathsResolved>@(ThirdIncludePaths->'-imsvc "%(RootDir)%(Directory)\"', ' ')</ThirdIncludePathsResolved>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile />
+    <Link>
+      <AdditionalLibraryDirectories>$(ThirdLibPathsResolved);$(WindowsSDK_LibraryPath_x64);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <ClCompile />
+    <ClCompile>
+      <AdditionalOptions>$(ThirdIncludePathsResolved) %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>

@@ -11,7 +11,7 @@ const wchar_t* WC_LayoutGrid::WindowClassName = L"EX_LayoutGrid";
 // Constructors
 //----------------------------------------------------------------------------------------------------------------------
 WC_LayoutGrid::WC_LayoutGrid(HINSTANCE moduleHandle, HWND hwnd)
-:_moduleHandle(moduleHandle), _hwnd(hwnd)
+:_hwnd(hwnd)
 {
 	// Set the recorded current size of the control to 0
 	_currentControlWidth = 0;

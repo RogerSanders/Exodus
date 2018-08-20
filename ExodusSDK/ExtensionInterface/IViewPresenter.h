@@ -17,7 +17,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~IViewPresenter() = 0 { }
+	inline virtual ~IViewPresenter() = 0;
 
 	// Interface version functions
 	static inline unsigned int ThisIViewPresenterVersion() { return 1; }
@@ -48,6 +48,7 @@ public:
 	virtual bool LoadViewState(IHierarchicalStorageNode& viewState) = 0;
 	virtual bool SaveViewState(IHierarchicalStorageNode& viewState) const = 0;
 };
+IViewPresenter::~IViewPresenter() { }
 
 #include "IViewPresenter.inl"
 #endif

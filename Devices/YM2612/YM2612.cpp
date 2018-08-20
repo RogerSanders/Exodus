@@ -1317,11 +1317,11 @@ void YM2612::RenderThread()
 					{
 						float channelOutputLeftNormalized = (float)channelOutput[i][0] / ((1 << (AccumulatorOutputBitCount - 1)) - 1);
 						float channelOutputRightNormalized = (float)channelOutput[i][1] / ((1 << (AccumulatorOutputBitCount - 1)) - 1);
-						finalOutputLeft += (channelOutputLeftNormalized / ChannelCount);
-						finalOutputRight += (channelOutputRightNormalized / ChannelCount);
+						finalOutputLeft += (double)(channelOutputLeftNormalized / ChannelCount);
+						finalOutputRight += (double)(channelOutputRightNormalized / ChannelCount);
 					}
-					short outputSampleLeft = (short)(32767.0f * finalOutputLeft);
-					short outputSampleRight = (short)(32767.0f * finalOutputRight);
+					short outputSampleLeft = (short)(32767.0 * finalOutputLeft);
+					short outputSampleRight = (short)(32767.0 * finalOutputRight);
 					_outputBuffer[outputBufferPos++] = outputSampleLeft;
 					_outputBuffer[outputBufferPos++] = outputSampleRight;
 
@@ -3221,7 +3221,7 @@ bool YM2612::ReadGenericData(unsigned int dataID, const DataContext* dataContext
 	switch ((IYM2612DataSource)dataID)
 	{
 	case IYM2612DataSource::RawRegister:{
-		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
+		const RegisterDataContext& registerDataContext = *((const RegisterDataContext*)dataContext);
 		Data registerData = GetRegisterData(registerDataContext.registerNo, AccessTarget().AccessLatest());
 		return dataValue.SetValue(registerData.GetData());}
 	case IYM2612DataSource::TestData:
@@ -3253,105 +3253,105 @@ bool YM2612::ReadGenericData(unsigned int dataID, const DataContext* dataContext
 	case IYM2612DataSource::DACEnabled:
 		return dataValue.SetValue(GetDACEnabled(AccessTarget().AccessLatest()));
 	case IYM2612DataSource::DetuneData:{
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		return dataValue.SetValue(GetDetuneData(operatorAddressOffset, AccessTarget().AccessLatest()));}
 	case IYM2612DataSource::MultipleData:{
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		return dataValue.SetValue(GetMultipleData(operatorAddressOffset, AccessTarget().AccessLatest()));}
 	case IYM2612DataSource::TotalLevelData:{
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		return dataValue.SetValue(GetTotalLevelData(operatorAddressOffset, AccessTarget().AccessLatest()));}
 	case IYM2612DataSource::KeyScaleData:{
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		return dataValue.SetValue(GetKeyScaleData(operatorAddressOffset, AccessTarget().AccessLatest()));}
 	case IYM2612DataSource::AttackRateData:{
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		return dataValue.SetValue(GetAttackRateData(operatorAddressOffset, AccessTarget().AccessLatest()));}
 	case IYM2612DataSource::AmplitudeModulationEnabled:{
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		return dataValue.SetValue(GetAmplitudeModulationEnabled(operatorAddressOffset, AccessTarget().AccessLatest()));}
 	case IYM2612DataSource::DecayRateData:{
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		return dataValue.SetValue(GetDecayRateData(operatorAddressOffset, AccessTarget().AccessLatest()));}
 	case IYM2612DataSource::SustainRateData:{
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		return dataValue.SetValue(GetSustainRateData(operatorAddressOffset, AccessTarget().AccessLatest()));}
 	case IYM2612DataSource::SustainLevelData:{
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		return dataValue.SetValue(GetSustainLevelData(operatorAddressOffset, AccessTarget().AccessLatest()));}
 	case IYM2612DataSource::ReleaseRateData:{
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		return dataValue.SetValue(GetReleaseRateData(operatorAddressOffset, AccessTarget().AccessLatest()));}
 	case IYM2612DataSource::SSGData:{
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		return dataValue.SetValue(GetSSGData(operatorAddressOffset, AccessTarget().AccessLatest()));}
 	case IYM2612DataSource::SSGEnabled:{
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		return dataValue.SetValue(GetSSGEnabled(operatorAddressOffset, AccessTarget().AccessLatest()));}
 	case IYM2612DataSource::SSGAttack:{
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		return dataValue.SetValue(GetSSGAttack(operatorAddressOffset, AccessTarget().AccessLatest()));}
 	case IYM2612DataSource::SSGAlternate:{
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		return dataValue.SetValue(GetSSGAlternate(operatorAddressOffset, AccessTarget().AccessLatest()));}
 	case IYM2612DataSource::SSGHold:{
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		return dataValue.SetValue(GetSSGHold(operatorAddressOffset, AccessTarget().AccessLatest()));}
 	case IYM2612DataSource::FrequencyData:{
-		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
+		const ChannelDataContext& channelDataContext = *((const ChannelDataContext*)dataContext);
 		unsigned int channelAddressOffset = GetChannelBlockAddressOffset(channelDataContext.channelNo);
 		return dataValue.SetValue(GetFrequencyData(channelAddressOffset, AccessTarget().AccessLatest()));}
 	case IYM2612DataSource::BlockData:{
-		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
+		const ChannelDataContext& channelDataContext = *((const ChannelDataContext*)dataContext);
 		unsigned int channelAddressOffset = GetChannelBlockAddressOffset(channelDataContext.channelNo);
 		return dataValue.SetValue(GetBlockData(channelAddressOffset, AccessTarget().AccessLatest()));}
 	case IYM2612DataSource::FrequencyDataChannel3:{
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		return dataValue.SetValue(GetFrequencyDataChannel3(operatorDataContext.operatorNo, AccessTarget().AccessLatest()));}
 	case IYM2612DataSource::BlockDataChannel3:{
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		return dataValue.SetValue(GetBlockDataChannel3(operatorDataContext.operatorNo, AccessTarget().AccessLatest()));}
 	case IYM2612DataSource::FeedbackData:{
-		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
+		const ChannelDataContext& channelDataContext = *((const ChannelDataContext*)dataContext);
 		unsigned int channelAddressOffset = GetChannelBlockAddressOffset(channelDataContext.channelNo);
 		return dataValue.SetValue(GetFeedbackData(channelAddressOffset, AccessTarget().AccessLatest()));}
 	case IYM2612DataSource::AlgorithmData:{
-		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
+		const ChannelDataContext& channelDataContext = *((const ChannelDataContext*)dataContext);
 		unsigned int channelAddressOffset = GetChannelBlockAddressOffset(channelDataContext.channelNo);
 		return dataValue.SetValue(GetAlgorithmData(channelAddressOffset, AccessTarget().AccessLatest()));}
 	case IYM2612DataSource::OutputLeft:{
-		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
+		const ChannelDataContext& channelDataContext = *((const ChannelDataContext*)dataContext);
 		unsigned int channelAddressOffset = GetChannelBlockAddressOffset(channelDataContext.channelNo);
 		return dataValue.SetValue(GetOutputLeft(channelAddressOffset, AccessTarget().AccessLatest()));}
 	case IYM2612DataSource::OutputRight:{
-		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
+		const ChannelDataContext& channelDataContext = *((const ChannelDataContext*)dataContext);
 		unsigned int channelAddressOffset = GetChannelBlockAddressOffset(channelDataContext.channelNo);
 		return dataValue.SetValue(GetOutputRight(channelAddressOffset, AccessTarget().AccessLatest()));}
 	case IYM2612DataSource::AMSData:{
-		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
+		const ChannelDataContext& channelDataContext = *((const ChannelDataContext*)dataContext);
 		unsigned int channelAddressOffset = GetChannelBlockAddressOffset(channelDataContext.channelNo);
 		return dataValue.SetValue(GetAMSData(channelAddressOffset, AccessTarget().AccessLatest()));}
 	case IYM2612DataSource::PMSData:{
-		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
+		const ChannelDataContext& channelDataContext = *((const ChannelDataContext*)dataContext);
 		unsigned int channelAddressOffset = GetChannelBlockAddressOffset(channelDataContext.channelNo);
 		return dataValue.SetValue(GetPMSData(channelAddressOffset, AccessTarget().AccessLatest()));}
 	case IYM2612DataSource::KeyState:{
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		return dataValue.SetValue(_operatorData[operatorDataContext.channelNo][operatorDataContext.operatorNo].keyon);}
 	case IYM2612DataSource::StatusRegister:
 		return dataValue.SetValue(_status.GetData());
@@ -3380,18 +3380,18 @@ bool YM2612::ReadGenericData(unsigned int dataID, const DataContext* dataContext
 	case IYM2612DataSource::AudioLoggingEnabled:
 		return dataValue.SetValue(_wavLoggingEnabled);
 	case IYM2612DataSource::ChannelAudioLoggingEnabled:{
-		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
+		const ChannelDataContext& channelDataContext = *((const ChannelDataContext*)dataContext);
 		return dataValue.SetValue(_wavLoggingChannelEnabled[channelDataContext.channelNo]);}
 	case IYM2612DataSource::OperatorAudioLoggingEnabled:{
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		return dataValue.SetValue(_wavLoggingOperatorEnabled[operatorDataContext.channelNo][operatorDataContext.operatorNo]);}
 	case IYM2612DataSource::AudioLoggingPath:
 		return dataValue.SetValue(_wavLoggingPath);
 	case IYM2612DataSource::ChannelAudioLoggingPath:{
-		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
+		const ChannelDataContext& channelDataContext = *((const ChannelDataContext*)dataContext);
 		return dataValue.SetValue(_wavLoggingChannelPath[channelDataContext.channelNo]);}
 	case IYM2612DataSource::OperatorAudioLoggingPath:{
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		return dataValue.SetValue(_wavLoggingOperatorPath[operatorDataContext.channelNo][operatorDataContext.operatorNo]);}
 	}
 	return false;
@@ -3407,7 +3407,7 @@ bool YM2612::WriteGenericData(unsigned int dataID, const DataContext* dataContex
 	case IYM2612DataSource::RawRegister:{
 		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
-		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
+		const RegisterDataContext& registerDataContext = *((const RegisterDataContext*)dataContext);
 		Data registerData(8, dataValueAsUInt.GetValue());
 		std::unique_lock<std::mutex> lock(_accessMutex);
 		RegisterSpecialUpdateFunction(registerDataContext.registerNo, registerData, _timersLastUpdateTime, GetDeviceContext(), 0);
@@ -3492,180 +3492,180 @@ bool YM2612::WriteGenericData(unsigned int dataID, const DataContext* dataContex
 	case IYM2612DataSource::DetuneData:{
 		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		SetDetuneData(operatorAddressOffset, dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		return true;}
 	case IYM2612DataSource::MultipleData:{
 		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		SetMultipleData(operatorAddressOffset, dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		return true;}
 	case IYM2612DataSource::TotalLevelData:{
 		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		SetTotalLevelData(operatorAddressOffset, dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		return true;}
 	case IYM2612DataSource::KeyScaleData:{
 		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		SetKeyScaleData(operatorAddressOffset, dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		return true;}
 	case IYM2612DataSource::AttackRateData:{
 		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		SetAttackRateData(operatorAddressOffset, dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		return true;}
 	case IYM2612DataSource::AmplitudeModulationEnabled:{
 		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		SetAmplitudeModulationEnabled(operatorAddressOffset, dataValueAsBool.GetValue(), AccessTarget().AccessLatest());
 		return true;}
 	case IYM2612DataSource::DecayRateData:{
 		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		SetDecayRateData(operatorAddressOffset, dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		return true;}
 	case IYM2612DataSource::SustainRateData:{
 		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		SetSustainRateData(operatorAddressOffset, dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		return true;}
 	case IYM2612DataSource::SustainLevelData:{
 		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		SetSustainLevelData(operatorAddressOffset, dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		return true;}
 	case IYM2612DataSource::ReleaseRateData:{
 		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		SetReleaseRateData(operatorAddressOffset, dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		return true;}
 	case IYM2612DataSource::SSGData:{
 		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		SetSSGData(operatorAddressOffset, dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		return true;}
 	case IYM2612DataSource::SSGEnabled:{
 		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		SetSSGEnabled(operatorAddressOffset, dataValueAsBool.GetValue(), AccessTarget().AccessLatest());
 		return true;}
 	case IYM2612DataSource::SSGAttack:{
 		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		SetSSGAttack(operatorAddressOffset, dataValueAsBool.GetValue(), AccessTarget().AccessLatest());
 		return true;}
 	case IYM2612DataSource::SSGAlternate:{
 		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		SetSSGAlternate(operatorAddressOffset, dataValueAsBool.GetValue(), AccessTarget().AccessLatest());
 		return true;}
 	case IYM2612DataSource::SSGHold:{
 		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		unsigned int operatorAddressOffset = GetOperatorBlockAddressOffset(operatorDataContext.channelNo, operatorDataContext.operatorNo);
 		SetSSGHold(operatorAddressOffset, dataValueAsBool.GetValue(), AccessTarget().AccessLatest());
 		return true;}
 	case IYM2612DataSource::FrequencyData:{
 		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		unsigned int channelAddressOffset = GetChannelBlockAddressOffset(operatorDataContext.channelNo);
 		SetFrequencyData(channelAddressOffset, dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		return true;}
 	case IYM2612DataSource::BlockData:{
 		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		unsigned int channelAddressOffset = GetChannelBlockAddressOffset(operatorDataContext.channelNo);
 		SetBlockData(channelAddressOffset, dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		return true;}
 	case IYM2612DataSource::FrequencyDataChannel3:{
 		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		SetFrequencyDataChannel3(operatorDataContext.operatorNo, dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		return true;}
 	case IYM2612DataSource::BlockDataChannel3:{
 		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		SetBlockDataChannel3(operatorDataContext.operatorNo, dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		return true;}
 	case IYM2612DataSource::FeedbackData:{
 		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
-		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
+		const ChannelDataContext& channelDataContext = *((const ChannelDataContext*)dataContext);
 		unsigned int channelAddressOffset = GetChannelBlockAddressOffset(channelDataContext.channelNo);
 		SetFeedbackData(channelAddressOffset, dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		return true;}
 	case IYM2612DataSource::AlgorithmData:{
 		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
-		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
+		const ChannelDataContext& channelDataContext = *((const ChannelDataContext*)dataContext);
 		unsigned int channelAddressOffset = GetChannelBlockAddressOffset(channelDataContext.channelNo);
 		SetAlgorithmData(channelAddressOffset, dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		return true;}
 	case IYM2612DataSource::OutputLeft:{
 		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
-		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
+		const ChannelDataContext& channelDataContext = *((const ChannelDataContext*)dataContext);
 		unsigned int channelAddressOffset = GetChannelBlockAddressOffset(channelDataContext.channelNo);
 		SetOutputLeft(channelAddressOffset, dataValueAsBool.GetValue(), AccessTarget().AccessLatest());
 		return true;}
 	case IYM2612DataSource::OutputRight:{
 		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
-		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
+		const ChannelDataContext& channelDataContext = *((const ChannelDataContext*)dataContext);
 		unsigned int channelAddressOffset = GetChannelBlockAddressOffset(channelDataContext.channelNo);
 		SetOutputRight(channelAddressOffset, dataValueAsBool.GetValue(), AccessTarget().AccessLatest());
 		return true;}
 	case IYM2612DataSource::AMSData:{
 		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
-		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
+		const ChannelDataContext& channelDataContext = *((const ChannelDataContext*)dataContext);
 		unsigned int channelAddressOffset = GetChannelBlockAddressOffset(channelDataContext.channelNo);
 		SetAMSData(channelAddressOffset, dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		return true;}
 	case IYM2612DataSource::PMSData:{
 		if (dataType != IGenericAccessDataValue::DataType::UInt) return false;
 		IGenericAccessDataValueUInt& dataValueAsUInt = (IGenericAccessDataValueUInt&)dataValue;
-		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
+		const ChannelDataContext& channelDataContext = *((const ChannelDataContext*)dataContext);
 		unsigned int channelAddressOffset = GetChannelBlockAddressOffset(channelDataContext.channelNo);
 		SetPMSData(channelAddressOffset, dataValueAsUInt.GetValue(), AccessTarget().AccessLatest());
 		return true;}
 	case IYM2612DataSource::KeyState:{
 		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		_operatorData[operatorDataContext.channelNo][operatorDataContext.operatorNo].keyon = dataValueAsBool.GetValue();
 		return true;}
 	case IYM2612DataSource::StatusRegister:{
@@ -3736,13 +3736,13 @@ bool YM2612::WriteGenericData(unsigned int dataID, const DataContext* dataContex
 	case IYM2612DataSource::ChannelAudioLoggingEnabled:{
 		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
-		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
+		const ChannelDataContext& channelDataContext = *((const ChannelDataContext*)dataContext);
 		SetChannelAudioLoggingEnabled(channelDataContext.channelNo, dataValueAsBool.GetValue());
 		return true;}
 	case IYM2612DataSource::OperatorAudioLoggingEnabled:{
 		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		SetOperatorAudioLoggingEnabled(operatorDataContext.channelNo, operatorDataContext.operatorNo, dataValueAsBool.GetValue());
 		return true;}
 	case IYM2612DataSource::AudioLoggingPath:{
@@ -3753,13 +3753,13 @@ bool YM2612::WriteGenericData(unsigned int dataID, const DataContext* dataContex
 	case IYM2612DataSource::ChannelAudioLoggingPath:{
 		if (dataType != IGenericAccessDataValue::DataType::FilePath) return false;
 		IGenericAccessDataValueFilePath& dataValueAsFilePath = (IGenericAccessDataValueFilePath&)dataValue;
-		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
+		const ChannelDataContext& channelDataContext = *((const ChannelDataContext*)dataContext);
 		_wavLoggingChannelPath[channelDataContext.channelNo] = dataValueAsFilePath.GetValue();
 		return true;}
 	case IYM2612DataSource::OperatorAudioLoggingPath:{
 		if (dataType != IGenericAccessDataValue::DataType::FilePath) return false;
 		IGenericAccessDataValueFilePath& dataValueAsFilePath = (IGenericAccessDataValueFilePath&)dataValue;
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		_wavLoggingOperatorPath[operatorDataContext.channelNo][operatorDataContext.operatorNo] = dataValueAsFilePath.GetValue();
 		return true;}
 	}
@@ -3775,10 +3775,10 @@ bool YM2612::GetGenericDataLocked(unsigned int dataID, const DataContext* dataCo
 	switch ((IYM2612DataSource)dataID)
 	{
 	case IYM2612DataSource::RawRegister:{
-		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
+		const RegisterDataContext& registerDataContext = *((const RegisterDataContext*)dataContext);
 		return _rawRegisterLocking[registerDataContext.registerNo];}
 	case IYM2612DataSource::KeyState:{
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		return _keyStateLocking[operatorDataContext.channelNo][operatorDataContext.operatorNo];}
 	case IYM2612DataSource::TestData:
 	case IYM2612DataSource::LFOEnabled:
@@ -3820,7 +3820,7 @@ bool YM2612::GetGenericDataLocked(unsigned int dataID, const DataContext* dataCo
 	case IYM2612DataSource::OutputRight:
 	case IYM2612DataSource::AMSData:
 	case IYM2612DataSource::PMSData:{
-		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
+		const ChannelDataContext& channelDataContext = *((const ChannelDataContext*)dataContext);
 		std::map<unsigned int, std::list<RegisterLocking>>::const_iterator lockedRegisterStateIterator = _lockedRegisterState.find(dataID);
 		if (lockedRegisterStateIterator != _lockedRegisterState.end())
 		{
@@ -3852,7 +3852,7 @@ bool YM2612::GetGenericDataLocked(unsigned int dataID, const DataContext* dataCo
 	case IYM2612DataSource::BlockData:
 	case IYM2612DataSource::FrequencyDataChannel3:
 	case IYM2612DataSource::BlockDataChannel3:{
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		std::map<unsigned int, std::list<RegisterLocking>>::const_iterator lockedRegisterStateIterator = _lockedRegisterState.find(dataID);
 		if (lockedRegisterStateIterator != _lockedRegisterState.end())
 		{
@@ -3876,11 +3876,11 @@ bool YM2612::SetGenericDataLocked(unsigned int dataID, const DataContext* dataCo
 	switch ((IYM2612DataSource)dataID)
 	{
 	case IYM2612DataSource::RawRegister:{
-		const RegisterDataContext& registerDataContext = *((RegisterDataContext*)dataContext);
+		const RegisterDataContext& registerDataContext = *((const RegisterDataContext*)dataContext);
 		_rawRegisterLocking[registerDataContext.registerNo] = state;
 		return true;}
 	case IYM2612DataSource::KeyState:{
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		_keyStateLocking[operatorDataContext.channelNo][operatorDataContext.operatorNo] = state;
 		return true;}
 	case IYM2612DataSource::TestData:
@@ -3941,7 +3941,7 @@ bool YM2612::SetGenericDataLocked(unsigned int dataID, const DataContext* dataCo
 	case IYM2612DataSource::OutputRight:
 	case IYM2612DataSource::AMSData:
 	case IYM2612DataSource::PMSData:{
-		const ChannelDataContext& channelDataContext = *((ChannelDataContext*)dataContext);
+		const ChannelDataContext& channelDataContext = *((const ChannelDataContext*)dataContext);
 		std::list<RegisterLocking>& lockedRegisterList = _lockedRegisterState[dataID];
 		std::list<RegisterLocking>::iterator lockedRegisterListIterator = lockedRegisterList.begin();
 		while (lockedRegisterListIterator != lockedRegisterList.end())
@@ -3986,7 +3986,7 @@ bool YM2612::SetGenericDataLocked(unsigned int dataID, const DataContext* dataCo
 	case IYM2612DataSource::BlockData:
 	case IYM2612DataSource::FrequencyDataChannel3:
 	case IYM2612DataSource::BlockDataChannel3:{
-		const OperatorDataContext& operatorDataContext = *((OperatorDataContext*)dataContext);
+		const OperatorDataContext& operatorDataContext = *((const OperatorDataContext*)dataContext);
 		std::list<RegisterLocking>& lockedRegisterList = _lockedRegisterState[dataID];
 		std::list<RegisterLocking>::iterator lockedRegisterListIterator = lockedRegisterList.begin();
 		while (lockedRegisterListIterator != lockedRegisterList.end())

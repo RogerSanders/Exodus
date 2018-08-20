@@ -46,7 +46,7 @@
 #endif
 
 typedef long InterlockedVar32;
-typedef __int64 InterlockedVar64;
+//typedef __int64 InterlockedVar64;
 
 inline unsigned char PerformanceInterlockedBitTestAndSet(InterlockedVar32 volatile *a, InterlockedVar32 b)
 {

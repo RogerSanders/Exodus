@@ -11,7 +11,7 @@ const wchar_t* WC_ScrollViewer::WindowClassName = L"EX_ScrollViewer";
 // Constructors
 //----------------------------------------------------------------------------------------------------------------------
 WC_ScrollViewer::WC_ScrollViewer(HINSTANCE moduleHandle, HWND hwnd)
-:_moduleHandle(moduleHandle), _hwnd(hwnd)
+:_hwnd(hwnd)
 {
 	// Set the initial state of the control to the default settings
 	//##TODO## Provide messages to change the auto scrollbar visibility mode. We actually

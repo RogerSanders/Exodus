@@ -10,6 +10,12 @@
 #include <dwmapi.h>
 
 //----------------------------------------------------------------------------------------------------------------------
+// Forward declarations
+//----------------------------------------------------------------------------------------------------------------------
+static BOOL CALLBACK EnumThreadWindowsCallback(HWND hwnd, LPARAM lParam);
+static BOOL CALLBACK EnumDescendantWindowsCallback(HWND hwnd, LPARAM lParam);
+
+//----------------------------------------------------------------------------------------------------------------------
 // Module helper functions
 //----------------------------------------------------------------------------------------------------------------------
 bool GetModuleVersionInfoString(const std::wstring& modulePath, VersionInfoProperty targetProperty, std::wstring& content)
@@ -1254,7 +1260,7 @@ BOOL AddTooltip(HINSTANCE moduleHandle, HWND hwndTooltip, HWND hwndParent, int t
 	toolInfo.hwnd = hwndParent;
 	toolInfo.hinst = moduleHandle;
 	toolInfo.uId = (UINT_PTR)hwndControl;
-	toolInfo.lpszText = (LPTSTR)text.c_str();
+	toolInfo.lpszText = (LPWSTR)const_cast<wchar_t*>(text.c_str());
 
 	// Register the tooltip with the tooltip control
 	BOOL addToolResult = (BOOL)SendMessage(hwndTooltip, TTM_ADDTOOL, 0, (LPARAM)&toolInfo);

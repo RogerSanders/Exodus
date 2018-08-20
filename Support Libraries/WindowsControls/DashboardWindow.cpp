@@ -3506,25 +3506,25 @@ void DashboardWindow::RemoveRegion(ContentRegion& existingRegion)
 	bool foundDividerToRemove = false;
 	Divider* dividerToRemove = 0;
 	WindowEdge dividerToRemoveLocation = { };
-	if ((existingRegion.leftDivider != 0) && ((existingRegion.topDivider == 0) && (existingRegion.bottomDivider == 0) || ((existingRegion.leftDivider->startAnchorDivider == existingRegion.topDivider) && (existingRegion.leftDivider->endAnchorDivider == existingRegion.bottomDivider))))
+	if ((existingRegion.leftDivider != 0) && (((existingRegion.topDivider == 0) && (existingRegion.bottomDivider == 0)) || ((existingRegion.leftDivider->startAnchorDivider == existingRegion.topDivider) && (existingRegion.leftDivider->endAnchorDivider == existingRegion.bottomDivider))))
 	{
 		foundDividerToRemove = true;
 		dividerToRemoveLocation = IDockingWindow::WindowEdge::Left;
 		dividerToRemove = existingRegion.leftDivider;
 	}
-	else if ((existingRegion.topDivider != 0) && ((existingRegion.leftDivider == 0) && (existingRegion.rightDivider == 0) || ((existingRegion.topDivider->startAnchorDivider == existingRegion.leftDivider) && (existingRegion.topDivider->endAnchorDivider == existingRegion.rightDivider))))
+	else if ((existingRegion.topDivider != 0) && (((existingRegion.leftDivider == 0) && (existingRegion.rightDivider == 0)) || ((existingRegion.topDivider->startAnchorDivider == existingRegion.leftDivider) && (existingRegion.topDivider->endAnchorDivider == existingRegion.rightDivider))))
 	{
 		foundDividerToRemove = true;
 		dividerToRemoveLocation = IDockingWindow::WindowEdge::Top;
 		dividerToRemove = existingRegion.topDivider;
 	}
-	else if ((existingRegion.rightDivider != 0) && ((existingRegion.topDivider == 0) && (existingRegion.bottomDivider == 0) || ((existingRegion.rightDivider->startAnchorDivider == existingRegion.topDivider) && (existingRegion.rightDivider->endAnchorDivider == existingRegion.bottomDivider))))
+	else if ((existingRegion.rightDivider != 0) && (((existingRegion.topDivider == 0) && (existingRegion.bottomDivider == 0)) || ((existingRegion.rightDivider->startAnchorDivider == existingRegion.topDivider) && (existingRegion.rightDivider->endAnchorDivider == existingRegion.bottomDivider))))
 	{
 		foundDividerToRemove = true;
 		dividerToRemoveLocation = IDockingWindow::WindowEdge::Right;
 		dividerToRemove = existingRegion.rightDivider;
 	}
-	else if ((existingRegion.bottomDivider != 0) && ((existingRegion.leftDivider == 0) && (existingRegion.rightDivider == 0) || ((existingRegion.bottomDivider->startAnchorDivider == existingRegion.leftDivider) && (existingRegion.bottomDivider->endAnchorDivider == existingRegion.rightDivider))))
+	else if ((existingRegion.bottomDivider != 0) && (((existingRegion.leftDivider == 0) && (existingRegion.rightDivider == 0)) || ((existingRegion.bottomDivider->startAnchorDivider == existingRegion.leftDivider) && (existingRegion.bottomDivider->endAnchorDivider == existingRegion.rightDivider))))
 	{
 		foundDividerToRemove = true;
 		dividerToRemoveLocation = IDockingWindow::WindowEdge::Bottom;

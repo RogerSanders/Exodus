@@ -124,7 +124,6 @@ private:
 	std::wstring _instanceName;
 	unsigned int _moduleID;
 	ISystemDeviceInterface* _systemInterface;
-	IDeviceContext* _deviceContext;
 };
 
 #include "Device.inl"

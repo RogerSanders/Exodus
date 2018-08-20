@@ -6,7 +6,7 @@ class IImageSet
 {
 public:
 	// Constructors
-	virtual ~IImageSet() = 0 { }
+	inline virtual ~IImageSet() = 0;
 
 	// Contained image functions
 	virtual unsigned int GetImageCount() const = 0;
@@ -25,5 +25,6 @@ public:
 	virtual bool LoadCURImageSet(Stream::IStream& stream) = 0;
 	virtual bool SaveCURImageSet(Stream::IStream& stream) = 0;
 };
+IImageSet::~IImageSet() { }
 
 #endif

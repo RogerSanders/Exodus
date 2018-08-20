@@ -13,7 +13,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~IGenericAccessDataInfo() = 0 { }
+	inline virtual ~IGenericAccessDataInfo() = 0;
 
 	// Interface version functions
 	static inline unsigned int ThisIGenericAccessDataInfoVersion() { return 1; }
@@ -52,5 +52,6 @@ public:
 	// Folder path settings
 	virtual bool GetFolderPathCreatingTarget() const = 0;
 };
+IGenericAccessDataInfo::~IGenericAccessDataInfo() { }
 
 #endif

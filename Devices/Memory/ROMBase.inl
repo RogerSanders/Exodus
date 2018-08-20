@@ -103,7 +103,7 @@ template<class T> bool ROMBase<T>::Construct(IHierarchicalStorageNode& node)
 				{
 					return false;
 				}
-				_memoryArray[entriesToRead] = ((_memoryArray[entriesToRead] << 8) | remainingData);
+				_memoryArray[entriesToRead] = (T)((_memoryArray[entriesToRead] << 8) | remainingData);
 			}
 
 			// Shift the data in the entry up by the required number of bits to align the

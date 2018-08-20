@@ -1321,7 +1321,7 @@ void PlaneView::UpdateRenderWindowSize(HWND hwnd, int renderWindowWidth, int ren
 			glViewport(0, 0, _currentRenderWindowWidth, _currentRenderWindowHeight);
 			glMatrixMode(GL_PROJECTION);
 			glLoadIdentity();
-			glOrtho(0.0, (float)_currentRenderWindowWidth, (float)_currentRenderWindowHeight, 0.0, -1.0, 1.0);
+			glOrtho(0.0, (double)_currentRenderWindowWidth, (double)_currentRenderWindowHeight, 0.0, -1.0, 1.0);
 			glMatrixMode(GL_MODELVIEW);
 			glLoadIdentity();
 

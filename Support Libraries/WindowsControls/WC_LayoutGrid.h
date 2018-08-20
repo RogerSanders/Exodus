@@ -70,7 +70,6 @@ private:
 	void UpdateChildWindowSizes();
 
 private:
-	HINSTANCE _moduleHandle;
 	HWND _hwnd;
 	int _currentControlWidth;
 	int _currentControlHeight;

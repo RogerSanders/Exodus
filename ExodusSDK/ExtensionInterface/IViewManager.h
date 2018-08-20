@@ -7,7 +7,7 @@ class IViewManager
 {
 public:
 	// Constructors
-	virtual ~IViewManager() = 0 { }
+	inline virtual ~IViewManager() = 0;
 
 	// Interface version functions
 	static inline unsigned int ThisIViewManagerVersion() { return 1; }
@@ -23,5 +23,6 @@ public:
 	virtual bool WaitUntilViewOpened(IViewPresenter& viewPresenter) = 0;
 	virtual void WaitUntilViewClosed(IViewPresenter& viewPresenter) = 0;
 };
+IViewManager::~IViewManager() { }
 
 #endif
