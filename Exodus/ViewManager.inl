@@ -18,7 +18,7 @@ struct ViewManager::ViewInfo
 {
 	ViewInfo(IViewPresenter& viewPresenter)
 	:viewPresenter(viewPresenter), waitCount(0), viewCurrentlyOpen(false), viewOpenFailed(false), ignoreForLayoutPurposes(false), node(0)
-	{}
+	{ }
 
 	bool viewCurrentlyOpen;
 	bool viewOpenFailed;
@@ -37,7 +37,7 @@ struct ViewManager::ViewOperation
 {
 	ViewOperation(ViewOperationType atype, IViewPresenter& viewPresenter, IHierarchicalStorageNode* aviewState = 0)
 	:type(atype), viewPresenter(viewPresenter), viewState(aviewState)
-	{}
+	{ }
 
 	ViewOperationType type;
 	IViewPresenter& viewPresenter;
@@ -49,7 +49,7 @@ struct ViewManager::PlaceholderWindowInfo
 {
 	PlaceholderWindowInfo()
 	:parentIsDashboardWindow(false), placeholderContentWindow(NULL), parentWindowFrame(NULL), makeContentVisible(false), selectedContentWindow(false), viewType(IView::ViewType::Dockable)
-	{}
+	{ }
 
 	bool parentIsDashboardWindow;
 	HWND placeholderContentWindow;
@@ -64,7 +64,7 @@ struct ViewManager::OpenWindowInfo
 {
 	OpenWindowInfo(HWND ahwnd, IView& aview, IViewPresenter& viewPresenter, std::wstring awindowTitle = L"")
 	:hwnd(ahwnd), view(aview), viewPresenter(viewPresenter), windowTitle(awindowTitle)
-	{}
+	{ }
 
 	HWND hwnd;
 	IView& view;
@@ -77,7 +77,7 @@ struct ViewManager::InvokeUIParams
 {
 	InvokeUIParams(const std::function<void()>& acallback, std::condition_variable& acallbackComplete)
 	:callback(acallback), callbackComplete(acallbackComplete)
-	{}
+	{ }
 
 	const std::function<void()>& callback;
 	std::condition_variable& callbackComplete;
@@ -87,10 +87,10 @@ struct ViewManager::InvokeUIParams
 struct ViewManager::Region2D
 {
 	Region2D()
-	{}
+	{ }
 	Region2D(long aposx, long aposy, long asizex, long asizey)
 	:posx(aposx), posy(aposy), sizex(asizex), sizey(asizey)
-	{}
+	{ }
 
 	long posx;
 	long posy;
@@ -103,7 +103,7 @@ struct ViewManager::DialogWindowFrameState
 {
 	DialogWindowFrameState()
 	:viewManager(0)
-	{}
+	{ }
 
 	std::list<HWND> disabledWindowList;
 	ViewManager* viewManager;

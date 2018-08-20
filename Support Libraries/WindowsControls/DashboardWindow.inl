@@ -40,10 +40,10 @@ struct DashboardWindow::AddWindowParams
 {
 	AddWindowParams(HWND awindowHandle)
 	:windowHandle(awindowHandle), existingWindow(NULL)
-	{}
+	{ }
 	AddWindowParams(HWND awindowHandle, HWND aexistingWindow, InsertDirection ainsertDirection, double aregionProportion = 0.5)
 	:windowHandle(awindowHandle), existingWindow(aexistingWindow), insertDirection(ainsertDirection), regionProportion(aregionProportion)
-	{}
+	{ }
 
 	HWND windowHandle;
 	HWND existingWindow;
@@ -63,10 +63,10 @@ struct DashboardWindow::DividerListEntry
 struct DashboardWindow::DividerContentEntry
 {
 	DividerContentEntry()
-	{}
+	{ }
 	DividerContentEntry(ContentRegion* acontentRegion, Divider* afollowingContentDivider)
 	:contentRegion(acontentRegion), followingContentDivider(afollowingContentDivider)
-	{}
+	{ }
 
 	ContentRegion* contentRegion;
 	Divider* followingContentDivider;
@@ -91,7 +91,7 @@ struct DashboardWindow::ContentRegion
 {
 	ContentRegion()
 	:windowHandle(NULL), windowAsDockingWindow(0), leftDivider(0), rightDivider(0), topDivider(0), bottomDivider(0), width(0), height(0), cachedPosX(-1), cachedPosY(-1), windowWidth(-1), windowHeight(-1), windowPosX(-1), windowPosY(-1)
-	{}
+	{ }
 
 	HWND windowHandle;
 	IDockingWindow* windowAsDockingWindow;

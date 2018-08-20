@@ -6,7 +6,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 SettingsViewPresenter::SettingsViewPresenter(const std::wstring& viewGroupName, const std::wstring& viewName, int viewID, ExodusInterface& owner, ExodusInterface& model)
 :ViewPresenterBase(owner.GetAssemblyHandle(), viewGroupName, viewName, viewID), _owner(owner), _model(model)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // View title functions

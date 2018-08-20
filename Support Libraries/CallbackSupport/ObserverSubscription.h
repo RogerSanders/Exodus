@@ -31,8 +31,8 @@ public:
 private:
 	// Ensure this class is non-copyable, since any collections we're subscribed to will
 	// keep a reference to this object.
-	inline ObserverSubscription(const ObserverSubscription& source) {}
-	inline ObserverSubscription& operator=(const ObserverSubscription& source) {}
+	inline ObserverSubscription(const ObserverSubscription& source) { }
+	inline ObserverSubscription& operator=(const ObserverSubscription& source) { }
 
 private:
 	mutable std::mutex _accessMutex;

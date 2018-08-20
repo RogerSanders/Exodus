@@ -3,7 +3,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 FileStreamReference::FileStreamReference(const IGUIExtensionInterface& guiExtensionInterface)
 :_guiExtensionInterface(guiExtensionInterface), _stream(0)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 FileStreamReference::~FileStreamReference()

@@ -3,7 +3,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 Device::Device(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
 :_implementationName(implementationName), _instanceName(instanceName), _moduleID(moduleID)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Interface functions

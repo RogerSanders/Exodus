@@ -15,7 +15,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~IUIManager() = 0 {}
+	virtual ~IUIManager() = 0 { }
 
 	// Interface version functions
 	static inline unsigned int ThisIUIManagerVersion() { return 1; }

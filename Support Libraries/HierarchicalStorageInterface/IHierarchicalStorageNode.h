@@ -12,7 +12,7 @@ class IHierarchicalStorageNode
 {
 public:
 	// Constructors
-	virtual ~IHierarchicalStorageNode() = 0 {}
+	virtual ~IHierarchicalStorageNode() = 0 { }
 
 	// Name functions
 	virtual Marshal::Ret<std::wstring> GetName() const = 0;

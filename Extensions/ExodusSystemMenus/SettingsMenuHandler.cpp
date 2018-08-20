@@ -8,7 +8,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 SettingsMenuHandler::SettingsMenuHandler(ExodusSystemMenus& owner, ISystemGUIInterface& model)
 :MenuHandlerBase(L"SystemSettingsMenu", owner.GetViewManager()), _owner(owner), _model(model)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Management functions

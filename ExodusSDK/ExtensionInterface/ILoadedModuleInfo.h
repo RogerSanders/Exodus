@@ -8,7 +8,7 @@ class ILoadedModuleInfo
 {
 public:
 	// Constructors
-	virtual ~ILoadedModuleInfo() = 0 {}
+	virtual ~ILoadedModuleInfo() = 0 { }
 
 	// Interface version functions
 	static inline unsigned int ThisILoadedModuleInfoVersion() { return 1; }

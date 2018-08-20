@@ -14,7 +14,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~IExtensionInfo() = 0 {}
+	virtual ~IExtensionInfo() = 0 { }
 
 	// Interface version functions
 	static inline unsigned int ThisIExtensionInfoVersion() { return 1; }

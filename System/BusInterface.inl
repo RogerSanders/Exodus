@@ -10,7 +10,7 @@ struct BusInterface::BusInterfaceParams
 	 portAddressBusWidthDefined(false),
 	 portDataBusWidthDefined(false),
 	 usePhysicalPortMapDefined(false)
-	{}
+	{ }
 
 	bool addressBusWidthDefined;
 	bool dataBusWidthDefined;
@@ -41,7 +41,7 @@ struct BusInterface::DeviceMappingParams
 	 ceLineConditionsDefined(false),
 	 addressLineMappingDefined(false),
 	 dataLineMappingDefined(false)
-	{}
+	{ }
 
 	bool memoryMapBaseDefined;
 	bool memoryMapSizeDefined;
@@ -77,7 +77,7 @@ struct BusInterface::LineMappingParams
 	 lineMaskXORDefined(false),
 	 lineMappingDefined(false),
 	 declaringPartialMappingTemplate(false)
-	{}
+	{ }
 
 	bool sourceLineDefined;
 	bool targetLineDefined;
@@ -99,7 +99,7 @@ struct BusInterface::ClockSourceMappingParams
 {
 	ClockSourceMappingParams()
 	:targetClockLineDefined(false)
-	{}
+	{ }
 
 	bool targetClockLineDefined;
 	std::wstring targetClockLine;
@@ -121,7 +121,7 @@ struct BusInterface::MapEntry
 	 interfaceNumber(0),
 	 remapAddressLines(false),
 	 remapDataLines(false)
-	{}
+	{ }
 
 	unsigned int address;
 	unsigned int addressEffectiveBitMaskForTargetting;
@@ -152,7 +152,7 @@ struct BusInterface::LineEntry
 	 lineMaskOR(0),
 	 lineMaskXOR(0),
 	 remapLines(false)
-	{}
+	{ }
 	LineEntry(IDevice* asourceDevice, unsigned int asourceLine, unsigned int asourceLineBitCount, IDevice* atargetDevice, unsigned int atargetLine, unsigned int atargetLineBitCount)
 	:sourceDevice(asourceDevice),
 	 sourceLine(asourceLine),
@@ -164,7 +164,7 @@ struct BusInterface::LineEntry
 	 lineMaskOR(0),
 	 lineMaskXOR(0),
 	 remapLines(false)
-	{}
+	{ }
 
 	IDevice* sourceDevice;
 	IDevice* targetDevice;
@@ -246,7 +246,7 @@ struct BusInterface::ClockSourceEntry
 	ClockSourceEntry()
 		:inputClockSource(0),
 		targetDevice(0)
-	{}
+	{ }
 
 	IClockSource* inputClockSource;
 	IDevice* targetDevice;

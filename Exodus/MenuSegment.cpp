@@ -8,7 +8,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 MenuSegment::MenuSegment(bool surroundWithSeparators, SortMode sortMode)
 :_surroundWithSeparators(surroundWithSeparators), _sortMode(sortMode)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 MenuSegment::~MenuSegment()

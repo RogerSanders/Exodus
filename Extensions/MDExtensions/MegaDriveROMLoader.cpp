@@ -9,7 +9,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 MegaDriveROMLoader::MegaDriveROMLoader(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
 :Extension(implementationName, instanceName, moduleID), _selectionMadeThisSession(false), _menuHandler(0)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 MegaDriveROMLoader::~MegaDriveROMLoader()

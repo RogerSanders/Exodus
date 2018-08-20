@@ -6,7 +6,7 @@ class IObserverSubscription
 {
 public:
 	// Constructors
-	virtual ~IObserverSubscription() = 0 {}
+	virtual ~IObserverSubscription() = 0 { }
 
 	// Subscription functions
 	virtual void Subscribe(IObserverCollection& targetCollection) = 0;

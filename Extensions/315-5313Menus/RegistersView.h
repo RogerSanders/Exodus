@@ -68,7 +68,7 @@ private:
 	{
 		TabInfo(const std::wstring& atabName, int adialogID, DLGPROC adialogProc)
 		:tabName(atabName), dialogID(adialogID), dialogProc(adialogProc), hwndDialog(NULL)
-		{}
+		{ }
 
 		std::wstring tabName;
 		int dialogID;

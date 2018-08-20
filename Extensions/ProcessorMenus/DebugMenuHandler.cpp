@@ -11,7 +11,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 DebugMenuHandler::DebugMenuHandler(ProcessorMenus& owner, const IDevice& modelInstanceKey, IProcessor& model)
 :MenuHandlerBase(L"ProcessorDebugMenu", owner.GetViewManager()), _owner(owner), _modelInstanceKey(modelInstanceKey), _model(model)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Management functions

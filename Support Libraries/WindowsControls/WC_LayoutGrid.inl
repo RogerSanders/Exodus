@@ -50,10 +50,10 @@ struct WC_LayoutGrid::AddRowParams
 {
 	AddRowParams(double aproportionalRatio, int aminHeight = -1, int amaxHeight = -1)
 	:minHeight(aminHeight), maxHeight(amaxHeight), sizeMode(SizeMode::Proportional), proportionalRatio(aproportionalRatio)
-	{}
+	{ }
 	AddRowParams(SizeMode asizeMode, int aminHeight = -1, int amaxHeight = -1)
 	:minHeight(aminHeight), maxHeight(amaxHeight), sizeMode(asizeMode), proportionalRatio(1.0)
-	{}
+	{ }
 
 	int minHeight;
 	int maxHeight;
@@ -66,7 +66,7 @@ struct WC_LayoutGrid::AddColumnParams
 {
 	AddColumnParams(SizeMode asizeMode, double aproportionalRatio = 1.0, int aminWidth = -1, int amaxWidth = -1)
 	:minWidth(aminWidth), maxWidth(amaxWidth), sizeMode(asizeMode), proportionalRatio(aproportionalRatio)
-	{}
+	{ }
 
 	int minWidth;
 	int maxWidth;
@@ -79,7 +79,7 @@ struct WC_LayoutGrid::AddWindowParams
 {
 	AddWindowParams(HWND awindowHandle, int arowNo = 0, int acolumnNo = 0)
 	:windowHandle(awindowHandle), rowNo(arowNo), columnNo(acolumnNo), rowSpan(1), columnSpan(1), horizontalSizeMode(WindowSizeMode::Proportional), verticalSizeMode(WindowSizeMode::Proportional), horizontalAlignmentDisplacement(0.0), verticalAlignmentDisplacement(0.0), rowProportionStart(1.0), rowProportionEnd(1.0), columnProportionStart(1.0), columnProportionEnd(1.0), paddingLeft(0), paddingRight(0), paddingTop(0), paddingBottom(0), minWidth(-1), minHeight(-1), maxWidth(-1), maxHeight(-1)
-	{}
+	{ }
 
 	AddWindowParams& SetSpan(int arowSpan, int acolumnSpan)
 	{
@@ -176,7 +176,7 @@ struct WC_LayoutGrid::UpdateWindowSizesParams
 {
 	UpdateWindowSizesParams(HWND awindowHandle)
 	:windowHandle(awindowHandle), horizontalAlignmentDisplacement(0.0), verticalAlignmentDisplacement(0.0), paddingLeft(0), paddingRight(0), paddingTop(0), paddingBottom(0), minWidth(-1), minHeight(-1), maxWidth(-1), maxHeight(-1)
-	{}
+	{ }
 
 	UpdateWindowSizesParams& SetAlignment(HorizontalAlignment ahorizontalAlignment, VerticalAlignment averticalAlignment)
 	{

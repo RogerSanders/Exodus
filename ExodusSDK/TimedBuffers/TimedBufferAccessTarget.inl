@@ -2,7 +2,7 @@
 // Constructors
 //----------------------------------------------------------------------------------------------------------------------
 template<class DataType, class TimesliceType> TimedBufferAccessTarget<DataType, TimesliceType>::TimedBufferAccessTarget()
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Access functions

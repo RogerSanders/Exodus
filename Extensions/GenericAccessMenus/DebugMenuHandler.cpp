@@ -6,7 +6,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 DebugMenuHandler::DebugMenuHandler(GenericAccessMenus& owner, const IDevice& modelInstanceKey, IGenericAccess& model)
 :MenuHandlerBase(L"GenericAccessDebugMenu", owner.GetViewManager()), _owner(owner), _modelInstanceKey(modelInstanceKey), _model(model)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Management functions

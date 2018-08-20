@@ -13,7 +13,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~IGenericAccessGroupEntry() = 0 {}
+	virtual ~IGenericAccessGroupEntry() = 0 { }
 
 	// Interface version functions
 	static inline unsigned int ThisIGenericAccessGroupEntryVersion() { return 1; }

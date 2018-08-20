@@ -21,7 +21,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~IMenuSegment() = 0 {}
+	virtual ~IMenuSegment() = 0 { }
 
 	// Interface version functions
 	static inline unsigned int ThisIMenuSegmentVersion() { return 1; }

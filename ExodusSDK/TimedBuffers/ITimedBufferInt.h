@@ -18,7 +18,7 @@ public:
 
 public:
 	// Make sure the object can't be deleted from this base
-	protected: virtual ~ITimedBufferInt() = 0 {} public:
+	protected: virtual ~ITimedBufferInt() = 0 { } public:
 
 	// Size functions
 	virtual unsigned int Size() const = 0;

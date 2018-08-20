@@ -52,7 +52,7 @@ struct WC_HexEdit::Hex_UpdateWindowData
 {
 	Hex_UpdateWindowData()
 	:newBufferData(0), newMarkBufferData(0)
-	{}
+	{ }
 	unsigned int newBufferSize;
 	unsigned char* newBufferData;
 	unsigned char* newMarkBufferData;

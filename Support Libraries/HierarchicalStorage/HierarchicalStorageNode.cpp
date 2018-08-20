@@ -5,12 +5,12 @@
 //----------------------------------------------------------------------------------------------------------------------
 HierarchicalStorageNode::HierarchicalStorageNode()
 :_parent(0), _binaryDataPresent(false), _inlineBinaryData(false), _dataStream(Stream::IStream::TextEncoding::UTF16, Stream::IStream::NewLineEncoding::Unix, Stream::IStream::ByteOrder::BigEndian, 0)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 HierarchicalStorageNode::HierarchicalStorageNode(const std::wstring& name)
 :_name(name), _parent(0), _binaryDataPresent(false), _inlineBinaryData(false), _dataStream(Stream::IStream::TextEncoding::UTF16, Stream::IStream::NewLineEncoding::Unix, Stream::IStream::ByteOrder::BigEndian, 0)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 HierarchicalStorageNode::~HierarchicalStorageNode()

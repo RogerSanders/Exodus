@@ -15,7 +15,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~ISystemInfo() = 0 {}
+	virtual ~ISystemInfo() = 0 { }
 
 	// Interface version functions
 	static inline unsigned int ThisISystemInfoVersion() { return 1; }

@@ -7,7 +7,7 @@ class IViewManager
 {
 public:
 	// Constructors
-	virtual ~IViewManager() = 0 {}
+	virtual ~IViewManager() = 0 { }
 
 	// Interface version functions
 	static inline unsigned int ThisIViewManagerVersion() { return 1; }

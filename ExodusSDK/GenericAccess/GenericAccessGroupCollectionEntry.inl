@@ -3,7 +3,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 GenericAccessGroupCollectionEntry::GenericAccessGroupCollectionEntry(const std::wstring& name, IGenericAccessDataValue::DataType keyDataType)
 :_parent(0), _dataContext(0), _name(name), _keyDataType(keyDataType), _openByDefault(false), _lastModifiedToken(0)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 GenericAccessGroupCollectionEntry::~GenericAccessGroupCollectionEntry()

@@ -135,7 +135,7 @@ struct BounceMessage
 {
 	BounceMessage(HWND ahwnd, UINT auMsg, WPARAM awParam, LPARAM alParam)
 	:hwnd(ahwnd), uMsg(auMsg), wParam(awParam), lParam(alParam), result(0), caught(false)
-	{}
+	{ }
 
 	void SetResult(LRESULT aresult)
 	{
@@ -169,10 +169,10 @@ bool ConvertIconFileToIconResource(Stream::IStream& iconFileStream, Stream::IStr
 struct WinColor
 {
 	WinColor()
-	{}
+	{ }
 	WinColor(unsigned char ar, unsigned char ag, unsigned char ab)
 	:r(ar), g(ag), b(ab)
-	{}
+	{ }
 
 	COLORREF GetColorREF() const
 	{

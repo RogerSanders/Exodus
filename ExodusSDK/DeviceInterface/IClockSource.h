@@ -10,7 +10,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~IClockSource() = 0 {}
+	virtual ~IClockSource() = 0 { }
 
 	// Interface version functions
 	static inline unsigned int ThisIClockSourceVersion() { return 1; }

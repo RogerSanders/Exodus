@@ -3,7 +3,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 template<class T> RAMBase<T>::RAMBase(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
 :MemoryWrite(implementationName, instanceName, moduleID), _memoryArraySize(0), _memoryArray(0), _memoryLockedArray(0), _initialMemoryDataSpecified(false), _repeatInitialMemoryData(false), _dataIsPersistent(false)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 template<class T> RAMBase<T>::~RAMBase()

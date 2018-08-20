@@ -22,7 +22,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~IDevice() = 0 {}
+	virtual ~IDevice() = 0 { }
 
 	// Interface version functions
 	static inline unsigned int ThisIDeviceVersion() { return 1; }

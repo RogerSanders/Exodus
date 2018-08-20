@@ -9,7 +9,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 MenuHandler::MenuHandler(ExodusInterface& owner, ExodusInterface& model)
 :MenuHandlerBase(L"GUIMenus", owner.GetViewManager()), _owner(owner), _model(model)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Management functions

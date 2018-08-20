@@ -6,7 +6,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 Z80Menus::Z80Menus(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
 :Extension(implementationName, instanceName, moduleID)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 Z80Menus::~Z80Menus()

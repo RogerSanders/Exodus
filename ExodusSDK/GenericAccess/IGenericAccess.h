@@ -15,12 +15,12 @@ public:
 	class DataContext
 	{
 	public:
-		virtual ~DataContext() = 0 {}
+		virtual ~DataContext() = 0 { }
 	};
 
 public:
 	// Constructors
-	virtual ~IGenericAccess() = 0 {}
+	virtual ~IGenericAccess() = 0 { }
 
 	// Interface version functions
 	static inline unsigned int ThisIGenericAccessVersion() { return 1; }

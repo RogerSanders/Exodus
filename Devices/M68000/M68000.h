@@ -281,7 +281,7 @@ private:
 	{
 		RegisterDisassemblyInfo()
 		:unmodified(false), addressRegisterLastUsedInPostIncMode(false)
-		{}
+		{ }
 
 		bool unmodified;
 		bool addressRegisterLastUsedInPostIncMode;

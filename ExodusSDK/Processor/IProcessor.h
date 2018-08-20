@@ -24,7 +24,7 @@ public:
 
 public:
 	// Constructors
-	virtual ~IProcessor() = 0 {}
+	virtual ~IProcessor() = 0 { }
 
 	// Interface version functions
 	static inline unsigned int ThisIProcessorVersion() { return 1; }

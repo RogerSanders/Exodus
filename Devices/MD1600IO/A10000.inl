@@ -71,7 +71,7 @@ struct A10000::LineAccess
 {
 	LineAccess(LineID alineLD, const Data& astate, double aaccessTime)
 	:lineID(alineLD), state(astate), accessTime(aaccessTime)
-	{}
+	{ }
 
 	LineID lineID;
 	Data state;

@@ -6,7 +6,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 SystemMenuHandler::SystemMenuHandler(ExodusSystemMenus& owner, ISystemGUIInterface& model)
 :MenuHandlerBase(L"SystemMenu", owner.GetViewManager()), _owner(owner), _model(model)
-{}
+{ }
 
 //----------------------------------------------------------------------------------------------------------------------
 // Management functions
