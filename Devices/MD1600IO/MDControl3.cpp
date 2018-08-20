@@ -456,57 +456,57 @@ void MDControl3::LoadState(IHierarchicalStorageNode& node)
 	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
 	for (std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
-		IHierarchicalStorageNode& node = *(*i);
-		std::wstring nodeName = node.GetName();
+		IHierarchicalStorageNode& childNode = *(*i);
+		std::wstring nodeName = childNode.GetName();
 		if (nodeName == L"LineInputStateTH")
 		{
-			node.ExtractData(_lineInputStateTH);
+			childNode.ExtractData(_lineInputStateTH);
 		}
 		else if (nodeName == L"LineAssertedD0")
 		{
-			node.ExtractData(_lineAssertedD0);
+			childNode.ExtractData(_lineAssertedD0);
 		}
 		else if (nodeName == L"LineAssertedD1")
 		{
-			node.ExtractData(_lineAssertedD1);
+			childNode.ExtractData(_lineAssertedD1);
 		}
 		else if (nodeName == L"LineAssertedD2")
 		{
-			node.ExtractData(_lineAssertedD2);
+			childNode.ExtractData(_lineAssertedD2);
 		}
 		else if (nodeName == L"LineAssertedD3")
 		{
-			node.ExtractData(_lineAssertedD3);
+			childNode.ExtractData(_lineAssertedD3);
 		}
 		else if (nodeName == L"LineAssertedTL")
 		{
-			node.ExtractData(_lineAssertedTL);
+			childNode.ExtractData(_lineAssertedTL);
 		}
 		else if (nodeName == L"LineAssertedTR")
 		{
-			node.ExtractData(_lineAssertedTR);
+			childNode.ExtractData(_lineAssertedTR);
 		}
 		else if (nodeName == L"LineAssertedTH")
 		{
-			node.ExtractData(_lineAssertedTH);
+			childNode.ExtractData(_lineAssertedTH);
 		}
 		else if (nodeName == L"ButtonPressed")
 		{
-			IHierarchicalStorageAttribute* buttonNumberAttribute = node.GetAttribute(L"ButtonNo");
+			IHierarchicalStorageAttribute* buttonNumberAttribute = childNode.GetAttribute(L"ButtonNo");
 			if (buttonNumberAttribute != 0)
 			{
 				unsigned int buttonNo = buttonNumberAttribute->ExtractValue<unsigned int>();
 				if (buttonNo < buttonCount)
 				{
 					bool state;
-					node.ExtractAttribute(L"Pressed", state);
+					childNode.ExtractAttribute(L"Pressed", state);
 					_buttonPressed[buttonNo] = state;
 				}
 			}
 		}
 		else if (nodeName == L"CurrentTimesliceLength")
 		{
-			node.ExtractData(_currentTimesliceLength);
+			childNode.ExtractData(_currentTimesliceLength);
 		}
 	}
 }

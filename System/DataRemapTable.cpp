@@ -151,7 +151,7 @@ bool DataRemapTable::SetDataMapping(const std::wstring& mappingString, unsigned 
 	unsigned int lowestSourceBitNumberUsed = sourceBitCount;
 	bool allSourceBitsInRelativeOrder = true;
 	bool foundFirstSourceMapping = false;
-	int firstSourceMappingDisplacement;
+	int firstSourceMappingDisplacement = { };
 	for (std::list<MappingElement>::const_reverse_iterator i = mappingElements.rbegin(); i != mappingElements.rend(); ++i)
 	{
 		// Check if this element is forcing this bit to a particular value, or specifying a

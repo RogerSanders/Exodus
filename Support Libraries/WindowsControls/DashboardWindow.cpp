@@ -1111,10 +1111,10 @@ LRESULT DashboardWindow::msgWM_MOUSEMOVE(WPARAM wParam, LPARAM lParam)
 			// Calculate the bounding client rectangle for the highlight window to show for
 			// this snap group
 			bool setHighlightWindowInfo = false;
-			int highlightWindowStartPosX;
-			int highlightWindowStartPosY;
-			int highlightWindowEndPosX;
-			int highlightWindowEndPosY;
+			int highlightWindowStartPosX = { };
+			int highlightWindowStartPosY = { };
+			int highlightWindowEndPosX = { };
+			int highlightWindowEndPosY = { };
 			std::set<Divider*> mergeCandidates = GetAllMergeCandidates(divider);
 			for (std::set<Divider*>::const_iterator i = mergeCandidates.begin(); i != mergeCandidates.end(); ++i)
 			{
@@ -1737,10 +1737,9 @@ LRESULT DashboardWindow::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 	HBRUSH dividerBackgroundBrush = CreateSolidBrush(_dividerBackgroundColor.GetColorREF());
 
 	// Draw each divider
-	for (std::list<Divider*>::const_iterator i = _dividers.begin(); i != _dividers.end(); ++i)
+	for (Divider* divider : _dividers)
 	{
 		// Draw the divider
-		Divider* divider = *i;
 		rect.left = divider->cachedPosX;
 		rect.right = divider->cachedPosX + divider->cachedWidth;
 		rect.top = divider->cachedPosY;
@@ -2096,8 +2095,8 @@ LRESULT DashboardWindow::msgPlacementTargetWM_PRINTCLIENT(HWND placementTargetHw
 	int windowHeight = rect.bottom - rect.top;
 
 	// Attempt to determine which location we're targeting
-	DockTargetPos targetLocation;
 	bool foundTargetLocation = false;
+	DockTargetPos targetLocation = { };
 	std::map<DockTargetPos, HWND>::iterator placementTargetIterator = _dropTargets.begin();
 	while (!foundTargetLocation && (placementTargetIterator != _dropTargets.end()))
 	{
@@ -2764,7 +2763,7 @@ void DashboardWindow::ShowDropTargets(IDockingWindow* callingDockingWindow, int 
 
 	// Determine the current drop target based on the supplied cursor position
 	bool foundDockLocation = true;
-	DockTargetPos newDockLocation;
+	DockTargetPos newDockLocation = { };
 	RECT rect;
 	cursorPos.x = cursorPosX;
 	cursorPos.y = cursorPosY;
@@ -3506,7 +3505,7 @@ void DashboardWindow::RemoveRegion(ContentRegion& existingRegion)
 	// regions into the space allocated to the target region, if any.
 	bool foundDividerToRemove = false;
 	Divider* dividerToRemove = 0;
-	WindowEdge dividerToRemoveLocation;
+	WindowEdge dividerToRemoveLocation = { };
 	if ((existingRegion.leftDivider != 0) && ((existingRegion.topDivider == 0) && (existingRegion.bottomDivider == 0) || ((existingRegion.leftDivider->startAnchorDivider == existingRegion.topDivider) && (existingRegion.leftDivider->endAnchorDivider == existingRegion.bottomDivider))))
 	{
 		foundDividerToRemove = true;
@@ -4981,8 +4980,8 @@ void DashboardWindow::LoadLayoutInfo(const std::list<DividerListEntry>& dividerL
 		// split in order to re-create the divider, and calculate the position within the
 		// region at which to insert the divider.
 		int currentDistanceAlongParent = 0;
-		ContentRegion* targetContentRegion;
-		int distanceAlongTargetContentRegion;
+		ContentRegion* targetContentRegion = { };
+		int distanceAlongTargetContentRegion = { };
 		std::list<DividerContentEntry>::const_iterator followingDividerListIterator = followingDividerList.begin();
 		bool foundTargetContentRegion = false;
 		while (!foundTargetContentRegion && (followingDividerListIterator != followingDividerList.end()))

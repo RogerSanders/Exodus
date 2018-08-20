@@ -82,7 +82,7 @@ bool BusInterface::Construct(const BusInterfaceParams& params)
 		}
 		if (_usePhysicalMemoryMap)
 		{
-			_physicalMemoryMap.resize(1 << _addressBusWidth, 0);
+			_physicalMemoryMap.resize((size_t)1 << _addressBusWidth, 0);
 		}
 	}
 
@@ -104,7 +104,7 @@ bool BusInterface::Construct(const BusInterfaceParams& params)
 		}
 		if (_usePhysicalPortMap)
 		{
-			_physicalPortMap.resize(1 << _portAddressBusWidth, 0);
+			_physicalPortMap.resize((size_t)1 << _portAddressBusWidth, 0);
 		}
 	}
 
@@ -1530,8 +1530,8 @@ bool BusInterface::MapCELineInput(IDevice* device, IHierarchicalStorageNode& nod
 	}
 
 	// Obtain the bus line ID number for the specified line
-	unsigned int busLineID;
 	bool foundBusLineID = false;
+	unsigned int busLineID = { };
 	CELineMap::const_iterator lineMapIterator = targetCELineMap.begin();
 	while (!foundBusLineID && (lineMapIterator != targetCELineMap.end()))
 	{
@@ -1634,8 +1634,8 @@ bool BusInterface::MapCELineOutput(IDevice* device, IHierarchicalStorageNode& no
 	}
 
 	// Obtain the bus line ID number for the specified line
-	unsigned int busLineID;
 	bool foundBusLineID = false;
+	unsigned int busLineID = { };
 	CELineMap::const_iterator lineMapIterator = targetCELineMap.begin();
 	while (!foundBusLineID && (lineMapIterator != targetCELineMap.end()))
 	{

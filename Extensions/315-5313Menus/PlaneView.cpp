@@ -452,25 +452,21 @@ void PlaneView::UpdateControlPositions(HWND hwnd)
 	RECT scrollBarVOriginalRect;
 	GetWindowRect(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_VSCROLL), &scrollBarVOriginalRect);
 	int scrollBarVOriginalWidth = scrollBarVOriginalRect.right - scrollBarVOriginalRect.left;
-	int scrollBarVOriginalHeight = scrollBarVOriginalRect.bottom - scrollBarVOriginalRect.top;
 	POINT scrollBarVPos;
 	scrollBarVPos.x = scrollBarVOriginalRect.left;
 	scrollBarVPos.y = scrollBarVOriginalRect.top;
 	ScreenToClient(hwnd, &scrollBarVPos);
-	int scrollBarVOriginalPosX = scrollBarVPos.x;
 	int scrollBarVOriginalPosY = scrollBarVPos.y;
 
 	// Retrieve the current size and position of the horizontal scroll bar
 	RECT scrollBarHOriginalRect;
 	GetWindowRect(GetDlgItem(hwnd, IDC_S315_5313_PLANEVIEW_HSCROLL), &scrollBarHOriginalRect);
-	int scrollBarHOriginalWidth = scrollBarHOriginalRect.right - scrollBarHOriginalRect.left;
 	int scrollBarHOriginalHeight = scrollBarHOriginalRect.bottom - scrollBarHOriginalRect.top;
 	POINT scrollBarHPos;
 	scrollBarHPos.x = scrollBarHOriginalRect.left;
 	scrollBarHPos.y = scrollBarHOriginalRect.top;
 	ScreenToClient(hwnd, &scrollBarHPos);
 	int scrollBarHOriginalPosX = scrollBarHPos.x;
-	int scrollBarHOriginalPosY = scrollBarHPos.y;
 
 	// Update the current size and position of the vertical scroll bar
 	int scrollBarVNewHeight = windowHeight - (scrollBarVOriginalPosY + scrollBarHOriginalHeight);
@@ -892,8 +888,8 @@ LRESULT PlaneView::msgRenderWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 
 			// Retrieve the pixel value for the selected layer at the current position
 			bool outsideSelectedPlane = true;
-			unsigned int paletteRow;
-			unsigned int paletteIndex;
+			unsigned int paletteRow = { };
+			unsigned int paletteIndex = { };
 			switch (_selectedLayer)
 			{
 			case SELECTEDLAYER_LAYERA:

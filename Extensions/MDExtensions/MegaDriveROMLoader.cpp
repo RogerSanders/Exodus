@@ -161,7 +161,7 @@ void MegaDriveROMLoader::UnloadROMFileFromModulePath(const std::wstring& targetR
 
 	// Attempt to retrieve the ID of the first matching loaded module file
 	bool foundLoadedModuleID = false;
-	unsigned int loadedModuleID;
+	unsigned int loadedModuleID = { };
 	std::list<unsigned int>::const_iterator loadedModuleIDIterator = loadedModuleIDs.begin();
 	while (!foundLoadedModuleID && (loadedModuleIDIterator != loadedModuleIDs.end()))
 	{
@@ -215,11 +215,11 @@ bool MegaDriveROMLoader::BuildROMFileModuleFromFile(const std::wstring& filePath
 
 	// If the user has requested us to detect backup RAM support, attempt to do so now.
 	bool sramPresent = false;
-	unsigned int sramByteSize;
-	unsigned int sramStartLocation;
-	bool sramMapOnEvenBytes;
-	bool sramMapOnOddBytes;
-	bool sram16Bit;
+	unsigned int sramByteSize = { };
+	unsigned int sramStartLocation = { };
+	bool sramMapOnEvenBytes = { };
+	bool sramMapOnOddBytes = { };
+	bool sram16Bit = { };
 	std::vector<unsigned char> initialRAMData;
 	if (autoDetectBackupRAMSupport)
 	{

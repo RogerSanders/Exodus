@@ -14,7 +14,7 @@ template<class T> OpcodeTable<T>::OpcodeTable(unsigned int opcodeDecodeBits)
 //----------------------------------------------------------------------------------------------------------------------
 template<class T> void OpcodeTable<T>::InitializeOpcodeTable()
 {
-	_opcodeArray.assign(1 << _opcodeDecodeBits, (T*)0);
+	_opcodeArray.assign((size_t)1 << _opcodeDecodeBits, (T*)0);
 }
 
 //----------------------------------------------------------------------------------------------------------------------

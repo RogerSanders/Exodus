@@ -85,7 +85,7 @@ unsigned int S315_5313::GetLineWidth(unsigned int lineID) const
 //----------------------------------------------------------------------------------------------------------------------
 void S315_5313::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
-	std::unique_lock<std::mutex> lock(_lineMutex);
+	std::unique_lock<std::mutex> lineMutexLock(_lineMutex);
 
 	// Process the line state change
 	switch ((LineID)targetLine)
@@ -98,7 +98,7 @@ void S315_5313::SetLineState(unsigned int targetLine, const Data& lineData, IDev
 		// access to SetLineState() on this class before we modify the line state for other
 		// devices in the code that follows. Adhering to this pattern helps to avoid
 		// deadlock cases that could otherwise arise from valid line mappings.
-		lock.unlock();
+		lineMutexLock.unlock();
 
 		// Note that we take a lock on accessMutex here, to synchronize INTAK
 		// acknowledgments with the memory interface for the VDP. These interfaces need to
@@ -1490,7 +1490,7 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 				assertBRLine = true;
 
 				// Set the initial DMA transfer register settings
-				std::unique_lock<std::mutex> lock(_workerThreadMutex);
+				std::unique_lock<std::mutex> workerThreadLock(_workerThreadMutex);
 				_dmaTransferActive = true;
 				_dmaTransferReadDataCached = false;
 				// Note that we technically don't need to set these here, as they are only

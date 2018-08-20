@@ -1128,7 +1128,7 @@ void YM2612::RenderThread()
 							// Write to the wav log
 							if (_wavLoggingOperatorEnabled[channelNo][operatorNo])
 							{
-								std::unique_lock<std::mutex> lock(_waveLoggingMutex);
+								std::unique_lock<std::mutex> waveLoggingLock(_waveLoggingMutex);
 								short outputSample;
 								float operatorOutputNormalized = (float)_operatorOutput[channelNo][operatorNo] / ((1 << (OperatorOutputBitCount - 1)) - 1);
 								// We halve the amplitude of the operator output just to
@@ -1267,7 +1267,7 @@ void YM2612::RenderThread()
 						// Write to the wave log
 						if (_wavLoggingChannelEnabled[channelNo])
 						{
-							std::unique_lock<std::mutex> lock(_waveLoggingMutex);
+							std::unique_lock<std::mutex> waveLoggingLock(_waveLoggingMutex);
 							short outputSampleLeft;
 							short outputSampleRight;
 							float channelOutputLeftNormalized = (float)channelOutput[channelNo][0] / ((1 << (AccumulatorOutputBitCount - 1)) - 1);
@@ -1328,7 +1328,7 @@ void YM2612::RenderThread()
 					// Write to the wave log
 					if (_wavLoggingEnabled)
 					{
-						std::unique_lock<std::mutex> lock(_waveLoggingMutex);
+						std::unique_lock<std::mutex> waveLoggingLock(_waveLoggingMutex);
 						Stream::ViewBinary wavlogStream(_wavLog);
 						wavlogStream << outputSampleLeft;
 						wavlogStream << outputSampleRight;
@@ -1380,7 +1380,7 @@ void YM2612::RenderThread()
 						bool op2KeyState = writeInfo.newValue.GetBit(5);
 						bool op1KeyState = writeInfo.newValue.GetBit(4);
 						bool validChannelSelected = true;
-						Channels channelNo;
+						Channels channelNo = { };
 						switch (writeInfo.newValue.GetDataSegment(0, 3))
 						{
 						case 0:  // 000 - Channel 1
@@ -1480,7 +1480,7 @@ void YM2612::RenderThread()
 
 		// Advance past the timeslice we've just rendered from
 		{
-			std::unique_lock<std::mutex> lock(_timesliceMutex);
+			std::unique_lock<std::mutex> timesliceLock(_timesliceMutex);
 			_reg.AdvancePastTimeslice(regTimesliceCopy);
 			_timerAOverflowTimes.AdvancePastTimeslice(timerATimesliceCopy);
 		}
@@ -2785,8 +2785,8 @@ void YM2612::LoadState(IHierarchicalStorageNode& node)
 		}
 		else if ((*i)->GetName() == L"RenderData")
 		{
-			unsigned int channelNo;
-			unsigned int operatorNo;
+			unsigned int channelNo = { };
+			unsigned int operatorNo = { };
 			if ((*i)->ExtractAttribute(L"ChannelNo", channelNo) && (channelNo < ChannelCount) &&
 			   (*i)->ExtractAttribute(L"OperatorNo", operatorNo) && (operatorNo < OperatorCount))
 			{
@@ -3049,8 +3049,8 @@ void YM2612::LoadDebuggerState(IHierarchicalStorageNode& node)
 				}
 				else if (usingOperatorDataContextAttribute != 0)
 				{
-					unsigned int channelNo;
-					unsigned int operatorNo;
+					unsigned int channelNo = { };
+					unsigned int operatorNo = { };
 					if ((*i)->ExtractAttribute(L"ChannelNo", channelNo) && (*i)->ExtractAttribute(L"OperatorNo", operatorNo))
 					{
 						_lockedRegisterState[dataID].push_back(RegisterLocking(dataID, OperatorDataContext(channelNo, operatorNo), lockedValue));
@@ -3075,8 +3075,8 @@ void YM2612::LoadDebuggerState(IHierarchicalStorageNode& node)
 		}
 		else if ((*i)->GetName() == L"LockedKeyState")
 		{
-			unsigned int channelNo;
-			unsigned int operatorNo;
+			unsigned int channelNo = { };
+			unsigned int operatorNo = { };
 			if ((*i)->ExtractAttribute(L"ChannelNo", channelNo) && (*i)->ExtractAttribute(L"OperatorNo", operatorNo))
 			{
 				if ((channelNo < ChannelCount) && (operatorNo < OperatorCount))

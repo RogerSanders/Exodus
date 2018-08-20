@@ -393,14 +393,14 @@ bool Image::LoadPCXImage(Stream::IStream& stream)
 	}
 
 	// Create and initialize the palette for the image
-	const unsigned int paletteEntries = 256;
-	const unsigned int paletteChannels = 3;
-	unsigned char palette[paletteEntries][paletteChannels];
+	const unsigned int paletteEntryCount = 256;
+	const unsigned int paletteChannelCount = 3;
+	unsigned char palette[paletteEntryCount][paletteChannelCount];
 	if (paletteUsed)
 	{
-		for (unsigned int entryNo = 0; entryNo < paletteEntries; ++entryNo)
+		for (unsigned int entryNo = 0; entryNo < paletteEntryCount; ++entryNo)
 		{
-			for (unsigned int channelNo = 0; channelNo < paletteChannels; ++channelNo)
+			for (unsigned int channelNo = 0; channelNo < paletteChannelCount; ++channelNo)
 			{
 				palette[entryNo][channelNo] = 0;
 			}
@@ -421,9 +421,9 @@ bool Image::LoadPCXImage(Stream::IStream& stream)
 	{
 		// If a palette appears to be appended at the end of the file, read the appended
 		// palette into memory.
-		for (unsigned int entryNo = 0; entryNo < paletteEntries; ++entryNo)
+		for (unsigned int entryNo = 0; entryNo < paletteEntryCount; ++entryNo)
 		{
-			for (unsigned int channelNo = 0; channelNo < paletteChannels; ++channelNo)
+			for (unsigned int channelNo = 0; channelNo < paletteChannelCount; ++channelNo)
 			{
 				unsigned char temp;
 				stream.ReadData(temp);
@@ -597,7 +597,7 @@ bool Image::SavePCXImage(Stream::IStream& stream)
 	for (unsigned int ypos = 0; ypos < _imageHeight; ++ypos)
 	{
 		bool compressionRunActive = false;
-		unsigned char lastByte;
+		unsigned char lastByte = { };
 		unsigned int runCount = 0;
 		const unsigned int maxRunLength = 0x3F;
 		for (unsigned int planeNo = 0; planeNo < GetDataPlaneCount(); ++planeNo)
@@ -950,7 +950,7 @@ bool Image::LoadTGAImage(Stream::IStream& stream)
 		colorMapBitsRGB = 8;
 	}
 	unsigned int colorMapBitsAlpha = colorMapBitsPerEntry - (colorMapBitsRGB * 8);
-	unsigned int colorMapByteSize = ((colorMapBitsPerEntry * colorMapLength) + 7) / 8;
+	//unsigned int colorMapByteSize = ((colorMapBitsPerEntry * colorMapLength) + 7) / 8;
 
 	// Decode the image type
 	unsigned int colorChannelCount = 0;
@@ -1120,7 +1120,11 @@ bool Image::LoadTGAImage(Stream::IStream& stream)
 	// Decode the pixel data
 	unsigned char currentBuffer = 0;
 	unsigned int remainingBits = 0;
-	unsigned int m, r, g, b, a;
+	unsigned int m = 0;
+	unsigned int r = 0;
+	unsigned int g = 0;
+	unsigned int b = 0;
+	unsigned int a = 0;
 	int repetitionCount = 0;
 	bool currentPacketCompressed = false;
 	for (unsigned int ypos = 0; ypos < _imageHeight; ++ypos)
@@ -1237,7 +1241,7 @@ bool Image::SaveTGAImage(Stream::IStream& stream)
 	bool flipHorizontally = false;
 	unsigned int colorChannelCount = 0;
 	unsigned int colorChannelBitCount = 8;
-	unsigned int alphaChannelBitCount = 8;
+	//unsigned int alphaChannelBitCount = 8;
 	unsigned int mBitCount = 0;
 	unsigned int rBitCount = 0;
 	unsigned int gBitCount = 0;
@@ -1535,7 +1539,7 @@ bool Image::SavePNGImage(Stream::IStream& stream)
 
 	// Populate the PNG header information
 	int pngColorType = 0;
-	unsigned int bytesPerPixel;
+	unsigned int bytesPerPixel = 0;
 	switch (_pixelFormat)
 	{
 	case PIXELFORMAT_M:
@@ -1939,10 +1943,12 @@ bool Image::LoadDIBImage(Stream::IStream& stream, const BITMAPINFOHEADER* bitmap
 		break;
 	case BI_RLE8:
 		// The image uses RLE8 compression
+		newPixelFormat = PIXELFORMAT_RGB;
 		rle8Used = true;
 		break;
 	case BI_RLE4:
 		// The image uses RLE4 compression
+		newPixelFormat = PIXELFORMAT_RGB;
 		rle4Used = true;
 		break;
 	case BI_BITFIELDS:
@@ -2151,7 +2157,7 @@ bool Image::LoadDIBImage(Stream::IStream& stream, const BITMAPINFOHEADER* bitmap
 			// bottom up in the stream, we need to read it bottom up as well.
 			unsigned int writeYPos = imageBottomUp? ((_imageHeight - 1) - ypos): ypos;
 
-			unsigned char dataBuffer;
+			unsigned char dataBuffer = 0;
 			for (unsigned int xpos = 0; xpos < _imageWidth; ++xpos)
 			{
 				unsigned int r = 0;
@@ -2195,10 +2201,10 @@ bool Image::LoadDIBImage(Stream::IStream& stream, const BITMAPINFOHEADER* bitmap
 				{
 					// The image data contains literal RGB values. Default bit masks are
 					// given below to decode the pixel data.
-					unsigned int rMask;
-					unsigned int gMask;
-					unsigned int bMask;
-					unsigned int aMask;
+					unsigned int rMask = 0;
+					unsigned int gMask = 0;
+					unsigned int bMask = 0;
+					unsigned int aMask = 0;
 					if (bitsPerPixel == 16)
 					{
 						rMask = 0x7C00u << (32 - bitsPerPixel);

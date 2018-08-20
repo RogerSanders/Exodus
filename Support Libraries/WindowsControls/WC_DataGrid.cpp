@@ -842,11 +842,13 @@ LRESULT WC_DataGrid::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 	WinColor lineColor          = _userColorData.lineColorDefined?       _userColorData.colorLine:          _defaultColorData.colorLine;
 
 	// Fill the window with the background colour
-	HBRUSH backgroundBrush = CreateSolidBrush(backgroundColor.GetColorREF());
-	HBRUSH backgroundBrushOld = (HBRUSH)SelectObject(hdc, backgroundBrush);
-	PatBlt(hdc, 0, _headerHeight, _controlWidth, _controlHeight, PATCOPY);
-	SelectObject(hdc, backgroundBrushOld);
-	DeleteObject(backgroundBrush);
+	{
+		HBRUSH backgroundBrush = CreateSolidBrush(backgroundColor.GetColorREF());
+		HBRUSH backgroundBrushOld = (HBRUSH)SelectObject(hdc, backgroundBrush);
+		PatBlt(hdc, 0, _headerHeight, _controlWidth, _controlHeight, PATCOPY);
+		SelectObject(hdc, backgroundBrushOld);
+		DeleteObject(backgroundBrush);
+	}
 
 	// Switch to our data area font
 	HFONT hfontOld;
@@ -1270,11 +1272,13 @@ LRESULT WC_DataGrid::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 							SetBkColor(hdc, colorSelectedEditTextBackForRow.GetColorREF());
 
 							// Draw the selected text
-							SIZE textSize;
-							GetTextExtentPoint32(hdc, (cellDataRaw + _dragSelectStartPos), (_dragSelectEndPos - _dragSelectStartPos), &textSize);
-							rect.left = rect.right;
-							rect.right = rect.left + textSize.cx;
-							DrawText(hdc, (cellDataRaw + _dragSelectStartPos), (_dragSelectEndPos - _dragSelectStartPos), &rect, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
+							{
+								SIZE textSize;
+								GetTextExtentPoint32(hdc, (cellDataRaw + _dragSelectStartPos), (_dragSelectEndPos - _dragSelectStartPos), &textSize);
+								rect.left = rect.right;
+								rect.right = rect.left + textSize.cx;
+								DrawText(hdc, (cellDataRaw + _dragSelectStartPos), (_dragSelectEndPos - _dragSelectStartPos), &rect, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
+							}
 
 							// Restore the text colour
 							SetTextColor(hdc, colorEditTextFrontForRow.GetColorREF());
@@ -2692,7 +2696,7 @@ LRESULT WC_DataGrid::msgWM_LBUTTONDOWN(WPARAM wParam, LPARAM lParam)
 	bool foundSelectedColumn = false;
 	bool newSelectedColumnSupportsEdit = false;
 	unsigned int newSelectedColumnID = 0;
-	int newSelectedColumnSelectionOffsetX;
+	int newSelectedColumnSelectionOffsetX = { };
 	ColumnSortIndexIterator sortedColumnIterator = _columnSortIndex.begin();
 	int columnStartPosX = (int)_headerPosX;
 	while (!foundSelectedColumn && (sortedColumnIterator != _columnSortIndex.end()))

@@ -508,22 +508,22 @@ void A10000::RevokeSetLineState(unsigned int targetLine, const Data& lineData, d
 	}
 
 	// Find the matching line state change entry in the line access buffer
-	std::list<LineAccess>::reverse_iterator i = _lineAccessBuffer.rbegin();
+	std::list<LineAccess>::reverse_iterator lineAccessIterator = _lineAccessBuffer.rbegin();
 	bool foundTargetEntry = false;
-	while (!foundTargetEntry && (i != _lineAccessBuffer.rend()))
+	while (!foundTargetEntry && (lineAccessIterator != _lineAccessBuffer.rend()))
 	{
-		if ((i->lineID == (LineID)targetLine) && (i->state == lineData) && (i->accessTime == reportedTime))
+		if ((lineAccessIterator->lineID == (LineID)targetLine) && (lineAccessIterator->state == lineData) && (lineAccessIterator->accessTime == reportedTime))
 		{
 			foundTargetEntry = true;
 			continue;
 		}
-		++i;
+		++lineAccessIterator;
 	}
 
 	// Erase the target line state change entry from the line access buffer
 	if (foundTargetEntry)
 	{
-		_lineAccessBuffer.erase((++i).base());
+		_lineAccessBuffer.erase((++lineAccessIterator).base());
 	}
 	else
 	{

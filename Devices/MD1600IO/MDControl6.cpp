@@ -499,8 +499,8 @@ void MDControl6::UpdateOutputLineStateForLine(LineID lineID, bool revokeAllTimeo
 	// Determine if we require a change to be made on the target line when the timeout
 	// occurs
 	bool timeoutLineStateChangeRequired = false;
-	double elapsedTimeSinceLastTHLineStateChange;
-	bool lineAssertedAfterTimeoutNew;
+	double elapsedTimeSinceLastTHLineStateChange = { };
+	bool lineAssertedAfterTimeoutNew = { };
 	if (_bankswitchCounter > 0)
 	{
 		elapsedTimeSinceLastTHLineStateChange = accessTime - _bankswitchCounterToggleLastRisingEdge;
@@ -867,53 +867,53 @@ void MDControl6::LoadState(IHierarchicalStorageNode& node)
 	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
 	for (std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
 	{
-		IHierarchicalStorageNode& node = *(*i);
-		std::wstring nodeName = node.GetName();
+		IHierarchicalStorageNode& childNode = *(*i);
+		std::wstring nodeName = childNode.GetName();
 		if (nodeName == L"CurrentTimesliceLength")
 		{
-			node.ExtractData(_currentTimesliceLength);
+			childNode.ExtractData(_currentTimesliceLength);
 		}
 		else if (nodeName == L"LineInputStateTH")
 		{
-			node.ExtractData(_lineInputStateTH);
+			childNode.ExtractData(_lineInputStateTH);
 		}
 		else if (nodeName == L"BankswitchingDisabled")
 		{
-			node.ExtractData(_bankswitchingDisabled);
+			childNode.ExtractData(_bankswitchingDisabled);
 		}
 		else if (nodeName == L"BankswitchCounter")
 		{
-			node.ExtractData(_bankswitchCounter);
+			childNode.ExtractData(_bankswitchCounter);
 		}
 		else if (nodeName == L"BankswitchCounterToggleLastRisingEdge")
 		{
-			node.ExtractData(_bankswitchCounterToggleLastRisingEdge);
+			childNode.ExtractData(_bankswitchCounterToggleLastRisingEdge);
 		}
 		else if (nodeName == L"OutputLineState")
 		{
-			IHierarchicalStorageAttribute* lineNumberAttribute = node.GetAttribute(L"LineNo");
+			IHierarchicalStorageAttribute* lineNumberAttribute = childNode.GetAttribute(L"LineNo");
 			if (lineNumberAttribute != 0)
 			{
 				unsigned int lineNo = lineNumberAttribute->ExtractValue<unsigned int>();
 				if (lineNo < outputLineCount)
 				{
-					node.ExtractAttribute(L"Asserted", _outputLineState[lineNo].asserted);
-					node.ExtractAttribute(L"TimeoutFlagged", _outputLineState[lineNo].timeoutFlagged);
-					node.ExtractAttribute(L"TimeoutAssertedState", _outputLineState[lineNo].timeoutAssertedState);
-					node.ExtractAttribute(L"TimeoutTime", _outputLineState[lineNo].timeoutTime);
+					childNode.ExtractAttribute(L"Asserted", _outputLineState[lineNo].asserted);
+					childNode.ExtractAttribute(L"TimeoutFlagged", _outputLineState[lineNo].timeoutFlagged);
+					childNode.ExtractAttribute(L"TimeoutAssertedState", _outputLineState[lineNo].timeoutAssertedState);
+					childNode.ExtractAttribute(L"TimeoutTime", _outputLineState[lineNo].timeoutTime);
 				}
 			}
 		}
 		else if (nodeName == L"ButtonPressed")
 		{
-			IHierarchicalStorageAttribute* buttonNumberAttribute = node.GetAttribute(L"ButtonNo");
+			IHierarchicalStorageAttribute* buttonNumberAttribute = childNode.GetAttribute(L"ButtonNo");
 			if (buttonNumberAttribute != 0)
 			{
 				unsigned int buttonNo = buttonNumberAttribute->ExtractValue<unsigned int>();
 				if (buttonNo < buttonCount)
 				{
 					bool state;
-					node.ExtractAttribute(L"Pressed", state);
+					childNode.ExtractAttribute(L"Pressed", state);
 					_buttonPressed[buttonNo] = state;
 				}
 			}

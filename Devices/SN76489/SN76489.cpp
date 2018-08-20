@@ -477,7 +477,7 @@ void SN76489::RenderThread()
 					// Output the channel wave log
 					if (_wavLoggingChannelEnabled[channelNo])
 					{
-						std::unique_lock<std::mutex> lock(_waveLoggingMutex);
+						std::unique_lock<std::mutex> waveLoggingLock(_waveLoggingMutex);
 						for (unsigned int i = 0; i < channelBuffer[channelNo].size(); ++i)
 						{
 							short sample = (short)(channelBuffer[channelNo][i] * (32767.0f/ChannelCount));
@@ -521,7 +521,7 @@ void SN76489::RenderThread()
 		// Output the mixed channel wave log
 		if (_wavLoggingEnabled)
 		{
-			std::unique_lock<std::mutex> lock(_waveLoggingMutex);
+			std::unique_lock<std::mutex> waveLoggingLock(_waveLoggingMutex);
 			_wavLog.WriteData(_outputBuffer);
 		}
 
@@ -545,7 +545,7 @@ void SN76489::RenderThread()
 
 		// Advance past the timeslice we've just rendered from
 		{
-			std::unique_lock<std::mutex> lock(_timesliceMutex);
+			std::unique_lock<std::mutex> timesliceLock(_timesliceMutex);
 			_reg.AdvancePastTimeslice(regTimesliceCopy);
 		}
 	}

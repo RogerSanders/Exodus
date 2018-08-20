@@ -1939,12 +1939,12 @@ bool Processor::PerformActiveDisassemblyAnalysis(unsigned int minAddress, unsign
 	// Detect offset arrays
 	bool offsetEntrySaved = false;
 	const DisassemblyAddressInfo* offsetArrayFirstEntry = 0;
-	unsigned int offsetArrayFirstKnownEntryLocation;
-	unsigned int offsetArrayLastKnownEntryLocation;
-	unsigned int offsetArrayEntrySize;
-	DisassemblyEntryType offsetArrayOffsetType;
-	bool offsetArrayRelativeOffset;
-	unsigned int offsetArrayBaseAddress;
+	unsigned int offsetArrayFirstKnownEntryLocation = { };
+	unsigned int offsetArrayLastKnownEntryLocation = { };
+	unsigned int offsetArrayEntrySize = { };
+	DisassemblyEntryType offsetArrayOffsetType = { };
+	bool offsetArrayRelativeOffset = { };
+	unsigned int offsetArrayBaseAddress = { };
 	std::map<unsigned int, const DisassemblyAddressInfo*> knownOffsetArrayEntries;
 	for (std::map<unsigned int, const DisassemblyAddressInfo*>::const_iterator i = disassemblyOffsetSortedRaw.begin(); i != disassemblyOffsetSortedRaw.end(); ++i)
 	{
@@ -2424,7 +2424,7 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 		// Build a set of stride values between all known entries
 		std::set<unsigned int> strideEntries;
 		bool previousEntryLocationRead = false;
-		unsigned int previousEntryLocation;
+		unsigned int previousEntryLocation = { };
 		for (std::map<unsigned int, const DisassemblyAddressInfo*>::const_iterator i = knownOffsetArrayEntries.begin(); i != knownOffsetArrayEntries.end(); ++i)
 		{
 			unsigned int currentEntryLocation = i->first;
@@ -2457,7 +2457,7 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 		// the offset array. If there is a greater common divisor than this, it is our
 		// stride value.
 		bool foundCommonDivisor = false;
-		unsigned int commonDivisor;
+		unsigned int commonDivisor = { };
 		unsigned int strideEntryCount = (unsigned int)strideEntries.size();
 		std::map<unsigned int, unsigned int>::const_reverse_iterator divisorCountIterator = divisorCount.rbegin();
 		while (!foundCommonDivisor && (divisorCountIterator != divisorCount.rend()))
@@ -2748,7 +2748,6 @@ void Processor::ActiveDisassemblyGeneratePredictedOffsetArrayEntries(ActiveDisas
 			// Read in the offset data
 			unsigned int byteBitCountForProcessor = GetByteBitCount();
 			Data entryData(entrySize * byteBitCountForProcessor, 0);
-			unsigned int entryLocation = newEntry->baseMemoryAddress;
 			for (unsigned int arrayEntryByte = 0; arrayEntryByte < entrySize; ++arrayEntryByte)
 			{
 				entryData <<= byteBitCountForProcessor;
@@ -2950,22 +2949,27 @@ void Processor::ActiveDisassemblyGeneratePredictedJumpTableEntries(ActiveDisasse
 
 	// Scan back from the first known array entry location to the relative offset base
 	// address looking for collisions with other items.
-	bool collisionDetected = false;
-	unsigned int currentAddress = firstKnownEntryLocation;
-	while (!collisionDetected && (currentAddress > jumpTableInfo.baseMemoryAddress) && (currentAddress >= analysis.minAddress))
+	bool baseAddressScanCollisionDetected;
+	bool baseAddressScanReachedBaseAddress;
 	{
-		--currentAddress;
-		if (!analysis.disassemblyAddressInfo[currentAddress - analysis.minAddress].empty())
+		bool collisionDetected = false;
+		unsigned int currentAddress = firstKnownEntryLocation;
+		while (!collisionDetected && (currentAddress > jumpTableInfo.baseMemoryAddress) && (currentAddress >= analysis.minAddress))
 		{
-			collisionDetected = true;
+			--currentAddress;
+			if (!analysis.disassemblyAddressInfo[currentAddress - analysis.minAddress].empty())
+			{
+				collisionDetected = true;
+			}
 		}
+		baseAddressScanCollisionDetected = collisionDetected;
+		baseAddressScanReachedBaseAddress = (currentAddress == jumpTableInfo.baseMemoryAddress);
 	}
-	bool reachedBaseAddress = (currentAddress == jumpTableInfo.baseMemoryAddress);
 
 	// If no collisions were encountered with other items, and we were able to scan back to
 	// the base address, consider the base address to be the start address for the array,
 	// and add all predicted array items to the array info.
-	if (!collisionDetected && reachedBaseAddress)
+	if (!baseAddressScanCollisionDetected && baseAddressScanReachedBaseAddress)
 	{
 		// Set the predicted array start address to the relative offset base address,
 		// and flag that we managed to predict the array start location using the
@@ -3670,9 +3674,9 @@ bool Processor::ActiveDisassemblyExportAnalysisToASMFile(const ActiveDisassembly
 
 		// Write array entries
 		bool newArrayBeginning = false;
-		unsigned int newArrayEndLocation;
-		unsigned int newArrayElementByteSize;
-		DisassemblyDataType newArrayDataType;
+		unsigned int newArrayEndLocation = { };
+		unsigned int newArrayElementByteSize = { };
+		DisassemblyDataType newArrayDataType = { };
 		if (!lineDisassembled)
 		{
 			const DisassemblyArrayInfo* arrayEntry = 0;
@@ -4205,70 +4209,69 @@ void Processor::LoadDebuggerState(IHierarchicalStorageNode& node)
 	unsigned int newActiveDisassemblyStartLocation = _activeDisassemblyStartLocation;
 	unsigned int newActiveDisassemblyEndLocation = _activeDisassemblyEndLocation;
 
-	std::list<IHierarchicalStorageNode*> childList = node.GetChildList();
-	for (std::list<IHierarchicalStorageNode*>::iterator i = childList.begin(); i != childList.end(); ++i)
+	for (IHierarchicalStorageNode* i : node.GetChildList().Get())
 	{
-		std::wstring keyName = (*i)->GetName();
+		std::wstring keyName = i->GetName();
 		if (keyName == L"Register")
 		{
-			IHierarchicalStorageAttribute* nameAttribute = (*i)->GetAttribute(L"name");
+			IHierarchicalStorageAttribute* nameAttribute = i->GetAttribute(L"name");
 			if (nameAttribute != 0)
 			{
 				std::wstring registerName = nameAttribute->GetValue();
 				// Device enable
-				if (registerName == L"DeviceEnabled")				GetDeviceContext()->SetDeviceEnabled((*i)->ExtractData<bool>());
+				if (registerName == L"DeviceEnabled")				GetDeviceContext()->SetDeviceEnabled(i->ExtractData<bool>());
 				// Clock speed
 				else if (registerName == L"OverriddenClockSpeed")
 				{
 					_clockSpeedOverridden = true;
-					_reportedClockSpeed = (*i)->ExtractData<double>();
+					_reportedClockSpeed = i->ExtractData<double>();
 				}
 				// Call stack
-				else if (registerName == L"StackDisassemble")		_stackDisassemble = (*i)->ExtractData<bool>();
+				else if (registerName == L"StackDisassemble")		_stackDisassemble = i->ExtractData<bool>();
 				// Trace
-				else if (registerName == L"TraceEnabled")			_traceLogEnabled = (*i)->ExtractData<bool>();
-				else if (registerName == L"TraceDisassemble")		_traceLogDisassemble = (*i)->ExtractData<bool>();
-				else if (registerName == L"TraceLength")				_traceLogLength = (*i)->ExtractData<unsigned int>();
+				else if (registerName == L"TraceEnabled")			_traceLogEnabled = i->ExtractData<bool>();
+				else if (registerName == L"TraceDisassemble")		_traceLogDisassemble = i->ExtractData<bool>();
+				else if (registerName == L"TraceLength")				_traceLogLength = i->ExtractData<unsigned int>();
 				// Active Disassembly
 				else if (registerName == L"ActiveDisassemblyEnabled")
 				{
-					_activeDisassemblyEnabled = (*i)->ExtractData<bool>();
+					_activeDisassemblyEnabled = i->ExtractData<bool>();
 					activeDisassemblyStateChanged = true;
 				}
 				else if (registerName == L"ActiveDisassemblyStartLocation")
 				{
-					newActiveDisassemblyStartLocation = (*i)->ExtractHexData<unsigned int>();
+					newActiveDisassemblyStartLocation = i->ExtractHexData<unsigned int>();
 					activeDisassemblyStateChanged = true;
 				}
 				else if (registerName == L"ActiveDisassemblyEndLocation")
 				{
-					newActiveDisassemblyEndLocation = (*i)->ExtractHexData<unsigned int>();
+					newActiveDisassemblyEndLocation = i->ExtractHexData<unsigned int>();
 					activeDisassemblyStateChanged = true;
 				}
 				else if (registerName == L"ActiveDisassemblyArrayNextFreeID")
 				{
-					_activeDisassemblyArrayNextFreeID = (*i)->ExtractHexData<unsigned int>();
+					_activeDisassemblyArrayNextFreeID = i->ExtractHexData<unsigned int>();
 					activeDisassemblyStateChanged = true;
 				}
-				else if (registerName == L"ActiveDisassemblyAnalysisStartLocation")	_activeDisassemblyAnalysisStartLocation = (*i)->ExtractHexData<unsigned int>();
-				else if (registerName == L"ActiveDisassemblyAnalysisEndLocation")	_activeDisassemblyAnalysisEndLocation = (*i)->ExtractHexData<unsigned int>();
-				else if (registerName == L"ActiveDisassemblyAnalyzeCode")			_activeDisassemblyAnalyzeCode = (*i)->ExtractData<bool>();
-				else if (registerName == L"ActiveDisassemblyAnalyzeData")			_activeDisassemblyAnalyzeData = (*i)->ExtractData<bool>();
-				else if (registerName == L"ActiveDisassemblyAnalyzeCodeOffsets")		_activeDisassemblyAnalyzeCodeOffsets = (*i)->ExtractData<bool>();
-				else if (registerName == L"ActiveDisassemblyAnalyzeDataOffsets")		_activeDisassemblyAnalyzeDataOffsets = (*i)->ExtractData<bool>();
-				else if (registerName == L"ActiveDisassemblyAnalyzePredictedArrays")	_activeDisassemblyAnalyzePredictedArrays = (*i)->ExtractData<bool>();
-				else if (registerName == L"ActiveDisassemblyAnalyzePredictedJumpTables")	_activeDisassemblyAnalyzePredictedJumpTables = (*i)->ExtractData<bool>();
-				else if (registerName == L"ActiveDisassemblyExploreCodePaths")		_activeDisassemblyExploreCodePaths = (*i)->ExtractData<bool>();
-				else if (registerName == L"ActiveDisassemblyPerformLabelSubstitution")	_activeDisassemblyPerformLabelSubstitution = (*i)->ExtractData<bool>();
-				else if (registerName == L"ActiveDisassemblyDetectOffsets")			_activeDisassemblyDetectOffsets = (*i)->ExtractData<bool>();
-				else if (registerName == L"ActiveDisassemblyDetectJumpTables")		_activeDisassemblyDetectJumpTables = (*i)->ExtractData<bool>();
-				else if (registerName == L"ActiveDisassemblyDetectData")				_activeDisassemblyDetectData = (*i)->ExtractData<bool>();
-				else if (registerName == L"ActiveDisassemblyDetectDataArrays")		_activeDisassemblyDetectDataArrays = (*i)->ExtractData<bool>();
-				else if (registerName == L"ActiveDisassemblyDetectTextData")			_activeDisassemblyDetectTextData = (*i)->ExtractData<bool>();
-				else if (registerName == L"ActiveDisassemblyOffsetArrayIncreaseTolerance")	_activeDisassemblyOffsetArrayIncreaseTolerance = (*i)->ExtractData<double>();
-				else if (registerName == L"ActiveDisassemblyMinimumArrayEntryCount")			_activeDisassemblyMinimumArrayEntryCount = (*i)->ExtractData<unsigned int>();
-				else if (registerName == L"ActiveDisassemblyOffsetArrayDistanceTolerance")	_activeDisassemblyOffsetArrayDistanceTolerance = (*i)->ExtractHexData<unsigned int>();
-				else if (registerName == L"ActiveDisassemblyJumpTableDistanceTolerance")		_activeDisassemblyJumpTableDistanceTolerance = (*i)->ExtractHexData<unsigned int>();
+				else if (registerName == L"ActiveDisassemblyAnalysisStartLocation")	_activeDisassemblyAnalysisStartLocation = i->ExtractHexData<unsigned int>();
+				else if (registerName == L"ActiveDisassemblyAnalysisEndLocation")	_activeDisassemblyAnalysisEndLocation = i->ExtractHexData<unsigned int>();
+				else if (registerName == L"ActiveDisassemblyAnalyzeCode")			_activeDisassemblyAnalyzeCode = i->ExtractData<bool>();
+				else if (registerName == L"ActiveDisassemblyAnalyzeData")			_activeDisassemblyAnalyzeData = i->ExtractData<bool>();
+				else if (registerName == L"ActiveDisassemblyAnalyzeCodeOffsets")		_activeDisassemblyAnalyzeCodeOffsets = i->ExtractData<bool>();
+				else if (registerName == L"ActiveDisassemblyAnalyzeDataOffsets")		_activeDisassemblyAnalyzeDataOffsets = i->ExtractData<bool>();
+				else if (registerName == L"ActiveDisassemblyAnalyzePredictedArrays")	_activeDisassemblyAnalyzePredictedArrays = i->ExtractData<bool>();
+				else if (registerName == L"ActiveDisassemblyAnalyzePredictedJumpTables")	_activeDisassemblyAnalyzePredictedJumpTables = i->ExtractData<bool>();
+				else if (registerName == L"ActiveDisassemblyExploreCodePaths")		_activeDisassemblyExploreCodePaths = i->ExtractData<bool>();
+				else if (registerName == L"ActiveDisassemblyPerformLabelSubstitution")	_activeDisassemblyPerformLabelSubstitution = i->ExtractData<bool>();
+				else if (registerName == L"ActiveDisassemblyDetectOffsets")			_activeDisassemblyDetectOffsets = i->ExtractData<bool>();
+				else if (registerName == L"ActiveDisassemblyDetectJumpTables")		_activeDisassemblyDetectJumpTables = i->ExtractData<bool>();
+				else if (registerName == L"ActiveDisassemblyDetectData")				_activeDisassemblyDetectData = i->ExtractData<bool>();
+				else if (registerName == L"ActiveDisassemblyDetectDataArrays")		_activeDisassemblyDetectDataArrays = i->ExtractData<bool>();
+				else if (registerName == L"ActiveDisassemblyDetectTextData")			_activeDisassemblyDetectTextData = i->ExtractData<bool>();
+				else if (registerName == L"ActiveDisassemblyOffsetArrayIncreaseTolerance")	_activeDisassemblyOffsetArrayIncreaseTolerance = i->ExtractData<double>();
+				else if (registerName == L"ActiveDisassemblyMinimumArrayEntryCount")			_activeDisassemblyMinimumArrayEntryCount = i->ExtractData<unsigned int>();
+				else if (registerName == L"ActiveDisassemblyOffsetArrayDistanceTolerance")	_activeDisassemblyOffsetArrayDistanceTolerance = i->ExtractHexData<unsigned int>();
+				else if (registerName == L"ActiveDisassemblyJumpTableDistanceTolerance")		_activeDisassemblyJumpTableDistanceTolerance = i->ExtractHexData<unsigned int>();
 			}
 		}
 		else if (keyName == L"BreakpointList")
@@ -4279,7 +4282,7 @@ void Processor::LoadDebuggerState(IHierarchicalStorageNode& node)
 			}
 			_breakpoints.clear();
 
-			std::list<IHierarchicalStorageNode*> childList = (*i)->GetChildList();
+			std::list<IHierarchicalStorageNode*> childList = i->GetChildList();
 			for (std::list<IHierarchicalStorageNode*>::iterator childNodeIterator = childList.begin(); childNodeIterator != childList.end(); ++childNodeIterator)
 			{
 				IHierarchicalStorageNode& childNode = *(*childNodeIterator);
@@ -4300,7 +4303,7 @@ void Processor::LoadDebuggerState(IHierarchicalStorageNode& node)
 			}
 			_watchpoints.clear();
 
-			std::list<IHierarchicalStorageNode*> childList = (*i)->GetChildList();
+			std::list<IHierarchicalStorageNode*> childList = i->GetChildList();
 			for (std::list<IHierarchicalStorageNode*>::iterator childNodeIterator = childList.begin(); childNodeIterator != childList.end(); ++childNodeIterator)
 			{
 				IHierarchicalStorageNode& childNode = *(*childNodeIterator);
@@ -4319,7 +4322,7 @@ void Processor::LoadDebuggerState(IHierarchicalStorageNode& node)
 			ClearActiveDisassemblyInternal();
 
 			// Obtain and configure the data stream for the saved data
-			Stream::IStream& stream = (*i)->GetBinaryDataBufferStream();
+			Stream::IStream& stream = i->GetBinaryDataBufferStream();
 			stream.SetByteOrder(Stream::IStream::ByteOrder::LittleEndian);
 			stream.SetStreamPos(0);
 

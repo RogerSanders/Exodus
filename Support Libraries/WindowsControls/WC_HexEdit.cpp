@@ -1226,8 +1226,6 @@ LRESULT WC_HexEdit::msgWM_COMMAND(WPARAM wParam, LPARAM lParam)
 			unsigned int selectedMenuID = LOWORD(wParam);
 			for (unsigned int i = (unsigned int)MenuItem::ColumnWidth1; i <= (unsigned int)MenuItem::ColumnWidth16; ++i)
 			{
-				MENUITEMINFO menuItemInfo;
-				menuItemInfo.cbSize = sizeof(menuItemInfo);
 				menuItemInfo.fMask = MIIM_STATE;
 				menuItemInfo.fState = (i == selectedMenuID)? MFS_CHECKED: MFS_UNCHECKED;
 				SetMenuItemInfo(columnWidthMenu, i, FALSE, &menuItemInfo);
@@ -1707,12 +1705,14 @@ LRESULT WC_HexEdit::msgWM_PRINTCLIENT(WPARAM wParam, LPARAM lParam)
 	}
 
 	// Draw the dividing line between the address numbers and the data
-	HPEN hpen = CreatePen(PS_SOLID, 0, _colorLine.GetColorREF());
-	HPEN hpenOld = (HPEN)SelectObject(hdc, hpen);
-	MoveToEx(hdc, _dataDividerLinePosX, 0, NULL);
-	LineTo(hdc, _dataDividerLinePosX, (_visibleRows * _fontHeight));
-	SelectObject(hdc, hpenOld);
-	DeleteObject(hpen);
+	{
+		HPEN hpen = CreatePen(PS_SOLID, 0, _colorLine.GetColorREF());
+		HPEN hpenOld = (HPEN)SelectObject(hdc, hpen);
+		MoveToEx(hdc, _dataDividerLinePosX, 0, NULL);
+		LineTo(hdc, _dataDividerLinePosX, (_visibleRows * _fontHeight));
+		SelectObject(hdc, hpenOld);
+		DeleteObject(hpen);
+	}
 
 	// Draw the custom background colours for each column. Note that we always draw the
 	// text itself with a transparent background, otherwise we'll cut off the last row of
