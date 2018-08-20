@@ -1,12 +1,14 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Constructors
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> RAMBase<T>::RAMBase(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
+template<class T>
+RAMBase<T>::RAMBase(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
 :MemoryWrite(implementationName, instanceName, moduleID), _memoryArraySize(0), _memoryArray(0), _memoryLockedArray(0), _initialMemoryDataSpecified(false), _repeatInitialMemoryData(false), _dataIsPersistent(false)
 { }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> RAMBase<T>::~RAMBase()
+template<class T>
+RAMBase<T>::~RAMBase()
 {
 	delete _memoryArray;
 	delete _memoryLockedArray;
@@ -15,7 +17,8 @@ template<class T> RAMBase<T>::~RAMBase()
 //----------------------------------------------------------------------------------------------------------------------
 // Initialization functions
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> bool RAMBase<T>::Construct(IHierarchicalStorageNode& node)
+template<class T>
+bool RAMBase<T>::Construct(IHierarchicalStorageNode& node)
 {
 	bool result = MemoryWrite::Construct(node);
 
@@ -102,7 +105,8 @@ template<class T> bool RAMBase<T>::Construct(IHierarchicalStorageNode& node)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void RAMBase<T>::Initialize()
+template<class T>
+void RAMBase<T>::Initialize()
 {
 	// Initialize the memory buffer
 	for (unsigned int i = 0; i < _memoryArraySize; ++i)
@@ -126,7 +130,8 @@ template<class T> void RAMBase<T>::Initialize()
 //----------------------------------------------------------------------------------------------------------------------
 // Memory size functions
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> unsigned int RAMBase<T>::GetMemoryEntrySizeInBytes() const
+template<class T>
+unsigned int RAMBase<T>::GetMemoryEntrySizeInBytes() const
 {
 	return sizeof(T);
 }
@@ -134,7 +139,8 @@ template<class T> unsigned int RAMBase<T>::GetMemoryEntrySizeInBytes() const
 //----------------------------------------------------------------------------------------------------------------------
 // Execute functions
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void RAMBase<T>::ExecuteRollback()
+template<class T>
+void RAMBase<T>::ExecuteRollback()
 {
 	for (typename MemoryAccessBuffer::const_iterator i = _buffer.begin(); i != _buffer.end(); ++i)
 	{
@@ -144,7 +150,8 @@ template<class T> void RAMBase<T>::ExecuteRollback()
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void RAMBase<T>::ExecuteCommit()
+template<class T>
+void RAMBase<T>::ExecuteCommit()
 {
 	_buffer.clear();
 }
@@ -152,13 +159,15 @@ template<class T> void RAMBase<T>::ExecuteCommit()
 //----------------------------------------------------------------------------------------------------------------------
 // Memory locking functions
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> bool RAMBase<T>::IsMemoryLockingSupported() const
+template<class T>
+bool RAMBase<T>::IsMemoryLockingSupported() const
 {
 	return true;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void RAMBase<T>::LockMemoryBlock(unsigned int location, unsigned int size, bool state)
+template<class T>
+void RAMBase<T>::LockMemoryBlock(unsigned int location, unsigned int size, bool state)
 {
 	for (unsigned int i = 0; i < size; ++i)
 	{
@@ -167,7 +176,8 @@ template<class T> void RAMBase<T>::LockMemoryBlock(unsigned int location, unsign
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> bool RAMBase<T>::IsAddressLocked(unsigned int location) const
+template<class T>
+bool RAMBase<T>::IsAddressLocked(unsigned int location) const
 {
 	return _memoryLockedArray[location];
 }
@@ -175,7 +185,8 @@ template<class T> bool RAMBase<T>::IsAddressLocked(unsigned int location) const
 //----------------------------------------------------------------------------------------------------------------------
 // Access helper functions
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void RAMBase<T>::WriteArrayValueWithLockCheckAndRollback(unsigned int arrayEntryPos, T newValue)
+template<class T>
+void RAMBase<T>::WriteArrayValueWithLockCheckAndRollback(unsigned int arrayEntryPos, T newValue)
 {
 	if (!_memoryLockedArray[arrayEntryPos])
 	{
@@ -187,7 +198,8 @@ template<class T> void RAMBase<T>::WriteArrayValueWithLockCheckAndRollback(unsig
 //----------------------------------------------------------------------------------------------------------------------
 // Savestate functions
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void RAMBase<T>::LoadState(IHierarchicalStorageNode& node)
+template<class T>
+void RAMBase<T>::LoadState(IHierarchicalStorageNode& node)
 {
 	std::vector<T> savedMemoryData(_memoryArraySize, 0);
 	node.ExtractBinaryData(savedMemoryData);
@@ -207,7 +219,8 @@ template<class T> void RAMBase<T>::LoadState(IHierarchicalStorageNode& node)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void RAMBase<T>::SaveState(IHierarchicalStorageNode& node) const
+template<class T>
+void RAMBase<T>::SaveState(IHierarchicalStorageNode& node) const
 {
 	node.InsertBinaryData(_memoryArray, _memoryArraySize, GetFullyQualifiedDeviceInstanceName(), false);
 
@@ -215,7 +228,8 @@ template<class T> void RAMBase<T>::SaveState(IHierarchicalStorageNode& node) con
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void RAMBase<T>::LoadPersistentState(IHierarchicalStorageNode& node)
+template<class T>
+void RAMBase<T>::LoadPersistentState(IHierarchicalStorageNode& node)
 {
 	if (_dataIsPersistent)
 	{
@@ -238,7 +252,8 @@ template<class T> void RAMBase<T>::LoadPersistentState(IHierarchicalStorageNode&
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void RAMBase<T>::SavePersistentState(IHierarchicalStorageNode& node) const
+template<class T>
+void RAMBase<T>::SavePersistentState(IHierarchicalStorageNode& node) const
 {
 	if (_dataIsPersistent)
 	{
@@ -249,7 +264,8 @@ template<class T> void RAMBase<T>::SavePersistentState(IHierarchicalStorageNode&
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void RAMBase<T>::LoadDebuggerState(IHierarchicalStorageNode& node)
+template<class T>
+void RAMBase<T>::LoadDebuggerState(IHierarchicalStorageNode& node)
 {
 	std::vector<bool> savedMemoryLockedData(_memoryArraySize, 0);
 	node.ExtractBinaryData(savedMemoryLockedData);
@@ -277,7 +293,8 @@ template<class T> void RAMBase<T>::LoadDebuggerState(IHierarchicalStorageNode& n
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void RAMBase<T>::SaveDebuggerState(IHierarchicalStorageNode& node) const
+template<class T>
+void RAMBase<T>::SaveDebuggerState(IHierarchicalStorageNode& node) const
 {
 	node.InsertBinaryData(_memoryLockedArray, _memoryArraySize, GetFullyQualifiedDeviceInstanceName() + L".MemoryLockedState", false);
 

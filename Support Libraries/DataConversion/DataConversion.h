@@ -25,18 +25,29 @@ inline char HexNybbleToChar(unsigned int nybble);
 inline wchar_t HexNybbleToWChar(unsigned int nybble);
 inline unsigned int HexCharToNybble(char nybble);
 inline unsigned int HexWCharToNybble(wchar_t nybble);
-template<class T> bool IntToString(T data, std::wstring& string, unsigned int stringBase = 10);
-template<class T> void IntToStringBase16(T data, std::wstring& string, unsigned int charLength = 0, bool encodeType = true);
-template<class T> void IntToStringBase10(T data, std::wstring& string, unsigned int charLength = 0, bool encodeType = false);
-template<class T> void IntToStringBase8(T data, std::wstring& string, unsigned int charLength = 0, bool encodeType = true);
-template<class T> void IntToStringBase2(T data, std::wstring& string, unsigned int charLength = 0, bool encodeType = true);
-template<class T> bool StringToInt(const std::wstring& string, T& data, unsigned int defaultBase = 10);
-template<class T> bool StringToIntBase16(const std::wstring& string, T& data);
-template<class T> bool StringToIntBase10(const std::wstring& string, T& data);
-template<class T> bool StringToIntBase8(const std::wstring& string, T& data);
-template<class T> bool StringToIntBase2(const std::wstring& string, T& data);
+template<class T>
+bool IntToString(T data, std::wstring& string, unsigned int stringBase = 10);
+template<class T>
+void IntToStringBase16(T data, std::wstring& string, unsigned int charLength = 0, bool encodeType = true);
+template<class T>
+void IntToStringBase10(T data, std::wstring& string, unsigned int charLength = 0, bool encodeType = false);
+template<class T>
+void IntToStringBase8(T data, std::wstring& string, unsigned int charLength = 0, bool encodeType = true);
+template<class T>
+void IntToStringBase2(T data, std::wstring& string, unsigned int charLength = 0, bool encodeType = true);
+template<class T>
+bool StringToInt(const std::wstring& string, T& data, unsigned int defaultBase = 10);
+template<class T>
+bool StringToIntBase16(const std::wstring& string, T& data);
+template<class T>
+bool StringToIntBase10(const std::wstring& string, T& data);
+template<class T>
+bool StringToIntBase8(const std::wstring& string, T& data);
+template<class T>
+bool StringToIntBase2(const std::wstring& string, T& data);
 
-template<class T> void PointerToString(T* pointer, std::wstring& string);
+template<class T>
+void PointerToString(T* pointer, std::wstring& string);
 
 inline void BoolToString(bool data, std::wstring& string, bool numericForm = false);
 inline bool StringToBool(const std::wstring& string, bool& data);

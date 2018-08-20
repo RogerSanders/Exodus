@@ -10,7 +10,8 @@
 // -It is streamable into and from Stream::ViewText, either natively or through overloaded
 // stream operators.
 
-template<class DataType, class TimesliceType> class RandomTimeAccessValue
+template<class DataType, class TimesliceType>
+class RandomTimeAccessValue
 {
 public:
 	// Structures

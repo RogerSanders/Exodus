@@ -1,7 +1,8 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Constructors
 //----------------------------------------------------------------------------------------------------------------------
-template<class B> GenericAccessBase<B>::~GenericAccessBase()
+template<class B>
+GenericAccessBase<B>::~GenericAccessBase()
 {
 	// Delete all pages from the page list
 	for (size_t i = 0; i < _genericPageList.size(); ++i)
@@ -27,7 +28,8 @@ template<class B> GenericAccessBase<B>::~GenericAccessBase()
 //----------------------------------------------------------------------------------------------------------------------
 // Interface version functions
 //----------------------------------------------------------------------------------------------------------------------
-template<class B> unsigned int GenericAccessBase<B>::GetIGenericAccessVersion() const
+template<class B>
+unsigned int GenericAccessBase<B>::GetIGenericAccessVersion() const
 {
 	return B::ThisIGenericAccessVersion();
 }
@@ -35,7 +37,8 @@ template<class B> unsigned int GenericAccessBase<B>::GetIGenericAccessVersion() 
 //----------------------------------------------------------------------------------------------------------------------
 // Data info functions
 //----------------------------------------------------------------------------------------------------------------------
-template<class B> Marshal::Ret<std::set<unsigned int>> GenericAccessBase<B>::GetGenericDataIDList() const
+template<class B> Marshal::Ret<std::set<unsigned int>>
+GenericAccessBase<B>::GetGenericDataIDList() const
 {
 	std::set<unsigned int> dataIDSet;
 	for (std::map<unsigned int, const IGenericAccessDataInfo*>::const_iterator i = _genericDataList.begin(); i != _genericDataList.end(); ++i)
@@ -46,7 +49,8 @@ template<class B> Marshal::Ret<std::set<unsigned int>> GenericAccessBase<B>::Get
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class B> const IGenericAccessDataInfo* GenericAccessBase<B>::GetGenericDataInfo(unsigned int dataID) const
+template<class B>
+const IGenericAccessDataInfo* GenericAccessBase<B>::GetGenericDataInfo(unsigned int dataID) const
 {
 	// Attempt to retrieve the target data info from the list
 	std::map<unsigned int, const IGenericAccessDataInfo*>::const_iterator dataListIterator = _genericDataList.find(dataID);
@@ -61,7 +65,8 @@ template<class B> const IGenericAccessDataInfo* GenericAccessBase<B>::GetGeneric
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class B> bool GenericAccessBase<B>::AddGenericDataInfo(const IGenericAccessDataInfo* dataInfo)
+template<class B>
+bool GenericAccessBase<B>::AddGenericDataInfo(const IGenericAccessDataInfo* dataInfo)
 {
 	// Retrieve the ID number for this data entry
 	unsigned int dataID = dataInfo->GetID();
@@ -81,7 +86,8 @@ template<class B> bool GenericAccessBase<B>::AddGenericDataInfo(const IGenericAc
 //----------------------------------------------------------------------------------------------------------------------
 // Command info functions
 //----------------------------------------------------------------------------------------------------------------------
-template<class B> Marshal::Ret<std::set<unsigned int>> GenericAccessBase<B>::GetGenericCommandIDList() const
+template<class B> Marshal::Ret<std::set<unsigned int>>
+GenericAccessBase<B>::GetGenericCommandIDList() const
 {
 	std::set<unsigned int> commandIDSet;
 	for (std::map<unsigned int, const IGenericAccessCommandInfo*>::const_iterator i = _genericCommandList.begin(); i != _genericCommandList.end(); ++i)
@@ -92,7 +98,8 @@ template<class B> Marshal::Ret<std::set<unsigned int>> GenericAccessBase<B>::Get
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class B> const IGenericAccessCommandInfo* GenericAccessBase<B>::GetGenericCommandInfo(unsigned int commandID) const
+template<class B>
+const IGenericAccessCommandInfo* GenericAccessBase<B>::GetGenericCommandInfo(unsigned int commandID) const
 {
 	// Attempt to retrieve the target command info from the list
 	std::map<unsigned int, const IGenericAccessCommandInfo*>::const_iterator commandListIterator = _genericCommandList.find(commandID);
@@ -107,7 +114,8 @@ template<class B> const IGenericAccessCommandInfo* GenericAccessBase<B>::GetGene
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class B> bool GenericAccessBase<B>::AddGenericCommandInfo(const IGenericAccessCommandInfo* commandInfo)
+template<class B>
+bool GenericAccessBase<B>::AddGenericCommandInfo(const IGenericAccessCommandInfo* commandInfo)
 {
 	// Retrieve the ID number for this command entry
 	unsigned int commandID = commandInfo->GetID();
@@ -127,13 +135,15 @@ template<class B> bool GenericAccessBase<B>::AddGenericCommandInfo(const IGeneri
 //----------------------------------------------------------------------------------------------------------------------
 // Page info functions
 //----------------------------------------------------------------------------------------------------------------------
-template<class B> unsigned int GenericAccessBase<B>::GetGenericAccessPageCount() const
+template<class B>
+unsigned int GenericAccessBase<B>::GetGenericAccessPageCount() const
 {
 	return (unsigned int)_genericPageList.size();
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class B> const IGenericAccessPage* GenericAccessBase<B>::GetGenericAccessPage(unsigned int pageNo) const
+template<class B>
+const IGenericAccessPage* GenericAccessBase<B>::GetGenericAccessPage(unsigned int pageNo) const
 {
 	// Ensure the requested page exists
 	if ((size_t)pageNo >= _genericPageList.size())
@@ -146,7 +156,8 @@ template<class B> const IGenericAccessPage* GenericAccessBase<B>::GetGenericAcce
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class B> bool GenericAccessBase<B>::AddGenericAccessPage(const IGenericAccessPage* page)
+template<class B>
+bool GenericAccessBase<B>::AddGenericAccessPage(const IGenericAccessPage* page)
 {
 	_genericPageList.push_back(page);
 	return true;
@@ -155,7 +166,8 @@ template<class B> bool GenericAccessBase<B>::AddGenericAccessPage(const IGeneric
 //----------------------------------------------------------------------------------------------------------------------
 // Data read/write functions
 //----------------------------------------------------------------------------------------------------------------------
-template<class B> bool GenericAccessBase<B>::ReadGenericData(unsigned int dataID, const typename B::DataContext* dataContext, const Marshal::Out<std::wstring>& dataValue) const
+template<class B>
+bool GenericAccessBase<B>::ReadGenericData(unsigned int dataID, const typename B::DataContext* dataContext, const Marshal::Out<std::wstring>& dataValue) const
 {
 	// Attempt to retrieve the target data info from the list
 	std::map<unsigned int, const IGenericAccessDataInfo*>::const_iterator dataListIterator = _genericDataList.find(dataID);
@@ -240,7 +252,8 @@ template<class B> bool GenericAccessBase<B>::ReadGenericData(unsigned int dataID
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class B> bool GenericAccessBase<B>::WriteGenericData(unsigned int dataID, const typename B::DataContext* dataContext, const Marshal::In<std::wstring>& dataValue)
+template<class B>
+bool GenericAccessBase<B>::WriteGenericData(unsigned int dataID, const typename B::DataContext* dataContext, const Marshal::In<std::wstring>& dataValue)
 {
 	// Attempt to retrieve the target data info from the list
 	std::map<unsigned int, const IGenericAccessDataInfo*>::const_iterator dataListIterator = _genericDataList.find(dataID);
@@ -357,7 +370,8 @@ template<class B> bool GenericAccessBase<B>::WriteGenericData(unsigned int dataI
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class B> bool GenericAccessBase<B>::ApplyGenericDataValueLimitSettings(unsigned int dataID, IGenericAccessDataValue& dataValue) const
+template<class B>
+bool GenericAccessBase<B>::ApplyGenericDataValueLimitSettings(unsigned int dataID, IGenericAccessDataValue& dataValue) const
 {
 	// Attempt to retrieve the target data info from the list
 	std::map<unsigned int, const IGenericAccessDataInfo*>::const_iterator dataListIterator = _genericDataList.find(dataID);
@@ -417,7 +431,8 @@ template<class B> bool GenericAccessBase<B>::ApplyGenericDataValueLimitSettings(
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class B> bool GenericAccessBase<B>::ApplyGenericDataValueDisplaySettings(unsigned int dataID, IGenericAccessDataValue& dataValue) const
+template<class B>
+bool GenericAccessBase<B>::ApplyGenericDataValueDisplaySettings(unsigned int dataID, IGenericAccessDataValue& dataValue) const
 {
 	// Attempt to retrieve the target data info from the list
 	std::map<unsigned int, const IGenericAccessDataInfo*>::const_iterator dataListIterator = _genericDataList.find(dataID);
@@ -484,13 +499,15 @@ template<class B> bool GenericAccessBase<B>::ApplyGenericDataValueDisplaySetting
 //----------------------------------------------------------------------------------------------------------------------
 // Data locking functions
 //----------------------------------------------------------------------------------------------------------------------
-template<class B> bool GenericAccessBase<B>::GetGenericDataLocked(unsigned int dataID, const typename B::DataContext* dataContext) const
+template<class B>
+bool GenericAccessBase<B>::GetGenericDataLocked(unsigned int dataID, const typename B::DataContext* dataContext) const
 {
 	return false;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class B> bool GenericAccessBase<B>::SetGenericDataLocked(unsigned int dataID, const typename B::DataContext* dataContext, bool state)
+template<class B>
+bool GenericAccessBase<B>::SetGenericDataLocked(unsigned int dataID, const typename B::DataContext* dataContext, bool state)
 {
 	return false;
 }
@@ -498,7 +515,8 @@ template<class B> bool GenericAccessBase<B>::SetGenericDataLocked(unsigned int d
 //----------------------------------------------------------------------------------------------------------------------
 // Highlight functions
 //----------------------------------------------------------------------------------------------------------------------
-template<class B> bool GenericAccessBase<B>::GetGenericDataHighlightState(unsigned int dataID, const typename B::DataContext* dataContext) const
+template<class B>
+bool GenericAccessBase<B>::GetGenericDataHighlightState(unsigned int dataID, const typename B::DataContext* dataContext) const
 {
 	return false;
 }
@@ -506,7 +524,8 @@ template<class B> bool GenericAccessBase<B>::GetGenericDataHighlightState(unsign
 //----------------------------------------------------------------------------------------------------------------------
 // Command execution functions
 //----------------------------------------------------------------------------------------------------------------------
-template<class B> bool GenericAccessBase<B>::ExecuteGenericCommand(unsigned int commandID, const typename B::DataContext* dataContext)
+template<class B>
+bool GenericAccessBase<B>::ExecuteGenericCommand(unsigned int commandID, const typename B::DataContext* dataContext)
 {
 	return false;
 }

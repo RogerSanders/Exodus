@@ -1,7 +1,8 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Constructors
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> GenericAccessGroupDataEntry::GenericAccessGroupDataEntry(T dataID, const std::wstring& name)
+template<class T>
+GenericAccessGroupDataEntry::GenericAccessGroupDataEntry(T dataID, const std::wstring& name)
 :_parent(0), _dataContext(0), _dataID((unsigned int)dataID), _name(name)
 { }
 

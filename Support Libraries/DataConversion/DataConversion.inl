@@ -152,7 +152,8 @@ std::vector<std::wstring> TokenizeString(const std::wstring& str, const std::wst
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> bool IntToString(T data, std::wstring& string, unsigned int stringBase)
+template<class T>
+bool IntToString(T data, std::wstring& string, unsigned int stringBase)
 {
 	// Attempt to convert the number to a string using the specified base
 	switch (stringBase)
@@ -176,7 +177,8 @@ template<class T> bool IntToString(T data, std::wstring& string, unsigned int st
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void IntToStringBase16(T data, std::wstring& string, unsigned int charLength, bool encodeType)
+template<class T>
+void IntToStringBase16(T data, std::wstring& string, unsigned int charLength, bool encodeType)
 {
 	// Set some constants for the requested output base type
 	unsigned int bitsInChar = 4;
@@ -240,7 +242,8 @@ template<class T> void IntToStringBase16(T data, std::wstring& string, unsigned 
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void IntToStringBase10(T data, std::wstring& string, unsigned int charLength, bool encodeType)
+template<class T>
+void IntToStringBase10(T data, std::wstring& string, unsigned int charLength, bool encodeType)
 {
 	// Set some constants for the requested output base type
 	wchar_t prefixChar = L'd';
@@ -302,7 +305,8 @@ template<class T> void IntToStringBase10(T data, std::wstring& string, unsigned 
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void IntToStringBase8(T data, std::wstring& string, unsigned int charLength, bool encodeType)
+template<class T>
+void IntToStringBase8(T data, std::wstring& string, unsigned int charLength, bool encodeType)
 {
 	// Set some constants for the requested output base type
 	unsigned int bitsInChar = 3;
@@ -366,7 +370,8 @@ template<class T> void IntToStringBase8(T data, std::wstring& string, unsigned i
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void IntToStringBase2(T data, std::wstring& string, unsigned int charLength, bool encodeType)
+template<class T>
+void IntToStringBase2(T data, std::wstring& string, unsigned int charLength, bool encodeType)
 {
 	// Set some constants for the requested output base type
 	unsigned int bitsInChar = 1;
@@ -430,7 +435,8 @@ template<class T> void IntToStringBase2(T data, std::wstring& string, unsigned i
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> bool StringToInt(const std::wstring& string, T& data, unsigned int defaultBase)
+template<class T>
+bool StringToInt(const std::wstring& string, T& data, unsigned int defaultBase)
 {
 	// Abort if the string is empty
 	size_t stringLength = string.length();
@@ -477,7 +483,8 @@ template<class T> bool StringToInt(const std::wstring& string, T& data, unsigned
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> bool StringToIntBase16(const std::wstring& string, T& data)
+template<class T>
+bool StringToIntBase16(const std::wstring& string, T& data)
 {
 	// Abort if the string is empty
 	size_t stringLength = string.length();
@@ -527,7 +534,8 @@ template<class T> bool StringToIntBase16(const std::wstring& string, T& data)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> bool StringToIntBase10(const std::wstring& string, T& data)
+template<class T>
+bool StringToIntBase10(const std::wstring& string, T& data)
 {
 	// Abort if the string is empty
 	size_t stringLength = string.length();
@@ -576,7 +584,8 @@ template<class T> bool StringToIntBase10(const std::wstring& string, T& data)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> bool StringToIntBase8(const std::wstring& string, T& data)
+template<class T>
+bool StringToIntBase8(const std::wstring& string, T& data)
 {
 	// Abort if the string is empty
 	size_t stringLength = string.length();
@@ -626,7 +635,8 @@ template<class T> bool StringToIntBase8(const std::wstring& string, T& data)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> bool StringToIntBase2(const std::wstring& string, T& data)
+template<class T>
+bool StringToIntBase2(const std::wstring& string, T& data)
 {
 	// Abort if the string is empty
 	size_t stringLength = string.length();
@@ -676,7 +686,8 @@ template<class T> bool StringToIntBase2(const std::wstring& string, T& data)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void PointerToString(T* pointer, std::wstring& string)
+template<class T>
+void PointerToString(T* pointer, std::wstring& string)
 {
 	std::wstringstream stringStream;
 	stringStream << (void*)pointer;

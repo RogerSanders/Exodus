@@ -1,7 +1,8 @@
 #ifndef __TIMEDBUFFERWRITEINFO_H__
 #define __TIMEDBUFFERWRITEINFO_H__
 
-template<class DataType, class TimesliceType> struct TimedBufferWriteInfo
+template<class DataType, class TimesliceType>
+struct TimedBufferWriteInfo
 {
 public:
 	// Constructors

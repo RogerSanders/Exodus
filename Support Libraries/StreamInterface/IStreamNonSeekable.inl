@@ -1080,7 +1080,8 @@ bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, long double* data, SizeTy
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, std::vector<T>& data, SizeType length)
+template<class T>
+bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, std::vector<T>& data, SizeType length)
 {
 	switch (byteOrder)
 	{
@@ -1095,7 +1096,8 @@ template<class T> bool IStreamNonSeekable::ReadData(ByteOrder byteOrder, std::ve
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> bool IStreamNonSeekable::ReadData(std::vector<T>& data, SizeType length)
+template<class T>
+bool IStreamNonSeekable::ReadData(std::vector<T>& data, SizeType length)
 {
 	data.resize((typename std::vector<T>::size_type)length);
 	if (length <= 0)
@@ -1106,7 +1108,8 @@ template<class T> bool IStreamNonSeekable::ReadData(std::vector<T>& data, SizeTy
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> bool IStreamNonSeekable::ReadDataBigEndian(std::vector<T>& data, SizeType length)
+template<class T>
+bool IStreamNonSeekable::ReadDataBigEndian(std::vector<T>& data, SizeType length)
 {
 	data.resize((typename std::vector<T>::size_type)length);
 	if (length <= 0)
@@ -1117,7 +1120,8 @@ template<class T> bool IStreamNonSeekable::ReadDataBigEndian(std::vector<T>& dat
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> bool IStreamNonSeekable::ReadDataLittleEndian(std::vector<T>& data, SizeType length)
+template<class T>
+bool IStreamNonSeekable::ReadDataLittleEndian(std::vector<T>& data, SizeType length)
 {
 	data.resize((typename std::vector<T>::size_type)length);
 	if (length <= 0)
@@ -2602,7 +2606,8 @@ bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const long double* data,
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const std::vector<T>& data)
+template<class T>
+bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const std::vector<T>& data)
 {
 	switch (byteOrder)
 	{
@@ -2617,7 +2622,8 @@ template<class T> bool IStreamNonSeekable::WriteData(ByteOrder byteOrder, const 
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> bool IStreamNonSeekable::WriteData(const std::vector<T>& data)
+template<class T>
+bool IStreamNonSeekable::WriteData(const std::vector<T>& data)
 {
 	SizeType length = (SizeType)data.size();
 	if (length <= 0)
@@ -2628,7 +2634,8 @@ template<class T> bool IStreamNonSeekable::WriteData(const std::vector<T>& data)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> bool IStreamNonSeekable::WriteDataBigEndian(const std::vector<T>& data)
+template<class T>
+bool IStreamNonSeekable::WriteDataBigEndian(const std::vector<T>& data)
 {
 	SizeType length = (SizeType)data.size();
 	if (length <= 0)
@@ -2639,7 +2646,8 @@ template<class T> bool IStreamNonSeekable::WriteDataBigEndian(const std::vector<
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> bool IStreamNonSeekable::WriteDataLittleEndian(const std::vector<T>& data)
+template<class T>
+bool IStreamNonSeekable::WriteDataLittleEndian(const std::vector<T>& data)
 {
 	SizeType length = (SizeType)data.size();
 	if (length <= 0)
@@ -2686,7 +2694,8 @@ bool IStreamNonSeekable::WriteDataLittleEndian(const std::vector<bool>& data)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> bool IStreamNonSeekable::WriteDataMultipleTimes(ByteOrder byteOrder, T data, SizeType count)
+template<class T>
+bool IStreamNonSeekable::WriteDataMultipleTimes(ByteOrder byteOrder, T data, SizeType count)
 {
 	switch (byteOrder)
 	{
@@ -2701,7 +2710,8 @@ template<class T> bool IStreamNonSeekable::WriteDataMultipleTimes(ByteOrder byte
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> bool IStreamNonSeekable::WriteDataMultipleTimes(T data, SizeType count)
+template<class T>
+bool IStreamNonSeekable::WriteDataMultipleTimes(T data, SizeType count)
 {
 	bool result = true;
 	for (SizeType i = 0; i < count; ++i)
@@ -2712,7 +2722,8 @@ template<class T> bool IStreamNonSeekable::WriteDataMultipleTimes(T data, SizeTy
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> bool IStreamNonSeekable::WriteDataBigEndianMultipleTimes(T data, SizeType count)
+template<class T>
+bool IStreamNonSeekable::WriteDataBigEndianMultipleTimes(T data, SizeType count)
 {
 	bool result = true;
 	for (SizeType i = 0; i < count; ++i)
@@ -2723,7 +2734,8 @@ template<class T> bool IStreamNonSeekable::WriteDataBigEndianMultipleTimes(T dat
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> bool IStreamNonSeekable::WriteDataLittleEndianMultipleTimes(T data, SizeType count)
+template<class T>
+bool IStreamNonSeekable::WriteDataLittleEndianMultipleTimes(T data, SizeType count)
 {
 	bool result = true;
 	for (SizeType i = 0; i < count; ++i)

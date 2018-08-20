@@ -1,7 +1,8 @@
 #ifndef __THINLISTDOUBLE_H__
 #define __THINLISTDOUBLE_H__
 
-template<class T> struct ThinListDouble
+template<class T>
+struct ThinListDouble
 {
 public:
 	// Constructors

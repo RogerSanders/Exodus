@@ -4,7 +4,8 @@
 #include <vector>
 #include <map>
 
-template<class T> class RAMBase :public MemoryWrite
+template<class T>
+class RAMBase :public MemoryWrite
 {
 public:
 	// Constructors

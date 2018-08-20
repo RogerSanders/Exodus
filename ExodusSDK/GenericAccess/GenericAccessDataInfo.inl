@@ -3,7 +3,8 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Constructors
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> GenericAccessDataInfo::GenericAccessDataInfo(T id, IGenericAccessDataValue::DataType type)
+template<class T>
+GenericAccessDataInfo::GenericAccessDataInfo(T id, IGenericAccessDataValue::DataType type)
 :_id((unsigned int)id), _dataType(type)
 {
 	// Initialize the general data info to defaults

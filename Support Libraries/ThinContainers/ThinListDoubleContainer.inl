@@ -1,12 +1,14 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Constructors
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> ThinListDoubleContainer<T>::ThinListDoubleContainer()
+template<class T>
+ThinListDoubleContainer<T>::ThinListDoubleContainer()
 :first(0), last(0)
 { }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> ThinListDoubleContainer<T>::~ThinListDoubleContainer()
+template<class T>
+ThinListDoubleContainer<T>::~ThinListDoubleContainer()
 {
 	delete first;
 }
@@ -14,13 +16,15 @@ template<class T> ThinListDoubleContainer<T>::~ThinListDoubleContainer()
 //----------------------------------------------------------------------------------------------------------------------
 // Iteration functions
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> typename ThinListDoubleContainer<T>::Element* ThinListDoubleContainer<T>::GetFirstEntry() const
+template<class T>
+typename ThinListDoubleContainer<T>::Element* ThinListDoubleContainer<T>::GetFirstEntry() const
 {
 	return first;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> typename ThinListDoubleContainer<T>::Element* ThinListDoubleContainer<T>::GetLastEntry() const
+template<class T>
+typename ThinListDoubleContainer<T>::Element* ThinListDoubleContainer<T>::GetLastEntry() const
 {
 	return last;
 }
@@ -28,7 +32,8 @@ template<class T> typename ThinListDoubleContainer<T>::Element* ThinListDoubleCo
 //----------------------------------------------------------------------------------------------------------------------
 // Insert functions
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void ThinListDoubleContainer<T>::PushToFront(const T& entry)
+template<class T>
+void ThinListDoubleContainer<T>::PushToFront(const T& entry)
 {
 	if (first != 0)
 	{
@@ -44,7 +49,8 @@ template<class T> void ThinListDoubleContainer<T>::PushToFront(const T& entry)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void ThinListDoubleContainer<T>::PushToBack(const T& entry)
+template<class T>
+void ThinListDoubleContainer<T>::PushToBack(const T& entry)
 {
 	if (last != 0)
 	{
@@ -60,7 +66,8 @@ template<class T> void ThinListDoubleContainer<T>::PushToBack(const T& entry)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void ThinListDoubleContainer<T>::InsertBefore(Element* element, const T& entry)
+template<class T>
+void ThinListDoubleContainer<T>::InsertBefore(Element* element, const T& entry)
 {
 	element->InsertBefore(entry);
 	if (element == first)
@@ -70,7 +77,8 @@ template<class T> void ThinListDoubleContainer<T>::InsertBefore(Element* element
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void ThinListDoubleContainer<T>::InsertAfter(Element* element, const T& entry)
+template<class T>
+void ThinListDoubleContainer<T>::InsertAfter(Element* element, const T& entry)
 {
 	element->InsertAfter(entry);
 	if (element == last)
@@ -82,7 +90,8 @@ template<class T> void ThinListDoubleContainer<T>::InsertAfter(Element* element,
 //----------------------------------------------------------------------------------------------------------------------
 // Erase functions
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void ThinListDoubleContainer<T>::EraseFromFrontToElement(Element* targetElement)
+template<class T>
+void ThinListDoubleContainer<T>::EraseFromFrontToElement(Element* targetElement)
 {
 	if (targetElement != first)
 	{
@@ -98,7 +107,8 @@ template<class T> void ThinListDoubleContainer<T>::EraseFromFrontToElement(Eleme
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void ThinListDoubleContainer<T>::EraseFromBackToElement(Element* targetElement)
+template<class T>
+void ThinListDoubleContainer<T>::EraseFromBackToElement(Element* targetElement)
 {
 	Element* deleteStart = targetElement->next;
 	last = targetElement;
@@ -107,7 +117,8 @@ template<class T> void ThinListDoubleContainer<T>::EraseFromBackToElement(Elemen
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> void ThinListDoubleContainer<T>::Clear()
+template<class T>
+void ThinListDoubleContainer<T>::Clear()
 {
 	delete first;
 	first = 0;
@@ -117,7 +128,8 @@ template<class T> void ThinListDoubleContainer<T>::Clear()
 //----------------------------------------------------------------------------------------------------------------------
 // Query functions
 //----------------------------------------------------------------------------------------------------------------------
-template<class T> bool ThinListDoubleContainer<T>::Empty() const
+template<class T>
+bool ThinListDoubleContainer<T>::Empty() const
 {
 	return (first == 0);
 }

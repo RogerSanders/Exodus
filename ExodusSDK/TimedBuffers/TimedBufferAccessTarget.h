@@ -1,7 +1,8 @@
 #ifndef __ITIMEDBUFFERACCESSTARGET_H__
 #define __ITIMEDBUFFERACCESSTARGET_H__
 
-template<class DataType, class TimesliceType> struct TimedBufferAccessTarget
+template<class DataType, class TimesliceType>
+struct TimedBufferAccessTarget
 {
 public:
 	// Enumerations
