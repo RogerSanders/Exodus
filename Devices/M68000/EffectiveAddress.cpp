@@ -382,9 +382,9 @@ double EffectiveAddress::Read(M68000* cpu, Data& target, const M68000Word& instr
 		break;
 
 	case Mode::Immediate:
-		//##TODO## I have a feeling this sign extension may not be correct in all cases.
-		// Check which opcodes might be relying on this behaviour, and verify it on the
-		// hardware.
+		//##TODO## I have a feeling this sign extension may not be correct in all cases. Check which opcodes might be
+		//relying on this behaviour, and verify it on the hardware.
+		//##NOTE## The LINK opcode is known to rely on this behaviour currently, which is correct in this case.
 		target = _data.SignExtend(target.GetBitCount());
 		break;
 	}

@@ -197,11 +197,12 @@ void EffectiveAddress::BuildPCIndirectIndex(Bitcount size, const M68000Long& loc
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-void EffectiveAddress::BuildImmediateData(Bitcount size, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister)
+void EffectiveAddress::BuildImmediateData(Bitcount size, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister, bool signExtended)
 {
 	_size = size;
 	_savedPC = location;
 	_mode = Mode::Immediate;
+	_dataSignExtended = signExtended;
 
 	_data.Resize(_size);
 	M68000Long tempLocation = location;
@@ -218,9 +219,9 @@ void EffectiveAddress::BuildImmediateData(const M68000Long& location, const Data
 	_size = (Bitcount)_data.GetBitCount();
 	_savedPC = location;
 	_mode = Mode::Immediate;
+	_dataSignExtended = signExtended;
 	_data.Resize(_size);
 	_data = data;
-	_dataSignExtended = signExtended;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
