@@ -32,6 +32,7 @@ conditional, which unlocks the calling thread.
 #include "IExecutionSuspendManager.h"
 #include <mutex>
 #include <condition_variable>
+#include <atomic>
 #include <string>
 #include <vector>
 
@@ -39,7 +40,6 @@ class DeviceContext :public IDeviceContext
 {
 public:
 	// Structures
-	struct DeviceContextCommand;
 	struct DeviceDependency;
 
 public:
@@ -53,11 +53,10 @@ public:
 	inline void NotifyUpcomingTimeslice(double nanoseconds);
 	inline void NotifyBeforeExecuteCalled();
 	inline void NotifyAfterExecuteCalled();
-	inline void ExecuteTimeslice(double nanoseconds);
+	inline void BeginExecuteTimeslice(double nanoseconds, std::atomic<unsigned int>* executingThreadCount, std::atomic<unsigned int>* suspendedThreadCount, IExecutionSuspendManager* suspendManager);
 	inline double ExecuteStep();
 	inline double ExecuteStep(unsigned int accessContext);
 	inline void WaitForCompletion();
-	inline void WaitForCompletionAndDetectSuspendLock(volatile ReferenceCounterType& suspendedThreadCount, volatile ReferenceCounterType& remainingThreadCount, std::mutex& commandMutex, IExecutionSuspendManager* suspendManager);
 	inline void Commit();
 	inline void Rollback();
 	inline void Initialize();
@@ -75,7 +74,8 @@ public:
 	virtual void SetDeviceEnabled(bool state);
 
 	// Worker thread control
-	void BeginExecution(size_t deviceIndex, volatile ReferenceCounterType& remainingThreadCount, volatile ReferenceCounterType& suspendedThreadCount, std::mutex& commandMutex, std::condition_variable& commandSent, std::condition_variable& commandProcessed, IExecutionSuspendManager* suspendManager, const DeviceContextCommand& command);
+	void StartExecution();
+	void StopExecution();
 
 	// Device interface
 	virtual IDevice& GetTargetDevice() const;
@@ -115,15 +115,6 @@ public:
 	inline const std::vector<DeviceContext*>& GetDependentDeviceArray() const;
 
 private:
-	// Worker thread control
-	void SuspendExecution();
-
-	// Command worker thread control
-	void StartCommandWorkerThread(size_t deviceIndex, volatile ReferenceCounterType& remainingThreadCount, volatile ReferenceCounterType& suspendedThreadCount, std::mutex& commandMutex, std::condition_variable& commandSent, std::condition_variable& commandProcessed, IExecutionSuspendManager* suspendManager, const DeviceContextCommand& command);
-	void StopCommandWorkerThread();
-	void CommandWorkerThread(size_t deviceIndex, volatile ReferenceCounterType& remainingThreadCount, volatile ReferenceCounterType& suspendedThreadCount, std::mutex& commandMutex, std::condition_variable& commandSent, std::condition_variable& commandProcessed, IExecutionSuspendManager* suspendManager, const DeviceContextCommand& command);
-	void ProcessCommand(size_t deviceIndex, const DeviceContextCommand& command, volatile ReferenceCounterType& remainingThreadCount);
-
 	// Execute worker thread control
 	void StartExecuteWorkerThread();
 	void StopExecuteWorkerThread();
@@ -134,6 +125,8 @@ private:
 	void ExecuteWorkerThreadStepSharedExecutionThreadSpinoff();
 	void ExecuteWorkerThreadTimeslice();
 	void ExecuteWorkerThreadTimesliceWithDependencies();
+	void WakeSuspendedDevicesIfRequired();
+	void ClearSuspendManagerState();
 
 	// Dependent device functions
 	inline void AddDependentDevice(DeviceContext* targetDevice);
@@ -147,10 +140,6 @@ private:
 	std::vector<DeviceDependency> _deviceDependencies;
 	std::vector<DeviceContext*> _dependentDevices;
 
-	// Command worker thread data
-	bool _commandWorkerThreadActive;
-	std::condition_variable _commandThreadReady;
-
 	// Execute worker thread data
 	bool _executeWorkerThreadActive;
 	mutable std::mutex _executeThreadMutex;
@@ -159,11 +148,10 @@ private:
 	bool _executeThreadRunningState;
 	std::condition_variable _executeThreadReady;
 	std::condition_variable _executeThreadStopped;
-	std::mutex* _commandMutexPointer;
-	volatile ReferenceCounterType* _suspendedThreadCountPointer;
-	volatile ReferenceCounterType* _remainingThreadCountPointer;
-	volatile bool _executingWaitForCompletionCommand;
+	std::atomic<unsigned int>* _executingThreadCount;
+	std::atomic<unsigned int>* _suspendedThreadCount;
 	IExecutionSuspendManager* _suspendManager;
+
 	volatile bool _timesliceCompleted;
 	volatile bool _timesliceSuspended;
 	volatile bool _timesliceSuspensionDisable;
