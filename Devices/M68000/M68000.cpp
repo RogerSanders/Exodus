@@ -2324,14 +2324,14 @@ unsigned int M68000::CalculateCELineStateMemory(unsigned int location, const Dat
 	if ((caller == GetDeviceContext()) && (calculateCELineStateContext != 0))
 	{
 		CalculateCELineStateContext& ceLineStateContext = *((CalculateCELineStateContext*)calculateCELineStateContext);
-		ceLineState |= ceLineStateContext.upperDataStrobe? _ceLineMaskUpperDataStrobe: 0x0;
-		ceLineState |= ceLineStateContext.lowerDataStrobe? _ceLineMaskLowerDataStrobe: 0x0;
-		ceLineState |= ceLineStateContext.readHighWriteLow? _ceLineMaskReadHighWriteLow: 0x0;
+		ceLineState |= ~((unsigned int)ceLineStateContext.upperDataStrobe - 1) & _ceLineMaskUpperDataStrobe; // ceLineStateContext.upperDataStrobe? _ceLineMaskUpperDataStrobe: 0x0;
+		ceLineState |= ~((unsigned int)ceLineStateContext.lowerDataStrobe - 1) & _ceLineMaskLowerDataStrobe; // ceLineStateContext.lowerDataStrobe? _ceLineMaskLowerDataStrobe: 0x0;
+		ceLineState |= ~((unsigned int)ceLineStateContext.readHighWriteLow - 1) & _ceLineMaskReadHighWriteLow; // ceLineStateContext.readHighWriteLow? _ceLineMaskReadHighWriteLow: 0x0;
 		ceLineState |= _ceLineMaskAddressStrobe;
 		ceLineState |= ((unsigned int)ceLineStateContext.functionCode << _ceLineBitNumberFunctionCode) & _ceLineMaskFunctionCode;
-		ceLineState |= ((unsigned int)ceLineStateContext.functionCode == 0x7)? _ceLineMaskFCCPUSpace: 0x0;
-		ceLineState |= ceLineStateContext.rmwCycleInProgress? _ceLineMaskRMWCycleInProgress: 0x0;
-		ceLineState |= ceLineStateContext.rmwCycleFirstOperation? _ceLineMaskRMWCycleFirstOperation: 0x0;
+		ceLineState |= ~((unsigned int)((unsigned int)ceLineStateContext.functionCode == 0x7) - 1) & _ceLineMaskFCCPUSpace; // ((unsigned int)ceLineStateContext.functionCode == 0x7)? _ceLineMaskFCCPUSpace: 0x0;
+		ceLineState |= ~((unsigned int)ceLineStateContext.rmwCycleInProgress - 1) & _ceLineMaskRMWCycleInProgress; // ceLineStateContext.rmwCycleInProgress? _ceLineMaskRMWCycleInProgress: 0x0;
+		ceLineState |= ~((unsigned int)ceLineStateContext.rmwCycleFirstOperation - 1) & _ceLineMaskRMWCycleFirstOperation; // ceLineStateContext.rmwCycleFirstOperation? _ceLineMaskRMWCycleFirstOperation: 0x0;
 	}
 	return ceLineState;
 }
