@@ -26,7 +26,7 @@ IBusInterface::AccessResult RAM32Variable::ReadInterface(unsigned int interfaceN
 			unsigned int lastByteOffsetToExtractFromEntry = ((arrayEntryByteSize - firstByteOffsetToExtractFromEntry) <= (dataByteSize - currentDataByte))? (arrayEntryByteSize - 1): firstByteOffsetToExtractFromEntry + ((dataByteSize - 1) - currentDataByte);
 			for (unsigned int i = firstByteOffsetToExtractFromEntry; i <= lastByteOffsetToExtractFromEntry; ++i)
 			{
-				data.SetByteFromTopDown(currentDataByte++, (unsigned char)(_memoryArray[baseLocation % _memoryArraySize] >> (((arrayEntryByteSize - 1) - i) * Data::BitsPerByte)));
+				data.SetByteFromTopDown(currentDataByte++, (unsigned char)(ReadArrayValue(baseLocation) >> (((arrayEntryByteSize - 1) - i) * Data::BitsPerByte)));
 			}
 		}
 		break;}
@@ -35,10 +35,10 @@ IBusInterface::AccessResult RAM32Variable::ReadInterface(unsigned int interfaceN
 		unsigned int baseLocation = location / (interfaceNumber * arrayEntryByteSize);
 		unsigned int dataShiftCount = (((arrayEntryByteSize / interfaceNumber) - 1) - (location % (arrayEntryByteSize / interfaceNumber))) * (Data::BitsPerByte * interfaceNumber);
 		unsigned int dataBitMask = (1 << (Data::BitsPerByte * interfaceNumber)) - 1;
-		data = (_memoryArray[baseLocation % _memoryArraySize] >> dataShiftCount) & dataBitMask;
+		data = (ReadArrayValue(baseLocation) >> dataShiftCount) & dataBitMask;
 		break;}
 	case 4:
-		data = _memoryArray[location % _memoryArraySize];
+		data = ReadArrayValue(location);
 		break;
 	}
 	return true;
@@ -59,12 +59,12 @@ IBusInterface::AccessResult RAM32Variable::WriteInterface(unsigned int interface
 			unsigned int baseLocation = (location + currentDataByte) / arrayEntryByteSize;
 			unsigned int firstByteOffsetToWriteToEntry = (location + currentDataByte) % arrayEntryByteSize;
 			unsigned int lastByteOffsetToWriteToEntry = ((arrayEntryByteSize - firstByteOffsetToWriteToEntry) <= (dataByteSize - currentDataByte))? (arrayEntryByteSize - 1): firstByteOffsetToWriteToEntry + ((dataByteSize - 1) - currentDataByte);
-			Data memoryEntry(arrayEntryByteSize * Data::BitsPerByte, _memoryArray[baseLocation % _memoryArraySize]);
+			Data memoryEntry(arrayEntryByteSize * Data::BitsPerByte, ReadArrayValue(baseLocation));
 			for (unsigned int i = firstByteOffsetToWriteToEntry; i <= lastByteOffsetToWriteToEntry; ++i)
 			{
 				memoryEntry.SetByteFromTopDown(i, data.GetByteFromTopDown(currentDataByte++));
 			}
-			WriteArrayValueWithLockCheckAndRollback(baseLocation % _memoryArraySize, memoryEntry.GetData());
+			WriteArrayValueWithLockCheckAndRollback(LimitLocationToMemorySize(baseLocation), memoryEntry.GetData());
 		}
 		break;}
 	case 1:
@@ -72,10 +72,10 @@ IBusInterface::AccessResult RAM32Variable::WriteInterface(unsigned int interface
 		unsigned int baseLocation = location / (interfaceNumber * arrayEntryByteSize);
 		unsigned int dataShiftCount = (((arrayEntryByteSize / interfaceNumber) - 1) - (location % (arrayEntryByteSize / interfaceNumber))) * (Data::BitsPerByte * interfaceNumber);
 		unsigned int dataBitMask = (1 << (Data::BitsPerByte * interfaceNumber)) - 1;
-		WriteArrayValueWithLockCheckAndRollback(baseLocation % _memoryArraySize, (_memoryArray[baseLocation % _memoryArraySize] & ~(dataBitMask << dataShiftCount)) | (data.GetData() << dataShiftCount));
+		WriteArrayValueWithLockCheckAndRollback(LimitLocationToMemorySize(baseLocation), (ReadArrayValue(baseLocation) & ~(dataBitMask << dataShiftCount)) | (data.GetData() << dataShiftCount));
 		break;}
 	case 4:
-		WriteArrayValueWithLockCheckAndRollback(location % _memoryArraySize, data.GetData());
+		WriteArrayValueWithLockCheckAndRollback(LimitLocationToMemorySize(location), data.GetData());
 		break;
 	}
 	return true;
@@ -102,12 +102,12 @@ void RAM32Variable::TransparentWriteInterface(unsigned int interfaceNumber, unsi
 			unsigned int baseLocation = (location + currentDataByte) / arrayEntryByteSize;
 			unsigned int firstByteOffsetToWriteToEntry = (location + currentDataByte) % arrayEntryByteSize;
 			unsigned int lastByteOffsetToWriteToEntry = ((arrayEntryByteSize - firstByteOffsetToWriteToEntry) <= (dataByteSize - currentDataByte))? (arrayEntryByteSize - 1): firstByteOffsetToWriteToEntry + ((dataByteSize - 1) - currentDataByte);
-			Data memoryEntry(arrayEntryByteSize * Data::BitsPerByte, _memoryArray[baseLocation % _memoryArraySize]);
+			Data memoryEntry(arrayEntryByteSize * Data::BitsPerByte, ReadArrayValue(baseLocation));
 			for (unsigned int i = firstByteOffsetToWriteToEntry; i <= lastByteOffsetToWriteToEntry; ++i)
 			{
 				memoryEntry.SetByteFromTopDown(i, data.GetByteFromTopDown(currentDataByte++));
 			}
-			_memoryArray[baseLocation % _memoryArraySize] = memoryEntry.GetData();
+			WriteArrayValue(baseLocation, memoryEntry.GetData());
 		}
 		break;}
 	case 1:
@@ -115,10 +115,10 @@ void RAM32Variable::TransparentWriteInterface(unsigned int interfaceNumber, unsi
 		unsigned int baseLocation = location / (interfaceNumber * arrayEntryByteSize);
 		unsigned int dataShiftCount = (((arrayEntryByteSize / interfaceNumber) - 1) - (location % (arrayEntryByteSize / interfaceNumber))) * (Data::BitsPerByte * interfaceNumber);
 		unsigned int dataBitMask = (1 << (Data::BitsPerByte * interfaceNumber)) - 1;
-		_memoryArray[baseLocation % _memoryArraySize] = (_memoryArray[baseLocation % _memoryArraySize] & ~(dataBitMask << dataShiftCount)) | (data.GetData() << dataShiftCount);
+		WriteArrayValue(baseLocation, (ReadArrayValue(baseLocation) & ~(dataBitMask << dataShiftCount)) | (data.GetData() << dataShiftCount));
 		break;}
 	case 4:
-		_memoryArray[location % _memoryArraySize] = data.GetData();
+		WriteArrayValue(location, data.GetData());
 		break;
 	}
 }
@@ -128,11 +128,11 @@ void RAM32Variable::TransparentWriteInterface(unsigned int interfaceNumber, unsi
 //----------------------------------------------------------------------------------------------------------------------
 unsigned int RAM32Variable::ReadMemoryEntry(unsigned int location) const
 {
-	return _memoryArray[location % _memoryArraySize];
+	return ReadArrayValue(location);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 void RAM32Variable::WriteMemoryEntry(unsigned int location, unsigned int data)
 {
-	_memoryArray[location % _memoryArraySize] = data;
+	WriteArrayValue(location, data);
 }

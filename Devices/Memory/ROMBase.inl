@@ -67,6 +67,12 @@ bool ROMBase<T>::Construct(IHierarchicalStorageNode& node)
 		// of the array entry byte size.
 		_memoryArraySize = memoryEntryCount;
 
+		// Determine which memory limit function to use based on the memory size. Since this will be hit very often, we
+		// use a member function pointer here as an optimization.
+		_memoryArraySizeMask = (_memoryArraySize - 1);
+		bool memorySizeIsPowerOfTwo = ((_memoryArraySize & _memoryArraySizeMask) == 0);
+		_memoryLimitFunction = (memorySizeIsPowerOfTwo ? &ROMBase::LimitMemoryLocationToMemorySizePowerOfTwo : &ROMBase::LimitMemoryLocationToMemorySizeNonPowerOfTwo);
+
 		// Resize the internal memory array based on the calculated array size, and
 		// initialize all elements to 0.
 		delete _memoryArray;
@@ -128,13 +134,21 @@ bool ROMBase<T>::Construct(IHierarchicalStorageNode& node)
 	}
 	else
 	{
-		// If no embedded ROM data has been provided, ensure that a valid interface size
-		// has been specified, and set the size of our internal memory.
+		// If no embedded ROM data has been provided, validate the specified memory entry count.
 		_memoryArraySize = GetMemoryEntryCount();
 		if (_memoryArraySize <= 0)
 		{
 			return false;
 		}
+
+		// Determine which memory limit function to use based on the memory size. Since this will be hit very often, we
+		// use a member function pointer here as an optimization.
+		_memoryArraySizeMask = (_memoryArraySize - 1);
+		bool memorySizeIsPowerOfTwo = ((_memoryArraySize & _memoryArraySizeMask) == 0);
+		_memoryLimitFunction = (memorySizeIsPowerOfTwo ? &ROMBase::LimitMemoryLocationToMemorySizePowerOfTwo : &ROMBase::LimitMemoryLocationToMemorySizeNonPowerOfTwo);
+
+		// Resize the internal memory array based on the calculated array size, and
+		// initialize all elements to 0.
 		delete _memoryArray;
 		_memoryArray = new T[_memoryArraySize];
 		memset(&_memoryArray[0], 0, (_memoryArraySize * memoryArrayEntryByteSize));
@@ -150,4 +164,27 @@ template<class T>
 unsigned int ROMBase<T>::GetMemoryEntrySizeInBytes() const
 {
 	return sizeof(T);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+// Memory location functions
+//----------------------------------------------------------------------------------------------------------------------
+template<class T>
+unsigned int ROMBase<T>::LimitLocationToMemorySize(unsigned int location) const
+{
+	return (this->*_memoryLimitFunction)(location);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+template<class T>
+unsigned int ROMBase<T>::LimitMemoryLocationToMemorySizePowerOfTwo(unsigned int location) const
+{
+	return location & _memoryArraySizeMask;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+template<class T>
+unsigned int ROMBase<T>::LimitMemoryLocationToMemorySizeNonPowerOfTwo(unsigned int location) const
+{
+	return location % _memoryArraySize;
 }

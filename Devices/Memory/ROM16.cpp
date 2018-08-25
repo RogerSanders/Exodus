@@ -12,7 +12,7 @@ ROM16::ROM16(const std::wstring& implementationName, const std::wstring& instanc
 //----------------------------------------------------------------------------------------------------------------------
 IBusInterface::AccessResult ROM16::ReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, double accessTime, unsigned int accessContext)
 {
-	data = _memoryArray[location % _memoryArraySize];
+	data = _memoryArray[LimitLocationToMemorySize(location)];
 	return true;
 }
 
@@ -25,13 +25,13 @@ IBusInterface::AccessResult ROM16::WriteInterface(unsigned int interfaceNumber, 
 //----------------------------------------------------------------------------------------------------------------------
 void ROM16::TransparentReadInterface(unsigned int interfaceNumber, unsigned int location, Data& data, IDeviceContext* caller, unsigned int accessContext)
 {
-	data = _memoryArray[location % _memoryArraySize];
+	data = _memoryArray[LimitLocationToMemorySize(location)];
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 void ROM16::TransparentWriteInterface(unsigned int interfaceNumber, unsigned int location, const Data& data, IDeviceContext* caller, unsigned int accessContext)
 {
-	_memoryArray[location % _memoryArraySize] = (unsigned short)data.GetData();
+	_memoryArray[LimitLocationToMemorySize(location)] = (unsigned short)data.GetData();
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -39,11 +39,11 @@ void ROM16::TransparentWriteInterface(unsigned int interfaceNumber, unsigned int
 //----------------------------------------------------------------------------------------------------------------------
 unsigned int ROM16::ReadMemoryEntry(unsigned int location) const
 {
-	return _memoryArray[location % _memoryArraySize];
+	return _memoryArray[LimitLocationToMemorySize(location)];
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 void ROM16::WriteMemoryEntry(unsigned int location, unsigned int data)
 {
-	_memoryArray[location % _memoryArraySize] = (unsigned short)data;
+	_memoryArray[LimitLocationToMemorySize(location)] = (unsigned short)data;
 }

@@ -32,6 +32,12 @@ bool RAMBase<T>::Construct(IHierarchicalStorageNode& node)
 		return false;
 	}
 
+	// Determine which memory limit function to use based on the memory size. Since this will be hit very often, we use
+	// a member function pointer here as an optimization.
+	_memoryArraySizeMask = (_memoryArraySize - 1);
+	bool memorySizeIsPowerOfTwo = ((_memoryArraySize & _memoryArraySizeMask) == 0);
+	_memoryLimitFunction = (memorySizeIsPowerOfTwo ? &RAMBase::LimitMemoryLocationToMemorySizePowerOfTwo : &RAMBase::LimitMemoryLocationToMemorySizeNonPowerOfTwo);
+
 	// Resize the internal memory arrays based on the specified memory entry count, and
 	// initialize all elements to 0.
 	delete _memoryArray;
@@ -124,6 +130,7 @@ void RAMBase<T>::Initialize()
 	}
 
 	// Initialize rollback state
+	std::lock_guard<std::mutex> lock(_bufferMutex);
 	_buffer.clear();
 }
 
@@ -137,14 +144,38 @@ unsigned int RAMBase<T>::GetMemoryEntrySizeInBytes() const
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+// Memory location functions
+//----------------------------------------------------------------------------------------------------------------------
+template<class T>
+unsigned int RAMBase<T>::LimitLocationToMemorySize(unsigned int location) const
+{
+	return (this->*_memoryLimitFunction)(location);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+template<class T>
+unsigned int RAMBase<T>::LimitMemoryLocationToMemorySizePowerOfTwo(unsigned int location) const
+{
+	return location & _memoryArraySizeMask;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+template<class T>
+unsigned int RAMBase<T>::LimitMemoryLocationToMemorySizeNonPowerOfTwo(unsigned int location) const
+{
+	return location % _memoryArraySize;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 // Execute functions
 //----------------------------------------------------------------------------------------------------------------------
 template<class T>
 void RAMBase<T>::ExecuteRollback()
 {
-	for (typename MemoryAccessBuffer::const_iterator i = _buffer.begin(); i != _buffer.end(); ++i)
+	std::lock_guard<std::mutex> lock(_bufferMutex);
+	for (const auto& i : _buffer)
 	{
-		_memoryArray[i->first] = i->second;
+		_memoryArray[i.first] = i.second;
 	}
 	_buffer.clear();
 }
@@ -153,6 +184,7 @@ void RAMBase<T>::ExecuteRollback()
 template<class T>
 void RAMBase<T>::ExecuteCommit()
 {
+	std::lock_guard<std::mutex> lock(_bufferMutex);
 	_buffer.clear();
 }
 
@@ -186,11 +218,31 @@ bool RAMBase<T>::IsAddressLocked(unsigned int location) const
 // Access helper functions
 //----------------------------------------------------------------------------------------------------------------------
 template<class T>
+T RAMBase<T>::ReadArrayValue(unsigned int arrayEntryPos) const
+{
+	return _memoryArray[LimitLocationToMemorySize(arrayEntryPos)];
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+template<class T>
+void RAMBase<T>::WriteArrayValue(unsigned int arrayEntryPos, T newValue)
+{
+	_memoryArray[LimitLocationToMemorySize(arrayEntryPos)] = newValue;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+template<class T>
 void RAMBase<T>::WriteArrayValueWithLockCheckAndRollback(unsigned int arrayEntryPos, T newValue)
 {
+	arrayEntryPos = LimitLocationToMemorySize(arrayEntryPos);
 	if (!_memoryLockedArray[arrayEntryPos])
 	{
-		_buffer.insert(MemoryAccessBufferEntry(arrayEntryPos, _memoryArray[arrayEntryPos]));
+		// Note that we're relying on the fact that the insert operation here will fail if an entry has already been
+		// defined for the same address. This has the effect of latching the original value that the memory buffer
+		// contained at an individual address, while ignoring subsequent changes. This is all we need in order to
+		// support rollback operations.
+		std::lock_guard<std::mutex> lock(_bufferMutex);
+		_buffer.insert(std::make_pair(arrayEntryPos, _memoryArray[arrayEntryPos]));
 		_memoryArray[arrayEntryPos] = newValue;
 	}
 }
