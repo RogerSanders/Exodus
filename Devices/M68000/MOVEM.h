@@ -229,6 +229,7 @@ public:
 		AddInstructionSize(_target.ExtensionSize());
 
 		// Resolve the register mask
+		_registers.reserve(_mask.GetBitCount());
 		for (unsigned int i = 0; i < _mask.GetBitCount(); ++i)
 		{
 			bool selected = _mask.GetBit(i);
@@ -292,7 +293,7 @@ public:
 		}
 
 		// Loop through the list of registers and perform the operation on each entry
-		for (std::list<EffectiveAddress>::const_iterator i = _registers.begin(); i != _registers.end(); ++i)
+		for (std::vector<EffectiveAddress>::const_iterator i = _registers.begin(); i != _registers.end(); ++i)
 		{
 			if (_memoryToRegisters)
 			{
@@ -340,7 +341,7 @@ public:
 	}
 
 private:
-	std::list<EffectiveAddress> _registers;
+	std::vector<EffectiveAddress> _registers;
 	EffectiveAddress _target;
 	Bitcount _size;
 	M68000Word _mask;
