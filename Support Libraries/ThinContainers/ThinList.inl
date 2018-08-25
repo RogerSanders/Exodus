@@ -27,7 +27,14 @@ ThinList<T>::ThinList(const ThinList<T>& source)
 template<class T>
 ThinList<T>::~ThinList()
 {
-	delete next;
+	ThinList<T>* deleteEntry = next;
+	while (deleteEntry != 0)
+	{
+		ThinList<T>* nextDeleteEntry = deleteEntry->next;
+		deleteEntry->next = 0;
+		delete deleteEntry;
+		deleteEntry = nextDeleteEntry;
+	}
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -36,14 +43,12 @@ ThinList<T>::~ThinList()
 template<class T>
 void ThinList<T>::PushToBack(const T& entry)
 {
-	if (next == 0)
+	ThinList<T>* targetEntry = this;
+	while (targetEntry->next != 0)
 	{
-		next = new ThinList<T>(entry);
+		targetEntry = targetEntry->next;
 	}
-	else
-	{
-		next->PushToBack(entry);
-	}
+	targetEntry->next = new ThinList<T>(entry);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
