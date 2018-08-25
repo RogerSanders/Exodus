@@ -2155,7 +2155,7 @@ void System::ExecuteDeviceStep(IDevice* device)
 	}
 
 	// Start active device threads
-	_executionManager.BeginExecution();
+	_executionManager.StartExecution();
 
 	// Commit the current state of each device. We perform this task here to ensure that
 	// manual changes made through the debug interface while the system was idle, and the
@@ -2215,7 +2215,7 @@ void System::ExecuteDeviceStep(IDevice* device)
 	}
 
 	// Stop active device threads
-	_executionManager.SuspendExecution();
+	_executionManager.StopExecution();
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -2225,7 +2225,7 @@ void System::ExecuteSystemStep(double targetTime)
 	StopSystem();
 
 	// Start active device threads
-	_executionManager.BeginExecution();
+	_executionManager.StartExecution();
 
 	// Commit the current state of each device. We perform this task here to ensure that
 	// manual changes made through the debug interface while the system was idle are not
@@ -2241,7 +2241,7 @@ void System::ExecuteSystemStep(double targetTime)
 	}
 
 	// Stop active device threads
-	_executionManager.SuspendExecution();
+	_executionManager.StopExecution();
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -2377,7 +2377,7 @@ void System::ExecuteThread()
 	SetCurrentThreadPriority(THREADPRIORITY_HIGH);
 
 	// Start active device threads
-	_executionManager.BeginExecution();
+	_executionManager.StartExecution();
 
 	// Commit the current state of each device. We perform this task here to ensure that
 	// manual changes made through the debug interface while the system was idle are not
@@ -2393,13 +2393,13 @@ void System::ExecuteThread()
 		if (_initialize)
 		{
 			// Stop active device threads
-			_executionManager.SuspendExecution();
+			_executionManager.StopExecution();
 
 			// Initialize the devices
 			InitializeInternal();
 
 			// Start active device threads
-			_executionManager.BeginExecution();
+			_executionManager.StartExecution();
 
 			// Commit changes from initialization
 			_executionManager.Commit();
@@ -2428,7 +2428,7 @@ void System::ExecuteThread()
 	}
 
 	// Stop active device threads
-	_executionManager.SuspendExecution();
+	_executionManager.StopExecution();
 
 	SignalSystemStopped();
 }

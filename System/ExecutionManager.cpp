@@ -25,7 +25,7 @@ void ExecutionManager::DisableTimesliceExecutionSuspend()
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-bool ExecutionManager::AllDevicesSuspended(volatile ReferenceCounterType& suspendedThreadCount, volatile ReferenceCounterType& remainingThreadCount) const
+bool ExecutionManager::AllDevicesSuspended(unsigned int executingThreadCount, unsigned int suspendedThreadCount) const
 {
 	// Go through each device that supports transient execution, and see if any of them are
 	// currently executing.
@@ -58,7 +58,7 @@ bool ExecutionManager::AllDevicesSuspended(volatile ReferenceCounterType& suspen
 
 	// Determine if all remaining devices are blocked or suspended, and return the result
 	// to the caller.
-	bool allDevicesBlocked = ((unsigned int)remainingThreadCount == blockedDeviceCount);
+	bool allDevicesBlocked = ((unsigned int)executingThreadCount == blockedDeviceCount);
 	return allDevicesBlocked;
 }
 
