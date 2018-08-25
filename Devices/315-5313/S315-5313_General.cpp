@@ -805,32 +805,6 @@ void S315_5313::NotifyUpcomingTimeslice(double nanoseconds)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-bool S315_5313::SendNotifyBeforeExecuteCalled() const
-{
-	return true;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-void S315_5313::NotifyBeforeExecuteCalled()
-{
-	//##DEBUG##
-	if (_outputTimingDebugMessages)
-	{
-		std::wcout << "VDPNotifyBeforeExecuteCalled: " << _hcounter.GetData() << '\t' << _vcounter.GetData() << '\t' << _stateLastUpdateMclk << '\t' << _stateLastUpdateMclkUnused << '\t' << _currentTimesliceTotalMclkCycles << '\n';
-	}
-
-	// If the DMA worker thread is currently active but paused, resume it here.
-	std::unique_lock<std::mutex> lock(_workerThreadMutex);
-	if (_workerThreadActive && _workerThreadPaused)
-	{
-		//##DEBUG##
-//		std::wcout << L"NotifyBeforeExecuteCalled is resuming DMA worker thread\n";
-
-		_workerThreadUpdate.notify_all();
-	}
-}
-
-//----------------------------------------------------------------------------------------------------------------------
 bool S315_5313::SendNotifyAfterExecuteCalled() const
 {
 	return true;
@@ -950,15 +924,23 @@ void S315_5313::ExecuteTimeslice(double nanoseconds)
 		std::wcout << "VDP - ExecuteTimeslice: " << nanoseconds << '\t' << _hcounter.GetData() << '\t' << _vcounter.GetData() << '\t' << _stateLastUpdateMclkUnused << '\n';
 	}
 
-	// Ensure that the DMA worker thread has finished executing. We need to do this here,
-	// otherwise the result of returning from this function will override the timeslice
-	// progress set by the worker thread, potentially causing waiting devices to execute
-	// beyond the DMA execution progress set by the DMA worker thread.
+	// If the DMA worker thread has work pending, start it now, and wait for it to complete.
 	std::unique_lock<std::mutex> workerThreadLock(_workerThreadMutex);
-	if (_workerThreadActive && !_workerThreadPaused && _busGranted)
+	if (_workerThreadActive && (_workerThreadPaused || _busGranted))
 	{
+		//##DEBUG##
+		//std::wcout << L"ExecuteTimeslice is resuming DMA worker thread\n";
+
+		// Resume the DMA worker thread
+		_workerThreadUpdate.notify_all();
+
+		// Wait for the DMA worker thread to finish executing. We need to do this here,
+		// otherwise the result of returning from this function will override the timeslice
+		// progress set by the worker thread, potentially causing waiting devices to execute
+		// beyond the DMA execution progress set by the DMA worker thread.
 		_workerThreadIdle.wait(workerThreadLock);
 	}
+	workerThreadLock.unlock();
 
 	// If the render thread is lagging, pause here until it has caught up, so we don't
 	// leave the render thread behind with an ever-increasing workload it will never be
