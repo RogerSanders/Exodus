@@ -113,8 +113,6 @@ public:
 	virtual UpdateMethod GetUpdateMethod() const;
 	virtual bool SendNotifyUpcomingTimeslice() const;
 	virtual void NotifyUpcomingTimeslice(double nanoseconds);
-	virtual bool SendNotifyBeforeExecuteCalled() const;
-	virtual void NotifyBeforeExecuteCalled();
 	virtual bool SendNotifyAfterExecuteCalled() const;
 	virtual void NotifyAfterExecuteCalled();
 	virtual void ExecuteTimeslice(double nanoseconds);
