@@ -1188,7 +1188,7 @@ void MDBusArbiter::SetLineState(unsigned int targetLine, const Data& lineData, I
 	// already passed that time.
 	if (_lastLineCheckTime > accessTime)
 	{
-		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, _lastLineCheckTime, accessContext);
 	}
 
 	// If this is a line state change which needs to be processed immediately, apply it now
@@ -1260,7 +1260,7 @@ void MDBusArbiter::RevokeSetLineState(unsigned int targetLine, const Data& lineD
 	// already passed that time.
 	if (_lastLineCheckTime > accessTime)
 	{
-		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, _lastLineCheckTime, accessContext);
 	}
 
 	// Find the matching line state change entry in the line access buffer
