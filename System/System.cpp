@@ -2446,7 +2446,7 @@ double System::SystemRollbackTime() const
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-void System::SetSystemRollback(IDeviceContext* triggerDevice, IDeviceContext* rollbackDevice, double timeslice, unsigned int accessContext, void (*callbackFunction)(void*), void* callbackParams)
+void System::SetSystemRollback(IDeviceContext* triggerDevice, IDeviceContext* rollbackDevice, double targetTime, double conflictingEventTime, unsigned int accessContext, void (*callbackFunction)(void*), void* callbackParams)
 {
 	//##DEBUG##
 	std::wstringstream message;
@@ -2455,11 +2455,11 @@ void System::SetSystemRollback(IDeviceContext* triggerDevice, IDeviceContext* ro
 	{
 		message << rollbackDevice->GetTargetDevice().GetDeviceInstanceName() << '\t';
 	}
-	message << std::setprecision(16) << timeslice << '\n';
+	message << std::setprecision(16) << targetTime << '\t' << conflictingEventTime << '\n';
 	std::wcout << message.str();
 
 	std::unique_lock<std::mutex> lock(_systemRollbackMutex);
-	if (!_rollback || (timeslice < _rollbackTimeslice))
+	if (!_rollback || (targetTime < _rollbackTimeslice))
 	{
 		_rollback = true;
 		_rollbackContext = accessContext;
@@ -2480,7 +2480,7 @@ void System::SetSystemRollback(IDeviceContext* triggerDevice, IDeviceContext* ro
 		}
 		else
 		{
-			_rollbackTimeslice = timeslice;
+			_rollbackTimeslice = targetTime;
 		}
 
 		_useRollbackFunction = false;

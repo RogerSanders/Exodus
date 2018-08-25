@@ -1400,7 +1400,7 @@ void M68000::SetLineState(unsigned int targetLine, const Data& lineData, IDevice
 	// already passed that time.
 	if (_lastLineCheckTime > accessTime)
 	{
-		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, _lastLineCheckTime, accessContext);
 	}
 
 	// Insert the line access into the buffer. Note that entries in the buffer are sorted
@@ -1432,7 +1432,7 @@ void M68000::RevokeSetLineState(unsigned int targetLine, const Data& lineData, d
 	// already passed that time.
 	if (_lastLineCheckTime > accessTime)
 	{
-		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, _lastLineCheckTime, accessContext);
 	}
 
 	// Find the matching line state change entry in the line access buffer
@@ -1734,7 +1734,7 @@ void M68000::SetClockSourceRate(unsigned int clockInput, double clockRate, IDevi
 	// already passed that time.
 	if (_lastLineCheckTime > accessTime)
 	{
-		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, _lastLineCheckTime, accessContext);
 	}
 
 	// Insert the line access into the buffer. Note that entries in the buffer are sorted

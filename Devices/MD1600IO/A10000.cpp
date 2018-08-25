@@ -441,7 +441,7 @@ void A10000::SetLineState(unsigned int targetLine, const Data& lineData, IDevice
 	// already passed that time.
 	if (_lastLineCheckTime > accessTime)
 	{
-		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, _lastLineCheckTime, accessContext);
 	}
 
 	// If this is a line state change which needs to be processed immediately, apply it now
@@ -504,7 +504,7 @@ void A10000::RevokeSetLineState(unsigned int targetLine, const Data& lineData, d
 	// already passed that time.
 	if (_lastLineCheckTime > accessTime)
 	{
-		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, _lastLineCheckTime, accessContext);
 	}
 
 	// Find the matching line state change entry in the line access buffer
@@ -874,7 +874,7 @@ IBusInterface::AccessResult A10000::ReadInterface(unsigned int interfaceNumber, 
 	std::unique_lock<std::mutex> lineLock(_lineMutex);
 	if (_lastLineCheckTime > accessTime)
 	{
-		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, _lastLineCheckTime, accessContext);
 	}
 	_lastLineCheckTime = accessTime;
 
@@ -967,7 +967,7 @@ IBusInterface::AccessResult A10000::WriteInterface(unsigned int interfaceNumber,
 	std::unique_lock<std::mutex> lineLock(_lineMutex);
 	if (_lastLineCheckTime > accessTime)
 	{
-		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, _lastLineCheckTime, accessContext);
 	}
 	_lastLineCheckTime = accessTime;
 

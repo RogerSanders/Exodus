@@ -117,7 +117,7 @@ void S315_5313::SetLineState(unsigned int targetLine, const Data& lineData, IDev
 		// Trigger a system rollback if the device has been accessed out of order
 		if (_lastAccessTime > accessTime)
 		{
-			GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+			GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, _lastAccessTime, accessContext);
 		}
 		_lastAccessTime = accessTime;
 
@@ -677,7 +677,7 @@ void S315_5313::SetClockSourceRate(unsigned int clockInput, double clockRate, ID
 
 	// Since a clock rate change will affect our timing point calculations, trigger a
 	// rollback.
-	GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+	GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, 0, accessContext);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1010,7 +1010,7 @@ IBusInterface::AccessResult S315_5313::ReadInterface(unsigned int interfaceNumbe
 		// Trigger a system rollback if the device has been accessed out of order
 		if (_lastAccessTime > accessTime)
 		{
-			GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+			GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, _lastAccessTime, accessContext);
 		}
 		_lastAccessTime = accessTime;
 
@@ -1266,7 +1266,7 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 		// Trigger a system rollback if the device has been accessed out of order
 		if (_lastAccessTime > accessTime)
 		{
-			GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+			GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, _lastAccessTime, accessContext);
 		}
 		_lastAccessTime = accessTime;
 
