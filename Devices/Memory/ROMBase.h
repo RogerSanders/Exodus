@@ -17,8 +17,21 @@ public:
 	virtual unsigned int GetMemoryEntrySizeInBytes() const;
 
 protected:
-	unsigned int _memoryArraySize;
+	// Memory location functions
+	inline unsigned int LimitLocationToMemorySize(unsigned int location) const;
+
+private:
+	// Memory location functions
+	unsigned int LimitMemoryLocationToMemorySizePowerOfTwo(unsigned int location) const;
+	unsigned int LimitMemoryLocationToMemorySizeNonPowerOfTwo(unsigned int location) const;
+
+protected:
 	T* _memoryArray;
+
+private:
+	unsigned int _memoryArraySize;
+	unsigned int _memoryArraySizeMask;
+	unsigned int (ROMBase::*_memoryLimitFunction)(unsigned int) const;
 };
 
 #include "ROMBase.inl"
