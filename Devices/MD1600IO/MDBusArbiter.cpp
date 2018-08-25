@@ -946,7 +946,14 @@ unsigned int MDBusArbiter::CalculateCELineStateMemory(unsigned int location, con
 		bool ceLineUDS = (currentCELineState & _ceLineMaskUDS) != 0;
 		bool ceLineLDS = (currentCELineState & _ceLineMaskLDS) != 0;
 		bool ceLineOE0 = (currentCELineState & _ceLineMaskOE0) != 0;
-		result = BuildCELineM68K(location, operationIsWrite, ceLineUDS, ceLineLDS, ceLineOE0, _cartInLineState, caller, accessTime);
+		if (_cartInLineState)
+		{
+			result = BuildCELineM68K<true>(location, operationIsWrite, ceLineUDS, ceLineLDS, ceLineOE0, caller, accessTime);
+		}
+		else
+		{
+			result = BuildCELineM68K<false>(location, operationIsWrite, ceLineUDS, ceLineLDS, ceLineOE0, caller, accessTime);
+		}
 	}
 	else if (sourceBusInterface == _z80MemoryBus)
 	{
@@ -962,7 +969,8 @@ unsigned int MDBusArbiter::CalculateCELineStateMemoryTransparent(unsigned int lo
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-unsigned int MDBusArbiter::BuildCELineM68K(unsigned int targetAddress, bool write, bool ceLineUDS, bool ceLineLDS, bool ceLineOE0, bool cartInLineAsserted, IDeviceContext* caller, double accessTime) const
+template<bool CartInLineAsserted>
+unsigned int MDBusArbiter::BuildCELineM68K(unsigned int targetAddress, bool write, bool ceLineUDS, bool ceLineLDS, bool ceLineOE0, IDeviceContext* caller, double accessTime) const
 {
 	//##TODO## It seems clear that if the FC lines from the M68000 indicate a CPU space
 	// cycle (all asserted), then these CE output lines shouldn't be asserted. In
@@ -974,9 +982,22 @@ unsigned int MDBusArbiter::BuildCELineM68K(unsigned int targetAddress, bool writ
 	// combination.
 
 	// Calculate the state of all the various CE lines
-	bool lineBootROM = cartInLineAsserted && _bootROMEnabled && _activateBootROM && (targetAddress <= 0x3FFFFF);
-	bool lineCE0 = cartInLineAsserted? !lineBootROM && (targetAddress <= 0x3FFFFF): (targetAddress >= 0x400000) && (targetAddress <= 0x7FFFFF);
-	bool lineROM = !cartInLineAsserted? (targetAddress <= 0x1FFFFF): (targetAddress >= 0x400000) && (targetAddress <= 0x5FFFFF);
+	bool lineBootROM;
+	bool lineCE0;
+	bool lineROM;
+	if (CartInLineAsserted)
+	{
+		bool targetAddressLessThan0x400000 = (targetAddress <= 0x3FFFFF);
+		lineBootROM = _bootROMEnabled && _activateBootROM && targetAddressLessThan0x400000;
+		lineCE0 = !lineBootROM && targetAddressLessThan0x400000;
+		lineROM = !targetAddressLessThan0x400000 && (targetAddress <= 0x5FFFFF);
+	}
+	else
+	{
+		lineBootROM = false;
+		lineCE0 = (targetAddress >= 0x400000) && (targetAddress <= 0x7FFFFF);
+		lineROM = (targetAddress <= 0x1FFFFF);
+	}
 	bool lineASEL = !lineBootROM && (targetAddress <= 0x7FFFFF);
 	bool lineFDC = (targetAddress >= 0xA12000) && (targetAddress <= 0xA120FF);
 	bool lineFDWR = write && lineFDC;
@@ -991,16 +1012,16 @@ unsigned int MDBusArbiter::BuildCELineM68K(unsigned int targetAddress, bool writ
 
 	// Build the actual CE line state based on the asserted CE lines
 	unsigned int ceLineState = 0;
-	ceLineState |= lineCE0? _ceLineMaskCE0: 0x0;
-	ceLineState |= lineBootROM? _ceLineMaskBootROM: 0x0;
-	ceLineState |= lineROM? _ceLineMaskROM: 0x0;
-	ceLineState |= lineASEL? _ceLineMaskASEL: 0x0;
-	ceLineState |= lineFDC? _ceLineMaskFDC: 0x0;
-	ceLineState |= lineFDWR? _ceLineMaskFDWR: 0x0;
-	ceLineState |= lineTIME? _ceLineMaskTIME: 0x0;
-	ceLineState |= lineIO? _ceLineMaskIO: 0x0;
-	ceLineState |= lineEOE? _ceLineMaskEOE: 0x0;
-	ceLineState |= lineNOE? _ceLineMaskNOE: 0x0;
+	ceLineState |= ~((unsigned int)lineCE0 - 1) & _ceLineMaskCE0; // lineCE0? _ceLineMaskCE0: 0x0;
+	ceLineState |= ~((unsigned int)lineBootROM - 1) & _ceLineMaskBootROM; // lineBootROM? _ceLineMaskBootROM: 0x0;
+	ceLineState |= ~((unsigned int)lineROM - 1) & _ceLineMaskROM; // lineROM? _ceLineMaskROM: 0x0;
+	ceLineState |= ~((unsigned int)lineASEL - 1) & _ceLineMaskASEL; // lineASEL? _ceLineMaskASEL: 0x0;
+	ceLineState |= ~((unsigned int)lineFDC - 1) & _ceLineMaskFDC; // lineFDC? _ceLineMaskFDC: 0x0;
+	ceLineState |= ~((unsigned int)lineFDWR - 1) & _ceLineMaskFDWR; // lineFDWR? _ceLineMaskFDWR: 0x0;
+	ceLineState |= ~((unsigned int)lineTIME - 1) & _ceLineMaskTIME; // lineTIME? _ceLineMaskTIME: 0x0;
+	ceLineState |= ~((unsigned int)lineIO - 1) & _ceLineMaskIO; // lineIO? _ceLineMaskIO: 0x0;
+	ceLineState |= ~((unsigned int)lineEOE - 1) & _ceLineMaskEOE; // lineEOE? _ceLineMaskEOE: 0x0;
+	ceLineState |= ~((unsigned int)lineNOE - 1) & _ceLineMaskNOE; // lineNOE? _ceLineMaskNOE: 0x0;
 
 	// If TMSS is active, and a device is attempting to access the VDP address range,
 	// assert the VRES and HALT lines. Note that according to tests performed by Charles

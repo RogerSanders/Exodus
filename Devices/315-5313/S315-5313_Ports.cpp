@@ -807,51 +807,58 @@ void S315_5313::SetCELineOutput(unsigned int lineID, bool lineMapped, unsigned i
 unsigned int S315_5313::CalculateCELineStateMemory(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext, double accessTime) const
 {
 	bool vdpIsSource = (caller == GetDeviceContext());
+	if (vdpIsSource)
+	{
+		return BuildCELine<true, false>(location, true, true, false, false, false);
+	}
+
 	bool currentLowerDataStrobe = (currentCELineState & _ceLineMaskLowerDataStrobeInput) != 0;
 	bool currentUpperDataStrobe = (currentCELineState & _ceLineMaskUpperDataStrobeInput) != 0;
 	bool operationIsWrite = (currentCELineState & _ceLineMaskReadHighWriteLowInput) == 0;
 	bool rmwCycleInProgress = (currentCELineState & _ceLineMaskRMWCycleInProgress) != 0;
 	bool rmwCycleFirstOperation = (currentCELineState & _ceLineMaskRMWCycleFirstOperation) != 0;
-	if (vdpIsSource)
-	{
-		currentLowerDataStrobe = true;
-		currentUpperDataStrobe = true;
-		operationIsWrite = false;
-		rmwCycleInProgress = false;
-		rmwCycleFirstOperation = false;
-	}
-	return BuildCELine(location, vdpIsSource, false, currentLowerDataStrobe, currentUpperDataStrobe, operationIsWrite, rmwCycleInProgress, rmwCycleFirstOperation);
+	return BuildCELine<false, false>(location, currentLowerDataStrobe, currentUpperDataStrobe, operationIsWrite, rmwCycleInProgress, rmwCycleFirstOperation);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 unsigned int S315_5313::CalculateCELineStateMemoryTransparent(unsigned int location, const Data& data, unsigned int currentCELineState, const IBusInterface* sourceBusInterface, IDeviceContext* caller, void* calculateCELineStateContext) const
 {
 	bool vdpIsSource = (caller == GetDeviceContext());
+	if (vdpIsSource)
+	{
+		return BuildCELine<true, true>(location, true, true, false, false, false);
+	}
+
 	bool currentLowerDataStrobe = (currentCELineState & _ceLineMaskLowerDataStrobeInput) != 0;
 	bool currentUpperDataStrobe = (currentCELineState & _ceLineMaskUpperDataStrobeInput) != 0;
 	bool operationIsWrite = (currentCELineState & _ceLineMaskReadHighWriteLowInput) == 0;
 	bool rmwCycleInProgress = (currentCELineState & _ceLineMaskRMWCycleInProgress) != 0;
 	bool rmwCycleFirstOperation = (currentCELineState & _ceLineMaskRMWCycleFirstOperation) != 0;
-	if (vdpIsSource)
-	{
-		currentLowerDataStrobe = true;
-		currentUpperDataStrobe = true;
-		operationIsWrite = false;
-		rmwCycleInProgress = false;
-		rmwCycleFirstOperation = false;
-	}
-	return BuildCELine(location, vdpIsSource, true, currentLowerDataStrobe, currentUpperDataStrobe, operationIsWrite, rmwCycleInProgress, rmwCycleFirstOperation);
+	return BuildCELine<false, true>(location, currentLowerDataStrobe, currentUpperDataStrobe, operationIsWrite, rmwCycleInProgress, rmwCycleFirstOperation);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-unsigned int S315_5313::BuildCELine(unsigned int targetAddress, bool vdpIsSource, bool transparentAccess, bool currentLowerDataStrobe, bool currentUpperDataStrobe, bool operationIsWrite, bool rmwCycleInProgress, bool rmwCycleFirstOperation) const
+template<bool VdpIsSource, bool TransparentAccess>
+unsigned int S315_5313::BuildCELine(unsigned int targetAddress, bool currentLowerDataStrobe, bool currentUpperDataStrobe, bool operationIsWrite, bool rmwCycleInProgress, bool rmwCycleFirstOperation) const
 {
 	// Calculate the state of all the various CE lines
 	bool lineLWR = operationIsWrite && currentLowerDataStrobe;
 	bool lineUWR = operationIsWrite && currentUpperDataStrobe;
-	bool lineCAS0 = !operationIsWrite && ((!vdpIsSource && (targetAddress <= 0xDFFFFF)) || (vdpIsSource && (targetAddress <= 0xFFFFFF)));
-	bool lineRAS0 = (!vdpIsSource && (targetAddress >= 0xE00000) && (targetAddress <= 0xFFFFFF)) || (vdpIsSource && (targetAddress >= 0x800000) && (targetAddress <= 0xFFFFFF));
-	bool lineOE0 = (!operationIsWrite && !vdpIsSource && (targetAddress >= 0xE00000) && (targetAddress <= 0xFFFFFF)) || (!operationIsWrite && vdpIsSource && (targetAddress <= 0xFFFFFF));
+	bool lineCAS0;
+	bool lineRAS0;
+	bool lineOE0;
+	if (VdpIsSource)
+	{
+		lineRAS0 = (targetAddress & 0x800000) != 0; // (targetAddress >= 0x800000) && (targetAddress <= 0xFFFFFF);
+		lineCAS0 = !operationIsWrite; // && (targetAddress <= 0xFFFFFF);
+		lineOE0 = !operationIsWrite; // && (targetAddress <= 0xFFFFFF);
+	}
+	else
+	{
+		lineRAS0 = (targetAddress >= 0xE00000); // && (targetAddress <= 0xFFFFFF);
+		lineCAS0 = !operationIsWrite && !lineRAS0;
+		lineOE0 = !operationIsWrite && lineRAS0;
+	}
 
 	// If this bus operation is part of a Read-Modify-Write cycle, we need to handle it
 	// slightly differently. The VDP asserts its CE lines when the AS line is asserted,
@@ -877,7 +884,7 @@ unsigned int S315_5313::BuildCELine(unsigned int targetAddress, bool vdpIsSource
 	// write component. This is done through the use of two pseudo-CE lines from the
 	// M68000, which indicate whether we are performing a read-modify-write cycle, and
 	// whether this is the first operation of that cycle, respectively.
-	if (rmwCycleInProgress && !transparentAccess)
+	if (rmwCycleInProgress && !TransparentAccess)
 	{
 		if (rmwCycleFirstOperation)
 		{
@@ -899,12 +906,12 @@ unsigned int S315_5313::BuildCELine(unsigned int targetAddress, bool vdpIsSource
 
 	// Build the actual CE line state based on the asserted CE lines
 	unsigned int ceLineState = 0;
-	ceLineState |= lineLWR? _ceLineMaskLWR: 0x0;
-	ceLineState |= lineUWR? _ceLineMaskUWR: 0x0;
-	ceLineState |= lineCAS0? _ceLineMaskCAS0: 0x0;
-	ceLineState |= lineRAS0? _ceLineMaskRAS0: 0x0;
-	ceLineState |= lineOE0? _ceLineMaskOE0: 0x0;
-	if (vdpIsSource)
+	ceLineState |= ~((unsigned int)lineLWR - 1) & _ceLineMaskLWR; // lineLWR? _ceLineMaskLWR: 0x0;
+	ceLineState |= ~((unsigned int)lineUWR - 1) & _ceLineMaskUWR; // lineUWR? _ceLineMaskUWR: 0x0;
+	ceLineState |= ~((unsigned int)lineCAS0 - 1) & _ceLineMaskCAS0; // lineCAS0? _ceLineMaskCAS0: 0x0;
+	ceLineState |= ~((unsigned int)lineRAS0 - 1) & _ceLineMaskRAS0; // lineRAS0? _ceLineMaskRAS0: 0x0;
+	ceLineState |= ~((unsigned int)lineOE0 - 1) & _ceLineMaskOE0; // lineOE0? _ceLineMaskOE0: 0x0;
+	if (VdpIsSource)
 	{
 		// If the VDP has the bus, we need to drive the M68K CE lines ourselves.
 		ceLineState |= _ceLineMaskLowerDataStrobeOutput;
