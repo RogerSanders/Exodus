@@ -1591,7 +1591,7 @@ void ExodusInterface::SetGlobalPreferenceShowDebugConsole(bool state)
 		{
 			// Create a debug command console
 			AllocConsole();
-			BindStdHandlesToConsole();
+			BindCrtHandlesToStdHandles(true, true, true);
 		}
 		else
 		{

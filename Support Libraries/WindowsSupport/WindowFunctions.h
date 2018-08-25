@@ -61,7 +61,7 @@ template<class T>
 T DPIReverseScaleHeight(T pixelHeight);
 
 // BindStdHandlesToConsole function
-void BindStdHandlesToConsole();
+void BindCrtHandlesToStdHandles(bool bindStdIn, bool bindStdOut, bool bindStdErr);
 
 // Environment variable functions
 bool IsEnvironmentVariableDefined(const std::wstring& name);
