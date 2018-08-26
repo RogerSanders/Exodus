@@ -312,7 +312,7 @@ void DeviceContext::SetDeviceDependencyEnable(IDeviceContext* targetDevice, bool
 			// changed again before the spinoff thread processed the request. This is the
 			// only case that could have arisen if the spinoff thread is still active here.
 			std::unique_lock<std::mutex> lock(primaryDevice->_executeThreadMutex);
-			while (primaryDevice->_sharedExecuteThreadSpinoffActive)
+			while (primaryDevice->_sharedExecuteThreadSpinoffActive && !primaryDevice->_sharedExecuteThreadSpinoffPaused)
 			{
 				primaryDevice->_sharedExecuteThreadSpinoffStoppedOrPaused.wait(lock);
 			}
@@ -804,7 +804,7 @@ void DeviceContext::ExecuteWorkerThreadStepSharedExecutionThreadSpinoff()
 				primaryDevice->_sharedExecuteThreadSpinoffActive = false;
 			}
 
-			// Flag that the spinoff thread is currently paused, and Wait for a new command
+			// Flag that the spinoff thread is currently paused, and wait for a new command
 			// to be received from the main execution thread.
 			primaryDevice->_sharedExecuteThreadSpinoffPaused = true;
 			primaryDevice->_sharedExecuteThreadSpinoffStoppedOrPaused.notify_all();
@@ -827,7 +827,7 @@ void DeviceContext::ExecuteWorkerThreadStepSharedExecutionThreadSpinoff()
 		primaryDeviceLock.unlock();
 
 		// Advance the device state for the device currently assigned to execute within
-		// this spinoff thread, until the end of the current timeslice is reached, our our
+		// this spinoff thread, until the end of the current timeslice is reached, or our
 		// spinoff thread is requested to rejoin the main execution thread.
 		DeviceContext* spinoffThreadTargetDevice = (primaryDevice->_currentSharedExecuteThreadOwner == this)? _otherSharedExecuteThreadDevice: this;
 		unsigned int dependentTargetCount = (unsigned int)spinoffThreadTargetDevice->_deviceDependencies.size();
