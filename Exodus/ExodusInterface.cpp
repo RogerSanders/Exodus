@@ -138,7 +138,7 @@ HWND ExodusInterface::CreateMainInterface(HINSTANCE hinstance)
 	// present in the target workspace file, even if the operation reports success.
 	bool mainWindowMaximized = false;
 	int mainWindowWidth = DPIScaleWidth(1024);
-	int mainWindowHeight = DPIScaleWidth(768);
+	int mainWindowHeight = DPIScaleHeight(768);
 	if (!_prefs.loadWorkspace.empty())
 	{
 		ReadMainWindowSizeFromWorkspaceFile(_prefs.loadWorkspace, mainWindowMaximized, mainWindowWidth, mainWindowHeight);

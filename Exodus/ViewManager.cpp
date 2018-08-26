@@ -1566,7 +1566,7 @@ bool ViewManager::ReadMainWindowSizeFromViewLayout(IHierarchicalStorageNode& vie
 		sizeY = mainWindowClientSizeYAttribute->ExtractValue<int>();
 
 		// Convert the main window client size from a DPI independent value
-		sizeY = DPIScaleWidth(sizeY);
+		sizeX = DPIScaleWidth(sizeX);
 		sizeY = DPIScaleHeight(sizeY);
 	}
 	return true;
