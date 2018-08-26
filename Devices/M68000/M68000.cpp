@@ -1887,14 +1887,14 @@ void M68000::TriggerExternalReset(double resetTimeBegin, double resetTimeEnd)
 M68000::FunctionCode M68000::GetFunctionCode(bool programReference) const
 {
 	static const FunctionCode codeTable[8] = {
-		FunctionCode::Undefined0,		// 000
-		FunctionCode::UserData,			// 001
-		FunctionCode::UserProgram,		// 010
-		FunctionCode::Undefined3,		// 011
-		FunctionCode::Undefined4,		// 100
-		FunctionCode::SupervisorData,	// 101
-		FunctionCode::SupervisorProgram,	// 110
-		FunctionCode::CPUSpace			// 111
+		FunctionCode::Undefined0,        // 000
+		FunctionCode::UserData,          // 001
+		FunctionCode::UserProgram,       // 010
+		FunctionCode::Undefined3,        // 011
+		FunctionCode::Undefined4,        // 100
+		FunctionCode::SupervisorData,    // 101
+		FunctionCode::SupervisorProgram, // 110
+		FunctionCode::CPUSpace           // 111
 	};
 	unsigned int codeTableIndex = ((unsigned int)GetSR_S() << 2) | ((unsigned int)programReference << 1) | ((unsigned int)!programReference);
 	return codeTable[codeTableIndex];
