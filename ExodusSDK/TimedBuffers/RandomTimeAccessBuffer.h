@@ -133,6 +133,9 @@ private:
 	mutable std::mutex _accessLock;
 	std::list<TimesliceEntry> _timesliceList;
 	Timeslice _latestTimeslice;
+	//##FIX## We've profiled "new" operations on this as a performance bottleneck. We measure 0.14s out of 10.8s of time
+	//going to this operation alone. Consider if a custom allocator is appropriate here, to use memory within a single
+	//allocated block.
 	std::list<WriteEntry> _writeList;
 	std::vector<DataType> _memory;
 	bool _latestMemoryBufferExists;

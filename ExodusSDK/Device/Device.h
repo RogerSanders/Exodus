@@ -1,12 +1,16 @@
 #ifndef __DEVICE_H__
 #define __DEVICE_H__
-#include "DeviceInternal.h"
+#include "DeviceInterface/DeviceInterface.pkg"
 
-class Device :public DeviceInternal
+class Device :public IDevice
 {
 public:
 	// Constructors
 	inline Device(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID);
+	virtual ~Device();
+
+	// Interface version functions
+	virtual unsigned int GetIDeviceVersion() const;
 
 	// Initialization functions
 	virtual bool BindToSystemInterface(ISystemDeviceInterface* systemInterface);
@@ -30,8 +34,8 @@ public:
 	inline ISystemDeviceInterface& GetSystemInterface() const;
 
 	// Device context functions
-	inline IDeviceContext* GetDeviceContext() const;
-	inline double GetCurrentTimesliceProgress() const;
+	inline virtual IDeviceContext* GetDeviceContext() const final;
+	inline virtual double GetCurrentTimesliceProgress() const final;
 	inline void SetCurrentTimesliceProgress(double executionProgress);
 
 	// Suspend functions
@@ -124,6 +128,7 @@ private:
 	std::wstring _instanceName;
 	unsigned int _moduleID;
 	ISystemDeviceInterface* _systemInterface;
+	IDeviceContext* _deviceContext;
 };
 
 #include "Device.inl"
