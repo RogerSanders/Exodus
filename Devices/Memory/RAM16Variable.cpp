@@ -26,7 +26,7 @@ IBusInterface::AccessResult RAM16Variable::ReadInterface(unsigned int interfaceN
 			unsigned int lastByteOffsetToExtractFromEntry = ((arrayEntryByteSize - firstByteOffsetToExtractFromEntry) <= (dataByteSize - currentDataByte))? (arrayEntryByteSize - 1): firstByteOffsetToExtractFromEntry + ((dataByteSize - 1) - currentDataByte);
 			for (unsigned int i = firstByteOffsetToExtractFromEntry; i <= lastByteOffsetToExtractFromEntry; ++i)
 			{
-				data.SetByteFromTopDown(currentDataByte++, (unsigned char)(_memoryArray[baseLocation % _memoryArraySize] >> (((arrayEntryByteSize - 1) - i) * Data::BitsPerByte)));
+				data.SetByteFromTopDown(currentDataByte++, (unsigned char)(ReadArrayValue(baseLocation) >> (((arrayEntryByteSize - 1) - i) * Data::BitsPerByte)));
 			}
 		}
 		break;}
@@ -34,14 +34,14 @@ IBusInterface::AccessResult RAM16Variable::ReadInterface(unsigned int interfaceN
 		unsigned int baseLocation = location / (interfaceNumber * arrayEntryByteSize);
 		unsigned int dataShiftCount = (((arrayEntryByteSize / interfaceNumber) - 1) - (location % (arrayEntryByteSize / interfaceNumber))) * (Data::BitsPerByte * interfaceNumber);
 		unsigned int dataBitMask = (1 << (Data::BitsPerByte * interfaceNumber)) - 1;
-		data = ((unsigned int)_memoryArray[baseLocation % _memoryArraySize] >> dataShiftCount) & dataBitMask;
+		data = ((unsigned int)ReadArrayValue(baseLocation) >> dataShiftCount) & dataBitMask;
 		break;}
 	case 2:
-		data = _memoryArray[location % _memoryArraySize];
+		data = ReadArrayValue(location);
 		break;
 	case 4:{
 		unsigned int baseLocation = location * (interfaceNumber / arrayEntryByteSize);
-		data = ((unsigned int)_memoryArray[baseLocation % _memoryArraySize] << (arrayEntryByteSize * Data::BitsPerByte)) | (unsigned int)_memoryArray[(baseLocation + 1) % _memoryArraySize];
+		data = ((unsigned int)ReadArrayValue(baseLocation) << (arrayEntryByteSize * Data::BitsPerByte)) | (unsigned int)ReadArrayValue(baseLocation + 1);
 		break;}
 	}
 	return true;
@@ -62,27 +62,27 @@ IBusInterface::AccessResult RAM16Variable::WriteInterface(unsigned int interface
 			unsigned int baseLocation = (location + currentDataByte) / arrayEntryByteSize;
 			unsigned int firstByteOffsetToWriteToEntry = (location + currentDataByte) % arrayEntryByteSize;
 			unsigned int lastByteOffsetToWriteToEntry = ((arrayEntryByteSize - firstByteOffsetToWriteToEntry) <= (dataByteSize - currentDataByte))? (arrayEntryByteSize - 1): firstByteOffsetToWriteToEntry + ((dataByteSize - 1) - currentDataByte);
-			Data memoryEntry(arrayEntryByteSize * Data::BitsPerByte, _memoryArray[baseLocation % _memoryArraySize]);
+			Data memoryEntry(arrayEntryByteSize * Data::BitsPerByte, ReadArrayValue(baseLocation));
 			for (unsigned int i = firstByteOffsetToWriteToEntry; i <= lastByteOffsetToWriteToEntry; ++i)
 			{
 				memoryEntry.SetByteFromTopDown(i, data.GetByteFromTopDown(currentDataByte++));
 			}
-			WriteArrayValueWithLockCheckAndRollback(baseLocation % _memoryArraySize, (unsigned short)memoryEntry.GetData());
+			WriteArrayValueWithLockCheckAndRollback(LimitLocationToMemorySize(baseLocation), (unsigned short)memoryEntry.GetData());
 		}
 		break;}
 	case 1:{
 		unsigned int baseLocation = location / (interfaceNumber * arrayEntryByteSize);
 		unsigned int dataShiftCount = (((arrayEntryByteSize / interfaceNumber) - 1) - (location % (arrayEntryByteSize / interfaceNumber))) * (Data::BitsPerByte * interfaceNumber);
 		unsigned int dataBitMask = (1 << (Data::BitsPerByte * interfaceNumber)) - 1;
-		WriteArrayValueWithLockCheckAndRollback(baseLocation % _memoryArraySize, (_memoryArray[baseLocation % _memoryArraySize] & (unsigned short)~(dataBitMask << dataShiftCount)) | (unsigned short)(data.GetData() << dataShiftCount));
+		WriteArrayValueWithLockCheckAndRollback(LimitLocationToMemorySize(baseLocation), (ReadArrayValue(baseLocation) & (unsigned short)~(dataBitMask << dataShiftCount)) | (unsigned short)(data.GetData() << dataShiftCount));
 		break;}
 	case 2:
-		WriteArrayValueWithLockCheckAndRollback(location % _memoryArraySize, (unsigned short)data.GetData());
+		WriteArrayValueWithLockCheckAndRollback(LimitLocationToMemorySize(location), (unsigned short)data.GetData());
 		break;
 	case 4:{
 		unsigned int baseLocation = location * (interfaceNumber / arrayEntryByteSize);
-		WriteArrayValueWithLockCheckAndRollback(baseLocation % _memoryArraySize, (unsigned short)data.GetDataSegment(((interfaceNumber / arrayEntryByteSize) - 1) * Data::BitsPerByte, arrayEntryByteSize * Data::BitsPerByte));
-		WriteArrayValueWithLockCheckAndRollback((baseLocation + 1) % _memoryArraySize, (unsigned short)data.GetDataSegment((((interfaceNumber / arrayEntryByteSize) - 1) - 1) * Data::BitsPerByte, arrayEntryByteSize * Data::BitsPerByte));
+		WriteArrayValueWithLockCheckAndRollback(LimitLocationToMemorySize(baseLocation), (unsigned short)data.GetDataSegment(((interfaceNumber / arrayEntryByteSize) - 1) * Data::BitsPerByte, arrayEntryByteSize * Data::BitsPerByte));
+		WriteArrayValueWithLockCheckAndRollback(LimitLocationToMemorySize(baseLocation + 1), (unsigned short)data.GetDataSegment((((interfaceNumber / arrayEntryByteSize) - 1) - 1) * Data::BitsPerByte, arrayEntryByteSize * Data::BitsPerByte));
 		break;}
 	}
 	return true;
@@ -109,27 +109,27 @@ void RAM16Variable::TransparentWriteInterface(unsigned int interfaceNumber, unsi
 			unsigned int baseLocation = (location + currentDataByte) / arrayEntryByteSize;
 			unsigned int firstByteOffsetToWriteToEntry = (location + currentDataByte) % arrayEntryByteSize;
 			unsigned int lastByteOffsetToWriteToEntry = ((arrayEntryByteSize - firstByteOffsetToWriteToEntry) <= (dataByteSize - currentDataByte))? (arrayEntryByteSize - 1): firstByteOffsetToWriteToEntry + ((dataByteSize - 1) - currentDataByte);
-			Data memoryEntry(arrayEntryByteSize * Data::BitsPerByte, _memoryArray[baseLocation % _memoryArraySize]);
+			Data memoryEntry(arrayEntryByteSize * Data::BitsPerByte, ReadArrayValue(baseLocation));
 			for (unsigned int i = firstByteOffsetToWriteToEntry; i <= lastByteOffsetToWriteToEntry; ++i)
 			{
 				memoryEntry.SetByteFromTopDown(i, data.GetByteFromTopDown(currentDataByte++));
 			}
-			_memoryArray[baseLocation % _memoryArraySize] = (unsigned short)memoryEntry.GetData();
+			WriteArrayValue(baseLocation, (unsigned short)memoryEntry.GetData());
 		}
 		break;}
 	case 1:{
 		unsigned int baseLocation = location / (interfaceNumber * arrayEntryByteSize);
 		unsigned int dataShiftCount = (((arrayEntryByteSize / interfaceNumber) - 1) - (location % (arrayEntryByteSize / interfaceNumber))) * (Data::BitsPerByte * interfaceNumber);
 		unsigned int dataBitMask = (1 << (Data::BitsPerByte * interfaceNumber)) - 1;
-		_memoryArray[baseLocation % _memoryArraySize] = (_memoryArray[baseLocation % _memoryArraySize] & (unsigned short)~(dataBitMask << dataShiftCount)) | (unsigned short)(data.GetData() << dataShiftCount);
+		WriteArrayValue(baseLocation, (ReadArrayValue(baseLocation) & (unsigned short)~(dataBitMask << dataShiftCount)) | (unsigned short)(data.GetData() << dataShiftCount));
 		break;}
 	case 2:
-		_memoryArray[location % _memoryArraySize] = (unsigned short)data.GetData();
+		WriteArrayValue(location, (unsigned short)data.GetData());
 		break;
 	case 4:{
 		unsigned int baseLocation = location * (interfaceNumber / arrayEntryByteSize);
-		_memoryArray[baseLocation % _memoryArraySize] = (unsigned short)data.GetDataSegment(((interfaceNumber / arrayEntryByteSize) - 1) * Data::BitsPerByte, arrayEntryByteSize * Data::BitsPerByte);
-		_memoryArray[(baseLocation + 1) % _memoryArraySize] = (unsigned short)data.GetDataSegment((((interfaceNumber / arrayEntryByteSize) - 1) - 1) * Data::BitsPerByte, arrayEntryByteSize * Data::BitsPerByte);
+		WriteArrayValue(baseLocation, (unsigned short)data.GetDataSegment(((interfaceNumber / arrayEntryByteSize) - 1) * Data::BitsPerByte, arrayEntryByteSize * Data::BitsPerByte));
+		WriteArrayValue(baseLocation + 1, (unsigned short)data.GetDataSegment((((interfaceNumber / arrayEntryByteSize) - 1) - 1) * Data::BitsPerByte, arrayEntryByteSize * Data::BitsPerByte));
 		break;}
 	}
 }
@@ -139,11 +139,11 @@ void RAM16Variable::TransparentWriteInterface(unsigned int interfaceNumber, unsi
 //----------------------------------------------------------------------------------------------------------------------
 unsigned int RAM16Variable::ReadMemoryEntry(unsigned int location) const
 {
-	return _memoryArray[location % _memoryArraySize];
+	return ReadArrayValue(location);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 void RAM16Variable::WriteMemoryEntry(unsigned int location, unsigned int data)
 {
-	_memoryArray[location % _memoryArraySize] = (unsigned short)data;
+	WriteArrayValue(location, (unsigned short)data);
 }

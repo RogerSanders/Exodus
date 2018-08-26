@@ -262,7 +262,7 @@ void SN76489::SetClockSourceRate(unsigned int clockInput, double clockRate, IDev
 
 	// Since a clock rate change will affect our timing point calculations, trigger a
 	// rollback.
-	GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+	GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, 0, accessContext);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -714,7 +714,7 @@ IBusInterface::AccessResult SN76489::WriteInterface(unsigned int interfaceNumber
 	// write occurs.
 	if (accessTime < _lastAccessTime)
 	{
-		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, _lastAccessTime, accessContext);
 	}
 	_lastAccessTime = accessTime;
 

@@ -27,7 +27,14 @@ ThinListDouble<T>::ThinListDouble(const ThinListDouble<T>& source, ThinListDoubl
 template<class T>
 ThinListDouble<T>::~ThinListDouble()
 {
-	delete next;
+	ThinListDouble<T>* deleteEntry = next;
+	while (deleteEntry != 0)
+	{
+		ThinListDouble<T>* nextDeleteEntry = deleteEntry->next;
+		deleteEntry->next = 0;
+		delete deleteEntry;
+		deleteEntry = nextDeleteEntry;
+	}
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -36,14 +43,12 @@ ThinListDouble<T>::~ThinListDouble()
 template<class T>
 void ThinListDouble<T>::PushToBack(const T& entry)
 {
-	if (next == 0)
+	ThinListDouble<T>* targetEntry = this;
+	while (targetEntry->next != 0)
 	{
-		next = new ThinListDouble<T>(entry, this);
+		targetEntry = targetEntry->next;
 	}
-	else
-	{
-		next->push_back(entry);
-	}
+	targetEntry->next = new ThinListDouble<T>(entry, targetEntry);
 }
 
 //----------------------------------------------------------------------------------------------------------------------

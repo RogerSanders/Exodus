@@ -2,7 +2,7 @@
 // Constructors
 //----------------------------------------------------------------------------------------------------------------------
 ExecutionManager::ExecutionManager()
-:_totalDeviceCount(0), _deviceCount(0), _suspendDeviceCount(0), _transientDeviceCount(0)
+:_deviceCount(0), _activeDeviceCount(0), _suspendDeviceCount(0), _transientDeviceCount(0)
 { }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -12,6 +12,10 @@ void ExecutionManager::AddDevice(DeviceContext* device)
 {
 	// Add the specified device to the device arrays
 	_deviceArray.push_back(device);
+	if (device->ActiveDevice())
+	{
+		_activeDeviceArray.push_back(device);
+	}
 	if (device->UsesExecuteSuspend())
 	{
 		_suspendDeviceArray.push_back(device);
@@ -22,14 +26,14 @@ void ExecutionManager::AddDevice(DeviceContext* device)
 	}
 
 	// Update the device counts
-	_deviceCount = _deviceArray.size();
-	_suspendDeviceCount = _suspendDeviceArray.size();
-	_transientDeviceCount = _transientDeviceArray.size();
-	_totalDeviceCount = (ReferenceCounterType)_deviceCount;
+	_deviceCount = (unsigned int)_deviceArray.size();
+	_activeDeviceCount = (unsigned int)_activeDeviceArray.size();
+	_suspendDeviceCount = (unsigned int)_suspendDeviceArray.size();
+	_transientDeviceCount = (unsigned int)_transientDeviceArray.size();
 
 	// Resize the message results array
-	_command.timesliceResult.resize(_deviceCount);
-	_command.contextResult.resize(_deviceCount);
+	_nextTimesliceValues.resize(_deviceCount);
+	_nextTimesliceContextValues.resize(_deviceCount);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -46,6 +50,22 @@ void ExecutionManager::RemoveDevice(DeviceContext* device)
 		if (*i == device)
 		{
 			_deviceArray.erase(i);
+			done = true;
+		}
+		else
+		{
+			++i;
+		}
+	}
+
+	// Remove the specified device from the active device array
+	done = false;
+	i = _activeDeviceArray.begin();
+	while (!done && (i != _activeDeviceArray.end()))
+	{
+		if (*i == device)
+		{
+			_activeDeviceArray.erase(i);
 			done = true;
 		}
 		else
@@ -87,14 +107,14 @@ void ExecutionManager::RemoveDevice(DeviceContext* device)
 	}
 
 	// Update the device counts
-	_deviceCount = _deviceArray.size();
-	_suspendDeviceCount = _suspendDeviceArray.size();
-	_transientDeviceCount = _transientDeviceArray.size();
-	_totalDeviceCount = (ReferenceCounterType)_deviceCount;
+	_deviceCount = (unsigned int)_deviceArray.size();
+	_activeDeviceCount = (unsigned int)_activeDeviceArray.size();
+	_suspendDeviceCount = (unsigned int)_suspendDeviceArray.size();
+	_transientDeviceCount = (unsigned int)_transientDeviceArray.size();
 
 	// Resize the message results array
-	_command.timesliceResult.resize(_deviceCount);
-	_command.contextResult.resize(_deviceCount);
+	_nextTimesliceValues.resize(_deviceCount);
+	_nextTimesliceContextValues.resize(_deviceCount);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -102,15 +122,16 @@ void ExecutionManager::ClearAllDevices()
 {
 	// Clear all device arrays
 	_deviceArray.clear();
+	_activeDeviceArray.clear();
 	_suspendDeviceArray.clear();
 	_transientDeviceArray.clear();
-	_command.timesliceResult.clear();
-	_command.contextResult.clear();
+	_nextTimesliceValues.clear();
+	_nextTimesliceContextValues.clear();
 
 	// Initialize the device counts
 	_deviceCount = 0;
+	_activeDeviceCount = 0;
 	_suspendDeviceCount = 0;
-	_totalDeviceCount = 0;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -118,69 +139,48 @@ void ExecutionManager::ClearAllDevices()
 //----------------------------------------------------------------------------------------------------------------------
 void ExecutionManager::NotifyUpcomingTimeslice(double nanoseconds)
 {
-	std::unique_lock<std::mutex> lock(_commandMutex);
-	_command.type = DeviceContext::DeviceContextCommand::TYPE_NOTIFYUPCOMINGTIMESLICE;
-	_command.timeslice = nanoseconds;
-	if (_totalDeviceCount > 0)
+	for (unsigned int i = 0; i < _deviceCount; ++i)
 	{
-		_pendingDeviceCount = _totalDeviceCount;
-		_commandSent.notify_all();
-		_commandProcessed.wait(lock);
+		_deviceArray[i]->NotifyUpcomingTimeslice(nanoseconds);
 	}
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 void ExecutionManager::NotifyBeforeExecuteCalled()
 {
-	std::unique_lock<std::mutex> lock(_commandMutex);
-	_command.type = DeviceContext::DeviceContextCommand::TYPE_NOTIFYBEFOREEXECUTECALLED;
-	_pendingDeviceCount = _totalDeviceCount;
-	if (_totalDeviceCount > 0)
+	for (unsigned int i = 0; i < _deviceCount; ++i)
 	{
-		_commandSent.notify_all();
-		_commandProcessed.wait(lock);
+		_deviceArray[i]->NotifyBeforeExecuteCalled();
 	}
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 void ExecutionManager::NotifyAfterExecuteCalled()
 {
-	std::unique_lock<std::mutex> lock(_commandMutex);
-	_command.type = DeviceContext::DeviceContextCommand::TYPE_NOTIFYAFTEREXECUTECALLED;
-	_pendingDeviceCount = _totalDeviceCount;
-	if (_totalDeviceCount > 0)
+	for (unsigned int i = 0; i < _deviceCount; ++i)
 	{
-		_commandSent.notify_all();
-		_commandProcessed.wait(lock);
+		_deviceArray[i]->NotifyAfterExecuteCalled();
 	}
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 void ExecutionManager::ExecuteTimeslice(double nanoseconds)
 {
-	std::unique_lock<std::mutex> lock(_commandMutex);
-
 	// Enable execution suspend features for devices that support it
 	EnableTimesliceExecutionSuspend();
 
 	// Start all devices executing the new timeslice
-	_command.type = DeviceContext::DeviceContextCommand::TYPE_EXECUTETIMESLICE;
-	_command.timeslice = nanoseconds;
-	_suspendedThreadCount = 0;
-	if (_totalDeviceCount > 0)
+	std::atomic<unsigned int> executingThreadCount(_activeDeviceCount);
+	std::atomic<unsigned int> suspendedThreadCount(0);
+	for (unsigned int i = 0; i < _activeDeviceCount; ++i)
 	{
-		_pendingDeviceCount = _totalDeviceCount;
-		_commandSent.notify_all();
-		_commandProcessed.wait(lock);
+		_activeDeviceArray[i]->BeginExecuteTimeslice(nanoseconds, &executingThreadCount, &suspendedThreadCount, this);
 	}
 
 	// Wait for all devices to finish executing the timeslice
-	_command.type = DeviceContext::DeviceContextCommand::TYPE_WAITFOREXECUTECOMPLETE;
-	if (_totalDeviceCount > 0)
+	for (size_t i = 0; i < _activeDeviceCount; ++i)
 	{
-		_pendingDeviceCount = _totalDeviceCount;
-		_commandSent.notify_all();
-		_commandProcessed.wait(lock);
+		_activeDeviceArray[i]->WaitForCompletion();
 	}
 
 	// Disable execution suspend features for devices that support it. Note that execution
@@ -192,26 +192,18 @@ void ExecutionManager::ExecuteTimeslice(double nanoseconds)
 //----------------------------------------------------------------------------------------------------------------------
 void ExecutionManager::Commit()
 {
-	std::unique_lock<std::mutex> lock(_commandMutex);
-	_command.type = DeviceContext::DeviceContextCommand::TYPE_COMMIT;
-	if (_totalDeviceCount > 0)
+	for (unsigned int i = 0; i < _deviceCount; ++i)
 	{
-		_pendingDeviceCount = _totalDeviceCount;
-		_commandSent.notify_all();
-		_commandProcessed.wait(lock);
+		_deviceArray[i]->Commit();
 	}
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 void ExecutionManager::Rollback()
 {
-	std::unique_lock<std::mutex> lock(_commandMutex);
-	_command.type = DeviceContext::DeviceContextCommand::TYPE_ROLLBACK;
-	if (_totalDeviceCount > 0)
+	for (unsigned int i = 0; i < _deviceCount; ++i)
 	{
-		_pendingDeviceCount = _totalDeviceCount;
-		_commandSent.notify_all();
-		_commandProcessed.wait(lock);
+		_deviceArray[i]->Rollback();
 	}
 }
 
@@ -225,7 +217,7 @@ void ExecutionManager::Initialize()
 	// device is currently suspended, we can't send this command in parallel to each
 	// device, as the command worker thread for each device is also suspended, so we
 	// initialize each device serially on the one thread here.
-	for (size_t i = 0; i < _deviceCount; ++i)
+	for (unsigned int i = 0; i < _deviceCount; ++i)
 	{
 		_deviceArray[i]->Initialize();
 	}
@@ -234,7 +226,7 @@ void ExecutionManager::Initialize()
 //----------------------------------------------------------------------------------------------------------------------
 void ExecutionManager::AssertCurrentOutputLineState()
 {
-	for (size_t i = 0; i < _deviceCount; ++i)
+	for (unsigned int i = 0; i < _deviceCount; ++i)
 	{
 		_deviceArray[i]->GetTargetDevice().AssertCurrentOutputLineState();
 	}
@@ -243,7 +235,7 @@ void ExecutionManager::AssertCurrentOutputLineState()
 //----------------------------------------------------------------------------------------------------------------------
 void ExecutionManager::NegateCurrentOutputLineState()
 {
-	for (size_t i = 0; i < _deviceCount; ++i)
+	for (unsigned int i = 0; i < _deviceCount; ++i)
 	{
 		_deviceArray[i]->GetTargetDevice().NegateCurrentOutputLineState();
 	}
@@ -254,27 +246,24 @@ void ExecutionManager::NegateCurrentOutputLineState()
 //----------------------------------------------------------------------------------------------------------------------
 double ExecutionManager::GetNextTimingPoint(double maximumTimeslice, DeviceContext*& nextDeviceStep, unsigned int& nextDeviceStepContext)
 {
-	std::unique_lock<std::mutex> lock(_commandMutex);
-	_command.type = DeviceContext::DeviceContextCommand::TYPE_GETNEXTTIMINGPOINT;
-	if (_totalDeviceCount > 0)
+	for (unsigned int i = 0; i < _deviceCount; ++i)
 	{
-		_pendingDeviceCount = _totalDeviceCount;
-		_commandSent.notify_all();
-		_commandProcessed.wait(lock);
+		_nextTimesliceContextValues[i] = 0;
+		_nextTimesliceValues[i] = _deviceArray[i]->GetNextTimingPoint(_nextTimesliceContextValues[i]);
 	}
 
 	// Determine the maximum length of time all devices can run unsynchronized before the
 	// next timing point
 	double timeslice = maximumTimeslice;
 	nextDeviceStep = 0;
-	for (size_t i = 0; i < _deviceCount; ++i)
+	for (unsigned int i = 0; i < _deviceCount; ++i)
 	{
-		double deviceTimingPoint = _command.timesliceResult[i];
+		double deviceTimingPoint = _nextTimesliceValues[i];
 		if ((deviceTimingPoint < timeslice) && (deviceTimingPoint >= 0))
 		{
 			timeslice = deviceTimingPoint;
 			nextDeviceStep = _deviceArray[i];
-			nextDeviceStepContext = _command.contextResult[i];
+			nextDeviceStepContext = _nextTimesliceContextValues[i];
 		}
 	}
 
@@ -284,24 +273,25 @@ double ExecutionManager::GetNextTimingPoint(double maximumTimeslice, DeviceConte
 //----------------------------------------------------------------------------------------------------------------------
 // Worker thread control
 //----------------------------------------------------------------------------------------------------------------------
-void ExecutionManager::BeginExecution()
+void ExecutionManager::StartExecution()
 {
-	_pendingDeviceCount = _totalDeviceCount;
-	for (size_t i = 0; i < _deviceCount; ++i)
+	for (unsigned int i = 0; i < _activeDeviceCount; ++i)
 	{
-		_deviceArray[i]->BeginExecution(i, _pendingDeviceCount, _suspendedThreadCount, _commandMutex, _commandSent, _commandProcessed, this, _command);
+		_activeDeviceArray[i]->StartExecution();
 	}
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-void ExecutionManager::SuspendExecution()
+void ExecutionManager::StopExecution()
 {
-	std::unique_lock<std::mutex> lock(_commandMutex);
-	_command.type = DeviceContext::DeviceContextCommand::TYPE_SUSPENDEXECUTION;
-	if (_totalDeviceCount > 0)
+	std::vector<std::thread> threads;
+	threads.reserve(_activeDeviceCount);
+	for (unsigned int i = 0; i < _activeDeviceCount; ++i)
 	{
-		_pendingDeviceCount = _totalDeviceCount;
-		_commandSent.notify_all();
-		_commandProcessed.wait(lock);
+		threads.emplace_back(std::thread([&] { _activeDeviceArray[i]->StopExecution(); }));
+	}
+	for (unsigned int i = 0; i < _activeDeviceCount; ++i)
+	{
+		threads[i].join();
 	}
 }

@@ -1400,7 +1400,7 @@ void M68000::SetLineState(unsigned int targetLine, const Data& lineData, IDevice
 	// already passed that time.
 	if (_lastLineCheckTime > accessTime)
 	{
-		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, _lastLineCheckTime, accessContext);
 	}
 
 	// Insert the line access into the buffer. Note that entries in the buffer are sorted
@@ -1432,7 +1432,7 @@ void M68000::RevokeSetLineState(unsigned int targetLine, const Data& lineData, d
 	// already passed that time.
 	if (_lastLineCheckTime > accessTime)
 	{
-		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, _lastLineCheckTime, accessContext);
 	}
 
 	// Find the matching line state change entry in the line access buffer
@@ -1734,7 +1734,7 @@ void M68000::SetClockSourceRate(unsigned int clockInput, double clockRate, IDevi
 	// already passed that time.
 	if (_lastLineCheckTime > accessTime)
 	{
-		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, _lastLineCheckTime, accessContext);
 	}
 
 	// Insert the line access into the buffer. Note that entries in the buffer are sorted
@@ -1887,14 +1887,14 @@ void M68000::TriggerExternalReset(double resetTimeBegin, double resetTimeEnd)
 M68000::FunctionCode M68000::GetFunctionCode(bool programReference) const
 {
 	static const FunctionCode codeTable[8] = {
-		FunctionCode::Undefined0,		// 000
-		FunctionCode::UserData,			// 001
-		FunctionCode::UserProgram,		// 010
-		FunctionCode::Undefined3,		// 011
-		FunctionCode::Undefined4,		// 100
-		FunctionCode::SupervisorData,	// 101
-		FunctionCode::SupervisorProgram,	// 110
-		FunctionCode::CPUSpace			// 111
+		FunctionCode::Undefined0,        // 000
+		FunctionCode::UserData,          // 001
+		FunctionCode::UserProgram,       // 010
+		FunctionCode::Undefined3,        // 011
+		FunctionCode::Undefined4,        // 100
+		FunctionCode::SupervisorData,    // 101
+		FunctionCode::SupervisorProgram, // 110
+		FunctionCode::CPUSpace           // 111
 	};
 	unsigned int codeTableIndex = ((unsigned int)GetSR_S() << 2) | ((unsigned int)programReference << 1) | ((unsigned int)!programReference);
 	return codeTable[codeTableIndex];
@@ -2324,14 +2324,14 @@ unsigned int M68000::CalculateCELineStateMemory(unsigned int location, const Dat
 	if ((caller == GetDeviceContext()) && (calculateCELineStateContext != 0))
 	{
 		CalculateCELineStateContext& ceLineStateContext = *((CalculateCELineStateContext*)calculateCELineStateContext);
-		ceLineState |= ceLineStateContext.upperDataStrobe? _ceLineMaskUpperDataStrobe: 0x0;
-		ceLineState |= ceLineStateContext.lowerDataStrobe? _ceLineMaskLowerDataStrobe: 0x0;
-		ceLineState |= ceLineStateContext.readHighWriteLow? _ceLineMaskReadHighWriteLow: 0x0;
+		ceLineState |= ~((unsigned int)ceLineStateContext.upperDataStrobe - 1) & _ceLineMaskUpperDataStrobe; // ceLineStateContext.upperDataStrobe? _ceLineMaskUpperDataStrobe: 0x0;
+		ceLineState |= ~((unsigned int)ceLineStateContext.lowerDataStrobe - 1) & _ceLineMaskLowerDataStrobe; // ceLineStateContext.lowerDataStrobe? _ceLineMaskLowerDataStrobe: 0x0;
+		ceLineState |= ~((unsigned int)ceLineStateContext.readHighWriteLow - 1) & _ceLineMaskReadHighWriteLow; // ceLineStateContext.readHighWriteLow? _ceLineMaskReadHighWriteLow: 0x0;
 		ceLineState |= _ceLineMaskAddressStrobe;
 		ceLineState |= ((unsigned int)ceLineStateContext.functionCode << _ceLineBitNumberFunctionCode) & _ceLineMaskFunctionCode;
-		ceLineState |= ((unsigned int)ceLineStateContext.functionCode == 0x7)? _ceLineMaskFCCPUSpace: 0x0;
-		ceLineState |= ceLineStateContext.rmwCycleInProgress? _ceLineMaskRMWCycleInProgress: 0x0;
-		ceLineState |= ceLineStateContext.rmwCycleFirstOperation? _ceLineMaskRMWCycleFirstOperation: 0x0;
+		ceLineState |= ~((unsigned int)((unsigned int)ceLineStateContext.functionCode == 0x7) - 1) & _ceLineMaskFCCPUSpace; // ((unsigned int)ceLineStateContext.functionCode == 0x7)? _ceLineMaskFCCPUSpace: 0x0;
+		ceLineState |= ~((unsigned int)ceLineStateContext.rmwCycleInProgress - 1) & _ceLineMaskRMWCycleInProgress; // ceLineStateContext.rmwCycleInProgress? _ceLineMaskRMWCycleInProgress: 0x0;
+		ceLineState |= ~((unsigned int)ceLineStateContext.rmwCycleFirstOperation - 1) & _ceLineMaskRMWCycleFirstOperation; // ceLineStateContext.rmwCycleFirstOperation? _ceLineMaskRMWCycleFirstOperation: 0x0;
 	}
 	return ceLineState;
 }

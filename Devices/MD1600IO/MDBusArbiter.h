@@ -66,8 +66,9 @@ private:
 
 private:
 	// CE line state functions
-	unsigned int BuildCELineM68K(unsigned int targetAddress, bool write, bool ceLineUDS, bool ceLineLDS, bool ceLineOE0, bool cartInLineAsserted, IDeviceContext* caller, double accessTime) const;
-	unsigned int BuildCELineZ80(unsigned int targetAddress) const;
+	template<bool CartInLineAsserted>
+	inline unsigned int BuildCELineM68K(unsigned int targetAddress, bool write, bool ceLineUDS, bool ceLineLDS, bool ceLineOE0, IDeviceContext* caller, double accessTime) const;
+	inline unsigned int BuildCELineZ80(unsigned int targetAddress) const;
 
 	// Line functions
 	void ApplyLineStateChange(LineID targetLine, const Data& lineData, double accessTime);
