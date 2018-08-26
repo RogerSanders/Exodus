@@ -81,15 +81,18 @@ IBusInterface::AccessResult SharedRAM::ReadInterface(unsigned int interfaceNumbe
 			MemoryWriteStatus* bufferEntry = &bufferEntryIterator->second;
 			// If the location was tagged by a different author, mark it as shared
 			bufferEntry->shared |= (bufferEntry->author != caller);
-			if (bufferEntry->shared && (accessTime > bufferEntry->timeslice))
+			double originalAccessTime = bufferEntry->timeslice;
+			if (!bufferEntry->written && (accessTime < bufferEntry->timeslice))
 			{
 				bufferEntry->timeslice = accessTime;
 				bufferEntry->author = caller;
+				bufferEntry->accessContext = accessContext;
 			}
 			if (bufferEntry->written && bufferEntry->shared)
 			{
-				// If the value has been written to, and the address is shared, roll back
-				GetSystemInterface().SetSystemRollback(GetDeviceContext(), bufferEntry->author, bufferEntry->timeslice, bufferEntry->accessContext);
+				// If the value has been written to, and the address is shared, roll back.
+				double conflictTime = (originalAccessTime < accessTime) ? accessTime : originalAccessTime;
+				GetSystemInterface().SetSystemRollback(GetDeviceContext(), bufferEntry->author, bufferEntry->timeslice, conflictTime, bufferEntry->accessContext);
 			}
 		}
 		data.SetByteFromTopDown(i, _memory[(location + i) % _memory.size()]);
@@ -118,18 +121,22 @@ IBusInterface::AccessResult SharedRAM::WriteInterface(unsigned int interfaceNumb
 			else
 			{
 				MemoryWriteStatus* bufferEntry = &bufferEntryIterator->second;
+				bool previousWriteOccurred = bufferEntry->written;
 				bufferEntry->written = true;
 				// If the location was tagged by a different author, mark it as shared
 				bufferEntry->shared |= (bufferEntry->author != caller);
-				if (bufferEntry->shared && (accessTime > bufferEntry->timeslice))
+				double originalAccessTime = bufferEntry->timeslice;
+				if (!previousWriteOccurred || (accessTime < bufferEntry->timeslice))
 				{
 					bufferEntry->timeslice = accessTime;
 					bufferEntry->author = caller;
+					bufferEntry->accessContext = accessContext;
 				}
 				// If the address is shared, roll back
 				if (bufferEntry->shared)
 				{
-					GetSystemInterface().SetSystemRollback(GetDeviceContext(), bufferEntry->author, bufferEntry->timeslice, bufferEntry->accessContext);
+					double conflictTime = (originalAccessTime < accessTime) ? accessTime : originalAccessTime;
+					GetSystemInterface().SetSystemRollback(GetDeviceContext(), bufferEntry->author, bufferEntry->timeslice, conflictTime, bufferEntry->accessContext);
 				}
 			}
 			_memory[bytePos] = data.GetByteFromTopDown(i);

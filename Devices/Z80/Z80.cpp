@@ -1012,7 +1012,7 @@ void Z80::SetLineState(unsigned int targetLine, const Data& lineData, IDeviceCon
 	// already passed that time.
 	if (_lastLineCheckTime > accessTime)
 	{
-		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, _lastLineCheckTime, accessContext);
 	}
 
 	// Insert the line access into the buffer. Note that entries in the buffer are sorted
@@ -1047,7 +1047,7 @@ void Z80::RevokeSetLineState(unsigned int targetLine, const Data& lineData, doub
 	// already passed that time.
 	if (_lastLineCheckTime > accessTime)
 	{
-		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, _lastLineCheckTime, accessContext);
 	}
 
 	// Find the matching line state change entry in the line access buffer
@@ -1191,7 +1191,7 @@ void Z80::SetClockSourceRate(unsigned int clockInput, double clockRate, IDeviceC
 	// already passed that time.
 	if (_lastLineCheckTime > accessTime)
 	{
-		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, accessContext);
+		GetSystemInterface().SetSystemRollback(GetDeviceContext(), caller, accessTime, _lastLineCheckTime, accessContext);
 	}
 
 	// Insert the line access into the buffer. Note that entries in the buffer are sorted

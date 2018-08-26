@@ -2155,7 +2155,7 @@ void System::ExecuteDeviceStep(IDevice* device)
 	}
 
 	// Start active device threads
-	_executionManager.BeginExecution();
+	_executionManager.StartExecution();
 
 	// Commit the current state of each device. We perform this task here to ensure that
 	// manual changes made through the debug interface while the system was idle, and the
@@ -2215,7 +2215,7 @@ void System::ExecuteDeviceStep(IDevice* device)
 	}
 
 	// Stop active device threads
-	_executionManager.SuspendExecution();
+	_executionManager.StopExecution();
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -2225,7 +2225,7 @@ void System::ExecuteSystemStep(double targetTime)
 	StopSystem();
 
 	// Start active device threads
-	_executionManager.BeginExecution();
+	_executionManager.StartExecution();
 
 	// Commit the current state of each device. We perform this task here to ensure that
 	// manual changes made through the debug interface while the system was idle are not
@@ -2241,7 +2241,7 @@ void System::ExecuteSystemStep(double targetTime)
 	}
 
 	// Stop active device threads
-	_executionManager.SuspendExecution();
+	_executionManager.StopExecution();
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -2377,7 +2377,7 @@ void System::ExecuteThread()
 	SetCurrentThreadPriority(THREADPRIORITY_HIGH);
 
 	// Start active device threads
-	_executionManager.BeginExecution();
+	_executionManager.StartExecution();
 
 	// Commit the current state of each device. We perform this task here to ensure that
 	// manual changes made through the debug interface while the system was idle are not
@@ -2393,13 +2393,13 @@ void System::ExecuteThread()
 		if (_initialize)
 		{
 			// Stop active device threads
-			_executionManager.SuspendExecution();
+			_executionManager.StopExecution();
 
 			// Initialize the devices
 			InitializeInternal();
 
 			// Start active device threads
-			_executionManager.BeginExecution();
+			_executionManager.StartExecution();
 
 			// Commit changes from initialization
 			_executionManager.Commit();
@@ -2428,7 +2428,7 @@ void System::ExecuteThread()
 	}
 
 	// Stop active device threads
-	_executionManager.SuspendExecution();
+	_executionManager.StopExecution();
 
 	SignalSystemStopped();
 }
@@ -2446,7 +2446,7 @@ double System::SystemRollbackTime() const
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-void System::SetSystemRollback(IDeviceContext* triggerDevice, IDeviceContext* rollbackDevice, double timeslice, unsigned int accessContext, void (*callbackFunction)(void*), void* callbackParams)
+void System::SetSystemRollback(IDeviceContext* triggerDevice, IDeviceContext* rollbackDevice, double targetTime, double conflictingEventTime, unsigned int accessContext, void (*callbackFunction)(void*), void* callbackParams)
 {
 	//##DEBUG##
 	std::wstringstream message;
@@ -2455,11 +2455,11 @@ void System::SetSystemRollback(IDeviceContext* triggerDevice, IDeviceContext* ro
 	{
 		message << rollbackDevice->GetTargetDevice().GetDeviceInstanceName() << '\t';
 	}
-	message << std::setprecision(16) << timeslice << '\n';
+	message << std::setprecision(16) << targetTime << '\t' << conflictingEventTime << '\n';
 	std::wcout << message.str();
 
 	std::unique_lock<std::mutex> lock(_systemRollbackMutex);
-	if (!_rollback || (timeslice < _rollbackTimeslice))
+	if (!_rollback || (targetTime < _rollbackTimeslice))
 	{
 		_rollback = true;
 		_rollbackContext = accessContext;
@@ -2480,7 +2480,7 @@ void System::SetSystemRollback(IDeviceContext* triggerDevice, IDeviceContext* ro
 		}
 		else
 		{
-			_rollbackTimeslice = timeslice;
+			_rollbackTimeslice = targetTime;
 		}
 
 		_useRollbackFunction = false;

@@ -553,7 +553,7 @@ void Processor::TriggerBreakpoint(Breakpoint* breakpoint) const
 	BreakpointCallbackParams* params = new BreakpointCallbackParams();
 	params->object = const_cast<Processor*>(this);
 	params->breakpoint = breakpoint;
-	GetSystemInterface().SetSystemRollback(GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0, BreakpointCallbackRaw, params);
+	GetSystemInterface().SetSystemRollback(GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0, 0, BreakpointCallbackRaw, params);
 
 //		GetDeviceContext()->SetSystemRollback(0, GetCurrentTimesliceProgress());
 //		GetDeviceContext()->GetSystem()->FlagStopSystem();
@@ -759,7 +759,7 @@ void Processor::TriggerWatchpoint(Watchpoint* watchpoint) const
 	WatchpointCallbackParams* params = new WatchpointCallbackParams();
 	params->object = const_cast<Processor*>(this);
 	params->watchpoint = watchpoint;
-	GetSystemInterface().SetSystemRollback(GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0, WatchpointCallbackRaw, params);
+	GetSystemInterface().SetSystemRollback(GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0, 0, WatchpointCallbackRaw, params);
 }
 
 //----------------------------------------------------------------------------------------------------------------------

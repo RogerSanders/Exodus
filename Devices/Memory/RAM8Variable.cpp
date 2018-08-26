@@ -20,19 +20,19 @@ IBusInterface::AccessResult RAM8Variable::ReadInterface(unsigned int interfaceNu
 		unsigned int dataByteSize = data.GetByteSize();
 		for (unsigned int i = 0; i < dataByteSize; ++i)
 		{
-			data.SetByteFromTopDown(i, _memoryArray[(location + i) % _memoryArraySize]);
+			data.SetByteFromTopDown(i, ReadArrayValue(location + i));
 		}
 		break;}
 	case 1:
-		data = _memoryArray[location % _memoryArraySize];
+		data = ReadArrayValue(location);
 		break;
 	case 2:{
 		unsigned int baseLocation = location * (interfaceNumber / arrayEntryByteSize);
-		data = ((unsigned int)_memoryArray[baseLocation % _memoryArraySize] << (arrayEntryByteSize * Data::BitsPerByte)) | (unsigned int)_memoryArray[(baseLocation + 1) % _memoryArraySize];
+		data = ((unsigned int)ReadArrayValue(baseLocation) << (arrayEntryByteSize * Data::BitsPerByte)) | (unsigned int)ReadArrayValue(baseLocation + 1);
 		break;}
 	case 4:{
 		unsigned int baseLocation = location * (interfaceNumber / arrayEntryByteSize);
-		data = ((unsigned int)_memoryArray[baseLocation % _memoryArraySize] << (arrayEntryByteSize * 3 * Data::BitsPerByte)) | ((unsigned int)_memoryArray[(baseLocation + 1) % _memoryArraySize] << (arrayEntryByteSize * 2 * Data::BitsPerByte)) | ((unsigned int)_memoryArray[(baseLocation + 2) % _memoryArraySize] << (arrayEntryByteSize * 1 * Data::BitsPerByte)) | (unsigned int)_memoryArray[(baseLocation + 3) % _memoryArraySize];
+		data = ((unsigned int)ReadArrayValue(baseLocation) << (arrayEntryByteSize * 3 * Data::BitsPerByte)) | ((unsigned int)ReadArrayValue(baseLocation + 1) << (arrayEntryByteSize * 2 * Data::BitsPerByte)) | ((unsigned int)ReadArrayValue(baseLocation + 2) << (arrayEntryByteSize * 1 * Data::BitsPerByte)) | (unsigned int)ReadArrayValue(baseLocation + 3);
 		break;}
 	}
 	return true;
@@ -49,23 +49,23 @@ IBusInterface::AccessResult RAM8Variable::WriteInterface(unsigned int interfaceN
 		unsigned int dataByteSize = data.GetByteSize();
 		for (unsigned int i = 0; i < dataByteSize; ++i)
 		{
-			WriteArrayValueWithLockCheckAndRollback((location + i) % _memoryArraySize, data.GetByteFromTopDown(i));
+			WriteArrayValueWithLockCheckAndRollback(location + i, data.GetByteFromTopDown(i));
 		}
 		break;}
 	case 1:
-		WriteArrayValueWithLockCheckAndRollback(location % _memoryArraySize, (unsigned char)data.GetData());
+		WriteArrayValueWithLockCheckAndRollback(location, (unsigned char)data.GetData());
 		break;
 	case 2:{
 		unsigned int baseLocation = location * (interfaceNumber / arrayEntryByteSize);
-		WriteArrayValueWithLockCheckAndRollback(baseLocation % _memoryArraySize, data.GetByteFromTopDown(0));
-		WriteArrayValueWithLockCheckAndRollback((baseLocation + 1) % _memoryArraySize, data.GetByteFromTopDown(1));
+		WriteArrayValueWithLockCheckAndRollback(baseLocation, data.GetByteFromTopDown(0));
+		WriteArrayValueWithLockCheckAndRollback(baseLocation + 1, data.GetByteFromTopDown(1));
 		break;}
 	case 4:{
 		unsigned int baseLocation = location * (interfaceNumber / arrayEntryByteSize);
-		WriteArrayValueWithLockCheckAndRollback(baseLocation % _memoryArraySize, data.GetByteFromTopDown(0));
-		WriteArrayValueWithLockCheckAndRollback((baseLocation + 1) % _memoryArraySize, data.GetByteFromTopDown(1));
-		WriteArrayValueWithLockCheckAndRollback((baseLocation + 2) % _memoryArraySize, data.GetByteFromTopDown(2));
-		WriteArrayValueWithLockCheckAndRollback((baseLocation + 3) % _memoryArraySize, data.GetByteFromTopDown(3));
+		WriteArrayValueWithLockCheckAndRollback(baseLocation, data.GetByteFromTopDown(0));
+		WriteArrayValueWithLockCheckAndRollback(baseLocation + 1, data.GetByteFromTopDown(1));
+		WriteArrayValueWithLockCheckAndRollback(baseLocation + 2, data.GetByteFromTopDown(2));
+		WriteArrayValueWithLockCheckAndRollback(baseLocation + 3, data.GetByteFromTopDown(3));
 		break;}
 	}
 	return true;
@@ -88,23 +88,23 @@ void RAM8Variable::TransparentWriteInterface(unsigned int interfaceNumber, unsig
 		unsigned int dataByteSize = data.GetByteSize();
 		for (unsigned int i = 0; i < dataByteSize; ++i)
 		{
-			_memoryArray[(location + i) % _memoryArraySize] = data.GetByteFromTopDown(i);
+			WriteArrayValue(location + i, data.GetByteFromTopDown(i));
 		}
 		break;}
 	case 1:
-		_memoryArray[location % _memoryArraySize] = (unsigned char)data.GetData();
+		WriteArrayValue(location, (unsigned char)data.GetData());
 		break;
 	case 2:{
 		unsigned int baseLocation = location * (interfaceNumber / arrayEntryByteSize);
-		_memoryArray[baseLocation % _memoryArraySize] = data.GetByteFromTopDown(0);
-		_memoryArray[(baseLocation + 1) % _memoryArraySize] = data.GetByteFromTopDown(1);
+		WriteArrayValue(baseLocation, data.GetByteFromTopDown(0));
+		WriteArrayValue(baseLocation + 1, data.GetByteFromTopDown(1));
 		break;}
 	case 4:{
 		unsigned int baseLocation = location * (interfaceNumber / arrayEntryByteSize);
-		_memoryArray[baseLocation % _memoryArraySize] = data.GetByteFromTopDown(0);
-		_memoryArray[(baseLocation + 1) % _memoryArraySize] = data.GetByteFromTopDown(1);
-		_memoryArray[(baseLocation + 2) % _memoryArraySize] = data.GetByteFromTopDown(2);
-		_memoryArray[(baseLocation + 3) % _memoryArraySize] = data.GetByteFromTopDown(3);
+		WriteArrayValue(baseLocation, data.GetByteFromTopDown(0));
+		WriteArrayValue(baseLocation + 1, data.GetByteFromTopDown(1));
+		WriteArrayValue(baseLocation + 2, data.GetByteFromTopDown(2));
+		WriteArrayValue(baseLocation + 3, data.GetByteFromTopDown(3));
 		break;}
 	}
 }
@@ -114,11 +114,11 @@ void RAM8Variable::TransparentWriteInterface(unsigned int interfaceNumber, unsig
 //----------------------------------------------------------------------------------------------------------------------
 unsigned int RAM8Variable::ReadMemoryEntry(unsigned int location) const
 {
-	return _memoryArray[location % _memoryArraySize];
+	return ReadArrayValue(location);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 void RAM8Variable::WriteMemoryEntry(unsigned int location, unsigned int data)
 {
-	_memoryArray[location % _memoryArraySize] = (unsigned char)data;
+	WriteArrayValue(location, (unsigned char)data);
 }

@@ -3,33 +3,6 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Structures
 //----------------------------------------------------------------------------------------------------------------------
-struct DeviceContext::DeviceContextCommand
-{
-public:
-	// Enumerations
-	enum Type
-	{
-		TYPE_SUSPENDEXECUTION,
-		TYPE_COMMIT,
-		TYPE_ROLLBACK,
-		TYPE_GETNEXTTIMINGPOINT,
-		TYPE_NOTIFYUPCOMINGTIMESLICE,
-		TYPE_NOTIFYBEFOREEXECUTECALLED,
-		TYPE_NOTIFYAFTEREXECUTECALLED,
-		TYPE_EXECUTETIMESLICE,
-		TYPE_WAITFOREXECUTECOMPLETE,
-		TYPE_RUNSUSPENDEDEXECUTETOCOMPLETION,
-	};
-
-public:
-	// Data members
-	Type type;
-	double timeslice;
-	mutable std::vector<double> timesliceResult;
-	mutable std::vector<unsigned int> contextResult;
-};
-
-//----------------------------------------------------------------------------------------------------------------------
 struct DeviceContext::DeviceDependency
 {
 	DeviceContext* device;
@@ -40,14 +13,12 @@ struct DeviceContext::DeviceDependency
 // Constructors
 //----------------------------------------------------------------------------------------------------------------------
 DeviceContext::DeviceContext(IDevice& device, ISystemGUIInterface& systemObject)
-:_device(device), _systemObject(systemObject), _deviceDependencies(0), _suspendedThreadCountPointer(0), _remainingThreadCountPointer(0), _commandMutexPointer(0), _suspendManager(0), _otherSharedExecuteThreadDevice(0), _currentSharedExecuteThreadOwner(0)
+:_device(device), _systemObject(systemObject), _deviceDependencies(0), _executingThreadCount(0), _suspendedThreadCount(0), _suspendManager(0), _otherSharedExecuteThreadDevice(0), _currentSharedExecuteThreadOwner(0)
 {
 	_deviceIndexNo = 0;
 	_deviceEnabled = true;
-	_commandWorkerThreadActive = false;
 	_executeWorkerThreadActive = false;
 	_executeThreadRunningState = false;
-	_executingWaitForCompletionCommand = false;
 
 	_timesliceCompleted = false;
 	_timesliceSuspended = false;
@@ -98,6 +69,10 @@ void DeviceContext::NotifyBeforeExecuteCalled()
 //----------------------------------------------------------------------------------------------------------------------
 void DeviceContext::NotifyAfterExecuteCalled()
 {
+	// Clear the suspend manager state. Note that we need to do this here, as it can't be done safely after execution in
+	// the case of a device that executes in timeslice mode, but also supports transient execution.
+	ClearSuspendManagerState();
+
 	if (_device.SendNotifyAfterExecuteCalled())
 	{
 		_device.NotifyAfterExecuteCalled();
@@ -105,11 +80,14 @@ void DeviceContext::NotifyAfterExecuteCalled()
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-void DeviceContext::ExecuteTimeslice(double nanoseconds)
+void DeviceContext::BeginExecuteTimeslice(double nanoseconds, std::atomic<unsigned int>* executingThreadCount, std::atomic<unsigned int>* suspendedThreadCount, IExecutionSuspendManager* suspendManager)
 {
 	std::unique_lock<std::mutex> lock(_executeThreadMutex);
 	_timeslice = nanoseconds;
 	_timesliceCompleted = false;
+	_executingThreadCount = executingThreadCount;
+	_suspendedThreadCount = suspendedThreadCount;
+	_suspendManager = suspendManager;
 	_executeTaskSent.notify_all();
 }
 
@@ -152,79 +130,6 @@ void DeviceContext::WaitForCompletion()
 	while (!_timesliceCompleted)
 	{
 		_executeCompletionStateChanged.wait(executeLock);
-	}
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-void DeviceContext::WaitForCompletionAndDetectSuspendLock(volatile ReferenceCounterType& suspendedThreadCount, volatile ReferenceCounterType& remainingThreadCount, std::mutex& commandMutex, IExecutionSuspendManager* suspendManager)
-{
-	std::unique_lock<std::mutex> executeLock(_executeThreadMutex);
-	while (!_timesliceCompleted)
-	{
-		if (!_timesliceSuspended || _timesliceSuspensionDisable)
-		{
-			// If this execution thread isn't suspended, we need to wait for it to either
-			// finish the current timeslice, or enter a suspended state.
-			_executeCompletionStateChanged.wait(executeLock);
-		}
-		else
-		{
-			// This is a little bit complicated. We need to ensure we take our locks in the
-			// correct order, to prevent deadlock cases. At any point where we need to
-			// obtain a lock on both executeThreadMutex and commandMutex, we must take the
-			// lock on commandMutex first, followed by executeThreadMutex. In this case
-			// though, we need to test resources for our loop condition above that require
-			// us to take a lock on executeThreadMutex. In order to make this whole thing
-			// work we do a lot of manual locking and unlocking below, to ensure the locks
-			// are always taken in the correct order, and that the correct locks are taken
-			// at all times in order to work with each resource.
-			executeLock.unlock();
-
-			// Obtain a lock on the shared command mutex. We need to do this so that we can
-			// safely work with the result of the suspendedThreadCount variable.
-			std::unique_lock<std::mutex> commandLock(commandMutex);
-
-			// Evaluate whether all remaining threads are suspended. If they are, release
-			// all suspended threads. If not, wait for the completion state of this execute
-			// thread to change.
-			if (suspendManager->AllDevicesSuspended(suspendedThreadCount, remainingThreadCount))
-			{
-				// Note that we need to not hold a lock on executeThreadMutex here, since
-				// the suspend manager will call back into this DeviceContext object and
-				// call the DisableTimesliceExecutionSuspend() function in response to the
-				// function call below.
-				suspendManager->DisableTimesliceExecutionSuspend();
-			}
-			else
-			{
-				// Note that we need to release the command lock here, since the execute
-				// completion state of this device may never change until we disable
-				// execute suspension. We can't hold the command mutex that whole time,
-				// otherwise other threads will deadlock. We also need to re-obtain the
-				// execute mutex, so that we can safely trigger the condition below without
-				// opening up potential deadlock cases due to other threads missing the
-				// condition. We need to obtain the execute lock first however, since we
-				// need to ensure that no devices change their suspended state until we
-				// re-obtain the execute lock for this device, otherwise we would have to
-				// re-evaluate whether all devices are suspended before we can enter a wait
-				// state here.
-				executeLock.lock();
-				commandLock.unlock();
-				if (!_timesliceCompleted)
-				{
-					_executeCompletionStateChanged.wait(executeLock);
-				}
-				// Note that we release the execute mutex here before obtaining the command
-				// mutex again, then re-acquire the execute mutex below. This is essential
-				// in order to ensure the locks are taken in the correct order, to avoid
-				// deadlock cases.
-				executeLock.unlock();
-				commandLock.lock();
-			}
-
-			// Re-obtain the execute lock so that we can test the loop condition again
-			executeLock.lock();
-		}
 	}
 }
 

@@ -190,11 +190,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Device.cpp" />
-    <ClCompile Include="DeviceInternal.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Device.h" />
-    <ClInclude Include="DeviceInternal.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Device.inl" />

@@ -171,7 +171,7 @@ public:
 	virtual void ExecuteSystemStep(double maximumTimeslice);
 	virtual bool IsSystemRollbackFlagged() const;
 	virtual double SystemRollbackTime() const;
-	virtual void SetSystemRollback(IDeviceContext* triggerDevice, IDeviceContext* rollbackDevice, double timeslice, unsigned int accessContext, void (*callbackFunction)(void*), void* callbackParams);
+	virtual void SetSystemRollback(IDeviceContext* triggerDevice, IDeviceContext* rollbackDevice, double targetTime, double conflictingEventTime, unsigned int accessContext, void (*callbackFunction)(void*), void* callbackParams);
 	virtual bool PerformingSingleDeviceStep() const;
 
 	// View functions

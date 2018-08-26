@@ -1,8 +1,8 @@
 #ifndef __RAMBASE_H__
 #define __RAMBASE_H__
 #include "MemoryWrite.h"
-#include <vector>
 #include <map>
+#include <mutex>
 
 template<class T>
 class RAMBase :public MemoryWrite
@@ -38,22 +38,32 @@ public:
 
 protected:
 	// Access helper functions
+	inline T ReadArrayValue(unsigned int arrayEntryPos) const;
+	inline void WriteArrayValue(unsigned int arrayEntryPos, T newValue);
 	inline void WriteArrayValueWithLockCheckAndRollback(unsigned int arrayEntryPos, T newValue);
 
-protected:
-	typedef std::map<unsigned int, T> MemoryAccessBuffer;
-	typedef std::pair<unsigned int, T> MemoryAccessBufferEntry;
+	// Memory location functions
+	inline unsigned int LimitLocationToMemorySize(unsigned int location) const;
 
-	unsigned int _memoryArraySize;
-	T* _memoryArray;
-	bool* _memoryLockedArray;
-	MemoryAccessBuffer _buffer;
+private:
+	// Memory location functions
+	unsigned int LimitMemoryLocationToMemorySizePowerOfTwo(unsigned int location) const;
+	unsigned int LimitMemoryLocationToMemorySizeNonPowerOfTwo(unsigned int location) const;
 
 private:
 	bool _initialMemoryDataSpecified;
 	bool _repeatInitialMemoryData;
 	std::vector<T> _initialMemoryData;
 	bool _dataIsPersistent;
+
+	unsigned int _memoryArraySize;
+	unsigned int _memoryArraySizeMask;
+	unsigned int (RAMBase::*_memoryLimitFunction)(unsigned int) const;
+
+	T* _memoryArray;
+	bool* _memoryLockedArray;
+	std::unordered_map<unsigned int, T> _buffer;
+	mutable std::mutex _bufferMutex;
 };
 
 #include "RAMBase.inl"
