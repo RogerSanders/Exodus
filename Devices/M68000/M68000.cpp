@@ -1551,7 +1551,7 @@ bool M68000::AdvanceToLineState(unsigned int targetLine, const Data& lineData, I
 		{
 			// Note that we need to release our lock in lineMutex here in order to avoid a
 			// deadlock case we encountered. When we attempt to change a device dependency
-			// state, there are case where we need to wait for other devices to finish
+			// state, there are cases where we need to wait for other devices to finish
 			// executing their current step. In the case that one of those threads needs to
 			// obtain a lock on lineMutex, we will get a deadlock if we're still holding it
 			// here.
