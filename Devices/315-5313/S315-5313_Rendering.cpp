@@ -1339,6 +1339,7 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 		bool shadowHighlightEnabled = RegGetSTE(accessTarget);
 		bool spriteIsShadowOperator = (paletteLineData[LAYERINDEX_SPRITE] == 3) && (paletteIndexData[LAYERINDEX_SPRITE] == 15);
 		bool spriteIsHighlightOperator = (paletteLineData[LAYERINDEX_SPRITE] == 3) && (paletteIndexData[LAYERINDEX_SPRITE] == 14);
+		bool spriteIsNormalIntensity = (paletteIndexData[LAYERINDEX_SPRITE] == 14) && !spriteIsHighlightOperator;
 
 		// Implement the layer removal debugging feature
 		foundSpritePixel &= ((_enableSpriteHigh && _enableSpriteLow) || (_enableSpriteHigh && layerPriority[LAYERINDEX_SPRITE]) || (_enableSpriteLow && !layerPriority[LAYERINDEX_SPRITE]));
@@ -1384,6 +1385,15 @@ void S315_5313::UpdateAnalogRenderProcess(const AccessTarget& accessTarget, cons
 		// Read the palette line and index to use for the selected layer
 		paletteLine = paletteLineData[layerIndex];
 		paletteIndex = paletteIndexData[layerIndex];
+
+		// If a sprite pixel uses palette index 14 on a palette row other than the last
+		// one, it is always shown at normal intensity rather than being highlighted. This
+		// has no real practical use, so it may be a hardware bug.
+		if ((layerIndex == LAYERINDEX_SPRITE) && spriteIsNormalIntensity)
+		{
+			shadow = false;
+			highlight = false;
+		}
 
 		// Record the source layer for this pixel
 		if (imageBufferInfoEntry != 0)
