@@ -658,8 +658,10 @@ INT_PTR DebuggerView::msgWM_BOUNCE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 					_model.SetGenericDataLocked(dataID, dataContext, !_model.GetGenericDataLocked(dataID, dataContext));
 				}
 
-				// Force the control to redraw when the lock state is toggled
+				//##FIX## Figure out why this isn't working when the window is docked. We're working around the problem
+				//right now by clearing the text content of the control, which manages to trigger a redraw.
 				InvalidateRect(bounceMessage->hwnd, NULL, FALSE);
+				SetWindowText(bounceMessage->hwnd, L"");
 				break;}
 			case IDC_YM2612_DEBUGGER_KEY_11:
 			case IDC_YM2612_DEBUGGER_KEY_12:
@@ -826,7 +828,7 @@ INT_PTR DebuggerView::msgWM_CTLCOLOREDIT(HWND hwnd, WPARAM wparam, LPARAM lparam
 		if (_model.GetGenericDataLocked(dataID, dataContext))
 		{
 			SetBkColor((HDC)wparam, _lockedColor);
-			return (BOOL)HandleToLong(_lockedBrush);
+			return (INT_PTR)HandleToLong(_lockedBrush);
 		}
 	}
 	return FALSE;
