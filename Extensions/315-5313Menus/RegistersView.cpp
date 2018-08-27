@@ -568,9 +568,6 @@ INT_PTR RegistersView::msgRawRegistersWM_CTLCOLOREDIT(HWND hwnd, WPARAM wparam, 
 			return (INT_PTR)HandleToLong(_lockedBrush);
 		}
 	}
-
-	//##DEBUG##
-	std::wcout << "WM_CTLCOLOREDIT " << GetTickCount() << "\n";
 	return FALSE;
 }
 
