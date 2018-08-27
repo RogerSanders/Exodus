@@ -3,6 +3,7 @@
 #include "DataConversion/DataConversion.pkg"
 #include <sstream>
 #include <iomanip>
+#include <cstdint>
 
 //----------------------------------------------------------------------------------------------------------------------
 // Constants
@@ -408,7 +409,7 @@ void WC_HexEdit::MarkSelection(bool state)
 		updateDataMarkingState.offset = _dragSelectStartPos;
 		updateDataMarkingState.size = _dragSelectEndPos - _dragSelectStartPos;
 		updateDataMarkingState.state = state;
-		SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::UpdateDataMarking), (LPARAM)&updateDataMarkingState);
+		SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((std::uintptr_t)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::UpdateDataMarking), (LPARAM)&updateDataMarkingState);
 	}
 }
 
@@ -623,7 +624,7 @@ void WC_HexEdit::SetWindowSettings(unsigned int windowPos, unsigned int windowSi
 	Hex_NewWindowPosInfo windowPosInfo;
 	windowPosInfo.windowPos = _dataViewPos;
 	windowPosInfo.windowSize = windowSize;
-	SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::NewWindowPos), (LPARAM)&windowPosInfo);
+	SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((std::uintptr_t)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::NewWindowPos), (LPARAM)&windowPosInfo);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -859,7 +860,7 @@ unsigned char WC_HexEdit::ReadByte(unsigned int bytePos) const
 	readDataInfo.offset = bytePos;
 	readDataInfo.processed = false;
 	readDataInfo.data = 0;
-	SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::ReadData), (LPARAM)&readDataInfo);
+	SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((std::uintptr_t)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::ReadData), (LPARAM)&readDataInfo);
 	return readDataInfo.data;
 }
 
@@ -869,7 +870,7 @@ void WC_HexEdit::WriteByte(unsigned int bytePos, unsigned char data)
 	Hex_WriteDataInfo writeDataInfo;
 	writeDataInfo.offset = bytePos;
 	writeDataInfo.data = data;
-	SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::WriteData), (LPARAM)&writeDataInfo);
+	SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((std::uintptr_t)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::WriteData), (LPARAM)&writeDataInfo);
 	if ((bytePos >= _dataViewPos) && (bytePos < (_dataViewPos + _visibleValuesPerPage)))
 	{
 		_dataBuffer[bytePos - _dataViewPos] = data;
@@ -884,7 +885,7 @@ bool WC_HexEdit::ReadBlockToBuffer(unsigned int startPos, unsigned int blockSize
 	readDataBlockInfo.size = blockSize;
 	readDataBlockInfo.buffer = buffer;
 	readDataBlockInfo.processed = false;
-	SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::ReadDataBlock), (LPARAM)&readDataBlockInfo);
+	SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((std::uintptr_t)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::ReadDataBlock), (LPARAM)&readDataBlockInfo);
 	return readDataBlockInfo.processed;
 }
 
@@ -896,7 +897,7 @@ bool WC_HexEdit::WriteBlockFromBuffer(unsigned int startPos, unsigned int blockS
 	writeDataBlockInfo.size = blockSize;
 	writeDataBlockInfo.buffer = buffer;
 	writeDataBlockInfo.processed = false;
-	SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::WriteDataBlock), (LPARAM)&writeDataBlockInfo);
+	SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((std::uintptr_t)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::WriteDataBlock), (LPARAM)&writeDataBlockInfo);
 	return writeDataBlockInfo.processed;
 }
 

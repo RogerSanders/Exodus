@@ -215,7 +215,7 @@ void TimedBufferInt::LoadDebuggerState(IHierarchicalStorageNode& node)
 	size_t memorySize = _memoryLocked.size();
 	Stream::IStream::SizeType readCount = (node.GetBinaryDataBufferStream().Size() / (Stream::IStream::SizeType)sizeof(unsigned char));
 	node.ExtractBinaryData(_memoryLocked);
-	for (size_t i = readCount; i < memorySize; ++i)
+	for (size_t i = (size_t)readCount; i < memorySize; ++i)
 	{
 		_memoryLocked[i] = 0;
 	}
