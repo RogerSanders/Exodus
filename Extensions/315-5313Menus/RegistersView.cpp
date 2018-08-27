@@ -539,7 +539,10 @@ INT_PTR RegistersView::msgRawRegistersWM_BOUNCE(HWND hwnd, WPARAM wparam, LPARAM
 			}
 
 			// Force the control to redraw when the lock state is toggled
+			//##FIX## Figure out why this isn't working when the window is docked. We're working around the problem
+			//right now by clearing the text content of the control, which manages to trigger a redraw.
 			InvalidateRect(bounceMessage->hwnd, NULL, FALSE);
+			SetWindowText(bounceMessage->hwnd, L"");
 
 			bounceMessage->SetResult(TRUE);
 		}
@@ -562,9 +565,12 @@ INT_PTR RegistersView::msgRawRegistersWM_CTLCOLOREDIT(HWND hwnd, WPARAM wparam, 
 		if (_model.GetGenericDataLocked(dataID, dataContext))
 		{
 			SetBkColor((HDC)wparam, _lockedColor);
-			return (BOOL)HandleToLong(_lockedBrush);
+			return (INT_PTR)HandleToLong(_lockedBrush);
 		}
 	}
+
+	//##DEBUG##
+	std::wcout << "WM_CTLCOLOREDIT " << GetTickCount() << "\n";
 	return FALSE;
 }
 
@@ -1055,7 +1061,10 @@ INT_PTR RegistersView::msgModeRegistersWM_BOUNCE(HWND hwnd, WPARAM wparam, LPARA
 			}
 
 			// Force the control to redraw when the lock state is toggled
+			//##FIX## Figure out why this isn't working when the window is docked. We're working around the problem
+			//right now by clearing the text content of the control, which manages to trigger a redraw.
 			InvalidateRect(bounceMessage->hwnd, NULL, FALSE);
+			SetWindowText(bounceMessage->hwnd, L"");
 
 			bounceMessage->SetResult(TRUE);
 		}
@@ -1602,8 +1611,10 @@ INT_PTR RegistersView::msgOtherRegistersWM_BOUNCE(HWND hwnd, WPARAM wparam, LPAR
 				_model.SetGenericDataLocked(dataID, 0, !_model.GetGenericDataLocked(dataID, 0));
 			}
 
-			// Force the control to redraw when the lock state is toggled
+			//##FIX## Figure out why this isn't working when the window is docked. We're working around the problem
+			//right now by clearing the text content of the control, which manages to trigger a redraw.
 			InvalidateRect(bounceMessage->hwnd, NULL, FALSE);
+			SetWindowText(bounceMessage->hwnd, L"");
 
 			bounceMessage->SetResult(TRUE);
 		}
@@ -1646,7 +1657,7 @@ INT_PTR RegistersView::msgOtherRegistersWM_CTLCOLOREDIT(HWND hwnd, WPARAM wparam
 		if (_model.GetGenericDataLocked(dataID, 0))
 		{
 			SetBkColor((HDC)wparam, _lockedColor);
-			return (BOOL)HandleToLong(_lockedBrush);
+			return (INT_PTR)HandleToLong(_lockedBrush);
 		}
 	}
 	return FALSE;
