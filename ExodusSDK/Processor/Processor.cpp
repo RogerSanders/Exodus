@@ -437,6 +437,7 @@ bool Processor::LockBreakpoint(IBreakpoint* breakpoint) const
 void Processor::UnlockBreakpoint(IBreakpoint* breakpoint) const
 {
 	// Unlock this breakpoint
+	std::unique_lock<std::mutex> lock(_debugMutex);
 	_lockedBreakpoints.erase(breakpoint);
 	_breakpointLockReleased.notify_all();
 }
