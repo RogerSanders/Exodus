@@ -16,6 +16,18 @@ ISystemDeviceInterface& Device::GetSystemInterface() const
 //----------------------------------------------------------------------------------------------------------------------
 // Device context functions
 //----------------------------------------------------------------------------------------------------------------------
+IDeviceContext* Device::GetDeviceContext() const
+{
+	return _deviceContext;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+double Device::GetCurrentTimesliceProgress() const
+{
+	return _deviceContext->GetCurrentTimesliceProgress();
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 void Device::SetCurrentTimesliceProgress(double executionProgress)
 {
 	_deviceContext->SetCurrentTimesliceProgress(executionProgress);
