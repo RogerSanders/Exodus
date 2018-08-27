@@ -38,6 +38,7 @@ Exodus.pdb
 System.dll
 System.exp
 System.lib
+System.ilk
 System.pdb
 
 # Third folders to ignore
