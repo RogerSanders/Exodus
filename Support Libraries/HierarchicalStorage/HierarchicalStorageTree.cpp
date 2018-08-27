@@ -156,7 +156,7 @@ bool HierarchicalStorageTree::SaveNode(IHierarchicalStorageNode& node, Stream::I
 			{
 				// Save binary data in the XML structure
 				Stream::IStream::SizeType readCount = (node.GetBinaryDataBufferStream().Size() / (Stream::IStream::SizeType)sizeof(unsigned char));
-				std::vector<unsigned char> buffer(readCount);
+				std::vector<unsigned char> buffer((size_t)readCount);
 				node.ExtractBinaryData(buffer);
 				for (unsigned int i = 0; i < buffer.size(); ++i)
 				{

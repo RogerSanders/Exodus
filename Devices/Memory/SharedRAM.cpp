@@ -211,7 +211,7 @@ void SharedRAM::LoadState(IHierarchicalStorageNode& node)
 	size_t memorySize = _memory.size();
 	Stream::IStream::SizeType readCount = (node.GetBinaryDataBufferStream().Size() / (Stream::IStream::SizeType)sizeof(unsigned char));
 	node.ExtractBinaryData(_memory);
-	for (size_t i = readCount; i < memorySize; ++i)
+	for (size_t i = (size_t)readCount; i < memorySize; ++i)
 	{
 		_memory[i] = 0;
 	}

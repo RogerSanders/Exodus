@@ -5,6 +5,7 @@
 #include <Uxtheme.h>
 #include <vsstyle.h>
 #include <iterator>
+#include <cstdint>
 //##DEBUG##
 #include <iostream>
 
@@ -1370,7 +1371,7 @@ LRESULT WC_DataGrid::msgWM_COMMAND(WPARAM wParam, LPARAM lParam)
 							Grid_CellButtonClickEvent info;
 							info.targetRowNo = rowNo;
 							info.targetColumnID = columnID;
-							SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::CellButtonClick), (LPARAM)&info);
+							SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((std::uintptr_t)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::CellButtonClick), (LPARAM)&info);
 						}
 						else if (cellControlInfo.createdControlType == CellControlType::ComboBox)
 						{
@@ -1402,7 +1403,7 @@ LRESULT WC_DataGrid::msgWM_COMMAND(WPARAM wParam, LPARAM lParam)
 						info.targetRowNo = _openComboBoxRowNo;
 						info.targetColumnID = _openComboBoxColumnID;
 						info.newData = cellControlInfo.selectionList[selectedItem];
-						SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::CellEdit), (LPARAM)&info);
+						SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((std::uintptr_t)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::CellEdit), (LPARAM)&info);
 					}
 				}
 				DestroyWindow(_hwndComboBoxList);
@@ -1604,7 +1605,7 @@ void WC_DataGrid::UpdateWindowSize()
 		// to notify it about the change in visible rows.
 		Grid_NewVisibleRowCount newRowCountState;
 		newRowCountState.visibleRows = newVisibleRows;
-		SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::NewRowCount), (LPARAM)&newRowCountState);
+		SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((std::uintptr_t)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::NewRowCount), (LPARAM)&newRowCountState);
 	}
 
 	// If automatic scroll management is enabled, recalculate the new scroll settings based
@@ -1995,7 +1996,7 @@ void WC_DataGrid::CompleteCellEditing()
 	info.targetRowNo = _selectedRowNo;
 	info.targetColumnID = _selectedColumnID;
 	info.newData = _editBuffer;
-	SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::CellEdit), (LPARAM)&info);
+	SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((std::uintptr_t)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::CellEdit), (LPARAM)&info);
 
 	// Hide the caret now that we're exiting edit mode
 	if (!_editModeShowCaretPending)
@@ -2159,7 +2160,7 @@ LRESULT WC_DataGrid::msgWM_VSCROLL(WPARAM wParam, LPARAM lParam)
 		{
 			Grid_NewScrollPosition info;
 			info.scrollPos = (unsigned int)scrollInfo.nTrackPos;
-			SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::NewScrollPosition), (LPARAM)&info);
+			SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((std::uintptr_t)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::NewScrollPosition), (LPARAM)&info);
 		}
 		break;}
 	case SB_TOP:
@@ -2171,7 +2172,7 @@ LRESULT WC_DataGrid::msgWM_VSCROLL(WPARAM wParam, LPARAM lParam)
 		{
 			Grid_NewScrollPosition info;
 			info.scrollPos = _vscrollMin;
-			SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::NewScrollPosition), (LPARAM)&info);
+			SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((std::uintptr_t)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::NewScrollPosition), (LPARAM)&info);
 		}
 		break;
 	case SB_BOTTOM:
@@ -2183,7 +2184,7 @@ LRESULT WC_DataGrid::msgWM_VSCROLL(WPARAM wParam, LPARAM lParam)
 		{
 			Grid_NewScrollPosition info;
 			info.scrollPos = _vscrollMax;
-			SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::NewScrollPosition), (LPARAM)&info);
+			SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((std::uintptr_t)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::NewScrollPosition), (LPARAM)&info);
 		}
 		break;
 	case SB_PAGEUP:
@@ -2195,7 +2196,7 @@ LRESULT WC_DataGrid::msgWM_VSCROLL(WPARAM wParam, LPARAM lParam)
 		{
 			Grid_ShiftRowsUp info;
 			info.shiftCount = _fullyVisibleRows;
-			SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::ShiftRowsUp), (LPARAM)&info);
+			SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((std::uintptr_t)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::ShiftRowsUp), (LPARAM)&info);
 		}
 		break;
 	case SB_LINEUP:
@@ -2207,7 +2208,7 @@ LRESULT WC_DataGrid::msgWM_VSCROLL(WPARAM wParam, LPARAM lParam)
 		{
 			Grid_ShiftRowsUp info;
 			info.shiftCount = 1;
-			SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::ShiftRowsUp), (LPARAM)&info);
+			SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((std::uintptr_t)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::ShiftRowsUp), (LPARAM)&info);
 		}
 		break;
 	case SB_PAGEDOWN:
@@ -2219,7 +2220,7 @@ LRESULT WC_DataGrid::msgWM_VSCROLL(WPARAM wParam, LPARAM lParam)
 		{
 			Grid_ShiftRowsDown info;
 			info.shiftCount = _fullyVisibleRows;
-			SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::ShiftRowsDown), (LPARAM)&info);
+			SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((std::uintptr_t)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::ShiftRowsDown), (LPARAM)&info);
 		}
 		break;
 	case SB_LINEDOWN:
@@ -2231,7 +2232,7 @@ LRESULT WC_DataGrid::msgWM_VSCROLL(WPARAM wParam, LPARAM lParam)
 		{
 			Grid_ShiftRowsDown info;
 			info.shiftCount = 1;
-			SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::ShiftRowsDown), (LPARAM)&info);
+			SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((std::uintptr_t)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::ShiftRowsDown), (LPARAM)&info);
 		}
 		break;
 	}
@@ -2419,7 +2420,7 @@ LRESULT WC_DataGrid::msgWM_KEYDOWN(WPARAM wParam, LPARAM lParam)
 		{
 			Grid_ShiftRowsUp info;
 			info.shiftCount = 1;
-			SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::ShiftRowsUp), (LPARAM)&info);
+			SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((std::uintptr_t)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::ShiftRowsUp), (LPARAM)&info);
 		}
 		break;
 	case VK_DOWN:
@@ -2431,7 +2432,7 @@ LRESULT WC_DataGrid::msgWM_KEYDOWN(WPARAM wParam, LPARAM lParam)
 		{
 			Grid_ShiftRowsDown info;
 			info.shiftCount = 1;
-			SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::ShiftRowsDown), (LPARAM)&info);
+			SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((std::uintptr_t)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::ShiftRowsDown), (LPARAM)&info);
 		}
 		break;
 	case VK_PRIOR:
@@ -2443,7 +2444,7 @@ LRESULT WC_DataGrid::msgWM_KEYDOWN(WPARAM wParam, LPARAM lParam)
 		{
 			Grid_ShiftRowsUp info;
 			info.shiftCount = _fullyVisibleRows;
-			SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::ShiftRowsUp), (LPARAM)&info);
+			SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((std::uintptr_t)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::ShiftRowsUp), (LPARAM)&info);
 		}
 		break;
 	case VK_NEXT:
@@ -2455,7 +2456,7 @@ LRESULT WC_DataGrid::msgWM_KEYDOWN(WPARAM wParam, LPARAM lParam)
 		{
 			Grid_ShiftRowsDown info;
 			info.shiftCount = _fullyVisibleRows;
-			SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::ShiftRowsDown), (LPARAM)&info);
+			SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((std::uintptr_t)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::ShiftRowsDown), (LPARAM)&info);
 		}
 		break;
 	case VK_HOME:
@@ -2480,7 +2481,7 @@ LRESULT WC_DataGrid::msgWM_KEYDOWN(WPARAM wParam, LPARAM lParam)
 		{
 			Grid_NewScrollPosition info;
 			info.scrollPos = 0;
-			SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::NewScrollPosition), (LPARAM)&info);
+			SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((std::uintptr_t)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::NewScrollPosition), (LPARAM)&info);
 		}
 		break;
 	case VK_END:
@@ -2505,7 +2506,7 @@ LRESULT WC_DataGrid::msgWM_KEYDOWN(WPARAM wParam, LPARAM lParam)
 		{
 			Grid_NewScrollPosition info;
 			info.scrollPos = (_vscrollMax > 0)? (unsigned int)_vscrollMax - 1: 0;
-			SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::NewScrollPosition), (LPARAM)&info);
+			SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((std::uintptr_t)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::NewScrollPosition), (LPARAM)&info);
 		}
 		break;
 	}
@@ -2749,7 +2750,7 @@ LRESULT WC_DataGrid::msgWM_LBUTTONDOWN(WPARAM wParam, LPARAM lParam)
 					expandEvent.expand = !cellInfoInternal.expandIconIsExpanded;
 					expandEvent.targetRowNo = newSelectedRowNo;
 					expandEvent.targetColumnID = newSelectedColumnID;
-					SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::TreeEntryExpandEvent), (LPARAM)&expandEvent);
+					SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((std::uintptr_t)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::TreeEntryExpandEvent), (LPARAM)&expandEvent);
 					return 0;
 				}
 			}
@@ -2774,7 +2775,7 @@ LRESULT WC_DataGrid::msgWM_LBUTTONDOWN(WPARAM wParam, LPARAM lParam)
 				info.targetRowNo = newSelectedRowNo;
 				info.targetColumnID = newSelectedColumnID;
 				info.newData = dataAsString;
-				SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::CellEdit), (LPARAM)&info);
+				SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((std::uintptr_t)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::CellEdit), (LPARAM)&info);
 				return 0;
 			}
 		}
@@ -2794,7 +2795,7 @@ LRESULT WC_DataGrid::msgWM_LBUTTONDOWN(WPARAM wParam, LPARAM lParam)
 	info.keyPressedCtrl = (wParam & MK_CONTROL) != 0;
 	info.keyPressedShift = (wParam & MK_SHIFT) != 0;
 	info.ignoreSelectionEvent = false;
-	SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::SelectionEvent), (LPARAM)&info);
+	SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((std::uintptr_t)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::SelectionEvent), (LPARAM)&info);
 
 	// If we were instructed to ignore this click event, abort any further processing.
 	if (info.ignoreSelectionEvent)
@@ -2909,13 +2910,13 @@ LRESULT WC_DataGrid::msgWM_MOUSEWHEEL(WPARAM wParam, LPARAM lParam)
 		{
 			Grid_ShiftRowsUp info;
 			info.shiftCount = (unsigned int)(-scrollUnits);
-			SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::ShiftRowsUp), (LPARAM)&info);
+			SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((std::uintptr_t)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::ShiftRowsUp), (LPARAM)&info);
 		}
 		else
 		{
 			Grid_ShiftRowsDown info;
 			info.shiftCount = (unsigned int)scrollUnits;
-			SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::ShiftRowsDown), (LPARAM)&info);
+			SendMessage(GetParent(_hwnd), WM_COMMAND, MAKEWPARAM(((std::uintptr_t)GetMenu(_hwnd) & 0xFFFF), WindowNotifications::ShiftRowsDown), (LPARAM)&info);
 		}
 	}
 
@@ -3914,7 +3915,7 @@ LRESULT CALLBACK WC_DataGrid::ChildControlClickHandlerSubclassProc(HWND hwnd, UI
 		info.keyPressedCtrl = (wParam & MK_CONTROL) != 0;
 		info.keyPressedShift = (wParam & MK_SHIFT) != 0;
 		info.ignoreSelectionEvent = false;
-		SendMessage(GetParent(dataGrid._hwnd), WM_COMMAND, MAKEWPARAM(((long long)GetMenu(dataGrid._hwnd) & 0xFFFF), WindowNotifications::SelectionEvent), (LPARAM)&info);
+		SendMessage(GetParent(dataGrid._hwnd), WM_COMMAND, MAKEWPARAM(((std::uintptr_t)GetMenu(dataGrid._hwnd) & 0xFFFF), WindowNotifications::SelectionEvent), (LPARAM)&info);
 
 		// If we were instructed to ignore this click event, abort any further processing.
 		if (info.ignoreSelectionEvent)
