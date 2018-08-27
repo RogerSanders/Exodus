@@ -3199,9 +3199,9 @@ bool S315_5313::GetScreenshot(IImage& targetImage) const
 			for (unsigned int xpos = 0; xpos < lineWidth; ++xpos)
 			{
 				const ImageBufferColorEntry& imageBufferEntry = *((const ImageBufferColorEntry*)&_imageBuffer[_drawingImageBufferPlane][((ypos * ImageBufferWidth) + xpos) * 4]);
-				lineImage.WritePixelData(xpos, ypos, 0, imageBufferEntry.r);
-				lineImage.WritePixelData(xpos, ypos, 1, imageBufferEntry.g);
-				lineImage.WritePixelData(xpos, ypos, 2, imageBufferEntry.b);
+				lineImage.WritePixelData(xpos, 0, 0, imageBufferEntry.r);
+				lineImage.WritePixelData(xpos, 0, 1, imageBufferEntry.g);
+				lineImage.WritePixelData(xpos, 0, 2, imageBufferEntry.b);
 			}
 			lineImage.ResampleBilinear(imageWidth, 1);
 			for (unsigned int xpos = 0; xpos < imageWidth; ++xpos)
