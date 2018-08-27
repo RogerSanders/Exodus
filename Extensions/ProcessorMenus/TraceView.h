@@ -20,7 +20,9 @@ private:
 	enum Columns
 	{
 		COLUMN_ADDRESS,
-		COLUMN_DISASSEMBLY
+		COLUMN_OPCODE,
+		COLUMN_ARGS,
+		COLUMN_COMMENT
 	};
 	enum ControlIDList
 	{

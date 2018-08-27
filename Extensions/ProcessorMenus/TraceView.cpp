@@ -54,9 +54,17 @@ LRESULT TraceView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 
 	// Insert our columns into the DataGrid control
 	WC_DataGrid::Grid_InsertColumn addressColumn(L"Address", COLUMN_ADDRESS);
-	WC_DataGrid::Grid_InsertColumn disassemblyColumn(L"Disassembly", COLUMN_DISASSEMBLY);
+	WC_DataGrid::Grid_InsertColumn opcodeColumn(L"Opcode", COLUMN_OPCODE);
+	opcodeColumn.sizeMode = WC_DataGrid::ColumnSizeMode::Proportional;
+	opcodeColumn.proportionalWidth = 0.4f;
+	WC_DataGrid::Grid_InsertColumn argsColumn(L"Args", COLUMN_ARGS);
+	argsColumn.sizeMode = WC_DataGrid::ColumnSizeMode::Proportional;
+	argsColumn.proportionalWidth = 1.0f;
+	WC_DataGrid::Grid_InsertColumn commentColumn(L"Comment", COLUMN_COMMENT);
 	SendMessage(_hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&addressColumn);
-	SendMessage(_hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&disassemblyColumn);
+	SendMessage(_hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&opcodeColumn);
+	SendMessage(_hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&argsColumn);
+	SendMessage(_hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&commentColumn);
 
 	// Create the dialog control panel
 	_hwndControlPanel = CreateDialogParam(GetAssemblyHandle(), MAKEINTRESOURCE(IDD_PROCESSOR_TRACE_PANEL), hwnd, WndProcPanelStatic, (LPARAM)this);
@@ -143,7 +151,9 @@ LRESULT TraceView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		std::wstring addressString;
 		IntToStringBase16(entry.address, addressString, pcLength);
 		columnText[COLUMN_ADDRESS] = addressString;
-		columnText[COLUMN_DISASSEMBLY] = entry.disassembly;
+		columnText[COLUMN_OPCODE] = entry.disassemblyOpcode;
+		columnText[COLUMN_ARGS] = entry.disassemblyArgs;
+		columnText[COLUMN_COMMENT] = entry.disassemblyComment;
 	}
 	SendMessage(_hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::UpdateMultipleRowText, 0, (LPARAM)&rowText);
 
