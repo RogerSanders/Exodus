@@ -958,7 +958,9 @@ void Processor::RecordTraceInternal(unsigned int pc)
 		OpcodeInfo opcodeInfo;
 		if (GetOpcodeInfo(pc, opcodeInfo))
 		{
-			traceEntry.disassembly = opcodeInfo.GetOpcodeNameDisassembly() + L'\t' + opcodeInfo.GetOpcodeArgumentsDisassembly();
+			traceEntry.disassemblyOpcode = opcodeInfo.GetOpcodeNameDisassembly();
+			traceEntry.disassemblyArgs = opcodeInfo.GetOpcodeArgumentsDisassembly();
+			traceEntry.disassemblyComment = opcodeInfo.GetDisassemblyComment();
 		}
 	}
 

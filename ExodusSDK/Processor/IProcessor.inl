@@ -83,20 +83,24 @@ public:
 	{ }
 	TraceLogEntry(MarshalSupport::marshal_object_tag, const TraceLogEntry& source)
 	{
-		source.MarshalToTarget(address, disassembly);
+		source.MarshalToTarget(address, disassemblyOpcode, disassemblyArgs, disassemblyComment);
 	}
 
 private:
 	// Marshalling methods
-	virtual void MarshalToTarget(unsigned int& addressMarshaller, const Marshal::Out<std::wstring>& disassemblyMarshaller) const
+	virtual void MarshalToTarget(unsigned int& addressMarshaller, const Marshal::Out<std::wstring>& disassemblyOpcodeMarshaller, const Marshal::Out<std::wstring>& disassemblyArgsMarshaller, const Marshal::Out<std::wstring>& disassemblyCommentMarshaller) const
 	{
 		addressMarshaller = address;
-		disassemblyMarshaller = disassembly;
+		disassemblyOpcodeMarshaller = disassemblyOpcode;
+		disassemblyArgsMarshaller = disassemblyArgs;
+		disassemblyCommentMarshaller = disassemblyComment;
 	}
 
 public:
 	unsigned int address;
-	std::wstring disassembly;
+	std::wstring disassemblyOpcode;
+	std::wstring disassemblyArgs;
+	std::wstring disassemblyComment;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
