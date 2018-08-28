@@ -60,6 +60,8 @@ public:
 	virtual Disassembly M68000Disassemble(const M68000::LabelSubstitutionSettings& labelSettings) const;
 	virtual void GetResultantPCLocations(std::set<unsigned int>& resultantPCLocations, bool& undeterminedResultantPCLocation) const;
 	virtual void GetLabelTargetLocations(std::set<unsigned int>& labelTargetLocations) const = 0;
+	virtual bool IsCountedLoop() const;
+	virtual unsigned int CountedLoopEndLocation() const;
 	static std::wstring DisassembleConditionCode(ConditionCode code);
 	static std::wstring DisassembleSize(Bitcount size);
 

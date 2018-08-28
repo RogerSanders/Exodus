@@ -90,6 +90,18 @@ void M68000Instruction::GetResultantPCLocations(std::set<unsigned int>& resultan
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+bool M68000Instruction::IsCountedLoop() const
+{
+	return false;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+unsigned int M68000Instruction::CountedLoopEndLocation() const
+{
+	return 0;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 std::wstring M68000Instruction::DisassembleConditionCode(ConditionCode code)
 {
 	switch (code)

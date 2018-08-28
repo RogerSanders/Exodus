@@ -28,6 +28,10 @@ public:
 	virtual void SetResultantPCLocations(const Marshal::In<std::set<unsigned int>>& state);
 	virtual bool GetHasUndeterminedResultantPCLocation() const;
 	virtual void SetHasUndeterminedResultantPCLocation(bool state);
+	virtual bool GetOpcodeIsCountedLoop() const;
+	virtual void SetOpcodeIsCountedLoop(bool state);
+	virtual unsigned int GetOpcodeCountedLoopEndLocation() const;
+	virtual void SetOpcodeCountedLoopEndLocation(unsigned int state);
 
 private:
 	bool _valid;
@@ -38,6 +42,8 @@ private:
 	std::set<unsigned int> _labelTargetLocations;
 	std::set<unsigned int> _resultantPCLocations;
 	bool _undeterminedResultantPCLocation;
+	bool _isCountedLoop;
+	unsigned int _countedLoopEndLocation;
 };
 
 #endif

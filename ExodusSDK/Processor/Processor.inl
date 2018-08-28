@@ -198,7 +198,7 @@ void Processor::CheckExecution(unsigned int location) const
 	// which we expect it will almost all the time, due to a lack of inlining and needing
 	// to prepare the stack and registers for inner variables that never get used. This has
 	// been verified through profiling as a performance bottleneck.
-	if (_breakpointExists || _breakOnNextOpcode || _stepOver)
+	if (_breakpointExists || _breakOnNextOpcode || _stepOver || _transientBreakpointExists)
 	{
 		CheckExecutionInternal(location);
 	}

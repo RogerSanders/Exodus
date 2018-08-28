@@ -148,6 +148,7 @@ public:
 	virtual void BreakOnCurrentOpcode() const;
 	virtual void BreakOnStepOverCurrentOpcode();
 	virtual void BreakOnStepOutCurrentOpcode();
+	virtual void BreakOnTargetOpcodeTransient(unsigned int location);
 
 	// Control functions
 	virtual double GetClockSpeed() const;
@@ -391,8 +392,10 @@ private:
 	mutable std::set<IWatchpoint*> _lockedWatchpoints;
 	mutable std::condition_variable _breakpointLockReleased;
 	mutable std::condition_variable _watchpointLockReleased;
+	mutable std::set<unsigned int> _transientBreakpoints;
 	volatile bool _breakpointExists;
 	volatile bool _watchpointExists;
+	volatile mutable bool _transientBreakpointExists;
 
 	// Call stack
 	volatile mutable bool _breakOnNextOpcode;

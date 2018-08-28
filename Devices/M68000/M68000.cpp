@@ -1272,6 +1272,8 @@ bool M68000::GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const
 		std::set<unsigned int> labelTargetLocations;
 		targetOpcode->GetLabelTargetLocations(labelTargetLocations);
 		opcodeInfo.SetLabelTargetLocations(labelTargetLocations);
+		opcodeInfo.SetOpcodeIsCountedLoop(targetOpcode->IsCountedLoop());
+		opcodeInfo.SetOpcodeCountedLoopEndLocation(targetOpcode->CountedLoopEndLocation());
 
 		delete targetOpcode;
 	}
