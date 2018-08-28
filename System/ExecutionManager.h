@@ -6,6 +6,7 @@
 #include "DeviceContext.h"
 #include "IExecutionSuspendManager.h"
 #include <vector>
+#include <mutex>
 
 class ExecutionManager : public IExecutionSuspendManager
 {
@@ -43,6 +44,7 @@ public:
 	inline void StopExecution();
 
 private:
+	std::mutex _accessMutex;
 	unsigned int _deviceCount;
 	unsigned int _activeDeviceCount;
 	unsigned int _suspendDeviceCount;

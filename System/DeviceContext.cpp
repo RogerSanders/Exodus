@@ -352,6 +352,10 @@ void DeviceContext::StartExecuteWorkerThread()
 		return;
 	}
 
+	// Initialize the timeslice completed state to true. This signals that there is no more work to be done, IE, that
+	// there is no timeslice pending.
+	_timesliceCompleted = true;
+
 	// Notify the device that execution is about to begin
 	lock.unlock();
 	_device.BeginExecution();
@@ -405,6 +409,10 @@ void DeviceContext::StartExecuteWorkerThread()
 	}
 	else if (ourDeviceIsPrimaryInterlockedDevice)
 	{
+		// Since we're handling the execute thread for the dependent device here, mark its execution thread as active
+		// too.
+		interlockedDevice->_executeWorkerThreadActive = true;
+
 		// If the interlocked dependencies are present but currently disabled, flag the
 		// execute spinoff thread as active, so that it will be restored when we start
 		// the execute thread below.
@@ -482,7 +490,10 @@ void DeviceContext::ExecuteWorkerThreadStep()
 	std::unique_lock<std::mutex> lock(_executeThreadMutex);
 	_executeThreadRunningState = true;
 	_executeThreadReady.notify_all();
-	_executeTaskSent.wait(lock);
+	if (_timesliceCompleted)
+	{
+		_executeTaskSent.wait(lock);
+	}
 	while (_executeWorkerThreadActive)
 	{
 		lock.unlock();
@@ -522,7 +533,10 @@ void DeviceContext::ExecuteWorkerThreadStepWithDependencies()
 	std::unique_lock<std::mutex> lock(_executeThreadMutex);
 	_executeThreadRunningState = true;
 	_executeThreadReady.notify_all();
-	_executeTaskSent.wait(lock);
+	if (_timesliceCompleted)
+	{
+		_executeTaskSent.wait(lock);
+	}
 	while (_executeWorkerThreadActive)
 	{
 		lock.unlock();
@@ -531,11 +545,9 @@ void DeviceContext::ExecuteWorkerThreadStepWithDependencies()
 		{
 			for (unsigned int i = 0; i < dependentTargetCount; ++i)
 			{
-				// SafeMemoryBarrierRead();
 				while ((_currentTimesliceProgress > _deviceDependencies[i].device->_currentTimesliceProgress) && _deviceDependencies[i].dependencyEnabled)
 				{
 					Sleep(0);
-					// SafeMemoryBarrierRead();
 				}
 			}
 			_currentTimesliceProgress += _device.ExecuteStep();
@@ -546,7 +558,6 @@ void DeviceContext::ExecuteWorkerThreadStepWithDependencies()
 					_currentTimesliceProgress = _timeslice;
 				}
 			}
-			// SafeMemoryBarrierWrite();
 		}
 		_remainingTime = _currentTimesliceProgress - _timeslice;
 		_device.NotifyAfterExecuteStepFinishedTimeslice();
@@ -570,21 +581,12 @@ void DeviceContext::ExecuteWorkerThreadStepWithDependencies()
 //----------------------------------------------------------------------------------------------------------------------
 void DeviceContext::ExecuteWorkerThreadStepMultipleDeviceSharedDependencies(DeviceContext* device1, DeviceContext* device2)
 {
+	std::unique_lock<std::mutex> lock1(device1->_executeThreadMutex);
+	std::unique_lock<std::mutex> lock2(device2->_executeThreadMutex);
+
 	// Set the name of this thread for the benefit of an attached debugger
 	std::wstring debuggerThreadName = L"DCExePri - \"" + device1->_device.GetDeviceInstanceName() + L"\" and \"" + device2->_device.GetDeviceInstanceName() + L"\"";
 	SetCallingThreadName(debuggerThreadName);
-
-	// Notify the command threads for both devices in this shared execution thread that the
-	// execution thread for the target devices is up and running. Note that we have a lock
-	// here on executeThreadMutex here, so the command threads will not actually be
-	// unblocked until we wait on a message from the command thread again and release the
-	// lock.
-	std::unique_lock<std::mutex> lock1(device1->_executeThreadMutex);
-	std::unique_lock<std::mutex> lock2(device2->_executeThreadMutex);
-	device1->_executeThreadRunningState = true;
-	device2->_executeThreadRunningState = true;
-	device1->_executeThreadReady.notify_all();
-	device2->_executeThreadReady.notify_all();
 
 	// Start our parallel execution thread for these locked devices, so that if the device
 	// dependency is enabled, the second device can be spun off into this parallel
@@ -600,17 +602,35 @@ void DeviceContext::ExecuteWorkerThreadStepMultipleDeviceSharedDependencies(Devi
 	std::thread workerThread(std::bind(std::mem_fn(&DeviceContext::ExecuteWorkerThreadStepSharedExecutionThreadSpinoff), device1));
 	workerThread.detach();
 
-	// Wait for a new execute task to be sent from the command thread to both our target
-	// devices
+	// Wait for the spinoff thread to finish starting up
 	lock2.unlock();
-	device1->_executeTaskSent.wait(lock1);
-	lock1.unlock();
+	device1->_sharedExecuteThreadSpinoffStoppedOrPaused.wait(lock1);
 	lock2.lock();
-	while (device1->_executeWorkerThreadActive && device2->_executeWorkerThreadActive && (device2->_timesliceCompleted || (device2->_timeslice != device1->_timeslice)))
+
+	// Notify the command threads for both devices in this shared execution thread that the
+	// execution thread for the target devices is up and running. Note that we have a lock
+	// here on executeThreadMutex here, so the command threads will not actually be
+	// unblocked until we wait on a message from the command thread again and release the
+	// lock.
+	device1->_executeThreadRunningState = true;
+	device2->_executeThreadRunningState = true;
+	device1->_executeThreadReady.notify_all();
+	device2->_executeThreadReady.notify_all();
+
+	// Wait for a new execute task to be sent from the command thread to both our
+	// target devices
+	if (device1->_executeWorkerThreadActive && device1->_timesliceCompleted)
 	{
-		device2->_executeTaskSent.wait(lock2);
+		lock2.unlock();
+		device1->_executeTaskSent.wait(lock1);
+		lock2.lock();
 	}
-	lock1.lock();
+	if (device2->_executeWorkerThreadActive && device2->_timesliceCompleted)
+	{
+		lock1.unlock();
+		device2->_executeTaskSent.wait(lock2);
+		lock1.lock();
+	}
 
 	// Process execute commands until a command is sent requesting the execute threads for
 	// our target devices to shutdown
@@ -886,7 +906,10 @@ void DeviceContext::ExecuteWorkerThreadTimeslice()
 	std::unique_lock<std::mutex> lock(_executeThreadMutex);
 	_executeThreadRunningState = true;
 	_executeThreadReady.notify_all();
-	_executeTaskSent.wait(lock);
+	if (_timesliceCompleted)
+	{
+		_executeTaskSent.wait(lock);
+	}
 	while (_executeWorkerThreadActive)
 	{
 		lock.unlock();
@@ -917,7 +940,10 @@ void DeviceContext::ExecuteWorkerThreadTimesliceWithDependencies()
 	std::unique_lock<std::mutex> lock(_executeThreadMutex);
 	_executeThreadRunningState = true;
 	_executeThreadReady.notify_all();
-	_executeTaskSent.wait(lock);
+	if (_timesliceCompleted)
+	{
+		_executeTaskSent.wait(lock);
+	}
 	while (_executeWorkerThreadActive)
 	{
 		lock.unlock();
