@@ -188,9 +188,53 @@ double Processor::CalculateExecutionTime(unsigned int cycles) const
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+// Instruction functions
+//----------------------------------------------------------------------------------------------------------------------
+unsigned int Processor::GetByteCharWidth() const
+{
+	return ((GetByteBitCount() + 3) / 4);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+unsigned int Processor::GetPCCharWidth() const
+{
+	return ((GetPCWidth() + 3) / 4);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+unsigned int Processor::GetAddressBusCharWidth() const
+{
+	return ((GetAddressBusWidth() + 3) / 4);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+unsigned int Processor::GetDataBusCharWidth() const
+{
+	return ((GetDataBusWidth() + 3) / 4);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+unsigned int Processor::GetPCMask() const
+{
+	return ((1 << GetPCWidth()) - 1);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+unsigned int Processor::GetAddressBusMask() const
+{
+	return ((1 << GetAddressBusWidth()) - 1);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+unsigned int Processor::GetDataBusMask() const
+{
+	return ((1 << GetDataBusWidth()) - 1);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 // Breakpoint functions
 //----------------------------------------------------------------------------------------------------------------------
-void Processor::CheckExecution(unsigned int location) const
+void Processor::CheckExecution(unsigned int location)
 {
 	// Note that we split the internals of this method outside this inline wrapper function
 	// for performance. If we fold all the logic into one method, we can't effectively
@@ -207,7 +251,7 @@ void Processor::CheckExecution(unsigned int location) const
 //----------------------------------------------------------------------------------------------------------------------
 // Watchpoint functions
 //----------------------------------------------------------------------------------------------------------------------
-void Processor::CheckMemoryRead(unsigned int location, unsigned int data) const
+void Processor::CheckMemoryRead(unsigned int location, unsigned int data)
 {
 	// Note that we split the internals of this method outside this inline wrapper function
 	// for performance. If we fold all the logic into one method, we can't effectively
@@ -222,7 +266,7 @@ void Processor::CheckMemoryRead(unsigned int location, unsigned int data) const
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-void Processor::CheckMemoryWrite(unsigned int location, unsigned int data) const
+void Processor::CheckMemoryWrite(unsigned int location, unsigned int data)
 {
 	// Note that we split the internals of this method outside this inline wrapper function
 	// for performance. If we fold all the logic into one method, we can't effectively

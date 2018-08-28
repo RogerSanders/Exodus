@@ -319,48 +319,6 @@ void Processor::RestoreClockSpeed()
 //----------------------------------------------------------------------------------------------------------------------
 // Instruction functions
 //----------------------------------------------------------------------------------------------------------------------
-unsigned int Processor::GetByteCharWidth() const
-{
-	return ((GetByteBitCount() + 3) / 4);
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-unsigned int Processor::GetPCCharWidth() const
-{
-	return ((GetPCWidth() + 3) / 4);
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-unsigned int Processor::GetAddressBusCharWidth() const
-{
-	return ((GetAddressBusWidth() + 3) / 4);
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-unsigned int Processor::GetDataBusCharWidth() const
-{
-	return ((GetDataBusWidth() + 3) / 4);
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-unsigned int Processor::GetPCMask() const
-{
-	return ((1 << GetPCWidth()) - 1);
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-unsigned int Processor::GetAddressBusMask() const
-{
-	return ((1 << GetAddressBusWidth()) - 1);
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-unsigned int Processor::GetDataBusMask() const
-{
-	return ((1 << GetDataBusWidth()) - 1);
-}
-
-//----------------------------------------------------------------------------------------------------------------------
 unsigned int Processor::GetMemorySpaceByte(unsigned int location) const
 {
 	return 0;
@@ -517,7 +475,7 @@ void Processor::DeleteBreakpoint(IBreakpoint* breakpoint)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-void Processor::CheckExecutionInternal(unsigned int location) const
+void Processor::CheckExecutionInternal(unsigned int location)
 {
 	std::unique_lock<std::mutex> lock(_debugMutex);
 
@@ -719,7 +677,7 @@ void Processor::DeleteWatchpoint(IWatchpoint* watchpoint)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-void Processor::CheckMemoryReadInternal(unsigned int location, unsigned int data) const
+void Processor::CheckMemoryReadInternal(unsigned int location, unsigned int data)
 {
 	std::unique_lock<std::mutex> lock(_debugMutex);
 
@@ -755,7 +713,7 @@ void Processor::CheckMemoryReadInternal(unsigned int location, unsigned int data
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-void Processor::CheckMemoryWriteInternal(unsigned int location, unsigned int data) const
+void Processor::CheckMemoryWriteInternal(unsigned int location, unsigned int data)
 {
 	std::unique_lock<std::mutex> lock(_debugMutex);
 

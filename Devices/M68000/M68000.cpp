@@ -1254,7 +1254,7 @@ bool M68000::GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const
 		targetOpcode->SetInstructionLocation(instructionLocation);
 		targetOpcode->SetInstructionRegister(opcode);
 
-		targetOpcode->M68000Decode(this, targetOpcode->GetInstructionLocation(), targetOpcode->GetInstructionRegister(), targetOpcode->GetTransparentFlag());
+		targetOpcode->M68000Decode(const_cast<M68000*>(this), targetOpcode->GetInstructionLocation(), targetOpcode->GetInstructionRegister(), targetOpcode->GetTransparentFlag());
 		LabelSubstitutionSettings labelSettings;
 		labelSettings.enableSubstitution = false;
 		M68000Instruction::Disassembly disassembly = targetOpcode->M68000Disassemble(labelSettings);
@@ -1903,7 +1903,7 @@ M68000::FunctionCode M68000::GetFunctionCode(bool programReference) const
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-double M68000::ReadMemory(const M68000Long& location, Data& data, FunctionCode code, bool transparent, const M68000Long& currentPC, bool processingInstruction, const M68000Word& instructionRegister, bool rmwCycleInProgress, bool rmwCycleFirstOperation) const
+double M68000::ReadMemory(const M68000Long& location, Data& data, FunctionCode code, bool transparent, const M68000Long& currentPC, bool processingInstruction, const M68000Word& instructionRegister, bool rmwCycleInProgress, bool rmwCycleFirstOperation)
 {
 	if (transparent)
 	{
@@ -1917,7 +1917,7 @@ double M68000::ReadMemory(const M68000Long& location, Data& data, FunctionCode c
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-double M68000::ReadMemory(const M68000Long& location, Data& data, FunctionCode code, const M68000Long& currentPC, bool processingInstruction, const M68000Word& instructionRegister, bool rmwCycleInProgress, bool rmwCycleFirstOperation) const
+double M68000::ReadMemory(const M68000Long& location, Data& data, FunctionCode code, const M68000Long& currentPC, bool processingInstruction, const M68000Word& instructionRegister, bool rmwCycleInProgress, bool rmwCycleFirstOperation)
 {
 	IBusInterface::AccessResult result;
 
@@ -2090,7 +2090,7 @@ void M68000::ReadMemoryTransparent(const M68000Long& location, Data& data, Funct
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-double M68000::WriteMemory(const M68000Long& location, const Data& data, FunctionCode code, bool transparent, const M68000Long& currentPC, bool processingInstruction, const M68000Word& instructionRegister, bool rmwCycleInProgress, bool rmwCycleFirstOperation) const
+double M68000::WriteMemory(const M68000Long& location, const Data& data, FunctionCode code, bool transparent, const M68000Long& currentPC, bool processingInstruction, const M68000Word& instructionRegister, bool rmwCycleInProgress, bool rmwCycleFirstOperation)
 {
 	if (transparent)
 	{
@@ -2104,7 +2104,7 @@ double M68000::WriteMemory(const M68000Long& location, const Data& data, Functio
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-double M68000::WriteMemory(const M68000Long& location, const Data& data, FunctionCode code, const M68000Long& currentPC, bool processingInstruction, const M68000Word& instructionRegister, bool rmwCycleInProgress, bool rmwCycleFirstOperation) const
+double M68000::WriteMemory(const M68000Long& location, const Data& data, FunctionCode code, const M68000Long& currentPC, bool processingInstruction, const M68000Word& instructionRegister, bool rmwCycleInProgress, bool rmwCycleFirstOperation)
 {
 	IBusInterface::AccessResult result;
 
@@ -2393,7 +2393,7 @@ bool M68000::FormatOpcodeForDisassembly(unsigned int opcodeAddress, const LabelS
 	targetOpcode->SetInstructionLocation(instructionLocation);
 	targetOpcode->SetInstructionRegister(opcode);
 
-	targetOpcode->M68000Decode(this, targetOpcode->GetInstructionLocation(), targetOpcode->GetInstructionRegister(), targetOpcode->GetTransparentFlag());
+	targetOpcode->M68000Decode(const_cast<M68000*>(this), targetOpcode->GetInstructionLocation(), targetOpcode->GetInstructionRegister(), targetOpcode->GetTransparentFlag());
 	M68000Instruction::Disassembly disassembly = targetOpcode->M68000Disassemble(labelSettings);
 
 	opcodePrefix = disassembly.disassemblyOpcode;

@@ -250,8 +250,12 @@ public:
 	inline void SetFlagC(bool flag);
 
 	// Memory access functions
-	double ReadMemory(const Z80Word& location, Data& data, bool transparent) const;
-	double WriteMemory(const Z80Word& location, const Data& data, bool transparent) const;
+	double ReadMemory(const Z80Word& location, Data& data, bool transparent);
+	double ReadMemory(const Z80Word& location, Data& data);
+	void ReadMemoryTransparent(const Z80Word& location, Data& data) const;
+	double WriteMemory(const Z80Word& location, const Data& data, bool transparent);
+	double WriteMemory(const Z80Word& location, const Data& data);
+	void WriteMemoryTransparent(const Z80Word& location, const Data& data) const;
 
 	// CE line state functions
 	virtual unsigned int GetCELineID(const Marshal::In<std::wstring>& lineName, bool inputLine) const;

@@ -35,7 +35,7 @@ public:
 		}
 	}
 
-	virtual void Z80Decode(const Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)
+	virtual void Z80Decode(Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)
 	{
 		_target.SetIndexState(GetIndexState(), GetIndexOffset());
 		_conditionCode = ConditionCode::None;

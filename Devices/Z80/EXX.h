@@ -25,7 +25,7 @@ public:
 		return Disassembly(GetOpcodeName(), L"");
 	}
 
-	virtual void Z80Decode(const Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)
+	virtual void Z80Decode(Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)
 	{
 		//##NOTE## This opcode is not affected by index prefixes. HL is always the _target.
 		// EXX		11011001

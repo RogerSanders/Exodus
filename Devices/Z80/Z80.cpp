@@ -1282,7 +1282,7 @@ unsigned int Z80::GetMemorySpaceByte(unsigned int location) const
 	}
 
 	Z80Byte data;
-	ReadMemory(location, data, true);
+	ReadMemoryTransparent(location, data);
 	_externalReferenceLock.ReleaseReadLock();
 	return data.GetData();
 }
@@ -1324,7 +1324,7 @@ bool Z80::GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const
 	EffectiveAddress::IndexState indexState = EffectiveAddress::IndexState::None;
 
 	// Read the first byte of the instruction
-	ReadMemory(readLocation++, opcode, true);
+	ReadMemoryTransparent(readLocation++, opcode);
 	++instructionSize;
 	// If the first byte is a prefix byte, process it, and read the second byte.
 	if ((opcode == 0xDD) || (opcode == 0xFD))
@@ -1337,10 +1337,10 @@ bool Z80::GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const
 		{
 			indexState = EffectiveAddress::IndexState::IY;
 		}
-		ReadMemory(readLocation++, opcode, true);
+		ReadMemoryTransparent(readLocation++, opcode);
 		++instructionSize;
 
-		ReadMemory(readLocation, indexOffset, true);
+		ReadMemoryTransparent(readLocation, indexOffset);
 	}
 	// If we've encountered two prefix bytes back to back, force the opcode to a NOP
 	// instruction.
@@ -1357,10 +1357,10 @@ bool Z80::GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const
 			// Decode a DDCB or an FDCB opcode. These opcodes include a mandatory index
 			// displacement value as the third byte of the opcode.
 			mandatoryIndexOffset = true;
-			ReadMemory(readLocation++, indexOffset, true);
+			ReadMemoryTransparent(readLocation++, indexOffset);
 			++instructionSize;
 		}
-		ReadMemory(readLocation++, opcode, true);
+		ReadMemoryTransparent(readLocation++, opcode);
 		++instructionSize;
 		nextOpcodeType = _opcodeTableCB.GetInstruction(opcode.GetData());
 	}
@@ -1370,7 +1370,7 @@ bool Z80::GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const
 		// prefixed opcodes.
 		indexState = EffectiveAddress::IndexState::None;
 
-		ReadMemory(readLocation++, opcode, true);
+		ReadMemoryTransparent(readLocation++, opcode);
 		++instructionSize;
 		nextOpcodeType = _opcodeTableED.GetInstruction(opcode.GetData());
 	}
@@ -1391,7 +1391,7 @@ bool Z80::GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const
 		nextOpcode->SetIndexState(indexState);
 		nextOpcode->SetIndexOffset(indexOffset, mandatoryIndexOffset);
 
-		nextOpcode->Z80Decode(this, nextOpcode->GetInstructionLocation(), nextOpcode->GetInstructionRegister(), nextOpcode->GetTransparentFlag());
+		nextOpcode->Z80Decode(const_cast<Z80*>(this), nextOpcode->GetInstructionLocation(), nextOpcode->GetInstructionRegister(), nextOpcode->GetTransparentFlag());
 		LabelSubstitutionSettings labelSettings;
 		labelSettings.enableSubstitution = false;
 		Z80Instruction::Disassembly disassembly = nextOpcode->Z80Disassemble(labelSettings);
@@ -1414,46 +1414,42 @@ bool Z80::GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const
 //----------------------------------------------------------------------------------------------------------------------
 // Memory access functions
 //----------------------------------------------------------------------------------------------------------------------
-double Z80::ReadMemory(const Z80Word& location, Data& data, bool transparent) const
+double Z80::ReadMemory(const Z80Word& location, Data& data, bool transparent)
+{
+	if (transparent)
+	{
+		ReadMemoryTransparent(location, data);
+		return 0;
+	}
+	else
+	{
+		return ReadMemory(location, data);
+	}
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+double Z80::ReadMemory(const Z80Word& location, Data& data)
 {
 	IBusInterface::AccessResult result;
 
-	if (!transparent)
-	{
-		CheckMemoryRead(location.GetData(), data.GetData());
-	}
+	CheckMemoryRead(location.GetData(), data.GetData());
 
 	switch (data.GetBitCount())
 	{
 	case BITCOUNT_BYTE:{
 		Z80Byte temp;
 		CalculateCELineStateContext ceLineStateContext(true, false);
-		if (transparent)
-		{
-			_memoryBus->TransparentReadMemory(location.GetData(), temp, GetDeviceContext(), 0, (void*)&ceLineStateContext);
-		}
-		else
-		{
-			result = _memoryBus->ReadMemory(location.GetData(), temp, GetDeviceContext(), GetCurrentTimesliceProgress(), 0, (void*)&ceLineStateContext);
-		}
+		result = _memoryBus->ReadMemory(location.GetData(), temp, GetDeviceContext(), GetCurrentTimesliceProgress(), 0, (void*)&ceLineStateContext);
 		data = temp;
 		break;}
 	case BITCOUNT_WORD:{
 		Z80Byte byteLow;
 		Z80Byte byteHigh;
 		CalculateCELineStateContext ceLineStateContext(true, false);
-		if (transparent)
-		{
-			_memoryBus->TransparentReadMemory(location.GetData(), byteLow, GetDeviceContext(), 0, (void*)&ceLineStateContext);
-			_memoryBus->TransparentReadMemory((location + 1).GetData(), byteHigh, GetDeviceContext(), 0, (void*)&ceLineStateContext);
-		}
-		else
-		{
-			IBusInterface::AccessResult result2;
-			result = _memoryBus->ReadMemory(location.GetData(), byteLow, GetDeviceContext(), GetCurrentTimesliceProgress(), 0, (void*)&ceLineStateContext);
-			result2 = _memoryBus->ReadMemory((location + 1).GetData(), byteHigh, GetDeviceContext(), GetCurrentTimesliceProgress() + result.executionTime, 0, (void*)&ceLineStateContext);
-			result.executionTime += result2.executionTime;
-		}
+		IBusInterface::AccessResult result2;
+		result = _memoryBus->ReadMemory(location.GetData(), byteLow, GetDeviceContext(), GetCurrentTimesliceProgress(), 0, (void*)&ceLineStateContext);
+		result2 = _memoryBus->ReadMemory((location + 1).GetData(), byteHigh, GetDeviceContext(), GetCurrentTimesliceProgress() + result.executionTime, 0, (void*)&ceLineStateContext);
+		result.executionTime += result2.executionTime;
 		data.SetLowerBits(byteLow);
 		data.SetUpperBits(byteHigh);
 		break;}
@@ -1463,50 +1459,86 @@ double Z80::ReadMemory(const Z80Word& location, Data& data, bool transparent) co
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-double Z80::WriteMemory(const Z80Word& location, const Data& data, bool transparent) const
+void Z80::ReadMemoryTransparent(const Z80Word& location, Data& data) const
+{
+	switch (data.GetBitCount())
+	{
+	case BITCOUNT_BYTE:{
+		Z80Byte temp;
+		CalculateCELineStateContext ceLineStateContext(true, false);
+		_memoryBus->TransparentReadMemory(location.GetData(), temp, GetDeviceContext(), 0, (void*)&ceLineStateContext);
+		data = temp;
+		break;}
+	case BITCOUNT_WORD:{
+		Z80Byte byteLow;
+		Z80Byte byteHigh;
+		CalculateCELineStateContext ceLineStateContext(true, false);
+		_memoryBus->TransparentReadMemory(location.GetData(), byteLow, GetDeviceContext(), 0, (void*)&ceLineStateContext);
+		_memoryBus->TransparentReadMemory((location + 1).GetData(), byteHigh, GetDeviceContext(), 0, (void*)&ceLineStateContext);
+		data.SetLowerBits(byteLow);
+		data.SetUpperBits(byteHigh);
+		break;}
+	}
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+double Z80::WriteMemory(const Z80Word& location, const Data& data, bool transparent)
+{
+	if (transparent)
+	{
+		WriteMemoryTransparent(location, data);
+		return 0;
+	}
+	else
+	{
+		return WriteMemory(location, data);
+	}
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+double Z80::WriteMemory(const Z80Word& location, const Data& data)
 {
 	IBusInterface::AccessResult result;
 
-	if (!transparent)
-	{
-		CheckMemoryWrite(location.GetData(), data.GetData());
-	}
+	CheckMemoryWrite(location.GetData(), data.GetData());
 
 	switch (data.GetBitCount())
 	{
 	case BITCOUNT_BYTE:{
 		CalculateCELineStateContext ceLineStateContext(false, true);
-		if (transparent)
-		{
-			_memoryBus->TransparentWriteMemory(location.GetData(), data, GetDeviceContext(), 0, (void*)&ceLineStateContext);
-		}
-		else
-		{
-			result = _memoryBus->WriteMemory(location.GetData(), data, GetDeviceContext(), GetCurrentTimesliceProgress(), 0, (void*)&ceLineStateContext);
-		}
+		result = _memoryBus->WriteMemory(location.GetData(), data, GetDeviceContext(), GetCurrentTimesliceProgress(), 0, (void*)&ceLineStateContext);
 		break;}
 	case BITCOUNT_WORD:{
 		CalculateCELineStateContext ceLineStateContext(false, true);
-		if (transparent)
-		{
-			Z80Byte byte1(data.GetLowerBits(BITCOUNT_BYTE));
-			Z80Byte byte2(data.GetUpperBits(BITCOUNT_BYTE));
-			_memoryBus->TransparentWriteMemory(location.GetData(), byte1, GetDeviceContext(), 0, (void*)&ceLineStateContext);
-			_memoryBus->TransparentWriteMemory((location + 1).GetData(), byte2, GetDeviceContext(), 0, (void*)&ceLineStateContext);
-		}
-		else
-		{
-			IBusInterface::AccessResult result2;
-			Z80Byte byte1(data.GetLowerBits(BITCOUNT_BYTE));
-			Z80Byte byte2(data.GetUpperBits(BITCOUNT_BYTE));
-			result = _memoryBus->WriteMemory(location.GetData(), byte1, GetDeviceContext(), GetCurrentTimesliceProgress(), 0, (void*)&ceLineStateContext);
-			result2 = _memoryBus->WriteMemory((location + 1).GetData(), byte2, GetDeviceContext(), GetCurrentTimesliceProgress() + result.executionTime, 0, (void*)&ceLineStateContext);
-			result.executionTime += result2.executionTime;
-		}
+		IBusInterface::AccessResult result2;
+		Z80Byte byte1(data.GetLowerBits(BITCOUNT_BYTE));
+		Z80Byte byte2(data.GetUpperBits(BITCOUNT_BYTE));
+		result = _memoryBus->WriteMemory(location.GetData(), byte1, GetDeviceContext(), GetCurrentTimesliceProgress(), 0, (void*)&ceLineStateContext);
+		result2 = _memoryBus->WriteMemory((location + 1).GetData(), byte2, GetDeviceContext(), GetCurrentTimesliceProgress() + result.executionTime, 0, (void*)&ceLineStateContext);
+		result.executionTime += result2.executionTime;
 		break;}
 	}
 
 	return result.executionTime;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+void Z80::WriteMemoryTransparent(const Z80Word& location, const Data& data) const
+{
+	switch (data.GetBitCount())
+	{
+	case BITCOUNT_BYTE:{
+		CalculateCELineStateContext ceLineStateContext(false, true);
+		_memoryBus->TransparentWriteMemory(location.GetData(), data, GetDeviceContext(), 0, (void*)&ceLineStateContext);
+		break;}
+	case BITCOUNT_WORD:{
+		CalculateCELineStateContext ceLineStateContext(false, true);
+		Z80Byte byte1(data.GetLowerBits(BITCOUNT_BYTE));
+		Z80Byte byte2(data.GetUpperBits(BITCOUNT_BYTE));
+		_memoryBus->TransparentWriteMemory(location.GetData(), byte1, GetDeviceContext(), 0, (void*)&ceLineStateContext);
+		_memoryBus->TransparentWriteMemory((location + 1).GetData(), byte2, GetDeviceContext(), 0, (void*)&ceLineStateContext);
+		break;}
+	}
 }
 
 //----------------------------------------------------------------------------------------------------------------------

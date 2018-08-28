@@ -158,15 +158,13 @@ public:
 	inline double CalculateExecutionTime(unsigned int cycles) const;
 
 	// Instruction functions
-	//##TODO## Make these following virtual functions inline sealed when we have C++11
-	// support, to improve performance.
-	virtual unsigned int GetByteCharWidth() const;
-	virtual unsigned int GetPCCharWidth() const;
-	virtual unsigned int GetAddressBusCharWidth() const;
-	virtual unsigned int GetDataBusCharWidth() const;
-	virtual unsigned int GetPCMask() const;
-	virtual unsigned int GetAddressBusMask() const;
-	virtual unsigned int GetDataBusMask() const;
+	inline virtual unsigned int GetByteCharWidth() const final;
+	inline virtual unsigned int GetPCCharWidth() const final;
+	inline virtual unsigned int GetAddressBusCharWidth() const final;
+	inline virtual unsigned int GetDataBusCharWidth() const final;
+	inline virtual unsigned int GetPCMask() const final;
+	inline virtual unsigned int GetAddressBusMask() const final;
+	inline virtual unsigned int GetDataBusMask() const final;
 	virtual unsigned int GetMemorySpaceByte(unsigned int location) const;
 	virtual void SetMemorySpaceByte(unsigned int location, unsigned int data);
 	virtual bool GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const;
@@ -177,9 +175,7 @@ public:
 	virtual bool LockBreakpoint(IBreakpoint* breakpoint) const;
 	virtual void UnlockBreakpoint(IBreakpoint* breakpoint) const;
 	virtual void DeleteBreakpoint(IBreakpoint* breakpoint);
-	//##FIX## Make all these functions non-const once we fix our const issues surrounding
-	// disassembly for processors
-	inline void CheckExecution(unsigned int location) const;
+	inline void CheckExecution(unsigned int location);
 
 	// Watchpoint functions
 	virtual Marshal::Ret<std::list<IWatchpoint*>> GetWatchpointList() const;
@@ -187,10 +183,8 @@ public:
 	virtual bool LockWatchpoint(IWatchpoint* watchpoint) const;
 	virtual void UnlockWatchpoint(IWatchpoint* watchpoint) const;
 	virtual void DeleteWatchpoint(IWatchpoint* watchpoint);
-	//##FIX## Make all these functions non-const once we fix our const issues surrounding
-	// disassembly for processors
-	inline void CheckMemoryRead(unsigned int location, unsigned int data) const;
-	inline void CheckMemoryWrite(unsigned int location, unsigned int data) const;
+	inline void CheckMemoryRead(unsigned int location, unsigned int data);
+	inline void CheckMemoryWrite(unsigned int location, unsigned int data);
 
 	// Call stack functions
 	virtual bool GetCallStackDisassemble() const;
@@ -336,14 +330,14 @@ private:
 
 private:
 	// Breakpoint functions
-	void CheckExecutionInternal(unsigned int location) const;
+	void CheckExecutionInternal(unsigned int location);
 	void TriggerBreakpoint(Breakpoint* breakpoint) const;
 	static void BreakpointCallbackRaw(void* params);
 	void BreakpointCallback(Breakpoint* breakpoint) const;
 
 	// Watchpoint functions
-	void CheckMemoryReadInternal(unsigned int location, unsigned int data) const;
-	void CheckMemoryWriteInternal(unsigned int location, unsigned int data) const;
+	void CheckMemoryReadInternal(unsigned int location, unsigned int data);
+	void CheckMemoryWriteInternal(unsigned int location, unsigned int data);
 	void TriggerWatchpoint(Watchpoint* watchpoint) const;
 	static void WatchpointCallbackRaw(void* params);
 	void WatchpointCallback(Watchpoint* watchpoint) const;
@@ -385,20 +379,19 @@ private:
 	double _reportedClockSpeed;
 
 	// Breakpoints
-	//##FIX## Make these non-mutable once we fix our const issues
-	mutable std::vector<Breakpoint*> _breakpoints;
-	mutable std::vector<Watchpoint*> _watchpoints;
+	std::vector<Breakpoint*> _breakpoints;
+	std::vector<Watchpoint*> _watchpoints;
 	mutable std::set<IBreakpoint*> _lockedBreakpoints;
 	mutable std::set<IWatchpoint*> _lockedWatchpoints;
 	mutable std::condition_variable _breakpointLockReleased;
 	mutable std::condition_variable _watchpointLockReleased;
-	mutable std::set<unsigned int> _transientBreakpoints;
+	std::set<unsigned int> _transientBreakpoints;
 	volatile bool _breakpointExists;
 	volatile bool _watchpointExists;
-	volatile mutable bool _transientBreakpointExists;
+	volatile bool _transientBreakpointExists;
 
 	// Call stack
-	volatile mutable bool _breakOnNextOpcode;
+	volatile bool _breakOnNextOpcode;
 	bool _bbreakOnNextOpcode;
 	std::list<CallStackEntry> _callStack;
 	std::list<CallStackEntry> _bcallStack;
