@@ -11,6 +11,7 @@ ExecutionManager::ExecutionManager()
 void ExecutionManager::AddDevice(DeviceContext* device)
 {
 	// Add the specified device to the device arrays
+	std::lock_guard<std::mutex> lock(_accessMutex);
 	_deviceArray.push_back(device);
 	if (device->ActiveDevice())
 	{
@@ -39,6 +40,7 @@ void ExecutionManager::AddDevice(DeviceContext* device)
 //----------------------------------------------------------------------------------------------------------------------
 void ExecutionManager::RemoveDevice(DeviceContext* device)
 {
+	std::lock_guard<std::mutex> lock(_accessMutex);
 	bool done;
 	std::vector<DeviceContext*>::iterator i;
 
@@ -121,6 +123,7 @@ void ExecutionManager::RemoveDevice(DeviceContext* device)
 void ExecutionManager::ClearAllDevices()
 {
 	// Clear all device arrays
+	std::lock_guard<std::mutex> lock(_accessMutex);
 	_deviceArray.clear();
 	_activeDeviceArray.clear();
 	_suspendDeviceArray.clear();
@@ -139,6 +142,7 @@ void ExecutionManager::ClearAllDevices()
 //----------------------------------------------------------------------------------------------------------------------
 void ExecutionManager::NotifyUpcomingTimeslice(double nanoseconds)
 {
+	std::lock_guard<std::mutex> lock(_accessMutex);
 	for (unsigned int i = 0; i < _deviceCount; ++i)
 	{
 		_deviceArray[i]->NotifyUpcomingTimeslice(nanoseconds);
@@ -148,6 +152,7 @@ void ExecutionManager::NotifyUpcomingTimeslice(double nanoseconds)
 //----------------------------------------------------------------------------------------------------------------------
 void ExecutionManager::NotifyBeforeExecuteCalled()
 {
+	std::lock_guard<std::mutex> lock(_accessMutex);
 	for (unsigned int i = 0; i < _deviceCount; ++i)
 	{
 		_deviceArray[i]->NotifyBeforeExecuteCalled();
@@ -157,6 +162,7 @@ void ExecutionManager::NotifyBeforeExecuteCalled()
 //----------------------------------------------------------------------------------------------------------------------
 void ExecutionManager::NotifyAfterExecuteCalled()
 {
+	std::lock_guard<std::mutex> lock(_accessMutex);
 	for (unsigned int i = 0; i < _deviceCount; ++i)
 	{
 		_deviceArray[i]->NotifyAfterExecuteCalled();
@@ -167,6 +173,7 @@ void ExecutionManager::NotifyAfterExecuteCalled()
 void ExecutionManager::ExecuteTimeslice(double nanoseconds)
 {
 	// Enable execution suspend features for devices that support it
+	std::lock_guard<std::mutex> lock(_accessMutex);
 	EnableTimesliceExecutionSuspend();
 
 	// Start all devices executing the new timeslice
@@ -192,6 +199,7 @@ void ExecutionManager::ExecuteTimeslice(double nanoseconds)
 //----------------------------------------------------------------------------------------------------------------------
 void ExecutionManager::Commit()
 {
+	std::lock_guard<std::mutex> lock(_accessMutex);
 	for (unsigned int i = 0; i < _deviceCount; ++i)
 	{
 		_deviceArray[i]->Commit();
@@ -201,6 +209,7 @@ void ExecutionManager::Commit()
 //----------------------------------------------------------------------------------------------------------------------
 void ExecutionManager::Rollback()
 {
+	std::lock_guard<std::mutex> lock(_accessMutex);
 	for (unsigned int i = 0; i < _deviceCount; ++i)
 	{
 		_deviceArray[i]->Rollback();
@@ -217,6 +226,7 @@ void ExecutionManager::Initialize()
 	// device is currently suspended, we can't send this command in parallel to each
 	// device, as the command worker thread for each device is also suspended, so we
 	// initialize each device serially on the one thread here.
+	std::lock_guard<std::mutex> lock(_accessMutex);
 	for (unsigned int i = 0; i < _deviceCount; ++i)
 	{
 		_deviceArray[i]->Initialize();
@@ -226,6 +236,7 @@ void ExecutionManager::Initialize()
 //----------------------------------------------------------------------------------------------------------------------
 void ExecutionManager::AssertCurrentOutputLineState()
 {
+	std::lock_guard<std::mutex> lock(_accessMutex);
 	for (unsigned int i = 0; i < _deviceCount; ++i)
 	{
 		_deviceArray[i]->GetTargetDevice().AssertCurrentOutputLineState();
@@ -235,6 +246,7 @@ void ExecutionManager::AssertCurrentOutputLineState()
 //----------------------------------------------------------------------------------------------------------------------
 void ExecutionManager::NegateCurrentOutputLineState()
 {
+	std::lock_guard<std::mutex> lock(_accessMutex);
 	for (unsigned int i = 0; i < _deviceCount; ++i)
 	{
 		_deviceArray[i]->GetTargetDevice().NegateCurrentOutputLineState();
@@ -246,6 +258,7 @@ void ExecutionManager::NegateCurrentOutputLineState()
 //----------------------------------------------------------------------------------------------------------------------
 double ExecutionManager::GetNextTimingPoint(double maximumTimeslice, DeviceContext*& nextDeviceStep, unsigned int& nextDeviceStepContext)
 {
+	std::lock_guard<std::mutex> lock(_accessMutex);
 	for (unsigned int i = 0; i < _deviceCount; ++i)
 	{
 		_nextTimesliceContextValues[i] = 0;
@@ -275,20 +288,28 @@ double ExecutionManager::GetNextTimingPoint(double maximumTimeslice, DeviceConte
 //----------------------------------------------------------------------------------------------------------------------
 void ExecutionManager::StartExecution()
 {
+	std::lock_guard<std::mutex> lock(_accessMutex);
+	std::vector<std::thread> threads;
+	threads.reserve(_activeDeviceCount);
 	for (unsigned int i = 0; i < _activeDeviceCount; ++i)
 	{
-		_activeDeviceArray[i]->StartExecution();
+		threads.emplace_back(std::thread([&, i] { _activeDeviceArray[i]->StartExecution(); }));
+	}
+	for (unsigned int i = 0; i < _activeDeviceCount; ++i)
+	{
+		threads[i].join();
 	}
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 void ExecutionManager::StopExecution()
 {
+	std::lock_guard<std::mutex> lock(_accessMutex);
 	std::vector<std::thread> threads;
 	threads.reserve(_activeDeviceCount);
 	for (unsigned int i = 0; i < _activeDeviceCount; ++i)
 	{
-		threads.emplace_back(std::thread([&] { _activeDeviceArray[i]->StopExecution(); }));
+		threads.emplace_back(std::thread([&, i] { _activeDeviceArray[i]->StopExecution(); }));
 	}
 	for (unsigned int i = 0; i < _activeDeviceCount; ++i)
 	{

@@ -2108,15 +2108,20 @@ bool System::SystemRunning() const
 //----------------------------------------------------------------------------------------------------------------------
 void System::RunSystem()
 {
+	std::unique_lock<std::mutex> lock(_systemStateMutex);
 	if (!SystemRunning())
 	{
 		// Log the event
 		WriteLogEvent(LogEntry(LogEntry::EventLevel::Info, L"System", L"System entered the running state"));
 
+		// Spawn a worker thread to begin system execution
 		_stopSystem = false;
 		_systemStopped = false;
 		std::thread workerThread(std::bind(std::mem_fn(&System::ExecuteThread), this));
 		workerThread.detach();
+
+		// Wait for the system to start
+		_notifySystemStarted.wait(lock);
 	}
 }
 
@@ -2383,6 +2388,9 @@ void System::ExecuteThread()
 	// manual changes made through the debug interface while the system was idle are not
 	// lost in the event of a rollback.
 	_executionManager.Commit();
+
+	// Notify any waiting threads that the system is now started
+	_notifySystemStarted.notify_all();
 
 	// Main system loop
 	double accumulatedExecutionTime = 0;

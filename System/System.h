@@ -557,6 +557,7 @@ private:
 
 	// Asynchronous notification settings
 	mutable std::mutex _moduleNameMutex;
+	std::condition_variable _notifySystemStarted;
 	std::condition_variable _notifySystemStopped;
 	volatile bool _stopSystem;
 	volatile bool _systemStopped;
