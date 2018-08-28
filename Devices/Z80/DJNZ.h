@@ -72,6 +72,17 @@ public:
 		return GetExecuteCycleCount(additionalTime) + additionalCycles;
 	}
 
+	virtual bool IsCountedLoop() const
+	{
+		return true;
+	}
+
+	virtual unsigned int CountedLoopEndLocation() const
+	{
+		unsigned int nextOpcodeAddress = GetInstructionLocation().GetData() + GetInstructionSize();
+		return nextOpcodeAddress;
+	}
+
 private:
 	EffectiveAddress _source;
 	EffectiveAddress _target;

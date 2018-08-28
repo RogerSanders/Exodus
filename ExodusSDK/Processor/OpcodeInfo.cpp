@@ -4,7 +4,7 @@
 // Constructors
 //----------------------------------------------------------------------------------------------------------------------
 OpcodeInfo::OpcodeInfo()
-:_valid(false), _opcodeSize(0)
+:_valid(false), _opcodeSize(0), _isCountedLoop(false), _countedLoopEndLocation(0)
 { }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -111,4 +111,28 @@ bool OpcodeInfo::GetHasUndeterminedResultantPCLocation() const
 void OpcodeInfo::SetHasUndeterminedResultantPCLocation(bool state)
 {
 	_undeterminedResultantPCLocation = state;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+bool OpcodeInfo::GetOpcodeIsCountedLoop() const
+{
+	return _isCountedLoop;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+void OpcodeInfo::SetOpcodeIsCountedLoop(bool state)
+{
+	_isCountedLoop = state;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+unsigned int OpcodeInfo::GetOpcodeCountedLoopEndLocation() const
+{
+	return _countedLoopEndLocation;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+void OpcodeInfo::SetOpcodeCountedLoopEndLocation(unsigned int state)
+{
+	_countedLoopEndLocation = state;
 }

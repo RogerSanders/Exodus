@@ -50,6 +50,18 @@ Z80Instruction::Disassembly Z80Instruction::Z80Disassemble(const Z80::LabelSubst
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+bool Z80Instruction::IsCountedLoop() const
+{
+	return false;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+unsigned int Z80Instruction::CountedLoopEndLocation() const
+{
+	return 0;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 std::wstring Z80Instruction::DisassembleConditionCode(ConditionCode conditionCode)
 {
 	switch (conditionCode)

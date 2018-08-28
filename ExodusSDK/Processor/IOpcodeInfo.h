@@ -31,6 +31,10 @@ public:
 	virtual void SetResultantPCLocations(const Marshal::In<std::set<unsigned int>>& state) = 0;
 	virtual bool GetHasUndeterminedResultantPCLocation() const = 0;
 	virtual void SetHasUndeterminedResultantPCLocation(bool state) = 0;
+	virtual bool GetOpcodeIsCountedLoop() const = 0;
+	virtual void SetOpcodeIsCountedLoop(bool state) = 0;
+	virtual unsigned int GetOpcodeCountedLoopEndLocation() const = 0;
+	virtual void SetOpcodeCountedLoopEndLocation(unsigned int state) = 0;
 };
 IOpcodeInfo::~IOpcodeInfo() { }
 

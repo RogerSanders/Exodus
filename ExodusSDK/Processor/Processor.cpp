@@ -242,11 +242,28 @@ void Processor::BreakOnCurrentOpcode() const
 //----------------------------------------------------------------------------------------------------------------------
 void Processor::BreakOnStepOverCurrentOpcode()
 {
+	// Obtain information on the current opcode
+	unsigned int location = GetCurrentPC();
+	OpcodeInfo opcodeInfo;
+	GetOpcodeInfo(location, opcodeInfo);
+
+	// Set a break condition for stepping over the current opcode
 	std::unique_lock<std::mutex> lock(_debugMutex);
-	_stepOver = true;
-	_stepOut = false;
-	_breakOnNextOpcode = false;
-	_stackLevel = 0;
+	if (opcodeInfo.GetOpcodeIsCountedLoop())
+	{
+		// Set a transient breakpoint for the step over location. This will allow us to step over "dbra" opcodes and the
+		// like, that loop on a counter.
+		_transientBreakpoints.insert(opcodeInfo.GetOpcodeCountedLoopEndLocation());
+		_transientBreakpointExists = true;
+	}
+	else
+	{
+		// If this isn't a counted branch instruction, flag to step over it.
+		_stepOver = true;
+		_stepOut = false;
+		_breakOnNextOpcode = false;
+		_stackLevel = 0;
+	}
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -257,6 +274,14 @@ void Processor::BreakOnStepOutCurrentOpcode()
 	_stepOver = false;
 	_breakOnNextOpcode = false;
 	_stackLevel = 0;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+void Processor::BreakOnTargetOpcodeTransient(unsigned int location)
+{
+	std::unique_lock<std::mutex> lock(_debugMutex);
+	_transientBreakpoints.insert(location);
+	_transientBreakpointExists = true;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -522,9 +547,19 @@ void Processor::CheckExecutionInternal(unsigned int location) const
 				{
 					breakOnInstruction = true;
 					triggerBreakpoint = breakpoint;
+					_transientBreakpoints.erase(location);
+					_transientBreakpointExists = !_transientBreakpoints.empty();
 				}
 			}
 		}
+	}
+
+	// Look for any transient breakpoints active on the target address
+	if (!breakOnInstruction && (_transientBreakpoints.find(location) != _transientBreakpoints.end()))
+	{
+		breakOnInstruction = true;
+		_transientBreakpoints.erase(location);
+		_transientBreakpointExists = !_transientBreakpoints.empty();
 	}
 
 	if (breakOnInstruction)

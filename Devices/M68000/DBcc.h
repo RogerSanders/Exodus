@@ -105,6 +105,17 @@ public:
 		labelTargetLocations.insert(branchOpcodeAddress);
 	}
 
+	virtual bool IsCountedLoop() const
+	{
+		return true;
+	}
+
+	virtual unsigned int CountedLoopEndLocation() const
+	{
+		unsigned int nextOpcodeAddress = GetInstructionLocation().GetData() + GetInstructionSize();
+		return nextOpcodeAddress;
+	}
+
 private:
 	ConditionCode _conditionCode;
 	EffectiveAddress _source;

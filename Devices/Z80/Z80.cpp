@@ -1401,6 +1401,8 @@ bool Z80::GetOpcodeInfo(unsigned int location, IOpcodeInfo& opcodeInfo) const
 		opcodeInfo.SetOpcodeNameDisassembly(disassembly.disassemblyOpcode);
 		opcodeInfo.SetOpcodeArgumentsDisassembly(disassembly.disassemblyArguments);
 		opcodeInfo.SetDisassemblyComment(disassembly.disassemblyComment);
+		opcodeInfo.SetOpcodeIsCountedLoop(nextOpcode->IsCountedLoop());
+		opcodeInfo.SetOpcodeCountedLoopEndLocation(nextOpcode->CountedLoopEndLocation());
 
 		delete nextOpcode;
 	}

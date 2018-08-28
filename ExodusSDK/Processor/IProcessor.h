@@ -38,6 +38,7 @@ public:
 	virtual void BreakOnCurrentOpcode() const = 0;
 	virtual void BreakOnStepOverCurrentOpcode() = 0;
 	virtual void BreakOnStepOutCurrentOpcode() = 0;
+	virtual void BreakOnTargetOpcodeTransient(unsigned int location) = 0;
 
 	// Control functions
 	virtual double GetClockSpeed() const = 0;

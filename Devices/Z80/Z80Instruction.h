@@ -64,6 +64,8 @@ public:
 	// Disassembly functions
 	virtual std::wstring GetOpcodeName() const;
 	virtual Disassembly Z80Disassemble(const Z80::LabelSubstitutionSettings& labelSettings) const;
+	virtual bool IsCountedLoop() const;
+	virtual unsigned int CountedLoopEndLocation() const;
 	static std::wstring DisassembleConditionCode(ConditionCode conditionCode);
 
 private:
