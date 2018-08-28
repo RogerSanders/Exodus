@@ -3016,7 +3016,7 @@ void DockingWindow::ShowDropTargets(bool allowCenterDocking)
 	int marginSize = 3;
 	int dockingRegionWindowContentSizeNonScaled = 24;
 	int dockingRegionWindowContentWidth = DPIScaleWidth(dockingRegionWindowContentSizeNonScaled);
-	int dockingRegionWindowContentHeight = DPIScaleWidth(dockingRegionWindowContentSizeNonScaled);
+	int dockingRegionWindowContentHeight = DPIScaleHeight(dockingRegionWindowContentSizeNonScaled);
 	int dockingRegionTopInsertMarginSize = 2;
 	int dockingRegionTopInsertIconWidth = dockingRegionWindowContentWidth / 2;
 	int centerDockingIconWidth = dockingRegionWindowContentWidth + (2 * marginSize);

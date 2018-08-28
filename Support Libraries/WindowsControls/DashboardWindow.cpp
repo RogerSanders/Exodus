@@ -2670,8 +2670,8 @@ void DashboardWindow::ShowDropTargets(IDockingWindow* callingDockingWindow, int 
 		// Show drop target windows for the target region
 		const int borderWidth = 1;
 		const int marginSize = 3;
-		const int dropTargetWindowIconWidth = 14;
-		const int dropTargetWindowIconHeight = 22;
+		const int dropTargetWindowIconWidth = DPIScaleWidth(14);
+		const int dropTargetWindowIconHeight = DPIScaleHeight(22);
 		if (targetRegion->windowHandle == NULL)
 		{
 			// Calculate the position and size of the center drop target
