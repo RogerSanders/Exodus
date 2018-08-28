@@ -5,10 +5,15 @@
 #include "DataConversion/DataConversion.pkg"
 
 //----------------------------------------------------------------------------------------------------------------------
+// Static variables
+//----------------------------------------------------------------------------------------------------------------------
+std::map<HWND, DisassemblyView*> DisassemblyView::_disassemblyViewSet;
+
+//----------------------------------------------------------------------------------------------------------------------
 // Constructors
 //----------------------------------------------------------------------------------------------------------------------
 DisassemblyView::DisassemblyView(IUIManager& uiManager, DisassemblyViewPresenter& presenter, IProcessor& model)
-:ViewBase(uiManager, presenter), _presenter(presenter), _model(model), _initializedDialog(false), _currentControlFocus(0)
+:ViewBase(uiManager, presenter), _presenter(presenter), _model(model), _initializedDialog(false), _currentControlFocus(0), _hasSelectedOpcode(false)
 {
 	_hwndDataGrid = NULL;
 	_hwndControlPanel = NULL;
@@ -292,18 +297,32 @@ LRESULT DisassemblyView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		{
 			WC_DataGrid::Grid_SelectionEvent* info = (WC_DataGrid::Grid_SelectionEvent*)lparam;
 
-			// If the CTRL key was pressed when the row selection was made, toggle a
-			// breakpoint at the opcode being displayed on the target row. If the shift key
-			// was also pressed, just toggle the enable/disable state of the breakpoint.
-			if (info->rowSelected && info->keyPressedCtrl)
+			unsigned int opcodeLocation;
+			OpcodeInfo opcodeInfo;
+			if (info->rowSelected && GetOpcodeInfoForRow(info->selectedRowNo, opcodeLocation, opcodeInfo))
 			{
-				ToggleBreakpointStateAtRow(info->selectedRowNo, info->keyPressedShift);
-
-				// Since we're handling this selection event ourselves, and we don't want a
-				// grid selection to occur in response, instruct the data grid to ignore
-				// the selection.
-				info->ignoreSelectionEvent = true;
+				if (info->keyPressedCtrl)
+				{
+					// If the CTRL key was pressed when the row selection was made, toggle a
+					// breakpoint at the opcode being displayed on the target row. If the shift key
+					// was also pressed, just toggle the enable/disable state of the breakpoint.
+					ToggleBreakpointStateAtAddress(opcodeLocation, info->keyPressedShift);
+				}
+				else
+				{
+					_hasSelectedOpcode = true;
+					_selectedOpcodeAddress = opcodeLocation;
+				}
 			}
+			else
+			{
+				_hasSelectedOpcode = false;
+				_selectedOpcodeAddress = 0;
+			}
+
+			// Since we're handling this selection event ourselves, and we don't want a grid
+			// selection to occur in response, instruct the data grid to ignore the selection.
+			info->ignoreSelectionEvent = true;
 		}
 
 		// Update the vertical scroll settings
@@ -376,17 +395,34 @@ LRESULT DisassemblyView::msgWM_BOUNCE(HWND hwnd, WPARAM wParam, LPARAM lParam)
 	BounceMessage* bounceMessage = (BounceMessage*)lParam;
 	if ((bounceMessage->uMsg == WM_KEYDOWN) && (bounceMessage->wParam == VK_F11))
 	{
-		// Step a single opcode
-		_model.GetDevice()->GetDeviceContext()->StopSystem();
-		_model.GetDevice()->GetDeviceContext()->ExecuteDeviceStep();
+		if ((GetKeyState(VK_SHIFT) & 0x8000) != 0)
+		{
+			PerformStepOut();
+		}
+		else
+		{
+			PerformStepInto();
+		}
+		bounceMessage->caught = true;
+	}
+	else if ((bounceMessage->uMsg == WM_KEYDOWN) && (bounceMessage->wParam == VK_F3))
+	{
+		PerformRun();
 		bounceMessage->caught = true;
 	}
 	else if ((bounceMessage->uMsg == WM_SYSKEYDOWN) && (bounceMessage->wParam == VK_F10))
 	{
-		// Step over the current opcode
-		_model.GetDevice()->GetDeviceContext()->StopSystem();
-		_model.BreakOnStepOverCurrentOpcode();
-		_model.GetDevice()->GetDeviceContext()->RunSystem();
+		if ((GetKeyState(VK_CONTROL) & 0x8000) != 0)
+		{
+			if (_hasSelectedOpcode)
+			{
+				PerformRunToAddress(_selectedOpcodeAddress);
+			}
+		}
+		else
+		{
+			PerformStepOver();
+		}
 		bounceMessage->caught = true;
 	}
 	return 0;
@@ -457,11 +493,56 @@ INT_PTR DisassemblyView::WndProcPanel(HWND hwnd, UINT msg, WPARAM wparam, LPARAM
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+LRESULT CALLBACK DisassemblyView::HookProc(int nCode, WPARAM wParam, LPARAM lParam)
+{
+	// If this is a WM_KEYDOWN event for the F3 key, and the window that currently has focus is a grid control for a,
+	// disassembly view, execute our custom "run" command for the target view which will skip over the current
+	// breakpoint, and cancel any further message processing.
+	if ((nCode == HC_ACTION) && ((lParam & 0x80000000) == 0) && (wParam == VK_F3))
+	{
+		HWND focusWindow = GetFocus();
+		auto disassemblyViewIterator = _disassemblyViewSet.find(focusWindow);
+		if (disassemblyViewIterator != _disassemblyViewSet.end())
+		{
+			DisassemblyView* view = disassemblyViewIterator->second;
+			view->PerformRun();
+			return 0;
+		}
+	}
+
+	// Pass this message on for normal processing
+	return CallNextHookEx(0, nCode, wParam, lParam);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 // Panel dialog event handlers
 //----------------------------------------------------------------------------------------------------------------------
 INT_PTR DisassemblyView::msgPanelWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
 	_initializedDialog = true;
+
+	// Insert a keyboard hook procedure for this thread so we can override global hotkeys
+	_disassemblyViewSet[_hwndDataGrid] = this;
+	_hookHandle = SetWindowsHookEx(WH_KEYBOARD, HookProc, NULL, GetCurrentThreadId());
+
+	// Tooltip messages
+	const std::wstring hotkeysTooltip = 
+		L"Hotkeys are supported within the disassembly text region. All system hotkeys are active, as well as some hotkeys specific to the disassembly window, as follows:\r\n"
+		L"F2 - Pause System\r\n"
+		L"F3 - Run System\r\n"
+		L"F4 - Hard Reset System\r\n"
+		L"F5 - Quick Load State\r\n"
+		L"F8 - Quick Save State\r\n"
+		L"F10 - Step Over\r\n"
+		L"F11 - Step Into\r\n"
+		L"Shift + F11 - Step Out\r\n"
+		L"Ctrl + F10 - Run to selected opcode\r\n"
+		L"Ctrl + Click - Add or remove breakpoint on target\r\n"
+		L"Ctrl + Shift + Click - Enable or disable breakpoint";
+
+	// Create tooltips for the window
+	HWND hwndTooltip = CreateTooltipControl(GetAssemblyHandle(), hwnd);
+	AddTooltip(GetAssemblyHandle(), hwndTooltip, hwnd, IDC_PROCESSOR_DISASSEMBLY_PANEL_HOTKEYS_TT, hotkeysTooltip, true);
 
 	// Set the initial state for the controls
 	CheckDlgButton(hwnd, IDC_PROCESSOR_DISASSEMBLY_PANEL_TRACK, (_track)? BST_CHECKED: BST_UNCHECKED);
@@ -476,7 +557,9 @@ INT_PTR DisassemblyView::msgPanelWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM 
 //----------------------------------------------------------------------------------------------------------------------
 INT_PTR DisassemblyView::msgPanelWM_DESTROY(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
-	KillTimer(hwnd, 1);
+	// Remove our window hook procedure
+	UnhookWindowsHookEx(_hookHandle);
+	_disassemblyViewSet.erase(_hwndDataGrid);
 
 	return FALSE;
 }
@@ -539,21 +622,25 @@ INT_PTR DisassemblyView::msgPanelWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lpa
 			_forcePCSync = true;
 			break;
 		case IDC_PROCESSOR_DISASSEMBLY_PANEL_STEPINTO:
-			// Step a single opcode
-			_model.GetDevice()->GetDeviceContext()->StopSystem();
-			_model.GetDevice()->GetDeviceContext()->ExecuteDeviceStep();
+			PerformStepInto();
 			break;
 		case IDC_PROCESSOR_DISASSEMBLY_PANEL_STEPOVER:
-			// Step over the current opcode
-			_model.GetDevice()->GetDeviceContext()->StopSystem();
-			_model.BreakOnStepOverCurrentOpcode();
-			_model.GetDevice()->GetDeviceContext()->RunSystem();
+			PerformStepOver();
 			break;
 		case IDC_PROCESSOR_DISASSEMBLY_PANEL_STEPOUT:
-			// Step out one call stack level
-			_model.GetDevice()->GetDeviceContext()->StopSystem();
-			_model.BreakOnStepOutCurrentOpcode();
-			_model.GetDevice()->GetDeviceContext()->RunSystem();
+			PerformStepOut();
+			break;
+		case IDC_PROCESSOR_DISASSEMBLY_PANEL_STOP:
+			PerformStop();
+			break;
+		case IDC_PROCESSOR_DISASSEMBLY_PANEL_RUN:
+			PerformRun();
+			break;
+		case IDC_PROCESSOR_DISASSEMBLY_PANEL_RUNTOSELECTION:
+			if (_hasSelectedOpcode)
+			{
+				PerformRunToAddress(_selectedOpcodeAddress);
+			}
 			break;
 		}
 
@@ -615,41 +702,57 @@ void DisassemblyView::UpdateDisassembly()
 	{
 		unsigned int rowPCLocation = (upperReadPosition + offset);
 
-		// Set the color for this row
-		WC_DataGrid::Grid_SetRowColor setRowColor;
-		if (rowPCLocation == _currentPCLocation)
+		// Look for any breakpoints which trigger at the target address
+		bool breakpointAtLocation = false;
+		bool breakpointEnabled = false;
+		std::list<IBreakpoint*>::const_iterator breakpointIterator = breakpointList.begin();
+		while (!breakpointAtLocation && (breakpointIterator != breakpointList.end()))
 		{
-			// If this row is the same as the current PC location, shade the location in
-			// green.
+			breakpointAtLocation = (*breakpointIterator)->PassesLocationCondition(rowPCLocation);
+			breakpointEnabled = (*breakpointIterator)->GetEnabled();
+			++breakpointIterator;
+		}
+
+		// Set the color for this row
+		bool rowIsCurrentLocation = rowPCLocation == _currentPCLocation;
+		bool rowIsSelected = _selectedOpcodeAddress == rowPCLocation;
+		WC_DataGrid::Grid_SetRowColor setRowColor;
+		if (breakpointAtLocation || rowIsCurrentLocation || rowIsSelected)
+		{
+			if (breakpointAtLocation && rowIsCurrentLocation && rowIsSelected)
+			{
+				setRowColor.colorBackground = breakpointEnabled? WinColor(175, 95, 128): WinColor(207, 159, 191);
+			}
+			else if (breakpointAtLocation && rowIsCurrentLocation)
+			{
+				setRowColor.colorBackground = breakpointEnabled? WinColor(159, 128, 64): WinColor(191, 191, 128);
+			}
+			else if (breakpointAtLocation && rowIsSelected)
+			{
+				setRowColor.colorBackground = breakpointEnabled? WinColor(176, 94, 127): WinColor(207, 158, 191);
+			}
+			else if (breakpointAtLocation)
+			{
+				setRowColor.colorBackground = breakpointEnabled? WinColor(255, 128, 128): WinColor(192, 0, 0);
+			}
+			else if (rowIsCurrentLocation && rowIsSelected)
+			{
+				setRowColor.colorBackground = WinColor(143, 222, 191);
+			}
+			else if (rowIsCurrentLocation)
+			{
+				setRowColor.colorBackground = WinColor(128, 255, 128);
+			}
+			else // if (rowIsSelected)
+			{
+				setRowColor.colorBackground = WinColor(160, 190, 255);
+			}
 			setRowColor.backgroundColorDefined = true;
-			setRowColor.colorBackground = WinColor(128, 255, 128);
 			setRowColor.textColorDefined = true;
 			setRowColor.colorTextFront = WinColor(0, 0, 0);
 			setRowColor.colorTextBack = setRowColor.colorBackground;
 		}
-		else
-		{
-			// Look for any breakpoints which trigger at the target address
-			bool breakpointAtLocation = false;
-			bool breakpointEnabled = false;
-			std::list<IBreakpoint*>::const_iterator breakpointIterator = breakpointList.begin();
-			while (!breakpointAtLocation && (breakpointIterator != breakpointList.end()))
-			{
-				breakpointAtLocation = (*breakpointIterator)->PassesLocationCondition(rowPCLocation);
-				breakpointEnabled = (*breakpointIterator)->GetEnabled();
-				++breakpointIterator;
-			}
 
-			// If a breakpoint triggers at this address, shade the location in red.
-			if (breakpointAtLocation)
-			{
-				setRowColor.backgroundColorDefined = true;
-				setRowColor.colorBackground = breakpointEnabled? WinColor(255, 128, 128): WinColor(192, 0, 0);
-				setRowColor.textColorDefined = true;
-				setRowColor.colorTextFront = WinColor(0, 0, 0);
-				setRowColor.colorTextBack = setRowColor.colorBackground;
-			}
-		}
 		SendMessage(_hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::SetRowColor, i, (LPARAM)&setRowColor);
 
 		// Read the opcode info
@@ -725,12 +828,12 @@ void DisassemblyView::UpdateDisassembly()
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-void DisassemblyView::ToggleBreakpointStateAtRow(unsigned int visibleRowNo, bool toggleEnableState)
+bool DisassemblyView::GetOpcodeInfoForRow(unsigned int visibleRowNo, unsigned int& opcodeLocation, OpcodeInfo& opcodeInfo)
 {
 	// Validate the specified row number
 	if (visibleRowNo >= _visibleRows)
 	{
-		return;
+		return false;
 	}
 
 	// Obtain the address of the first opcode in the buffer
@@ -746,7 +849,6 @@ void DisassemblyView::ToggleBreakpointStateAtRow(unsigned int visibleRowNo, bool
 	while ((upperReadPosition + offset) < _firstVisibleValueLocation)
 	{
 		// Read the opcode info
-		OpcodeInfo opcodeInfo;
 		unsigned int opcodeSize = minimumOpcodeByteSize;
 		if (_model.GetOpcodeInfo(upperReadPosition + offset, opcodeInfo) && opcodeInfo.GetIsValidOpcode())
 		{
@@ -762,7 +864,6 @@ void DisassemblyView::ToggleBreakpointStateAtRow(unsigned int visibleRowNo, bool
 	while ((currentVisibleRowNo < visibleRowNo) && ((upperReadPosition + offset) < _endLocation))
 	{
 		// Read the opcode info
-		OpcodeInfo opcodeInfo;
 		unsigned int opcodeSize = minimumOpcodeByteSize;
 		if (_model.GetOpcodeInfo(upperReadPosition + offset, opcodeInfo) && opcodeInfo.GetIsValidOpcode())
 		{
@@ -775,14 +876,12 @@ void DisassemblyView::ToggleBreakpointStateAtRow(unsigned int visibleRowNo, bool
 	}
 	if (currentVisibleRowNo != visibleRowNo)
 	{
-		return;
+		return false;
 	}
 
 	// Calculate the address of the selected opcode
-	unsigned int targetOpcodeLocation = upperReadPosition + offset;
-
-	// Toggle a breakpoint at the target location
-	ToggleBreakpointStateAtAddress(targetOpcodeLocation, toggleEnableState);
+	opcodeLocation = upperReadPosition + offset;
+	return true;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -836,4 +935,55 @@ void DisassemblyView::ToggleBreakpointStateAtAddress(unsigned int pcLocation, bo
 			}
 		}
 	}
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+void DisassemblyView::PerformStepOver()
+{
+	// Step over the current opcode
+	_model.GetDevice()->GetDeviceContext()->StopSystem();
+	_model.BreakOnStepOverCurrentOpcode();
+	_model.GetDevice()->GetDeviceContext()->RunSystem();
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+void DisassemblyView::PerformStepInto()
+{
+	// Step a single opcode
+	_model.GetDevice()->GetDeviceContext()->StopSystem();
+	_model.GetDevice()->GetDeviceContext()->ExecuteDeviceStep();
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+void DisassemblyView::PerformStepOut()
+{
+	// Step out one call stack level
+	_model.GetDevice()->GetDeviceContext()->StopSystem();
+	_model.BreakOnStepOutCurrentOpcode();
+	_model.GetDevice()->GetDeviceContext()->RunSystem();
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+void DisassemblyView::PerformStop()
+{
+	_model.GetDevice()->GetDeviceContext()->StopSystem();
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+void DisassemblyView::PerformRun()
+{
+	_model.GetDevice()->GetDeviceContext()->StopSystem();
+	// This step before running the system allows the user to just keep on hitting
+	// run when stopped at a breakpoint.
+	//##FIX## This assumes that executing a single device step will pass the
+	// breakpoint, which may not be the case.
+	_model.GetDevice()->GetDeviceContext()->ExecuteDeviceStep();
+	_model.GetDevice()->GetDeviceContext()->RunSystem();
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+void DisassemblyView::PerformRunToAddress(unsigned int pcLocation)
+{
+	_model.BreakOnTargetOpcodeTransient(pcLocation);
+	_model.GetDevice()->GetDeviceContext()->RunSystem();
 }

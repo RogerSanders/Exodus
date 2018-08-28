@@ -42,6 +42,7 @@ private:
 	// Panel dialog window procedure
 	static INT_PTR CALLBACK WndProcPanelStatic(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 	INT_PTR WndProcPanel(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
+	static LRESULT CALLBACK HookProc(int nCode, WPARAM wParam, LPARAM lParam);
 
 	// Panel dialog event handlers
 	INT_PTR msgPanelWM_INITDIALOG(HWND hwnd, WPARAM wParam, LPARAM lParam);
@@ -51,19 +52,31 @@ private:
 
 	// Disassembly functions
 	void UpdateDisassembly();
-	void ToggleBreakpointStateAtRow(unsigned int visibleRowNo, bool toggleEnableState);
+	bool GetOpcodeInfoForRow(unsigned int visibleRowNo, unsigned int& opcodeLocation, OpcodeInfo& opcodeInfo);
 	void ToggleBreakpointStateAtAddress(unsigned int pcLocation, bool toggleEnableState);
+	void PerformStepOver();
+	void PerformStepInto();
+	void PerformStepOut();
+	void PerformStop();
+	void PerformRun();
+	void PerformRunToAddress(unsigned int pcLocation);
+
+private:
+	static std::map<HWND, DisassemblyView*> _disassemblyViewSet;
 
 private:
 	DisassemblyViewPresenter& _presenter;
 	IProcessor& _model;
 	bool _initializedDialog;
+	bool _hasSelectedOpcode;
+	unsigned int _selectedOpcodeAddress;
 	std::wstring _previousText;
 	unsigned int _currentControlFocus;
 	HWND _hwndDataGrid;
 	HWND _hwndControlPanel;
 	HFONT _hfontHeader;
 	HFONT _hfontData;
+	HHOOK _hookHandle;
 	unsigned int _visibleRows;
 	bool _track;
 	bool _forcePCSync;
