@@ -126,7 +126,7 @@ bool EffectiveAddress::Decode16BitRegister(unsigned int data)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-void EffectiveAddress::BuildImmediateData(Bitcount size, const Z80Word& location, const Z80* cpu, bool transparent)
+void EffectiveAddress::BuildImmediateData(Bitcount size, const Z80Word& location, Z80* cpu, bool transparent)
 {
 	_mode = Mode::Immediate;
 	_data.Resize(size);
@@ -157,7 +157,7 @@ void EffectiveAddress::BuildAbsoluteAddress(const Z80Word& address)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-void EffectiveAddress::BuildAbsoluteAddress(const Z80Word& location, const Z80* cpu, bool transparent)
+void EffectiveAddress::BuildAbsoluteAddress(const Z80Word& location, Z80* cpu, bool transparent)
 {
 	Z80Word tempAddress;
 	cpu->ReadMemory(location, tempAddress, transparent);

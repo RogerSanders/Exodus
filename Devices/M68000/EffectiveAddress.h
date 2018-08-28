@@ -40,19 +40,19 @@ public:
 	inline EffectiveAddress();
 
 	// Decode functions
-	void Decode(unsigned int reg, unsigned int mode, Bitcount size, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister);
+	void Decode(unsigned int reg, unsigned int mode, Bitcount size, const M68000Long& location, M68000* cpu, bool transparent, const M68000Word& instructionRegister);
 	inline void BuildDataDirect(Bitcount size, const M68000Long& location, unsigned int reg);
 	inline void BuildAddressDirect(Bitcount size, const M68000Long& location, unsigned int reg);
 	inline void BuildAddressIndirect(Bitcount size, const M68000Long& location, unsigned int reg);
 	inline void BuildAddressPostinc(Bitcount size, const M68000Long& location, unsigned int reg);
 	inline void BuildAddressPredec(Bitcount size, const M68000Long& location, unsigned int reg);
-	inline void BuildAddressIndirectDisplace(Bitcount size, const M68000Long& location, unsigned int reg, const M68000* cpu, bool transparent, const M68000Word& instructionRegister);
-	inline void BuildAddressIndirectIndex(Bitcount size, const M68000Long& location, unsigned int reg, const M68000* cpu, bool transparent, const M68000Word& instructionRegister);
-	inline void BuildAbsoluteAddressWord(Bitcount size, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister);
-	inline void BuildAbsoluteAddressLong(Bitcount size, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister);
-	inline void BuildPCIndirectDisplace(Bitcount size, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister);
-	inline void BuildPCIndirectIndex(Bitcount size, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister);
-	inline void BuildImmediateData(Bitcount size, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister, bool signExtended = false);
+	inline void BuildAddressIndirectDisplace(Bitcount size, const M68000Long& location, unsigned int reg, M68000* cpu, bool transparent, const M68000Word& instructionRegister);
+	inline void BuildAddressIndirectIndex(Bitcount size, const M68000Long& location, unsigned int reg, M68000* cpu, bool transparent, const M68000Word& instructionRegister);
+	inline void BuildAbsoluteAddressWord(Bitcount size, const M68000Long& location, M68000* cpu, bool transparent, const M68000Word& instructionRegister);
+	inline void BuildAbsoluteAddressLong(Bitcount size, const M68000Long& location, M68000* cpu, bool transparent, const M68000Word& instructionRegister);
+	inline void BuildPCIndirectDisplace(Bitcount size, const M68000Long& location, M68000* cpu, bool transparent, const M68000Word& instructionRegister);
+	inline void BuildPCIndirectIndex(Bitcount size, const M68000Long& location, M68000* cpu, bool transparent, const M68000Word& instructionRegister);
+	inline void BuildImmediateData(Bitcount size, const M68000Long& location, M68000* cpu, bool transparent, const M68000Word& instructionRegister, bool signExtended = false);
 	inline void BuildImmediateData(const M68000Long& location, const Data& data, bool signExtended = false);
 	inline void BuildQuickData(const M68000Long& location, unsigned int data);
 

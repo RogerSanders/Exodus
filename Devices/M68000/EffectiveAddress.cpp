@@ -71,7 +71,7 @@ const ExecuteTime EffectiveAddress::ExecuteTime32[] = {
 //----------------------------------------------------------------------------------------------------------------------
 // Decode functions
 //----------------------------------------------------------------------------------------------------------------------
-void EffectiveAddress::Decode(unsigned int reg, unsigned int mode, Bitcount size, const M68000Long& location, const M68000* cpu, bool transparent, const M68000Word& instructionRegister)
+void EffectiveAddress::Decode(unsigned int reg, unsigned int mode, Bitcount size, const M68000Long& location, M68000* cpu, bool transparent, const M68000Word& instructionRegister)
 {
 	_savedPC = location;
 	switch (mode)

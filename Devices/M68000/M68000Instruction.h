@@ -36,7 +36,7 @@ public:
 	static bool ConditionCodeTrue(M68000* cpu, ConditionCode code);
 
 	// Execute functions
-	virtual void M68000Decode(const M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent) = 0;
+	virtual void M68000Decode(M68000* cpu, const M68000Long& location, const M68000Word& data, bool transparent) = 0;
 	virtual ExecuteTime M68000Execute(M68000* cpu, const M68000Long& location) const = 0;
 
 	// Execute time functions

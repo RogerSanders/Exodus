@@ -28,7 +28,7 @@ public:
 		return Disassembly(GetOpcodeName(), _target.Disassemble() + L", " + _source.Disassemble());
 	}
 
-	virtual void Z80Decode(const Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)
+	virtual void Z80Decode(Z80* cpu, const Z80Word& location, const Z80Byte& data, bool transparent)
 	{
 		_source.SetIndexState(GetIndexState(), GetIndexOffset());
 		_target.SetIndexState(GetIndexState(), GetIndexOffset());

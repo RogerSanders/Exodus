@@ -68,7 +68,7 @@ public:
 	// Breakpoint functions
 	virtual Marshal::Ret<std::list<IBreakpoint*>> GetBreakpointList() const = 0;
 	virtual IBreakpoint* CreateBreakpoint() = 0;
-	virtual bool LockBreakpoint(IBreakpoint* breakpoint) const = 0;
+	virtual bool LockBreakpoint(IBreakpoint* breakpoint)const = 0;
 	virtual void UnlockBreakpoint(IBreakpoint* breakpoint) const = 0;
 	virtual void DeleteBreakpoint(IBreakpoint* breakpoint) = 0;
 
