@@ -6,7 +6,7 @@
 	<CapturesPath>Data\Captures</CapturesPath>
 	<AssembliesPath>Assemblies</AssembliesPath>
 	<DefaultSystem>MegaDriveTestSystemNoBios.xml</DefaultSystem>
-	<DefaultWorkspace>Mega Drive Debugger.xml</DefaultWorkspace>
+	<DefaultWorkspace>Mega Drive Clean.xml</DefaultWorkspace>
 	<EnableThrottling>1</EnableThrottling>
 	<RunWhenProgramModuleLoaded>1</RunWhenProgramModuleLoaded>
 	<EnablePersistentState>1</EnablePersistentState>
