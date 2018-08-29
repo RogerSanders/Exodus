@@ -136,6 +136,8 @@ public:
 	inline void SetVideoShowBoundaryTitleSafe(bool data);
 	inline bool GetVideoEnableFullImageBufferInfo() const;
 	inline void SetVideoEnableFullImageBufferInfo(bool data);
+	inline bool GetGensKModDebuggingEnabled() const;
+	inline void SetGensKModDebuggingEnabled(bool data);
 
 	// Layer removal
 	inline bool GetEnableLayerA() const;

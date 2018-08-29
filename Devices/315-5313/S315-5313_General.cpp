@@ -138,6 +138,10 @@ _renderSpriteDisplayCellCache(maxSpriteDisplayCellCacheSize)
 	_enableSpriteHigh = true;
 	_enableSpriteLow = true;
 
+	_gensKmodDebugActive = false;
+	_gensKmodIgnoreNextDebugStop = false;
+	_gensKmodDebugTimerRunning = false;
+
 	_logStatusRegisterRead = false;
 	_logDataPortRead = false;
 	_logHVCounterRead = false;
@@ -211,6 +215,7 @@ bool S315_5313::BuildDevice()
 	result &= AddGenericDataInfo((new GenericAccessDataInfo(IS315_5313DataSource::SettingsVideoShowBoundaryActionSafe, IGenericAccessDataValue::DataType::Bool)));
 	result &= AddGenericDataInfo((new GenericAccessDataInfo(IS315_5313DataSource::SettingsVideoShowBoundaryTitleSafe, IGenericAccessDataValue::DataType::Bool)));
 	result &= AddGenericDataInfo((new GenericAccessDataInfo(IS315_5313DataSource::SettingsVideoEnableFullImageBufferInfo, IGenericAccessDataValue::DataType::Bool)));
+	result &= AddGenericDataInfo((new GenericAccessDataInfo(IS315_5313DataSource::SettingsGensKModDebuggingEnabled, IGenericAccessDataValue::DataType::Bool)));
 	result &= AddGenericDataInfo((new GenericAccessDataInfo(IS315_5313DataSource::SettingsOutputPortAccessDebugMessages, IGenericAccessDataValue::DataType::Bool)));
 	result &= AddGenericDataInfo((new GenericAccessDataInfo(IS315_5313DataSource::SettingsOutputTimingDebugMessages, IGenericAccessDataValue::DataType::Bool)));
 	result &= AddGenericDataInfo((new GenericAccessDataInfo(IS315_5313DataSource::SettingsOutputRenderSyncDebugMessages, IGenericAccessDataValue::DataType::Bool)));
@@ -249,7 +254,9 @@ bool S315_5313::BuildDevice()
 	                     ->AddEntry(new GenericAccessGroupDataEntry(IS315_5313DataSource::SettingsOutputPortAccessDebugMessages, L"Port Access Debug"))
 	                     ->AddEntry(new GenericAccessGroupDataEntry(IS315_5313DataSource::SettingsOutputTimingDebugMessages, L"Timing Debug"))
 	                     ->AddEntry(new GenericAccessGroupDataEntry(IS315_5313DataSource::SettingsOutputRenderSyncDebugMessages, L"Render Sync Debug"))
-	                     ->AddEntry(new GenericAccessGroupDataEntry(IS315_5313DataSource::SettingsOutputInterruptDebugMessages, L"Interrupt Debug")));
+	                     ->AddEntry(new GenericAccessGroupDataEntry(IS315_5313DataSource::SettingsOutputInterruptDebugMessages, L"Interrupt Debug")))
+	                 ->AddEntry((new GenericAccessGroup(L"Software Debug Link"))
+	                     ->AddEntry(new GenericAccessGroupDataEntry(IS315_5313DataSource::SettingsGensKModDebuggingEnabled, L"Gens KMod Debug")));
 	result &= AddGenericAccessPage(debugSettingsPage);
 	GenericAccessPage* layerRemovalPage = new GenericAccessPage(L"LayerVisibility", L"Layer Visibility");
 	layerRemovalPage->AddEntry((new GenericAccessGroup(L"Layer A"))
@@ -737,6 +744,10 @@ bool S315_5313::SendNotifyUpcomingTimeslice() const
 //----------------------------------------------------------------------------------------------------------------------
 void S315_5313::NotifyUpcomingTimeslice(double nanoseconds)
 {
+	// Gens KMod debugging variables
+	_gensKmodDebugTimerAccumulatedTime += (_currentTimesliceLength - _gensKmodDebugTimerCurrentTimesliceStart);
+	_gensKmodDebugTimerCurrentTimesliceStart = 0;
+
 	// Adjust the times for any pending IPL line state changes to take into account the new
 	// timeslice
 	_lineStateChangeVINTTime -= _currentTimesliceLength;
@@ -1054,6 +1065,12 @@ double S315_5313::GetNextTimingPointInDeviceTime(unsigned int& accessContext) co
 //----------------------------------------------------------------------------------------------------------------------
 void S315_5313::ExecuteRollback()
 {
+	// Gens KMod debugging variables
+	_gensKmodDebugString = _bgensKmodDebugString;
+	_gensKmodDebugTimerRunning = _bgensKmodDebugTimerRunning;
+	_gensKmodDebugTimerAccumulatedTime = _bgensKmodDebugTimerAccumulatedTime;
+	_gensKmodDebugTimerCurrentTimesliceStart = _bgensKmodDebugTimerCurrentTimesliceStart;
+
 	// Port monitor state
 	if (_logStatusRegisterRead || _logDataPortRead || _logHVCounterRead || _logControlPortWrite || _logDataPortWrite)
 	{
@@ -1250,6 +1267,12 @@ void S315_5313::ExecuteRollback()
 //----------------------------------------------------------------------------------------------------------------------
 void S315_5313::ExecuteCommit()
 {
+	// Gens KMod debugging variables
+	_bgensKmodDebugString = _gensKmodDebugString;
+	_bgensKmodDebugTimerRunning = _gensKmodDebugTimerRunning;
+	_bgensKmodDebugTimerAccumulatedTime = _gensKmodDebugTimerAccumulatedTime;
+	_bgensKmodDebugTimerCurrentTimesliceStart = _gensKmodDebugTimerCurrentTimesliceStart;
+
 	// Port monitor state
 	if (_logStatusRegisterRead || _logDataPortRead || _logHVCounterRead || _logControlPortWrite || _logDataPortWrite)
 	{
@@ -3382,6 +3405,12 @@ void S315_5313::LoadState(IHierarchicalStorageNode& node)
 				else if (registerName == L"ExternalInterruptVideoTriggerPointPending")	_externalInterruptVideoTriggerPointPending = i->ExtractData<bool>();
 				else if (registerName == L"ExternalInterruptVideoTriggerPointHCounter")	_externalInterruptVideoTriggerPointHCounter = i->ExtractHexData<unsigned int>();
 				else if (registerName == L"ExternalInterruptVideoTriggerPointVCounter")	_externalInterruptVideoTriggerPointVCounter = i->ExtractHexData<unsigned int>();
+
+				// Gens KMod debugging variables
+				else if (registerName == L"GensKmodDebugString")						_gensKmodDebugString = i->ExtractData<std::string>();
+				else if (registerName == L"GensKmodDebugTimerRunning")					_gensKmodDebugTimerRunning = i->ExtractHexData<bool>();
+				else if (registerName == L"GensKmodDebugTimerAccumulatedTime")			_gensKmodDebugTimerAccumulatedTime = i->ExtractHexData<double>();
+				else if (registerName == L"GensKmodDebugTimerCurrentTimesliceStart")	_gensKmodDebugTimerCurrentTimesliceStart = i->ExtractHexData<double>();
 			}
 		}
 		else if (i->GetName() == L"FIFOBuffer")
@@ -3659,6 +3688,11 @@ void S315_5313::SaveState(IHierarchicalStorageNode& node) const
 	node.CreateChild(L"Register", _externalInterruptVideoTriggerPointPending).CreateAttribute(L"name", L"ExternalInterruptVideoTriggerPointPending");
 	node.CreateChildHex(L"Register", _externalInterruptVideoTriggerPointHCounter, 3).CreateAttribute(L"name", L"ExternalInterruptVideoTriggerPointHCounter");
 	node.CreateChildHex(L"Register", _externalInterruptVideoTriggerPointVCounter, 3).CreateAttribute(L"name", L"ExternalInterruptVideoTriggerPointVCounter");
+	// Gens KMod debugging variables
+	node.CreateChild(L"Register", _gensKmodDebugString).CreateAttribute(L"name", L"GensKmodDebugString");
+	node.CreateChild(L"Register", _gensKmodDebugTimerRunning).CreateAttribute(L"name", L"GensKmodDebugTimerRunning");
+	node.CreateChild(L"Register", _gensKmodDebugTimerAccumulatedTime).CreateAttribute(L"name", L"GensKmodDebugTimerAccumulatedTime");
+	node.CreateChild(L"Register", _gensKmodDebugTimerCurrentTimesliceStart).CreateAttribute(L"name", L"GensKmodDebugTimerCurrentTimesliceStart");
 
 	Device::SaveState(node);
 }
@@ -3723,6 +3757,7 @@ void S315_5313::LoadDebuggerState(IHierarchicalStorageNode& node)
 				else if (registerName == L"VideoShowBoundaryActionSafe")		_videoShowBoundaryActionSafe = (*i)->ExtractData<bool>();
 				else if (registerName == L"VideoShowBoundaryTitleSafe")		_videoShowBoundaryTitleSafe = (*i)->ExtractData<bool>();
 				else if (registerName == L"VideoEnableFullImageBufferInfo")	_videoEnableFullImageBufferInfo = (*i)->ExtractData<bool>();
+				else if (registerName == L"GensKmodDebugActive")	_gensKmodDebugActive = (*i)->ExtractData<bool>();
 				// Layer removal settings
 				else if (registerName == L"EnableLayerAHigh")		_enableLayerAHigh = (*i)->ExtractData<bool>();
 				else if (registerName == L"EnableLayerALow")			_enableLayerALow = (*i)->ExtractData<bool>();
@@ -3754,6 +3789,7 @@ void S315_5313::SaveDebuggerState(IHierarchicalStorageNode& node) const
 	node.CreateChild(L"Register", _videoShowBoundaryActionSafe).CreateAttribute(L"name", L"VideoShowBoundaryActionSafe");
 	node.CreateChild(L"Register", _videoShowBoundaryTitleSafe).CreateAttribute(L"name", L"VideoShowBoundaryTitleSafe");
 	node.CreateChild(L"Register", _videoEnableFullImageBufferInfo).CreateAttribute(L"name", L"VideoEnableFullImageBufferInfo");
+	node.CreateChild(L"Register", _gensKmodDebugActive).CreateAttribute(L"name", L"GensKmodDebugActive");
 
 	// Layer removal settings
 	node.CreateChild(L"Register", _enableLayerAHigh).CreateAttribute(L"name", L"EnableLayerAHigh");
@@ -4000,6 +4036,8 @@ bool S315_5313::ReadGenericData(unsigned int dataID, const DataContext* dataCont
 		return dataValue.SetValue(_outputRenderSyncMessages);
 	case IS315_5313DataSource::SettingsOutputInterruptDebugMessages:
 		return dataValue.SetValue(_outputInterruptDebugMessages);
+	case IS315_5313DataSource::SettingsGensKModDebuggingEnabled:
+		return dataValue.SetValue(_gensKmodDebugActive);
 	case IS315_5313DataSource::SettingsVideoDisableRenderOutput:
 		return dataValue.SetValue(_videoDisableRenderOutput);
 	case IS315_5313DataSource::SettingsVideoEnableSpriteBoxing:
@@ -4674,6 +4712,11 @@ bool S315_5313::WriteGenericData(unsigned int dataID, const DataContext* dataCon
 		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
 		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
 		_outputInterruptDebugMessages = dataValueAsBool.GetValue();
+		return true;}
+	case IS315_5313DataSource::SettingsGensKModDebuggingEnabled:{
+		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
+		IGenericAccessDataValueBool& dataValueAsBool = (IGenericAccessDataValueBool&)dataValue;
+		_gensKmodDebugActive = dataValueAsBool.GetValue();
 		return true;}
 	case IS315_5313DataSource::SettingsVideoDisableRenderOutput:{
 		if (dataType != IGenericAccessDataValue::DataType::Bool) return false;
