@@ -211,6 +211,9 @@ private:
 	static const VScanSettings V30NtscIntEnScanSettingsStatic;
 
 private:
+	// Debug functions
+	static void GensKModStopSystemCallback(void* params);
+
 	// Line functions
 	unsigned int GetNewIPLLineState();
 	void UpdatePredictedLineStateChanges(IDeviceContext* callingDevice, double accessTime, unsigned int accessContext);
@@ -560,6 +563,18 @@ private:
 	bool _videoShowBoundaryActionSafe;
 	bool _videoShowBoundaryTitleSafe;
 	bool _videoEnableFullImageBufferInfo;
+
+	// Gens KMod debugging variables
+	bool _gensKmodDebugActive;
+	bool _gensKmodIgnoreNextDebugStop;
+	std::string _gensKmodDebugString;
+	std::string _bgensKmodDebugString;
+	bool _gensKmodDebugTimerRunning;
+	bool _bgensKmodDebugTimerRunning;
+	double _gensKmodDebugTimerAccumulatedTime;
+	double _bgensKmodDebugTimerAccumulatedTime;
+	double _gensKmodDebugTimerCurrentTimesliceStart;
+	double _bgensKmodDebugTimerCurrentTimesliceStart;
 
 	// Bus interface
 	IBusInterface* _memoryBus;

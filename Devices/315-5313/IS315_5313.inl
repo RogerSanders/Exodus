@@ -145,7 +145,8 @@ enum class IS315_5313::IS315_5313DataSource
 	SettingsVideoEnableWindowLow,
 	SettingsVideoEnableSprite,
 	SettingsVideoEnableSpriteHigh,
-	SettingsVideoEnableSpriteLow
+	SettingsVideoEnableSpriteLow,
+	SettingsGensKModDebuggingEnabled,
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -560,6 +561,21 @@ void IS315_5313::SetVideoEnableFullImageBufferInfo(bool data)
 {
 	GenericAccessDataValueBool genericData(data);
 	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsVideoEnableFullImageBufferInfo, 0, genericData);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+bool IS315_5313::GetGensKModDebuggingEnabled() const
+{
+	GenericAccessDataValueBool genericData;
+	ReadGenericData((unsigned int)IS315_5313DataSource::SettingsGensKModDebuggingEnabled, 0, genericData);
+	return genericData.GetValue();
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+void IS315_5313::SetGensKModDebuggingEnabled(bool data)
+{
+	GenericAccessDataValueBool genericData(data);
+	WriteGenericData((unsigned int)IS315_5313DataSource::SettingsGensKModDebuggingEnabled, 0, genericData);
 }
 
 //----------------------------------------------------------------------------------------------------------------------

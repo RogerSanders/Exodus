@@ -1,4 +1,5 @@
 #include "S315_5313.h"
+#include <DataConversion/DataConversion.pkg>
 
 //----------------------------------------------------------------------------------------------------------------------
 // Line functions
@@ -1477,6 +1478,75 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 						WriteGenericData(i->first, 0, i->second);
 					}
 				}
+				else if (_gensKmodDebugActive)
+				{
+					// These debug features were provided for compatibility with the Gens KMod software debug link
+					if (registerNo == 0x1D)
+					{
+						if (!_gensKmodIgnoreNextDebugStop)
+						{
+							LogEntry logEntry(ILogEntry::EventLevel::Critical, L"Gens KMod Debug", L"Pause requested by game");
+							GetSystemInterface().WriteLogEvent(logEntry);
+							GetSystemInterface().SetSystemRollback(GetDeviceContext(), GetDeviceContext(), GetCurrentTimesliceProgress(), 0, 0, GensKModStopSystemCallback, this);
+						}
+						_gensKmodIgnoreNextDebugStop = !_gensKmodIgnoreNextDebugStop;
+					}
+					else if (registerNo == 0x1E)
+					{
+						if (registerData == 0)
+						{
+							if (!_gensKmodIgnoreNextDebugStop)
+							{
+								LogEntry logEntry(ILogEntry::EventLevel::Critical, L"Gens KMod Debug", L"Message : " + UTF8ToUTF16(_gensKmodDebugString));
+								GetSystemInterface().WriteLogEvent(logEntry);
+							}
+						}
+						else
+						{
+							_gensKmodDebugString.push_back((char)registerData.GetData());
+						}
+					}
+					else if ((registerNo == 0x1F) && (registerData == 0x80))
+					{
+						if (!_gensKmodIgnoreNextDebugStop)
+						{
+							LogEntry logEntry(ILogEntry::EventLevel::Critical, L"Gens KMod Debug", (!_gensKmodDebugTimerRunning) ? L"Timer started" : L"Timer restarted");
+							GetSystemInterface().WriteLogEvent(logEntry);
+						}
+						_gensKmodDebugTimerAccumulatedTime = 0;
+						_gensKmodDebugTimerCurrentTimesliceStart = accessTime;
+						_gensKmodDebugTimerRunning = true;
+					}
+					else if ((registerNo == 0x1F) && (registerData == 0x40))
+					{
+						if (_gensKmodDebugTimerRunning)
+						{
+							if (!_gensKmodIgnoreNextDebugStop)
+							{
+								// Note that we don't pipe VCLK to the VDP, so we assume here that VCLK is always
+								// calculated as MCLK/7. This is true on the hardware, but could be different in our
+								// system if the user has overridden it. For the purposes of this Megadrive-specific
+								// debug feature however, we're accepting this assumption here.
+								unsigned int elapsedMclkCyclkes = ConvertAccessTimeToMclkCount(_gensKmodDebugTimerAccumulatedTime + (accessTime - _gensKmodDebugTimerCurrentTimesliceStart));
+								unsigned int elapsedVclkCyclkes = elapsedMclkCyclkes / 7;
+								std::wstring cyclesAsString;
+								IntToString(elapsedVclkCyclkes, cyclesAsString);
+								LogEntry logEntry(ILogEntry::EventLevel::Critical, L"Gens KMod Debug", L"");
+								logEntry << "Timer : " << cyclesAsString << L" cycles elapsed";
+								GetSystemInterface().WriteLogEvent(logEntry);
+							}
+							_gensKmodDebugTimerRunning = false;
+						}
+						else
+						{
+							if (!_gensKmodIgnoreNextDebugStop)
+							{
+								LogEntry logEntry(ILogEntry::EventLevel::Critical, L"Gens KMod Debug", L"Timer wasn't running");
+								GetSystemInterface().WriteLogEvent(logEntry);
+							}
+						}
+					}
+				}
 
 				// Since the command word has just been latched as a register write, the
 				// VDP is no longer expecting a second command word to be written.
@@ -1576,6 +1646,15 @@ IBusInterface::AccessResult S315_5313::WriteInterface(unsigned int interfaceNumb
 	}
 
 	return accessResult;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+// Debug functions
+//----------------------------------------------------------------------------------------------------------------------
+void S315_5313::GensKModStopSystemCallback(void* params)
+{
+	S315_5313* object = (S315_5313*)params;
+	object->GetDeviceContext()->FlagStopSystem();
 }
 
 //----------------------------------------------------------------------------------------------------------------------

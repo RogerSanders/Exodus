@@ -70,6 +70,8 @@ inline std::wstring StringToUpper(const std::wstring& string);
 
 inline std::wstring StringToWString(const std::string& string);
 inline std::string WStringToString(const std::wstring& string);
+inline std::wstring UTF8ToUTF16(const std::string& stringUTF8);
+inline std::string UTF16ToUTF8(const std::wstring& stringUTF16);
 
 #include "DataConversion.inl"
 #endif
