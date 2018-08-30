@@ -104,6 +104,7 @@ bool ExodusInterface::InitializePrefs()
 {
 	// Save the initial working directory of the process as the preference directory
 	_preferenceDirectoryPath = PathGetCurrentWorkingDirectory();
+	_preferenceFilePath = PathCombinePaths(_preferenceDirectoryPath, L"settings.xml");
 
 	// Initialize the system prefs to their default values
 	SetGlobalPreferencePathModules(L"Modules");
@@ -119,8 +120,7 @@ bool ExodusInterface::InitializePrefs()
 	SetGlobalPreferenceShowDebugConsole(false);
 
 	// Load preferences from the settings.xml file if present
-	std::wstring preferenceFilePath = PathCombinePaths(_preferenceDirectoryPath, L"settings.xml");
-	LoadPrefs(preferenceFilePath);
+	LoadPrefs(_preferenceFilePath);
 
 	// Return the result to the caller
 	return true;
@@ -1305,6 +1305,13 @@ bool ExodusInterface::LoadPrefs(const std::wstring& filePath)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+void ExodusInterface::SavePrefs()
+{
+	std::lock_guard<std::mutex> lock(_globalPreferencesMutex);
+	SavePrefs(_preferenceFilePath);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 void ExodusInterface::SavePrefs(const std::wstring& filePath)
 {
 	HierarchicalStorageTree tree;
@@ -1323,6 +1330,10 @@ void ExodusInterface::SavePrefs(const std::wstring& filePath)
 	rootNode.CreateChild(L"EnablePersistentState").SetData(_prefs.enablePersistentState);
 	rootNode.CreateChild(L"LoadWorkspaceWithDebugState").SetData(_prefs.loadWorkspaceWithDebugState);
 	rootNode.CreateChild(L"ShowDebugConsole").SetData(_prefs.showDebugConsole);
+	for (auto preferenceEntry : _globalPreferences)
+	{
+		rootNode.CreateChild(preferenceEntry.first).SetData(preferenceEntry.second);
+	}
 
 	Stream::File file(Stream::IStream::TextEncoding::UTF8);
 	if (file.Open(filePath, Stream::File::OpenMode::ReadAndWrite, Stream::File::CreateMode::Create))
@@ -1330,6 +1341,46 @@ void ExodusInterface::SavePrefs(const std::wstring& filePath)
 		file.InsertByteOrderMark();
 		tree.SaveTree(file);
 	}
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+bool ExodusInterface::GetGlobalPreference(const Marshal::In<std::wstring>& name, IHierarchicalStorageNode& node) const
+{
+	// Attempt to locate the target preference
+	std::lock_guard<std::mutex> lock(_globalPreferencesMutex);
+	auto preferencesIterator = _globalPreferences.find(name);
+	if (preferencesIterator == _globalPreferences.end())
+	{
+		return false;
+	}
+
+	// Return the current preference value to the caller
+	node.SetName(name);
+	node.SetData(preferencesIterator->second);
+	return true;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+void ExodusInterface::SetGlobalPreference(const Marshal::In<std::wstring>& name, const IHierarchicalStorageNode& node)
+{
+	// Update the target preference
+	//##TODO## Allow this to actually store full embedded XML content. Currently we just save the data string.
+	std::lock_guard<std::mutex> lock(_globalPreferencesMutex);
+	_globalPreferences[name] = node.GetData();
+
+	// Update the preferences file
+	SavePrefs(_preferenceFilePath);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+void ExodusInterface::ClearGlobalPreference(const Marshal::In<std::wstring>& name)
+{
+	// Update the target preference
+	std::lock_guard<std::mutex> lock(_globalPreferencesMutex);
+	_globalPreferences.erase(name);
+
+	// Update the preferences file
+	SavePrefs(_preferenceFilePath);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -2487,8 +2538,7 @@ void ExodusInterface::DestroySystemInterfaceThread()
 	UnloadAllModules();
 
 	// Save settings.xml
-	std::wstring preferenceFilePath = PathCombinePaths(_preferenceDirectoryPath, L"settings.xml");
-	SavePrefs(preferenceFilePath);
+	SavePrefs(_preferenceFilePath);
 
 	// Send a message to the main window, requesting it to close.
 	SendMessage(_mainWindowHandle, WM_USER+2, 0, 0);

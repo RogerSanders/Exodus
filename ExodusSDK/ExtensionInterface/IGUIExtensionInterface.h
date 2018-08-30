@@ -2,6 +2,7 @@
 #define __IGUIEXTENSIONINTERFACE_H__
 #include "StreamInterface/StreamInterface.pkg"
 #include "MarshalSupport/MarshalSupport.pkg"
+#include "HierarchicalStorage/HierarchicalStorage.pkg"
 #include "IViewManager.h"
 #include <string>
 #include <vector>
@@ -32,13 +33,9 @@ public:
 	virtual void UnloadAllModules() = 0;
 
 	// Global preference functions
-	//##TODO## Design a more extensible interface for working with preferences which
-	// doesn't rely on separate functions for each preference
-	//##TODO## Consider using a system built on our generic data access system in order to
-	// access preferences. We could request a preference using a generic value/string key
-	// pair. The string keys themselves could be listed in our interface and referenced by
-	// a named constant. This would be easily extensible and flexible, without the need for
-	// specific functions for individual preferences.
+	virtual bool GetGlobalPreference(const Marshal::In<std::wstring>& name, IHierarchicalStorageNode& node) const = 0;
+	virtual void SetGlobalPreference(const Marshal::In<std::wstring>& name, const IHierarchicalStorageNode& node) = 0;
+	virtual void ClearGlobalPreference(const Marshal::In<std::wstring>& name) = 0;
 	virtual Marshal::Ret<std::wstring> GetGlobalPreferencePathModules() const = 0;
 	virtual Marshal::Ret<std::wstring> GetGlobalPreferencePathSavestates() const = 0;
 	virtual Marshal::Ret<std::wstring> GetGlobalPreferencePathPersistentState() const = 0;
