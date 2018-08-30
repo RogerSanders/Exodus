@@ -114,6 +114,7 @@ INT_PTR SettingsView::msgWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			_model.SetGlobalPreferenceEnablePersistentState(IsDlgButtonChecked(hwnd, IDC_SETTINGS_ENABLEPERSISTENTSTATE) == BST_CHECKED);
 			_model.SetGlobalPreferenceLoadWorkspaceWithDebugState(IsDlgButtonChecked(hwnd, IDC_SETTINGS_LOADWORKSPACEWITHDEBUGSTATE) == BST_CHECKED);
 			_model.SetGlobalPreferenceShowDebugConsole(IsDlgButtonChecked(hwnd, IDC_SETTINGS_SHOWDEBUGCONSOLE) == BST_CHECKED);
+			_model.SavePrefs();
 			EnableWindow(GetDlgItem(hwnd, IDC_SETTINGS_APPLY), FALSE);
 			break;
 		case IDC_SETTINGS_LOADSYSTEMCHANGE:{

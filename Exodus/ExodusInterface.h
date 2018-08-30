@@ -121,7 +121,11 @@ public:
 
 	// Global preference functions
 	bool LoadPrefs(const std::wstring& filePath);
+	void SavePrefs();
 	void SavePrefs(const std::wstring& filePath);
+	virtual bool GetGlobalPreference(const Marshal::In<std::wstring>& name, IHierarchicalStorageNode& node) const;
+	virtual void SetGlobalPreference(const Marshal::In<std::wstring>& name, const IHierarchicalStorageNode& node);
+	virtual void ClearGlobalPreference(const Marshal::In<std::wstring>& name);
 	virtual Marshal::Ret<std::wstring> GetPreferenceDirectoryPath() const;
 	virtual Marshal::Ret<std::wstring> GetGlobalPreferencePathModules() const;
 	virtual Marshal::Ret<std::wstring> GetGlobalPreferencePathSavestates() const;
@@ -261,10 +265,14 @@ private:
 	unsigned int _nextFreeMenuID;
 	SystemPrefs _prefs;
 	std::wstring _preferenceDirectoryPath;
+	std::wstring _preferenceFilePath;
 	volatile bool _moduleCommandComplete;
 	bool _systemLoaded;
 	bool _systemDestructionInProgress;
 	bool _debugConsoleOpen;
+
+	mutable std::mutex _globalPreferencesMutex;
+	std::map<std::wstring, std::wstring> _globalPreferences;
 
 	mutable std::mutex _joystickWorkerThreadMutex;
 	volatile bool _joystickWorkerThreadActive;

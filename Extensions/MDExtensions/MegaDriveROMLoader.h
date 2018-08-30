@@ -44,7 +44,6 @@ private:
 	FileOpenMenuHandler* _menuHandler;
 
 	// Loaded ROM info
-	bool _selectionMadeThisSession;
 	std::list<std::wstring> _currentlyLoadedROMModuleFilePaths;
 };
 
