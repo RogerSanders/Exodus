@@ -1,4 +1,42 @@
 //----------------------------------------------------------------------------------------------------------
+2018-08-30 - Exodus 2.1
+Enhancements:
+EX-301 - Created the new VDP pixel popup info window
+EX-316 - Upgraded projects to target VS2017
+EX-318 - Fixed DPI issues, and made VDP plane viewer resizable and zoomable
+EX-326 - Performance improvements
+EX-339 - Added support for Gens KMod internal debug features on undefined VDP registers
+EX-342 - Saved the last used ROM directory path to the system preferences
+
+Bug fixes:
+EX-295 - Fixed incorrect clearing of Z80 registers on a reset
+EX-296 - Fixed the 32-bit build target
+EX-297 - Fixed the naming of M68000 registers in the generic register window
+EX-298 - Fixed a deadlock and several other issues with the VDP plane viewer
+EX-299 - Made more room for the FPS counter in the VDP Image status bar
+EX-302 - Fixed an error with the sample rate for YM2612 and PSG audio log files
+EX-303 - Fixed an access violation in the joystick access code that occurred if the connected joysticks didn't have consecutive ID numbers starting from 0
+EX-304 - Fixed the title of the system settings window
+EX-312 - Fixed disposal of event handles in AudioStream library
+EX-313 - Fixed bug in M68000 ABCD opcode
+EX-314 - Fixed active disassembly end location appearing as zero on startup
+EX-322 - Incorporated remaining fixes identified by Francis during GCC compilation work
+EX-323 - Fixed M68000 LINK opcode disassembly issue identified by ryanfaescotland
+EX-325 - Fixed excessive VDP rollbacks and intermittent deadlocks
+EX-327 - Fixed main window appearing at incorrect size on startup when using saved layout
+EX-328 - Fixed identified system deadlock case
+EX-271 - Worked around redraw issues with lockable register edit boxes when docked
+EX-331 - Fixed access violation when generating savestate in S315_5313::GetScreenshot
+EX-332 - Fixed threading issue when removing breakpoints
+EX-307 - Fixed the display of sprite pixels in palette column 15 when shadow/highlight mode is active
+EX-333 - Fixed disassembly display in trace log
+EX-334 - Added support for stepping over "counted loop" opcodes such as DBRA
+EX-336 - Added "run to" option in disassembly window, and improved controls and hotkeys.
+EX-337 - Fixed identified threading issues with system execution
+EX-338 - Fixed DPI issue with dashboard drop targets
+EX-341 - Fixed BCD flag errors in M68000 core based on new research
+
+//----------------------------------------------------------------------------------------------------------
 2015-05-01 - Exodus 2.0.1
 Enhancements:
 EX-291 - Improved default workspace loading to restore the main window size and maximized state before the main window appears, removed the maximized state as the default state, and changed the "Mega Drive Clean" workspace to not be maximized.
