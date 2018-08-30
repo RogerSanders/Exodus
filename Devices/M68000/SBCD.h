@@ -51,39 +51,25 @@ public:
 		double additionalTime = 0;
 		M68000Byte op1Base10;
 		M68000Byte op2Base10;
-		M68000Byte op1;
-		M68000Byte op2;
-		M68000Byte result;
 
 		// Perform the operation
 		additionalTime += _source.Read(cpu, op1Base10, GetInstructionRegister());
 		additionalTime += _target.ReadWithoutAdjustingAddress(cpu, op2Base10, GetInstructionRegister());
-		op1 = op1Base10.GetData() & 0x0F;
-		op1 += ((op1Base10.GetData() & 0xF0) - (6 * (op1Base10.GetData() >> 4)));
-		op2 = op2Base10.GetData() & 0x0F;
-		op2 += ((op2Base10.GetData() & 0xF0) - (6 * (op2Base10.GetData() >> 4)));
 
-		result = op2 - (op1 + cpu->GetX());
-
-		M68000Byte resultBase10Temp = result;
-		bool carry = false;
-		if (resultBase10Temp > 99)
-		{
-			resultBase10Temp += 100;
-			carry = true;
-		}
-		M68000Byte resultBase10;
-		resultBase10 = resultBase10Temp.GetData() % 10;
-		resultBase10 |= ((resultBase10Temp.GetData() / 10) % 10) << 4;
+		// This code is based on information provided by flamewing from the following source:
+		// http://gendev.spritesmind.net/forum/viewtopic.php?p=30943#p30943
+		// Correct behaviour of the result is tested and confirmed by "bcd-verifier-u1.bin"
+		M68000Byte result = op2Base10 - (op1Base10 + cpu->GetX());
+		M68000Byte binaryCarry = ((~op2Base10 & op1Base10) | (result & ~op2Base10) | (result & op1Base10)) & 0x88;
+		M68000Byte correctionFactor = binaryCarry - (binaryCarry >> 2);
+		M68000Byte resultBase10 = result - correctionFactor;
 		additionalTime += _target.Write(cpu, resultBase10, GetInstructionRegister());
 
 		// Set the flag results
+		bool carry = (binaryCarry | (~result & resultBase10)).MSB();
 		cpu->SetX(carry);
 		cpu->SetZ(cpu->GetZ() && resultBase10.Zero());
 		cpu->SetC(carry);
-		//##NOTE## Although the state of the N and V flags are officially undefined,
-		// their behaviour on the M68000 is predictable, and is described in "68000
-		// Undocumented Behavior Notes" by Bart Trzynadlowski.
 		cpu->SetN(resultBase10.Negative());
 		cpu->SetV(result.MSB() && !resultBase10.MSB());
 
