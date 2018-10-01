@@ -42,7 +42,7 @@ public:
 			_source.BuildDataDirect(_size, location + GetInstructionSize(), data.GetDataSegment(9, 3));
 			_target.Decode(data.GetDataSegment(0, 3), data.GetDataSegment(3, 3), _size, location + GetInstructionSize(), cpu, transparent, GetInstructionRegister());
 			AddInstructionSize(_target.ExtensionSize());
-			if ((_target.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect) || (_target.GetAddressMode() == EffectiveAddress::Mode::AddRegDirect))
+			if ((_target.GetAddressMode() == EffectiveAddress::Mode::DataRegDirect) || (_target.GetAddressMode() == EffectiveAddress::Mode::AddRegDirect) || (_target.GetAddressMode() == EffectiveAddress::Mode::Immediate))
 			{
 				AddExecuteCycleCount(ExecuteTime(6, 1, 0));
 			}
