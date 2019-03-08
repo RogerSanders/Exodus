@@ -276,6 +276,9 @@ INT_PTR TraceView::WndProcPanel(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lpara
 //----------------------------------------------------------------------------------------------------------------------
 INT_PTR TraceView::msgPanelWM_INITDIALOG(HWND hwnd, WPARAM wparam, LPARAM lparam)
 {
+	HANDLE folderIconHandle = LoadImage(GetAssemblyHandle(), MAKEINTRESOURCE(IDI_FOLDER), IMAGE_ICON, 0, 0, LR_SHARED);
+	SendMessage(GetDlgItem(hwnd, IDC_PROCESSOR_TRACE_TRACEFILEPATHCHANGE), BM_SETIMAGE, IMAGE_ICON, (LPARAM)folderIconHandle);
+
 	return TRUE;
 }
 
@@ -285,7 +288,9 @@ INT_PTR TraceView::msgPanelWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	_initializedDialog = true;
 	CheckDlgButton(hwnd, IDC_PROCESSOR_TRACE_ENABLED, (_model.GetTraceEnabled())? BST_CHECKED: BST_UNCHECKED);
 	CheckDlgButton(hwnd, IDC_PROCESSOR_TRACE_DISASSEMBLE, (_model.GetTraceDisassemble())? BST_CHECKED: BST_UNCHECKED);
+	CheckDlgButton(hwnd, IDC_PROCESSOR_TRACE_ENABLETRACEFILE, (_model.IsTraceFileLoggingEnabled())? BST_CHECKED: BST_UNCHECKED);
 	if (_currentControlFocus != IDC_PROCESSOR_TRACE_LENGTH) UpdateDlgItemBin(hwnd, IDC_PROCESSOR_TRACE_LENGTH, _model.GetTraceLength());
+	if (_currentControlFocus != IDC_PROCESSOR_TRACE_TRACEFILEPATH) UpdateDlgItemString(hwnd, IDC_PROCESSOR_TRACE_TRACEFILEPATH, _model.GetTraceLoggingFilePath());
 
 	return TRUE;
 }
@@ -308,6 +313,9 @@ INT_PTR TraceView::msgPanelWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			case IDC_PROCESSOR_TRACE_LENGTH:
 				_model.SetTraceLength(GetDlgItemBin(hwnd, LOWORD(wparam)));
 				break;
+			case IDC_PROCESSOR_TRACE_TRACEFILEPATH:
+				_model.SetTraceLoggingFilePath(GetDlgItemString(hwnd, LOWORD(wparam)));
+				break;
 			}
 		}
 	}
@@ -323,6 +331,18 @@ INT_PTR TraceView::msgPanelWM_COMMAND(HWND hwnd, WPARAM wparam, LPARAM lparam)
 			break;}
 		case IDC_PROCESSOR_TRACE_CLEAR:{
 			_model.ClearTraceLog();
+			break;}
+		case IDC_PROCESSOR_TRACE_ENABLETRACEFILE:{
+			_model.SetTraceFileLoggingEnabled(IsDlgButtonChecked(hwnd, LOWORD(wparam)) == BST_CHECKED);
+			break;}
+		case IDC_PROCESSOR_TRACE_TRACEFILEPATHCHANGE:{
+			std::wstring filePathCurrent = GetDlgItemString(hwnd, IDC_PROCESSOR_TRACE_TRACEFILEPATH);
+			std::wstring selectedFilePath;
+			if (SelectNewFile(hwnd, L"Text files|txt", L"txt", filePathCurrent, _presenter.GetGUIInterface().GetGlobalPreferencePathCaptures(), selectedFilePath))
+			{
+				_model.SetTraceLoggingFilePath(selectedFilePath);
+				UpdateDlgItemString(hwnd, IDC_PROCESSOR_TRACE_TRACEFILEPATH, selectedFilePath);
+			}
 			break;}
 		}
 	}

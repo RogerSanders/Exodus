@@ -208,15 +208,18 @@ BEGIN
     PUSHBUTTON      "Clear",IDC_PROCESSOR_STACK_CLEAR,7,7,28,11
 END
 
-IDD_PROCESSOR_TRACE_PANEL DIALOGEX 0, 0, 185, 33
+IDD_PROCESSOR_TRACE_PANEL DIALOGEX 0, 0, 185, 48
 STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_SYSMENU
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     EDITTEXT        IDC_PROCESSOR_TRACE_LENGTH,95,10,40,12,ES_AUTOHSCROLL | ES_NUMBER
     LTEXT           "List size",IDC_STATIC,67,11,26,8
     PUSHBUTTON      "Clear",IDC_PROCESSOR_TRACE_CLEAR,146,10,32,12
-    CONTROL         "Disassemble",IDC_PROCESSOR_TRACE_DISASSEMBLE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,18,55,8
+    CONTROL         "Disassemble",IDC_PROCESSOR_TRACE_DISASSEMBLE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,17,55,8
     CONTROL         "Enabled",IDC_PROCESSOR_TRACE_ENABLED,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,7,55,8
+    EDITTEXT        IDC_PROCESSOR_TRACE_TRACEFILEPATH,54,27,105,12,ES_AUTOHSCROLL
+    PUSHBUTTON      "Button1",IDC_PROCESSOR_TRACE_TRACEFILEPATHCHANGE,162,27,14,12,BS_ICON
+    CONTROL         "Trace File",IDC_PROCESSOR_TRACE_ENABLETRACEFILE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,28,43,8
 END
 
 
@@ -273,7 +276,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 178
         TOPMARGIN, 7
-        BOTTOMMARGIN, 26
+        BOTTOMMARGIN, 41
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -352,6 +355,16 @@ BEGIN
 END
 
 #endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_FOLDER              ICON                    "folder.ico"
 
 #endif    // English (Australia) resources
 /////////////////////////////////////////////////////////////////////////////

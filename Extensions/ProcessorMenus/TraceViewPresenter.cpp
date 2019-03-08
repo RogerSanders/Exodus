@@ -29,3 +29,11 @@ void TraceViewPresenter::DeleteView(IView* view)
 {
 	delete view;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
+// Interface functions
+//----------------------------------------------------------------------------------------------------------------------
+IGUIExtensionInterface& TraceViewPresenter::GetGUIInterface() const
+{
+	return _owner.GetGUIInterface();
+}

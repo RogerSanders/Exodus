@@ -14,7 +14,7 @@
 Processor::Processor(const std::wstring& implementationName, const std::wstring& instanceName, unsigned int moduleID)
 :Device(implementationName, instanceName, moduleID),
 _clockSpeed(0), _reportedClockSpeed(0), _clockSpeedOverridden(false),
-_traceLogEnabled(false), _traceLogDisassemble(false), _traceLogLength(2000), _traceLogLastModifiedToken(0),
+_traceLogEnabled(false), _traceLogToFile(false), _traceLogDisassemble(false), _traceLogLength(2000), _traceLogLastModifiedToken(0),
 _stackDisassemble(false), _callStackLastModifiedToken(0), _stepOver(false), _stepOut(false),
 _breakOnNextOpcode(false), _breakpointExists(false), _watchpointExists(false)
 {
@@ -109,6 +109,11 @@ bool Processor::Construct(IHierarchicalStorageNode& node)
 //----------------------------------------------------------------------------------------------------------------------
 bool Processor::BuildDevice()
 {
+	// Initialize the trace logging state
+	std::wstring captureFolder = GetSystemInterface().GetCapturePath();
+	std::wstring traceLogFileName = GetDeviceInstanceName() + L"_TraceLog.txt";
+	_traceFilePath = PathCombinePaths(captureFolder, traceLogFileName);
+
 	// Initialize active disassembly info. Note that we can't initialize these data members
 	// properly in the constructor, since we can't call virtual functions from the
 	// constructor.
@@ -920,6 +925,65 @@ void Processor::SetTraceLength(unsigned int length)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+Marshal::Ret<std::wstring> Processor::GetTraceLoggingFilePath() const
+{
+	std::unique_lock<std::mutex> lock(_debugMutex);
+	return _traceFilePath;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+void Processor::SetTraceLoggingFilePath(const Marshal::In<std::wstring>& filePath)
+{
+	// If the trace file path isn't being changed, abort any further processing.
+	std::unique_lock<std::mutex> lock(_debugMutex);
+	std::wstring filePathResolved = filePath;
+	if (_traceFilePath == filePathResolved)
+	{
+		return;
+	}
+
+	// Record the new trace file path
+	_traceFilePath = filePathResolved;
+
+	// If trace logging is currently enabled, close the current trace log, and re-open it on the new target path.
+	if (_traceLogToFile)
+	{
+		CloseTraceFile();
+		OpenTraceFile(_traceFilePath);
+	}
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+bool Processor::IsTraceFileLoggingEnabled() const
+{
+	return _traceLogToFile;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+void Processor::SetTraceFileLoggingEnabled(bool state)
+{
+	// If the trace file logging state isn't being changed, abort any further processing.
+	std::unique_lock<std::mutex> lock(_debugMutex);
+	if (_traceLogToFile == state)
+	{
+		return;
+	}
+
+	// Record the new file logging state
+	_traceLogToFile = state;
+
+	// Open or close the trace log file as appropriate
+	if (_traceLogToFile)
+	{
+		OpenTraceFile(_traceFilePath);
+	}
+	else
+	{
+		CloseTraceFile();
+	}
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 Marshal::Ret<std::list<Processor::TraceLogEntry>> Processor::GetTraceLog() const
 {
 	std::unique_lock<std::mutex> lock(_debugMutex);
@@ -941,6 +1005,23 @@ void Processor::ClearTraceLog()
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+bool Processor::OpenTraceFile(const std::wstring& filePath)
+{
+	if (!_traceFile.Open(filePath, Stream::File::OpenMode::WriteOnly, Stream::File::CreateMode::Create))
+	{
+		GetDeviceContext()->WriteLogEvent(LogEntry(LogEntry::EventLevel::Error, L"Failed to create trace log file with path \"" + filePath + L"\"!"));
+		return false;
+	}
+	return true;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+void Processor::CloseTraceFile()
+{
+	_traceFile.Close();
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 void Processor::RecordTraceInternal(unsigned int pc)
 {
 	std::unique_lock<std::mutex> lock(_debugMutex);
@@ -958,12 +1039,36 @@ void Processor::RecordTraceInternal(unsigned int pc)
 	}
 
 	// Add the entry to the running trace log
-	_traceLog.push_front(traceEntry);
+	if (_traceLogLength > 0)
+	{
+		_traceLog.push_front(traceEntry);
+	}
 	while (_traceLog.size() > _traceLogLength)
 	{
 		_traceLog.pop_back();
 	}
 	++_traceLogLastModifiedToken;
+
+	// Record the entry in the trace log file if requested
+	if (_traceLogToFile)
+	{
+		std::wstring opcodeAddressAsString;
+		IntToStringBase16(pc, opcodeAddressAsString, GetPCCharWidth());
+		_traceFile.WriteText(opcodeAddressAsString);
+		if (_traceLogDisassemble)
+		{
+			_traceFile.WriteText("\t");
+			_traceFile.WriteText(traceEntry.disassemblyOpcode);
+			_traceFile.WriteText("\t");
+			_traceFile.WriteText(traceEntry.disassemblyArgs);
+			if (!traceEntry.disassemblyComment.empty())
+			{
+				_traceFile.WriteText("\t;");
+				_traceFile.WriteText(traceEntry.disassemblyComment);
+			}
+		}
+		_traceFile.WriteText("\n");
+	}
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -4227,7 +4332,9 @@ void Processor::LoadDebuggerState(IHierarchicalStorageNode& node)
 				// Trace
 				else if (registerName == L"TraceEnabled")			_traceLogEnabled = i->ExtractData<bool>();
 				else if (registerName == L"TraceDisassemble")		_traceLogDisassemble = i->ExtractData<bool>();
-				else if (registerName == L"TraceLength")				_traceLogLength = i->ExtractData<unsigned int>();
+				else if (registerName == L"TraceLength")			_traceLogLength = i->ExtractData<unsigned int>();
+				else if (registerName == L"TraceLogToFile")			_traceLogToFile = i->ExtractData<bool>();
+				else if (registerName == L"TraceFilePath")			_traceFilePath = i->GetData();
 				// Active Disassembly
 				else if (registerName == L"ActiveDisassemblyEnabled")
 				{
@@ -4485,6 +4592,8 @@ void Processor::SaveDebuggerState(IHierarchicalStorageNode& node) const
 	node.CreateChild(L"Register", _traceLogEnabled).CreateAttribute(L"name", L"TraceEnabled");
 	node.CreateChild(L"Register", _traceLogDisassemble).CreateAttribute(L"name", L"TraceDisassemble");
 	node.CreateChild(L"Register", _traceLogLength).CreateAttribute(L"name", L"TraceLength");
+	node.CreateChild(L"Register", _traceLogToFile).CreateAttribute(L"name", L"TraceLogToFile");
+	node.CreateChild(L"Register", _traceFilePath).CreateAttribute(L"name", L"TraceFilePath");
 
 	// Active Disassembly
 	node.CreateChild(L"Register", _activeDisassemblyEnabled).CreateAttribute(L"name", L"ActiveDisassemblyEnabled");

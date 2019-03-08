@@ -351,6 +351,9 @@
   <ItemGroup>
     <ResourceCompile Include="ProcessorMenus.rc" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="folder.ico" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <!-- Disable compilation for PGOOptimize and PGOUpdate targets -->
   <Import Condition="'$(Configuration)'=='Release - PGOOptimize' or '$(Configuration)'=='Release - PGOUpdate'" Project="$(SolutionDir)\Build\MSBuild\Exodus.Build.LinkOnly.targets" />
