@@ -127,4 +127,9 @@
       <Filter>Resources</Filter>
     </ResourceCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="folder.ico">
+      <Filter>Resources</Filter>
+    </Image>
+  </ItemGroup>
 </Project>

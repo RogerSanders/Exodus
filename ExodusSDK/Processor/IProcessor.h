@@ -93,6 +93,10 @@ public:
 	virtual void SetTraceDisassemble(bool state) = 0;
 	virtual unsigned int GetTraceLength() const = 0;
 	virtual void SetTraceLength(unsigned int state) = 0;
+	virtual Marshal::Ret<std::wstring> GetTraceLoggingFilePath() const = 0;
+	virtual void SetTraceLoggingFilePath(const Marshal::In<std::wstring>& filePath) = 0;
+	virtual bool IsTraceFileLoggingEnabled() const = 0;
+	virtual void SetTraceFileLoggingEnabled(bool state) = 0;
 	virtual Marshal::Ret<std::list<TraceLogEntry>> GetTraceLog() const = 0;
 	virtual unsigned int GetTraceLogLastModifiedToken() const = 0;
 	virtual void ClearTraceLog() = 0;

@@ -111,6 +111,7 @@ actually executed are disassembled correctly.
 #include "Breakpoint.h"
 #include "Watchpoint.h"
 #include "ThinContainers/ThinContainers.pkg"
+#include "Stream/Stream.pkg"
 #include <mutex>
 #include <condition_variable>
 
@@ -202,6 +203,10 @@ public:
 	virtual void SetTraceDisassemble(bool state);
 	virtual unsigned int GetTraceLength() const;
 	virtual void SetTraceLength(unsigned int state);
+	virtual Marshal::Ret<std::wstring> GetTraceLoggingFilePath() const;
+	virtual void SetTraceLoggingFilePath(const Marshal::In<std::wstring>& filePath);
+	virtual bool IsTraceFileLoggingEnabled() const;
+	virtual void SetTraceFileLoggingEnabled(bool state);
 	virtual Marshal::Ret<std::list<TraceLogEntry>> GetTraceLog() const;
 	virtual unsigned int GetTraceLogLastModifiedToken() const;
 	virtual void ClearTraceLog();
@@ -343,6 +348,8 @@ private:
 	void WatchpointCallback(Watchpoint* watchpoint) const;
 
 	// Trace functions
+	bool OpenTraceFile(const std::wstring& filePath);
+	void CloseTraceFile();
 	void RecordTraceInternal(unsigned int pc);
 
 	// Active disassembly operation functions
@@ -407,6 +414,9 @@ private:
 	// Trace
 	std::list<TraceLogEntry> _traceLog;
 	std::list<TraceLogEntry> _btraceLog;
+	std::wstring _traceFilePath;
+	Stream::File _traceFile;
+	bool _traceLogToFile;
 	volatile bool _traceLogEnabled;
 	bool _traceLogDisassemble;
 	unsigned int _traceLogLength;

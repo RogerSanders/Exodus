@@ -17,6 +17,9 @@ public:
 	virtual IView* CreateView(IUIManager& uiManager);
 	virtual void DeleteView(IView* view);
 
+	// Interface functions
+	IGUIExtensionInterface& GetGUIInterface() const;
+
 private:
 	ProcessorMenus& _owner;
 	const IDevice& _modelInstanceKey;
