@@ -315,7 +315,7 @@ public:
 		// during the marshalling process.
 		ScopedFreeDataArrayHelper arrayHelper(*this);
 		size_t elementByteSize;
-		RetrieveData(elementByteSize, arrayHelper.itemArray, arrayHelper.elementSizeArray, arrayHelper.nestedMarshallerArray, AllowMove);
+		RetrieveData(elementByteSize, arrayHelper.itemArray, arrayHelper.elementSizeArray, arrayHelper.nestedMarshallerArray);
 
 		// Ensure the size of the innermost element is the same as expected, or that a custom marshaller has been
 		// supplied. The object being the correct size isn't a guarantee that marshalling is being used correctly, but if
@@ -645,7 +645,7 @@ public:
 		// objects to marshal, but we can't index that array using our size of the object here, since it may differ from
 		// that of the sender. To account for this, we calculate the address of each object in the array using the object
 		// byte size specified by the sender.
-		const ElementType* sourceObject = reinterpret_cast<const ElementType*>(reinterpret_cast<const unsigned char*>(nextSourceObject) + (elementByteSize * static_cast<size_t>(index)));
+		const ElementType* sourceObject = reinterpret_cast<const ElementType*>(reinterpret_cast<const unsigned char*>(sourceData) + (elementByteSize * static_cast<size_t>(index)));
 		Internal::MarshalObjectHelper<ElementType>::MarshalObjectToExistingObject(*sourceObject, element);
 	}
 
@@ -911,7 +911,7 @@ public:
 	}
 	inline bool empty() const
 	{
-		return (ArraySize() == 0);
+		return (ArraySize == 0);
 	}
 
 	// Element access methods
@@ -933,14 +933,7 @@ public:
 		// that of the sender. To account for this, we calculate the address of each object in the array using the object
 		// byte size specified by the sender.
 		const ElementType* sourceElement = reinterpret_cast<const ElementType*>(reinterpret_cast<const unsigned char*>(sourceData) + (elementByteSize * index));
-		if (sourceDataMovable && AllowMove)
-		{
-			Internal::MarshalObjectHelper<ElementType>::MarshalObjectToExistingObject(std::move(const_cast<ElementType&>(*sourceElement)), element);
-		}
-		else
-		{
-			Internal::MarshalObjectHelper<ElementType>::MarshalObjectToExistingObject(*sourceElement, element);
-		}
+		Internal::MarshalObjectHelper<ElementType>::MarshalObjectToExistingObject(*sourceElement, element);
 	}
 
 protected:
@@ -1042,7 +1035,7 @@ public:
 	}
 	inline bool empty() const
 	{
-		return (ArraySize() == 0);
+		return (ArraySize == 0);
 	}
 
 	// Element access methods
@@ -1064,7 +1057,7 @@ public:
 		// that of the sender. To account for this, we calculate the address of each object in the array using the object
 		// byte size specified by the sender.
 		ElementType* sourceElement = reinterpret_cast<ElementType*>(reinterpret_cast<unsigned char*>(sourceData) + (elementByteSize * index));
-		Internal::MarshalObjectHelper<ElementType>::MarshalObjectToExistingObject(std::move(*sourceElement), targetObject[(typename std::array<ElementType, ArraySize>::size_type)i]);
+		Internal::MarshalObjectHelper<ElementType>::MarshalObjectToExistingObject(std::move(*sourceElement), element);
 	}
 
 protected:
