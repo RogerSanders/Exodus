@@ -644,6 +644,7 @@ bool Processor::LockWatchpoint(IWatchpoint* watchpoint) const
 void Processor::UnlockWatchpoint(IWatchpoint* watchpoint) const
 {
 	// Unlock this watchpoint
+	std::unique_lock<std::mutex> lock(_debugMutex);
 	_lockedWatchpoints.erase(watchpoint);
 	_watchpointLockReleased.notify_all();
 }
