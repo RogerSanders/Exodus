@@ -2179,6 +2179,10 @@ bool S315_5313::AdvanceProcessorState(unsigned int mclkCyclesTarget, bool stopAt
 
 		// If we passed at least one pending IPL line state change in this update step,
 		// apply the state of the latest change as the current state of the IPL lines.
+		// Note that as we flag all line state changes in advance, there's no need to
+		// actually assert the output lines here, as we should have already flagged this
+		// change in advance, we just need to reflect our own internal state to match the
+		// advertised external line state now.
 		bool vintLineChangeReached = (_lineStateChangePendingVINT && (_lineStateChangeVINTMClkCountFromCurrent <= mclkCyclesToAdvanceThisStep));
 		bool hintLineChangeReached = (_lineStateChangePendingHINT && (_lineStateChangeHINTMClkCountFromCurrent <= mclkCyclesToAdvanceThisStep));
 		bool exintLineChangeReached = (_lineStateChangePendingEXINT && (_lineStateChangeEXINTMClkCountFromCurrent <= mclkCyclesToAdvanceThisStep));

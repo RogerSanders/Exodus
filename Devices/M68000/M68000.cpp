@@ -1029,6 +1029,11 @@ void M68000::ExecuteRollback()
 	}
 
 	_lastTimesliceLength = _blastTimesliceLength;
+
+	// Note that we need to clear then assign here. The reason is that if both lists aren't empty, the default
+	// assignment operator will be called on each element of the LineAccess structure, which includes Data elements,
+	// which won't resize the existing objects, meaning data may be truncated if different line widths exist.
+	_lineAccessBuffer.clear();
 	_lineAccessBuffer = _blineAccessBuffer;
 	_lineAccessPending = !_lineAccessBuffer.empty();
 
@@ -1085,14 +1090,12 @@ void M68000::ExecuteCommit()
 	}
 
 	_blastTimesliceLength = _lastTimesliceLength;
-	if (_lineAccessPending)
-	{
-		_blineAccessBuffer = _lineAccessBuffer;
-	}
-	else
-	{
-		_blineAccessBuffer.clear();
-	}
+
+	// Note that we need to clear then assign here. The reason is that if both lists aren't empty, the default
+	// assignment operator will be called on each element of the LineAccess structure, which includes Data elements,
+	// which won't resize the existing objects, meaning data may be truncated if different line widths exist.
+	_blineAccessBuffer.clear();
+	_blineAccessBuffer = _lineAccessBuffer;
 
 	_bsuspendUntilLineStateChangeReceived = _suspendUntilLineStateChangeReceived;
 	_bresetLineState = _resetLineState;
