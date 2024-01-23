@@ -1198,9 +1198,6 @@ void S315_5313::ExecuteRollback()
 	_commandAddress = _bcommandAddress;
 	_commandCode = _bcommandCode;
 
-	// DMA worker thread properties
-	_workerThreadPaused = _bworkerThreadPaused;
-
 	// DMA transfer registers
 	_dmaTransferActive = _bdmaTransferActive;
 	_dmaTransferReadDataCached = _bdmaTransferReadDataCached;
@@ -1412,9 +1409,6 @@ void S315_5313::ExecuteCommit()
 	_bcommandAddress = _commandAddress;
 	_bcommandCode = _commandCode;
 
-	// DMA worker thread properties
-	_bworkerThreadPaused = _workerThreadPaused;
-
 	// DMA transfer registers
 	_bdmaTransferActive = _dmaTransferActive;
 	_bdmaTransferReadDataCached = _dmaTransferReadDataCached;
@@ -1495,7 +1489,7 @@ void S315_5313::DMAWorkerThread()
 	std::unique_lock<std::mutex> lock(_workerThreadMutex);
 
 	//##DEBUG##
-//	std::wcout << L"DMAWorkerThread running\n";
+	//std::wcout << L"DMAWorkerThread running\n";
 
 	// Begin the DMA work loop
 	while (_workerThreadActive)
