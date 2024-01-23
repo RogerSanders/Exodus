@@ -217,6 +217,7 @@ void S315_5313::SetLineState(unsigned int targetLine, const Data& lineData, IDev
 			}
 
 			GetDeviceContext()->SetTransientExecutionActive(_busGranted);
+			_workerThreadPaused = false;
 			_workerThreadUpdate.notify_all();
 		}
 		break;}
@@ -280,7 +281,7 @@ bool S315_5313::AdvanceToLineState(unsigned int targetLine, const Data& lineData
 			// If the worker thread isn't currently paused, wait for it to go idle. We know
 			// it can't be stopped here, since we have a lock on workerThreadMutex, and the
 			// busGranted flag is set.
-			if (!_workerThreadPaused)
+			while (!_workerThreadPaused)
 			{
 				_workerThreadIdle.wait(workerLock);
 			}
@@ -293,8 +294,12 @@ bool S315_5313::AdvanceToLineState(unsigned int targetLine, const Data& lineData
 			if (_workerThreadPaused && _busGranted)
 			{
 				_dmaAdvanceUntilDMAComplete = true;
+				_workerThreadPaused = false;
 				_workerThreadUpdate.notify_all();
-				_workerThreadIdle.wait(workerLock);
+				while (!_workerThreadPaused)
+				{
+					_workerThreadIdle.wait(workerLock);
+				}
 				_dmaAdvanceUntilDMAComplete = false;
 			}
 

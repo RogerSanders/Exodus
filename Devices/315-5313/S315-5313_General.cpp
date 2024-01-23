@@ -1,6 +1,7 @@
 #include "S315_5313.h"
 #include "Image/Image.pkg"
 #include <thread>
+#include <functional>
 
 //----------------------------------------------------------------------------------------------------------------------
 // Constructors
@@ -550,6 +551,8 @@ void S315_5313::BeginExecution()
 void S315_5313::SuspendExecution()
 {
 	// Suspend the render worker thread
+	//##FIX## Defend against spurious unlock events here and in other similar cases. We need a flag to back the state
+	//here.
 	std::unique_lock<std::mutex> renderLock(_renderThreadMutex);
 	if (_renderThreadActive)
 	{
@@ -563,6 +566,7 @@ void S315_5313::SuspendExecution()
 	if (_workerThreadActive)
 	{
 		_workerThreadActive = false;
+		_workerThreadPaused = false;
 		_workerThreadUpdate.notify_all();
 		_workerThreadStopped.wait(workerLock);
 	}
@@ -826,7 +830,7 @@ void S315_5313::NotifyAfterExecuteCalled()
 {
 	// Ensure that the DMA worker thread has finished executing
 	std::unique_lock<std::mutex> workerThreadLock(_workerThreadMutex);
-	if (_workerThreadActive && !_workerThreadPaused && _busGranted)
+	while (_workerThreadActive && !_workerThreadPaused)
 	{
 		//##DEBUG##
 //		std::wcout << L"NotifyAfterExecuteCalled is waiting for DMA worker thread to pause\n";
@@ -937,19 +941,23 @@ void S315_5313::ExecuteTimeslice(double nanoseconds)
 
 	// If the DMA worker thread has work pending, start it now, and wait for it to complete.
 	std::unique_lock<std::mutex> workerThreadLock(_workerThreadMutex);
-	if (_workerThreadActive && (_workerThreadPaused || _busGranted))
+	if (_workerThreadActive && _workerThreadPaused && _busGranted)
 	{
 		//##DEBUG##
 		//std::wcout << L"ExecuteTimeslice is resuming DMA worker thread\n";
 
 		// Resume the DMA worker thread
+		_workerThreadPaused = false;
 		_workerThreadUpdate.notify_all();
 
 		// Wait for the DMA worker thread to finish executing. We need to do this here,
 		// otherwise the result of returning from this function will override the timeslice
 		// progress set by the worker thread, potentially causing waiting devices to execute
 		// beyond the DMA execution progress set by the DMA worker thread.
-		_workerThreadIdle.wait(workerThreadLock);
+		while (_workerThreadActive && !_workerThreadPaused && _busGranted)
+		{
+			_workerThreadIdle.wait(workerThreadLock);
+		}
 	}
 	workerThreadLock.unlock();
 
@@ -971,11 +979,11 @@ void S315_5313::ExecuteTimesliceTimingPointStep(unsigned int accessContext)
 {
 	// Ensure that the DMA worker thread has finished executing
 	std::unique_lock<std::mutex> workerThreadLock(_workerThreadMutex);
-	if (_workerThreadActive && !_workerThreadPaused && _busGranted)
+	while (_workerThreadActive && !_workerThreadPaused && _busGranted)
 	{
 		//##DEBUG##
-		// std::wcout << L"ExecuteTimeslice is on a timing point waiting for DMA worker thread to pause\n";
-		// std::wcout << '\t' << workerThreadActive << '\t' << workerThreadPaused << '\t' << busGranted << '\n';
+		//std::wcout << L"ExecuteTimeslice is on a timing point waiting for DMA worker thread to pause\n";
+		//std::wcout << '\t' << _workerThreadActive << '\t' << _workerThreadPaused << '\t' << _busGranted << '\n';
 
 		_workerThreadIdle.wait(workerThreadLock);
 	}
@@ -1495,18 +1503,18 @@ void S315_5313::DMAWorkerThread()
 		if (!_busGranted)
 		{
 			//##DEBUG##
-//			std::wcout << L"DMAWorkerThread going idle\t" << GetProcessorStateTime() << '\n';
-//			std::wcout << '\t' << workerThreadActive << '\t' << workerThreadPaused << '\t' << busGranted << '\n';
+			//std::wcout << L"DMAWorkerThread going idle\t" << GetCurrentThreadId() << '\t' << GetProcessorStateTime() <<  '\t' << _workerThreadActive << '\t' << _workerThreadPaused << '\t' << _dmaTransferActive << '\t' << _busGranted << '\t' << _busRequestLineState << '\n';
 
 			// If we don't currently have the bus, go idle until a DMA work request comes
 			// through.
+			_workerThreadPaused = true;
 			GetDeviceContext()->SetTransientExecutionActive(false);
 			_workerThreadIdle.notify_all();
 			_workerThreadUpdate.wait(lock);
 			GetDeviceContext()->SetTransientExecutionActive(_busGranted);
 
 			//##DEBUG##
-//			std::wcout << L"DMAWorkerThread going active\t" << GetProcessorStateTime() << '\n';
+			//std::wcout << L"DMAWorkerThread going active\t" << GetCurrentThreadId() << '\t' << GetProcessorStateTime() << '\t' << _workerThreadActive << '\t' << _workerThreadPaused << '\t' << _dmaTransferActive << '\t' << _busGranted << '\t' << _busRequestLineState << '\n';
 		}
 		else
 		{
@@ -1628,8 +1636,8 @@ void S315_5313::DMAWorkerThread()
 			if (_busGranted)
 			{
 				//##DEBUG##
-	//			std::wcout << L"DMAWorkerThread pausing\t" << GetProcessorStateTime() << '\n';
-	//			std::wcout << '\t' << workerThreadActive << '\t' << workerThreadPaused << '\t' << busGranted << '\n';
+				//std::wcout << L"DMAWorkerThread pausing\t" << GetProcessorStateTime() << '\n';
+				//std::wcout << '\t' << _workerThreadActive << '\t' << _workerThreadPaused << '\t' << _busGranted << '\n';
 
 				// Suspend the DMA worker thread until a new timeslice is received.
 				_workerThreadPaused = true;
@@ -1637,10 +1645,9 @@ void S315_5313::DMAWorkerThread()
 				_workerThreadIdle.notify_all();
 				_workerThreadUpdate.wait(lock);
 				GetDeviceContext()->SetTransientExecutionActive(_busGranted);
-				_workerThreadPaused = false;
 
 				//##DEBUG##
-	//			std::wcout << L"DMAWorkerThread resuming\t" << GetProcessorStateTime() << '\n';
+				//std::wcout << L"DMAWorkerThread resuming\t" << GetProcessorStateTime() << '\n';
 			}
 		}
 	}
@@ -1764,6 +1771,7 @@ void S315_5313::UpdateInternalState(unsigned int mclkCyclesTarget, bool checkFif
 		std::wcout << "dmd0:\t" << _dmd1 << "\n";
 		std::wcout << "dmaFillOperationRunning:\t" << _dmaFillOperationRunning << "\n";
 		std::wcout << "######################################################\n";
+//		system("pause");
 	}
 
 	// Check if we're already sitting on one of the target states
@@ -1908,6 +1916,7 @@ bool S315_5313::AdvanceProcessorState(unsigned int mclkCyclesTarget, bool stopAt
 		std::wcout << "stateLastUpdateMclkUnused:\t" << _stateLastUpdateMclkUnused << "\n";
 		std::wcout << "stateLastUpdateMclkUnusedFromLastTimeslice:\t" << _stateLastUpdateMclkUnusedFromLastTimeslice << "\n";
 		std::wcout << "######################################################\n";
+//		system("pause");
 		return true;
 	}
 
@@ -2916,6 +2925,11 @@ void S315_5313::AdvanceDMAState()
 		// If we were running a DMA fill or DMA transfer operation, flag that it is now
 		// completed.
 		_dmaFillOperationRunning = false;
+//		//##DEBUG##
+//		if (_dmaTransferActive)
+//		{
+//			std::wcout << "DMA transfer going inactive\t" << GetCurrentThreadId() << '\n';
+//		}
 		_dmaTransferActive = false;
 	}
 
@@ -3394,8 +3408,6 @@ void S315_5313::LoadState(IHierarchicalStorageNode& node)
 				else if (registerName == L"RenderSpriteCollision")						_renderSpriteCollision = i->ExtractData<bool>();
 				else if (registerName == L"RenderVSRAMCachedRead")						_renderVSRAMCachedRead = i->ExtractHexData<unsigned int>();
 				//##TODO## Image buffer
-				// DMA worker thread properties
-				else if (registerName == L"WorkerThreadPaused")	_workerThreadPaused = i->ExtractData<bool>();
 				// DMA transfer registers
 				else if (registerName == L"DMATransferActive")			_dmaTransferActive = i->ExtractData<bool>();
 				else if (registerName == L"DMATransferReadDataCached")	_dmaTransferReadDataCached = i->ExtractData<bool>();
@@ -3677,8 +3689,6 @@ void S315_5313::SaveState(IHierarchicalStorageNode& node) const
 	node.CreateChild(L"Register", _renderSpriteCollision).CreateAttribute(L"name", L"RenderSpriteCollision");
 	node.CreateChildHex(L"Register", _renderVSRAMCachedRead.GetData(), _renderVSRAMCachedRead.GetHexCharCount()).CreateAttribute(L"name", L"RenderVSRAMCachedRead");
 	//##TODO## Image buffer
-	// DMA worker thread properties
-	node.CreateChild(L"Register", _workerThreadPaused).CreateAttribute(L"name", L"WorkerThreadPaused");
 	// DMA transfer registers
 	node.CreateChild(L"Register", _dmaTransferActive).CreateAttribute(L"name", L"DMATransferActive");
 	node.CreateChild(L"Register", _dmaTransferReadDataCached).CreateAttribute(L"name", L"DMATransferReadDataCached");

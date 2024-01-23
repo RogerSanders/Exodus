@@ -912,7 +912,6 @@ private:
 	std::condition_variable _workerThreadIdle;
 	bool _workerThreadActive;
 	bool _workerThreadPaused;
-	bool _bworkerThreadPaused;
 
 	// DMA transfer registers
 	//##FIX## Everything related to DMA transfers should be done in SC cycles, not MCLK
