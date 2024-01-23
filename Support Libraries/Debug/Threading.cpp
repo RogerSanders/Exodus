@@ -48,7 +48,7 @@ static void SetThreadName(DWORD dwThreadID, char* threadName)
 //----------------------------------------------------------------------------------------------------------------------
 void SetCallingThreadName(const std::wstring& threadName)
 {
-	std::string threadNameConverted = WStringToString(threadName);
+	std::string threadNameConverted = UTF16ToUTF8(threadName);
 	if (!threadNameConverted.empty())
 	{
 		SetThreadName((DWORD)-1, &threadNameConverted[0]);

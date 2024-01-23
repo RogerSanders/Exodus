@@ -25,6 +25,7 @@ public:
 	inline explicit M68000Byte(const Data& data)
 	:Data(BITCOUNT_BYTE, data.GetData())
 	{ }
+	inline M68000Byte(const M68000Byte& source) = default;
 
 	// Integer operators
 	M68000Byte operator+(unsigned int target) const
@@ -379,6 +380,7 @@ public:
 	inline explicit M68000Word(const Data& data)
 	:Data(BITCOUNT_WORD, data.GetData())
 	{ }
+	inline M68000Word(const M68000Word& source) = default;
 
 	// Integer operators
 	M68000Word operator+(unsigned int target) const
@@ -733,6 +735,7 @@ public:
 	inline explicit M68000Long(const Data& data)
 	:Data(BITCOUNT_LONG, data.GetData())
 	{ }
+	inline M68000Long(const M68000Long& source) = default;
 
 	// Integer operators
 	M68000Long operator+(unsigned int target) const

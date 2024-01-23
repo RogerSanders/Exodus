@@ -410,11 +410,11 @@ LRESULT ImageView::msgRenderWM_MOUSEMOVE(HWND hwnd, WPARAM wparam, LPARAM lparam
 	}
 
 	// Calculate the vertical image buffer position of the target pixel
-	_pixelInfoTargetBufferPosY = (int)((float)(ypos - _imageRegionPosY) * ((float)rowCount / _imageRegionHeight));
+	_pixelInfoTargetBufferPosY = (int)((float)(ypos - _imageRegionPosY) * ((float)rowCount / (float)_imageRegionHeight));
 
 	// Calculate the horizontal image buffer position of the target pixel
 	unsigned int lineWidth = _model.GetImageBufferLineWidth(displayingImageBufferPlane, _pixelInfoTargetBufferPosY);
-	_pixelInfoTargetBufferPosX = (int)((float)(xpos - _imageRegionPosX) * ((float)lineWidth / _imageRegionWidth));
+	_pixelInfoTargetBufferPosX = (int)((float)(xpos - _imageRegionPosX) * ((float)lineWidth / (float)_imageRegionWidth));
 
 	// Retrieve the rectangle representing the work area of the target monitor
 	POINT cursorPoint;

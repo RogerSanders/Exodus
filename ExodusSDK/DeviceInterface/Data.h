@@ -12,6 +12,7 @@ public:
 	// Constructors
 	explicit inline Data(unsigned int bitCount);
 	inline Data(unsigned int bitCount, unsigned int data);
+	inline Data(const Data& source) = default;
 
 	// Management functions
 	inline void Resize(unsigned int bitCount);

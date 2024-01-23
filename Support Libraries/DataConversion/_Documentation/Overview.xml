@@ -115,11 +115,11 @@ Base 2:  0b????, 0B????</Code>
         <FunctionMemberListEntry Visibility="Public" Name="StringToUpper">
           Converts all ASCII characters in the target string to their uppercase equivalent. This function does not attempt to support Unicode characters.
         </FunctionMemberListEntry>
-        <FunctionMemberListEntry Visibility="Public" Name="StringToWString">
-          Converts an std::string with ASCII encoding to an std::wstring. This function does not attempt to support non-ASCII characters.
+        <FunctionMemberListEntry Visibility="Public" Name="UTF8ToUTF16">
+          Converts a std::string with ASCII or UTF8 encoding to a std::wstring in UTF16 encoding.
         </FunctionMemberListEntry>
-        <FunctionMemberListEntry Visibility="Public" Name="WStringToString">
-          Converts an std::wstring with ASCII encoding to an std::string. This function does not attempt to support non-ASCII characters.
+        <FunctionMemberListEntry Visibility="Public" Name="UTF16ToUTF8">
+          Converts a std::wstring with UTF16 encoding to a std::string with UTF8 encoding.
         </FunctionMemberListEntry>
       </FunctionMemberList>
     </SubSection>

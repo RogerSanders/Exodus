@@ -8,7 +8,8 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalOptions>/Wall /wd4061 /wd4062 /wd4254 /wd4255 /wd4302 /wd4339 /wd4342 /wd4347 /wd4412 /wd4514 /wd4536 /wd4557 /wd4571 /wd4619 /wd4623 /wd4625 /wd4626 /wd4628 /wd4641 /wd4668 /wd4682 /wd4692 /wd4710 /wd4711 /wd4738 /wd4786 /wd4820 /wd4905 /wd4906 /wd4917 /wd4928 /wd4931 /wd4962 /wd4548 /wd4100 /wd4512 /wd4365 /wd4371 /wd4510 /wd4610 /wd4350 /wd4191 /wd4428 /wd4250 /wd4574 /wd4435 /wd4640 /w44265 /wd4774 /wd5026 /wd5027 /wd5038 /wd5039 /wd4464 /wd5045 %(AdditionalOptions)</AdditionalOptions>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <AdditionalOptions>/Wall /wd4061 /wd4062 /wd4254 /wd4255 /wd4302 /wd4339 /wd4342 /wd4347 /wd4412 /wd4514 /wd4536 /wd4557 /wd4571 /wd4619 /wd4623 /wd4625 /wd4626 /wd4628 /wd4641 /wd4668 /wd4682 /wd4692 /wd4710 /wd4711 /wd4738 /wd4786 /wd4820 /wd4905 /wd4906 /wd4917 /wd4928 /wd4931 /wd4962 /wd4548 /wd4100 /wd4512 /wd4365 /wd4371 /wd4510 /wd4610 /wd4350 /wd4191 /wd4428 /wd4250 /wd4574 /wd4435 /wd4640 /w44265 /wd4774 /wd5026 /wd5027 /wd5038 /wd5039 /wd4464 /wd5045 /wd5220 /wd5204 %(AdditionalOptions)</AdditionalOptions>
       <WarningLevel>Level4</WarningLevel>
     </ClCompile>
   </ItemDefinitionGroup>

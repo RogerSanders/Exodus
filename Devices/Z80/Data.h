@@ -21,6 +21,7 @@ public:
 	explicit inline Z80Byte(const Data& data)
 	:Data(BITCOUNT_BYTE, data.GetData())
 	{ }
+	inline Z80Byte(const Z80Byte& source) = default;
 
 	// Integer operators
 	Z80Byte operator+(unsigned int target) const
@@ -375,6 +376,7 @@ public:
 	explicit inline Z80Word(const Data& data)
 	:Data(BITCOUNT_WORD, data.GetData())
 	{ }
+	inline Z80Word(const Z80Word& source) = default;
 
 	// Integer operators
 	Z80Word operator+(unsigned int target) const

@@ -945,18 +945,6 @@ std::wstring StringToUpper(const std::wstring& string)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-std::wstring StringToWString(const std::string& string)
-{
-	return std::wstring(string.begin(), string.end());
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-std::string WStringToString(const std::wstring& string)
-{
-	return std::string(string.begin(), string.end());
-}
-
-//----------------------------------------------------------------------------------------------------------------------
 std::wstring UTF8ToUTF16(const std::string& stringUTF8)
 {
 	// Convert the encoding of the supplied string
