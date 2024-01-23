@@ -1634,6 +1634,7 @@ void Z80::LoadState(IHierarchicalStorageNode& node)
 				else if (registerName == L"SuspendUntilLineStateChangeReceived")		_suspendUntilLineStateChangeReceived = (*i)->ExtractData<bool>();
 				else if (registerName == L"ResetLineState")			_resetLineState = (*i)->ExtractData<bool>();
 				else if (registerName == L"BusreqLineState")			_busreqLineState = (*i)->ExtractData<bool>();
+				else if (registerName == L"BusackLineState")			_busackLineState = (*i)->ExtractData<bool>();
 				else if (registerName == L"INTLineState")			_intLineState = (*i)->ExtractData<bool>();
 				else if (registerName == L"NMILineState")			_nmiLineState = (*i)->ExtractData<bool>();
 			}
@@ -1749,6 +1750,7 @@ void Z80::SaveState(IHierarchicalStorageNode& node) const
 	node.CreateChild(L"Register", _suspendUntilLineStateChangeReceived).CreateAttribute(L"name", L"SuspendUntilLineStateChangeReceived");
 	node.CreateChild(L"Register", _resetLineState).CreateAttribute(L"name", L"ResetLineState");
 	node.CreateChild(L"Register", _busreqLineState).CreateAttribute(L"name", L"BusreqLineState");
+	node.CreateChild(L"Register", _busackLineState).CreateAttribute(L"name", L"BusackLineState");
 	node.CreateChild(L"Register", _intLineState).CreateAttribute(L"name", L"INTLineState");
 	node.CreateChild(L"Register", _nmiLineState).CreateAttribute(L"name", L"NMILineState");
 
