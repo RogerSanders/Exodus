@@ -1,0 +1,54 @@
+# Data folders to ignore
+Crash Reports/
+Data/
+.vs/
+
+# Compiled documentation and uncommitted directories to ignore
+Documentation/
+_Documentation/Notes/
+_Documentation/bin/
+_Documentation/obj/
+
+# Visual Studio files
+*.user
+*.ncb
+*.sdf
+*.opensdf
+*.suo
+*.vsmdi
+*.user
+*.pgc
+*.pgd
+*.aps
+*.APS
+*.VC.db
+*.VC.opendb
+*.vs/
+*.lastbuildstate
+*.log
+*.orig
+*.aps
+
+# Compiled output folders to ignore
+Win32/
+x64/
+Debug/
+Release/
+debug/
+release/
+Assemblies/
+StaticModules/
+Exodus.exe
+Exodus.ilk
+Exodus.pdb
+System.dll
+System.exp
+System.lib
+System.ilk
+System.pdb
+
+# Third folders to ignore
+Third/
+
+# Miscellaneous files to ignore
+Exodus/Resources/Unused/
