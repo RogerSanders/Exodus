@@ -8,6 +8,7 @@
 #include "IOpcodeInfo.h"
 #include <string>
 #include <list>
+#include <vector>
 using namespace MarshalSupport::Operators;
 
 class IProcessor :public virtual IGenericAccess
@@ -97,7 +98,7 @@ public:
 	virtual void SetTraceLoggingFilePath(const Marshal::In<std::wstring>& filePath) = 0;
 	virtual bool IsTraceFileLoggingEnabled() const = 0;
 	virtual void SetTraceFileLoggingEnabled(bool state) = 0;
-	virtual Marshal::Ret<std::list<TraceLogEntry>> GetTraceLog() const = 0;
+	virtual Marshal::Ret<std::vector<TraceLogEntry>> GetTraceLog() const = 0;
 	virtual unsigned int GetTraceLogLastModifiedToken() const = 0;
 	virtual void ClearTraceLog() = 0;
 

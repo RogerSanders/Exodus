@@ -326,6 +326,10 @@ void M68000::Initialize()
 
 	// Synchronize the changed register state with the current register state
 	PopulateChangedRegStateFromCurrentState();
+
+	// Reset these counters on a hard reset only
+	_currentCycle = 0;
+	_currentTime = 0;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -733,13 +737,19 @@ double M68000::ExecuteStep()
 	if (_resetLineState && _haltLineState)
 	{
 		Reset();
-		return CalculateExecutionTime(cyclesExecuted) + additionalTime;
+		double totalExecutionTime = CalculateExecutionTime(cyclesExecuted) + additionalTime;
+		_currentCycle += cyclesExecuted;
+		_currentTime += totalExecutionTime;
+		return totalExecutionTime;
 	}
 
 	// If we don't have the bus or the HALT line is asserted, abort any further processing.
 	if (_bgLineState || _haltLineState || !GetDeviceContext()->DeviceEnabled())
 	{
-		return CalculateExecutionTime(cyclesExecuted) + additionalTime;
+		double totalExecutionTime = CalculateExecutionTime(cyclesExecuted) + additionalTime;
+		_currentCycle += cyclesExecuted;
+		_currentTime += totalExecutionTime;
+		return totalExecutionTime;
 	}
 
 	// If an exception has been triggered from the debugger, process it.
@@ -767,7 +777,10 @@ double M68000::ExecuteStep()
 
 		// Process the exception
 		cyclesExecuted = ProcessException(_debugExceptionTriggerVector).cycles;
-		return CalculateExecutionTime(cyclesExecuted) + additionalTime;
+		double totalExecutionTime = CalculateExecutionTime(cyclesExecuted) + additionalTime;
+		_currentCycle += cyclesExecuted;
+		_currentTime += totalExecutionTime;
+		return totalExecutionTime;
 	}
 
 	// Group 0 exception processing
@@ -786,7 +799,7 @@ double M68000::ExecuteStep()
 			// initialize itself and begin executing instructions after a cold boot. We
 			// have measured the approximate number of cycles for this case, and add it to
 			// the exception execution time below.
-			//##FIX## Mesure this to the exact cycle
+			//##FIX## Measure this to the exact cycle
 			//##TODO## It's possible that the bus arbiter actually just holds the M68000
 			// in a reset state for a period of time, and that's why this delay exists.
 			// Perform hardware tests to determine if this is the case.
@@ -808,14 +821,20 @@ double M68000::ExecuteStep()
 				_group0ExceptionPending = false;
 				SetProcessorState(State::Halted);
 			}
-			return CalculateExecutionTime(cyclesExecuted) + additionalTime;
+			double totalExecutionTime = CalculateExecutionTime(cyclesExecuted) + additionalTime;
+			_currentCycle += cyclesExecuted;
+			_currentTime += totalExecutionTime;
+			return totalExecutionTime;
 		}
 	}
 
 	// If we're in a halted state, terminate instruction processing.
 	if (_processorState == State::Halted)
 	{
-		return CalculateExecutionTime(cyclesExecuted) + additionalTime;
+		double totalExecutionTime = CalculateExecutionTime(cyclesExecuted) + additionalTime;
+		_currentCycle += cyclesExecuted;
+		_currentTime += totalExecutionTime;
+		return totalExecutionTime;
 	}
 
 	// If an external interrupt is pending, process it.
@@ -874,7 +893,10 @@ double M68000::ExecuteStep()
 			// Critical error. No device responded to the interrupt acknowledge cycle. The
 			// processor is now locked in the interrupt acknowledge cycle forever.
 			SetProcessorState(State::Halted);
-			return CalculateExecutionTime(cyclesExecuted) + additionalTime;
+			double totalExecutionTime = CalculateExecutionTime(cyclesExecuted) + additionalTime;
+			_currentCycle += cyclesExecuted;
+			_currentTime += totalExecutionTime;
+			return totalExecutionTime;
 		}
 		//##TODO## Confirm this behaviour. This is based on a best guess, that the M68000
 		// probably drives the data lines low before starting the read, and considers the
@@ -898,7 +920,10 @@ double M68000::ExecuteStep()
 			additionalTime += PushStackFrame(GetPC(), GetSR(), false);
 			SetSR_IPM(_interruptPendingLevel);
 			cyclesExecuted = ProcessException(interruptVectorNumber).cycles;
-			return CalculateExecutionTime(cyclesExecuted) + additionalTime;
+			double totalExecutionTime = CalculateExecutionTime(cyclesExecuted) + additionalTime;
+			_currentCycle += cyclesExecuted;
+			_currentTime += totalExecutionTime;
+			return totalExecutionTime;
 		}
 	}
 
@@ -906,7 +931,7 @@ double M68000::ExecuteStep()
 	if (_processorState != State::Stopped)
 	{
 		// Update the trace log, and test for breakpoints.
-		RecordTrace(GetPC().GetData());
+		RecordTrace(GetPC().GetData(), _currentCycle, _currentTime);
 		CheckExecution(GetPC().GetData());
 
 		M68000Word opcode = _prefetchedWord;
@@ -994,7 +1019,10 @@ double M68000::ExecuteStep()
 		}
 	}
 
-	return CalculateExecutionTime(cyclesExecuted) + additionalTime;
+	double totalExecutionTime = CalculateExecutionTime(cyclesExecuted) + additionalTime;
+	_currentCycle += cyclesExecuted;
+	_currentTime += totalExecutionTime;
+	return totalExecutionTime;
 }
 
 //----------------------------------------------------------------------------------------------------------------------

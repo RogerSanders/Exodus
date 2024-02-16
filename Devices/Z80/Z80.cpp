@@ -431,6 +431,10 @@ void Z80::Initialize()
 
 	// Synchronize the changed register state with the current register state
 	PopulateChangedRegStateFromCurrentState();
+
+	// Reset these counters on a hard reset only
+	_currentCycle = 0;
+	_currentTime = 0;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -600,7 +604,10 @@ double Z80::ExecuteStep()
 			Reset();
 			_resetLastStep = true;
 		}
-		return CalculateExecutionTime(cyclesExecuted) + additionalTime;
+		double totalExecutionTime = CalculateExecutionTime(cyclesExecuted) + additionalTime;
+		_currentCycle += cyclesExecuted;
+		_currentTime += totalExecutionTime;
+		return totalExecutionTime;
 	}
 	_resetLastStep = false;
 
@@ -688,7 +695,10 @@ double Z80::ExecuteStep()
 			AddRefresh(1);
 		}
 
-		return CalculateExecutionTime(cyclesExecuted) + additionalTime;
+		double totalExecutionTime = CalculateExecutionTime(cyclesExecuted) + additionalTime;
+		_currentCycle += cyclesExecuted;
+		_currentTime += totalExecutionTime;
+		return totalExecutionTime;
 	}
 	_maskInterruptsNextOpcode = false;
 
@@ -696,7 +706,7 @@ double Z80::ExecuteStep()
 	if (!_processorStopped)
 	{
 		// Update the trace log, and test for breakpoints
-		RecordTrace(GetPC().GetData());
+		RecordTrace(GetPC().GetData(), _currentCycle, _currentTime);
 		CheckExecution(GetPC().GetData());
 
 		cyclesExecuted = 0;
@@ -831,7 +841,10 @@ double Z80::ExecuteStep()
 		}
 	}
 
-	return CalculateExecutionTime(cyclesExecuted) + additionalTime;
+	double totalExecutionTime = CalculateExecutionTime(cyclesExecuted) + additionalTime;
+	_currentCycle += cyclesExecuted;
+	_currentTime += totalExecutionTime;
+	return totalExecutionTime;
 }
 
 //----------------------------------------------------------------------------------------------------------------------

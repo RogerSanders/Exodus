@@ -45,6 +45,7 @@ _breakOnNextOpcode(false), _breakpointExists(false), _watchpointExists(false)
 	_activeDisassemblyMinimumArrayEntryCount = 4;
 	_activeDisassemblyOffsetArrayDistanceTolerance = 0x40;
 	_activeDisassemblyJumpTableDistanceTolerance = 0x100;
+	_traceLog.resize(_traceLogLength);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -195,6 +196,12 @@ void Processor::ExecuteRollback()
 	_stepOver = _bstepOver;
 	_stepOut = _bstepOut;
 	_stackLevel = _bstackLevel;
+
+	// Remove any pending trace log entries we haven't yet written to file
+	if (_traceLogEnabled && _traceLogToFile)
+	{
+		_pendingTraceLogFileEntries.clear();
+	}
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -230,6 +237,16 @@ void Processor::ExecuteCommit()
 	_bstepOver = _stepOver;
 	_bstepOut = _stepOut;
 	_bstackLevel = _stackLevel;
+
+	// Write any pending trace log entries to file
+	if (_traceLogEnabled && _traceLogToFile)
+	{
+		for (const auto& entry : _pendingTraceLogFileEntries)
+		{
+			_traceFile.WriteText(entry + L"\n");
+		}
+		_pendingTraceLogFileEntries.clear();
+	}
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -910,6 +927,7 @@ bool Processor::GetTraceDisassemble() const
 //----------------------------------------------------------------------------------------------------------------------
 void Processor::SetTraceDisassemble(bool state)
 {
+	std::unique_lock<std::mutex> lock(_debugMutex);
 	_traceLogDisassemble = state;
 }
 
@@ -922,7 +940,29 @@ unsigned int Processor::GetTraceLength() const
 //----------------------------------------------------------------------------------------------------------------------
 void Processor::SetTraceLength(unsigned int length)
 {
+	std::unique_lock<std::mutex> lock(_debugMutex);
+	std::vector<TraceLogEntry> newTraceLog;
+	newTraceLog.resize(length);
+	unsigned int newTraceLogWritePos = 0;
+	unsigned int newTraceLogStartPos = 0;
+	if (length > 0)
+	{
+		unsigned int oldTraceLogReadPos = _traceLogStartPos;
+		while (oldTraceLogReadPos != _traceLogNextWritePos)
+		{
+			newTraceLog[newTraceLogWritePos] = std::move(_traceLog[oldTraceLogReadPos]);
+			oldTraceLogReadPos = ((oldTraceLogReadPos + 1) % _traceLogLength);
+			newTraceLogWritePos = ((newTraceLogWritePos + 1) % length);
+			if (newTraceLogWritePos == newTraceLogStartPos)
+			{
+				newTraceLogStartPos = ((newTraceLogStartPos + 1) % length);
+			}
+		}
+	}
 	_traceLogLength = length;
+	_traceLogStartPos = newTraceLogStartPos;
+	_traceLogNextWritePos = newTraceLogWritePos;
+	_traceLog = std::move(newTraceLog);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -981,14 +1021,28 @@ void Processor::SetTraceFileLoggingEnabled(bool state)
 	else
 	{
 		CloseTraceFile();
+		_pendingTraceLogFileEntries.clear();
 	}
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-Marshal::Ret<std::list<Processor::TraceLogEntry>> Processor::GetTraceLog() const
+Marshal::Ret<std::vector<Processor::TraceLogEntry>> Processor::GetTraceLog() const
 {
 	std::unique_lock<std::mutex> lock(_debugMutex);
-	return _traceLog;
+	std::vector<TraceLogEntry> traceLogToReturn;
+	traceLogToReturn.resize(_traceLogLength);
+
+	size_t traceLogReadPos = _traceLogStartPos;
+	size_t outputVectorWritePos = 0;
+	while (traceLogReadPos != _traceLogNextWritePos)
+	{
+		traceLogToReturn[outputVectorWritePos] = _traceLog[traceLogReadPos];
+		traceLogReadPos = ((traceLogReadPos + 1) % _traceLogLength);
+		++outputVectorWritePos;
+	}
+	traceLogToReturn.resize(outputVectorWritePos);
+
+	return traceLogToReturn;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1001,7 +1055,8 @@ unsigned int Processor::GetTraceLogLastModifiedToken() const
 void Processor::ClearTraceLog()
 {
 	std::unique_lock<std::mutex> lock(_debugMutex);
-	_traceLog.clear();
+	_traceLogStartPos = 0;
+	_traceLogNextWritePos = 0;
 	++_traceLogLastModifiedToken;
 }
 
@@ -1023,11 +1078,11 @@ void Processor::CloseTraceFile()
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-void Processor::RecordTraceInternal(unsigned int pc)
+void Processor::RecordTraceInternal(unsigned int pc, uint64_t currentCycle, double currentTime)
 {
 	std::unique_lock<std::mutex> lock(_debugMutex);
 
-	TraceLogEntry traceEntry(pc);
+	TraceLogEntry traceEntry(pc, currentCycle, currentTime);
 	if (_traceLogDisassemble)
 	{
 		OpcodeInfo opcodeInfo;
@@ -1039,37 +1094,41 @@ void Processor::RecordTraceInternal(unsigned int pc)
 		}
 	}
 
-	// Add the entry to the running trace log
-	if (_traceLogLength > 0)
-	{
-		_traceLog.push_front(traceEntry);
-	}
-	while (_traceLog.size() > _traceLogLength)
-	{
-		_traceLog.pop_back();
-	}
-	++_traceLogLastModifiedToken;
-
 	// Record the entry in the trace log file if requested
 	if (_traceLogToFile)
 	{
+		std::wstring fileEntry;
 		std::wstring opcodeAddressAsString;
 		IntToStringBase16(pc, opcodeAddressAsString, GetPCCharWidth());
-		_traceFile.WriteText(opcodeAddressAsString);
-		if (_traceLogDisassemble)
+		fileEntry = opcodeAddressAsString;
+		fileEntry += L"\t";
+		fileEntry += traceEntry.disassemblyOpcode;
+		fileEntry += L"\t";
+		fileEntry += traceEntry.disassemblyArgs;
+		fileEntry += L"\t";
+		if (!traceEntry.disassemblyComment.empty())
 		{
-			_traceFile.WriteText("\t");
-			_traceFile.WriteText(traceEntry.disassemblyOpcode);
-			_traceFile.WriteText("\t");
-			_traceFile.WriteText(traceEntry.disassemblyArgs);
-			if (!traceEntry.disassemblyComment.empty())
-			{
-				_traceFile.WriteText("\t;");
-				_traceFile.WriteText(traceEntry.disassemblyComment);
-			}
+			fileEntry += L";";
+			fileEntry += traceEntry.disassemblyComment;
 		}
-		_traceFile.WriteText("\n");
+		fileEntry += L"\t";
+		fileEntry += std::to_wstring(traceEntry.currentCycle);
+		fileEntry += L"\t";
+		fileEntry += std::to_wstring(traceEntry.currentTime);
+		_pendingTraceLogFileEntries.push_back(fileEntry);
 	}
+
+	// Add the entry to the running trace log
+	if (_traceLogLength > 0)
+	{
+		_traceLog[_traceLogNextWritePos % _traceLogLength] = std::move(traceEntry);
+		_traceLogNextWritePos = (_traceLogNextWritePos + 1) % _traceLogLength;
+		if (_traceLogStartPos == _traceLogNextWritePos)
+		{
+			_traceLogStartPos = (_traceLogStartPos + 1) % _traceLogLength;
+		}
+	}
+	++_traceLogLastModifiedToken;
 }
 
 //----------------------------------------------------------------------------------------------------------------------

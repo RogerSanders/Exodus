@@ -207,10 +207,10 @@ public:
 	virtual void SetTraceLoggingFilePath(const Marshal::In<std::wstring>& filePath);
 	virtual bool IsTraceFileLoggingEnabled() const;
 	virtual void SetTraceFileLoggingEnabled(bool state);
-	virtual Marshal::Ret<std::list<TraceLogEntry>> GetTraceLog() const;
+	virtual Marshal::Ret<std::vector<TraceLogEntry>> GetTraceLog() const;
 	virtual unsigned int GetTraceLogLastModifiedToken() const;
 	virtual void ClearTraceLog();
-	inline void RecordTrace(unsigned int pc);
+	inline void RecordTrace(unsigned int pc, uint64_t currentCycle, double currentTime);
 
 	// Active disassembly info functions
 	virtual bool ActiveDisassemblySupported() const;
@@ -350,7 +350,7 @@ private:
 	// Trace functions
 	bool OpenTraceFile(const std::wstring& filePath);
 	void CloseTraceFile();
-	void RecordTraceInternal(unsigned int pc);
+	void RecordTraceInternal(unsigned int pc, uint64_t currentCycle, double currentTime);
 
 	// Active disassembly operation functions
 	void EnableActiveDisassembly(unsigned int startLocation, unsigned int endLocation);
@@ -412,14 +412,17 @@ private:
 	unsigned int _callStackLastModifiedToken;
 
 	// Trace
-	std::list<TraceLogEntry> _traceLog;
-	std::list<TraceLogEntry> _btraceLog;
+	std::vector<TraceLogEntry> _traceLog;
+	std::vector<TraceLogEntry> _btraceLog;
+	std::vector<std::wstring> _pendingTraceLogFileEntries;
 	std::wstring _traceFilePath;
 	Stream::File _traceFile;
 	bool _traceLogToFile;
 	volatile bool _traceLogEnabled;
 	bool _traceLogDisassemble;
 	unsigned int _traceLogLength;
+	unsigned int _traceLogNextWritePos = 0;
+	unsigned int _traceLogStartPos = 0;
 	unsigned int _traceLogLastModifiedToken;
 
 	// Active disassembly

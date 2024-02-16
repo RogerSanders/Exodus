@@ -15,7 +15,7 @@ TraceView::TraceView(IUIManager& uiManager, TraceViewPresenter& presenter, IProc
 	_hfontHeader = NULL;
 	_hfontData = NULL;
 	_logLastModifiedToken = 0;
-	SetWindowSettings(presenter.GetUnqualifiedViewTitle(), 0, 0, 300, 500);
+	SetWindowSettings(presenter.GetUnqualifiedViewTitle(), 0, 0, 600, 500);
 	SetDockableViewType(true, DockPos::Right);
 }
 
@@ -61,10 +61,14 @@ LRESULT TraceView::msgWM_CREATE(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	argsColumn.sizeMode = WC_DataGrid::ColumnSizeMode::Proportional;
 	argsColumn.proportionalWidth = 1.0f;
 	WC_DataGrid::Grid_InsertColumn commentColumn(L"Comment", COLUMN_COMMENT);
+	WC_DataGrid::Grid_InsertColumn cycleNoColumn(L"Cycle No", COLUMN_CYCLE);
+	WC_DataGrid::Grid_InsertColumn timeColumn(L"Time", COLUMN_TIME);
 	SendMessage(_hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&addressColumn);
 	SendMessage(_hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&opcodeColumn);
 	SendMessage(_hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&argsColumn);
 	SendMessage(_hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&commentColumn);
+	SendMessage(_hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&cycleNoColumn);
+	SendMessage(_hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::InsertColumn, 0, (LPARAM)&timeColumn);
 
 	// Create the dialog control panel
 	_hwndControlPanel = CreateDialogParam(GetAssemblyHandle(), MAKEINTRESOURCE(IDD_PROCESSOR_TRACE_PANEL), hwnd, WndProcPanelStatic, (LPARAM)this);
@@ -127,7 +131,7 @@ LRESULT TraceView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	_logLastModifiedToken = newLogLastModifiedToken;
 
 	// Retrieve the latest trace log
-	std::list<IProcessor::TraceLogEntry> traceList = _model.GetTraceLog();
+	std::vector<IProcessor::TraceLogEntry> traceList = _model.GetTraceLog();
 
 	// Delete any extra rows from the data grid that are no longer required
 	unsigned int currentRowCount = (unsigned int)SendMessage(_hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::GetRowCount, 0, 0);
@@ -144,9 +148,8 @@ LRESULT TraceView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 	std::map<unsigned int, std::map<unsigned int, std::wstring>> rowText;
 	unsigned int pcLength = _model.GetPCCharWidth();
 	unsigned int currentRow = 0;
-	for (std::list<IProcessor::TraceLogEntry>::const_iterator i = traceList.begin(); i != traceList.end(); ++i)
+	for (const auto& entry : traceList)
 	{
-		const IProcessor::TraceLogEntry& entry = *i;
 		std::map<unsigned int, std::wstring>& columnText = rowText[currentRow++];
 		std::wstring addressString;
 		IntToStringBase16(entry.address, addressString, pcLength);
@@ -154,6 +157,8 @@ LRESULT TraceView::msgWM_TIMER(HWND hwnd, WPARAM wparam, LPARAM lparam)
 		columnText[COLUMN_OPCODE] = entry.disassemblyOpcode;
 		columnText[COLUMN_ARGS] = entry.disassemblyArgs;
 		columnText[COLUMN_COMMENT] = entry.disassemblyComment;
+		columnText[COLUMN_CYCLE] = std::to_wstring(entry.currentCycle);
+		columnText[COLUMN_TIME] = std::to_wstring(entry.currentTime);
 	}
 	SendMessage(_hwndDataGrid, (UINT)WC_DataGrid::WindowMessages::UpdateMultipleRowText, 0, (LPARAM)&rowText);
 

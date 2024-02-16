@@ -78,22 +78,24 @@ struct IProcessor::TraceLogEntry
 {
 public:
 	// Constructors
-	explicit TraceLogEntry(unsigned int aaddress = 0)
-	:address(aaddress)
+	explicit TraceLogEntry(unsigned int address = 0, uint64_t currentCycle = 0, double currentTime = 0)
+	:address(address), currentCycle(currentCycle), currentTime(currentTime)
 	{ }
 	TraceLogEntry(MarshalSupport::marshal_object_tag, const TraceLogEntry& source)
 	{
-		source.MarshalToTarget(address, disassemblyOpcode, disassemblyArgs, disassemblyComment);
+		source.MarshalToTarget(address, disassemblyOpcode, disassemblyArgs, disassemblyComment, currentCycle, currentTime);
 	}
 
 private:
 	// Marshalling methods
-	virtual void MarshalToTarget(unsigned int& addressMarshaller, const Marshal::Out<std::wstring>& disassemblyOpcodeMarshaller, const Marshal::Out<std::wstring>& disassemblyArgsMarshaller, const Marshal::Out<std::wstring>& disassemblyCommentMarshaller) const
+	virtual void MarshalToTarget(unsigned int& addressMarshaller, const Marshal::Out<std::wstring>& disassemblyOpcodeMarshaller, const Marshal::Out<std::wstring>& disassemblyArgsMarshaller, const Marshal::Out<std::wstring>& disassemblyCommentMarshaller, uint64_t& currentCycleMarshaller, double& currentTimeMarshaller) const
 	{
 		addressMarshaller = address;
 		disassemblyOpcodeMarshaller = disassemblyOpcode;
 		disassemblyArgsMarshaller = disassemblyArgs;
 		disassemblyCommentMarshaller = disassemblyComment;
+		currentCycleMarshaller = currentCycle;
+		currentTimeMarshaller = currentTime;
 	}
 
 public:
@@ -101,6 +103,8 @@ public:
 	std::wstring disassemblyOpcode;
 	std::wstring disassemblyArgs;
 	std::wstring disassemblyComment;
+	uint64_t currentCycle;
+	double currentTime;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

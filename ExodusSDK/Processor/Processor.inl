@@ -283,7 +283,7 @@ void Processor::CheckMemoryWrite(unsigned int location, unsigned int data)
 //----------------------------------------------------------------------------------------------------------------------
 // Trace functions
 //----------------------------------------------------------------------------------------------------------------------
-void Processor::RecordTrace(unsigned int pc)
+void Processor::RecordTrace(unsigned int pc, uint64_t currentCycle, double currentTime)
 {
 	// Note that we split the internals of this method outside this inline wrapper function
 	// for performance. If we fold all the logic into one method, we can't effectively
@@ -293,6 +293,6 @@ void Processor::RecordTrace(unsigned int pc)
 	// been verified through profiling as a performance bottleneck.
 	if (_traceLogEnabled)
 	{
-		return RecordTraceInternal(pc);
+		return RecordTraceInternal(pc, currentCycle, currentTime);
 	}
 }

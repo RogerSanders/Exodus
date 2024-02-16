@@ -302,6 +302,10 @@ private:
 	mutable ReadWriteLock _externalReferenceLock;
 	IBusInterface* _memoryBus;
 
+	// Cycle counters
+	uint64_t _currentCycle = 0;
+	double _currentTime = 0;
+
 	// Opcode decode table
 	std::list<M68000Instruction*> _opcodeList;
 	OpcodeTable<M68000Instruction> _opcodeTable;
