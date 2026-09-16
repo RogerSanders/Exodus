@@ -39,6 +39,7 @@ public:
 	virtual bool TranslateJoystickButton(unsigned int joystickNo, unsigned int buttonNo, KeyCode& inputKeyCode) const = 0;
 	virtual bool TranslateJoystickAxisAsButton(unsigned int joystickNo, unsigned int axisNo, bool positiveAxis, KeyCode& inputKeyCode) const = 0;
 	virtual bool TranslateJoystickAxis(unsigned int joystickNo, unsigned int axisNo, AxisCode& inputAxisCode) const = 0;
+	virtual bool TranslateJoystickPovButton(unsigned int joystickNo, unsigned int povDirection, KeyCode& inputKeyCode) const = 0;
 	virtual void HandleInputKeyDown(KeyCode keyCode) = 0;
 	virtual void HandleInputKeyUp(KeyCode keyCode) = 0;
 	virtual void HandleInputAxisUpdate(AxisCode axisCode, float newValue) = 0;
