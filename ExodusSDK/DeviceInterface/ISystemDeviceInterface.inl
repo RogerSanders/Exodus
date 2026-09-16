@@ -132,6 +132,10 @@ enum class ISystemDeviceInterface::KeyCode
 	JOYSTICK15AXIS5PLUS = (ISystemDeviceInterface::KeyCode::JOYSTICK00AXIS0PLUS + ((16*6*2) - 2)),
 	JOYSTICK15AXIS5MINUS = (ISystemDeviceInterface::KeyCode::JOYSTICK00AXIS0MINUS + ((16*6*2) - 2)),
 
+	// Joystick POV/D-pad hat directions as buttons
+	JOYSTICK00POVUP,
+	JOYSTICK15POVRIGHT = (ISystemDeviceInterface::KeyCode::JOYSTICK00POVUP + ((16*4) - 1)),
+
 	EndOfList
 };
 

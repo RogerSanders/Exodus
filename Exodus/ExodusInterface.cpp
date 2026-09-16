@@ -3822,14 +3822,17 @@ void ExodusInterface::JoystickInputWorkerThread()
 	const unsigned int maxButtonCount = 32;
 	const unsigned int maxAxisCount = 6;
 
-	// Initialize the button and axis state for each joystick
+	// Initialize the button, axis, and POV hat state for each joystick
+	const unsigned int povDirectionCount = 4; // Up, Down, Left, Right
 	std::map<unsigned int, std::vector<bool>> buttonState;
 	std::map<unsigned int, std::vector<float>> axisState;
+	std::map<unsigned int, std::vector<bool>> povButtonState;
 	for (std::map<unsigned int, JOYCAPS>::const_iterator connectedJoystickInfoIterator = _connectedJoystickInfo.begin(); connectedJoystickInfoIterator != _connectedJoystickInfo.end(); ++connectedJoystickInfoIterator)
 	{
 		unsigned int joystickNo = connectedJoystickInfoIterator->first;
 		buttonState[joystickNo].resize(maxButtonCount);
 		axisState[joystickNo].resize(maxAxisCount);
+		povButtonState[joystickNo].resize(povDirectionCount);
 	}
 
 	// Process input state changes from joysticks until we're requested to stop
@@ -3887,6 +3890,59 @@ void ExodusInterface::JoystickInputWorkerThread()
 					else
 					{
 						_system->HandleInputKeyUp(keyCode);
+					}
+				}
+			}
+
+			// Latch the new state for the POV hat switch (D-pad) on this joystick. Devices
+			// without a POV hat reliably report dwPOV as centered, so there's no need to gate
+			// this on the JOYCAPS_HASPOV capability flag. The POV hat is reported separately
+			// from buttons and axes and prior to this was not read anywhere, so it was simply
+			// invisible to the emulator.
+			{
+				std::map<unsigned int, std::vector<bool>>::iterator povButtonStateIterator = povButtonState.find(joystickNo);
+				if (povButtonStateIterator != povButtonState.end())
+				{
+					std::vector<bool>& povButtonStateForJoystick = povButtonStateIterator->second;
+
+					// Decode the POV angle (in hundredths of a degree, 0-35900, or 0xFFFF
+					// when centered) into individual up/down/left/right button states. A
+					// diagonal POV position sets two of the four direction states at once.
+					bool newPovButtonState[povDirectionCount] = { false, false, false, false };
+					if (joystickInfo.dwPOV != JOY_POVCENTERED)
+					{
+						WORD povAngle = (WORD)joystickInfo.dwPOV;
+						newPovButtonState[0] = (povAngle >= 31500) || (povAngle <= 4500);  // Up
+						newPovButtonState[1] = (povAngle >= 13500) && (povAngle <= 22500); // Down
+						newPovButtonState[2] = (povAngle >= 22500) && (povAngle <= 31500); // Left
+						newPovButtonState[3] = (povAngle >= 4500) && (povAngle <= 13500);  // Right
+					}
+
+					for (unsigned int povDirection = 0; povDirection < povDirectionCount; ++povDirection)
+					{
+						// If the current POV direction state matches the previous state,
+						// advance to the next direction.
+						if (povButtonStateForJoystick[povDirection] == newPovButtonState[povDirection])
+						{
+							continue;
+						}
+
+						// Latch the new POV direction state
+						povButtonStateForJoystick[povDirection] = newPovButtonState[povDirection];
+
+						// Notify the system of the POV direction button state change
+						ISystemGUIInterface::KeyCode keyCode;
+						if (_system->TranslateJoystickPovButton(joystickNo, povDirection, keyCode))
+						{
+							if (newPovButtonState[povDirection])
+							{
+								_system->HandleInputKeyDown(keyCode);
+							}
+							else
+							{
+								_system->HandleInputKeyUp(keyCode);
+							}
+						}
 					}
 				}
 			}

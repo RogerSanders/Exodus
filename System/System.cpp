@@ -8791,6 +8791,45 @@ System::KeyCode System::GetKeyCodeID(const Marshal::In<std::wstring>& keyCodeNam
 			// button
 			return (KeyCode)((unsigned int)ISystemDeviceInterface::KeyCode::JOYSTICK00AXIS0PLUS + (joystickNo * maxJoystickAxisCount * joystickAxisDirectionCount) + (axisNo * joystickAxisDirectionCount) + axisDirectionOffset);
 		}
+		else if (keyCodeNameTemp.find(L"Pov") != std::wstring::npos)
+		{
+			// Extract the joystick number and the POV direction name from the string
+			std::wstring joystickText = L"Joy";
+			std::wstring povText = L"Pov";
+			std::wstring directionText;
+			unsigned int joystickNo;
+			std::wstringstream keyCodeStream;
+			keyCodeStream.str(keyCodeNameTemp);
+			keyCodeStream.read(&joystickText[0], 3);
+			keyCodeStream >> joystickNo;
+			keyCodeStream.read(&povText[0], 3);
+			keyCodeStream >> directionText;
+
+			// Validate the text string components
+			if ((joystickText != L"Joy") || (povText != L"Pov"))
+			{
+				return ISystemDeviceInterface::KeyCode::None;
+			}
+
+			// Decode the POV direction
+			const unsigned int maxJoystickPovDirectionCount = 4;
+			unsigned int povDirection;
+			if (directionText == L"Up")          povDirection = 0;
+			else if (directionText == L"Down")   povDirection = 1;
+			else if (directionText == L"Left")   povDirection = 2;
+			else if (directionText == L"Right")  povDirection = 3;
+			else return ISystemDeviceInterface::KeyCode::None;
+
+			// Ensure the joystick number is within the valid range
+			const unsigned int maxJoystickCount = 16;
+			if (joystickNo >= maxJoystickCount)
+			{
+				return ISystemDeviceInterface::KeyCode::None;
+			}
+
+			// Return the corresponding key code for the target joystick POV direction
+			return (KeyCode)((unsigned int)ISystemDeviceInterface::KeyCode::JOYSTICK00POVUP + (joystickNo * maxJoystickPovDirectionCount) + povDirection);
+		}
 	}
 
 	return ISystemDeviceInterface::KeyCode::None;
@@ -8943,6 +8982,22 @@ Marshal::Ret<std::wstring> System::GetKeyCodeName(KeyCode keyCode) const
 		std::wstring directionString = (axisPlus)? L"+": L"-";
 		std::wstringstream keyCodeStream;
 		keyCodeStream << L"Joy" << joystickNo << L"Axis" << axesNo << directionString;
+		return keyCodeStream.str();
+	}
+
+	// Joystick POV/D-pad hat directions
+	if ((keyCode >= ISystemDeviceInterface::KeyCode::JOYSTICK00POVUP) && (keyCode <= ISystemDeviceInterface::KeyCode::JOYSTICK15POVRIGHT))
+	{
+		// Calculate the joystick and POV direction numbers for this keycode
+		const unsigned int maxJoystickPovDirectionCount = 4;
+		unsigned int keyCodeRebased = (unsigned int)keyCode - (unsigned int)ISystemDeviceInterface::KeyCode::JOYSTICK00POVUP;
+		unsigned int joystickNo = keyCodeRebased / maxJoystickPovDirectionCount;
+		unsigned int povDirection = keyCodeRebased % maxJoystickPovDirectionCount;
+
+		// Build a string representing this joystick POV direction keycode
+		static const wchar_t* povDirectionNames[maxJoystickPovDirectionCount] = { L"Up", L"Down", L"Left", L"Right" };
+		std::wstringstream keyCodeStream;
+		keyCodeStream << L"Joy" << joystickNo << L"Pov" << povDirectionNames[povDirection];
 		return keyCodeStream.str();
 	}
 
@@ -9327,6 +9382,22 @@ bool System::TranslateJoystickAxis(unsigned int joystickNo, unsigned int axisNo,
 
 	// Map the input joystick and axis numbers to the corresponding axis code
 	inputAxisCode = (AxisCode)((unsigned int)AxisCode::Joystick00Axis0 + (joystickNo * maxJoystickAxisCount) + axisNo);
+	return true;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+bool System::TranslateJoystickPovButton(unsigned int joystickNo, unsigned int povDirection, KeyCode& inputKeyCode) const
+{
+	// Ensure the joystick and POV direction numbers are within the valid range
+	const unsigned int maxJoystickCount = 16;
+	const unsigned int maxJoystickPovDirectionCount = 4;
+	if ((joystickNo >= maxJoystickCount) || (povDirection >= maxJoystickPovDirectionCount))
+	{
+		return false;
+	}
+
+	// Map the input joystick and POV direction numbers to the corresponding keycode
+	inputKeyCode = (KeyCode)((unsigned int)KeyCode::JOYSTICK00POVUP + (joystickNo * maxJoystickPovDirectionCount) + povDirection);
 	return true;
 }
 
