@@ -143,6 +143,8 @@ _renderSpriteDisplayCellCache(maxSpriteDisplayCellCacheSize)
 	_gensKmodIgnoreNextDebugStop = false;
 	_gensKmodDebugTimerRunning = false;
 
+	_memoryBreakpointExists = false;
+
 	_logStatusRegisterRead = false;
 	_logDataPortRead = false;
 	_logHVCounterRead = false;
@@ -2671,6 +2673,8 @@ void S315_5313::PerformDMACopyOperation()
 	unsigned char data;
 	data = _vram->Read(sourceAddressByteswapped.GetData(), ramAccessTarget);
 	_vram->Write(targetAddressByteswapped.GetData(), data, ramAccessTarget);
+	CheckMemoryBreakpoint(MemoryBreakpointVramBase + sourceAddressByteswapped.GetData(), MemoryBreakpointVramBase + sourceAddressByteswapped.GetData(), false);
+	CheckMemoryBreakpoint(MemoryBreakpointVramBase + targetAddressByteswapped.GetData(), MemoryBreakpointVramBase + targetAddressByteswapped.GetData(), true);
 
 	// Increment the target address
 	_commandAddress += _autoIncrementData;
@@ -3022,6 +3026,7 @@ void S315_5313::M5ReadVRAM8Bit(const Data& address, Data& data, const RAMAccessT
 	// upper 8 bits retain their previous value.
 	//##TODO## Snoop on the VRAM bus to confirm only a single byte is read for this target
 	data.SetByteFromBottomUp(0, _vram->Read(tempAddress.GetData(), accessTarget));
+	CheckMemoryBreakpoint(MemoryBreakpointVramBase + tempAddress.GetData(), MemoryBreakpointVramBase + tempAddress.GetData(), false);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -3042,6 +3047,7 @@ void S315_5313::M5ReadCRAM(const Data& address, Data& data, const RAMAccessTarge
 	tempData.SetByteFromBottomUp(1, _cram->Read(tempAddress, accessTarget));
 	tempData.SetByteFromBottomUp(0, _cram->Read(tempAddress+1, accessTarget));
 	data = (data & ~dataMask) | (tempData & dataMask);
+	CheckMemoryBreakpoint(MemoryBreakpointCramBase + tempAddress, MemoryBreakpointCramBase + tempAddress + 1, false);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -3091,6 +3097,7 @@ void S315_5313::M5ReadVSRAM(const Data& address, Data& data, const RAMAccessTarg
 	{
 		tempData.SetByteFromBottomUp(1, _vsram->Read(tempAddress, accessTarget));
 		tempData.SetByteFromBottomUp(0, _vsram->Read(tempAddress+1, accessTarget));
+		CheckMemoryBreakpoint(MemoryBreakpointVsramBase + tempAddress, MemoryBreakpointVsramBase + tempAddress + 1, false);
 	}
 	data = (data & ~dataMask) | (tempData & dataMask);
 
@@ -3141,6 +3148,7 @@ void S315_5313::M5WriteVRAM8Bit(const Data& address, const Data& data, const RAM
 
 	// Write the data
 	_vram->Write(tempAddressData, data.GetByteFromBottomUp(0), accessTarget);
+	CheckMemoryBreakpoint(MemoryBreakpointVramBase + tempAddressData, MemoryBreakpointVramBase + tempAddressData, true);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -3165,6 +3173,7 @@ void S315_5313::M5WriteCRAM(const Data& address, const Data& data, const RAMAcce
 	// Write the masked data to CRAM
 	_cram->Write(tempAddress, tempData.GetByteFromBottomUp(1), accessTarget);
 	_cram->Write(tempAddress+1, tempData.GetByteFromBottomUp(0), accessTarget);
+	CheckMemoryBreakpoint(MemoryBreakpointCramBase + tempAddress, MemoryBreakpointCramBase + tempAddress + 1, true);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -3193,6 +3202,7 @@ void S315_5313::M5WriteVSRAM(const Data& address, const Data& data, const RAMAcc
 		// Write the masked data to VSRAM
 		_vsram->Write(tempAddress, tempData.GetByteFromBottomUp(1), accessTarget);
 		_vsram->Write(tempAddress+1, tempData.GetByteFromBottomUp(0), accessTarget);
+		CheckMemoryBreakpoint(MemoryBreakpointVsramBase + tempAddress, MemoryBreakpointVsramBase + tempAddress + 1, true);
 
 		//##TODO## Determine whether this is correct
 		// vsramReadCacheIndex = tempAddress;
