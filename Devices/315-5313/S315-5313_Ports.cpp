@@ -2095,3 +2095,48 @@ void S315_5313::RecordPortMonitorEntry(const PortMonitorEntry& entry)
 	}
 	++_portMonitorLastModifiedToken;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
+// Memory breakpoint functions
+//----------------------------------------------------------------------------------------------------------------------
+void S315_5313::ClearMemoryBreakpoints()
+{
+	std::unique_lock<std::mutex> lock(_memoryBreakpointMutex);
+	_memoryBreakpoints.clear();
+	_memoryBreakpointExists = false;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+void S315_5313::AddMemoryBreakpoint(unsigned int startLocation, unsigned int endLocation, bool breakOnRead, bool breakOnWrite)
+{
+	std::unique_lock<std::mutex> lock(_memoryBreakpointMutex);
+	MemoryBreakpoint breakpoint;
+	breakpoint.startLocation = startLocation;
+	breakpoint.endLocation = endLocation;
+	breakpoint.breakOnRead = breakOnRead;
+	breakpoint.breakOnWrite = breakOnWrite;
+	_memoryBreakpoints.push_back(breakpoint);
+	_memoryBreakpointExists = true;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+void S315_5313::CheckMemoryBreakpoint(unsigned int startLocation, unsigned int endLocation, bool write)
+{
+	if (!_memoryBreakpointExists)
+	{
+		return;
+	}
+
+	// We only flag a stop here rather than rolling back to the exact access time, since a
+	// rollback would replay this access and trigger the breakpoint again. The system will
+	// halt at the end of the current timeslice.
+	std::unique_lock<std::mutex> lock(_memoryBreakpointMutex);
+	for (const MemoryBreakpoint& breakpoint : _memoryBreakpoints)
+	{
+		if ((write ? breakpoint.breakOnWrite : breakpoint.breakOnRead) && (startLocation <= breakpoint.endLocation) && (endLocation >= breakpoint.startLocation))
+		{
+			GetDeviceContext()->FlagStopSystem();
+			return;
+		}
+	}
+}

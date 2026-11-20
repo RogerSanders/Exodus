@@ -60,6 +60,7 @@ References:
 #include <list>
 #include <map>
 #include <mutex>
+#include <atomic>
 #include <condition_variable>
 
 class S315_5313 :public Device, public GenericAccessBase<IS315_5313>
@@ -213,6 +214,7 @@ private:
 private:
 	// Debug functions
 	static void GensKModStopSystemCallback(void* params);
+	void CheckMemoryBreakpoint(unsigned int startLocation, unsigned int endLocation, bool write);
 
 	// Line functions
 	unsigned int GetNewIPLLineState();
@@ -294,6 +296,10 @@ private:
 	virtual unsigned int GetPortMonitorLogLastModifiedToken() const;
 	virtual void ClearPortMonitorLog();
 	void RecordPortMonitorEntry(const PortMonitorEntry& entry);
+
+	// Memory breakpoint functions
+	virtual void ClearMemoryBreakpoints();
+	virtual void AddMemoryBreakpoint(unsigned int startLocation, unsigned int endLocation, bool breakOnRead, bool breakOnWrite);
 
 	// HV counter internal/linear conversion
 	static unsigned int HCounterValueFromVDPInternalToLinear(const HScanSettings& hscanSettings, unsigned int hcounterCurrent);
@@ -619,6 +625,18 @@ private:
 	unsigned int _portMonitorLastModifiedToken;
 	std::list<PortMonitorEntry> _portMonitorList;
 	std::list<PortMonitorEntry> _bportMonitorList;
+
+	// Memory breakpoint settings
+	struct MemoryBreakpoint
+	{
+		unsigned int startLocation;
+		unsigned int endLocation;
+		bool breakOnRead;
+		bool breakOnWrite;
+	};
+	mutable std::mutex _memoryBreakpointMutex;
+	std::atomic<bool> _memoryBreakpointExists;
+	std::vector<MemoryBreakpoint> _memoryBreakpoints;
 
 	// Physical registers and memory buffers
 	mutable std::mutex _accessMutex; // Top-level, protects against concurrent interface access.

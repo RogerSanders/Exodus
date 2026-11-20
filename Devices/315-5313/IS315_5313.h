@@ -36,10 +36,13 @@ public:
 	static const unsigned int ImageBufferWidth = 512;
 	static const unsigned int ImageBufferHeight = 512;
 	static const unsigned int ImageBufferPlanes = 3;
+	static const unsigned int MemoryBreakpointVramBase = 0x00000;
+	static const unsigned int MemoryBreakpointCramBase = 0x10000;
+	static const unsigned int MemoryBreakpointVsramBase = 0x20000;
 
 public:
 	// Interface version functions
-	static inline unsigned int ThisIS315_5313Version() { return 1; }
+	static inline unsigned int ThisIS315_5313Version() { return 2; }
 	virtual unsigned int GetIS315_5313Version() const = 0;
 
 	// Device access functions
@@ -98,6 +101,11 @@ public:
 	virtual Marshal::Ret<std::list<PortMonitorEntry>> GetPortMonitorLog() const = 0;
 	virtual unsigned int GetPortMonitorLogLastModifiedToken() const = 0;
 	virtual void ClearPortMonitorLog() = 0;
+
+	// Memory breakpoint functions. Locations are VRAM, CRAM and VSRAM offsets added to the
+	// MemoryBreakpoint*Base constants. Available from interface version 2.
+	virtual void ClearMemoryBreakpoints() = 0;
+	virtual void AddMemoryBreakpoint(unsigned int startLocation, unsigned int endLocation, bool breakOnRead, bool breakOnWrite) = 0;
 
 	// Debug output
 	inline bool GetOutputPortAccessDebugMessages() const;
